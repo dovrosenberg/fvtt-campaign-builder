@@ -24,150 +24,139 @@
           @tag-removed="onTagChange"
         />
       </div>
-      <div class="fcb-sheet-subtab-container flexrow">
-        <div class="fcb-subtab-wrapper">
-          <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
-            <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
-            <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
-            <a class="item" data-tab="vignettes">{{ localize('labels.tabs.session.vignettes') }}</a>
-            <a class="item" data-tab="locations">{{ localize('labels.tabs.session.locations') }}</a>
-            <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
-            <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
-            <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
-            <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
-          </nav>
-          <div class="fcb-tab-body flexrow">
-            <DescriptionTab
-              :name="currentSession?.name || 'Session'"
-              :image-url="currentSession?.img"
-              :window-type="WindowTabType.Session"
-              alt-tab-id="notes"
-              @image-change="onImageChange"
-            >
-              <div class="flexrow form-group">
-                <LabelWithHelp
-                  label-text="labels.fields.sessionNumber"
-                />
-                <InputText
-                  v-model="sessionNumber"
-                  for="fcb-input-number" 
-                  unstyled
-                  :placeholder="localize('placeholders.sessionNumber')"
-                  :disabled=isInPlayMode
-                  :pt="{
-                    root: { class: 'full-height' } 
-                  }" 
-                  @update:model-value="onNumberUpdate"
-                />
-              </div>
-              <div class="flexrow form-group">
-                <LabelWithHelp
-                  label-text="labels.fields.sessionDate"
-                />
-                <DatePicker 
-                  v-model="sessionDate"
-                  :show-button-bar="true"
-                />   
-              </div>
-              <!-- spacer -->
-              <div style="height: 1rem"></div>
+      <ContentTabStrip 
+        :tabs="tabs" 
+        default-tab="notes"
+      >
+        <DescriptionTab
+          :name="currentSession?.name || 'Session'"
+          :image-url="currentSession?.img"
+          :window-type="WindowTabType.Session"
+          alt-tab-id="notes"
+          @image-change="onImageChange"
+        >
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.sessionNumber"
+            />
+            <InputText
+              v-model="sessionNumber"
+              for="fcb-input-number" 
+              unstyled
+              :placeholder="localize('placeholders.sessionNumber')"
+              :disabled=isInPlayMode
+              :pt="{
+                root: { class: 'full-height' } 
+              }" 
+              @update:model-value="onNumberUpdate"
+            />
+          </div>
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.sessionDate"
+            />
+            <DatePicker 
+              v-model="sessionDate"
+              :show-button-bar="true"
+            />   
+          </div>
+          <!-- spacer -->
+          <div style="height: 1rem"></div>
 
-              <!-- we put strong start at the top until the session has been played -->
-              <template v-if="strongStartAtTop">
-                <div class="flexrow form-group">
-                  <LabelWithHelp
-                    label-text="labels.session.strongStart"
-                    help-text="labels.session.strongStartHelpText"
-                    @click="onStartHelpClick"
-                  />
-                </div>
-                <div class="flexrow form-group">
-                  <!-- Use a key so it doesn't try to reuse; that was causing issues when it moved around -->
-                  <Editor 
-                    :key="`strong-start-${currentSession?.uuid}-top`"
-                    :initial-content="strongStartContent"
-                    fixed-height="180px"
-                    :current-entity-uuid="currentSession?.uuid"
-                    @editor-saved="onStartEditorSaved"
-                  />
-                </div>
-              </template>
+          <!-- we put strong start at the top until the session has been played -->
+          <template v-if="strongStartAtTop">
+            <div class="flexrow form-group">
+              <LabelWithHelp
+                label-text="labels.session.strongStart"
+                help-text="labels.session.strongStartHelpText"
+                @click="onStartHelpClick"
+              />
+            </div>
+            <div class="flexrow form-group">
+              <!-- Use a key so it doesn't try to reuse; that was causing issues when it moved around -->
+              <Editor 
+                :key="`strong-start-${currentSession?.uuid}-top`"
+                :initial-content="strongStartContent"
+                fixed-height="180px"
+                :current-entity-uuid="currentSession?.uuid"
+                @editor-saved="onStartEditorSaved"
+              />
+            </div>
+          </template>
 
-              <div class="flexrow form-group">
-                <LabelWithHelp
-                  label-text="labels.tabs.session.notes"
-                />
-              </div>
-              <div class="flexrow form-group">
-                <Editor 
-                  :initial-content="sessionNotesContent"
-                  fixed-height="400px"
-                  :current-entity-uuid="currentSession?.uuid"
-                  @editor-saved="onNotesEditorSaved"
-                />
-              </div>
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.tabs.session.notes"
+            />
+          </div>
+          <div class="flexrow form-group">
+            <Editor 
+              :initial-content="sessionNotesContent"
+              fixed-height="400px"
+              :current-entity-uuid="currentSession?.uuid"
+              @editor-saved="onNotesEditorSaved"
+            />
+          </div>
 
-              <!-- we put strong start at the top until the session has been played -->
-              <template v-if="!strongStartAtTop">
-                <div class="flexrow form-group">
-                  <LabelWithHelp
-                    label-text="labels.session.strongStart"
-                    help-text="labels.session.strongStartHelpText"
-                    @click="onStartHelpClick"
-                  />
-                </div>
-                <div class="flexrow form-group">
-                  <!-- Use a key so it doesn't try to reuse; that was causing issues when it moved around -->
-                  <Editor 
-                    :key="`strong-start-${currentSession?.uuid}-bottom`"
-                    :initial-content="strongStartContent"
-                    fixed-height="180px"
-                    :current-entity-uuid="currentSession?.uuid"
-                    @editor-saved="onStartEditorSaved"
-                  />
-                </div>
-              </template>
+          <!-- we put strong start at the top until the session has been played -->
+          <template v-if="!strongStartAtTop">
+            <div class="flexrow form-group">
+              <LabelWithHelp
+                label-text="labels.session.strongStart"
+                help-text="labels.session.strongStartHelpText"
+                @click="onStartHelpClick"
+              />
+            </div>
+            <div class="flexrow form-group">
+              <!-- Use a key so it doesn't try to reuse; that was causing issues when it moved around -->
+              <Editor 
+                :key="`strong-start-${currentSession?.uuid}-bottom`"
+                :initial-content="strongStartContent"
+                fixed-height="180px"
+                :current-entity-uuid="currentSession?.uuid"
+                @editor-saved="onStartEditorSaved"
+              />
+            </div>
+          </template>
 
-            </DescriptionTab>
-            <div class="tab flexcol" data-group="primary" data-tab="pcs">
-              <div class="tab-inner">
-                <CampaignPCsTab />
-              </div>
-            </div>
-            <div class="tab flexcol" data-group="primary" data-tab="npcs">
-              <div class="tab-inner">
-                <SessionNPCTab />
-              </div>  
-            </div>
-            <div class="tab flexcol" data-group="primary" data-tab="vignettes">
-              <div class="tab-inner">
-                <SessionVignetteTab />
-              </div>  
-            </div>
-
-            <div class="tab flexcol" data-group="primary" data-tab="lore">
-              <div class="tab-inner">
-                <SessionLoreTab />
-              </div>  
-            </div>
-            <div class="tab flexcol" data-group="primary" data-tab="locations">
-              <div class="tab-inner">
-                <SessionLocationTab />
-              </div>  
-            </div>
-            <div class="tab flexcol" data-group="primary" data-tab="monsters">
-              <div class="tab-inner">
-                <SessionMonsterTab />
-              </div>  
-            </div>
-            <div class="tab flexcol" data-group="primary" data-tab="magic">
-              <div class="tab-inner">
-                <SessionItemTab />
-              </div>  
-            </div>
+        </DescriptionTab>
+        <div class="tab flexcol" data-group="primary" data-tab="pcs">
+          <div class="tab-inner">
+            <CampaignPCsTab />
           </div>
         </div>
-      </div>
+        <div class="tab flexcol" data-group="primary" data-tab="npcs">
+          <div class="tab-inner">
+            <SessionNPCTab />
+          </div>  
+        </div>
+        <div class="tab flexcol" data-group="primary" data-tab="vignettes">
+          <div class="tab-inner">
+            <SessionVignetteTab />
+          </div>  
+        </div>
+
+        <div class="tab flexcol" data-group="primary" data-tab="lore">
+          <div class="tab-inner">
+            <SessionLoreTab />
+          </div>  
+        </div>
+        <div class="tab flexcol" data-group="primary" data-tab="locations">
+          <div class="tab-inner">
+            <SessionLocationTab />
+          </div>  
+        </div>
+        <div class="tab flexcol" data-group="primary" data-tab="monsters">
+          <div class="tab-inner">
+            <SessionMonsterTab />
+          </div>  
+        </div>
+        <div class="tab flexcol" data-group="primary" data-tab="magic">
+          <div class="tab-inner">
+            <SessionItemTab />
+          </div>  
+        </div>
+      </ContentTabStrip>
     </div>
   </form>	 
 </template>
@@ -176,7 +165,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { nextTick, ref, watch, onMounted, onBeforeUnmount, computed, } from 'vue';
+  import { ref, watch, onBeforeUnmount, computed, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
@@ -201,9 +190,10 @@
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
+  import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   
   // types
-  import { WindowTabType } from '@/types';
+  import { ContentTabDescriptor, WindowTabType } from '@/types';
   import { Session } from '@/classes';
   
   ////////////////////////////////
@@ -223,15 +213,11 @@
   
   ////////////////////////////////
   // data
-  const tabs = ref<foundry.applications.ux.Tabs>();
-  
   const name = ref<string>('');
   const sessionNumber = ref<string>('');
   const sessionDate = ref<Date | undefined>(undefined);
   const sessionNotesContent = ref<string>('');
   const strongStartContent = ref<string>('');
-
-  const contentRef = ref<HTMLElement | null>(null);
 
   ////////////////////////////////
   // computed data
@@ -242,6 +228,17 @@
 
     return campaignLastSessionNumber == null || !currentSession.value || currentSession.value.number === campaignLastSessionNumber; 
   });
+
+  const tabs = computed(() => [
+    { id: 'notes', label: localize('labels.tabs.session.notes')},
+    { id: 'lore', label: localize('labels.tabs.session.lore')},
+    { id: 'vignettes', label: localize('labels.tabs.session.vignettes')},
+    { id: 'locations', label: localize('labels.tabs.session.locations')},
+    { id: 'npcs', label: localize('labels.tabs.session.npcs')},
+    { id: 'monsters', label: localize('labels.tabs.session.monsters')},
+    { id: 'magic', label: localize('labels.tabs.session.magic')},
+    { id: 'pcs', label: localize('labels.tabs.session.pcs')},
+  ] as ContentTabDescriptor[]);
 
   ////////////////////////////////
   // methods
@@ -345,15 +342,6 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
-    if (!tabs.value)
-      return;
-
-    if (newTab!==oldTab) {
-      tabs.value.activate(newTab || 'start');
-    }
-  });
-
   let dateDebounceTimer: NodeJS.Timeout | undefined = undefined;
   watch(sessionDate, async (newDate: Date | undefined): Promise<void> => {
     const debounceTime = 500;
@@ -369,11 +357,6 @@
   });
 
   watch(currentSession, async (newSession: Session | null): Promise<void> => {
-    if (!currentContentTab.value)
-      currentContentTab.value = 'description';
-
-    tabs.value?.activate(currentContentTab.value); 
-
     if (newSession && newSession.uuid) {
       // load starting data values
       name.value = newSession.name || '';
@@ -418,20 +401,6 @@
   });
 
   // lifecycle events
-  onMounted(async () => {
-    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.fcb-tab-body', initial: 'description', /*callback: null*/ });
-    // update the store when tab changes
-    tabs.value.callback = () => {
-      currentContentTab.value = tabs.value?.active || null;
-    };
-
-    // have to wait until they render
-    await nextTick();
-    if (contentRef.value) {
-      tabs.value.bind(contentRef.value);
-    }
-  });
-
 
 </script>
 

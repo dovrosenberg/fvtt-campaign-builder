@@ -18,7 +18,7 @@ import { notifyError, notifyInfo } from '@/utils/notifications';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, getGlobalSetting } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, getGlobalSetting, Front } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -71,6 +71,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       [WindowTabType.Entry]: 'description',
       [WindowTabType.Setting]: 'description',
       [WindowTabType.Campaign]: 'description',
+      [WindowTabType.Front]: 'description',
       [WindowTabType.Session]: 'notes',
       [WindowTabType.NewTab]: '',  // no tabs
     } as Record<WindowTabType, string>;
@@ -110,6 +111,16 @@ export const useNavigationStore = defineStore('navigation', () => {
           } else {
             name = campaign.name;
             icon = getTabTypeIcon(WindowTabType.Campaign);
+          }
+          break;
+        }
+        case WindowTabType.Front: {
+          const front = await Front.fromUuid(contentId);
+          if (!front) {
+            badId = true;
+          } else {
+            name = front.name;
+            icon = getTabTypeIcon(WindowTabType.Front);
           }
           break;
         }
@@ -202,6 +213,21 @@ export const useNavigationStore = defineStore('navigation', () => {
    */
   const openSession = async function(sessionId = null as string | null, options?: OpenContentOptions) {
     await openContent(sessionId, WindowTabType.Session, options);
+  }; 
+
+  /**
+   * Open a new tab to the given front. If no front is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param frontId The uuid of the front to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the front open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the front be added to the history of the tab? Defaults to true.
+   * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @returns The newly opened tab.
+   */
+  const openFront = async function(frontId = null as string | null, options?: OpenContentOptions) {
+    await openContent(frontId, WindowTabType.Front, options);
   }; 
 
   /**
@@ -739,6 +765,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     openEntry,
     openSession,
+    openFront,
     openCampaign,
     openSetting,
     openContent,

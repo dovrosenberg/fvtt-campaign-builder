@@ -90,7 +90,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     const session = await super._create(
       campaign.compendiumId, 
       nameToUse,
-      'Sessions',
+      localize('contentFolders.sessions'),
       { system: { campaignId: campaign.uuid, number: sessionNumber }}
     ) as unknown as Session | null;
 

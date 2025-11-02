@@ -1,5 +1,5 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
-import { DirectoryTopicNode } from '@/classes/Directory/DirectoryTopicNode';
+import { DirectoryTopicFolderNode } from '@/classes/Directory/DirectoryTopicFolderNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
 import { TopicFolder } from '@/classes/TopicFolder';
 import { Entry } from '@/classes/Entry';
@@ -8,17 +8,17 @@ import { Topics } from '@/types';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 import * as sinon from 'sinon';
 
-export const registerDirectoryTopicNodeTests = () => {
+export const registerDirectoryTopicFolderNodeTests = () => {
   quench.registerBatch(
-    'campaign-builder.classes.Directory.DirectoryTopicNode',
+    'campaign-builder.classes.Directory.DirectoryTopicFolderNode',
     (context: QuenchBatchContext) => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
-      describe('DirectoryTopicNode', () => {
+      describe('DirectoryTopicFolderNode', () => {
         let mockSetting: Setting;
         let mockTopicFolder: TopicFolder;
         let mockEntry: Entry;
-        let topicNode: DirectoryTopicNode;
+        let topicNode: DirectoryTopicFolderNode;
 
         beforeEach(() => {
           // Create a mock setting
@@ -58,7 +58,7 @@ export const registerDirectoryTopicNodeTests = () => {
           CollapsibleNode.currentSetting = mockSetting;
 
           // Create a topic node
-          topicNode = new DirectoryTopicNode(
+          topicNode = new DirectoryTopicFolderNode(
             'topic-folder-uuid',
             'Characters', // Use the proper name for the topic
             mockTopicFolder,

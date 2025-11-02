@@ -143,6 +143,9 @@
       case WindowTabType.Session:
         void navigationStore.openSession(target.dataset.uuid, { newTab: event.ctrlKey});
         break;
+      case WindowTabType.Front:
+        void navigationStore.openFront(target.dataset.uuid, { newTab: event.ctrlKey});
+        break;
       case WindowTabType.Setting:
         void navigationStore.openSetting(target.dataset.uuid, { newTab: event.ctrlKey});
         break;

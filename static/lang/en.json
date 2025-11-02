@@ -5,7 +5,9 @@
     "contentFolders": {
       "campaigns": "Campaigns",
       "entries": "Entries",
-      "sessions": "Sessions"
+      "sessions": "Sessions",
+      "fronts": "Fronts",
+      "arcs": "Arcs"
     },
     "settings": {
       "startCollapsed": "Sidebar starts collapsed?",
@@ -249,6 +251,7 @@
         "startingDescription": "Starting description",
         "description": "Description",
         "longDescriptions": "Generate long descriptions",
+        "impendingDoom": "Impending Doom",
         "generateText": "What to generate",
         "generateChoice": {
           "description": "Description",
@@ -350,6 +353,16 @@
           "description": "Description",
           "journals": "Journals"
         },
+        "front": {
+          "description": "Description",
+          "createNewDanger": "Create new Danger"
+        },
+        "danger": {
+          "description": "Description",
+          "participants": "Participants",
+          "opposition": "Opposition",
+          "grimPortents": "Grim Portents"
+        },
         "session": {
           "notes": "Notes",
           "noteBox": "Note Box",
@@ -377,13 +390,11 @@
       "campaignName": "Campaign Name",
       "settingName": "Setting Name",
       "sessionName": "Session Name",
+      "frontName": "Front Name",
+      "dangerName": "Danger Name",
       "sessionDate": "Date",
       "sessionNumber": "Session Number",
       "linkToActor": "Link to Actor"
-    },
-    "compendia": {
-      "entry": "Entries",
-      "session": "Sessions"
     },
     "topics": {
       "character": "Character",
@@ -453,6 +464,14 @@
       "createSession": {
         "title": "Create Session",
         "sessionName": "Session Name"
+      },
+      "createFront": {
+        "title": "Create Front",
+        "frontName": "Front Name"
+      },
+      "createArc": {
+        "title": "Create Arc",
+        "arcName": "Arc Name"
       },
       "createSetting": {
         "title": "Create Setting",
@@ -541,6 +560,7 @@
       },
       "campaignFolder": {
         "createSession": "Create a session",
+        "createFront": "Create a front",
         "delete": "Delete campaign",
         "markComplete": "Mark campaign complete",
         "markActive": "Mark campaign active"
@@ -589,6 +609,7 @@
       "addBookmark": "Add bookmark",
       "moreBookmarks": "More bookmarks",
       "campaignComplete": "Campaign complete",
+      "arcComplete": "Arc complete",
       "historyBack": "Back",
       "historyForward": "Forward",
       "editRelationship": "Edit relationship",

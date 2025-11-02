@@ -2,7 +2,7 @@
   <!-- PCs use their own thing because their image works differently -->
   <PCContent v-if="topic===Topics.PC" />
   <form v-else>
-    <div ref="contentRef" class="fcb-sheet-container flexcol">
+    <div class="fcb-sheet-container flexcol">
       <header class="fcb-name-header flexrow">
         <i :class="`fas ${icon} sheet-icon`"></i>
         <InputText
@@ -48,201 +48,166 @@
           @tag-removed="onTagChange"
         />
       </div>
-      <div class="fcb-sheet-subtab-container flexrow">
-        <div class="fcb-subtab-wrapper">
-          <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
-            <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
-            <a class="item" data-tab="journals">{{ localize('labels.tabs.entry.journals') }}</a>
-            <!-- TODO-PC - only show the PC tab if there's already a connection... rare that we'd need to add from here -->
-            <a 
-              v-for="relationship in relationships"
-              :key="relationship.tab"
-              class="item" 
-              :data-tab="relationship.tab"
-            >
-              {{ localize(relationship.label) }}
-            </a>
-            <a 
-              v-if="topic===Topics.Character"
-              class="item" 
-              data-tab="actors"
-            >
-              {{ localize('labels.tabs.entry.actors') }}
-            </a>
-            <a 
-              v-if="topic===Topics.Location"
-              class="item" 
-              data-tab="scenes"
-            >
-              {{ localize('labels.tabs.entry.scenes') }}
-            </a>
-            <a 
-              v-if="topic!==Topics.PC"
-              class="item" 
-              data-tab="sessions"
-            >
-              {{ localize('labels.tabs.entry.sessions') }}
-            </a>
-          </nav>
-          <div class="fcb-tab-body flexrow">
-            <DescriptionTab 
-              :name="currentEntry?.name || 'Entry'"
-              :image-url="currentEntry?.img"
-              :window-type="WindowTabType.Entry"
-              :topic="topic as ValidTopic"
-              @image-change="onImageChange"
-            >
-              <div class="flexrow form-group">
-                <LabelWithHelp
-                  label-text="labels.fields.type"
-                />
-                <TypeSelect
-                  :initial-value="currentEntry?.type || ''"
-                  :topic="topic as ValidTopic"
-                  @type-selection-made="onTypeSelectionMade"
-                />
-              </div>
-
-              <!-- show the species for characters -->
-              <div 
-                v-if="topic===Topics.Character"
-                class="flexrow form-group"
-              >
-                <LabelWithHelp
-                  label-text="labels.fields.species"
-                />
-                <SpeciesSelect
-                  :initial-value="currentEntry?.speciesId || ''"
-                  :allow-new-items="false"
-                  @species-selection-made="onSpeciesSelectionMade"
-                />
-              </div>
-
-              <div 
-                v-if="showHierarchy"
-                class="flexrow form-group"
-              >
-                <LabelWithHelp
-                  label-text="labels.fields.parent"
-                />
-                <TypeAhead 
-                  :initial-list="validParents"
-                  :initial-value="parentId || ''"
-                  :allow-new-items="false"
-                  @selection-made="onParentSelectionMade"
-                />
-              </div>
-
-              <!-- Above description if we're in play mode -->
-              <div 
-                v-if="roleplayAboveDescription"
-                class="flexrow form-group"
-              >
-                <LabelWithHelp
-                  label-text="labels.fields.entryRolePlayingNotes"
-                  top-label
-                />
-              </div>
-              <div 
-                v-if="roleplayAboveDescription"
-                class="flexrow form-group"
-              >
-                <Editor
-                    :initial-content="currentEntry?.roleplayingNotes || ''"
-                    :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
-                    :current-entity-uuid="currentEntry?.uuid"
-                    @editor-saved="onRolePlayingNotesSaved"
-                  />
-              </div>
-
-              <div class="flexrow form-group">
-                <LabelWithHelp
-                  label-text="labels.fields.entryDescription"
-                  top-label
-                />
-              </div>
-              <div class="flexrow form-group description">
-                <Editor
-                  :initial-content="currentEntry?.description || ''"
-                  :current-entity-uuid="currentEntry?.uuid"
-                  :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
-                  :style="{ 'height': '240px', 'margin-bottom': '.375rem'}"
-                  @editor-saved="onDescriptionEditorSaved"
-                  @related-entries-changed="onRelatedEntriesChanged"
-                />
-              </div>
-
-              <!-- Below description if we're in prep mode -->
-              <div 
-                v-if="roleplayBelowDescription"
-                class="flexrow form-group"
-              >
-                <LabelWithHelp
-                  label-text="labels.fields.entryRolePlayingNotes"
-                  top-label
-                />
-              </div>
-              <div 
-                v-if="roleplayBelowDescription"
-                class="flexrow form-group"
-              >
-                <Editor
-                    :initial-content="currentEntry?.roleplayingNotes || ''"
-                    :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
-                    :current-entity-uuid="currentEntry?.uuid"
-                    :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
-                    @editor-saved="onRolePlayingNotesSaved"
-                    @related-entries-changed="onRelatedEntriesChanged"
-                  />
-              </div>
-
-            </DescriptionTab>
-            <JournalTab
-              v-if="currentEntry"
-              :initial-journals="currentEntry.journals"
-              @journals-updated="onJournalsUpdate"
+      <ContentTabStrip 
+        :tabs="tabs" 
+        default-tab="description"
+      >
+        <DescriptionTab 
+          :name="currentEntry?.name || 'Entry'"
+          :image-url="currentEntry?.img"
+          :window-type="WindowTabType.Entry"
+          :topic="topic as ValidTopic"
+          @image-change="onImageChange"
+        >
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.type"
             />
-            <div 
-              v-for="relationship in relationships"
-              :key="relationship.tab"
-              class="tab flexcol" 
-              data-group="primary" 
-              :data-tab="relationship.tab"
-            >
-              <div class="tab-inner">
-                <RelatedItemTable :topic="relationship.topic as ValidTopic" />
-              </div>
-            </div>
-            <div 
-              v-if="topic===Topics.Location"
-              class="tab flexcol" 
-              data-group="primary" 
-              data-tab="scenes"
-            >
-              <div class="tab-inner">
-                <RelatedDocumentTable 
-                  :document-link-type="DocumentLinkType.Scenes"
-                />
-              </div>
-            </div>
-            <div 
-              v-if="topic===Topics.Character"
-              class="tab flexcol" 
-              data-group="primary" 
-              data-tab="actors"
-            >
-              <div class="tab-inner">
-                <RelatedDocumentTable 
-                  :document-link-type="DocumentLinkType.Actors"
-                />
-              </div>
-            </div>
-            <div class="tab flexcol" data-group="primary" data-tab="sessions">
-              <SessionsTab />
-            </div>
+            <TypeSelect
+              :initial-value="currentEntry?.type || ''"
+              :topic="topic as ValidTopic"
+              @type-selection-made="onTypeSelectionMade"
+            />
+          </div>
+
+          <!-- show the species for characters -->
+          <div 
+            v-if="topic===Topics.Character"
+            class="flexrow form-group"
+          >
+            <LabelWithHelp
+              label-text="labels.fields.species"
+            />
+            <SpeciesSelect
+              :initial-value="currentEntry?.speciesId || ''"
+              :allow-new-items="false"
+              @species-selection-made="onSpeciesSelectionMade"
+            />
+          </div>
+
+          <div 
+            v-if="showHierarchy"
+            class="flexrow form-group"
+          >
+            <LabelWithHelp
+              label-text="labels.fields.parent"
+            />
+            <TypeAhead 
+              :initial-list="validParents"
+              :initial-value="parentId || ''"
+              :allow-new-items="false"
+              @selection-made="onParentSelectionMade"
+            />
+          </div>
+
+          <!-- Above description if we're in play mode -->
+          <div 
+            v-if="roleplayAboveDescription"
+            class="flexrow form-group"
+          >
+            <LabelWithHelp
+              label-text="labels.fields.entryRolePlayingNotes"
+              top-label
+            />
+          </div>
+          <div 
+            v-if="roleplayAboveDescription"
+            class="flexrow form-group"
+          >
+            <Editor
+                :initial-content="currentEntry?.roleplayingNotes || ''"
+                :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
+                :current-entity-uuid="currentEntry?.uuid"
+                @editor-saved="onRolePlayingNotesSaved"
+              />
+          </div>
+
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.entryDescription"
+              top-label
+            />
+          </div>
+          <div class="flexrow form-group description">
+            <Editor
+              :initial-content="currentEntry?.description || ''"
+              :current-entity-uuid="currentEntry?.uuid"
+              :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+              fixed-height="240px"
+              @editor-saved="onDescriptionEditorSaved"
+              @related-entries-changed="onRelatedEntriesChanged"
+            />
+          </div>
+
+          <!-- Below description if we're in prep mode -->
+          <div 
+            v-if="roleplayBelowDescription"
+            class="flexrow form-group"
+          >
+            <LabelWithHelp
+              label-text="labels.fields.entryRolePlayingNotes"
+              top-label
+            />
+          </div>
+          <div 
+            v-if="roleplayBelowDescription"
+            class="flexrow form-group"
+          >
+            <Editor
+                :initial-content="currentEntry?.roleplayingNotes || ''"
+                fixed-height="180px"
+                :current-entity-uuid="currentEntry?.uuid"
+                :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+                @editor-saved="onRolePlayingNotesSaved"
+                @related-entries-changed="onRelatedEntriesChanged"
+              />
+          </div>
+
+        </DescriptionTab>
+        <JournalTab
+          v-if="currentEntry"
+          :initial-journals="currentEntry.journals"
+          @journals-updated="onJournalsUpdate"
+        />
+        <div 
+          v-for="relationship in relationships"
+          :key="relationship.tab"
+          class="tab flexcol" 
+          data-group="primary" 
+          :data-tab="relationship.tab"
+        >
+          <div class="tab-inner">
+            <RelatedItemTable :topic="relationship.topic as ValidTopic" />
           </div>
         </div>
-      </div>
+        <div 
+          v-if="topic===Topics.Location"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="scenes"
+        >
+          <div class="tab-inner">
+            <RelatedDocumentTable 
+              :document-link-type="DocumentLinkType.Scenes"
+            />
+          </div>
+        </div>
+        <div 
+          v-if="topic===Topics.Character"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="actors"
+        >
+          <div class="tab-inner">
+            <RelatedDocumentTable 
+              :document-link-type="DocumentLinkType.Actors"
+            />
+          </div>
+        </div>
+        <div class="tab flexcol" data-group="primary" data-tab="sessions">
+          <SessionsTab />
+        </div>
+      </ContentTabStrip>
     </div>
 
     <!-- Related Items Management Dialog -->
@@ -258,7 +223,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, watch, } from 'vue';
+  import { computed, ref, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -270,6 +235,7 @@
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyInfo, notifyWarn } from '@/utils/notifications';  
   import { updateEntryDialog } from '@/dialogs/createEntry';
+  import { getRelatedEntries } from '@/utils/uuidExtraction';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -289,10 +255,10 @@
   import Tags from '@/components/Tags.vue';
   import SessionsTab from '@/components/ContentTab/EntryContent/SessionsTab.vue';
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
-  import { getRelatedEntries } from '@/utils/uuidExtraction';
-
+  import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
+  
   // types
-  import { DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal } from '@/types';
+  import { DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal, ContentTabDescriptor } from '@/types';
   import { FCBSetting, TopicFolder, Backend, Entry, Session } from '@/classes';
   import { DOCUMENT_TYPES } from '@/documents';
 
@@ -310,7 +276,7 @@
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
   const playingStore = usePlayingStore();
-  const { currentEntry, currentSetting, currentContentTab, refreshCurrentEntry, } = storeToRefs(mainStore);
+  const { currentEntry, currentSetting, refreshCurrentEntry, } = storeToRefs(mainStore);
   const { currentPlayedCampaign } = storeToRefs(playingStore);
   const { isInPlayMode } = storeToRefs(mainStore);
 
@@ -329,11 +295,9 @@
     { tab: 'pcs', label: 'labels.tabs.entry.pcs', topic: Topics.PC },
   ] as { tab: string; label: string; topic: Topics }[];
 
-  const tabs = ref<foundry.applications.ux.Tabs>();
   const topic = ref<Topics | null>(null);
   const name = ref<string>('');
 
-  const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
 
@@ -353,6 +317,27 @@
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const roleplayAboveDescription = computed(() => ModuleSettings.get(SettingKey.showRolePlayingNotes) && isInPlayMode.value);
   const roleplayBelowDescription = computed(() => ModuleSettings.get(SettingKey.showRolePlayingNotes) && !isInPlayMode.value);
+
+  const tabs = computed(() => {
+    let tabs = [
+      { id: 'description', label: localize('labels.tabs.entry.description') },
+      { id: 'journals', label: localize('labels.tabs.entry.journals') },
+    ] as ContentTabDescriptor[];
+
+    // TODO-PC - only show the PC tab if there's already a connection... rare that we'd need to add from here 
+    for (const relationship of relationships) {
+      tabs.push({ id: relationship.tab, label: localize(relationship.label) });
+    }
+
+    if (topic.value===Topics.Character)
+      tabs.push({ id: 'actors', label: localize('labels.tabs.entry.actors') });
+    if (topic.value===Topics.Location)
+      tabs.push({ id: 'scenes', label: localize('labels.tabs.entry.scenes') });
+    if (topic.value!==Topics.PC)
+      tabs.push({ id: 'sessions', label: localize('labels.tabs.entry.sessions') });
+
+    return tabs;
+  });
 
   ////////////////////////////////
   // methods
@@ -417,30 +402,6 @@
     }
   }
 
-  const mountTabs = async () => {
-    // Ensure DOM is fully ready before initializing tabs
-    await nextTick();
-    
-    tabs.value = new foundry.applications.ux.Tabs({ 
-      navSelector: '.tabs', 
-      contentSelector: '.fcb-tab-body', 
-      initial: 'description'
-    });
-
-    // update the store when tab changes
-    tabs.value.callback = () => {
-      currentContentTab.value = tabs.value?.active || null;
-    };
-
-    if (contentRef.value) {
-      tabs.value.bind(contentRef.value);
-    }
-
-    if (tabs.value) {
-      tabs.value.activate(currentContentTab.value || 'description');
-    }
-
-  }
 
   ////////////////////////////////
   // event handlers
@@ -769,13 +730,11 @@
 
   ////////////////////////////////
   // watchers
-  // in case the tab is changed externally
-  watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
-    if (newTab !== oldTab && tabs.value) {
-      tabs.value.activate(newTab || 'description');    
-    }
+  
+  watch(currentEntry, async (): Promise<void> => {
+    await refreshEntry();
   });
-
+  
   // see if we want to force a full refresh (ex. when parent changes externally)
   watch(refreshCurrentEntry, async (newValue: boolean): Promise<void> => {
     if (newValue) {
@@ -784,21 +743,8 @@
     }
   });
   
-  watch(currentEntry, async (): Promise<void> => {
-    await refreshEntry();
-
-    if (!currentContentTab.value) {
-      currentContentTab.value = 'description';
-    }
-
-    await mountTabs(); 
-  });
-
   ////////////////////////////////
   // lifecycle events
-  onMounted(async () => {
-    await mountTabs();
-  });
 
 </script>
 

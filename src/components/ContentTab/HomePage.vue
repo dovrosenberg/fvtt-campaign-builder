@@ -192,6 +192,10 @@
           await navigationStore.openCampaign(item.uuid, { newTab: false });
           break;
 
+        case getTabTypeIcon(WindowTabType.Front):
+          await navigationStore.openFront(item.uuid, { newTab: false });
+          break;
+
         case getTabTypeIcon(WindowTabType.Session):
           await navigationStore.openSession(item.uuid, { newTab: false });
           break;

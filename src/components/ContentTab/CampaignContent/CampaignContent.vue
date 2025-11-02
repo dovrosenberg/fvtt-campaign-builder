@@ -16,80 +16,71 @@
           @update:model-value="onNameUpdate"
         />
       </header>
-      <div class="fcb-sheet-subtab-container flexrow">
-        <div class="fcb-subtab-wrapper">
-          <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
-            <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
-            <a class="item" data-tab="journals">{{ localize('labels.tabs.campaign.journals') }}</a>
-            <a class="item" data-tab="pcs">{{ localize('labels.tabs.campaign.pcs') }}</a>
-            <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
-            <a class="item" data-tab="ideas">{{ localize('labels.tabs.campaign.ideas') }}</a>
-            <a class="item" v-if="showToDoTab" data-tab="todo">{{ localize('labels.tabs.campaign.toDo') }} ({{ currentCampaign?.todoItems.length || 0 }})</a>
-          </nav>
-          <div class="fcb-tab-body flexrow">
-            <DescriptionTab 
-              :name="currentCampaign?.name || 'Campaign'"
-              :image-url="currentCampaign?.img"
-              :window-type="WindowTabType.Campaign"
-              @image-change="onImageChange"
-            >
-              <div class="flexrow form-group">
-                <LabelWithHelp
-                  label-text="labels.fields.campaignDescription"
-                  top-label
-                />
-              </div>
-              <div class="flexrow form-group">
-                <Editor 
-                  :initial-content="currentCampaign?.description || ''"
-                  fixed-height="240px"
-                  :current-entity-uuid="currentCampaign?.uuid"
-                  @editor-saved="onDescriptionEditorSaved"
-                />
-              </div>
-              <div class="flexrow form-group">
-                <LabelWithHelp
-                  label-text="labels.fields.houseRules"
-                  top-label
-                />
-              </div>
-              <div class="flexrow form-group">
-                <Editor 
-                  :initial-content="currentCampaign?.houseRules || ''"
-                  fixed-height="240px"
-                  :current-entity-uuid="currentCampaign?.uuid"
-                  @editor-saved="onHouseRulesEditorSaved"
-                />
-              </div>
-            </DescriptionTab>
-            <JournalTab
-              v-if="currentCampaign"
-              :initial-journals="currentCampaign.journals"
-              @journals-updated="onJournalsUpdate"
+      <ContentTabStrip 
+        default-tab="description"
+        :tabs="tabs" 
+      >
+        <DescriptionTab 
+          :name="currentCampaign?.name || 'Campaign'"
+          :image-url="currentCampaign?.img"
+          :window-type="WindowTabType.Campaign"
+          @image-change="onImageChange"
+        >
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.campaignDescription"
+              top-label
             />
-            <div class="tab flexcol" data-group="primary" data-tab="pcs">
-              <div class="tab-inner">
-                <CampaignPCsTab />
-              </div>
-            </div>
-            <div class="tab flexcol" data-group="primary" data-tab="lore">
-              <div class="tab-inner">
-                <CampaignLoreTab />
-              </div>
-            </div>
-            <div class="tab flexcol" data-group="primary" data-tab="ideas">
-              <div class="tab-inner">
-                <CampaignIdeasTab />
-              </div>
-            </div>
-            <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="todo">
-              <div class="tab-inner">
-                <CampaignToDoTab />
-              </div>
-            </div>
+          </div>
+          <div class="flexrow form-group">
+            <Editor 
+              :initial-content="currentCampaign?.description || ''"
+              fixed-height="240px"
+              :current-entity-uuid="currentCampaign?.uuid"
+              @editor-saved="onDescriptionEditorSaved"
+            />
+          </div>
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.houseRules"
+              top-label
+            />
+          </div>
+          <div class="flexrow form-group">
+            <Editor 
+              :initial-content="currentCampaign?.houseRules || ''"
+              fixed-height="240px"
+              :current-entity-uuid="currentCampaign?.uuid"
+              @editor-saved="onHouseRulesEditorSaved"
+            />
+          </div>
+        </DescriptionTab>
+        <JournalTab
+          v-if="currentCampaign"
+          :initial-journals="currentCampaign.journals"
+          @journals-updated="onJournalsUpdate"
+        />
+        <div class="tab flexcol" data-group="primary" data-tab="pcs">
+          <div class="tab-inner">
+            <CampaignPCsTab />
           </div>
         </div>
-      </div> 
+        <div class="tab flexcol" data-group="primary" data-tab="lore">
+          <div class="tab-inner">
+            <CampaignLoreTab />
+          </div>
+        </div>
+        <div class="tab flexcol" data-group="primary" data-tab="ideas">
+          <div class="tab-inner">
+            <CampaignIdeasTab />
+          </div>
+        </div>
+        <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="todo">
+          <div class="tab-inner">
+            <CampaignToDoTab />
+          </div>
+        </div>
+      </ContentTabStrip> 
     </div>
   </form>	 
 </template>
@@ -97,7 +88,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, watch, } from 'vue';
+  import { computed, ref, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -119,7 +110,8 @@
   import JournalTab from '@/components/ContentTab/JournalTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import CampaignToDoTab from '@/components/ContentTab/CampaignContent/CampaignToDoTab.vue';
-
+  import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
+  
   // types
   import { RelatedJournal, WindowTabType, } from '@/types';
   
@@ -134,15 +126,13 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentContentTab, currentSetting } = storeToRefs(mainStore);
+  const { currentCampaign, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
 
-  const tabs = ref<foundry.applications.ux.Tabs>();
   const name = ref<string>('');
 
-  const contentRef = ref<HTMLElement | null>(null);
   const icon =  getTabTypeIcon(WindowTabType.Campaign);
  
   ////////////////////////////////
@@ -152,6 +142,23 @@
   const showToDoTab = computed(() => {
     return ModuleSettings.get(SettingKey.enableToDoList);
   });
+
+  const tabs = computed(() => {
+    let baseTabs = [
+      { id: 'description', label: localize('labels.tabs.campaign.description') },
+      { id: 'journals', label: localize('labels.tabs.campaign.journals') },
+      { id: 'pcs', label: localize('labels.tabs.campaign.pcs') },
+      { id: 'lore', label: localize('labels.tabs.campaign.lore') },
+      { id: 'ideas', label: localize('labels.tabs.campaign.ideas') },
+    ];
+
+    if (showToDoTab.value) {
+      baseTabs.push({ id: 'todo', label: localize('labels.tabs.campaign.toDo') });
+    }
+
+    return baseTabs;
+  });
+
 
   ////////////////////////////////
   // methods
@@ -219,19 +226,9 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
-    if (newTab!==oldTab)
-      tabs.value?.activate(newTab || 'description');
-  });
-
   watch(currentCampaign, async (): Promise<void> => {
     if (!currentCampaign.value)
       return;
-
-    if (!currentContentTab.value)
-      currentContentTab.value = 'description';
-
-    tabs.value?.activate(currentContentTab.value); 
 
     // load starting data values
     name.value = currentCampaign.value.name || '';
@@ -239,20 +236,6 @@
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(async () => {
-    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.fcb-tab-body', initial: 'description', /*callback: null*/ });
-
-    // update the store when tab changes
-    tabs.value.callback = () => {
-      currentContentTab.value = tabs.value?.active || null;
-    };
-
-    // have to wait until they render
-    await nextTick();
-    if (contentRef.value)
-      tabs.value.bind(contentRef.value);
-  });
-
 
 </script>
 

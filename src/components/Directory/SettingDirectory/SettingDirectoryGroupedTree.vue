@@ -23,13 +23,13 @@
   import SettingDirectoryGroupedType from './SettingDirectoryGroupedType.vue';
 
   // types
-  import { DirectoryTopicNode, DirectoryTypeNode, } from '@/classes';
+  import { DirectoryTopicFolderNode, DirectoryTypeNode, } from '@/classes';
   
   ////////////////////////////////
   // props
   const props = defineProps({
     topicNode: {
-      type: Object as PropType<DirectoryTopicNode>,
+      type: Object as PropType<DirectoryTopicFolderNode>,
       required: true,
     }, 
     settingId: {

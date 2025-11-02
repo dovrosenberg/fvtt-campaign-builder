@@ -8,7 +8,6 @@ import { Entry, TopicFolder } from '@/classes';
 import { generateImage, handleGeneratedEntry } from '@/utils/generation';
 import { localize } from '@/utils/game';
 import { theme } from '@/components/styles/primeVue';
-import { registerTopicFolderTests } from '@unittest/classes/TopicFolder.test';
 
 const { ApplicationV2 } = foundry.applications.api;
 

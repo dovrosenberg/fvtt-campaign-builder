@@ -20,6 +20,17 @@ export const sessionIndexFields = (): any => ({
 
 // rebuild the index (by adding a random field name) because otherwise index won't update
 // see Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
+export const frontIndexFields = (): any => ({
+  fields: [
+    foundry.utils.randomID(),
+    TYPE_FIELD,
+    'pages.name', 
+    'pages.uuid', 
+  ]
+});
+
+// rebuild the index (by adding a random field name) because otherwise index won't update
+// see Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
 export const entryIndexFields = (): any => ({
   fields: [
     foundry.utils.randomID(),

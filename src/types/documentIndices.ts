@@ -42,6 +42,12 @@ export interface SessionFilterIndex {
   number: number;  
 }
 
+/** the type available for use in filterFronts */
+export interface FrontFilterIndex {
+  name: string;
+  id: string;
+  uuid: string;
+}
 
 /** the type available for use in filterEntries */
 export interface EntryFilterIndex {

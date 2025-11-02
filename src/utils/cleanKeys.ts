@@ -1,6 +1,6 @@
 /** converts to a record that uses uuids (or anything with . in it) from a record that uses #&# */
 
-import { RelatedItemDetails, ValidTopic, ValidTopicRecord } from '@/types';
+import { ValidTopicRecord } from '@/types';
 
 /** use after loading data from db */
 export const cleanKeysOnLoad = <InnerType extends any, T extends Record<string, InnerType>>(obj: T): T => {

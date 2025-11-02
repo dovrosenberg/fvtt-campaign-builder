@@ -1,8 +1,8 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
-import { DOCUMENT_TYPES, CampaignLore, sessionIndexFields } from '@/documents';
-import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, SessionBasicIndex } from '@/types';
-import { Entry, Session, FCBSetting, getGlobalSetting } from '@/classes';
+import { DOCUMENT_TYPES, CampaignLore, sessionIndexFields, frontIndexFields } from '@/documents';
+import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex } from '@/types';
+import { Entry, Session, FCBSetting, getGlobalSetting, Front } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { ToDoItem, ToDoTypes, Idea } from '@/types';
@@ -45,6 +45,11 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return allSessions;
   }
 
+  public async allFronts(): Promise<Front[]> {
+    const allFronts = await this.filterFronts(()=>true);
+    return allFronts;
+  }
+
   public async resetCurrentSession(): Promise<void> {
     // find the uuid of the one with the highest number
     const entries = await toRaw(this.compendium).getIndex(sessionIndexFields())
@@ -84,6 +89,10 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     this._clone.system.sessions = value;
   }
 
+  public get frontIds(): readonly string[] {
+    return this._clone.system.frontIds;
+  }
+
   public async addSession(session: Session): Promise<void> {
     // Add to session index
     this._clone.system.sessions.push({
@@ -101,6 +110,11 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
+  public async addFront(front: Front): Promise<void> {
+    this._clone.system.frontIds.push(front.uuid);    
+    await this.save();
+  }
+
   public async deleteSession(session: Session): Promise<void> {
     
     // Remove from session index
@@ -114,6 +128,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       await this.resetCurrentSession();
   }
   
+  public async deleteFront(front: Front): Promise<void> {
+    this._clone.system.frontIds = this._clone.system.frontIds.filter(s=> s!==front.uuid);
+    
+    await this.save();
+  }
+
   public get description(): string {
     return this._clone.system.description;
   }
@@ -443,7 +463,11 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       return null;
     
     // create a journal entry for the campaign
-    const campaign = await super._create(setting.compendiumId, nameToUse, 'Campaigns') as unknown as Campaign;  
+    const campaign = await super._create(
+      setting.compendiumId, 
+      nameToUse, 
+      localize('contentFolders.campaigns')
+    ) as unknown as Campaign;  
 
     if (!campaign)
       throw new Error('Couldn\'t create new journal entry for campaign');
@@ -495,8 +519,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @returns {Session[]} The entries that pass the filter
    */
   public async filterSessions(filterFn: (s: SessionFilterIndex) => boolean): Promise<Session[]> { 
-    // TODO: we could make this more efficient if we wanted to 
-    //    calc id
+    // TODO: we could make this more efficient if we wanted to calc id from our index
     // get all the journal entries
     const entries = await toRaw(this.compendium).getIndex(sessionIndexFields());
 
@@ -523,7 +546,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
     let retval = [] as Session[];
     for (const doc of documentSet) {
-      const session = new Session(doc);
+      const session = new Session(doc, this);
       if (session)
         retval.push(session);
     }
@@ -532,6 +555,47 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   
+  /**
+   * Given a filter function, returns all the matching Fronts
+   * inside this campaign
+   * 
+   * @param {(e: FrontFilterIndex) => boolean} filterFn - The filter function
+   * @returns {Front[]} The entries that pass the filter
+   */
+  public async filterFronts(filterFn: (s: FrontFilterIndex) => boolean): Promise<Front[]> { 
+    // get all the journal entries
+    const entries = await toRaw(this.compendium).getIndex(frontIndexFields());
+
+    // find the sessions connected to this campaign
+    const fronts = entries
+      // first find the relevant ones
+      .filter((e)=> (
+        e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Front &&
+        !!e.pages && e.pages!.length > 0 &&
+        this._clone.system.frontIds.includes(e.uuid)
+      ))
+      .map((e) => ({ 
+        name: e.name, 
+        id: e._id,
+        uuid: e.uuid
+      } as FrontFilterIndex))
+
+      // now filter by the function passed in 
+      .filter((s: FrontFilterIndex)=> filterFn(s)) || [];
+
+    const idList = fronts.map((s)=> s.id);
+    const documentSet = await this.compendium.getDocuments({ _id__in: idList });
+
+    let retval = [] as Front[];
+    for (const doc of documentSet) {
+      const front = new Front(doc, this);
+      if (front)
+        retval.push(front);
+    }
+
+    return retval;
+  }
+
   /**
    * Updates a campaign in the database 
    * 

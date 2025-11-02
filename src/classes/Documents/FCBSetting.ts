@@ -417,9 +417,10 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
       ))
       .map((e) => ({ 
         name: e.name, 
+        id: e._id,
         uuid: e.uuid,
-        topic: e.pages![0].system.topic,
-        type: e.pages![0].system.type,
+        actorId: e.pages![0].system.actorId,
+        type: e.pages![0].system.type
       } as EntryFilterIndex))
 
       // now filter by the function passed in 
@@ -799,6 +800,7 @@ const createCompendium = async(name: string): Promise<string> => {
     localize('contentFolders.sessions'),
     localize('contentFolders.campaigns'),
     localize('contentFolders.entries'),
+    localize('contentFolders.fronts'),
     // localize('contentFolders.settings'),  // we now put the settings in the top level
   ];
 

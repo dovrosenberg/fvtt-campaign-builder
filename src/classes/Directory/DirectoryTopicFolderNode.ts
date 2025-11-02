@@ -6,7 +6,7 @@ import { TopicFolder, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeN
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 import { EntryBasicIndex } from '@/types';
 
-export class DirectoryTopicNode extends DirectoryTopicTreeNode {
+export class DirectoryTopicFolderNode extends DirectoryTopicTreeNode {
   name: string;
   loadedTypes: DirectoryTypeNode[];
   

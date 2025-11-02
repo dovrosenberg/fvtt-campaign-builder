@@ -1,9 +1,9 @@
-import { DirectorySessionNode, DirectoryTopicNode } from '@/classes';
+import { DirectorySessionNode, DirectoryTopicFolderNode } from '@/classes';
 
 export interface DirectorySetting {
   id: string;   // the setting folder ID
   name: string;
-  topicNodes: DirectoryTopicNode[];
+  topicNodes: DirectoryTopicFolderNode[];
 }
 
 export interface DirectoryCampaign {

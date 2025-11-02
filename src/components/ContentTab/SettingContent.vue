@@ -25,70 +25,65 @@
         >
           <i class="fas fa-head-side-virus"></i>
         </button>
-      </header>    
-      <div class="fcb-sheet-subtab-container flexrow">
-        <div class="fcb-subtab-wrapper">
-          <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
-            <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
-            <a class="item" data-tab="journals">{{ localize('labels.tabs.campaign.journals') }}</a>
-          </nav>
-          <div class="fcb-tab-body flexrow">
-            <DescriptionTab 
-              :name="currentSetting.name || 'Setting'"
-              :image-url="currentSetting.img"
-              :window-type="WindowTabType.Setting"
-              @image-change="onImageChange"
-            >
-              <div class="flexrow form-group">
-                <LabelWithHelp
-                  label-text="labels.fields.settingGenre"
-                  help-text="help.settingGenre" 
-                />
-                <InputText
-                  v-model="currentSetting.genre"
-                  type="text"
-                  unsyled
-                  data-testid="setting-genre-input"
-                  style="width: 250px; font-family: var(--fcb-font-family)"
-                  @update:model-value="onGenreSaved"
-                />
-              </div>
-              <div class="flexrow form-group">
-                <LabelWithHelp
-                  label-text="labels.fields.settingFeeling"
-                  help-text="help.settingFeeling" 
-                />
-                <Textarea
-                  v-model="currentSetting.settingFeeling"
-                  rows="3"
-                  data-testid="setting-feeling-textarea"
-                  unstyled
-                  style="width: calc(100% - 2px); font-family: var(--fcb-font-family)"
-                  @update:model-value="onSettingFeelingSaved"
-                />
-              </div>
-              <div class="flexrow form-group">
-                <LabelWithHelp
-                  label-text="labels.fields.settingDescription"
-                  top-label
-                />
-              </div>
-              <div class="flexrow form-group description">
-                <Editor
-                    :initial-content="currentSetting.description || ''"
-                    fixed-height="240px"
-                    :current-entity-uuid="currentSetting?.uuid"
-                    @editor-saved="onDescriptionEditorSaved"
-                  />
-              </div>
-            </DescriptionTab>
-            <JournalTab
-              :initial-journals="currentSetting.journals"
-              @journals-updated="onJournalsUpdate"
+      </header>
+      <ContentTabStrip 
+        default-tab="description"
+        :tabs="tabs" 
+      >
+        <DescriptionTab 
+          :name="currentSetting.name || 'Setting'"
+          :image-url="currentSetting.img"
+          :window-type="WindowTabType.Setting"
+          @image-change="onImageChange"
+        >
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.settingGenre"
+              help-text="help.settingGenre" 
+            />
+            <InputText
+              v-model="currentSetting.genre"
+              type="text"
+              unsyled
+              data-testid="setting-genre-input"
+              style="width: 250px; font-family: var(--fcb-font-family)"
+              @update:model-value="onGenreSaved"
             />
           </div>
-        </div>
-      </div>
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.settingFeeling"
+              help-text="help.settingFeeling" 
+            />
+            <Textarea
+              v-model="currentSetting.settingFeeling"
+              rows="3"
+              data-testid="setting-feeling-textarea"
+              unstyled
+              style="width: calc(100% - 2px); font-family: var(--fcb-font-family)"
+              @update:model-value="onSettingFeelingSaved"
+            />
+          </div>
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.settingDescription"
+              top-label
+            />
+          </div>
+          <div class="flexrow form-group description">
+            <Editor
+                :initial-content="currentSetting.description || ''"
+                fixed-height="240px"
+                :current-entity-uuid="currentSetting?.uuid"
+                @editor-saved="onDescriptionEditorSaved"
+              />
+          </div>
+        </DescriptionTab>
+        <JournalTab
+          :initial-journals="currentSetting.journals"
+          @journals-updated="onJournalsUpdate"
+        />
+      </ContentTabStrip>
     </div>
   </form>	 
   <ConfigureNamesDialog
@@ -102,7 +97,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, watch } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -124,7 +119,8 @@
   import JournalTab from '@/components/ContentTab/JournalTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import ConfigureNamesDialog from '@/components/AIGeneration/ConfigureNamesDialog.vue';
-
+  import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
+  
   // types
   import { RelatedJournal, WindowTabType, } from '@/types';
   
@@ -139,14 +135,11 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const settingDirectoryStore = useSettingDirectoryStore();
-  const { currentContentTab, currentSetting, currentTab } = storeToRefs(mainStore);
+  const { currentSetting } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
-  const tabs = ref<foundry.applications.ux.Tabs>();
   const name = ref<string>('');
-
-  const contentRef = ref<HTMLElement | null>(null);
   const icon =  getTabTypeIcon(WindowTabType.Setting);
   const showConfigureNamesDialog = ref<boolean>(false);
 
@@ -155,6 +148,11 @@
   const namePlaceholder = computed((): string => (localize('placeholders.settingName') || ''));
   const generateDisabled = computed(() => !Backend.available);
   
+  const tabs = computed(() => [
+    { id: 'description', label: localize('labels.tabs.setting.description') },
+    { id: 'journals', label: localize('labels.tabs.setting.journals') },
+  ]);
+
   ////////////////////////////////
   // methods
 
@@ -271,33 +269,10 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
-    if (newTab!==oldTab)
-      tabs.value?.activate(newTab || 'description');    
-  });
-
-  watch(currentTab, () => {
-    if (!currentContentTab.value)
-        currentContentTab.value = 'description';
-
-      tabs.value?.activate(currentContentTab.value); 
-  });
 
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.fcb-tab-body', initial: 'description', /*callback: null*/ });
-
-    // update the store when tab changes
-    tabs.value.callback = () => {
-      currentContentTab.value = tabs.value?.active || null;
-    };
-
-    // have to wait until they render
-    await nextTick();
-    if (contentRef.value)
-      tabs.value.bind(contentRef.value);
-
     // load starting data values
     name.value = currentSetting.value?.name || '';
   });

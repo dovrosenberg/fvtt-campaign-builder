@@ -27,7 +27,6 @@
         v-if="editorVisible"
         ref="editorRef"
         :class="'editor ' + props.class"
-        :style="innerStyle"
       >
         <div
           ref="coreEditorRef"
@@ -172,8 +171,7 @@
 
   const safeEnrichedContent = computed((): string => (sanitizeHTML(enrichedInitialContent.value)));
 
-  const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight}; margin-bottom: 6px` : ''));
-  const innerStyle = computed((): string => (props.height ? `height: ${props.height}` : ''));
+  const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight}; margin-bottom: 0.375rem` : ''));
 
   ////////////////////////////////
   // methods

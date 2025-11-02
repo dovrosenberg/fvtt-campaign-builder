@@ -23,8 +23,13 @@ export const CampaignSchema = {
     nullable: false, 
     initial: [] as SessionBasicIndex[] 
   }),
-
     
+  /** all the frontIds */
+  frontIds: new fields.ArrayField(
+    new fields.DocumentUUIDField({ required: true, nullable: false }),
+    { required: true, nullable: false, initial: [] as string[] }
+  ),
+
   /** campaign lore */
   lore: new fields.ArrayField(
     schemas.CampaignLore(),
@@ -91,6 +96,7 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
     description: string;
     customFields: Record<string, string>;
     sessions: SessionBasicIndex[];
+    frontIds: string[];
     lore: CampaignLore[];  
     img: string;   
     todoItems: ToDoItem[];   

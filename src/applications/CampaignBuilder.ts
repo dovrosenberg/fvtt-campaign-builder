@@ -258,6 +258,7 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
         [DOCUMENT_TYPES.Campaign]: WindowTabType.Campaign,
         [DOCUMENT_TYPES.Session]: WindowTabType.Session,
         [DOCUMENT_TYPES.Setting]: WindowTabType.Setting,
+        [DOCUMENT_TYPES.Front]: WindowTabType.Front,
       };
       
       const windowTabType = docTypeToWindowTabType[docType];
@@ -305,6 +306,9 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
           break;
         case DOCUMENT_TYPES.Entry:
           useNavigationStore().openEntry(uuid);
+          break;
+        case DOCUMENT_TYPES.Front:
+          useNavigationStore().openFront(uuid);
           break;
       }
     }

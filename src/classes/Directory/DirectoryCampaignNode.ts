@@ -2,16 +2,20 @@
  * A class representing an node representing a campaign in the campaign tree structures
  */
 
-import { Campaign, CollapsibleNode, DirectorySessionNode, } from '@/classes';
-import { SessionBasicIndex, SessionFilterIndex } from '@/types';
+import { SessionBasicIndex, } from '@/types';
+import { Campaign, CollapsibleNode, DirectoryArcNode, DirectoryFrontFolder, DirectorySessionNode, } from '@/classes';
+import { ModuleSettings, SettingKey } from '@/settings';
 
-export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode> {
+export class DirectoryCampaignNode<
+  SessionNodes extends DirectorySessionNode | DirectoryArcNode,
+  PossibleNodes extends SessionNodes | DirectoryFrontFolder = SessionNodes | DirectoryFrontFolder 
+> extends CollapsibleNode<PossibleNodes> {
   name: string;
   completed: boolean;
   
-  // children are for the entries; loadedTypes is for the type nodes
   constructor(id: string, name: string, children: string[] = [], 
-    loadedChildren: DirectorySessionNode[] = [], expanded: boolean = false, completed: boolean = false
+    loadedChildren: (PossibleNodes)[] = [], expanded: boolean = false, 
+    completed: boolean = false
   ) {
 
     super(id, expanded, null, children, loadedChildren, []);
@@ -33,6 +37,23 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
       return;
     }
 
+    // there are a few possibilities here:
+    //   - if we are using fronts, the first child is the front folder
+    //   - if we are using arcs, the children are the arcs; otherwise, they are the sessions
+    if (ModuleSettings.get(SettingKey.useFronts)) {
+      // add the front folder
+      const newNode = await DirectoryFrontFolder.fromCampaign(this.id);
+      CollapsibleNode._loadedNodes[newNode.id] = newNode;
+    }
+
+    if (ModuleSettings.get(SettingKey.useArcs)) {
+      // TODO: for now create a single one
+
+      const newNode = await DirectoryArcNode.fromArc(this.id);
+      CollapsibleNode._loadedNodes[newNode.id] = newNode;
+
+    } else {
+      // no arcs, so load all the sessions
     // we only want to load ones not already in _loadedNodes, unless its in updateIds
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
@@ -44,7 +65,8 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
 
     for (let i=0; i<sessions.length; i++) {
       const newNode = DirectorySessionNode.fromSessionBasicIndex(sessions[i], this.id);
-      CollapsibleNode._loadedNodes[newNode.id] = newNode;
+        CollapsibleNode._loadedNodes[newNode.id] = newNode;
+      }
     }
   }
 }

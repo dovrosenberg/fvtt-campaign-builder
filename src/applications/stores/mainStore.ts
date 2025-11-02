@@ -12,7 +12,7 @@ import { updateSettingRollTableNames } from '@/utils/nameGenerators';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { FCBSetting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, getGlobalSetting } from '@/classes';
+import { FCBSetting, WindowTab, Entry, Campaign, Session, Front, Arc, CollapsibleNode, RootFolder, getGlobalSetting } from '@/classes';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 // the store definition
@@ -25,6 +25,8 @@ export const useMainStore = defineStore('main', () => {
   // internal state
   const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
+  const _currentFront = ref<Front | null>(null);  // current front (when showing a front tab)
+  const _currentArc = ref<Arc | null>(null);  // current arc (when showing a front tab)
   const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
   const _currentSetting = ref<FCBSetting | null>(null);  // the current setting
@@ -55,9 +57,21 @@ export const useMainStore = defineStore('main', () => {
   const currentEntry = computed((): Entry | null => (_currentEntry?.value || null) as Entry | null);
   const currentCampaign = computed((): Campaign | null => (_currentCampaign?.value || null) as Campaign | null);
   const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
+  const currentArc = computed((): Arc | null => (_currentArc?.value || null) as Arc | null);
+  const currentFront = computed((): Front | null => (_currentFront?.value || null) as Front | null);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
   const currentTab = computed((): WindowTab | null => _currentTab?.value);  
   const currentSetting = computed((): FCBSetting | null => (_currentSetting?.value || null) as FCBSetting | null);
+  
+  /** the current content id -- used primarily for main tabs to know when to refresh */
+  const currentContentId = computed((): string | null => {
+    return _currentEntry.value ? _currentEntry.value.uuid : 
+      _currentCampaign.value ? _currentCampaign.value.uuid : 
+      _currentSession.value ? _currentSession.value.uuid : 
+      _currentArc.value ? _currentArc.value.uuid : 
+      _currentFront.value ? _currentFront.value.uuid : 
+      null;
+  });
 
   ///////////////////////////////
   // actions
@@ -101,6 +115,7 @@ export const useMainStore = defineStore('main', () => {
     _currentEntry.value = null;
     _currentCampaign.value = null;
     _currentSession.value = null;
+    _currentFront.value = null;
 
     switch (tab.tabType) {
       case WindowTabType.Entry:
@@ -114,12 +129,6 @@ export const useMainStore = defineStore('main', () => {
         break;
       case WindowTabType.Setting:
         // we can only set tabs within a setting, so we don't actually need to do anything here
-        // if (tab.header.uuid) {
-        //   _currentEntry.value = null;
-        //   _currentSetting.value = await getGlobalSetting(tab.header.uuid);
-        //   if (!_currentSetting.value)
-        //     throw new Error('Invalid entry uuid in mainStore.setNewTab()');
-        // }
         break;
       case WindowTabType.Campaign:
         if (tab.header.uuid) {
@@ -127,6 +136,13 @@ export const useMainStore = defineStore('main', () => {
 
           if (!_currentCampaign.value)
             throw new Error(`Invalid campaign uuid ${tab.header.uuid} in mainStore.setNewTab()`);
+        }
+        break;
+      case WindowTabType.Front:
+        if (tab.header.uuid) {
+          _currentFront.value = await Front.fromUuid(tab.header.uuid);
+          if (!_currentFront.value)
+            throw new Error(`Invalid front uuid ${tab.header.uuid} in mainStore.setNewTab()`);
         }
         break;
       case WindowTabType.Session:
@@ -159,6 +175,14 @@ export const useMainStore = defineStore('main', () => {
 
     // just force all reactivity to update
     _currentCampaign.value = new Campaign(_currentCampaign.value.raw.parent as unknown as JournalEntry);
+  };
+
+  const refreshFront = async function (): Promise<void> {
+    if (!_currentFront.value?.raw?.parent || !currentSetting.value)
+      return;
+
+    // just force all reactivity to update
+    _currentFront.value = new Front(_currentFront.value.raw.parent as unknown as JournalEntry);
   };
 
   const refreshSetting = async function (reload = false): Promise<void> {
@@ -200,6 +224,9 @@ export const useMainStore = defineStore('main', () => {
         break;
       case WindowTabType.Session:
         await refreshSession();
+        break;
+      case WindowTabType.Front:
+        await refreshFront();
         break;
       case WindowTabType.Setting:
         await refreshSetting();
@@ -328,8 +355,11 @@ export const useMainStore = defineStore('main', () => {
     currentEntry,
     currentCampaign,
     currentSession,
+    currentFront,
+    currentArc,
     currentTab,
     currentContentType,
+    currentContentId,
     rootFolder,
     currentSettingCompendium,
     refreshCurrentEntry,
@@ -342,6 +372,7 @@ export const useMainStore = defineStore('main', () => {
     refreshCampaign,
     refreshSession,
     refreshSetting,
+    refreshFront,
     refreshCurrentContent,
     getAllSettings,
     propagateSettingNameChange,

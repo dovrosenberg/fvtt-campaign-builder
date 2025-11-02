@@ -26,13 +26,13 @@
   import NodeComponent from './SettingDirectoryNode.vue';
 
   // types
-  import { DirectoryEntryNode, DirectoryTopicNode, } from '@/classes';
+  import { DirectoryEntryNode, DirectoryTopicFolderNode, } from '@/classes';
   
   ////////////////////////////////
   // props
   const props = defineProps({
     topicNode: {
-      type: Object as PropType<DirectoryTopicNode>,
+      type: Object as PropType<DirectoryTopicFolderNode>,
       required: true,
     }, 
     settingId: {

@@ -1,7 +1,7 @@
 import { nextTick } from 'vue';
 import { useSettingDirectoryStore, useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
 import { WindowTabType, } from '@/types';
-import { Entry, Session, DirectoryTopicNode, DirectoryCampaignNode } from '@/classes';
+import { Entry, Session, DirectoryTopicFolderNode, DirectoryCampaignNode } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 
 /**
@@ -38,6 +38,9 @@ export async function scrollToActiveEntry(): Promise<void> {
       break;
     case WindowTabType.Setting:
       await scrollToSetting();
+      break;
+    case WindowTabType.Front:
+      await scrollToFront(contentId);
       break;
     default:
       return;
@@ -85,12 +88,12 @@ async function scrollToEntry(entryId: string): Promise<void> {
 
   // Expand the topic if it's not already expanded
   if (!topicNode.expanded) {
-    await settingDirectoryStore.toggleTopic(topicNode as DirectoryTopicNode);
+    await settingDirectoryStore.toggleTopic(topicNode as DirectoryTopicFolderNode);
   }
 
   if (isGroupedByType) {
     // Handle grouped-by-type view
-    await scrollToEntryInGroupedView(entry, topicNode as DirectoryTopicNode);
+    await scrollToEntryInGroupedView(entry, topicNode as DirectoryTopicFolderNode);
   } else {
     // Handle nested hierarchy view
     await scrollToEntryInNestedView(entryId);
@@ -111,7 +114,7 @@ async function scrollToEntry(entryId: string): Promise<void> {
  * @param topicNode - The topic node containing the entry
  * @returns A promise that resolves when the scroll operation is complete
  */
-async function scrollToEntryInGroupedView(entry: Entry, topicNode: DirectoryTopicNode): Promise<void> {
+async function scrollToEntryInGroupedView(entry: Entry, topicNode: DirectoryTopicFolderNode): Promise<void> {
   const settingDirectoryStore = useSettingDirectoryStore();
   
   // Find the type node for this entry's type
@@ -223,6 +226,45 @@ async function scrollToSession(sessionId: string): Promise<void> {
 
   // Find and scroll to the session element (sessions use the same highlighting class as entries)
   await scrollToElement('.fcb-current-directory-entry');
+}
+
+/**
+ * Scrolls to a front in the campaign directory tree.
+ * Expands the parent campaign node and scrolls to the front within it.
+ * 
+ * @param frontId - The UUID of the front to scroll to
+ * @returns A promise that resolves when the scroll operation is complete
+ */
+async function scrollToFront(frontId: string): Promise<void> {
+  // TODO
+  // const campaignDirectoryStore = useCampaignDirectoryStore();
+  
+  // // Load the session to get its campaign
+  // const session = await Session.fromUuid(sessionId);
+  // if (!session) {
+  //   return;
+  // }
+
+  // const campaign = await session.loadCampaign();
+  // if (!campaign) {
+  //   return;
+  // }
+
+  // // Find the campaign node and expand it
+  // const currentCampaignTree = campaignDirectoryStore.currentCampaignTree.value;
+  // const campaignNode = currentCampaignTree.find(c => c.id === campaign.uuid);
+  
+  // if (campaignNode && !campaignNode.expanded) {
+  //   // Use toggleWithLoad to expand the campaign node
+  //   await campaignDirectoryStore.toggleWithLoad(campaignNode as DirectoryCampaignNode, true);
+  // }
+
+  // // Refresh the tree and wait for DOM update
+  // await campaignDirectoryStore.refreshCampaignDirectoryTree();
+  // await nextTick();
+
+  // // Find and scroll to the session element (sessions use the same highlighting class as entries)
+  // await scrollToElement('.fcb-current-directory-entry');
 }
 
 /**

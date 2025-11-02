@@ -1,6 +1,6 @@
 <template>
   <li
-    :class="`fcb-campaign-folder folder flexcol ${props.campaignNode.expanded ? '' : 'collapsed'} ${isActiveCampaign ? 'active' : ''} ${props.campaignNode.completed ? 'campaign-completed' : ''}`"
+    :class="`fcb-campaign-folder folder flexcol ${props.campaignNode.expanded ? '' : 'collapsed'} ${props.campaignNode.completed ? 'campaign-completed' : ''}`"
     :data-campaign="props.campaignNode.id"
   >
     <header class="folder-header flexrow">
@@ -19,7 +19,9 @@
           @click="onCampaignFolderClick"
         ></i>
         <span data-testid="campaign-name" @click="onCampaignSelectClick">
-          <span class="node-name">
+          <span 
+            :class="`node-name ${isActiveCampaign ? 'active' : ''}`"
+          >
             {{ props.campaignNode.name }}
             <i v-if="props.campaignNode.completed" class="fas fa-check-circle completed-icon"></i>
           </span>
@@ -27,15 +29,33 @@
       </div>
     </header>
 
-    <!-- These are the sessions -->
+    <!-- Sessions or arcs, depending on setting -->
     <ul 
       v-if="props.campaignNode.expanded"
       class="campaign-contents fcb-directory-tree"
     >
-      <SessionDirectoryNode 
+      <!-- fronts first -->
+      <CampaignDirectoryFrontFolder 
+        v-if="frontFolderNode"
+        :front-folder-node="frontFolderNode"
+        :campaign-id="props.campaignNode.id"
+        class="fcb-entry-item" 
+        draggable="false"
+      />
+      <CampaignDirectoryArcNode 
+        v-if="ModuleSettings.get(SettingKey.useArcs)"
+        v-for="node in sortedChildren"
+        :key="'arc' + node.id"
+        :arc-node="node as DirectoryArcNode"
+        :top="true"
+        class="fcb-entry-item" 
+        draggable="true"
+      />
+      <CampaignDirectorySessionNode 
+        v-else
         v-for="node in sortedChildren"
         :key="node.id"
-        :session-node="node"
+        :session-node="node as DirectorySessionNode"
         :top="true"
         class="fcb-entry-item" 
         draggable="true"
@@ -44,7 +64,7 @@
   </li>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="ChildType extends DirectorySessionNode | DirectoryArcNode">
   // library imports
   import { ref, PropType, computed } from 'vue';
   import { storeToRefs } from 'pinia';
@@ -53,23 +73,25 @@
   import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
-  import { Campaign } from '@/classes';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
   
   // local components
-  import SessionDirectoryNode from './SessionDirectoryNode.vue';
-  
+  import CampaignDirectorySessionNode from './CampaignDirectorySessionNode.vue';
+  import CampaignDirectoryArcNode from './CampaignDirectoryArcNode.vue';
+  import CampaignDirectoryFrontFolder from './CampaignDirectoryFrontFolder.vue';
+
   // types
-  import { DirectoryCampaignNode, DirectorySessionNode } from '@/classes';
+  import { Campaign, DirectoryArcNode, DirectoryCampaignNode, DirectorySessionNode, DirectoryFrontFolder } from '@/classes';
   import { CampaignNodeDragData, WindowTabType } from '@/types';
   
   ////////////////////////////////
   // props
   const props = defineProps({
     campaignNode: {
-      type: Object as PropType<DirectoryCampaignNode>,
+      type: Object as PropType<DirectoryCampaignNode<ChildType>>,
       required: true,
     }
   });
@@ -88,19 +110,44 @@
   // data
   // we don't just use props node because in toggleWithLoad we want to swap it out without rebuilding
   //   the whole tree
-  const currentNode = ref<DirectoryCampaignNode>(props.campaignNode);
+  const currentNode = ref<DirectoryCampaignNode<ChildType>>(props.campaignNode);
   
   ////////////////////////////////
   // computed data
-  const sortedChildren = computed((): DirectorySessionNode[] => {
-    const children = props.campaignNode.loadedChildren;
-    return children.sort((a, b) => a.sessionNumber - b.sessionNumber);
+  const sortedChildren = computed((): DirectorySessionNode[] | DirectoryArcNode[] => {
+    let children = props.campaignNode.loadedChildren;
+
+    // if we are using fronts, strip the front folder
+    if (ModuleSettings.get(SettingKey.useFronts)) {
+      children = children.slice(1);
+    }
+
+    // sort sessions by number, arcs by name
+    if (ModuleSettings.get(SettingKey.useArcs)) {
+      return (children as DirectoryArcNode[]).sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      return (children as DirectorySessionNode[]).sort((a, b) => a.sessionNumber - b.sessionNumber);
+    }
+  });
+  const frontFolderNode = computed((): DirectoryFrontFolder | null => {
+    if (ModuleSettings.get(SettingKey.useFronts)) {
+      // front is always the first one
+      return props.campaignNode.loadedChildren[0] as DirectoryFrontFolder;
+    } else {
+      return null;
+    }
   });
 
   // Check if this campaign is current showing in the content window
   const isActiveCampaign = computed((): boolean => {
     return currentCampaign.value?.uuid === props.campaignNode.id;
   });
+
+  ////////////////////////////////
+  // methods
+
+  ////////////////////////////////
+  // event handlers
 
   ////////////////////////////////
   // methods
@@ -128,7 +175,7 @@
       return;
     }
 
-    currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as DirectoryCampaignNode, !currentNode.value.expanded);
+    currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as DirectoryCampaignNode<ChildType>, !currentNode.value.expanded);
   };
 
   const onCampaignSelectClick = async (event: MouseEvent) => {
@@ -201,136 +248,4 @@
 </script>
 
 <style lang="scss">
-  #fcb-directory {
-    // the campaign list section
-    .fcb-directory-panel-wrapper {
-      .fcb-campaign-list {
-        .fcb-campaign-folder {
-          align-items: flex-start;
-          justify-content: flex-start;
-          font-weight: 700;
-
-          &.active {
-            font-weight: bold;
-          }
-        }
-
-        .fcb-campaign-folder > .folder-header {
-          border-bottom: none;
-          width: 100%;
-          flex: 1;
-          font-weight: 700;
-        }
-
-        .fcb-campaign-folder:not(.collapsed) > .folder-header {
-          background: var(--fcb-sidebar-campaign-background);
-          color: var(--fcb-sidebar-campaign-color);
-        }
-
-        .fcb-campaign-folder.collapsed > .folder-header {
-          background: var(--fcb-sidebar-campaign-background-collapsed);
-          color: var(--fcb-sidebar-campaign-color-collapsed);
-          text-shadow: none;
-        }
-
-        .fcb-campaign-folder .folder-header {
-          background: inherit;
-          border: 0px;
-          text-shadow: none;   // override foundry default
-          cursor: pointer;
-
-          i.icon {
-            color: var(--fcb-sidebar-topic-icon-color);
-          }  
-        }
-
-        // change icon to closed when collapsed
-        .fcb-campaign-folder.collapsed > .folder-header i.fa-folder-open:before {
-          content: "\f07b";
-        }
-
-        .campaign-contents {
-          margin: 0px;
-          width: 100%;
-          padding-left: 10px;
-        }    
-      }
-    }
-  }
-
-  // the nested tree structure
-  // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
-
-  .fcb-campaign-folder{
-    // font-size: var(--fcb-font-size);
-    // font-family: var(--fcb-font-family);
-
-    .fcb-directory-entry, .fcb-current-directory-entry {
-      position: relative;
-      padding-left: 1em;
-      cursor: pointer;
-    }
-
-    .fcb-directory-entry {
-      font-weight: 400;
-    }
-
-    // bold the active one
-    .fcb-current-directory-entry {
-      color: var(--fcb-accent-400);
-      font-weight: 700;
-    }
-
-
-    // leaving this here for when we introduce story arcs
-    // ul {
-    //   list-style: none;
-    //   line-height: 2em;   // this makes the horizontal lines centered (when combined with the height on the li::before
-
-    //   li {
-    //     position: relative;
-    //     padding: 0;
-    //     margin: -0.5em 0 0 0;
-
-    //     font-weight: normal;
-
-    //     // this draws the top-half ot the vertical plus the horizontal tree connector lines
-    //     &::before {
-    //       top: 0px;
-    //       border-bottom: 2px solid gray;
-    //       height: 1em;   // controls vertical position of horizontal lines
-    //     }
-
-    //     // extends the vertical lines down
-    //     &::after {
-    //       bottom: 0px;
-    //       height: 100%;
-    //     }
-
-    //     &::before, &::after {
-    //       content: "";
-    //       position: absolute;
-    //       left: -10px;   // pushes them left of the text
-    //       border-left: 2px solid gray;
-    //       width: 10px;   // controls the length of the horizontal lines
-    //     }
-
-    //     &:last-child::after {
-    //       display: none;   // avoid a little tail at the bottom of the vertical lines
-    //     }
-    //   }
-    // }
-
-    // // move the text away from the end of the horizontal lines
-    // li {
-    //   padding-left: 3px;
-    // }
-
-    // add margin when these are immediate children of summary
-    div.summary.top > .fcb-directory-entry,
-    div.summary.top > .fcb-current-directory-entry {
-      margin-left: 8px;
-    }
-  }
-
 </style>

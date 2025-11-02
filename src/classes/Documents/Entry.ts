@@ -114,16 +114,16 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     let folderName = '';
     switch (topicFolder.topic) {
       case Topics.Character:
-        folderName = 'Characters';
+        folderName = localize('topics.characters');
         break;
       case Topics.Location:
-        folderName = 'Locations';
+        folderName = localize('topics.locations');
         break;
       case Topics.Organization:
-        folderName = 'Organizations';
+        folderName = localize('topics.organizations');
         break;
       case Topics.PC:
-        folderName = 'PCs';
+        folderName = localize('topics.pcs');
         break;
     }
     const setting = topicFolder.setting;

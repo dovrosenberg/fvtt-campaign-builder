@@ -84,6 +84,7 @@
     [WindowTabType.Setting]: 'icons/svg/castle.svg',
     [WindowTabType.Campaign]: 'icons/svg/ruins.svg',
     [WindowTabType.Session]: 'icons/svg/combat.svg',
+    [WindowTabType.Front]: 'icons/svg/biohazard.svg', 
   };
 
   const TOPIC_IMAGES = {
@@ -106,13 +107,10 @@
         return TOPIC_IMAGES[props.topic];
 
       case WindowTabType.Setting:
-        return WINDOW_TYPE_IMAGES[WindowTabType.Setting];
-
       case WindowTabType.Campaign:
-        return WINDOW_TYPE_IMAGES[WindowTabType.Campaign];
-
       case WindowTabType.Session:
-        return WINDOW_TYPE_IMAGES[WindowTabType.Session];
+      case WindowTabType.Front:
+        return WINDOW_TYPE_IMAGES[props.windowType];
 
       default:
         throw new Error('Invalid window type in ImagePicker');

@@ -35,7 +35,7 @@
               class="noborder" 
               style="margin-bottom:0px"
               :data-testid="`topic-folder-${topicNode.topicFolder.topic}`"
-              @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
+              @click="onTopicFolderClick($event, topicNode as DirectoryTopicFolderNode)"
               @contextmenu="onTopicContextMenu($event, currentSettingTreeObject.id, topicNode.topicFolder as TopicFolder)"
             >
               <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
@@ -46,12 +46,12 @@
 
           <SettingDirectoryGroupedTree
             v-if="(isGroupedByType && topicNode.topicFolder.topic !== Topics.PC) || topicNode.topicFolder.topic === Topics.Character" 
-            :topic-node="topicNode as DirectoryTopicNode"
+            :topic-node="topicNode as DirectoryTopicFolderNode"
             :setting-id="currentSettingTreeObject.id"
           />
           <SettingDirectoryNestedTree
             v-else 
-            :topic-node="topicNode as DirectoryTopicNode"
+            :topic-node="topicNode as DirectoryTopicFolderNode"
             :setting-id="currentSettingTreeObject.id"
           />
         </li>
@@ -81,7 +81,7 @@
 
   // types
   import { WindowTabType, Topics } from '@/types';
-  import { DirectoryTopicNode, TopicFolder, } from '@/classes';
+  import { DirectoryTopicFolderNode, TopicFolder, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -199,9 +199,9 @@
  /**
    * Toggles expansion of a topic node when clicked.
    * @param event The click event
-   * @param directoryTopic The DirectoryTopicNode being toggled
+   * @param directoryTopic The DirectoryTopicFolderNode being toggled
    */
-  const onTopicFolderClick = async (event: MouseEvent, directoryTopic: DirectoryTopicNode) => { 
+  const onTopicFolderClick = async (event: MouseEvent, directoryTopic: DirectoryTopicFolderNode) => { 
     event.stopPropagation();
 
     await settingDirectoryStore.toggleTopic(directoryTopic);

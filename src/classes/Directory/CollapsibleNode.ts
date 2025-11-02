@@ -2,15 +2,15 @@
  * A class representing a node (which might have children) in the topic or campaign tree structures
  */
 
-import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, FCBSetting } from '@/classes';
+import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, FCBSetting, DirectoryArcNode, DirectoryFrontFolder, DirectoryFrontNode } from '@/classes';
 
-type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode;
+type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode | DirectoryArcNode | DirectoryFrontFolder | DirectoryFrontNode;
 
 export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   protected static _currentSetting: FCBSetting | null = null;
 
   /** maps uuid to the node for easy lookup **/
-  protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode>;   
+  protected static _loadedNodes = {} as Record<string, NodeType>;   
 
   public id: string;
   public parentId: string | null;
@@ -105,7 +105,14 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   public async recursivelyLoadNode(expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> {
     // load any children that haven't been loaded before
     // this guarantees all children are at least in CollapsibleNode._loadedNodes and updateEntryIds ones have been refreshed
-    const nodesToLoad = this.children.filter((id)=>!this.loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id));
+    // also remove any duplicates
+    const nodesToLoad = this.children
+      .filter((id)=>!this.loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id))
+      .reduce((acc, id)=>{
+        if (!acc.includes(id))
+          acc.push(id);
+        return acc;
+      }, [] as string[]);
 
     if (nodesToLoad.length>0)
       await this._loadNodeList(nodesToLoad, updateEntryIds);

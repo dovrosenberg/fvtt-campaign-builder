@@ -22,7 +22,7 @@ import { localize } from '@/utils/game';
 
 // types
 import { DOCUMENT_TYPES, EntryDoc, SessionDoc, } from '@/documents';
-import { Entry, Campaign, Session, getGlobalSetting } from '@/classes';
+import { Entry, Campaign, Session, getGlobalSetting, Front } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 import { ValidTopic, WindowTabType } from '@/types';
 import { InternalClientDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs';
@@ -301,6 +301,16 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
             return brokenAnchor(data);
           } else {  // this is an fcb item for this setting
             return goodAnchor(unknownItem, WindowTabType.Campaign, hash, data.name || campaign.name, `fas ${getTabTypeIcon(WindowTabType.Campaign)}`); 
+          }
+        }; break;
+        case DOCUMENT_TYPES.Front: {
+          const front = new Front(unknownItem as unknown as JournalEntry);
+
+          // handle the ones we don't care about
+          if (front.settingId !== settingId) {
+            return brokenAnchor(data);
+          } else {  // this is an fcb item for this setting
+            return goodAnchor(unknownItem, WindowTabType.Front, hash, data.name || front.name, `fas ${getTabTypeIcon(WindowTabType.Front)}`); 
           }
         }; break;
         case DOCUMENT_TYPES.Setting: {

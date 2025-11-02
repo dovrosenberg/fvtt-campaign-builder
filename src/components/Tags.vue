@@ -44,7 +44,7 @@
       required: true,
     },
     tagSetting: {   // key of setting to pull tag counts from 
-      type: String as PropType<SettingKey.entryTags | SettingKey.sessionTags>,
+      type: String as PropType<SettingKey.entryTags | SettingKey.sessionTags | SettingKey.frontTags>,
       required: true,
     },
   });

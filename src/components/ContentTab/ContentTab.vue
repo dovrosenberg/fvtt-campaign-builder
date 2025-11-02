@@ -28,6 +28,12 @@
       <CampaignContent />
     </div>
     <div 
+      v-if="currentContentType===WindowTabType.Front"
+      class="fcb-content-wrapper"
+    >
+      <FrontContent />
+    </div>
+    <div 
       v-else-if="currentContentType===WindowTabType.NewTab"
       class="fcb-content-wrapper"
     >
@@ -51,10 +57,10 @@
   // local components 
   import EntryContent from '@/components/ContentTab/EntryContent/EntryContent.vue';
   import SessionContent from '@/components/ContentTab/SessionContent/SessionContent.vue';
-
   import CampaignContent from '@/components/ContentTab/CampaignContent/CampaignContent.vue';
   import HomePage from '@/components/ContentTab/HomePage.vue';
   import SettingContent from '@/components/ContentTab/SettingContent.vue';
+  import FrontContent from '@/components/ContentTab/FrontContent/FrontContent.vue';
   
   // types
   import { WindowTabType } from '@/types';
