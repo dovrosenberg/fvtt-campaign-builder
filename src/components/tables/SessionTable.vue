@@ -11,20 +11,14 @@
     :allow-drop-row="props.allowDropRow"
     :rows="props.rows"
     :columns="columns"
-    :show-move-to-campaign="props.showMoveToCampaign"
     :draggable-rows="props.draggableRows"
     :help-text="props.helpText"
     :help-link="props.helpLink"
     :actions="actions"
     @row-select="(event) => emit('rowContextMenu', event)"
-    @edit-item="(data) => emit('editItem', data)"
     @add-item="() => emit('addItem')"
     @row-contextmenu="(event) => emit('rowContextMenu', event)"
     @cell-edit-complete="(event) => emit('cellEditComplete', event)"
-    @mark-item-delivered="(uuid) => emit('markItemDelivered', uuid)"
-    @unmark-item-delivered="(uuid) => emit('unmarkItemDelivered', uuid)"
-    @move-to-next-session="(uuid) => emit('moveToNextSession', uuid)"
-    @move-to-campaign="(uuid) => emit('moveToCampaign', uuid)"
     @dragstart="(event, uuid) => emit('dragstart', event, uuid)"
     @drop-row="(event, uuid) => emit('dropRow', event, uuid)"
     @drop-new="(event) => emit('dropNew', event)"
@@ -38,7 +32,8 @@
   import { PropType, computed, ref } from 'vue';
 
   // local imports
-  
+  import { localize } from '@/utils/game';
+
   // library components
   import  { DataTableCellEditCompleteEvent, DataTableRowContextMenuEvent, DataTableRowSelectEvent } from 'primevue/datatable';
   
@@ -160,7 +155,41 @@
       actions.push({ icon: 'fa-trash', callback: (data) => emit('deleteItem', data.uuid), tooltip: props.deleteItemLabel });
 
     if (props.allowEdit)
-      actions.push({ icon: 'fa-pen', callback: () => {}, tooltip: props.editItemLabel });
+      actions.push({ 
+        icon: 'fa-pen', 
+        isEdit: true, 
+        callback: (data) => emit('editItem', data.uuid), 
+        tooltip: props.editItemLabel 
+    });
+
+    if (props.showMoveToCampaign)
+      actions.push({ 
+        icon: 'fa-arrow-up', 
+        display: (data) => !data.delivered, // hide arrow for things already delivered
+        callback: (data) => emit('moveToCampaign', data.uuid), 
+        tooltip: localize('tooltips.moveToCampaign') 
+      });
+
+    // add the deliver/undeliver buttons
+    actions.push({ 
+      icon: 'fa-circle-check', 
+      display: (data) => !data.delivered, // hide arrow for things already delivered
+      callback: (data) => emit('markItemDelivered', data.uuid), 
+      tooltip: localize('tooltips.markAsDelivered') 
+    });
+    actions.push({ 
+      icon: 'fa-circle-xmark', 
+      display: (data) => data.delivered, 
+      callback: (data) => emit('unmarkItemDelivered', data.uuid), 
+      tooltip: localize('tooltips.unmarkAsDelivered') 
+    });
+    actions.push({ 
+      icon: 'fa-share', 
+      display: (data) => !data.delivered, // hide arrow for things already delivered
+      callback: (data) => emit('moveToNextSession', data.uuid), 
+      tooltip: localize('tooltips.moveToNextSession') 
+    });
+
 
     return actions;
   });

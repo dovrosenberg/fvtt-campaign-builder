@@ -4,6 +4,7 @@
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.6.0/module.zip)
 
 - You can now use fronts.  They can be disabled in the module settings.
+- Fixed bug when trying to move lore to the next session when that session wasn't yet created.
 
 ## v1.5.0 - Tons of changes, but mostly behind the scenes
 ![](https://img.shields.io/badge/release%20date-October%2023%2C%202025-blue)

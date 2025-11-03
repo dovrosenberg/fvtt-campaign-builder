@@ -16,6 +16,12 @@ export interface ActionButtonDefinition {
   callback: (data: Record<string, any> & { uuid: string }) => void;
 
   tooltip: string;
+
+  /** based on the data for the row, should it be displayed */
+  display?: (data: Record<string, any> & { uuid: string}) => boolean;
+
+  /** if true, pressing the button activates row edit mode */
+  isEdit?: boolean;
 }
 
 export interface FieldData {

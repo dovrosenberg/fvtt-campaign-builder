@@ -117,63 +117,20 @@
               @dragleave="onDragLeaveRow(data.uuid)"
               @drop="onDropRow($event, data.uuid)"
             >
-              <a
+              <template
                 v-for="(action, index) in actions"
                 :key="index"
-                class="fcb-action-icon" 
-                :data-testid="`table-action-${index}-${data.uuid}`"
-                :data-tooltip="action.tooltip"
-                @click.stop="action.callback(data)" 
               >
-                <i :class="`fas ${action.icon}`"></i>
-              </a>
-              <a 
-                v-if="props.showMoveToIdeas"
-                class="fcb-action-icon" 
-                :data-testid="`table-move-to-ideas-${data.uuid}`"
-                :data-tooltip="props.moveToIdeasLabel"
-                @click.stop="emit('moveToIdeas', data.uuid)" 
-              >
-                <i class="fas fa-arrow-left"></i>
-              </a>
-              <span v-if="props.trackDelivery">
-                <!-- this is a session one that's not delivered -->
-                <a 
-                  v-if="props.showMoveToCampaign && !data.delivered"
+                <a
+                  v-if="!action.display || action.display(data)"
                   class="fcb-action-icon" 
-                  :data-tooltip="localize('tooltips.moveToCampaign')"
-                  @click.stop="emit('moveToCampaign', data.uuid)" 
+                  :data-testid="`table-action-${index}-${data.uuid}`"
+                  :data-tooltip="action.tooltip"
+                  @click.stop="action.isEdit ? onEditButtonClick(data, action.callback) : action.callback(data)" 
                 >
-                  <i class="fas fa-arrow-up"></i>
+                  <i :class="`fas ${action.icon}`"></i>
                 </a>
-
-                <!-- we track delivery on campaign (delivered and not) and session lore lists -->
-                <!-- this is a delivered one -->
-                <a 
-                  v-if="data.delivered"
-                  class="fcb-action-icon" 
-                  :data-tooltip="localize('tooltips.unmarkAsDelivered')"
-                  @click.stop="emit('unmarkItemDelivered', data.uuid)" 
-                >
-                  <i class="fas fa-circle-xmark"></i>
-                </a>
-                <template v-else>
-                  <a 
-                    class="fcb-action-icon" 
-                    :data-tooltip="localize('tooltips.markAsDelivered')"
-                    @click.stop="emit('markItemDelivered', data.uuid)" 
-                  >
-                    <i class="fas fa-circle-check"></i>
-                  </a>
-                  <a 
-                    class="fcb-action-icon" 
-                    :data-tooltip="localize('tooltips.moveToNextSession')"
-                    @click.stop="emit('moveToNextSession', data.uuid)" 
-                  >
-                    <i class="fas fa-share"></i>
-                  </a>
-                </template>
-              </span>
+              </template>
             </div>
           </div>
 
@@ -396,18 +353,6 @@
       type: String,
       default: '',
     },
-    showMoveToCampaign: {
-      type: Boolean,
-      default: false,
-    },
-    showMoveToIdeas: {
-      type: Boolean,
-      default: false,
-    },
-    moveToIdeasLabel: {
-      type: String,
-      default: '',
-    },
     draggableRows: {
       type: Boolean,
       required: false,
@@ -436,7 +381,6 @@
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;
     (e: 'moveToCampaign', uuid: string): void;
-    (e: 'moveToIdeas', uuid: string): void;
     (e: 'dragstart', event: DragEvent, uuid: string): void;
     (e: 'dragoverNew', event: DragEvent): void;
     (e: 'dragoverRow', event: DragEvent, uuid: string): void;
@@ -587,7 +531,7 @@
       value: rowData[field],
       index: props.rows.findIndex((r) => r.uuid === rowData.uuid),
       type: 'edit',
-    };
+    } as DataTableCellEditCompleteEvent;
     emit('cellEditComplete', event);
   };
 
@@ -679,7 +623,7 @@
     emit('reorder', reorderedRows);
   }
 
-  const onEditButtonClick = (data: BaseTableGridRow) => {
+  const onEditButtonClick = (data: BaseTableGridRow, callback: (data: BaseTableGridRow) => void) => {
     // Check if there are any editable columns
     if (hasEditableColumns.value) {
       // If we were already editing a row, save it first
@@ -688,8 +632,7 @@
       // If there are editable columns, put the row in edit mode
       setEditingRow(data.uuid);
     } else {
-      // If no editable columns, emit the editItem event as before
-      emit('editItem', data);
+      callback(data);
     }
   }
 

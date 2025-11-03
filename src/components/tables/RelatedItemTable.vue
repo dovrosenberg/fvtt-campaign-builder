@@ -110,7 +110,7 @@
     const actions = [{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteRelationship') }];
 
     if (extraColumns.value.length > 0)
-      actions.push({ icon: 'fa-pen', callback: () => {}, tooltip: localize('tooltips.editRelationship') });
+      actions.push({ icon: 'fa-pen', isEdit: true, callback: () => {}, tooltip: localize('tooltips.editRelationship') });
 
     return actions;
   });

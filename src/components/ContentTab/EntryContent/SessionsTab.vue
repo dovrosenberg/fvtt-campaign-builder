@@ -9,10 +9,8 @@
       :allow-edit="false"
       :edit-item-label="localize('tooltips.editSession')"
       :add-button-label="''"
-      :track-delivery="false"
       :extra-add-text="''"
       :allow-drop-row="false"
-      :show-move-to-campaign="false"
       :draggable-rows="false"
 
     />
