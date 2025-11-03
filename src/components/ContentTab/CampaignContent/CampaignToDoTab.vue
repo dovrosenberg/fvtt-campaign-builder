@@ -17,7 +17,7 @@
       :move-to-ideas-label="localize('tooltips.moveToIdeas')"
       :draggable-rows="false"
       :can-reorder="true"
-      :actions="[{ icon: 'fa-trash', callback: onDeleteToDoItem, tooltip: localize('tooltips.deleteToDo') }]"
+      :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteToDoItem(data.uuid), tooltip: localize('tooltips.deleteToDo') }]"
       @add-item="onAddToDoItem"
       @cell-edit-complete="onCellEditComplete"
       @reorder="onReorder"

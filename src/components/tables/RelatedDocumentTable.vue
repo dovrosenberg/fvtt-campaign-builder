@@ -7,9 +7,8 @@
     :addButtonLabel="addButtonLabel"
     :extraAddText="extraAddText"
     :filterFields="filterFields"
-    :allowEdit="false"
     :draggable-rows="[DocumentLinkType.Actors, DocumentLinkType.Items].includes(props.documentLinkType)"
-    :actions="[{ icon: 'fa-trash', callback: onDeleteItemClick, tooltip: localize('tooltips.deleteRelationship') }]"
+    :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(uuid), tooltip: localize('tooltips.deleteRelationship') }]"
 
     @row-context-menu="onRowContextMenu"
     @drop-new="onDropNew"

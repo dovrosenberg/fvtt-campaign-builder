@@ -9,7 +9,7 @@
         :extra-add-text="localize('labels.journals.dropToAdd')"
         :filter-fields="filterFields"
         :can-reorder="false"
-        :actions="[{ icon: 'fa-trash', callback: onDeleteItemClick, tooltip: localize('tooltips.deleteRelationship') }]"
+        :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteRelationship') }]"
 
         @cell-click="onCellClick"
         @drop-new="onDropNew"

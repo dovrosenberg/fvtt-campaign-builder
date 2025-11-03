@@ -11,8 +11,6 @@
     :allow-drop-row="props.allowDropRow"
     :rows="props.rows"
     :columns="columns"
-    :allow-edit="props.allowEdit"
-    :edit-item-label="props.editItemLabel"
     :show-move-to-campaign="props.showMoveToCampaign"
     :draggable-rows="props.draggableRows"
     :help-text="props.helpText"
@@ -52,6 +50,7 @@
     uuid: string; 
     delivered: boolean;
   };
+  import { ActionButtonDefinition } from '@/types';
 
   ////////////////////////////////
   // props
@@ -158,9 +157,12 @@
   const actions = computed(() => {
     const actions = [] as ActionButtonDefinition[];
     if (props.allowDelete)
-      actions.push({ icon: 'fa-trash', callback: (uuid) => emit('deleteItem', uuid), tooltip: props.deleteItemLabel });
+      actions.push({ icon: 'fa-trash', callback: (data) => emit('deleteItem', data.uuid), tooltip: props.deleteItemLabel });
 
-      return actions;
+    if (props.allowEdit)
+      actions.push({ icon: 'fa-pen', callback: () => {}, tooltip: props.editItemLabel });
+
+    return actions;
   });
 
   ////////////////////////////////

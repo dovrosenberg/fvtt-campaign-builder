@@ -123,27 +123,9 @@
                 class="fcb-action-icon" 
                 :data-testid="`table-action-${index}-${data.uuid}`"
                 :data-tooltip="action.tooltip"
-                @click.stop="action.callback(data.uuid)" 
+                @click.stop="action.callback(data)" 
               >
                 <i :class="`fas ${action.icon}`"></i>
-              </a>
-              <a 
-                v-if="props.allowEdit"
-                class="fcb-action-icon" 
-                :data-testid="`table-edit-${data.uuid}`"
-                :data-tooltip="props.editItemLabel"
-                @click.stop="onEditButtonClick(data)" 
-              >
-                <i class="fas fa-pen"></i>
-              </a>
-              <a 
-                v-if="props.showMoveToToDo"
-                class="fcb-action-icon" 
-                :data-testid="`table-move-to-todo-${data.uuid}`"
-                :data-tooltip="props.moveToToDoLabel"
-                @click.stop="emit('moveToToDo', data.uuid)" 
-              >
-                <i class="fas fa-arrow-right"></i>
               </a>
               <a 
                 v-if="props.showMoveToIdeas"
@@ -418,14 +400,6 @@
       type: Boolean,
       default: false,
     },
-    showMoveToToDo: {
-      type: Boolean,
-      default: false,
-    },
-    moveToToDoLabel: {
-      type: String,
-      default: '',
-    },
     showMoveToIdeas: {
       type: Boolean,
       default: false,
@@ -455,8 +429,6 @@
   // emits
   const emit = defineEmits<{
     (e: 'rowSelect', originalEvent: DataTableRowSelectEvent): void;
-    (e: 'editItem', data: BaseTableGridRow): void;
-    (e: 'deleteItem', uuid: string): void;
     (e: 'addItem'): void;
     (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
     (e: 'cellEditComplete', originalEvent: DataTableCellEditCompleteEvent): void;
@@ -464,7 +436,6 @@
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;
     (e: 'moveToCampaign', uuid: string): void;
-    (e: 'moveToToDo', uuid: string): void;
     (e: 'moveToIdeas', uuid: string): void;
     (e: 'dragstart', event: DragEvent, uuid: string): void;
     (e: 'dragoverNew', event: DragEvent): void;

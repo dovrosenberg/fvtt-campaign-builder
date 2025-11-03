@@ -11,7 +11,10 @@ export interface TablePagination {
 
 export interface ActionButtonDefinition {
   icon: string;
-  callback: (uuid: string) => void;
+
+  /** receives the row */
+  callback: (data: Record<string, any> & { uuid: string }) => void;
+
   tooltip: string;
 }
 

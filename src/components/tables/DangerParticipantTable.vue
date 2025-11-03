@@ -11,7 +11,7 @@
     :filter-fields="filterFields"
     :allow-edit="true"
     :edit-item-label="localize('tooltips.editParticipant')"
-    :actions="[{ icon: 'fa-trash', callback: onDeleteItemClick, tooltip: localize('tooltips.deleteParticipant') }]"
+    :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteParticipant') }]"
 
     @add-item="onAddItemClick"
     @drop-new="onDropNew"

@@ -7,9 +7,7 @@
     :extra-add-text="newItemDragLabel"
     :addButtonLabel="newItemLabel"
     :filterFields="filterFields"
-    :allowEdit="extraColumns.length > 0"
-    :edit-item-label="localize('tooltips.editRelationship')"
-    :actions="[{ icon: 'fa-trash', callback: onDeleteItemClick, tooltip: localize('tooltips.deleteRelationship') }]"
+    :actions="actions"
 
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
@@ -106,6 +104,15 @@
     });
 
     return base;
+  });
+
+  const actions = computed(() => {
+    const actions = [{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteRelationship') }];
+
+    if (extraColumns.value.length > 0)
+      actions.push({ icon: 'fa-pen', callback: () => {}, tooltip: localize('tooltips.editRelationship') });
+
+    return actions;
   });
 
   const newItemLabel = computed(() => {
