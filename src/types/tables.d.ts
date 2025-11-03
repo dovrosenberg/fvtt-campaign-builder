@@ -9,6 +9,12 @@ export interface TablePagination {
   filters: Record<string, { value: string | null; matchMode: DataTableFilterMetaData['matchMode']}>;   // maps field name to filter value applied to it
 }
 
+export interface ActionButtonDefinition {
+  icon: string;
+  callback: (uuid: string) => void;
+  tooltip: string;
+}
+
 export interface FieldData {
   field:string; 
   header: string;

@@ -13,15 +13,13 @@
     :columns="columns"
     :allow-edit="props.allowEdit"
     :edit-item-label="props.editItemLabel"
-    :allow-delete="props.allowDelete"
-    :delete-item-label="props.deleteItemLabel"
     :show-move-to-campaign="props.showMoveToCampaign"
     :draggable-rows="props.draggableRows"
     :help-text="props.helpText"
     :help-link="props.helpLink"
+    :actions="actions"
     @row-select="(event) => emit('rowContextMenu', event)"
     @edit-item="(data) => emit('editItem', data)"
-    @delete-item="(uuid) => emit('deleteItem', uuid)"
     @add-item="() => emit('addItem')"
     @row-contextmenu="(event) => emit('rowContextMenu', event)"
     @cell-edit-complete="(event) => emit('cellEditComplete', event)"
@@ -155,6 +153,14 @@
     }
 
     return columns;
+  });
+
+  const actions = computed(() => {
+    const actions = [] as ActionButtonDefinition[];
+    if (props.allowDelete)
+      actions.push({ icon: 'fa-trash', callback: (uuid) => emit('deleteItem', uuid), tooltip: props.deleteItemLabel });
+
+      return actions;
   });
 
   ////////////////////////////////

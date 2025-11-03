@@ -8,10 +8,9 @@
     :showFilter="false"
     :allowEdit="false"
     :allow-drop-row="false"
-    :delete-item-label="localize('tooltips.deleteRelationship')"
     :add-button-label="localize('labels.campaign.addPC')"
+    :actions="[{ icon: 'fa-trash', callback: onDeleteItemClick, tooltip: localize('tooltips.deleteRelationship') }]"
     @add-item="onAddItemClick"
-    @delete-item="onDeleteItemClick"
     @drop-new="onDropNew"
     @dragover="onDragover"
   />

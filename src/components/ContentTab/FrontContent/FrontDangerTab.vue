@@ -19,7 +19,7 @@
       <!-- Impending Doom -->
       <div class="flexrow form-group">
         <LabelWithHelp
-          label-text="labels.fields.impendingDoom"
+          label-text="labels.front.impendingDoom"
         />
         <TextArea
           v-model="impendingDoom"
@@ -34,7 +34,7 @@
       <!-- Description -->
       <div class="flexrow form-group">
         <LabelWithHelp
-          label-text="labels.fields.description"
+          label-text="labels.description"
           top-label
         />
       </div>
@@ -48,23 +48,20 @@
       </div>
       
       <!-- Participants -->
-      <div class="flexrow form-group">
+      <div class="flexrow form-group" style="margin-top: 1.5rem">
         <LabelWithHelp
-          label-text="labels.fields.participants"
+          label-text="labels.front.participants"
           top-label
         />
       </div>
-      <RelatedItemTable
-        :topic="Topics.Character"
-        :extra-fields="[
-          { field: 'role', header: localize('labels.fields.role') }
-        ]"
+      <DangerParticipantTable
+        :participant-rows="participantRows"
       />
       
       <!-- Motivation -->
-      <div class="flexrow form-group">
+      <div class="flexrow form-group" style="margin-top: 1.5rem">
         <LabelWithHelp
-          label-text="labels.fields.motivation"
+          label-text="labels.front.motivation"
           top-label
         />
       </div>
@@ -79,45 +76,29 @@
         />
       </div>
       
-      <!-- Opposition -->
-      <div class="flexrow form-group">
-        <LabelWithHelp
-          label-text="labels.fields.opposition"
-          top-label
-        />
-      </div>
-      <RelatedItemTable
-        :topic="Topics.Character"
-        :extra-fields="[
-          { field: 'role', header: localize('labels.fields.role') }
-        ]"
-      />
-      
       <!-- Grim Portents -->
-      <div class="flexrow form-group">
+      <div class="flexrow form-group" style="margin-top: 1.5rem">
         <LabelWithHelp
-          label-text="labels.fields.grimPortents"
+          label-text="labels.front.grimPortents"
           top-label
         />
       </div>
       <div class="flexcol form-group">
         <SessionTable
           ref="sessionTableRef"
-          :rows="mappedVignetteRows"
+          :rows="grimPortentRows"
           :columns="grimPortentColumns"
-          :delete-item-label="localize('tooltips.deleteVignette')"
+          :delete-item-label="localize('tooltips.deletePortent')"
           :allow-edit="true"
           :edit-item-label="localize('tooltips.editRow')"
           :show-add-button="true"
-          :add-button-label="localize('labels.session.addVignette')"
-          :help-text="localize('labels.session.vignetteHelpText')"
-          help-link="https://slyflourish.com/scenes_catch_all_step.html"
+          :add-button-label="localize('labels.front.addPortent')"
+          :help-text="localize('labels.front.portentHelpText')"
           :can-reorder="true"
-          @add-item="onAddVignette"
-          @delete-item="onDeleteVignette"
-          @mark-item-delivered="onMarkVignetteDelivered"
-          @unmark-item-delivered="onUnmarkVignetteDelivered"
-          @move-to-next-session="onMoveVignetteToNext"
+          @add-item="onAddPortent"
+          @delete-item="onDeletePortent"
+          @mark-item-delivered="onMarkPortentDelivered"
+          @unmark-item-delivered="onUnmarkPortentDelivered"
           @cell-edit-complete="onCellEditComplete"
           @reorder="onReorder"
         />
@@ -128,14 +109,15 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, onMounted, onBeforeUnmount, computed, toRef } from 'vue';
+  import { ref, watch, onMounted, onBeforeUnmount, computed, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { useMainStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { getTabTypeIcon } from '@/utils/misc';
-  
+  import { notifyWarn } from '@/utils/notifications';
+
   // library components
   import TextArea from 'primevue/textarea';
   import InputText from 'primevue/inputtext';
@@ -144,10 +126,10 @@
   import Editor from '@/components/Editor.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import RelatedItemTable from '@/components/tables/RelatedItemTable.vue';
+  import DangerParticipantTable from '@/components/tables/DangerParticipantTable.vue';
 
   // types
-  import { Danger, WindowTabType, Topics } from '@/types';
-import { notifyWarn } from 'src/utils/notifications';
+  import { Danger, WindowTabType, Topics, EntryBasicIndex } from '@/types';
 
   ////////////////////////////////
   // props
@@ -164,7 +146,7 @@ import { notifyWarn } from 'src/utils/notifications';
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentFront } = storeToRefs(mainStore);
+  const { currentFront, currentSetting } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -180,6 +162,31 @@ import { notifyWarn } from 'src/utils/notifications';
   const grimPortentColumns = computed(() => [
     { field: 'description', style: 'text-align: left', header: 'Grim Portent', editable: true },
   ]);
+
+  const participantRows = computed(() => {
+    if (!currentDanger.value || !currentSetting.value) 
+      return [];
+
+    // could be different topics, so let's merge them
+    const allEntries = Object.values(currentSetting.value.topicFolders)?.reduce(
+      (acc, folder) => acc.concat(folder.entryIndex),
+      [] as EntryBasicIndex[]
+    ) || [];
+
+    return currentDanger.value.participants.map(p => {
+      // find the entry
+      const entry = allEntries.find(e => e.uuid === p.uuid);
+      if (!entry)
+        throw new Error('Could not find entry for participant in FrontDangerTab.participantRows(): ' + p.uuid);
+
+      return {
+        uuid: p.uuid,
+        name: entry.name,
+        type: entry.type,
+        role: p.role,
+      };
+    });
+  });
 
   ////////////////////////////////
   // methods

@@ -1,15 +1,17 @@
-<template>
+
+<!-- This is different from related items because it allows characters, locations, orgs all at once-->
+ <template> 
   <BaseTable
     ref="baseTableRef"
     :rows="rows"
     :columns="columns"
-    :showAddButton="true"
-    :extra-add-text="newItemDragLabel"
-    :addButtonLabel="newItemLabel"
-    :filterFields="filterFields"
-    :allowEdit="extraColumns.length > 0"
-    :edit-item-label="localize('tooltips.editRelationship')"
-    :actions="[{ icon: 'fa-trash', callback: onDeleteItemClick, tooltip: localize('tooltips.deleteRelationship') }]"
+    :show-add-button="true"
+    :extra-add-text="localize('labels.addParticipantDrag')"
+    :add-button-label="localize('labels.addParticipant')"
+    :filter-fields="filterFields"
+    :allow-edit="true"
+    :edit-item-label="localize('tooltips.editParticipant')"
+    :actions="[{ icon: 'fa-trash', callback: onDeleteItemClick, tooltip: localize('tooltips.deleteParticipant') }]"
 
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
@@ -17,8 +19,7 @@
     @cell-edit-complete="onCellEditComplete"
   />
 
-  <RelatedItemDialog
-    v-if="extraColumns.length > 0"
+  <!-- <RelatedItemDialog
     v-model="editDialogShow"
     :topic="props.topic"
     :mode="RelatedItemDialogModes.Edit"
@@ -32,7 +33,7 @@
     :item-id="editItem.itemId"
     :item-name="editItem.itemName"
     :mode="RelatedItemDialogModes.Add"
-  />
+  /> -->
 </template>
 
 <script setup lang="ts">
@@ -54,19 +55,20 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { Topics, ValidTopic, RelatedItemDetails, RelatedItemDialogModes, EntryNodeDragData, ValidTopicRecord } from '@/types';
+  import { RelatedItemDialogModes, EntryNodeDragData, Topics, } from '@/types';
   
-  interface RelatedItemGridRow extends Record<string, any> { 
+  interface ParticipantGridRow { 
     uuid: string; 
     name: string; 
     type: string;
+    role: string;
   };
 
   ////////////////////////////////
   // props
   const props = defineProps({
-    topic: { 
-      type:Number as PropType<ValidTopic>, 
+    participantRows: { 
+      type: Array as PropType<ParticipantGridRow[]>, 
       required: true,
     },
   });
@@ -81,7 +83,6 @@
   const navigationStore = useNavigationStore();
 
   const { currentEntryTopic } = storeToRefs(mainStore);
-  const { relatedItemRows, } = storeToRefs(relationshipStore);
   const extraFields = relationshipStore.extraFields;
 
   ////////////////////////////////
@@ -98,102 +99,23 @@
 
   ////////////////////////////////
   // computed data
-  const filterFields = computed(() => {
-    let base = ['name', 'type'];
+  const filterFields = computed(() => (['name', 'type', 'role']));
 
-    extraColumns.value.forEach((field) => {
-      base = base.concat([field.field]);
-    });
-
-    return base;
-  });
-
-  const newItemLabel = computed(() => {
-    switch (props.topic) {
-      case Topics.Character: return localize('labels.addTopic.character'); 
-      case Topics.Location: return localize('labels.addTopic.location');
-      case Topics.Organization: return localize('labels.addTopic.organization');
-      case Topics.PC: return localize('labels.addTopic.pc');
-    }
-  });
-
-  const newItemDragLabel = computed(() => {
-    switch (props.topic) {
-      case Topics.Character: return localize('labels.addTopicDrag.character'); 
-      case Topics.Location: return localize('labels.addTopicDrag.location');
-      case Topics.Organization: return localize('labels.addTopicDrag.organization');
-      case Topics.PC: return localize('labels.addTopicDrag.pc');
-    }
-  });
-
-  const rows = computed((): RelatedItemGridRow[] => 
-    relatedItemRows.value.map((item: RelatedItemDetails<any, any>) => {
-      const base = { uuid: item.uuid, name: item.name, type: item.type };
-
-      extraColumns.value.forEach((field) => {
-        base[field.field] = item.extraFields[field.field];
-      });
-
-      return base;
-    })
-  );
-
-  // map the extra fields to columns, adding style and sortable if not present in the field
-  const extraColumns = computed(() => {
-    if (!extraFields || !extraFields[currentEntryTopic.value] || !extraFields[currentEntryTopic.value][props.topic])
-      return [];
-
-    return extraFields[currentEntryTopic.value][props.topic].map((field) => ({
-      style: 'text-align: left',
-      sortable: true,
-      ...field,
-    }));
-  });
+  const rows = computed((): ParticipantGridRow[] => props.participantRows);
 
   const columns = computed((): any[] => {
     // they all have some standard columns
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
     const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick }; 
     const typeColumn = { field: 'type', style: 'text-align: left', header: 'Type', sortable: true }; 
-    const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 
+    const roleColumn  ={ field: 'role', style: 'text-align: left', header: 'Role', sortable: true, editable: true, smallEditBox: true };
 
-    const columns = {
-      [Topics.Character]: [
-        actionColumn,
-        nameColumn,
-        typeColumn,
-      ],
-      [Topics.Location]: [
-        actionColumn,
-        nameColumn,
-        typeColumn,
-      ],
-      [Topics.Organization]: [
-        actionColumn,
-        nameColumn,
-        typeColumn,
-      ],
-      [Topics.PC]: [
-        actionColumn,
-        nameColumn,
-        typeColumn,
-      ],
-    } as ValidTopicRecord<any[]>;
-
-    if (extraColumns.value.length > 0) {
-      // add the extra fields
-      columns[props.topic] = (columns[props.topic] || []).concat(extraColumns.value.map((field) => ({
-        field: field.field, 
-        style: 'text-align:left',
-        header: field.header, 
-        sortable: true,
-        editable: true, // Make extra field columns editable
-        smallEditBox: true, // Assuming extra fields are suitable for InputText
-      })
-      ));
-    }
-
-    return columns[props.topic] || [];
+    return [
+      actionColumn,
+      nameColumn,
+      typeColumn,
+      roleColumn,
+    ];
   });
 
   ////////////////////////////////
@@ -221,12 +143,12 @@
     event.preventDefault();
 
     // parse the data
-    let data = getValidatedData(event) as EntryNodeDragData;
+    let data = getValidatedData(event) as unknown as EntryNodeDragData;
     if (!data || data.type !== 'fcb-entry')
       return;
 
     // make sure it's the right format and topic matches
-    if (data.topic !== props.topic || !data.childId) {
+    if (![Topics.Characters, Topics.Locations, Topics.Organizations].includes(data.topic) || !data.childId) {
       return;
     }
 
@@ -235,20 +157,12 @@
       return;
     }
 
-    // Check if there are any extra fields required for this relationship
-    const requiredExtraFields = extraFields[currentEntryTopic.value][props.topic];
-    
-    if (!requiredExtraFields || requiredExtraFields.length === 0) {
-      // No extra fields needed, add relationship directly
-      await relationshipStore.addRelationship(fullEntry, {});
-      return;
-    }
-
     // Has extra fields, show dialog to collect them
-    const extraFieldsToSend = requiredExtraFields.reduce((acc, field) => {
-      acc[field.field] = '';
-      return acc;
-    }, {} as Record<string, string>);
+    const extraFieldsToSend = [{ 
+      field: 'role', 
+      header: 'Role', 
+      value: '' 
+    }];
 
     // open the dialog to complete
     editItem.value = {
@@ -280,12 +194,12 @@
 
     const currentFullRow = relatedItemRows.value.find(r => r.uuid === uuid);
     if (!currentFullRow) {
-      throw new Error('Cannot find row in RelatedItemTable.onCellEditComplete:', uuid);
+      throw new Error('Cannot find row in DangerParticipantTable.onCellEditComplete:', uuid);
     }
 
     const relevantExtraFieldDefs = extraFields[currentEntryTopic.value]?.[props.topic] || [];
     if (!relevantExtraFieldDefs.length) {
-      throw new Error('Call to RelatedItemTable.onCellEditComplete without an extra field:', uuid);
+      throw new Error('Call to DangerParticipantTable.onCellEditComplete without an extra field:', uuid);
     }
 
     const extraFieldsToSave: Record<string, string> = { ...currentFullRow.extraFields }; // Start with existing extra fields

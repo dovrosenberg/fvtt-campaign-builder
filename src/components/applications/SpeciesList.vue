@@ -8,8 +8,7 @@
         :show-filter="false"
         :allow-edit="true"
         :add-button-label="localize('applications.speciesList.labels.add')"
-        :delete-item-label="localize('applications.speciesList.labels.delete')"
-        @delete-item="onDeleteItem"
+        :actions="[{ icon: 'fa-trash', callback: onDeleteItem, tooltip: localize('applications.speciesList.labels.delete') }]"
         @add-item="onAddItem"
         @cell-edit-complete="onCellEditComplete"
       />

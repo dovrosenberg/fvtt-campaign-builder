@@ -117,14 +117,15 @@
               @dragleave="onDragLeaveRow(data.uuid)"
               @drop="onDropRow($event, data.uuid)"
             >
-              <a 
-                v-if="props.allowDelete"
+              <a
+                v-for="(action, index) in actions"
+                :key="index"
                 class="fcb-action-icon" 
-                :data-testid="`table-delete-${data.uuid}`"
-                :data-tooltip="props.deleteItemLabel"
-                @click.stop="emit('deleteItem', data.uuid)" 
+                :data-testid="`table-action-${index}-${data.uuid}`"
+                :data-tooltip="action.tooltip"
+                @click.stop="action.callback(data.uuid)" 
               >
-                <i class="fas fa-trash"></i>
+                <i :class="`fas ${action.icon}`"></i>
               </a>
               <a 
                 v-if="props.allowEdit"
@@ -346,7 +347,8 @@
   import Checkbox from 'primevue/checkbox';
 
   // types
-  import { TablePagination, BaseTableGridRow } from '@/types';
+  import { TablePagination, BaseTableGridRow, ActionButtonDefinition } from '@/types';
+
 
   ////////////////////////////////
   // props
@@ -404,9 +406,9 @@
       type: String,
       default: '',
     },
-    allowDelete: {
-      type: Boolean,
-      default: true,
+    actions: {
+      type: Array as PropType<ActionButtonDefinition[]>,
+      default: [],
     },
     deleteItemLabel: {
       type: String,

@@ -205,6 +205,7 @@
       "useOnce": "Use once",
       "tryAgain": "Try Again",
       "addToSetting": "Add to Setting",
+      "description": "Description",
       "prep": "Prep",
       "play": "Play",
       "ok": "OK",
@@ -251,11 +252,11 @@
         "settingFeeling": "Setting Feeling",
         "campaignDescription": "Campaign description",
         "houseRules": "House rules",
+        "role": "Role",
         "settingDescription": "Setting description",
         "startingDescription": "Starting description",
         "description": "Description",
         "longDescriptions": "Generate long descriptions",
-        "impendingDoom": "Impending Doom",
         "generateText": "What to generate",
         "generateChoice": {
           "description": "Description",
@@ -265,6 +266,8 @@
         "generateImage": "Generate Image",
         "addToCurrentSession": "Add to current session"
       },
+      "addParticipant": "Add Participant",
+      "addParticipantDrag": "(or drag/drop a character/location/organization)",
       "addTopic": {
         "character": "Add Character",
         "location": "Add Location",
@@ -309,6 +312,14 @@
         "locationHelpText": "Detailed, memorable, fantastic locations the characters can explore. Click to read more from Lazy DM.",
         "strongStart": "Strong Start",
         "strongStartHelpText": "A strong start is a short, impactful event that sets the tone for the session. Click to read more from Lazy DM."
+      },
+      "front": {
+        "motivation": "Motivation",
+        "grimPortents": "Grim Portents",
+        "participants": "Participants",
+        "impendingDoom": "Impending Doom",
+        "addPortent": "Add Grim Portent",
+        "portentHelpText": "Grim portents are the events that will occur if the danger is not dealt with. They can bring resolution, open new paths, shift the story."
       },
       "journals": {
         "addJournal": "Add Journal",
@@ -360,12 +371,6 @@
         "front": {
           "description": "Description",
           "createNewDanger": "Create new Danger"
-        },
-        "danger": {
-          "description": "Description",
-          "participants": "Participants",
-          "opposition": "Opposition",
-          "grimPortents": "Grim Portents"
         },
         "session": {
           "notes": "Notes",
@@ -617,6 +622,7 @@
       "historyBack": "Back",
       "historyForward": "Forward",
       "editRelationship": "Edit relationship",
+      "editParticipant": "Edit participant",
       "deleteRelationship": "Delete relationship",
       "deleteLocation": "Delete location",
       "deleteNPC": "Delete NPC",
@@ -625,6 +631,8 @@
       "editRow": "Edit this item. Press enter to save changes.",
       "deleteScene": "Delete scene",
       "deleteVignette": "Delete vignette",
+      "deletePortent": "Delete grim portent",
+      "deleteParticipant": "Delete participant",
       "deleteLore": "Delete lore",
       "deleteToDo": "Complete to-do item",
       "deleteIdea": "Delete idea",
