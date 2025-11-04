@@ -1,71 +1,46 @@
-
-<!-- This is different from related items because it allows characters, locations, orgs all at once-->
- <template> 
+<template>
   <BaseTable
     ref="baseTableRef"
-    :rows="rows"
-    :columns="columns"
     :show-add-button="true"
-    :extra-add-text="localize('labels.addParticipantDrag')"
-    :add-button-label="localize('labels.addParticipant')"
-    :filter-fields="filterFields"
+    :show-filter="false"
+    :filter-fields="[]"
+    :add-button-label="localize('labels.front.addParticipant')"
+    :rows="participantRows"
+    :columns="columns"
     :actions="actions"
-
-    @add-item="onAddItemClick"
-    @drop-new="onDropNew"
-    @dragover="onDragover"
+    :can-reorder="true"
+    @add-item="onAddParticipant"
     @cell-edit-complete="onCellEditComplete"
+    @reorder="onReorder"
   />
-
-  <!-- <RelatedItemDialog
-    v-model="editDialogShow"
-    :topic="props.topic"
-    :mode="RelatedItemDialogModes.Edit"
-    :item-id="editItem.itemId"
-    :item-name="editItem.itemName"
-    :extra-field-values="editItem.extraFields"
-  />
-  <RelatedItemDialog
-    v-model="addDialogShow"
-    :topic="props.topic"
-    :item-id="editItem.itemId"
-    :item-name="editItem.itemName"
-    :mode="RelatedItemDialogModes.Add"
-  /> -->
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType } from 'vue';
-
-  // local imports
-  import { useNavigationStore, useRelationshipStore } from '@/applications/stores';
-  import { localize } from '@/utils/game';
-  import { Entry } from '@/classes';
-  import { getValidatedData } from '@/utils/dragdrop';
-  import { FCBDialog } from '@/dialogs';
-
-  // library components
-
-  // local components
-  import RelatedItemDialog from './RelatedItemDialog.vue';
-  import BaseTable from '@/components/tables/BaseTable.vue';
-
-  // types
-  import { RelatedItemDialogModes, EntryNodeDragData, Topics, } from '@/types';
+  import { computed, ref, nextTick } from 'vue';
+  import { storeToRefs } from 'pinia';
   
-  interface ParticipantGridRow { 
-    uuid: string; 
-    name: string; 
-    type: string;
-    role: string;
-  };
+  // local imports
+  import { localize } from '@/utils/game';
+  import { useMainStore, useFrontStore } from '@/applications/stores';
+  
+  // local components
+  import BaseTable from '@/components/tables/BaseTable.vue';
+  
+  // types
+  import { ActionButtonDefinition, BaseTableGridRow, DangerParticipant, GrimPortent } from '@/types';
+  import { DataTableCellEditCompleteEvent } from 'primevue/datatable';
 
   ////////////////////////////////
   // props
   const props = defineProps({
-    participantRows: { 
-      type: Array as PropType<ParticipantGridRow[]>, 
+    /** the index of the danger without currentFront */
+    dangerIndex: {
+      type: Number,
+      required: true,
+    },
+    rows: {
+      type: Array as () => BaseTableGridRow[],
       required: true,
     },
   });
@@ -75,152 +50,106 @@
 
   ////////////////////////////////
   // store
-  const relationshipStore = useRelationshipStore();
-  const navigationStore = useNavigationStore();
+  const mainStore = useMainStore();
+  const frontStore = useFrontStore();
+  const { currentFront } = storeToRefs(mainStore);
+  const { participantRows } = storeToRefs(frontStore);
 
   ////////////////////////////////
   // data
-  const addDialogShow = ref(false);   // should we pop up the add dialog?
-  const editDialogShow = ref(false);   // should we pop up the edit dialog?
   const baseTableRef = ref<typeof BaseTable | null>(null);
 
-  const editItem = ref({
-    itemId: '',
-    itemName: '',
-    extraFields: [],
-  } as { itemId: string; itemName: string; extraFields: {field: string; header: string; value: string}[] });
-
-  const extraFields = [{field:'role', header:'Role'}];
- 
   ////////////////////////////////
   // computed data
-  const filterFields = computed(() => (['name', 'type', 'role']));
-
-  const rows = computed((): ParticipantGridRow[] => props.participantRows);
-
-  const columns = computed((): any[] => {
-    // they all have some standard columns
-    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
-    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick }; 
-    const typeColumn = { field: 'type', style: 'text-align: left', header: 'Type', sortable: true }; 
-    const roleColumn  ={ field: 'role', style: 'text-align: left', header: 'Role', sortable: true, editable: true, smallEditBox: true };
-
-    return [
-      actionColumn,
-      nameColumn,
-      typeColumn,
-      roleColumn,
-    ];
-  });
-
-  const actions = computed(() => [
-    { icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteParticipant') },
-    { icon: 'fa-pen', isEdit: true, callback: () => {}, tooltip: localize('tooltips.editParticipant') }
+  const columns = computed(() => [
+    { 
+      field: 'actions', 
+      style: 'text-align: left; width: 60px; max-width: 60px', 
+      header: 'Actions' 
+    },
+    { 
+      field: 'name', 
+      header: localize('labels.name'),
+      sortable: true,
+      editable: true,
+      clickable: true,
+      style: 'width: 100%',
+    },
+    { 
+      field: 'type', 
+      header: localize('labels.type'),
+      sortable: true,
+      style: 'width: 100%',
+    },
+    { 
+      field: 'role', 
+      header: localize('labels.role'),
+      sortable: true,
+      editable: true,
+      style: 'width: 100%',
+    }
   ]);
 
+  const actions = computed(() => {
+    const actions = [] as ActionButtonDefinition[];
+    actions.push({ 
+      icon: 'fa-trash', 
+      callback: async (data) => { await frontStore.deleteGrimPortent(data.uuid); }, 
+      tooltip: localize('tooltips.deleteParticipant')
+    });
+
+    actions.push({ 
+      icon: 'fa-pen', 
+      isEdit: true, 
+      callback: () => {},
+      tooltip: localize('tooltips.editParticipant') 
+    });
+
+    return actions;
+  });
+  
   ////////////////////////////////
   // methods
-  // when we click on a name, open the entry
-  async function onNameClick (event: MouseEvent, uuid: string) {
-    navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
+  /**
+   * Sets a specific row to edit mode
+   * @param uuid The UUID of the row to edit
+   */
+  const setEditingRow = (uuid: string) => {
+    // Call the setEditingRow method on the BaseTable component
+    if (baseTableRef.value) {
+      baseTableRef.value.setEditingRow(uuid);
+    }
   }
+
+  // Expose the setEditingRow method to parent components
+  defineExpose({
+    setEditingRow
+  });
 
   ////////////////////////////////
   // event handlers
-  const onAddItemClick = () => {
-    addDialogShow.value = true;
-  };
+  const onAddParticipant = async () => {
+    await frontStore.addParticipant();
 
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
-
-  const onDropNew = async(event: DragEvent) => {
-    event.preventDefault();
-
-    // parse the data
-    let data = getValidatedData(event) as unknown as EntryNodeDragData;
-    if (!data || data.type !== 'fcb-entry')
-      return;
-
-    // make sure it's the right format and topic matches
-    if (![Topics.Character, Topics.Location, Topics.Organization].includes(data.topic) || !data.childId) {
-      return;
-    }
-
-    const fullEntry = await Entry.fromUuid(data.childId);
-    if (!fullEntry) {
-      return;
-    }
-
-    // Has extra fields, show dialog to collect them
-    const extraFieldsToSend = [{ 
-      field: 'role', 
-      header: 'Role', 
-      value: '' 
-    }];
-
-    // open the dialog to complete
-    editItem.value = {
-      itemId: fullEntry.uuid,
-      itemName: fullEntry.name,
-      extraFields: extraFieldsToSend,
-    };
-    addDialogShow.value = true;
-  }
-
-
-  // call mutation to remove item  from relationship
-  const onDeleteItemClick = async function(_id: string) {
-    // show the confirmation dialog 
-    const confirmed = await FCBDialog.confirmDialog(
-      localize('dialogs.confirmDeleteParticipant.title'),
-      localize('dialogs.confirmDeleteParticipant.message')
-    );
+    // Wait for the next tick to ensure the new row is rendered
+    await nextTick();
     
-    if (confirmed) {
-      throw new Error('TODO: implement delete participant')
-      // void relationshipStore.deleteRelationship(props.topic, _id);
+    // Set the new row to edit mode
+    if (props.rows.length > 0) {
+      const newRow = props.rows[props.rows.length - 1];
+      setEditingRow(newRow.uuid);
     }
   };
 
-  const onCellEditComplete = async (event: { data: { uuid: string }; field: string; newValue: any; /* other PrimeVue event fields */ }) => {
-    const uuid = event.data.uuid;
-    const fieldChanged = event.field;
-    const newFieldValue = event.newValue;
+  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
+    const { data, newValue, } = event;
 
-    const currentFullRow = props.participantRows.find(r => r.uuid === uuid);
-    if (!currentFullRow) {
-      throw new Error('Cannot find row in DangerParticipantTable.onCellEditComplete: ' + uuid);
-    }
-
-    const relevantExtraFieldDefs = extraFields;
-
-    const extraFieldsToSave: Record<string, string> = { ...currentFullRow.extraFields }; // Start with existing extra fields
-
-    // Update the changed field
-    extraFieldsToSave[fieldChanged] = newFieldValue;
-    
-    // Ensure all defined extra fields are present, defaulting to empty string if not set
-    relevantExtraFieldDefs.forEach(def => {
-      if (!(def.field in extraFieldsToSave)) {
-        extraFieldsToSave[def.field] = ''; 
-      }
-    });
-
-    await relationshipStore.editRelationship(uuid, extraFieldsToSave);
+    await frontStore.updateParticipant(data.uuid, newValue);
   };
 
-  ////////////////////////////////
-  // watchers
-  // reload when topic changes
-
-  ////////////////////////////////
-  // lifecycle events
+  const onReorder = (reorderedRows: DangerParticipant[]) => {
+    frontStore.reorderParticipants(reorderedRows);
+  };
 
 
 </script>

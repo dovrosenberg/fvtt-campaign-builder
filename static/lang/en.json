@@ -267,7 +267,7 @@
         "addToCurrentSession": "Add to current session"
       },
       "addParticipant": "Add Participant",
-      "addParticipantDrag": "(or drag/drop a character/location/organization)",
+      "addParticipantDrag": "(or drag/drop a Setting entry)",
       "addTopic": {
         "character": "Add Character",
         "location": "Add Location",

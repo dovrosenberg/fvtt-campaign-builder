@@ -10,7 +10,6 @@
     :actions="actions"
     :can-reorder="true"
     @add-item="onAddPortent"
-    @delete-item="onDeletePortent"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
   />
@@ -29,7 +28,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { ActionButtonDefinition, BaseTableGridRow } from '@/types';
+  import { ActionButtonDefinition, BaseTableGridRow, GrimPortent } from '@/types';
   import { DataTableCellEditCompleteEvent } from 'primevue/datatable';
 
   ////////////////////////////////
@@ -65,7 +64,7 @@
   const columns = computed(() => [
     { 
       field: 'actions', 
-      style: 'text-align: right; width: 100px; max-width: 100px', 
+      style: 'text-align: left; width: 60px; max-width: 60px', 
       header: 'Actions' 
     },
     { 
@@ -82,7 +81,7 @@
     const actions = [] as ActionButtonDefinition[];
     actions.push({ 
       icon: 'fa-trash', 
-      callback: (data) => (data) => onDeletePortent(data.uuid), 
+      callback: async (data) => { await frontStore.deleteGrimPortent(data.uuid); }, 
       tooltip: localize('tooltips.deletePortent')
     });
 
@@ -129,18 +128,14 @@
     }
   };
 
-  const onDeletePortent = async (uuid: string) => {
-    await frontStore.deleteGrimPortent(uuid);
-  };
-
   const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
     const { data, newValue, } = event;
 
     await frontStore.updateGrimPortent(data.uuid, newValue);
   };
 
-  const onReorder = (reorderedRows: BaseTableGridRow[]) => {
-    emit('reorder', reorderedRows);
+  const onReorder = (reorderedRows: GrimPortent[]) => {
+    frontStore.reorderGrimPortents(reorderedRows);
   };
 
 

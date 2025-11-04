@@ -2,17 +2,13 @@
 //
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { watch, ref, computed } from 'vue';
+import { watch, ref, computed, } from 'vue';
 
 // local imports
-import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
-import { FCBDialog } from '@/dialogs';
+import { useMainStore, } from '@/applications/stores';
 
 // types
-import { Danger, DangerParticipant, GrimPortent} from '@/types';
-import { localize } from '@/utils/game';
-import { notifyWarn } from '@/utils/notifications';
-import { reactive } from 'vue';
+import { DangerParticipant, GrimPortent} from '@/types';
 
 // the store definition
 export const useFrontStore = defineStore('front', () => {
@@ -27,10 +23,7 @@ export const useFrontStore = defineStore('front', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const frontStore = useFrontStore();
-  const navigationStore = useNavigationStore();
-  const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentFront, currentContentTab } = storeToRefs(mainStore);
+  const { currentFront, currentContentTab, currentSetting } = storeToRefs(mainStore);
   
   // internal state
 
@@ -68,7 +61,7 @@ export const useFrontStore = defineStore('front', () => {
     });
     await currentFront.value?.save();
 
-    _refreshParticipantRows();
+    await _refreshParticipantRows();
 
     return uuid;
   };
@@ -115,7 +108,7 @@ export const useFrontStore = defineStore('front', () => {
     });
     await currentFront.value?.save();
 
-    _refreshPortentRows();
+    await _refreshPortentRows();
 
     return uuid;
   };
@@ -148,21 +141,31 @@ export const useFrontStore = defineStore('front', () => {
     await _refreshPortentRows();
   };
   
-  // const reorderIdeas = async (reorderedIdeas: Idea[]) => {
-  //   if (!currentCampaign.value) return;
+  const reorderGrimPortents = async (reorderedPortents: GrimPortent[]) => {
+    if (!currentFront.value || currentDangerIndex.value == null || !currentDanger.value) 
+      return;
 
-  //   currentCampaign.value.ideas = reorderedIdeas;
-  //   await currentCampaign.value.save();
-  //   await _refreshIdeaRows();
-  // };
+    currentFront.value?.updateDanger(currentDangerIndex.value, {
+      ...currentDanger.value,
+      grimPortents: reorderedPortents,
+    });
+    await currentFront.value?.save();
 
-  // const reorderToDos = async (reorderedToDos: ToDoItem[]) => {
-  //   if (!currentCampaign.value) return;
+    await _refreshPortentRows();
+  };
 
-  //   currentCampaign.value.todoItems = reorderedToDos;
-  //   await currentCampaign.value.save();
-  //   await _refreshToDoRows();
-  // };
+  const reorderParticipants = async (reorderedParticipants: DangerParticipant[]) => {
+    if (!currentFront.value || currentDangerIndex.value == null || !currentDanger.value) 
+      return;
+
+    currentFront.value?.updateDanger(currentDangerIndex.value, {
+      ...currentDanger.value,
+      participants: reorderedParticipants,
+    });
+    await currentFront.value?.save();
+
+    await _refreshParticipantRows();
+  };
 
   ///////////////////////////////
   // computed state
@@ -170,13 +173,26 @@ export const useFrontStore = defineStore('front', () => {
   ///////////////////////////////
   // internal functions
   // force reactive update of current table rows
-  const _refreshParticipantRows = (): void => {
+  const _refreshParticipantRows = async (): Promise<void> => {
     participantRows.value = [];
 
-    if (!currentDanger.value)
+    if (!currentDanger.value || !currentSetting.value)
       return;
     
-    participantRows.value = [...currentDanger.value.participants];
+    for (const p of currentDanger.value.participants) {
+      // get it from the setting because we don't know topic
+      const items = await currentSetting.value.filterEntries((e) => e.uuid===p.uuid, true);
+      
+      if (items.length === 0)
+        throw new Error('Invalid uuid in frontStore._refreshParticipantRows');
+
+      participantRows.value.push({
+        uuid: p.uuid,
+        name: items[0].name,
+        type: items[0].type,
+        role: p.role,
+      });
+    }
   }
 
   const _refreshPortentRows = (): void => {
@@ -188,9 +204,9 @@ export const useFrontStore = defineStore('front', () => {
     grimPortentRows.value = [...currentDanger.value.grimPortents];
   }
 
-  const _refreshDangerRows = (): void => {
-    _refreshParticipantRows();
-    _refreshPortentRows();
+  const _refreshDangerRows = async(): Promise<void> => {
+    await _refreshParticipantRows();
+    await _refreshPortentRows();
   };
 
 
@@ -220,7 +236,9 @@ export const useFrontStore = defineStore('front', () => {
     updateParticipant,
     addGrimPortent,
     deleteGrimPortent,
-    updateGrimPortent,    
+    updateGrimPortent,  
+    reorderGrimPortents,
+    reorderParticipants,  
   };
 });
 

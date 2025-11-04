@@ -47,6 +47,7 @@
         />
       </div>
       
+      <Divider />
       <!-- Participants -->
       <div class="flexrow form-group" style="margin-top: 1.5rem">
         <LabelWithHelp
@@ -58,6 +59,7 @@
         :participant-rows="participantRows"
       />
       
+      <Divider />
       <!-- Motivation -->
       <div class="flexrow form-group" style="margin-top: 1.5rem">
         <LabelWithHelp
@@ -76,6 +78,7 @@
         />
       </div>
       
+      <Divider />
       <!-- Grim Portents -->
       <div class="flexrow form-group" style="margin-top: 1.5rem">
         <LabelWithHelp
@@ -84,8 +87,7 @@
         />
       </div>
       <div class="flexcol form-group">
-        <DangerGrimPortentTable
-        />
+        <DangerGrimPortentTable/>
       </div>
     </div>
   </div>
@@ -109,7 +111,7 @@
   // local components
   import Editor from '@/components/Editor.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
-  import RelatedItemTable from '@/components/tables/RelatedItemTable.vue';
+  import Divider from 'primevue/divider';
   import DangerParticipantTable from './DangerParticipantTable.vue';
   import DangerGrimPortentTable from './DangerGrimPortentTable.vue';
 
