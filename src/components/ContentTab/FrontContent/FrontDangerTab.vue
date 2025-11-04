@@ -84,23 +84,7 @@
         />
       </div>
       <div class="flexcol form-group">
-        <SessionTable
-          ref="sessionTableRef"
-          :rows="grimPortentRows"
-          :columns="grimPortentColumns"
-          :delete-item-label="localize('tooltips.deletePortent')"
-          :allow-edit="true"
-          :edit-item-label="localize('tooltips.editRow')"
-          :show-add-button="true"
-          :add-button-label="localize('labels.front.addPortent')"
-          :help-text="localize('labels.front.portentHelpText')"
-          :can-reorder="true"
-          @add-item="onAddPortent"
-          @delete-item="onDeletePortent"
-          @mark-item-delivered="onMarkPortentDelivered"
-          @unmark-item-delivered="onUnmarkPortentDelivered"
-          @cell-edit-complete="onCellEditComplete"
-          @reorder="onReorder"
+        <DangerGrimPortentTable
         />
       </div>
     </div>
@@ -126,19 +110,14 @@
   import Editor from '@/components/Editor.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import RelatedItemTable from '@/components/tables/RelatedItemTable.vue';
-  import DangerParticipantTable from '@/components/tables/DangerParticipantTable.vue';
+  import DangerParticipantTable from './DangerParticipantTable.vue';
+  import DangerGrimPortentTable from './DangerGrimPortentTable.vue';
 
   // types
-  import { Danger, WindowTabType, Topics, EntryBasicIndex } from '@/types';
+  import { Danger, WindowTabType, EntryBasicIndex } from '@/types';
 
   ////////////////////////////////
   // props
-  const props = defineProps({
-    index: {
-      type: Number,
-      required: true,
-    },
-  });
 
   ////////////////////////////////
   // emits
@@ -146,7 +125,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentFront, currentSetting } = storeToRefs(mainStore);
+  const { currentFront, currentSetting, currentContentTab } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -158,10 +137,7 @@
   
   ////////////////////////////////
   // computed data
-  const currentDanger = computed(() => currentFront.value?.dangers[props.index] || null);
-  const grimPortentColumns = computed(() => [
-    { field: 'description', style: 'text-align: left', header: 'Grim Portent', editable: true },
-  ]);
+  const currentDanger = computed(() => !currentContentTab.value ? null :currentFront.value?.dangers[currentContentTab.value] || null);
 
   const participantRows = computed(() => {
     if (!currentDanger.value || !currentSetting.value) 

@@ -9,9 +9,7 @@
     :extra-add-text="localize('labels.addParticipantDrag')"
     :add-button-label="localize('labels.addParticipant')"
     :filter-fields="filterFields"
-    :allow-edit="true"
-    :edit-item-label="localize('tooltips.editParticipant')"
-    :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteParticipant') }]"
+    :actions="actions"
 
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
@@ -39,10 +37,9 @@
 <script setup lang="ts">
   // library imports
   import { ref, computed, PropType } from 'vue';
-  import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
+  import { useNavigationStore, useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { Entry } from '@/classes';
   import { getValidatedData } from '@/utils/dragdrop';
@@ -79,11 +76,7 @@
   ////////////////////////////////
   // store
   const relationshipStore = useRelationshipStore();
-  const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-
-  const { currentEntryTopic } = storeToRefs(mainStore);
-  const extraFields = relationshipStore.extraFields;
 
   ////////////////////////////////
   // data
@@ -97,6 +90,8 @@
     extraFields: [],
   } as { itemId: string; itemName: string; extraFields: {field: string; header: string; value: string}[] });
 
+  const extraFields = [{field:'role', header:'Role'}];
+ 
   ////////////////////////////////
   // computed data
   const filterFields = computed(() => (['name', 'type', 'role']));
@@ -117,6 +112,11 @@
       roleColumn,
     ];
   });
+
+  const actions = computed(() => [
+    { icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteParticipant') },
+    { icon: 'fa-pen', isEdit: true, callback: () => {}, tooltip: localize('tooltips.editParticipant') }
+  ]);
 
   ////////////////////////////////
   // methods
@@ -148,7 +148,7 @@
       return;
 
     // make sure it's the right format and topic matches
-    if (![Topics.Characters, Topics.Locations, Topics.Organizations].includes(data.topic) || !data.childId) {
+    if (![Topics.Character, Topics.Location, Topics.Organization].includes(data.topic) || !data.childId) {
       return;
     }
 
@@ -178,12 +178,13 @@
   const onDeleteItemClick = async function(_id: string) {
     // show the confirmation dialog 
     const confirmed = await FCBDialog.confirmDialog(
-      localize('dialogs.confirmDeleteRelationship.title'),
-      localize('dialogs.confirmDeleteRelationship.message')
+      localize('dialogs.confirmDeleteParticipant.title'),
+      localize('dialogs.confirmDeleteParticipant.message')
     );
     
     if (confirmed) {
-      void relationshipStore.deleteRelationship(props.topic, _id);
+      throw new Error('TODO: implement delete participant')
+      // void relationshipStore.deleteRelationship(props.topic, _id);
     }
   };
 
@@ -192,15 +193,12 @@
     const fieldChanged = event.field;
     const newFieldValue = event.newValue;
 
-    const currentFullRow = relatedItemRows.value.find(r => r.uuid === uuid);
+    const currentFullRow = props.participantRows.find(r => r.uuid === uuid);
     if (!currentFullRow) {
-      throw new Error('Cannot find row in DangerParticipantTable.onCellEditComplete:', uuid);
+      throw new Error('Cannot find row in DangerParticipantTable.onCellEditComplete: ' + uuid);
     }
 
-    const relevantExtraFieldDefs = extraFields[currentEntryTopic.value]?.[props.topic] || [];
-    if (!relevantExtraFieldDefs.length) {
-      throw new Error('Call to DangerParticipantTable.onCellEditComplete without an extra field:', uuid);
-    }
+    const relevantExtraFieldDefs = extraFields;
 
     const extraFieldsToSave: Record<string, string> = { ...currentFullRow.extraFields }; // Start with existing extra fields
 

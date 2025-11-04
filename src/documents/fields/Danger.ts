@@ -15,6 +15,11 @@ export interface DangerParticipant {
   role: string;
 }
 
+export interface GrimPortent {
+  uuid: string;
+  description: string;
+}
+
 export const DangerSchema = () => 
   new fields.SchemaField({
     name: new fields.StringField({ required: true, nullable: false, initial: '' }),
@@ -27,7 +32,7 @@ export const DangerSchema = () =>
     participants: new fields.ArrayField(
       new fields.SchemaField({
         uuid: new fields.DocumentUUIDField({ required: true, nullable: false }),
-        role: new fields.StringField({ required: true, nullable: false }),
+        role: new fields.StringField({ required: true, nullable: false, initial: '' }),
       })
     ),
 
@@ -35,7 +40,11 @@ export const DangerSchema = () =>
     motivation: new fields.StringField({ required: true, nullable: false, initial: '' }),
 
     grimPortents: new fields.ArrayField(
-      new fields.StringField({ required: true, nullable: false })
+      new fields.SchemaField({
+        // uuid is just a random id, not a document uuid
+        uuid: new fields.StringField({ required: true, nullable: false }),
+        description: new fields.StringField({ required: true, nullable: false, initial: '',}),
+      })
     ),
   });
 
@@ -45,5 +54,5 @@ export interface Danger {
   impendingDoom: string;
   motivation: string;
   participants: DangerParticipant[];
-  grimPortents: string[];
+  grimPortents: GrimPortent[];
 }

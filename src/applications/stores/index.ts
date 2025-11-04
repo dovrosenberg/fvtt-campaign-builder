@@ -8,6 +8,7 @@ export * from './relationshipStore';
 export * from './campaignStore';
 export * from './sessionStore';
 export * from './playingStore';
+export * from './frontStore';
 
 // global pinia instance
 const pinia = createPinia();

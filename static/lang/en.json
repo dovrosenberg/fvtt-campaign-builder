@@ -447,6 +447,10 @@
         "title": "Remove from relationship?",
         "message": "Are you sure you want to delete this relationship?"
       },
+      "confirmDeleteParticipant": {
+        "title": "Remove this participant?",
+        "message": "Are you sure you want to remove this participant from the danger?"
+      },
       "confirmDeletePC": {
         "title": "Remove PC?",
         "message": "Are you sure you want to remove this PC from the campaign?  This will not impact the PC entry itself."
@@ -623,6 +627,7 @@
       "historyForward": "Forward",
       "editRelationship": "Edit relationship",
       "editParticipant": "Edit participant",
+      "editPortent": "Edit grim portent",
       "deleteRelationship": "Delete relationship",
       "deleteLocation": "Delete location",
       "deleteNPC": "Delete NPC",

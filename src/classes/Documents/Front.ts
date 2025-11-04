@@ -169,6 +169,8 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     this._clone.system.dangers.push(danger);    
     await this.save();
   }
+
+  
   // get locations(): SessionLocation[] {
   //   return this._clone.system.locations || [];
   // }

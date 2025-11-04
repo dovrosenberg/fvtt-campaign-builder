@@ -304,11 +304,6 @@
       type: String, 
       default: '',
     },
-    /** used for campaign/session tracking */
-    trackDelivery: {
-      type: Boolean,
-      default: false,
-    },
     /** displays as text next to the add button (even if no button) */
     extraAddText: {   
       type: String, 

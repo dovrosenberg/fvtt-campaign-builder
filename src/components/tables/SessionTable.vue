@@ -6,7 +6,6 @@
     :show-filter="false"
     :filter-fields="[]"
     :add-button-label="props.addButtonLabel"
-    :track-delivery="true"
     :extra-add-text="props.extraAddText"
     :allow-drop-row="props.allowDropRow"
     :rows="props.rows"
