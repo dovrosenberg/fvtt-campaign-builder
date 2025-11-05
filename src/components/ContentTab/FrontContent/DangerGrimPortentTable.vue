@@ -22,19 +22,17 @@
   
   // local imports
   import { localize } from '@/utils/game';
-  import { useMainStore, useFrontStore } from '@/applications/stores';
+  import { useFrontStore } from '@/applications/stores';
   
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { ActionButtonDefinition, BaseTableGridRow, GrimPortent } from '@/types';
+  import { ActionButtonDefinition, GrimPortent } from '@/types';
   import { DataTableCellEditCompleteEvent } from 'primevue/datatable';
 
   ////////////////////////////////
   // props
-  const props = defineProps({
-  });
 
   ////////////////////////////////
   // emits

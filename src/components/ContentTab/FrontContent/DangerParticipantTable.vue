@@ -30,7 +30,7 @@
   
   // local imports
   import { localize } from '@/utils/game';
-  import { useMainStore, useFrontStore } from '@/applications/stores';
+  import { useFrontStore } from '@/applications/stores';
   
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
@@ -42,26 +42,13 @@
 
   ////////////////////////////////
   // props
-  const props = defineProps({
-    /** the index of the danger without currentFront */
-    dangerIndex: {
-      type: Number,
-      required: true,
-    },
-    rows: {
-      type: Array as () => BaseTableGridRow[],
-      required: true,
-    },
-  });
 
   ////////////////////////////////
   // emits
 
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
   const frontStore = useFrontStore();
-  const { currentFront } = storeToRefs(mainStore);
   const { participantRows } = storeToRefs(frontStore);
 
   ////////////////////////////////

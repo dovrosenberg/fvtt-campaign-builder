@@ -131,11 +131,19 @@
         margin-bottom: 0.25rem;
         
         .fcb-input-name {
+          font-size: var(--font-size-32);
+          height: 2.25rem;
+        }
+        
+        .fcb-input-sub-name {
+          font-size: var(--font-size-20);
+          height: 1.75rem;
+        }
+        
+        .fcb-input-name, .fcb-input-sub-name {
           background: none;
           color: var(--fcb-text);
           margin-left: 3px;
-          font-size: var(--font-size-32);
-          height: 2.25rem;
 
           // the box shadow when we're not focused makes the box look like the wrong background color
           box-shadow: none;
