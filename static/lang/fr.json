@@ -56,7 +56,11 @@
       "showTypesInTree": "Afficher les types dans l'arborescence des paramètres",
       "showTypesInTreeHelp": "Lorsque c'est vrai, si le répertoire des paramètres n'est pas groupé par type, il affichera le type de chaque entrée dans l'arborescence.",
       "showRolePlayingNotes": "Afficher les notes de jeu de rôle sur les entrées",
-      "showRolePlayingNotesHelp": "Lorsque c'est vrai, un champ séparé pour les notes de jeu de rôle sera affiché séparément de la description de l'entrée."
+      "showRolePlayingNotesHelp": "Lorsque c'est vrai, un champ séparé pour les notes de jeu de rôle sera affiché séparément de la description de l'entrée.",
+      "useFronts": "Utiliser les fronts",
+      "useFrontsHelp": "Activer la fonctionnalité de \"front\" de campagne.",
+      "useArcs": "Utiliser les arcs",
+      "useArcsHelp": "Regrouper les sessions en arcs narratifs au sein de chaque campagne."
     },
     "applications": {
       "sessionNotes": {
@@ -224,7 +228,8 @@
           "roleplay": "Notes de jeu de rôle",
           "both": "Les deux"
         },
-        "background": "Contexte"
+        "background": "Contexte",
+        "role": "Rôle"
       },
       "addTopic": {
         "character": "Ajouter un Personnage",
@@ -326,6 +331,10 @@
         "setting": {
           "description": "Description",
           "journals": "Journaux"
+        },
+        "front": {
+          "description": "Description",
+          "createNewDanger": "Créer un nouveau danger"
         }
       },
       "noResults": "Rien ici",
@@ -350,7 +359,9 @@
         "name": "Nom",
         "location": "Emplacement",
         "journalName": "Journal",
-        "pageName": "Page du journal"
+        "pageName": "Page du journal",
+        "type": "Type",
+        "role": "Rôle"
       },
       "locations": {
         "compendium": "Compendium",
@@ -360,7 +371,19 @@
         "addJournal": "Ajouter un journal",
         "dropToAdd": "(ou glisser/déposer un journal ou une page de journal)"
       },
-      "add": "Ajouter"
+      "add": "Ajouter",
+      "description": "Description",
+      "addParticipant": "Ajouter un participant",
+      "addParticipantDrag": "(ou glisser/déposer une entrée de réglage)",
+      "front": {
+        "motivation": "Motivation",
+        "grimPortents": "Présages funestes",
+        "participants": "Participants",
+        "impendingDoom": "Catastrophe imminente",
+        "addParticipant": "Ajouter un participant",
+        "addPortent": "Ajouter un présage funeste",
+        "portentHelpText": "Les présages funestes sont les événements qui se produiront si le danger n'est pas traité. Ils peuvent apporter une résolution, ouvrir de nouveaux chemins, changer l'histoire."
+      }
     },
     "placeholders": {
       "search": "Rechercher",
@@ -374,11 +397,9 @@
       "sessionDate": "Date",
       "sessionNumber": "Numéro de Session",
       "linkToActor": "Lien vers l'Acteur",
-      "pcName": "Nom du PC"
-    },
-    "compendia": {
-      "entry": "Entrées",
-      "session": "Sessions"
+      "pcName": "Nom du PC",
+      "frontName": "Nom du front",
+      "dangerName": "Nom du danger"
     },
     "topics": {
       "character": "Personnage",
@@ -441,32 +462,28 @@
         "allItemsConnected": "Tous les éléments possibles liés sont déjà connectés.",
         "character": {
           "title": "Ajouter un personnage",
-          "editTitle": "Modifier le personnage",
           "createButtonTitle": "Créer un personnage",
-          "buttonTitle": "Ajouter une relation",
-          "editButtonTitle": "Enregistrer le personnage"
+          "buttonTitle": "Ajouter une relation"
         },
         "location": {
           "title": "Ajouter un emplacement",
-          "editTitle": "Modifier l'emplacement",
           "createButtonTitle": "Créer un emplacement",
-          "buttonTitle": "Ajouter une relation",
-          "editButtonTitle": "Enregistrer l'emplacement"
+          "buttonTitle": "Ajouter une relation"
         },
         "organization": {
           "title": "Ajouter une organisation",
-          "editTitle": "Modifier l'organisation",
           "createButtonTitle": "Créer une organisation",
-          "buttonTitle": "Ajouter une relation",
-          "editButtonTitle": "Enregistrer l'organisation"
+          "buttonTitle": "Ajouter une relation"
         },
         "addToSession": "Ajouter à la session",
         "pc": {
           "title": "Ajouter un PC",
-          "editTitle": "Modifier le PC",
           "createButtonTitle": "Créer un PC",
-          "buttonTitle": "Ajouter une relation",
-          "editButtonTitle": "Enregistrer le PC"
+          "buttonTitle": "Ajouter une relation"
+        },
+        "entry": {
+          "title": "Ajouter une entrée",
+          "buttonTitle": "Ajouter une entrée"
         }
       },
       "relatedDocuments": {
@@ -499,6 +516,18 @@
         "save": "Enregistrer les modifications",
         "discard": "Annuler les modifications",
         "cancel": "Annuler"
+      },
+      "confirmDeleteParticipant": {
+        "title": "Supprimer ce participant ?",
+        "message": "Êtes-vous sûr de vouloir supprimer ce participant du danger ?"
+      },
+      "createFront": {
+        "title": "Créer un front",
+        "frontName": "Nom du front"
+      },
+      "createArc": {
+        "title": "Créer un arc",
+        "arcName": "Nom de l'arc"
       }
     },
     "contextMenus": {
@@ -513,7 +542,8 @@
         "createSession": "Créer une session",
         "delete": "Supprimer la campagne",
         "markComplete": "Marquer la campagne comme terminée",
-        "markActive": "Marquer la campagne comme active"
+        "markActive": "Marquer la campagne comme active",
+        "createFront": "Créer un front"
       },
       "session": {
         "delete": "Supprimer la session"
@@ -617,7 +647,12 @@
       "moveToToDo": "Déplacer vers la liste des tâches",
       "moveToIdeas": "Déplacer vers la liste des idées",
       "cannotChangeSettingInPlayMode": "Impossible de changer le paramètre en mode jeu",
-      "campaignComplete": "Campagne terminée"
+      "campaignComplete": "Campagne terminée",
+      "arcComplete": "Arc terminé",
+      "editParticipant": "Modifier le participant",
+      "editPortent": "Modifier le présage funeste",
+      "deletePortent": "Supprimer le présage funeste",
+      "deleteParticipant": "Supprimer le participant"
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori",
@@ -643,7 +678,9 @@
     "contentFolders": {
       "campaigns": "Campagnes",
       "entries": "Entrées",
-      "sessions": "Sessions"
+      "sessions": "Sessions",
+      "fronts": "Fronts",
+      "arcs": "Arcs"
     }
   }
 }

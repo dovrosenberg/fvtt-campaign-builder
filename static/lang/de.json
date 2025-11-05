@@ -56,7 +56,11 @@
       "showTypesInTree": "Typen im Einstellungsbaum anzeigen",
       "showTypesInTreeHelp": "Wenn wahr, zeigt es den Typ jedes Eintrags im Baum an, wenn das Einstellungsverzeichnis nicht nach Typ gruppiert ist.",
       "showRolePlayingNotes": "Rollenspielnotizen bei Einträgen anzeigen",
-      "showRolePlayingNotesHelp": "Wenn wahr, wird ein separates Feld für Rollenspielnotizen getrennt von der Eintragsbeschreibung angezeigt."
+      "showRolePlayingNotesHelp": "Wenn wahr, wird ein separates Feld für Rollenspielnotizen getrennt von der Eintragsbeschreibung angezeigt.",
+      "useFronts": "Fronten verwenden",
+      "useFrontsHelp": "Aktivieren Sie die Kampagnenfunktion \"Front\".",
+      "useArcs": "Bögen verwenden",
+      "useArcsHelp": "Gruppieren Sie Sitzungen in Handlungsbögen innerhalb jeder Kampagne."
     },
     "applications": {
       "sessionNotes": {
@@ -224,7 +228,8 @@
           "roleplay": "Rollenspielnotizen",
           "both": "Beides"
         },
-        "background": "Hintergrund"
+        "background": "Hintergrund",
+        "role": "Rolle"
       },
       "addTopic": {
         "character": "Charakter hinzufügen",
@@ -326,6 +331,10 @@
         "setting": {
           "description": "Beschreibung",
           "journals": "Journale"
+        },
+        "front": {
+          "description": "Beschreibung",
+          "createNewDanger": "Neue Gefahr erstellen"
         }
       },
       "noResults": "Nichts hier",
@@ -350,7 +359,9 @@
         "name": "Name",
         "location": "Ort",
         "journalName": "Journal",
-        "pageName": "Journalseite"
+        "pageName": "Journalseite",
+        "type": "Typ",
+        "role": "Rolle"
       },
       "locations": {
         "compendium": "Kompendium",
@@ -360,7 +371,19 @@
         "addJournal": "Journal hinzufügen",
         "dropToAdd": "(oder ein Journal oder eine Journalseite ziehen/ablegen)"
       },
-      "add": "Hinzufügen"
+      "add": "Hinzufügen",
+      "description": "Beschreibung",
+      "addParticipant": "Teilnehmer hinzufügen",
+      "addParticipantDrag": "(oder einen Eintrag per Drag & Drop hinzufügen)",
+      "front": {
+        "motivation": "Motivation",
+        "grimPortents": "Düstere Vorzeichen",
+        "participants": "Teilnehmer",
+        "impendingDoom": "Drohendem Untergang",
+        "addParticipant": "Teilnehmer hinzufügen",
+        "addPortent": "Düsteres Vorzeichen hinzufügen",
+        "portentHelpText": "Düstere Vorzeichen sind die Ereignisse, die eintreten werden, wenn die Gefahr nicht beseitigt wird. Sie können eine Lösung bringen, neue Wege eröffnen, die Geschichte verändern."
+      }
     },
     "placeholders": {
       "search": "Suche",
@@ -374,11 +397,9 @@
       "sessionDate": "Datum",
       "sessionNumber": "Sitzungsnummer",
       "linkToActor": "Mit Schauspieler verknüpfen",
-      "pcName": "PC-Name"
-    },
-    "compendia": {
-      "entry": "Einträge",
-      "session": "Sitzungen"
+      "pcName": "PC-Name",
+      "frontName": "Frontname",
+      "dangerName": "Gefahrenname"
     },
     "topics": {
       "character": "Charakter",
@@ -441,32 +462,28 @@
         "allItemsConnected": "Alle möglichen verwandten Elemente sind bereits verbunden.",
         "character": {
           "title": "Einen Charakter hinzufügen",
-          "editTitle": "Charakter bearbeiten",
           "createButtonTitle": "Charakter erstellen",
-          "buttonTitle": "Beziehung hinzufügen",
-          "editButtonTitle": "Charakter speichern"
+          "buttonTitle": "Beziehung hinzufügen"
         },
         "location": {
           "title": "Einen Ort hinzufügen",
-          "editTitle": "Ort bearbeiten",
           "createButtonTitle": "Ort erstellen",
-          "buttonTitle": "Beziehung hinzufügen",
-          "editButtonTitle": "Ort speichern"
+          "buttonTitle": "Beziehung hinzufügen"
         },
         "organization": {
           "title": "Eine Organisation hinzufügen",
-          "editTitle": "Organisation bearbeiten",
           "createButtonTitle": "Organisation erstellen",
-          "buttonTitle": "Beziehung hinzufügen",
-          "editButtonTitle": "Organisation speichern"
+          "buttonTitle": "Beziehung hinzufügen"
         },
         "addToSession": "Zur Sitzung hinzufügen",
         "pc": {
           "title": "Einen PC hinzufügen",
-          "editTitle": "PC bearbeiten",
           "createButtonTitle": "PC erstellen",
-          "buttonTitle": "Beziehung hinzufügen",
-          "editButtonTitle": "PC speichern"
+          "buttonTitle": "Beziehung hinzufügen"
+        },
+        "entry": {
+          "title": "Einen Eintrag hinzufügen",
+          "buttonTitle": "Eintrag hinzufügen"
         }
       },
       "relatedDocuments": {
@@ -499,6 +516,18 @@
         "save": "Änderungen speichern",
         "discard": "Änderungen verwerfen",
         "cancel": "Abbrechen"
+      },
+      "confirmDeleteParticipant": {
+        "title": "Diesen Teilnehmer entfernen?",
+        "message": "Sind Sie sicher, dass Sie diesen Teilnehmer aus der Gefahr entfernen möchten?"
+      },
+      "createFront": {
+        "title": "Front erstellen",
+        "frontName": "Frontname"
+      },
+      "createArc": {
+        "title": "Bogen erstellen",
+        "arcName": "Bogenname"
       }
     },
     "contextMenus": {
@@ -513,7 +542,8 @@
         "createSession": "Sitzung erstellen",
         "delete": "Kampagne löschen",
         "markComplete": "Kampagne als abgeschlossen markieren",
-        "markActive": "Kampagne als aktiv markieren"
+        "markActive": "Kampagne als aktiv markieren",
+        "createFront": "Eine Front erstellen"
       },
       "session": {
         "delete": "Sitzung löschen"
@@ -617,7 +647,12 @@
       "moveToToDo": "Zur Aufgabenliste verschieben",
       "moveToIdeas": "Zur Ideenliste verschieben",
       "cannotChangeSettingInPlayMode": "Einstellung kann im Spielmodus nicht geändert werden",
-      "campaignComplete": "Kampagne abgeschlossen"
+      "campaignComplete": "Kampagne abgeschlossen",
+      "arcComplete": "Bogen abgeschlossen",
+      "editParticipant": "Teilnehmer bearbeiten",
+      "editPortent": "Düsteres Vorzeichen bearbeiten",
+      "deletePortent": "Düsteres Vorzeichen löschen",
+      "deleteParticipant": "Teilnehmer löschen"
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert",
@@ -643,7 +678,9 @@
     "contentFolders": {
       "campaigns": "Kampagnen",
       "entries": "Einträge",
-      "sessions": "Sitzungen"
+      "sessions": "Sitzungen",
+      "fronts": "Fronten",
+      "arcs": "Bögen"
     }
   }
 }

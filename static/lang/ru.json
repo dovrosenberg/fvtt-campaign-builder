@@ -56,7 +56,11 @@
       "showTypesInTree": "Показывать типы в дереве настроек",
       "showTypesInTreeHelp": "При включении, если каталог настроек не сгруппирован по типу, он будет показывать тип каждой записи в дереве.",
       "showRolePlayingNotes": "Показывать заметки по ролевой игре в записях",
-      "showRolePlayingNotesHelp": "При включении отдельное поле для заметок по ролевой игре будет показано отдельно от описания записи."
+      "showRolePlayingNotesHelp": "При включении отдельное поле для заметок по ролевой игре будет показано отдельно от описания записи.",
+      "useFronts": "Использовать фронты",
+      "useFrontsHelp": "Включить функциональность \"фронтов\" кампании.",
+      "useArcs": "Использовать арки",
+      "useArcsHelp": "Группировать сессии в сюжетные арки внутри каждой кампании."
     },
     "applications": {
       "sessionNotes": {
@@ -207,7 +211,9 @@
         "name": "Имя",
         "location": "Локация",
         "journalName": "Журнал",
-        "pageName": "Страница журнала"
+        "pageName": "Страница журнала",
+        "type": "Тип",
+        "role": "Роль"
       },
       "locations": {
         "compendium": "Компендиум",
@@ -251,7 +257,8 @@
         },
         "generateImage": "Сгенерировать изображение",
         "addToCurrentSession": "Добавить в текущую сессию",
-        "background": "Фон"
+        "background": "Фон",
+        "role": "Роль"
       },
       "addTopic": {
         "character": "Добавить персонажа",
@@ -357,10 +364,26 @@
           "monsters": "Монстры",
           "magic": "Магические предметы",
           "todo": "Список дел"
+        },
+        "front": {
+          "description": "Описание",
+          "createNewDanger": "Создать новую опасность"
         }
       },
       "noResults": "Здесь ничего нет",
-      "loading": "Загрузка"
+      "loading": "Загрузка",
+      "description": "Описание",
+      "addParticipant": "Добавить участника",
+      "addParticipantDrag": "(или перетащите запись настройки)",
+      "front": {
+        "motivation": "Мотивация",
+        "grimPortents": "Мрачные предзнаменования",
+        "participants": "Участники",
+        "impendingDoom": "Надвигающаяся гибель",
+        "addParticipant": "Добавить участника",
+        "addPortent": "Добавить мрачное предзнаменование",
+        "portentHelpText": "Мрачные предзнаменования — это события, которые произойдут, если опасность не будет устранена. Они могут привести к разрешению, открыть новые пути, изменить историю."
+      }
     },
     "placeholders": {
       "search": "Поиск",
@@ -374,11 +397,9 @@
       "sessionName": "Название сессии",
       "sessionDate": "Дата",
       "sessionNumber": "Номер сессии",
-      "linkToActor": "Связать с актером"
-    },
-    "compendia": {
-      "entry": "Записи",
-      "session": "Сессии"
+      "linkToActor": "Связать с актером",
+      "frontName": "Название фронта",
+      "dangerName": "Название опасности"
     },
     "topics": {
       "character": "Персонаж",
@@ -466,33 +487,29 @@
         "allItemsConnected": "Все возможные связанные элементы уже подключены.",
         "character": {
           "title": "Добавить персонажа",
-          "editTitle": "Редактировать персонажа",
           "createButtonTitle": "Создать персонажа",
-          "buttonTitle": "Добавить отношение",
-          "editButtonTitle": "Сохранить персонажа"
+          "buttonTitle": "Добавить отношение"
         },
         "location": {
           "title": "Добавить локацию",
-          "editTitle": "Редактировать локацию",
           "createButtonTitle": "Создать локацию",
-          "buttonTitle": "Добавить отношение",
-          "editButtonTitle": "Сохранить локацию"
+          "buttonTitle": "Добавить отношение"
         },
         "organization": {
           "title": "Добавить организацию",
-          "editTitle": "Редактировать организацию",
           "createButtonTitle": "Создать организацию",
-          "buttonTitle": "Добавить отношение",
-          "editButtonTitle": "Сохранить организацию"
+          "buttonTitle": "Добавить отношение"
         },
         "pc": {
           "title": "Добавить персонажа игрока",
-          "editTitle": "Редактировать персонажа игрока",
           "createButtonTitle": "Создать персонажа игрока",
-          "buttonTitle": "Добавить отношение",
-          "editButtonTitle": "Сохранить персонажа игрока"
+          "buttonTitle": "Добавить отношение"
         },
-        "addToSession": "Добавить в сессию"
+        "addToSession": "Добавить в сессию",
+        "entry": {
+          "title": "Добавить запись",
+          "buttonTitle": "Добавить запись"
+        }
       },
       "relatedDocuments": {
         "addActor": "Добавить актера",
@@ -516,6 +533,18 @@
         "save": "Сохранить изменения",
         "discard": "Отменить изменения",
         "cancel": "Отмена"
+      },
+      "confirmDeleteParticipant": {
+        "title": "Удалить этого участника?",
+        "message": "Вы уверены, что хотите удалить этого участника из опасности?"
+      },
+      "createFront": {
+        "title": "Создать фронт",
+        "frontName": "Название фронта"
+      },
+      "createArc": {
+        "title": "Создать арку",
+        "arcName": "Название арки"
       }
     },
     "contextMenus": {
@@ -538,7 +567,8 @@
         "createSession": "Создать сессию",
         "delete": "Удалить кампанию",
         "markComplete": "Отметить кампанию завершенной",
-        "markActive": "Отметить кампанию активной"
+        "markActive": "Отметить кампанию активной",
+        "createFront": "Создать фронт"
       },
       "session": {
         "delete": "Удалить сессию"
@@ -634,7 +664,12 @@
       "moveToToDo": "Переместить в список дел",
       "moveToIdeas": "Переместить в список идей",
       "cannotChangeSettingInPlayMode": "Невозможно изменить настройки в режиме игры",
-      "campaignComplete": "Кампания завершена"
+      "campaignComplete": "Кампания завершена",
+      "arcComplete": "Арка завершена",
+      "editParticipant": "Редактировать участника",
+      "editPortent": "Редактировать мрачное предзнаменование",
+      "deletePortent": "Удалить мрачное предзнаменование",
+      "deleteParticipant": "Удалить участника"
     },
     "errors": {
       "duplicateBookmark": "Уже сохранено как закладка",
@@ -643,7 +678,9 @@
     "contentFolders": {
       "campaigns": "Кампании",
       "entries": "Записи",
-      "sessions": "Сессии"
+      "sessions": "Сессии",
+      "fronts": "Фронты",
+      "arcs": "Арки"
     }
   }
 }
