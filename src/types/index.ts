@@ -104,7 +104,8 @@ export enum SessionDisplayMode {
 export enum RelatedItemDialogModes {
   Add = 'add',
   Edit = 'edit',
-  Session = 'session' // for adding to sessions
+  Session = 'session', // for adding to sessions
+  Danger = 'danger', // for adding any topic item (ex. for front participants)
 }
 
 export enum ToDoTypes {

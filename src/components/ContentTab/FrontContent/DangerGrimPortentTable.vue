@@ -34,15 +34,6 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    /** the index of the danger without currentFront */
-    dangerIndex: {
-      type: Number,
-      required: true,
-    },
-    rows: {
-      type: Array as () => BaseTableGridRow[],
-      required: true,
-    },
   });
 
   ////////////////////////////////
@@ -50,9 +41,7 @@
 
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
   const frontStore = useFrontStore();
-  const { currentFront } = storeToRefs(mainStore);
   const { grimPortentRows } = storeToRefs(frontStore);
 
   ////////////////////////////////
@@ -116,16 +105,16 @@
   ////////////////////////////////
   // event handlers
   const onAddPortent = async () => {
-    await frontStore.addGrimPortent();
+    const uuid = await frontStore.addGrimPortent();
 
+    if (!uuid)
+      return;
+  
     // Wait for the next tick to ensure the new row is rendered
     await nextTick();
     
     // Set the new row to edit mode
-    if (props.rows.length > 0) {
-      const newRow = props.rows[props.rows.length - 1];
-      setEditingRow(newRow.uuid);
-    }
+    setEditingRow(uuid);
   };
 
   const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {

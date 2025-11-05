@@ -13,11 +13,19 @@
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
   />
+
+  <!-- note topic doesn't matter for this mode -->
+  <RelatedItemDialog
+    v-model="addParticipantDialogShow"
+    :topic="Topics.Character"
+    :allow-create="false"
+    :mode="RelatedItemDialogModes.Danger"
+  />
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref, nextTick } from 'vue';
+  import { computed, ref, } from 'vue';
   import { storeToRefs } from 'pinia';
   
   // local imports
@@ -26,9 +34,10 @@
   
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
-  
+  import RelatedItemDialog from '@/components/tables/RelatedItemDialog.vue';
+
   // types
-  import { ActionButtonDefinition, BaseTableGridRow, DangerParticipant, GrimPortent } from '@/types';
+  import { ActionButtonDefinition, BaseTableGridRow, DangerParticipant, RelatedItemDialogModes, Topics, } from '@/types';
   import { DataTableCellEditCompleteEvent } from 'primevue/datatable';
 
   ////////////////////////////////
@@ -58,6 +67,7 @@
   ////////////////////////////////
   // data
   const baseTableRef = ref<typeof BaseTable | null>(null);
+  const addParticipantDialogShow = ref(false);
 
   ////////////////////////////////
   // computed data
@@ -69,21 +79,20 @@
     },
     { 
       field: 'name', 
-      header: localize('labels.name'),
+      header: localize('labels.tableHeaders.name'),
       sortable: true,
-      editable: true,
       clickable: true,
       style: 'width: 100%',
     },
     { 
       field: 'type', 
-      header: localize('labels.type'),
+      header: localize('labels.tableHeaders.type'),
       sortable: true,
       style: 'width: 100%',
     },
     { 
       field: 'role', 
-      header: localize('labels.role'),
+      header: localize('labels.tableHeaders.role'),
       sortable: true,
       editable: true,
       style: 'width: 100%',
@@ -94,7 +103,7 @@
     const actions = [] as ActionButtonDefinition[];
     actions.push({ 
       icon: 'fa-trash', 
-      callback: async (data) => { await frontStore.deleteGrimPortent(data.uuid); }, 
+      callback: async (data) => { await frontStore.deleteParticipant(data.uuid); }, 
       tooltip: localize('tooltips.deleteParticipant')
     });
 
@@ -129,16 +138,7 @@
   ////////////////////////////////
   // event handlers
   const onAddParticipant = async () => {
-    await frontStore.addParticipant();
-
-    // Wait for the next tick to ensure the new row is rendered
-    await nextTick();
-    
-    // Set the new row to edit mode
-    if (props.rows.length > 0) {
-      const newRow = props.rows[props.rows.length - 1];
-      setEditingRow(newRow.uuid);
-    }
+    addParticipantDialogShow.value = true;
   };
 
   const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {

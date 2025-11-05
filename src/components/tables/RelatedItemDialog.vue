@@ -54,7 +54,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useRelationshipStore, useSessionStore } from '@/applications/stores';
+  import { useMainStore, useRelationshipStore, useSessionStore, useFrontStore } from '@/applications/stores';
   import { FCBDialog } from '@/dialogs';
   import { localize } from '@/utils/game';
 
@@ -89,9 +89,11 @@
   // props
   const props = defineProps({
     modelValue: Boolean,  // show/hide dialog
+
     topic: { // this is the type of the item that we're adding/editing
       type: Number as PropType<ValidTopic>, 
-      required: true,
+      required: false,
+      default: Topics.Character,
     },
     mode: {
       type: String as PropType<RelatedItemDialogModes>,
@@ -106,12 +108,6 @@
       type: String as PropType<string>, 
       required: false,
       default: '',
-    },
-    // Edit mode props
-    extraFieldValues: { 
-      type: Array as PropType<ExtraFieldValue[]>, 
-      required: false,
-      default: [],
     },
     allowCreate: {
       type: Boolean,
@@ -128,7 +124,8 @@
   const relationshipStore = useRelationshipStore();
   const mainStore = useMainStore();
   const sessionStore = useSessionStore();
-  const { currentEntry, currentSetting, currentEntryTopic, currentSession } = storeToRefs(mainStore);
+  const frontStore = useFrontStore();
+  const { currentEntry, currentSetting, currentFront, currentEntryTopic, currentSession } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -142,64 +139,67 @@
   const topicDetails = {
     [Topics.Character]: {
       title: localize('dialogs.relatedItems.character.title'),
-      // editTitle: localize('dialogs.relatedItems.character.editTitle'),
       createButtonTitle: localize('dialogs.relatedItems.character.createButtonTitle'),
       buttonTitle: localize('dialogs.relatedItems.character.buttonTitle'),
-      // editButtonTitle: localize('dialogs.relatedItems.character.editButtonTitle'),
     },
     [Topics.Location]: {
       title: localize('dialogs.relatedItems.location.title'),
-      // editTitle: localize('dialogs.relatedItems.location.editTitle'),
       createButtonTitle: localize('dialogs.relatedItems.location.createButtonTitle'),
       buttonTitle: localize('dialogs.relatedItems.location.buttonTitle'),
-      // editButtonTitle: localize('dialogs.relatedItems.location.editButtonTitle'),
     },
     [Topics.Organization]: {
       title: localize('dialogs.relatedItems.organization.title'),
-      // editTitle: localize('dialogs.relatedItems.organization.editTitle'),
       createButtonTitle: localize('dialogs.relatedItems.organization.createButtonTitle'),
       buttonTitle: localize('dialogs.relatedItems.organization.buttonTitle'),
-      // editButtonTitle: localize('dialogs.relatedItems.organization.editButtonTitle'),
     },
     [Topics.PC]: {
       title: localize('dialogs.relatedItems.pc.title'),
-      // editTitle: localize('dialogs.relatedItems.pc.editTitle'),
       createButtonTitle: localize('dialogs.relatedItems.pc.createButtonTitle'),
       buttonTitle: localize('dialogs.relatedItems.pc.buttonTitle'),
-      // editButtonTitle: localize('dialogs.relatedItems.pc.editButtonTitle'),
     },
   } as ValidTopicRecord<{ 
     title: string; 
-    // editTitle: string; 
     buttonTitle: string; 
     createButtonTitle: string;
-    // editButtonTitle: string 
   }>;
+
+  const dangerDetails = {
+    title: localize('dialogs.relatedItems.entry.title'),
+    buttonTitle: localize('dialogs.relatedItems.entry.buttonTitle'),
+  };
+
+  const sessionDetails = {
+    buttonTitle: localize('dialogs.relatedItems.addToSession'),
+  };
 
   ////////////////////////////////
   // computed data
   const dialogTitle = computed(() => {
-    // if (props.mode === RelatedItemDialogModes.Edit) {
-    //   return `${topicDetails[props.topic].editTitle}: ${props.itemName}`;
-    // } else {
-      return (props.topic && topicDetails[props.topic].title) || '';
-    // }
+    if (props.mode===RelatedItemDialogModes.Danger) {
+      return dangerDetails.title;
+    } else {
+      return (props.topic && topicDetails[props.topic]?.title) || '';
+    }
   });
 
   const actionButtonLabel = computed(() => {
     switch (props.mode) {
+      case RelatedItemDialogModes.Danger:
+        return dangerDetails.buttonTitle;
       case RelatedItemDialogModes.Add:
-        return topicDetails[props.topic].buttonTitle;
+        return topicDetails[props.topic]?.buttonTitle;
       case RelatedItemDialogModes.Session:
-        return localize('dialogs.relatedItems.addToSession');
-      // case RelatedItemDialogModes.Edit:
-      //   return topicDetails[props.topic].editButtonTitle;
+        return sessionDetails.buttonTitle;
     }
+    return '';
   });
 
   // add mode or session mode
   const createButtonLabel = computed(() => {
-    return topicDetails[props.topic].createButtonTitle;
+    if (props.mode===RelatedItemDialogModes.Danger) 
+      throw new Error('Trying to add create button to danger RelatedItemDialog');
+
+    return topicDetails[props.topic]?.createButtonTitle || '';
   });
 
   const isAddFormValid = computed((): boolean => {
@@ -278,6 +278,16 @@
         };
         break;
       
+      case RelatedItemDialogModes.Danger:
+        if (entryToAdd.value) {
+          const fullEntry = await Entry.fromUuid(entryToAdd.value);
+
+          if (fullEntry) {
+            await frontStore.addParticipant(fullEntry, extraFieldsToSend);
+          }
+        };
+        break;
+
       case RelatedItemDialogModes.Session:
         if (entryToAdd.value) {
           const fullEntry = await Entry.fromUuid(entryToAdd.value);
@@ -294,9 +304,6 @@
           }
         };
         break;
-      // case RelatedItemDialogModes.Edit:
-      //   await relationshipStore.editRelationship(props.itemId, extraFieldsToSend);
-      //   break;
     }
 
     resetDialog();
@@ -333,12 +340,22 @@
       if (!currentSetting.value)
         return;
 
-      if (!currentSession.value && !(currentEntry.value && currentEntryTopic.value))
-        throw new Error('Trying to show RelatedItemDialog without a current entry/session');
+      if (!currentSession.value && !currentFront.value && !(currentEntry.value && currentEntryTopic.value))
+        throw new Error('Trying to show RelatedItemDialog without a current entry/session/front');
       
-      selectItems.value = (await Entry.getEntriesForTopic(currentSetting.value.topicFolders[props.topic] as TopicFolder, currentEntry.value || undefined)).map(mapEntryToOption);
+      if (props.mode===RelatedItemDialogModes.Danger) {
+        selectItems.value = (await Entry.getEntriesForSetting(currentSetting.value, currentEntry.value || undefined)).map(mapEntryToOption);
+      } else {
+        selectItems.value = (await Entry.getEntriesForTopic(currentSetting.value.topicFolders[props.topic]!, currentEntry.value || undefined)).map(mapEntryToOption);
+      }
       
-      extraFields.value = currentSession.value ? [] : relationshipStore.extraFields[currentEntryTopic.value][props.topic];
+      if (currentSession.value) {
+        extraFields.value = currentSession.value ? [] : relationshipStore.extraFields[currentEntryTopic.value][props.topic];
+      } else if (currentFront.value) {
+        extraFields.value = [{ field: 'role', header: 'Role' }];
+      } else {
+        extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
+      }
       extraFieldValuesObj.value = {};
       if (props.itemId)
         entryToAdd.value = props.itemId;  // assign starting value, if any
@@ -347,16 +364,6 @@
       await nextTick();
       // @ts-ignore - not sure why $el isn't found
       nameSelectRef.value?.$el?.querySelector('input')?.focus();
-      // } else {
-      //   // Edit mode initialization
-      //   extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
-
-      //   // map the prop to the obj
-      //   extraFieldValuesObj.value = props.extraFieldValues.reduce((acc, extraFieldValue)=> ({
-      //     ...acc,
-      //     [extraFieldValue.field]: extraFieldValue.value
-      //   }), {} as Record<string, string>);
-      // }
     }
   });
 

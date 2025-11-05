@@ -219,7 +219,9 @@
         "name": "Name",
         "location": "Location",
         "journalName": "Journal",
-        "pageName": "Journal Page"
+        "pageName": "Journal Page",
+        "type": "Type",
+        "role": "Role"
       },
       "locations": {
         "compendium": "Compendium",
@@ -318,6 +320,7 @@
         "grimPortents": "Grim Portents",
         "participants": "Participants",
         "impendingDoom": "Impending Doom",
+        "addParticipant": "Add Participant",
         "addPortent": "Add Grim Portent",
         "portentHelpText": "Grim portents are the events that will occur if the danger is not dealt with. They can bring resolution, open new paths, shift the story."
       },
@@ -501,33 +504,29 @@
       "relatedItems": {
         "additionalInformation": "Additional Information",
         "allItemsConnected": "All possible related items are already connected.",
+        "entry": {
+          "title": "Add an entry",
+          "buttonTitle": "Add entry"
+        },
         "character": {
           "title": "Add a character",
-          "editTitle": "Edit character",
           "createButtonTitle": "Create character",
-          "buttonTitle": "Add relationship",
-          "editButtonTitle": "Save character"
+          "buttonTitle": "Add relationship"
         },
         "location": {
           "title": "Add a location",
-          "editTitle": "Edit location",
           "createButtonTitle": "Create location",
-          "buttonTitle": "Add relationship",
-          "editButtonTitle": "Save location"
+          "buttonTitle": "Add relationship"
         },
         "organization": {
           "title": "Add an organization",
-          "editTitle": "Edit organization",
           "createButtonTitle": "Create organization",
-          "buttonTitle": "Add relationship",
-          "editButtonTitle": "Save organization"
+          "buttonTitle": "Add relationship"
         },
         "pc": {
           "title": "Add a PC",
-          "editTitle": "Edit PC",
           "createButtonTitle": "Create PC",
-          "buttonTitle": "Add relationship",
-          "editButtonTitle": "Save PC"
+          "buttonTitle": "Add relationship"
         },
         "addToSession": "Add to session"
       },

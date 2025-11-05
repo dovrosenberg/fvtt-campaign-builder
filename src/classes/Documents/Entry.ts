@@ -4,7 +4,7 @@ import { DOCUMENT_TYPES, } from '@/documents';
 import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, ToDoTypes, ValidTopicRecord, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
-import { TopicFolder,  } from '@/classes';
+import { FCBSetting, TopicFolder,  } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
@@ -473,20 +473,44 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
    * @returns a list of Entries
    */
   public static async getEntriesForTopic(topicFolder: TopicFolder, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
-    // we find all journal entries with this topic
-    let entries = await topicFolder.allEntries(true);
-
-    // filter unique ones if needed
+    let entries: Entry[];
     if (notRelatedTo) {
       const relatedEntries = notRelatedTo.getAllRelatedEntries(topicFolder);
+      entries = await topicFolder.filterEntries((entry)=> (!relatedEntries.includes(entry.uuid) && entry.uuid !== notRelatedTo.uuid), true);
 
-      // also remove the current one
-      entries = entries.filter((entry) => !relatedEntries.includes(entry.uuid) && entry.uuid !== notRelatedTo.uuid);
+    } else {
+      entries = await topicFolder.allEntries(true);
     }
 
     return entries;
   }
   
+  /**
+   * Find all journal entries of a setting, regardless of topic
+   * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
+   *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
+   *            improvements in lots of places
+   * @param setting the setting to search
+   * @param notRelatedTo if present, only return entries that are not already linked to this entry
+   * @returns a list of Entries
+   */
+  public static async getEntriesForSetting(setting: FCBSetting, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
+    let entries: Entry[];
+    if (notRelatedTo) {
+      const topicFolder = setting.topicFolders[notRelatedTo.topic];
+      if (!topicFolder)
+        throw new Error('Can\'t find topic folder for topic in Entry.getEntriesForSetting');
+      
+      const relatedEntries = notRelatedTo.getAllRelatedEntries(topicFolder);
+      entries = await setting.filterEntries((entry)=> (!relatedEntries.includes(entry.uuid) && entry.uuid !== notRelatedTo.uuid), true);
+
+    } else {
+      entries = await setting.allEntries(true);
+    }
+
+    return entries;
+  }
+
   /**
    * Retrieves a list of all uuids that are linked to the current entry for a specified topic.
    * 

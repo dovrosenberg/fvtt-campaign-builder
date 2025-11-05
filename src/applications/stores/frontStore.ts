@@ -9,6 +9,7 @@ import { useMainStore, } from '@/applications/stores';
 
 // types
 import { DangerParticipant, GrimPortent} from '@/types';
+import { Entry } from '@/classes';
 
 // the store definition
 export const useFrontStore = defineStore('front', () => {
@@ -16,7 +17,7 @@ export const useFrontStore = defineStore('front', () => {
   // the state
 
   // used for tables
-  const participantRows = ref<DangerParticipant[]>([]);
+  const participantRows = ref<(DangerParticipant & { name: string; type: string })[]>([]);
   const grimPortentRows = ref<GrimPortent[]>([]);
 
 
@@ -50,14 +51,14 @@ export const useFrontStore = defineStore('front', () => {
   ///////////////////////////////
   // actions
   /** add participant to given danger */
-  const addParticipant = async (role: string = ''): Promise<string | null> => {
+  const addParticipant = async (entryToAdd: Entry, extraFields: Record<string, string>): Promise<string | null> => {
     if (!currentDanger.value || currentDangerIndex.value == null)
       return null;
 
-    const uuid = foundry.utils.randomID();
+    const uuid = entryToAdd.uuid;
     currentFront.value?.updateDanger(currentDangerIndex.value, {
       ...currentDanger.value,
-      participants: [...currentDanger.value.participants, { uuid, role }],
+      participants: [...currentDanger.value.participants, { uuid, role: extraFields.role || '' }],
     });
     await currentFront.value?.save();
 

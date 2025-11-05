@@ -116,7 +116,7 @@
   import DangerGrimPortentTable from './DangerGrimPortentTable.vue';
 
   // types
-  import { Danger, WindowTabType, EntryBasicIndex } from '@/types';
+  import { Danger, WindowTabType, EntryBasicIndex, } from '@/types';
 
   ////////////////////////////////
   // props
@@ -136,7 +136,8 @@
   const impendingDoom = ref('');
   const motivation = ref('');
   const grimPortents = ref<string[]>([]);
-  
+  const addParticipantDialogShow = ref(false);
+
   ////////////////////////////////
   // computed data
   const currentDanger = computed(() => !currentContentTab.value ? null :currentFront.value?.dangers[currentContentTab.value] || null);
