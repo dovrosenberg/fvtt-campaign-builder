@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.5.2 - Fixed bug preventing PC creation
+![](https://img.shields.io/badge/release%20date-November%208%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.5.2/module.zip)
+
+- Fixed a bug that was preventing PCs from being created.
+
 ## v1.5.1 - Much faster setting tree rendering
 ![](https://img.shields.io/badge/release%20date-November%202%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.5.1/module.zip)
