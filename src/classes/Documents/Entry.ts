@@ -129,8 +129,20 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     const setting = topicFolder.setting;
 
     let nameToUse: string | null = options.name || null;
-    while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await FCBDialog.inputDialog(`Create ${topicText}`, promptText);
+    let finished = false; // check user input to prevent diaglo to reopen on cancel/close
+
+    while (!finished) {
+      if (nameToUse) { // this var will be null or '' if user didn't insert a value
+        finished = true // if nameToUse has a value (user input) then we're finished
+      } else {
+        const resp = await FCBDialog.inputDialog(`Create ${topicText}`, promptText);
+
+        if (resp === null) {
+          return null; // that breaks the loop if user hit cancel or close button
+        }
+
+        nameToUse = String(resp).trim(); // use user input on name field
+      }
     }  
     
     // if name is null, then we cancelled the dialog
