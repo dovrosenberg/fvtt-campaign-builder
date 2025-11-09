@@ -23,7 +23,7 @@ export const CampaignSchema = {
   ),
     
   /** all the arcs */
-  arcs: new fields.ArrayField(schemas.ArcBasicIndex(),
+  arcIndex: new fields.ArrayField(schemas.ArcBasicIndex(),
     { required: true, nullable: false, initial: [] as ArcBasicIndex[] }
   ),
 
@@ -104,7 +104,7 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
     description: string;
     customFields: Record<string, string>;
     sessionIndex: SessionBasicIndex[];
-    arcs: ArcBasicIndex[];
+    arcIndex: ArcBasicIndex[];
     frontIds: string[];
     lore: CampaignLore[];  
     img: string;   

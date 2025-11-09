@@ -9,7 +9,7 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { RelatedPCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea} from '@/types';
+import { RelatedPCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea, SessionBasicIndex} from '@/types';
 import { Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import Document from 'node_modules/@types/fvtt-types/src/foundry/common/abstract/document.mjs';
@@ -465,20 +465,21 @@ export const useCampaignStore = defineStore('campaign', () => {
   }
 
   const _getLastSession = async (): Promise<Session | null> => {
-    if (!currentCampaign.value)
+    if (!currentCampaign.value || !currentSetting.value)
       return null;
 
-    const sessions = await currentCampaign.value.allSessions(); 
+    const sessions = currentCampaign.value.sessionIndex;
 
     if (sessions.length!==0) {
-      return sessions.reduce((session, maxSession) => {
-        if (session.number > maxSession.number)
+      const highestSession = sessions.reduce((session, maxSession) => {
+        if (session.number > maxSession.number) 
           return session;
         else
           return maxSession;
       }, sessions[0]);
+      return await Session.fromUuid(highestSession.uuid);
     } 
-    
+
     // need to create one
     const newSession = await Session.create(currentCampaign.value);
     if (!newSession)
