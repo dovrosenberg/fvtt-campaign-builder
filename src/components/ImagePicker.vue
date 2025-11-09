@@ -85,6 +85,7 @@
     [WindowTabType.Campaign]: 'icons/svg/ruins.svg',
     [WindowTabType.Session]: 'icons/svg/combat.svg',
     [WindowTabType.Front]: 'icons/svg/biohazard.svg', 
+    [WindowTabType.Arc]: 'icons/svg/ruins.svg',
   };
 
   const TOPIC_IMAGES = {
@@ -109,6 +110,7 @@
       case WindowTabType.Setting:
       case WindowTabType.Campaign:
       case WindowTabType.Session:
+      case WindowTabType.Arc:
       case WindowTabType.Front:
         return WINDOW_TYPE_IMAGES[props.windowType];
 

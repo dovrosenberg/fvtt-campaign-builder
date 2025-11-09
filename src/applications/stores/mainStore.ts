@@ -9,10 +9,11 @@ import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, moduleId, } from '@
 import { updateWindowTitle } from '@/utils/titleUpdater';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
 import { updateSettingRollTableNames } from '@/utils/nameGenerators';
+import { getGlobalSetting } from '@/utils/globalSettings';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { FCBSetting, WindowTab, Entry, Campaign, Session, Front, Arc, CollapsibleNode, RootFolder, getGlobalSetting } from '@/classes';
+import { FCBSetting, WindowTab, Entry, Campaign, Session, Front, Arc, CollapsibleNode, RootFolder } from '@/classes';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 // the store definition
@@ -115,6 +116,7 @@ export const useMainStore = defineStore('main', () => {
     _currentEntry.value = null;
     _currentCampaign.value = null;
     _currentSession.value = null;
+    _currentArc.value = null;
     _currentFront.value = null;
 
     switch (tab.tabType) {
@@ -150,6 +152,13 @@ export const useMainStore = defineStore('main', () => {
           _currentSession.value = await Session.fromUuid(tab.header.uuid);
           if (!_currentSession.value)
             throw new Error(`Invalid session uuid ${tab.header.uuid} in mainStore.setNewTab()`);
+        }
+        break;
+      case WindowTabType.Arc:
+        if (tab.header.uuid) {
+          _currentArc.value = await Arc.fromUuid(tab.header.uuid);
+          if (!_currentArc.value)
+            throw new Error(`Invalid arc uuid ${tab.header.uuid} in mainStore.setNewTab()`);
         }
         break;
       default:  // make it a 'new entry' window
@@ -213,6 +222,18 @@ export const useMainStore = defineStore('main', () => {
       _currentSession.value = new Session(_currentSession.value.raw.parent as unknown as JournalEntry, campaign || undefined);
   };
 
+  const refreshArc = async function (reload = false): Promise<void> {
+    if (!_currentArc.value?.raw?.parent || !currentSetting.value)
+      return;
+
+    // just force all reactivity to update
+    const campaign = await _currentArc.value.loadCampaign();
+    if (reload)
+      _currentArc.value = await Arc.fromUuid(_currentArc.value.raw.parent.uuid);
+    else
+      _currentArc.value = new Arc(_currentArc.value.raw.parent as unknown as JournalEntry, campaign || undefined);
+  };
+
   /** Refresh whatever content is currently showing */
   const refreshCurrentContent = async function (): Promise<void> {
     switch (currentContentType.value) {
@@ -224,6 +245,9 @@ export const useMainStore = defineStore('main', () => {
         break;
       case WindowTabType.Session:
         await refreshSession();
+        break;
+      case WindowTabType.Arc:
+        await refreshArc();
         break;
       case WindowTabType.Front:
         await refreshFront();
@@ -284,7 +308,8 @@ export const useMainStore = defineStore('main', () => {
 
   const hasMultipleCampaigns = computed((): boolean => {
     if (!currentSetting.value) return false;
-    return Object.values(currentSetting.value.campaignNames).length > 1;
+
+    return currentSetting.value.campaignIndex.length > 1;
   });
 
   // the currently selected tab for the content page

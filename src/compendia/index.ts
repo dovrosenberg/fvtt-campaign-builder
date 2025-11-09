@@ -3,7 +3,8 @@ import { localize } from '@/utils/game';
 import { Topics, } from '@/types';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags,} from '@/settings';
 import { toTopic } from '@/utils/misc';
-import { FCBSetting, getGlobalSetting } from '@/classes';
+import { FCBSetting, } from '@/classes';
+import { getGlobalSetting } from '@/utils/globalSettings';
 
 /**
  * Gets the current setting (will create one if there isn't one) 

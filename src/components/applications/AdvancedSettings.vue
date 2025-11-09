@@ -212,9 +212,10 @@
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend, Campaign, getGlobalSetting } from '@/classes';
+  import { Backend, Campaign, } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
+  import { getGlobalSetting } from '@/utils/globalSettings';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -298,10 +299,10 @@
     }
 
     await setting.loadCampaigns();
-    for (const campaignId in setting.campaignNames) {
-      const campaign = await Campaign.fromUuid(campaignId);
+    for (const index of setting.campaignIndex) {
+      const campaign = await Campaign.fromUuid(index.uuid);
       if (campaign && !campaign.completed) {
-        campaignOptions.value.push({ uuid: campaignId, name: campaign.name });
+        campaignOptions.value.push({ uuid: campaign.uuid, name: campaign.name });
       }
     }
   };

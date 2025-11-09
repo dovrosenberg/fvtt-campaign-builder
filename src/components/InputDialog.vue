@@ -57,7 +57,7 @@
   ]);
 
   function onOk() {
-    emit('result', inputValue.value);
+    emit('result', inputValue.value.trim());
     emit('update:modelValue', false);
   }
 

@@ -15,10 +15,11 @@ import { hasUnsavedChanges, saveAndCloseAllActiveEditors, closeAllActiveEditors 
 import { FCBDialog } from '@/dialogs';
 import { SaveChangesResult } from '@/dialogs/saveChanges';
 import { notifyError, notifyInfo } from '@/utils/notifications';
+import { getGlobalSetting } from '@/utils/globalSettings';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, getGlobalSetting, Front } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, Front, Arc } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -73,6 +74,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       [WindowTabType.Campaign]: 'description',
       [WindowTabType.Front]: 'description',
       [WindowTabType.Session]: 'notes',
+      [WindowTabType.Arc]: 'description',
       [WindowTabType.NewTab]: '',  // no tabs
     } as Record<WindowTabType, string>;
 
@@ -131,6 +133,16 @@ export const useNavigationStore = defineStore('navigation', () => {
           } else {
             name = `${localize('labels.session.session')} ${session.number}`;
             icon = getTabTypeIcon(WindowTabType.Session);
+          }
+          break;
+        }
+        case WindowTabType.Arc: {
+          const arc = await Arc.fromUuid(contentId);
+          if (!arc) {
+            badId = true;
+          } else {
+            name = arc.name;
+            icon = getTabTypeIcon(WindowTabType.Arc);
           }
           break;
         }
@@ -213,6 +225,21 @@ export const useNavigationStore = defineStore('navigation', () => {
    */
   const openSession = async function(sessionId = null as string | null, options?: OpenContentOptions) {
     await openContent(sessionId, WindowTabType.Session, options);
+  }; 
+
+  /**
+   * Open a new tab to the given arc. If no arc is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param arcId The uuid of the arc to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the arc open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the arc be added to the history of the tab? Defaults to true.
+   * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @returns The newly opened tab.
+   */
+  const openArc = async function(arcId = null as string | null, options?: OpenContentOptions) {
+    await openContent(arcId, WindowTabType.Arc, options);
   }; 
 
   /**
@@ -769,6 +796,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     openCampaign,
     openSetting,
     openContent,
+    openArc,
     updateContentTab,
     getActiveTab,
     loadTabs,
