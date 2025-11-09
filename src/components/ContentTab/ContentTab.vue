@@ -22,6 +22,12 @@
       <SessionContent />
     </div>
     <div 
+      v-else-if="currentContentType===WindowTabType.Arc"
+      class="fcb-content-wrapper"
+    >
+      <ArcContent />
+    </div>
+    <div 
       v-else-if="currentContentType===WindowTabType.Campaign"
       class="fcb-content-wrapper"
     >
@@ -61,6 +67,7 @@
   import HomePage from '@/components/ContentTab/HomePage.vue';
   import SettingContent from '@/components/ContentTab/SettingContent.vue';
   import FrontContent from '@/components/ContentTab/FrontContent/FrontContent.vue';
+  import ArcContent from '@/components/ContentTab/ArcContent/ArcContent.vue';
   
   // types
   import { WindowTabType } from '@/types';
