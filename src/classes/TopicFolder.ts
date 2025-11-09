@@ -47,7 +47,6 @@ export class TopicFolder {
     this.setting.topics[this.topic]!.types = value;
   }
 
-  /** map of entry uuid to entry data (name and type) for all entries in the folder */
   public get entryIndex(): EntryBasicIndex[] {
     return this.setting.topics[this.topic]!.entries;
   }

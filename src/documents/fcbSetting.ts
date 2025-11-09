@@ -1,19 +1,18 @@
-import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord, } from '@/types';
+import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopicRecord, } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 import { DOCUMENT_TYPES, } from './types';
 import { cleanKeysOnLoad,  } from '@/utils/cleanKeys';
 import { schemas } from './fields';
-import type { TopicFlatType } from './fields/TopicFolder';
-export { TopicFlatType };
+import { TopicBasicIndex, CampaignBasicIndex } from '@/types';
 
 const fields = foundry.data.fields;
 export const SettingSchema = {
   /** the topics; keyed by topic id (the Topics enum) */
   topics: new fields.SchemaField({
-    [Topics.Character]: schemas.TopicFolder(),
-    [Topics.Location]: schemas.TopicFolder(),
-    [Topics.Organization]: schemas.TopicFolder(),
-    [Topics.PC]: schemas.TopicFolder(),
+    [Topics.Character]: schemas.TopicBasicIndex(),
+    [Topics.Location]: schemas.TopicBasicIndex(),
+    [Topics.Organization]: schemas.TopicBasicIndex(),
+    [Topics.PC]: schemas.TopicBasicIndex(),
   },
     { required: true, nullable: false, initial: {
       [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [], entries: {} },
@@ -23,8 +22,8 @@ export const SettingSchema = {
     } }
   ),
 
-  /** name of each campaign; keyed by journal entry uuid */
-  campaignNames: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, string> }),
+  /** in-memory index of campaigns, arcs, and sessions */
+  campaignIndex: new fields.ArrayField(schemas.CampaignBasicIndex(), { required: true, nullable: false, initial: [] as CampaignBasicIndex[] }),
 
   /** ids of nodes that are expanded in the tree (could be compendia or entries or subentries) - handles topic tree */
   expandedIds: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, boolean> }),
@@ -83,7 +82,6 @@ export class SettingDataModel<
 
   override prepareBaseData(): void {
     this.hierarchies = cleanKeysOnLoad(this.hierarchies);
-    this.campaignNames = cleanKeysOnLoad(this.campaignNames);
     this.expandedIds = cleanKeysOnLoad(this.expandedIds);
   }
 }
@@ -98,11 +96,12 @@ export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_T
   __type: 'FCBSettingDoc'; 
 
   system: {
-    topics: ValidTopicRecord<TopicFlatType>
+    topics: ValidTopicRecord<TopicBasicIndex>
+    campaignIndex: CampaignBasicIndex[];
     campaignNames: Record<string, string>;  
     expandedIds: Record<string, boolean>;  
     hierarchies: Record<string, Hierarchy>;  
-    genre: string;  
+    genre: string;  f
     settingFeeling: string;   
     img: string;   
     nameStyles: number[];   

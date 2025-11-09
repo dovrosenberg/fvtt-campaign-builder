@@ -65,9 +65,7 @@
       "showRolePlayingNotes": "Show role playing notes on entries",
       "showRolePlayingNotesHelp": "When true, a separate field for role playing notes will be shown separately from the Entry description.",
       "useFronts": "Use Fronts",
-      "useFrontsHelp": "Turn on campaign \"front\" functionality.",
-      "useArcs": "Use Arcs",
-      "useArcsHelp": "Group sessions into story arcs within each campaign."
+      "useFrontsHelp": "Turn on campaign \"front\" functionality."
     },
     "applications": {
       "sessionNotes": {
@@ -576,6 +574,10 @@
         "delete": "Delete campaign",
         "markComplete": "Mark campaign complete",
         "markActive": "Mark campaign active"
+      },
+      "arcFolder": {
+        "createSession": "Create a session",
+        "delete": "Delete arc"
       },
       "session": {
         "delete": "Delete session"

@@ -42,6 +42,9 @@ export async function scrollToActiveEntry(): Promise<void> {
     case WindowTabType.Front:
       await scrollToFront(contentId);
       break;
+    case WindowTabType.Arc:
+      await scrollToArc(contentId);
+      break;
     default:
       return;
   }
@@ -236,6 +239,45 @@ async function scrollToSession(sessionId: string): Promise<void> {
  * @returns A promise that resolves when the scroll operation is complete
  */
 async function scrollToFront(frontId: string): Promise<void> {
+  // TODO
+  // const campaignDirectoryStore = useCampaignDirectoryStore();
+  
+  // // Load the session to get its campaign
+  // const session = await Session.fromUuid(sessionId);
+  // if (!session) {
+  //   return;
+  // }
+
+  // const campaign = await session.loadCampaign();
+  // if (!campaign) {
+  //   return;
+  // }
+
+  // // Find the campaign node and expand it
+  // const currentCampaignTree = campaignDirectoryStore.currentCampaignTree.value;
+  // const campaignNode = currentCampaignTree.find(c => c.id === campaign.uuid);
+  
+  // if (campaignNode && !campaignNode.expanded) {
+  //   // Use toggleWithLoad to expand the campaign node
+  //   await campaignDirectoryStore.toggleWithLoad(campaignNode as DirectoryCampaignNode, true);
+  // }
+
+  // // Refresh the tree and wait for DOM update
+  // await campaignDirectoryStore.refreshCampaignDirectoryTree();
+  // await nextTick();
+
+  // // Find and scroll to the session element (sessions use the same highlighting class as entries)
+  // await scrollToElement('.fcb-current-directory-entry');
+}
+
+/**
+ * Scrolls to a front in the campaign directory tree.
+ * Expands the parent campaign node and scrolls to the front within it.
+ * 
+ * @param arcId - The UUID of the arc to scroll to
+ * @returns A promise that resolves when the scroll operation is complete
+ */
+async function scrollToArc(arcId: string): Promise<void> {
   // TODO
   // const campaignDirectoryStore = useCampaignDirectoryStore();
   

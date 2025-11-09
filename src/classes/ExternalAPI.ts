@@ -30,6 +30,7 @@ export class ExternalAPI {
    * Initialize the API
    */
   constructor() {
+    // @ts-ignore
     if (import.meta.env.MODE === 'development') {
       this.testAPI = new TestAPI();
     }
@@ -76,8 +77,8 @@ export class ExternalAPI {
       return [];
 
     const retval = [] as GetListReturnValue[];
-    for (const campaignId in setting.campaignNames) {
-      retval.push({ uuid: campaignId, name: setting.campaignNames[campaignId]})
+    for (const index of setting.campaignIndex) {
+      retval.push({ uuid: index.uuid, name: index.name })
     }
 
     return retval;
@@ -141,6 +142,7 @@ class TestAPI {
    */
   public async resetAll(): Promise<void> {
     // super dangerous - only load this code in development mode
+    // @ts-ignore
     if (import.meta.env.MODE === 'development') {
       for (const setting of await useMainStore().getAllSettings()) {
         await setting.delete();
@@ -170,6 +172,6 @@ class TestAPI {
   }
 
   public async createEntry(setting: FCBSetting, topic: ValidTopic, name: string): Promise<Entry | null> {
-    return await Entry.create(setting.topicFolders[topic], { name });
+    return await Entry.create(setting.topicFolders[topic]!, { name });
   }
 }

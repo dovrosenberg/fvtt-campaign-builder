@@ -200,6 +200,10 @@
           await navigationStore.openSession(item.uuid, { newTab: false });
           break;
 
+        case getTabTypeIcon(WindowTabType.Arc):
+          await navigationStore.openArc(item.uuid, { newTab: false });
+          break;
+
         default:
           throw new Error(`Unknown item icon type in HomePage.onRecentClick(): ${item.icon}`);
       }

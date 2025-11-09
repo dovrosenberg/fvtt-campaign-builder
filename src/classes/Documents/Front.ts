@@ -5,10 +5,10 @@ import { DOCUMENT_TYPES, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
-import { getGlobalSetting, } from './FCBSetting';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Danger } from '@/types';
+import { getGlobalSetting } from '@/utils/globalSettings';
 
 type FrontDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Front>;
 

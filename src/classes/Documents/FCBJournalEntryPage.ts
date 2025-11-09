@@ -2,8 +2,8 @@ import { toRaw } from 'vue';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { ValidDocType } from '@/types';
 import { FCBSetting } from './FCBSetting';
-import { getGlobalSetting } from '@/classes';
 import { sanitizeHTML } from '@/utils/sanitizeHtml';
+import { getGlobalSetting } from '@/utils/globalSettings';
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
