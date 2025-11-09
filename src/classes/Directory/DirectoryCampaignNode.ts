@@ -2,7 +2,7 @@
  * A class representing an node representing a campaign in the campaign tree structures
  */
 
-import { SessionBasicIndex, } from '@/types';
+import { ArcBasicIndex, SessionBasicIndex, } from '@/types';
 import { Campaign, CollapsibleNode, DirectoryArcNode, DirectoryFrontFolder, DirectorySessionNode, } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 
@@ -46,27 +46,20 @@ export class DirectoryCampaignNode<
       CollapsibleNode._loadedNodes[newNode.id] = newNode;
     }
 
-    if (ModuleSettings.get(SettingKey.useArcs)) {
-      // TODO: for now create a single one
-
-      const newNode = await DirectoryArcNode.fromArc(this.id);
-      CollapsibleNode._loadedNodes[newNode.id] = newNode;
-
-    } else {
-      // no arcs, so load all the sessions
-    // we only want to load ones not already in _loadedNodes, unless its in updateIds
-    const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
-
     const campaign = await Campaign.fromUuid(this.id);
     if (!campaign)
       throw new Error('Bad campaign id in DirectoryCampaignNode._loadNodeList()');
 
-    const sessions = uuidsToLoad.length===0 ? [] : campaign.sessionIndex.filter((s: SessionBasicIndex)=> uuidsToLoad.includes(s.uuid));
+    // we only want to load ones not already in _loadedNodes, unless its in updateIds
+    const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
-    for (let i=0; i<sessions.length; i++) {
-      const newNode = DirectorySessionNode.fromSessionBasicIndex(sessions[i], this.id);
-        CollapsibleNode._loadedNodes[newNode.id] = newNode;
-      }
+    const arcs = uuidsToLoad.length===0 ? [] : 
+      CollapsibleNode._currentSetting.campaignIndex.find((c)=>c.uuid===this.id)
+        ?.arcs.filter((a: ArcBasicIndex)=> uuidsToLoad.includes(a.uuid)) || [];
+
+    for (let i=0; i<arcs.length; i++) {
+      const newNode = DirectoryArcNode.fromArcBasicIndex(arcs[i], this.id);
+      CollapsibleNode._loadedNodes[newNode.id] = newNode;
     }
   }
 }

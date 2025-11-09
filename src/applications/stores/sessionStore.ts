@@ -683,7 +683,8 @@ export const useSessionStore = defineStore('session', () => {
       return null;
 
     const nextSessionNumber = currentSession.value.number+1;
-    const nextSessionIndex = campaign.sessionIndex.find(s=> s.number === nextSessionNumber);
+    const nextSessionIndex = campaign.sessionIndex
+      .find(s=> s.number === nextSessionNumber);
 
     if (nextSessionIndex) {
       const nextSession = await Session.fromUuid(nextSessionIndex.uuid);
