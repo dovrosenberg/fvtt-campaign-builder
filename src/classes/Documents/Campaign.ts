@@ -1,14 +1,15 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
-import { DOCUMENT_TYPES, CampaignLore, sessionIndexFields, frontIndexFields } from '@/documents';
-import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex } from '@/types';
-import { Entry, Session, FCBSetting, getGlobalSetting, Front } from '@/classes';
+import { DOCUMENT_TYPES, CampaignLore, frontIndexFields } from '@/documents';
+import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex,} from '@/types';
+import { Entry, Session, FCBSetting, Front, Arc } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { ToDoItem, ToDoTypes, Idea } from '@/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
 import { JournalEntryFlagKey } from '@/settings';
 import { searchService } from '@/utils/search';
+import { getGlobalSetting } from '@/utils/globalSettings';
 
 type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
 
@@ -52,20 +53,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
   public async resetCurrentSession(): Promise<void> {
     // find the uuid of the one with the highest number
-    const entries = await toRaw(this.compendium).getIndex(sessionIndexFields())
-
-    const maxSessionInfo = entries
-      // first find the relevant ones
-      .filter((e)=> (
-        this._clone.system.sessions.find(s=> s.uuid===e.uuid) !== undefined &&
-        e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
-        !!e.pages && e.pages!.length > 0        
-      ))
-      .reduce((maxInfo: {num: number; sessionId: string}, e): { num: number; sessionId: string}=> {
-        const number = e.pages![0].system.number;
+    const maxSessionInfo = this.sessionIndex
+      .reduce((maxInfo: {num: number; sessionId: string}, s): { num: number; sessionId: string}=> {
+        const number = s.number;
         return {
           num: number > maxInfo.num ? number : maxInfo.num,
-          sessionId: number > maxInfo.num ? e.uuid : maxInfo.sessionId
+          sessionId: number > maxInfo.num ? s.uuid : maxInfo.sessionId
         }        
       }, {num:-1, sessionId:''})
 
@@ -82,32 +75,134 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }    
   
   public get sessionIndex(): SessionBasicIndex[] {
-    return this._clone.system.sessions;
+    return this._clone.system.sessionIndex;
+  }
+  
+  public set sessionIndex(value: SessionBasicIndex[]) {
+    this._clone.system.sessionIndex = value;
   }
 
-  public set sessionIndex(value: SessionBasicIndex[]) {
-    this._clone.system.sessions = value;
+  public get arcIndex(): ArcBasicIndex[] {
+    return this._clone.system.arcIndex;
+  }
+  
+  public set arcIndex(value: ArcBasicIndex[]) {
+    this._clone.system.arcIndex = value;
   }
 
   public get frontIds(): readonly string[] {
     return this._clone.system.frontIds;
   }
 
+  /** connect the session to the end of the campaign; need to add to setting separately */
   public async addSession(session: Session): Promise<void> {
-    // Add to session index
-    this._clone.system.sessions.push({
+    const newSession = {
       uuid: session.uuid,
       name: session.name,
       number: session.number,
       date: session.date?.toLocaleDateString() || null,
-    });
+    } as SessionBasicIndex;
 
+    // we need to add to the last arc and to the session index
+    this._clone.system.sessionIndex.push(newSession);
+        
+    // no arcId, add to last one
+    let maxArcEnd = -1;
+    let lastArc = null as ArcBasicIndex | null;
+    for (const arc of this.arcIndex) {
+      if (arc.endSessionNumber > maxArcEnd) {
+        maxArcEnd = arc.endSessionNumber;
+        lastArc = arc;
+      }      
+    }
+
+    if (!lastArc) {
+      // create default one
+      this._clone.system.arcIndex.push({
+        uuid: foundry.utils.randomID(),
+        name: 'All sessions',
+        startSessionNumber: session.number,
+        endSessionNumber: session.number,
+      });
+    } else { 
+      lastArc.endSessionNumber = session.number;
+    }
+
+    // update the session number
     if (this.currentSessionNumber==null || session.number > this.currentSessionNumber) {
       this.currentSessionNumber = session.number;
       this.currentSessionId = session.uuid;
     }
-    
+
     await this.save();
+  }
+
+  /** update indices for a session */
+  public async updateSession(session: Session): Promise<void> {
+    // find it in the index
+    const sessionIndex = this._clone.system.sessionIndex.find((s)=>s.uuid===session.uuid);
+
+    if (!sessionIndex)
+      throw new Error('Session index not found in Campaign.updateSession()');
+
+    sessionIndex.number = session.number;
+    sessionIndex.name = session.name;
+    sessionIndex.date = session.date;
+    await this.save();
+  }
+
+  /** register the arc on the campaign and setting */
+  public async addArc(arc: Arc): Promise<void> {
+    const newArc = {
+      uuid: arc.uuid,
+      name: arc.name,
+      startSessionNumber: arc.startSessionNumber,
+      endSessionNumber: arc.endSessionNumber,
+    } as ArcBasicIndex;
+
+    this._clone.system.arcIndex.push(newArc);
+    await this.save();
+
+    const setting = await this.getSetting();
+    if (!setting)
+      throw new Error('Failed to get setting in Campaign.addArc()');
+
+    const campaignIndex = setting.campaignIndex.find(c=> c.uuid===this.uuid);
+    if (!campaignIndex)
+      throw new Error('Failed to find campaign index in Campaign.addArc()');
+
+    campaignIndex.arcs.push(newArc);
+    await setting.save();
+  }
+
+  /** update any changes to arc index */
+  public async updateArc(arc: Arc): Promise<void> {
+    let arcIndex = this._clone.system.arcIndex.find((a)=>a.uuid===arc.uuid);
+    if (!arcIndex)
+      throw new Error('Arc index not found in Campaign.updateArc()');
+    
+    arcIndex.name = arc.name;
+    arcIndex.startSessionNumber = arc.startSessionNumber;
+    arcIndex.endSessionNumber = arc.endSessionNumber;
+    await this.save();
+
+    // need to update on the setting
+    const setting = await this.getSetting();
+    if (!setting)
+      throw new Error('Failed to get setting in Campaign.updateArc()');
+
+    const campaignIndex = setting.campaignIndex.find(c=> c.uuid===this.uuid);
+    if (!campaignIndex)
+      throw new Error('Failed to find campaign index in Campaign.updateArc()');
+
+    arcIndex = campaignIndex.arcs.find((a)=>a.uuid===arc.uuid);
+    if (!arcIndex)
+      throw new Error('Arc index not found in Campaign.updateArc()');
+    
+    arcIndex.name = arc.name;
+    arcIndex.startSessionNumber = arc.startSessionNumber;
+    arcIndex.endSessionNumber = arc.endSessionNumber;
+    await setting.save();
   }
 
   public async addFront(front: Front): Promise<void> {
@@ -115,21 +210,34 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
-  public async deleteSession(session: Session): Promise<void> {
-    
-    // Remove from session index
-    this._clone.system.sessions = this._clone.system.sessions.filter(s => s.uuid !== session.uuid);
-
-    const reset = (session.uuid === this.currentSessionId);
+  public async deleteArc(arc: Arc): Promise<void> {    
+    // Remove from index
+    this._clone.system.arcIndex = this._clone.system.arcIndex.filter(a => a.uuid !== arc.uuid);
     
     await this.save();
 
-    if (reset)
-      await this.resetCurrentSession();
+    // remove from the setting
+    const setting = await this.getSetting();
+    if (!setting)
+      throw new Error('Failed to get setting in Campaign.deleteArc()');
+
+    const campaignIndex = setting.campaignIndex.find(c=> c.uuid===this.uuid);
+    if (!campaignIndex)
+      throw new Error('Failed to find campaign index in Campaign.deleteArc()');
+
+    campaignIndex.arcs = campaignIndex.arcs.filter(a => a.uuid !== arc.uuid);
+    await setting.save();
   }
-  
+ 
   public async deleteFront(front: Front): Promise<void> {
     this._clone.system.frontIds = this._clone.system.frontIds.filter(s=> s!==front.uuid);
+    
+    await this.save();
+  }
+
+  public async deleteSession(session: Session): Promise<void> {
+    // Remove from index
+    this._clone.system.sessionIndex = this._clone.system.sessionIndex.filter(s => s.uuid !== session.uuid);
     
     await this.save();
   }
@@ -473,7 +581,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       throw new Error('Couldn\'t create new journal entry for campaign');
 
     // add it to the setting's list
-    setting.campaignNames[campaign.uuid] = nameToUse;
+    setting.campaignIndex.push({ uuid: campaign.uuid, name: nameToUse, completed: false, arcs: [] });
     await setting.save();
     
     return campaign;
@@ -519,23 +627,13 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @returns {Session[]} The entries that pass the filter
    */
   public async filterSessions(filterFn: (s: SessionFilterIndex) => boolean): Promise<Session[]> { 
-    // TODO: we could make this more efficient if we wanted to calc id from our index
-    // get all the journal entries
-    const entries = await toRaw(this.compendium).getIndex(sessionIndexFields());
-
-    // find the sessions connected to this campaign
-    const sessions = entries
-      // first find the relevant ones
-      .filter((e)=> (
-        this._clone.system.sessions.find(s=> s.uuid===e.uuid) !== undefined &&
-        e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
-        !!e.pages && e.pages!.length > 0 
-      ))
-      .map((e) => ({ 
-        name: e.name, 
-        id: e._id,
-        uuid: e.uuid,
-        number: e.pages![0].system.number 
+    // add the id
+    const sessions = this.sessionIndex
+      .map((s) => ({ 
+        name: s.name, 
+        id: foundry.utils.parseUuid(s.uuid).id,
+        uuid: s.uuid,
+        number: s.number 
       } as SessionFilterIndex))
 
       // now filter by the function passed in 

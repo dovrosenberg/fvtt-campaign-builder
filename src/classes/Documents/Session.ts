@@ -5,9 +5,9 @@ import { DOCUMENT_TYPES, SessionLocation, SessionItem, SessionNPC, SessionMonste
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
-import { getGlobalSetting, } from './FCBSetting';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
+import { getGlobalSetting } from '@/utils/globalSettings';
 
 type SessionDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Session>;
 
@@ -467,13 +467,17 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
    * @returns A promise that resolves after the update
    */
   public async save(): Promise<void> {
+    const setting = await this.getSetting();
     const campaign = await this.loadCampaign();
 
+    if (!setting || !campaign)
+      throw new Error('Invalid setting or campaign in Session.save()');
+    
     // we attempt to save first - because if it fails, we don't 
     //    want to adjust anything else
     try {
       // see if the number is taken, if so, everything after it needs to be renumbered
-      const sessions = (await campaign.allSessions()).sort((a, b) => a.number - b.number);
+      const sessions = campaign.sessionIndex.sort((a, b) => a.number - b.number);
 
       // find the index of the session with the same number 
       const currentNumberedSession = sessions.findIndex(s=> s.number===this.number && s.uuid!==this.uuid);
@@ -483,8 +487,12 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
         // go backward because otherwise these saves will kickoff a cascade of changes
         for (let i = sessions.length-1; i>= currentNumberedSession; i--) {
           if (sessions[i].uuid!==this.uuid) {
-            sessions[i].number++;
-            await sessions[i].save();
+            const session = await Session.fromUuid(sessions[i].uuid); 
+            if (!session)
+              throw new Error('Invalid session in Session.save()');
+            
+            session.number++;
+            await session.save();
           }
         }
       }
@@ -494,7 +502,9 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       throw error;
     }
 
-    // update index
+    // update indexes
+    await campaign.updateSession(this);
+
     let sessionItem = campaign.sessionIndex.find((e)=> e.uuid === this.uuid);
     if (!sessionItem) {
       sessionItem = {
@@ -503,7 +513,6 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
         number: this._clone.system.number,
         date: this._clone.system.date,
       };
-      campaign.sessionIndex.push(sessionItem);
     } else {
       sessionItem.name = this._clone.name;
       sessionItem.number = this._clone.system.number;
@@ -517,11 +526,6 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
     // Update the search index (rely on retval being null if no changes were made)
     try {
-      const setting = await getGlobalSetting(this.settingId);
-
-      if (!setting)
-        throw new Error('Setting not found in Session.save()');
-      
       await searchService.addOrUpdateSessionIndex(this, setting);
     } catch (error) {
       console.error('Failed to update search index:', error);

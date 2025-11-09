@@ -58,7 +58,7 @@ export class DirectoryCampaignNode<
         ?.arcs.filter((a: ArcBasicIndex)=> uuidsToLoad.includes(a.uuid)) || [];
 
     for (let i=0; i<arcs.length; i++) {
-      const newNode = DirectoryArcNode.fromArcBasicIndex(arcs[i], this.id);
+      const newNode = DirectoryArcNode.fromArcBasicIndex(arcs[i], campaign);
       CollapsibleNode._loadedNodes[newNode.id] = newNode;
     }
   }

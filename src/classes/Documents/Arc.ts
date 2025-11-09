@@ -97,28 +97,8 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     if (!arc)
       return null;
 
-    await arc.save();
-
-    // add to campaign
-    const arcIndex = campaign.addNewArc(arc);
-
-    // add to campaign index on the setting
-    const setting = await campaign.getSetting();
-    let campaignIndex = setting.campaignIndex.find(c=> c.uuid===campaign.uuid); 
-
-    if (!campaignIndex) {
-      const newIndex = { 
-        uuid: campaign.uuid, 
-        name: campaign.name || '', 
-        completed: false,
-        arcs: [arcIndex] 
-      };
-      campaignIndex = newIndex;
-      setting.campaignIndex.push(newIndex);
-    }
-    
-    campaignIndex.arcs.push(arcIndex);
-    await setting.save();
+    // add to campaign and setting indexes
+    await campaign.addArc(arc);
     
     // Add to search index
     try {
@@ -500,6 +480,12 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     } catch (error) {
       throw error;
     }
+
+    // update the campaign and setting indexes
+    const campaign = await Campaign.fromUuid(this.campaignId);
+    if (!campaign)
+      throw new Error('Invalid campaign in Arc.save()');
+    await campaign.updateArc(this);
 
     // Update the search index (rely on retval being null if no changes were made)
     try {

@@ -8,12 +8,12 @@
         class="noborder"
         style="margin-bottom:0px"
         @contextmenu="onFolderContextMenu"
+        @click="onFrontFolderClick"
       >
         <i
           class="fas fa-folder-open fa-fw"
           style="margin-right: 4px;"
           data-testid="campaign-folder-toggle"
-          @click="onFrontFolderClick"
         ></i>
         <i :class="'icon fas ' + getTabTypeIcon(WindowTabType.Front)" style="margin-right: 4px;"></i>
         <span data-testid="front-folder">

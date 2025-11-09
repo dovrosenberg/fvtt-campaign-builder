@@ -2,7 +2,7 @@ import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, } from '@/settings';
 import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder, WindowTab } from '@/classes';
-import { updateGlobalSetting } from '@/classes/Documents/FCBSetting';
+import { updateGlobalSetting } from '@/utils/globalSettings';
 import { Bookmark, defaultCustomFields, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, TabHeader, ToDoItem, Topics, ValidTopic, ValidTopicRecord } from '@/types';
 import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, } from '@/documents';
 import { cleanKeysOnLoad } from '@/utils/cleanKeys';
@@ -235,7 +235,8 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   topicIds = folder.getFlag(moduleId, 'topicIds') || [];
   
   // @ts-ignore
-  newSetting.campaignNames = folder.getFlag(moduleId, 'campaignNames') || {};
+  // we no longer use campaign names, but we need to know them
+  const oldCampaignNames = folder.getFlag(moduleId, 'campaignNames') || {};
   
   // @ts-ignore
   newSetting.expandedIds = folder.getFlag(moduleId, 'expandedIds') || {};
@@ -282,34 +283,20 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
 
   // now migrate all the campaigns
   // we save these because they get removed as campaigns are created
-  const oldCampaignNames = { ...newSetting.campaignNames };
-  for (const id in oldCampaignNames) {
+  for (const id in oldCampaignNames as Record<string, string>) {
     const campaign = await fromUuid<JournalEntry>(id);
 
     // NOTE! This may generate a bunch of console warnings because the old stuff wasn't 
     //    compatible with the new schema
 
-    // if it's not a campaign, clean up
+    // if it's not a campaign, skip it
     // @ts-ignore
     if (!campaign || !campaign.getFlag(moduleId, 'isCampaign')) {
-      delete newSetting.campaignNames[id];
-      await newSetting.save();
       continue;
     }
 
     await migrateCampaign(campaign, newSetting);
   }
-
-  // now that the campaigns are migrated, we need to update our keys
-  // it contains old ids and new ids at the moment; this will clear the new ones and then replace 
-  //    the old ones with the new ones :) 
-  newSetting.campaignNames = Object.keys(oldCampaignNames).reduce((retval, id) => {
-    if (globalUuidMap[id]) {
-      retval[globalUuidMap[id]] = oldCampaignNames[id];
-    }
-
-    return retval;
-  }, {} as Record<string, string>);
 
   await newSetting.save();
 

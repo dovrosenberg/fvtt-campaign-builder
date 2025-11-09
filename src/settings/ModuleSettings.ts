@@ -26,6 +26,7 @@ export enum SettingKey {
   entryTags = 'entryTags',
   sessionTags = 'sessionTags',
   frontTags = 'frontTags',
+  arcTags = 'arcTags',
   lastKnownVersion = 'lastKnownVersion',  // tracks the last known module version - used for tracking migrations
   settingIndex = 'settingIndex',  // array of high-level setting info (name, packId)
   customFields = 'customFields',  // mapping of CustCustomFieldContentType to CustomFieldType
@@ -76,6 +77,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.entryTags ? TagList :
     K extends SettingKey.sessionTags ? TagList :
     K extends SettingKey.frontTags ? TagList :
+    K extends SettingKey.arcTags ? TagList :
     K extends SettingKey.lastKnownVersion ? string :
     K extends SettingKey.settingIndex ? SettingIndex[] :
     K extends SettingKey.customFields ? Record<CustomFieldContentType, CustomFieldDescription[]> :
@@ -271,6 +273,11 @@ export class ModuleSettings {
     },
     {
       settingID: SettingKey.frontTags,
+      default: {},
+      type: Object,
+    },
+    {
+      settingID: SettingKey.arcTags,
       default: {},
       type: Object,
     },

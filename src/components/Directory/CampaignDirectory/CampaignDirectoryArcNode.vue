@@ -17,7 +17,7 @@
           @click="onArcFolderClick"
         ></i>
         <i :class="'icon fas ' + getTabTypeIcon(WindowTabType.Arc)" style="margin-right: 4px;"></i>
-        <span data-testid="arc-name">
+        <span data-testid="arc-name" @click="onArcSelectClick">
           <span 
             :class="`node-name ${props.arcNode.id===currentArc?.uuid ? 'active' : ''}`"
           >
@@ -119,6 +119,10 @@
 
   // change arc
   const onArcFolderClick = async (event: MouseEvent) => {
+    currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as CampaignDirectoryArcNode, !currentNode.value.expanded);
+  };
+
+  const onArcSelectClick = async (event: MouseEvent) => {
     await navigationStore.openArc(currentNode.value.id, {newTab: event.ctrlKey});
   };
 
