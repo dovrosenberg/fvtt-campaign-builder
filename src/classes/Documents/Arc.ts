@@ -140,11 +140,20 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     return campaign.completed;
   }
 
-  // given the campaign index of sessions, returns the sessions that
-  //    are in this arc
-  public getSessionIndex(sessionIndex: SessionBasicIndex[]): SessionBasicIndex[] {
-    // return all the sessions between start and end
-    return sessionIndex.filter(s=> s.number>=this._clone.system.startSessionNumber && s.number<=this._clone.system.endSessionNumber); 
+  get startSessionNumber(): number {
+    return this._clone.system.startSessionNumber;
+  }
+
+  set startSessionNumber(value: number) {
+    this._clone.system.startSessionNumber = value;
+  }
+
+  get endSessionNumber(): number {
+    return this._clone.system.endSessionNumber;
+  }
+
+  set endSessionNumber(value: number) {
+    this._clone.system.endSessionNumber = value;
   }
 
   get tags(): string[] {

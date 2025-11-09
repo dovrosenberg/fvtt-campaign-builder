@@ -43,7 +43,7 @@ export class DirectoryArcNode extends CollapsibleNode<DirectorySessionNode> {
     if (!arc)
       throw new Error('Bad arc id in DirectoryArcNode._loadNodeList()');
 
-    const sessions = arc.getSessionIndex(campaign.sessionIndex)
+    const sessions = campaign.sessionIndex.filter((s) => s.number>=arc.startSessionNumber && s.number<=arc.endSessionNumber);
     const sessionsToUse = uuidsToLoad.length===0 ? [] : 
       sessions.filter((s: SessionBasicIndex)=> uuidsToLoad.includes(s.uuid));
 
