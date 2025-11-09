@@ -2,8 +2,8 @@
  * A class representing an node representing a campaign in the campaign tree structures
  */
 
-import { Campaign, CollapsibleNode, DirectorySessionNode, } from '@/classes';
-import { SessionBasicIndex, SessionFilterIndex } from '@/types';
+import { Arc, Campaign, CollapsibleNode, DirectorySessionNode, } from '@/classes';
+import { ArcBasicIndex, SessionBasicIndex, } from '@/types';
 
 export class DirectoryArcNode extends CollapsibleNode<DirectorySessionNode> {
   name: string;
@@ -32,33 +32,35 @@ export class DirectoryArcNode extends CollapsibleNode<DirectorySessionNode> {
       return;
     }
 
-    // TODO: for now, we just load them all
     // we only want to load ones not already in _loadedNodes, unless its in updateIds
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
     const campaign = await Campaign.fromUuid(this.parentId!);
     if (!campaign)
-      throw new Error('Bad campaign id in DirectoryCampaignNode._loadNodeList()');
+      throw new Error('Bad campaign id in DirectoryArcNode._loadNodeList()');
+    
+    const arc = await Arc.fromUuid(this.id);
+    if (!arc)
+      throw new Error('Bad arc id in DirectoryArcNode._loadNodeList()');
 
-    const sessions = uuidsToLoad.length===0 ? [] : await campaign.sessionIndex.filter((s: SessionBasicIndex)=> uuidsToLoad.includes(s.uuid));
+    const sessions = arc.getSessionIndex(campaign.sessionIndex)
+    const sessionsToUse = uuidsToLoad.length===0 ? [] : 
+      sessions.filter((s: SessionBasicIndex)=> uuidsToLoad.includes(s.uuid));
 
-    for (let i=0; i<sessions.length; i++) {
-      const newNode = DirectorySessionNode.fromSessionBasicIndex(sessions[i], this.id);
+    for (const session of sessionsToUse) {
+      const newNode = DirectorySessionNode.fromSessionBasicIndex(session, this.id);
       CollapsibleNode._loadedNodes[newNode.id] = newNode;
     }
   }
 
-  static async fromArc(campaignId: string): Promise<DirectoryArcNode> {
-    // for now, we fake it
-    const campaign = await Campaign.fromUuid(campaignId);
-    if (!campaign)
-      throw new Error('Bad campaign id in DirectoryArcNode.fromArc()');
-
+  static fromArcBasicIndex(arc: ArcBasicIndex, campaign: Campaign): DirectoryArcNode {
     return new DirectoryArcNode(
-      campaignId + ':arc',
-      'All sessions',
-      campaignId,
-      campaign.sessionIndex.map(s=>s.uuid),
+      arc.uuid,
+      arc.name,
+      campaign.uuid,
+      campaign.sessionIndex
+        .filter((s)=>s.number>=arc.startSessionNumber && s.number<=arc.endSessionNumber)
+        ?.map((s)=>s.uuid) || [],
       [],
       true,
       false

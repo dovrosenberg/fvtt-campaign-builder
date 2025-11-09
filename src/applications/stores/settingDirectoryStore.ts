@@ -12,9 +12,10 @@ import { getCurrentSetting, getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
 import { scrollToActiveEntry } from '@/utils/directoryScroll';
+import { getGlobalSetting } from '@/utils/globalSettings';
 
 // types
-import { Entry, DirectoryTopicFolderNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder, getGlobalSetting } from '@/classes';
+import { Entry, DirectoryTopicFolderNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder,  } from '@/classes';
 import { DirectorySetting, Hierarchy, Topics, ValidTopic, EntryFilterIndex, ValidTopicRecord } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
