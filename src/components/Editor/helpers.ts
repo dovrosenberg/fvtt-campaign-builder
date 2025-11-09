@@ -21,12 +21,12 @@ import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
 import { localize } from '@/utils/game';
 
 // types
-import { DOCUMENT_TYPES, EntryDoc, SessionDoc, } from '@/documents';
-import { Entry, Campaign, Session, getGlobalSetting, Front } from '@/classes';
+import { DOCUMENT_TYPES, } from '@/documents';
+import { Entry, Campaign, Session, Front, Arc } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 import { ValidTopic, WindowTabType } from '@/types';
-import { InternalClientDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs';
-import { moduleId } from '@/settings';
+import { getGlobalSetting } from '@/utils/globalSettings';
+import { InternalClientDocument } from 'node_modules/@types/fvtt-types/src/foundry/client/documents/abstract/client-document.mjs';
 
 const TextEditor = foundry.applications.ux.TextEditor;
 
@@ -291,6 +291,16 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
             return brokenAnchor(data);
           } else {  // this is an fcb item for this setting
             return goodAnchor(unknownItem, WindowTabType.Session, hash, data.name || session.name, `fas ${getTabTypeIcon(WindowTabType.Session)}`); 
+          }
+        }; break;
+        case DOCUMENT_TYPES.Arc: {
+          const arc = new Arc(unknownItem as unknown as JournalEntry);
+
+          // handle the ones we don't care about
+          if (arc.settingId !== settingId) {
+            return brokenAnchor(data);
+          } else {  // this is an fcb item for this setting
+            return goodAnchor(unknownItem, WindowTabType.Arc, hash, data.name || arc.name, `fas ${getTabTypeIcon(WindowTabType.Arc)}`); 
           }
         }; break;
         case DOCUMENT_TYPES.Campaign: {

@@ -1,6 +1,6 @@
 import { moduleId, ModuleSettings, } from '@/settings';
 import { KeyBindings } from '@/settings/KeyBindings';
-import { CampaignDataModel, DOCUMENT_TYPES, FrontDataModel, EntryDataModel, SessionDataModel, SettingDataModel, } from '@/documents';
+import { CampaignDataModel, DOCUMENT_TYPES, ArcDataModel, FrontDataModel, EntryDataModel, SessionDataModel, SettingDataModel, } from '@/documents';
 import { CampaignBuilderApplication } from '@/applications/CampaignBuilder';
 import { JournalEntryFlagKey } from '@/settings';
 
@@ -10,6 +10,7 @@ export function registerForInitHook() {
 
 async function init(): Promise<void> {
   // Load Quench test in development environment
+  // @ts-ignore
   if (import.meta.env.MODE === 'development') {
     // await import('@unittest/index');
   }
@@ -23,7 +24,8 @@ async function init(): Promise<void> {
   // register the data models
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
     [DOCUMENT_TYPES.Entry]: EntryDataModel,
-    [DOCUMENT_TYPES.Session]: SessionDataModel,    
+    [DOCUMENT_TYPES.Session]: SessionDataModel,  
+    [DOCUMENT_TYPES.Arc]: ArcDataModel,  
     [DOCUMENT_TYPES.Campaign]: CampaignDataModel,
     [DOCUMENT_TYPES.Front]: FrontDataModel,
     [DOCUMENT_TYPES.Setting]: SettingDataModel,

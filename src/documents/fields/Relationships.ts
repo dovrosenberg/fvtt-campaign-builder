@@ -1,4 +1,4 @@
-import { RelatedItemDetails, Topics, ValidTopic, ValidTopicRecord } from '@/types';
+import { RelatedItemDetails, Topics, ValidTopicRecord } from '@/types';
 import { TopicSchema } from './Topic';
 
 const fields = foundry.data.fields;

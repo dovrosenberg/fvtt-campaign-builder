@@ -154,20 +154,45 @@ export interface EntryBasicIndex {
   type: string; 
 };
 
+export interface TopicBasicIndex { 
+  topic: string; 
+  types: string[]; 
+  topNodes: string[]; 
+  entries: EntryBasicIndex[];
+};
+
 /** This is the format of how our sessions are stored in campaigns */
 export interface SessionBasicIndex { 
   uuid: string;
   name: string; 
   number: number; 
   date: string | null;
-};
+}
+
+
+/** Index of an arc for in-memory storage */
+export interface ArcBasicIndex {
+  uuid: string;
+  name: string;
+  startSessionNumber: number;
+  endSessionNumber: number;
+}
+
+/** Index of a campaign for in-memory storage */
+export interface CampaignBasicIndex {
+  uuid: string;
+  name: string;
+  completed: boolean;
+  arcs: ArcBasicIndex[];
+}
 
 export type ValidDocType = 
   typeof DOCUMENT_TYPES.Setting | 
   typeof DOCUMENT_TYPES.Campaign | 
   typeof DOCUMENT_TYPES.Entry | 
   typeof DOCUMENT_TYPES.Session |
-  typeof DOCUMENT_TYPES.Front;
+  typeof DOCUMENT_TYPES.Front |
+  typeof DOCUMENT_TYPES.Arc;
 
 export interface ContentTabDescriptor {
   id: string;

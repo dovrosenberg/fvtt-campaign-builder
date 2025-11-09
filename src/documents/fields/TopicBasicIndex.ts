@@ -1,10 +1,10 @@
-import { EntryBasicIndex } from './EntryBasicIndex';
+import { EntryBasicIndex } from '@/types';
 import { TopicSchema } from './Topic';
 import { schemas } from './index';
 
 const fields = foundry.data.fields;
 
-export const TopicFolderSchema = () => (
+export const TopicBasicIndexSchema = () => (
   new fields.SchemaField({
     /** the topic id (Topics enum) */
     topic: TopicSchema(),
@@ -23,10 +23,3 @@ export const TopicFolderSchema = () => (
     types: new fields.ArrayField(new fields.StringField({ required: true, nullable: false }), { required: true, nullable: false, initial: [] as string[] }),
   }, { required: true, nullable: false} )
 );
-
-export interface TopicFlatType { 
-  topic: string; 
-  types: string[]; 
-  topNodes: string[]; 
-  entries: EntryBasicIndex[];
-};

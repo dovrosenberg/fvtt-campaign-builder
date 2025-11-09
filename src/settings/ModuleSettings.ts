@@ -18,7 +18,6 @@ export enum SettingKey {
   showTypesInTree = 'showTypesInTree', // show the type of the entry in the hierarchy tree
   showRolePlayingNotes = 'showRolePlayingNotes',  // whether to show role playing notes on entries
   useFronts = 'useFronts', // allow creation and viewing of fronts
-  useArcs = 'useArcs', // allow creation and viewing of arcs
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
@@ -62,7 +61,6 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.showTypesInTree ? boolean :
     K extends SettingKey.showRolePlayingNotes ? boolean :
     K extends SettingKey.useFronts ? boolean :
-    K extends SettingKey.useArcs ? boolean :
     K extends SettingKey.rpgStyle ? boolean :
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
@@ -162,14 +160,6 @@ export class ModuleSettings {
       settingID: SettingKey.useFronts,
       name: 'settings.useFronts',
       hint: 'settings.useFrontsHelp',
-      requiresReload: true,
-      default: true,
-      type: Boolean,
-    },
-    {
-      settingID: SettingKey.useArcs,
-      name: 'settings.useArcs',
-      hint: 'settings.useArcsHelp',
       requiresReload: true,
       default: true,
       type: Boolean,

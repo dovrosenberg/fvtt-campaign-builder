@@ -1,5 +1,5 @@
 import { SessionLore, } from '@/documents/session';
-import { ToDoItem, Idea, RelatedJournal, RelatedPCDetails, SessionBasicIndex } from '@/types';
+import { ToDoItem, Idea, RelatedJournal, RelatedPCDetails, SessionBasicIndex, ArcBasicIndex } from '@/types';
 import { DOCUMENT_TYPES } from './types';
 import { schemas } from './fields';
 
@@ -18,12 +18,15 @@ export const CampaignSchema = {
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
   /** high-level info for every contained entry */
-  sessions: new fields.ArrayField(schemas.SessionBasicIndex(), {
-    required: true, 
-    nullable: false, 
-    initial: [] as SessionBasicIndex[] 
-  }),
+  sessions: new fields.ArrayField(schemas.SessionBasicIndex(), 
+    { required: true, nullable: false, initial: [] as SessionBasicIndex[] } 
+  ),
     
+  /** all the arcs */
+  arcs: new fields.ArrayField(schemas.ArcBasicIndex(),
+    { required: true, nullable: false, initial: [] as ArcBasicIndex[] }
+  ),
+
   /** all the frontIds */
   frontIds: new fields.ArrayField(
     new fields.DocumentUUIDField({ required: true, nullable: false }),
@@ -78,6 +81,11 @@ export class CampaignDataModel<
     return CampaignSchema;
   }
 
+  /** perform any needed migrations */
+  // static migrateData(data: Record<string, unknown> ): CampaignDocModel['system'] {
+  //   return data as CampaignDocModel['system'];
+  // }
+
   // override prepareBaseData(): void {
   // }
 }
@@ -96,6 +104,7 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
     description: string;
     customFields: Record<string, string>;
     sessions: SessionBasicIndex[];
+    arcs: ArcBasicIndex[];
     frontIds: string[];
     lore: CampaignLore[];  
     img: string;   
