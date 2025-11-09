@@ -82,7 +82,7 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
-  const { currentArc } = storeToRefs(mainStore);
+  const { currentArc, isInPlayMode } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -117,90 +117,47 @@
   //   event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   // };
 
-  // change campaign
-  const onArcFolderClick = async (_event: MouseEvent) => {
-    // if it's completed, don't toggle
-    if (currentNode.value.completed) {
-      return;
-    }
-
-    // TODO:
-    currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as DirectoryArcNode, !currentNode.value.expanded);
-  };
-
-  const onArcSelectClick = async (event: MouseEvent) => {
-    // TODO
-    // await navigationStore.openCampaign(currentNode.value.id, {newTab: event.ctrlKey});
+  // change arc
+  const onArcFolderClick = async (event: MouseEvent) => {
+    await navigationStore.openArc(currentNode.value.id, {newTab: event.ctrlKey});
   };
 
   const onArcContextMenu = (event: MouseEvent): void => {
-    // TODO
-    // //prevent the browser's default menu
-    // event.preventDefault();
-    // event.stopPropagation();
+    //prevent the browser's default menu
+    event.preventDefault();
+    event.stopPropagation();
 
-    // //show our menu
-    // ContextMenu.showContextMenu({
-    //   customClass: 'fcb',
-    //   x: event.x,
-    //   y: event.y,
-    //   zIndex: 300,
-    //   items: [
-    //     { 
-    //       icon: getTabTypeIcon(WindowTabType.Session),
-    //       iconFontClass: 'fas',
-    //       disabled: isInPlayMode.value,
-    //       label: localize('contextMenus.campaignFolder.createSession'), 
-    //       onClick: async () => {
-    //         const session = await campaignDirectoryStore.createSession(props.campaignNode.id);
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: getTabTypeIcon(WindowTabType.Session),
+          iconFontClass: 'fas',
+          disabled: isInPlayMode.value,
+          label: localize('contextMenus.arcFolder.createSession'), 
+          onClick: async () => {
+            const session = await campaignDirectoryStore.createSessionInArc(props.arcNode.id);
 
-    //         if (session) {
-    //           await navigationStore.openSession(session.uuid, { newTab: true, activate: true, }); 
-    //         }
-    //       }
-    //     },
-    //     { 
-    //       icon: getTabTypeIcon(WindowTabType.Front),
-    //       iconFontClass: 'fas',
-    //       disabled: isInPlayMode.value,
-    //       label: localize('contextMenus.campaignFolder.createFront'), 
-    //       onClick: async () => {
-    //         const front = await campaignDirectoryStore.createFront(props.campaignNode.id);
-
-    //         if (front) {
-    //           await navigationStore.openFront(front.uuid, { newTab: true, activate: true, }); 
-    //         }
-    //       }
-    //     },
-    //     { 
-    //       icon: 'fa-check-circle',
-    //       iconFontClass: 'fas',
-    //       label: props.campaignNode.completed ? localize('contextMenus.campaignFolder.markActive') : localize('contextMenus.campaignFolder.markComplete'),
-    //       hidden: isInPlayMode.value,
-    //       onClick: async () => {
-    //         const campaign = await Campaign.fromUuid(props.campaignNode.id);
-    //         if (campaign) {
-    //           campaign.completed = !campaign.completed;
-    //           await campaign.save();
-
-    //           // Update the local node's completed status
-    //           props.campaignNode.completed = campaign.completed;
-    //           // Refresh the campaign directory to show the updated status
-    //           await campaignDirectoryStore.refreshCampaignDirectoryTree();
-    //         }
-    //       }
-    //     },
-    //     { 
-    //       icon: 'fa-trash',
-    //       iconFontClass: 'fas',
-    //       label: localize('contextMenus.campaignFolder.delete'), 
-    //       disabled: isInPlayMode.value,
-    //       onClick: async () => {
-    //         await campaignDirectoryStore.deleteCampaign(props.campaignNode.id);
-    //       }
-    //     },
-    //   ]
-    // });
+            if (session) {
+              await navigationStore.openSession(session.uuid, { newTab: true, activate: true, }); 
+            }
+          }
+        },
+        { 
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.arcFolder.delete'), 
+          disabled: isInPlayMode.value,
+          onClick: async () => {
+            await campaignDirectoryStore.deleteArc(props.arcNode.id);
+          }
+        },
+      ]
+    });
   };
 
 

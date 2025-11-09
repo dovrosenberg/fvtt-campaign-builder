@@ -43,19 +43,9 @@
         draggable="false"
       />
       <CampaignDirectoryArcNode 
-        v-if="ModuleSettings.get(SettingKey.useArcs)"
         v-for="node in sortedChildren"
         :key="'arc' + node.id"
         :arc-node="node as DirectoryArcNode"
-        :top="true"
-        class="fcb-entry-item" 
-        draggable="true"
-      />
-      <CampaignDirectorySessionNode 
-        v-else
-        v-for="node in sortedChildren"
-        :key="node.id"
-        :session-node="node as DirectorySessionNode"
         :top="true"
         class="fcb-entry-item" 
         draggable="true"
@@ -79,7 +69,6 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
   
   // local components
-  import CampaignDirectorySessionNode from './CampaignDirectorySessionNode.vue';
   import CampaignDirectoryArcNode from './CampaignDirectoryArcNode.vue';
   import CampaignDirectoryFrontFolder from './CampaignDirectoryFrontFolder.vue';
 
@@ -123,11 +112,7 @@
     }
 
     // sort sessions by number, arcs by name
-    if (ModuleSettings.get(SettingKey.useArcs)) {
-      return (children as DirectoryArcNode[]).sort((a, b) => a.name.localeCompare(b.name));
-    } else {
-      return (children as DirectorySessionNode[]).sort((a, b) => a.sessionNumber - b.sessionNumber);
-    }
+    return (children as DirectoryArcNode[]).sort((a, b) => a.name.localeCompare(b.name));
   });
   const frontFolderNode = computed((): DirectoryFrontFolder | null => {
     if (ModuleSettings.get(SettingKey.useFronts)) {
