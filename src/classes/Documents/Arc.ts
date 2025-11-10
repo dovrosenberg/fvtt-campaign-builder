@@ -19,6 +19,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     campaignId: '',  
     startSessionNumber: -1,
     endSessionNumber: -1,
+    sortOrder: 0,
     customFields: {},
     locations: [],  
     items: [],  
@@ -134,6 +135,14 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
 
   set endSessionNumber(value: number) {
     this._clone.system.endSessionNumber = value;
+  }
+
+  get sortOrder(): number {
+    return this._clone.system.sortOrder;
+  }
+
+  set sortOrder(value: number) {
+    this._clone.system.sortOrder = value;
   }
 
   get tags(): string[] {
@@ -454,16 +463,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     if (!campaign)
       throw new Error('Invalid campaign in Arc.deleteSession()');
 
-    // Remove from master indexes
-    const reset = (session.uuid === campaign.currentSessionId);
-
-    // TODO - could just put the reset thing in the campaign.deletesessoin
     await campaign.deleteSession(session);
-    await setting.deleteSession(session);
-
-    if (reset) {
-      await campaign.resetCurrentSession();
-    }
   }
 
   // used to set arbitrary properties on the entryDoc

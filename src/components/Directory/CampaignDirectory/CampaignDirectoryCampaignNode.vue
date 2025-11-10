@@ -64,6 +64,7 @@
   import { useCampaignDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { ModuleSettings, SettingKey } from '@/settings';
+  import { ArcManagerApplication } from '@/applications/settings/ArcManagerApplication';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -190,6 +191,15 @@
             if (session) {
               await navigationStore.openSession(session.uuid, { newTab: true, activate: true, }); 
             }
+          }
+        },
+        { 
+          icon: getTabTypeIcon(WindowTabType.Arc),
+          iconFontClass: 'fas',
+          label: localize('contextMenus.campaignFolder.manageArcs'), 
+          onClick: async () => {
+            const dialog = new ArcManagerApplication();
+            dialog.render({ force: true, props: { campaignId: props.campaignNode.id } });
           }
         },
         { 

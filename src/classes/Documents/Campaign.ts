@@ -180,7 +180,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     let arcIndex = this._clone.system.arcIndex.find((a)=>a.uuid===arc.uuid);
     if (!arcIndex)
       throw new Error('Arc index not found in Campaign.updateArc()');
-    
+
     arcIndex.name = arc.name;
     arcIndex.startSessionNumber = arc.startSessionNumber;
     arcIndex.endSessionNumber = arc.endSessionNumber;
@@ -235,11 +235,18 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
+  /** delete a session from the campaign; adjusting current session if needed */
   public async deleteSession(session: Session): Promise<void> {
+    // Remove from master indexes
+    const reset = (session.uuid === this.currentSessionId);
+
     // Remove from index
     this._clone.system.sessionIndex = this._clone.system.sessionIndex.filter(s => s.uuid !== session.uuid);
-    
     await this.save();
+
+    if (reset) {
+      await this.resetCurrentSession();
+    }
   }
 
   public get description(): string {

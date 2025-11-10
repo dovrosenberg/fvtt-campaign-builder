@@ -176,6 +176,7 @@ export interface ArcBasicIndex {
   name: string;
   startSessionNumber: number;
   endSessionNumber: number;
+  sortOrder: number;
 }
 
 /** Index of a campaign for in-memory storage */

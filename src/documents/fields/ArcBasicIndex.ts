@@ -12,7 +12,10 @@ export const ArcBasicIndexSchema = () => (
     
     /** session range */
     startSessionNumber: new fields.NumberField({ required: true, nullable: false }),
-    endSessionNumber: new fields.NumberField({ required: true, nullable: false }),    
+    endSessionNumber: new fields.NumberField({ required: true, nullable: false }),
+
+    /** sort order for arcs in campaign directory */
+    sortOrder: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
   },
   { required: true, nullable: false, initial: {} as ArcBasicIndex } )
 );

@@ -11,6 +11,9 @@ export const ArcSchema = {
   startSessionNumber: new fields.NumberField({ required: true, nullable: false }),
   endSessionNumber: new fields.NumberField({ required: true, nullable: false }),
 
+  /** sort order for arcs in campaign directory */
+  sortOrder: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
+
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
@@ -77,6 +80,7 @@ export interface ArcDoc extends JournalEntryPage {
   system: {
     startSessionNumber: number;
     endSessionNumber: number;
+    sortOrder: number;
 
     // campaign-like
     customFields: Record<string, string>;
