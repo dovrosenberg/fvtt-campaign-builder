@@ -205,16 +205,18 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     await refreshCampaignDirectoryTree();
   };
 
-  /** create a session in a specific arc */
-  const createSessionInArc = async (arcId: string): Promise<Session | null> => {
+  /** create a session in campaign. Puts it at the end.
+   *  @param campaignId the campaign to create the session 
+   */
+  const createSession = async (campaignId: string): Promise<Session | null> => {
     if (!currentSetting.value)
       return null;
 
-    const arc = await Arc.fromUuid(arcId);
-    if (!arc)
-      throw new Error('Bad arc in campaignDirectoryStore.createSessionInArc()');
+    const campaign = await Campaign.fromUuid(campaignId);
+    if (!campaign)
+      throw new Error('Bad campaign in campaignDirectoryStore.createSessionInArc()');
 
-    const session = await Session.create(arc);
+    const session = await Session.create(campaign);
 
     if (session) {
       await refreshCampaignDirectoryTree();
@@ -234,6 +236,27 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (front) {
       await refreshCampaignDirectoryTree();
       return front;
+    } else {
+      return null;
+    }
+  };
+
+  /** create an arc in campaign. Puts it at the end.
+   *  @param campaignId the campaign to create the arc 
+   */
+  const createArc = async (campaignId: string): Promise<Arc | null> => {
+    if (!currentSetting.value)
+      return null;
+
+    const campaign = await Campaign.fromUuid(campaignId);
+    if (!campaign)
+      throw new Error('Bad campaign in campaignDirectoryStore.createArc()');
+
+    const arc = await Arc.create(campaign);
+
+    if (arc) {
+      await refreshCampaignDirectoryTree();
+      return arc;
     } else {
       return null;
     }
@@ -326,7 +349,8 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     deleteCampaign,
     deleteSession,
     deleteFront,
-    createSessionInArc,
+    createSession,
+    createArc,
     createFront,
     createCampaign,
     getCampaigns,

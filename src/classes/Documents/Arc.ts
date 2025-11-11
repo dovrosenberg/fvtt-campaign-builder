@@ -80,7 +80,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     let nameToUse: string | null = name;
 
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createArc.title'), `${localize('dialogs.createArc.frontName')}:`); 
+      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createArc.title'), `${localize('dialogs.createArc.arcName')}:`); 
     }  
     
     // if name is null, then we cancelled the dialog

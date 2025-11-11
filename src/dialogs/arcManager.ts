@@ -3,23 +3,16 @@ import PrimeVue from 'primevue/config';
 
 import App from '@/components/applications/ArcManager.vue';
 import { theme } from '@/components/styles/primeVue';
+import { useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
 
 const { ApplicationV2 } = foundry.applications.api;
 
-// the most recent one; we track this so it can close itself
-export let arcManagerApp: ArcManagerApplication | null = null;
-
 export class ArcManagerApplication extends VueApplicationMixin(ApplicationV2) {
-  constructor() { 
-    super(); 
-    arcManagerApp = this;
-  }
-
   static DEFAULT_OPTIONS = {
     id: `app-fcb-arc-manager`,
     classes: ['fcb-arc-manager'], 
     window: {
-      title: 'fcb.applications.arcManager.title',
+      title: 'fcb.dialogs.arcManager.title',
       icon: 'fa-solid fa-book-open',
       resizable: true,
     },
@@ -27,7 +20,7 @@ export class ArcManagerApplication extends VueApplicationMixin(ApplicationV2) {
       width: 900,
     },
     form: {
-      submitOnChange: true,
+      submitOnChange: false,
     },
     actions: {}
   };
@@ -51,4 +44,29 @@ export class ArcManagerApplication extends VueApplicationMixin(ApplicationV2) {
       }
     }
   };
+}
+
+async function arcManagerDialog(campaignId: string): Promise<void> {
+  const currentSetting = useMainStore().currentSetting;
+
+  if (!currentSetting) 
+    return;
+
+  return new Promise<void>((resolve) => {
+    const dialog = new ArcManagerApplication();
+
+    const props = {
+      campaignId: campaignId,
+      callback: async () => {
+        dialog.close();
+        resolve();
+      }
+    };
+
+    dialog.render({ force: true, props });
+  });
+}
+
+export { 
+  arcManagerDialog
 }

@@ -275,7 +275,6 @@
   import DataTable, {
     DataTableRowContextMenuEvent,
     DataTableRowSelectEvent,
-    type DataTableCellEditCompleteEvent,
     type DataTableFilterMetaData,
   } from 'primevue/datatable';
   import Column from 'primevue/column';
@@ -286,7 +285,7 @@
   import Checkbox from 'primevue/checkbox';
 
   // types
-  import { TablePagination, BaseTableGridRow, ActionButtonDefinition } from '@/types';
+  import { TablePagination, BaseTableGridRow, ActionButtonDefinition, CellEditCompleteEvent, RowEditCompleteEvent } from '@/types';
 
 
   ////////////////////////////////
@@ -371,7 +370,8 @@
     (e: 'rowSelect', originalEvent: DataTableRowSelectEvent): void;
     (e: 'addItem'): void;
     (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
-    (e: 'cellEditComplete', originalEvent: DataTableCellEditCompleteEvent): void;
+    (e: 'cellEditComplete', originalEvent: CellEditCompleteEvent): void;
+    (e: 'rowEditComplete', originalEvent: RowEditCompleteEvent): void;
     (e: 'markItemDelivered', uuid: string): void;
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;
@@ -491,7 +491,6 @@
           if (input && originalRowData[col.field] !== input.value) {
             // pull the value from the input and fire an event to save it
             emit('cellEditComplete', {
-              originalEvent: new Event('change'),
               data: originalRowData,
               newData: {...editingRowData.value, [col.field]: input.value},
               value: originalRowData[col.field],
@@ -500,10 +499,18 @@
               field: col.field,
               index: props.rows.findIndex((r) => r.uuid === editingRow.value),
               type: 'enter',
-            });
+            } as CellEditCompleteEvent);
           }
         }
       }
+
+      // Emit the row editing event for the whole row
+      emit('rowEditComplete', {
+        data: originalRowData,
+        newData: editingRowData.value,
+        index: props.rows.findIndex((r) => r.uuid === editingRow.value),
+        type: 'enter',
+      });
     }
 
     // Turn off editing mode
@@ -522,11 +529,10 @@
       data: rowData,
       field: field,
       newValue: newValue,
-      originalEvent: new Event('change'),
       value: rowData[field],
       index: props.rows.findIndex((r) => r.uuid === rowData.uuid),
       type: 'edit',
-    } as DataTableCellEditCompleteEvent;
+    } as CellEditCompleteEvent<boolean>;
     emit('cellEditComplete', event);
   };
 

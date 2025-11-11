@@ -76,6 +76,12 @@
       required: false,
       default: '',
     },
+    /** desired width in px */
+    width: {
+      type: Number,
+      required: false,
+      default: 500,
+    },
     // buttons are an object with name as the key and a label and callback
     // also have ok and cancel props to 
     buttons: {
@@ -107,7 +113,7 @@
   //    gets put in the body, so we need to keep this below that
   const style = computed(() => ({
     "z-index": `1000`,
-    width: `500px`,
+    width: `${props.width}px`,
     left: `${position.left}px`,
     top: `${position.top}px`,
   }));

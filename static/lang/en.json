@@ -117,14 +117,6 @@
           }
         }
       },
-      "arcManager": {
-        "title": "Manage Arcs",
-        "labels": {
-          "add": "Add arc",
-          "edit": "Edit arc",
-          "delete": "Delete arc"
-        }
-      },
       "advancedSettings": {
         "title": "Configure Advanced Settings",
         "labels": {
@@ -381,6 +373,9 @@
           "description": "Description",
           "createNewDanger": "Create new Danger"
         },
+        "arc": {
+          "description": "Description"
+        },
         "session": {
           "notes": "Notes",
           "noteBox": "Note Box",
@@ -475,6 +470,20 @@
         "generatePrompt": "Press generate for results",
         "generatePrompt2": "Otherwise, \"Brief Description\" will be used as the new Entry description."
       },
+      "arcManager": {
+        "title": "Manage Arcs",
+        "labels": {
+          "edit": "Edit arc",
+          "delete": "Delete arc"
+        },
+        "missingSession": "Missing Session",
+        "warning": {
+          "mustBeBlank": "There are no sessions in the campaign, so start and end must be blank",
+          "invalidSessionNumber": "Invalid session number",
+          "startTooHigh": "Start session must be less than end session",
+          "bothBlank": "Start and end session numbers must either both be blank or both be non-blank"
+        }
+      },
       "createPC": {
         "title": "Create PC",
         "playerName": "Player Name"
@@ -553,11 +562,6 @@
         "title": "Manage Related Entries",
         "addedItems": "Add relationships to these?",
         "removedItems": "Remove relationships from these?"
-      },
-      "contextMenus": {
-        "cannotActivateFromCompendium": "Cannot activate from compendium",
-        "cannotToggleNavigationFromCompendium": "Cannot toggle navigation from scene in a compendium",
-        "cannotToggleNavigationWhileActive": "Cannot toggle navigation while scene is active"
       }
     },
     "contextMenus": {
@@ -579,6 +583,7 @@
       "campaignFolder": {
         "createSession": "Create a session",
         "createFront": "Create a front",
+        "createArc": "Create an arc",
         "manageArcs": "Manage arcs",
         "delete": "Delete campaign",
         "markComplete": "Mark campaign complete",
@@ -590,6 +595,11 @@
       },
       "session": {
         "delete": "Delete session"
+      },
+      "dialogs": {
+        "cannotActivateFromCompendium": "Cannot activate from compendium",
+        "cannotToggleNavigationFromCompendium": "Cannot toggle navigation from scene in a compendium",
+        "cannotToggleNavigationWhileActive": "Cannot toggle navigation while scene is active"
       },
       "image": {
         "viewImage": "View Image",

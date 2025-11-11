@@ -90,3 +90,41 @@ export interface CampaignLoreDetails extends SessionLoreDetails {
   lockedToSessionId: string | null;  
   lockedToSessionName: string | null;  
 }
+
+export interface RowEditCompleteEvent<T extends Record<string, any>=Record<string, any>> {
+  /** the original row */
+  data: T,
+
+  /** new value */
+  newData: T,
+
+  /** row index */
+  index: number;
+
+  /** edit means a normal edit (like changing a checkbox);
+   *    enter means user hit enter to submit the row
+   */
+  type: 'edit' | 'enter',  
+}
+
+export interface CellEditCompleteEvent<T=unknown> {
+  /** the original row */
+  data: Record<string, unknown>,
+
+  /** name of changed field */
+  field: string,
+
+  /** new value */
+  newValue: T,
+
+  /** original value */
+  value: T,
+
+  /** row index */
+  index: number;
+
+  /** edit means a normal edit (like changing a checkbox);
+   *    enter means user hit enter to submit the row
+   */
+  type: 'edit' | 'enter',  
+}

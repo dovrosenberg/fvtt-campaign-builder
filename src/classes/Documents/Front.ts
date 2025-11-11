@@ -164,6 +164,10 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
       name: 'New Danger',
       description: '',
       img: '',
+      impendingDoom: '',
+      motivation: '',
+      participants: [],
+      grimPortents: [],
     } as Danger;
 
     this._clone.system.dangers.push(danger);    

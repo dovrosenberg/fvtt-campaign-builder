@@ -37,8 +37,7 @@
   import RelatedItemDialog from '@/components/tables/RelatedItemDialog.vue';
 
   // types
-  import { ActionButtonDefinition, BaseTableGridRow, DangerParticipant, RelatedItemDialogModes, Topics, } from '@/types';
-  import { DataTableCellEditCompleteEvent } from 'primevue/datatable';
+  import { CellEditCompleteEvent, ActionButtonDefinition, BaseTableGridRow, DangerParticipant, RelatedItemDialogModes, Topics, } from '@/types';
 
   ////////////////////////////////
   // props
@@ -128,7 +127,7 @@
     addParticipantDialogShow.value = true;
   };
 
-  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
+  const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, } = event;
 
     await frontStore.updateParticipant(data.uuid, newValue);

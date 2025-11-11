@@ -82,7 +82,7 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
-  const { currentArc, isInPlayMode } = storeToRefs(mainStore);
+  const { currentArc, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -119,49 +119,39 @@
 
   // change arc
   const onArcFolderClick = async (event: MouseEvent) => {
-    currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as CampaignDirectoryArcNode, !currentNode.value.expanded);
+    currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as DirectoryArcNode, !currentNode.value.expanded);
   };
 
   const onArcSelectClick = async (event: MouseEvent) => {
     await navigationStore.openArc(currentNode.value.id, {newTab: event.ctrlKey});
   };
 
+  // hidden for now because we want all management to go through arcmanager and only add sessions
+  //    to campaign
   const onArcContextMenu = (event: MouseEvent): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();
 
-    //show our menu
-    ContextMenu.showContextMenu({
-      customClass: 'fcb',
-      x: event.x,
-      y: event.y,
-      zIndex: 300,
-      items: [
-        { 
-          icon: getTabTypeIcon(WindowTabType.Session),
-          iconFontClass: 'fas',
-          disabled: isInPlayMode.value,
-          label: localize('contextMenus.arcFolder.createSession'), 
-          onClick: async () => {
-            const session = await campaignDirectoryStore.createSessionInArc(props.arcNode.id);
-
-            if (session) {
-              await navigationStore.openSession(session.uuid, { newTab: true, activate: true, }); 
-            }
-          }
-        },
-        { 
-          icon: 'fa-trash',
-          iconFontClass: 'fas',
-          label: localize('contextMenus.arcFolder.delete'), 
-          disabled: isInPlayMode.value,
-          onClick: async () => {
-            await campaignDirectoryStore.deleteArc(props.arcNode.id);
-          }
-        },
-      ]
-    });
+    return;
+    // //show our menu
+    // ContextMenu.showContextMenu({
+    //   customClass: 'fcb',
+    //   x: event.x,
+    //   y: event.y,
+    //   zIndex: 300,
+    //   items: [
+    //     // { 
+    //     //   icon: 'fa-trash',
+    //     //   iconFontClass: 'fas',
+    //     //   label: localize('contextMenus.arcFolder.delete'), 
+    //     //   disabled: isInPlayMode.value,
+    //     //   onClick: async () => {
+    //     //     await campaignDirectoryStore.deleteArc(props.arcNode.id);
+    //     //   }
+    //     // },
+    //   ]
+    // });
   };
 
 

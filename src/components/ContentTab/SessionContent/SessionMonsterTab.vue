@@ -44,9 +44,9 @@
   // local components
   import SessionTable from '@/components/tables/SessionTable.vue';
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
-  import { DataTableCellEditCompleteEvent } from 'primevue';
 
   // types
+  import { CellEditCompleteEvent } from '@/types';
   
   ////////////////////////////////
   // props
@@ -93,11 +93,11 @@
 
     // make sure it's the right format
     if (data.type==='Actor' && data.uuid) {
-      await sessionStore.addMonster(data.uuid);  
+      await sessionStore.addMonster(data.uuid as string);  
     }
   }
 
-  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
+  const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, field, originalEvent } = event;
 
     switch (field) {

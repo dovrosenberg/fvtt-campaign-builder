@@ -72,6 +72,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
   }
   
   // creates a new session in the proper campaign
+  // puts it at end of last arc
   static async create(campaign: Campaign, name = ''): Promise<Session | null> 
   {
     let nameToUse: string | null = name;
@@ -97,7 +98,14 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     if (!session)
       return null;
 
-    await session.save();
+    // update the arc on setting
+    const setting = await session.getSetting();
+    const arcIndex = setting.campaignIndex.find(c=>c.uuid===campaign.uuid)?.arcs.at(-1);
+    if (!arcIndex)
+      throw new Error('Invalid arc in Session.create()');
+
+    arcIndex.endSessionNumber = sessionNumber;
+    await setting.save();    
 
     // add to campaign
     await campaign.addSession(session);
@@ -490,7 +498,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
             const session = await Session.fromUuid(sessions[i].uuid); 
             if (!session)
               throw new Error('Invalid session in Session.save()');
-            
+
             session.number++;
             await session.save();
           }

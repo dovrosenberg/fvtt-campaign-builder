@@ -37,8 +37,7 @@
   import SessionTable from '@/components/tables/SessionTable.vue';
 
   // types
-  import { DataTableCellEditCompleteEvent } from 'primevue';
-  import { BaseTableGridRow } from '@/types';
+  import { BaseTableGridRow, CellEditCompleteEvent } from '@/types';
   import { SessionVignette } from '@/documents';
 
   ////////////////////////////////
@@ -84,7 +83,7 @@
 
   }
 
-  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
+  const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, field, originalEvent } = event;
 
     switch (field) {

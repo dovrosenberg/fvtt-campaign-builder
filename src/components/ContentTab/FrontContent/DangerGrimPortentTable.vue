@@ -28,8 +28,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { ActionButtonDefinition, GrimPortent } from '@/types';
-  import { DataTableCellEditCompleteEvent } from 'primevue/datatable';
+  import { ActionButtonDefinition, GrimPortent, CellEditCompleteEvent } from '@/types';
 
   ////////////////////////////////
   // props
@@ -115,7 +114,7 @@
     setEditingRow(uuid);
   };
 
-  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
+  const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, } = event;
 
     await frontStore.updateGrimPortent(data.uuid, newValue);

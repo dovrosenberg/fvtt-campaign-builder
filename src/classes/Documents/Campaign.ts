@@ -123,6 +123,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
         name: 'All sessions',
         startSessionNumber: session.number,
         endSessionNumber: session.number,
+        sortOrder: 0,
       });
     } else { 
       lastArc.endSessionNumber = session.number;

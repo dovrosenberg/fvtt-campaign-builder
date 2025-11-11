@@ -62,8 +62,7 @@
   import SessionTable from '@/components/tables/SessionTable.vue';
 
   // types
-  import { DataTableCellEditCompleteEvent } from 'primevue';
-  import { BaseTableGridRow, CampaignLoreDetails } from '@/types';
+  import { BaseTableGridRow, CampaignLoreDetails, CellEditCompleteEvent } from '@/types';
   
   ////////////////////////////////
   // props
@@ -116,7 +115,7 @@
   }
 
   // only applicable to the available lore table
-  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
+  const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, field, originalEvent } = event;
 
     switch (field) {

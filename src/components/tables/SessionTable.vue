@@ -34,7 +34,6 @@
   import { localize } from '@/utils/game';
 
   // library components
-  import  { DataTableCellEditCompleteEvent, DataTableRowContextMenuEvent, DataTableRowSelectEvent } from 'primevue/datatable';
   
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
@@ -44,7 +43,8 @@
     uuid: string; 
     delivered: boolean;
   };
-  import { ActionButtonDefinition } from '@/types';
+  import { ActionButtonDefinition, CellEditCompleteEvent } from '@/types';
+  import  { DataTableRowContextMenuEvent, DataTableRowSelectEvent } from 'primevue/datatable';
 
   ////////////////////////////////
   // props
@@ -115,8 +115,8 @@
     (e: 'editItem', uuid: string): void;
     (e: 'deleteItem', uuid: string): void;
     (e: 'addItem'): void;
-    (e: 'cellEditComplete', originalEvent: DataTableCellEditCompleteEvent): void;
-    (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
+    (e: 'cellEditComplete', originalEvent: CellEditCompleteEvent): void;
+    (e: 'rowContextMenu', originalEvent: RowContextMenuEvent): void;
     (e: 'markItemDelivered', uuid: string): void;
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;

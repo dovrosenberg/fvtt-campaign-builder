@@ -49,8 +49,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { Species } from '@/types';
-  import { DataTableCellEditCompleteEvent } from 'primevue';
+  import { Species, CellEditCompleteEvent } from '@/types';
   
   ////////////////////////////////
   // props
@@ -108,7 +107,7 @@
     speciesList.value.push(newSpecies);
   };
 
-  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent): Promise<void> => {
+  const onCellEditComplete = async (event: CellEditCompleteEvent): Promise<void> => {
     const { data, field, newValue } = event;
     
     // Find the species in our list and update the specific field

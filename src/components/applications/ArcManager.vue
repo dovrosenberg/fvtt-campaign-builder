@@ -2,13 +2,14 @@
   <Teleport to="body">
     <Dialog 
       v-model="show"
-      :title="localize('applications.arcManager.title')"
+      :title="localize('dialogs.arcManager.title')"
+      :width="900"
       :buttons="[
         {
           label: localize('labels.cancel'),
           default: false,
           close: true,
-          callback: onCancel,
+          callback: () => { show=false; }
         },
         {
           label: localize('labels.reset'),
@@ -19,24 +20,23 @@
         {
           label: localize('labels.saveChanges'),
           default: true,
-          close: false,
+          close: true,
           callback: onClickSubmit,
         },
       ]"
-      @cancel="onCancel"
     >
       <div class="standard-form scrollable">
         <BaseTable
           :rows="rows"
           :columns="columns"
-          :show-add-button="true"
+          :show-add-button="false"
           :show-filter="false"
           :can-reorder="true"
           :allow-edit="true"
-          :add-button-label="localize('applications.arcManager.labels.add')"
+          :edit-button-label="localize('dialogs.arcManager.labels.edit')"
+          :delete-button-label="localize('dialogs.arcManager.labels.delete')"
           :actions="actions"
-          @add-item="onAddItem"
-          @cell-edit-complete="onCellEditComplete"
+          @row-edit-complete="onRowEditComplete"
           @reorder="onRowReorder"
         />
       </div>
@@ -46,13 +46,13 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, onMounted, ref, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
   
   // local imports
-  import { arcManagerApp } from '@/applications/settings/ArcManagerApplication';
   import { localize } from '@/utils/game';
-  import { Campaign, Arc } from '@/classes';
-  import { ArcBasicIndex, ActionButtonDefinition } from '@/types';
+  import { Arc, Campaign, } from '@/classes';
+  import { ActionButtonDefinition, ArcBasicIndex } from '@/types';
+  import { useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
 
   // library components
 
@@ -61,7 +61,8 @@
   import Dialog from '@/components/Dialog.vue';
 
   // types
-  import { DataTableCellEditCompleteEvent } from 'primevue';
+  import { RowEditCompleteEvent } from '@/types';
+  import { notifyWarn } from '@/utils/notifications';
   
   ////////////////////////////////
   // props
@@ -80,8 +81,7 @@
   ////////////////////////////////
   // data
   const campaign = ref<Campaign | null>(null);
-  const arcs = ref<Arc[]>([]);
-  const originalArcs = ref<Arc[]>([]);
+  const arcs = ref<ArcBasicIndex[]>([]);
   const show = ref<boolean>(true);
 
   ////////////////////////////////
@@ -90,8 +90,8 @@
     arcs.value.map((arc, index) => ({
       uuid: arc.uuid,
       name: arc.name,
-      startSessionNumber: arc.startSessionNumber,
-      endSessionNumber: arc.endSessionNumber,
+      startSessionNumber: arc.startSessionNumber === -1 ? '' : arc.startSessionNumber,
+      endSessionNumber: arc.endSessionNumber === -1 ? '' : arc.endSessionNumber,
       startSessionName: getSessionName(arc.startSessionNumber),
       endSessionName: getSessionName(arc.endSessionNumber),
       sortOrder: index,
@@ -111,15 +111,16 @@
   });
 
   const actions = computed((): ActionButtonDefinition[] => [
-    { 
-      icon: 'fa-trash', 
-      callback: (data) => onDeleteItem(data.uuid), 
-      tooltip: localize('applications.arcManager.labels.delete') 
-    },
+    // don't allow delete from here... too dangerous
+    // { 
+    //   icon: 'fa-trash', 
+    //   callback: (data) => onDeleteItem(data.uuid), 
+    //   tooltip: localize('dialogs.arcManager.labels.delete') 
+    // },
     { 
       icon: 'fa-edit', 
       callback: (data) => onEditItem(data.uuid), 
-      tooltip: localize('applications.arcManager.labels.edit'),
+      tooltip: localize('dialogs.arcManager.labels.edit'),
       isEdit: true
     }
   ]);
@@ -134,36 +135,24 @@
     if (!campaign.value || sessionNumber < 0) return '';
     
     const sessionIndex = campaign.value.sessionIndex.find(s => s.number === sessionNumber);
-    return sessionIndex ? sessionIndex.name : `Session ${sessionNumber}`;
+    return sessionIndex ? sessionIndex.name : `(${localize('dialogs.arcManager.missingSession')})`;
+  };
+
+  /** 
+   * Forces reactive refresh
+   */
+  const refreshData = () => {
+    arcs.value = [...arcs.value];
   };
 
   /**
-   * Load campaign and arcs data
+   * Load campaign and arcs data from original
    */
-  const loadData = async () => {
-    if (!props.campaignId) return;
+  const loadData = () => {
+    if (!campaign.value)
+      return;
     
-    try {
-      campaign.value = await Campaign.fromUuid(props.campaignId);
-      if (!campaign.value) return;
-
-      // Load full arc objects
-      const loadedArcs: Arc[] = [];
-      for (const arcIndex of campaign.value.arcIndex) {
-        const arc = await Arc.fromUuid(arcIndex.uuid);
-        if (arc) {
-          loadedArcs.push(arc);
-        }
-      }
-      
-      // Sort by sortOrder
-      loadedArcs.sort((a, b) => a.sortOrder - b.sortOrder);
-      
-      arcs.value = loadedArcs;
-      originalArcs.value = [...loadedArcs];
-    } catch (error) {
-      console.error('Failed to load arc data:', error);
-    }
+    arcs.value = foundry.utils.deepClone(campaign.value.arcIndex);
   };
 
   ////////////////////////////////
@@ -182,34 +171,110 @@
     console.log('Edit arc:', uuid);
   };
 
-  const onAddItem = async (): Promise<void> => {
-    if (!campaign.value) return;
+  // if we want to allow this, we can't create the actual arcs here
+  // we need to create just in the index then create when we save
+  // const onAddItem = async (): Promise<void> => {
+  //   if (!campaign.value) return;
 
-    // Create a new arc properly
-    const newArc = await Arc.create(campaign.value, 'New Arc');
-    if (newArc) {
-      arcs.value.push(newArc);
-    }
+  //   // Create a new arc properly
+  //   const newArc = await Arc.create(campaign.value, 'New Arc');
+  //   if (newArc) {
+  //     arcs.value.push(newArc);
+  //   }
+  // };
+
+  interface RowType {
+    uuid: string;
+    name: string;
+    startSessionNumber: string;
+    endSessionNumber: string;
+    startSessionName: string;
+    endSessionName: string;
+    sortOrder: number;
   };
-
-  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent): Promise<void> => {
-    const { data, field, newValue } = event;
+  
+  const onRowEditComplete = async (event: RowEditCompleteEvent<RowType>): Promise<void> => {
+    const { data, newData } = event;
     
     // Find the arc in our list and update the specific field
     const arcIndex = arcs.value.findIndex(a => a.uuid === data.uuid);
-    if (arcIndex !== -1) {
-      const arc = arcs.value[arcIndex];
-      
-      if (field === 'name') {
-        arc.name = newValue;
-      } else if (field === 'startSessionNumber' || field === 'endSessionNumber') {
-        const numValue = parseInt(newValue) || -1;
-        (arc as any)[field] = numValue;
+    const arc = arcs.value[arcIndex];
+
+    // get the arc before and after the current one
+    const prevArc = arcIndex > 0 ? arcs.value[arcIndex - 1] : null;
+    const nextArc = arcIndex < arcs.value.length - 1 ? arcs.value[arcIndex + 1] : null;
+
+    // convert blanks to -1
+    newData.startSessionNumber = newData.startSessionNumber || '-1';
+    newData.endSessionNumber = newData.endSessionNumber || '-1';
+
+    // if the session numbers are bad, reset everything
+    const newStartSession = Number.parseInt(newData.startSessionNumber);
+    const newEndSession = Number.parseInt(newData.endSessionNumber);
+
+    // if there are no current sessions, arc must be empty
+    if (campaign.value?.currentSessionNumber == null &&
+      (newStartSession !== -1 || newEndSession !== -1)
+    ) {
+      notifyWarn(localize('dialogs.arcManager.warning.mustBeBlank'));
+      refreshData();
+      return;
+    }
+    // make sure the session numbers were blank or a number
+    if (isNaN(newStartSession) || isNaN(newEndSession) ||
+        newStartSession < -1 || newEndSession < -1) {
+      notifyWarn(localize('dialogs.arcManager.warning.invalidSessionNumber'));
+      refreshData();
+      return;
+    } 
+    // make sure the start session is less than the end session
+    if (newStartSession > newEndSession) {
+      notifyWarn(localize('dialogs.arcManager.warning.startTooHigh'));
+      refreshData();
+      return;
+    }
+    // the session numbers must either be both blank or both not blank
+    if (newStartSession * newEndSession < 0) {
+      notifyWarn(localize('dialogs.arcManager.warning.bothBlank'));
+      refreshData();
+      return;
+    }
+
+    // if the starting session changed, need to adjust the prior session
+    if (prevArc && data.startSessionNumber !== newData.startSessionNumber) {
+      // if we made it 0, all prior arcs must be empty
+      if (newStartSession === 0) {
+        for (let i=arcIndex-1; i>=0; i--) {
+          arcs.value[i].endSessionNumber = -1;
+          arcs.value[i].startSessionNumber = -1;
+        }
+      } else {
+        prevArc.endSessionNumber = newStartSession-1;
       }
     }
+
+    // if the ending session changed, need to adjust the next session
+    if (nextArc && data.endSessionNumber !== newData.endSessionNumber) {
+      // if we made it >= highest session number, all later arcs must be empty
+      if (newEndSession >= campaign.value?.currentSessionNumber!) {
+        for (let i=arcIndex+1; i<arcs.value.length; i++) {
+          arcs.value[i].endSessionNumber = -1;
+          arcs.value[i].startSessionNumber = -1;
+        }
+      } else {
+        nextArc.startSessionNumber = newEndSession+1;
+      }
+    }
+
+    arc.name = newData.name;
+    arc.startSessionNumber = newStartSession;
+    arc.endSessionNumber = newEndSession;
+
+    // force refresh
+    refreshData();
   };
 
-  const onRowReorder = (reorderedRows: any[]): Promise<void> => {
+  const onRowReorder = (reorderedRows: any[]) => {
     // Update the sortOrder for all arcs based on the new order
     reorderedRows.forEach((row, index) => {
       const arc = arcs.value.find(a => a.uuid === row.uuid);
@@ -220,48 +285,66 @@
     
     // Reorder the arcs array to match
     arcs.value.sort((a, b) => a.sortOrder - b.sortOrder);
-    
-    return Promise.resolve();
   };
 
   const onClickSubmit = async () => {
     if (!campaign.value) return;
 
-    try {
-      // Save each arc with updated sortOrder
-      for (let index = 0; index < arcs.value.length; index++) {
-        const arc = arcs.value[index];
-        arc.sortOrder = index;
-        await arc.save();
-      }
+    // update the arcs and the indexes will get updated
+    for (const arcIndex of arcs.value) {
+      const arc = await Arc.fromUuid(arcIndex.uuid);
 
-      // Close the application
-      arcManagerApp?.close();
-      show.value = false;
-    } catch (error) {
-      console.error('Failed to save arcs:', error);
+      if (!arc)
+        throw new Error ('Bad arc in ArcManager.onClickSubmit()');
+
+      const nameChange = arc.name !== arcIndex.name;
+
+      arc.name = arcIndex.name;
+      arc.startSessionNumber = arcIndex.startSessionNumber;
+      arc.endSessionNumber = arcIndex.endSessionNumber;
+      arc.sortOrder = arcIndex.sortOrder;
+      await arc.save();
+
+      // if name changed, need to propagate the change
+      if (nameChange) {
+        await useNavigationStore().propagateNameChange(arc.uuid, arcIndex.name);
+
+        if (useMainStore().currentArc?.uuid === arc.uuid) {
+          await useMainStore().refreshCurrentContent();
+        }
+      }
     }
+
+    // force reload of all the arcs
+    const ids = arcs.value.map(a => a.uuid);
+    await useCampaignDirectoryStore().refreshCampaignDirectoryTree(ids);
   };
 
   const onClickReset = async () => {
-    arcs.value = [...originalArcs.value];
-  };
-
-  const onCancel = () => {
-    arcManagerApp?.close();
+    loadData();
   };
 
   ////////////////////////////////
   // watchers
-  watch(() => props.campaignId, () => {
+  watch(() => props.campaignId, async () => {
+    // load the index
+    if (!props.campaignId) {
+      throw new Error('No campaign ID provided in ArcManager.loadData()');
+    }
+    
+    campaign.value = await Campaign.fromUuid(props.campaignId);
+    if (!campaign.value) {
+      throw new Error('Failed to load campaign data in ArcManager.loadData()');
+    }
+
     loadData();
   }, { immediate: true });
   
   ////////////////////////////////
   // lifecycle events
-  onMounted(async () => {
-    await loadData();
-  });
+  // onMounted(async () => {
+  //   await loadData();
+  // });
   
 
 </script>

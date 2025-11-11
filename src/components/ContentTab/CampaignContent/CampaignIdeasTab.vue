@@ -37,8 +37,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { Idea, BaseTableGridRow } from '@/types';
-  import { DataTableCellEditCompleteEvent } from 'primevue';
+  import { Idea, BaseTableGridRow, CellEditCompleteEvent } from '@/types';
 
   ////////////////////////////////
   // props
@@ -107,7 +106,7 @@
     }
   };
 
-  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
+  const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, field } = event;
     
     if (field === 'text') {
