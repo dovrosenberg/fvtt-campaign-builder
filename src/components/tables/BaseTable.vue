@@ -382,7 +382,7 @@
     (e: 'dropRow', event: DragEvent, uuid: string): void;
     (e: 'dropNew', event: DragEvent): void;
     (e: 'setEditingRow', uuid: string): void;
-    (e: 'reorder', reorderedRows: BaseTableGridRow[]): void;
+    (e: 'reorder', reorderedRows: BaseTableGridRow[], dragIndex: number, dropIndex: number): void;
     (e: 'cellClick', data: any, field: string): void;
   }>();
 
@@ -621,7 +621,7 @@
       row.sortOrder = index;
     });
 
-    emit('reorder', reorderedRows);
+    emit('reorder', reorderedRows, dragIndex, dropIndex);
   }
 
   const onEditButtonClick = (data: BaseTableGridRow, callback: (data: BaseTableGridRow) => void) => {

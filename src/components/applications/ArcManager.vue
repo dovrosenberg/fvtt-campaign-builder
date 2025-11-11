@@ -99,7 +99,6 @@
   )));
 
   const columns = computed((): any[] => {
-    const dragColumn = { field: 'drag', style: 'width: 3rem; text-align: center;', header: '' };
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 75px;', header: 'Actions' };
     const nameColumn = { field: 'name', style: 'text-align: left; width: 25%;', header: 'Arc Name', sortable: false, editable: true, smallEditBox: true }; 
     const startSessionColumn = { field: 'startSessionNumber', style: 'text-align: left; width: 10%;', header: 'Start #', sortable: false, editable: true, smallEditBox: true };
@@ -107,7 +106,17 @@
     const endSessionColumn = { field: 'endSessionNumber', style: 'text-align: left; width: 10%;', header: 'End #', sortable: false, editable: true, smallEditBox: true };
     const endSessionNameColumn = { field: 'endSessionName', style: 'text-align: left; width: 20%;', header: 'End Session', sortable: false, editable: false };
 
-    return [dragColumn, actionColumn, nameColumn, startSessionColumn, startSessionNameColumn, endSessionColumn, endSessionNameColumn];
+    return [actionColumn, nameColumn, startSessionColumn, startSessionNameColumn, endSessionColumn, endSessionNameColumn];
+  });
+
+  const lowestSession = computed((): number => {
+    return campaign.value?.sessionIndex.reduce((minNumber, currentSession) => {
+      return Math.min(minNumber, currentSession.number);
+    }, Number.MAX_SAFE_INTEGER);
+  });
+
+  const highestSession = computed((): number => {
+    return campaign.value?.currentSessionNumber!;
   });
 
   const actions = computed((): ActionButtonDefinition[] => [
@@ -186,8 +195,8 @@
   interface RowType {
     uuid: string;
     name: string;
-    startSessionNumber: string;
-    endSessionNumber: string;
+    startSessionNumber: number | string;
+    endSessionNumber: number | string;
     startSessionName: string;
     endSessionName: string;
     sortOrder: number;
@@ -201,16 +210,40 @@
     const arc = arcs.value[arcIndex];
 
     // get the arc before and after the current one
-    const prevArc = arcIndex > 0 ? arcs.value[arcIndex - 1] : null;
-    const nextArc = arcIndex < arcs.value.length - 1 ? arcs.value[arcIndex + 1] : null;
+    let prevArc: ArcBasicIndex | null = null;
+    let nextArc: ArcBasicIndex | null = null;
 
+    if (arcIndex > 0) {
+      // ignore empty ones
+      for (let i=arcIndex - 1; i>=0; i--) {
+        if (arcs.value[i].startSessionNumber !== -1) {
+          prevArc = arcs.value[i];
+          break;
+        }
+      }
+    }
+ 
+    if (arcIndex < arcs.value.length - 1) {
+      // ignore empty ones
+      for (let i=arcIndex + 1; i<arcs.value.length; i++) {
+        if (arcs.value[i].startSessionNumber !== -1) {
+          nextArc = arcs.value[i];
+          break;
+        }
+      }
+    }
+ 
+    // standardize the sessions as strings
+    newData.startSessionNumber = newData.startSessionNumber.toString().trim();
+    newData.endSessionNumber = newData.endSessionNumber.toString().trim();
+    
     // convert blanks to -1
     newData.startSessionNumber = newData.startSessionNumber || '-1';
     newData.endSessionNumber = newData.endSessionNumber || '-1';
 
     // if the session numbers are bad, reset everything
-    const newStartSession = Number.parseInt(newData.startSessionNumber);
-    const newEndSession = Number.parseInt(newData.endSessionNumber);
+    let newStartSession = Number.parseInt(newData.startSessionNumber);
+    let newEndSession = Number.parseInt(newData.endSessionNumber);
 
     // if there are no current sessions, arc must be empty
     if (campaign.value?.currentSessionNumber == null &&
@@ -240,29 +273,49 @@
       return;
     }
 
-    // if the starting session changed, need to adjust the prior session
-    if (prevArc && data.startSessionNumber !== newData.startSessionNumber) {
-      // if we made it 0, all prior arcs must be empty
-      if (newStartSession === 0) {
-        for (let i=arcIndex-1; i>=0; i--) {
-          arcs.value[i].endSessionNumber = -1;
-          arcs.value[i].startSessionNumber = -1;
+    newStartSession = Math.max(lowestSession.value, Math.min(newStartSession, highestSession.value));
+    newEndSession = Math.max(lowestSession.value, Math.min(newEndSession, highestSession.value));
+    
+    // handle blank ones differently
+    if (newStartSession === -1) {
+      if (prevArc) {
+        // if there's a prior arc, extend it to the beginning of the next arc or
+        //    the end of the campaign
+        if (nextArc) {
+          prevArc.endSessionNumber = nextArc.startSessionNumber-1;
+        } else {
+          prevArc.endSessionNumber = campaign.value?.currentSessionNumber!;
         }
-      } else {
-        prevArc.endSessionNumber = newStartSession-1;
+      } else if (nextArc) {
+        // there's a next arc but no prior one; so extend its start back
+        //    to 0
+        nextArc.startSessionNumber = 0;
       }
-    }
-
-    // if the ending session changed, need to adjust the next session
-    if (nextArc && data.endSessionNumber !== newData.endSessionNumber) {
-      // if we made it >= highest session number, all later arcs must be empty
-      if (newEndSession >= campaign.value?.currentSessionNumber!) {
-        for (let i=arcIndex+1; i<arcs.value.length; i++) {
-          arcs.value[i].endSessionNumber = -1;
-          arcs.value[i].startSessionNumber = -1;
+    } else {
+      // if the starting session changed, need to adjust the prior session
+      if (prevArc && data.startSessionNumber !== newData.startSessionNumber) {
+        // if we made it 0, all prior arcs must be empty
+        if (newStartSession === 0) {
+          for (let i=arcIndex-1; i>=0; i--) {
+            arcs.value[i].endSessionNumber = -1;
+            arcs.value[i].startSessionNumber = -1;
+          }
+        } else {
+          prevArc.endSessionNumber = newStartSession-1;
         }
-      } else {
-        nextArc.startSessionNumber = newEndSession+1;
+      }
+
+      // if the ending session changed, need to adjust the next session
+      if (nextArc && data.endSessionNumber !== newData.endSessionNumber) {
+        // if we made it >= highest session number, all later arcs must be empty
+        if (newEndSession >= campaign.value?.currentSessionNumber!) {
+          for (let i=arcIndex+1; i<arcs.value.length; i++) {
+            arcs.value[i].endSessionNumber = -1;
+            arcs.value[i].startSessionNumber = -1;
+          }
+        } else {
+          nextArc.startSessionNumber = newEndSession+1;
+        }
       }
     }
 
@@ -274,17 +327,72 @@
     refreshData();
   };
 
-  const onRowReorder = (reorderedRows: any[]) => {
-    // Update the sortOrder for all arcs based on the new order
-    reorderedRows.forEach((row, index) => {
-      const arc = arcs.value.find(a => a.uuid === row.uuid);
-      if (arc) {
-        arc.sortOrder = index;
+  /** 
+   * Handles a row moving in the table
+   */
+  const onRowReorder = (reorderedRows: any[], _dragIndex: number, dropIndex:number) => {
+    // if there aren't any sessions, everything should be 0
+    if (lowestSession.value === Number.MAX_SAFE_INTEGER) {
+      for (let i=0; i<reorderedRows.length; i++) {
+        reorderedRows[i].startSessionNumber = -1;
+        reorderedRows[i].endSessionNumber = -1;
+        reorderedRows[i].sortOrder = i;
+        arcs.value[i] = reorderedRows[i];
       }
-    });
+      return;
+    }
     
-    // Reorder the arcs array to match
-    arcs.value.sort((a, b) => a.sortOrder - b.sortOrder);
+    // the one that moved should have all sessions removed
+    reorderedRows[dropIndex].startSessionNumber = -1;
+    reorderedRows[dropIndex].endSessionNumber = -1;
+
+    // find the first and last ones with a session in them
+    let firstWithSessions = -1;
+    let lastWithSessions = -1;
+
+    for (let i=0; i<reorderedRows.length; i++) {
+      if (firstWithSessions === -1 && reorderedRows[i].startSessionNumber !== -1) {
+        firstWithSessions = i;
+      }
+      if (reorderedRows[i].startSessionNumber !== -1) {
+        lastWithSessions = i;
+      }
+    }
+    
+    // extend 1st to lowest and last to highest
+    reorderedRows[firstWithSessions].startSessionNumber = lowestSession.value!;
+    reorderedRows[lastWithSessions].endSessionNumber = highestSession.value!;
+    
+    // then close any gaps
+    for (let i=0; i<reorderedRows.length; i++) {
+      // skip blank ones
+      if (reorderedRows[i].startSessionNumber === -1) 
+        continue;
+      
+      // when we get to the last one, quit
+      if (lastWithSessions === i) {
+        reorderedRows[i].endSessionNumber = highestSession.value;
+        break;
+      }
+
+      // function to find the next starting number after this row
+      const getNextStart = () => {
+        for (let j=i+1; j<reorderedRows.length; j++) {
+          if (reorderedRows[j].startSessionNumber !== -1) {
+            return reorderedRows[j].startSessionNumber;
+          }
+        }
+        return -1;  // should never happen 
+      }      
+
+      reorderedRows[i].endSessionNumber = getNextStart() - 1;
+    }
+    
+    // Update the sortOrder for all arcs based on the new order
+    for (let i=0; i<reorderedRows.length; i++) {
+      arcs.value[i] = reorderedRows[i];
+      arcs.value[i].sortOrder = i;
+    }
   };
 
   const onClickSubmit = async () => {

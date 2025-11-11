@@ -62,7 +62,7 @@
   import CampaignDirectorySessionNode from './CampaignDirectorySessionNode.vue';
   
   // types
-  import { DirectoryArcNode, DirectorySessionNode } from '@/classes';
+  import { CollapsibleNode, DirectoryArcNode, DirectorySessionNode } from '@/classes';
   import { WindowTabType } from '@/types';
   
   ////////////////////////////////
@@ -95,6 +95,15 @@
   const sortedChildren = computed((): DirectorySessionNode[] => {
     const children = props.arcNode.loadedChildren;
     return children.sort((a, b) => a.sessionNumber - b.sessionNumber);
+  });
+
+  const onlyArc = computed((): boolean => {
+    const campaign = CollapsibleNode.currentSetting?.campaignIndex.find(c=> c.uuid===props.arcNode.parentId);
+
+    if (!campaign || campaign.arcs.length<2)
+      return true;
+    else
+      return false;
   });
 
   ////////////////////////////////
@@ -133,25 +142,24 @@
     event.preventDefault();
     event.stopPropagation();
 
-    return;
-    // //show our menu
-    // ContextMenu.showContextMenu({
-    //   customClass: 'fcb',
-    //   x: event.x,
-    //   y: event.y,
-    //   zIndex: 300,
-    //   items: [
-    //     // { 
-    //     //   icon: 'fa-trash',
-    //     //   iconFontClass: 'fas',
-    //     //   label: localize('contextMenus.arcFolder.delete'), 
-    //     //   disabled: isInPlayMode.value,
-    //     //   onClick: async () => {
-    //     //     await campaignDirectoryStore.deleteArc(props.arcNode.id);
-    //     //   }
-    //     // },
-    //   ]
-    // });
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.arcFolder.delete'), 
+          disabled: onlyArc.value,
+          onClick: async () => {
+            await campaignDirectoryStore.deleteArc(props.arcNode.id);
+          }
+        },
+      ]
+    });
   };
 
 

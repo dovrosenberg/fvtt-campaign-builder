@@ -35,6 +35,10 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
     CollapsibleNode._loadedNodes = {};
   }
 
+  public static get currentSetting(): FCBSetting | null {
+    return CollapsibleNode._currentSetting;
+  }
+
   /**
    * Toggles the expansion state of the node.
    * 
