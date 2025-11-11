@@ -163,13 +163,13 @@
     if (!data)
       return;
 
-    // make sure it's the right format - looking for JournalEntryPage
-    if (data.type === 'JournalEntryPage' && data.uuid) {
+    // make sure it's the right format - looking for JournalEntry(Page)
+    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && data.uuid) {
       // Create a new lore entry and associate it with the journal entry page
       const loreId = await campaignStore.addLore('');
 
       if (loreId) {
-        await campaignStore.updateLoreJournalEntry(loreId, data.uuid);
+        await campaignStore.updateLoreJournalEntry(loreId, data.uuid as string);
       }
     }
   }
@@ -182,10 +182,10 @@
     if (!data)
       return;
 
-    // make sure it's the right format - looking for JournalEntryPage
-    if (data.type === 'JournalEntryPage' && data.uuid) {
+    // make sure it's the right format - looking for JournalEntry(Page)
+    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && data.uuid) {
       if (rowUuid) {
-        await campaignStore.updateLoreJournalEntry(rowUuid, data.uuid);
+        await campaignStore.updateLoreJournalEntry(rowUuid, data.uuid as string);
       }
     }
   }

@@ -170,7 +170,7 @@
     if (!data)
       return;
 
-    if (!data.uuid || (data.type !== 'JournalEntry' && data.type !== 'JournalEntryPage')) {
+    if (!data.uuid || !['JournalEntry', 'JournalEntryPage'].includes(data.type)) {
       return;
     }
     

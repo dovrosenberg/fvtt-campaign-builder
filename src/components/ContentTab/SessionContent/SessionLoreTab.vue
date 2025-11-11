@@ -146,13 +146,13 @@
     if (!data)
       return;
 
-    // make sure it's the right format - looking for JournalEntryPage
-    if (data.type === 'JournalEntryPage' && data.uuid) {
+    // make sure it's the right format - looking for JournalEntry(Page)
+    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && data.uuid) {
       // Create a new lore entry and associate it with the journal entry page
       const loreId = await sessionStore.addLore('');
 
       if (loreId) {
-        await sessionStore.updateLoreJournalEntry(loreId, data.uuid);
+        await sessionStore.updateLoreJournalEntry(loreId, data.uuid as string);
       }
     }
   }
@@ -165,8 +165,8 @@
     if (!data)
       return;
 
-    // make sure it's the right format - looking for JournalEntryPage
-    if (data.type === 'JournalEntryPage' && data.uuid && rowUuid) {
+    // make sure it's the right format - looking for JournalEntry(Page)
+    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && data.uuid && rowUuid) {
       const lore = loreRows.value.find((l)=>l.uuid===rowUuid);
       
       if (lore?.journalEntryPageId && 
@@ -174,7 +174,7 @@
         return;
       }
       
-      await sessionStore.updateLoreJournalEntry(rowUuid, data.uuid);
+      await sessionStore.updateLoreJournalEntry(rowUuid, data.uuid as string);
     }
   }
 
