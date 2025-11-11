@@ -79,7 +79,7 @@ export const useSessionStore = defineStore('session', () => {
         onClick: onJournalClick
       },
     ],  
-  } as Record<SessionTableTypes, FieldData>;
+  } as unknown as Record<SessionTableTypes, FieldData>;
 
   
   ///////////////////////////////
