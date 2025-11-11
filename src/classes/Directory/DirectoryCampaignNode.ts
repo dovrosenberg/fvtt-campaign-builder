@@ -39,7 +39,7 @@ export class DirectoryCampaignNode<
 
     // there are a few possibilities here:
     //   - if we are using fronts, the first child is the front folder
-    //   - if we are using arcs, the children are the arcs; otherwise, they are the sessions
+    //   - the rest of the children are arcs
     if (ModuleSettings.get(SettingKey.useFronts)) {
       // add the front folder
       const newNode = await DirectoryFrontFolder.fromCampaign(this.id);

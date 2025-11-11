@@ -104,7 +104,7 @@
   
   ////////////////////////////////
   // computed data
-  const sortedChildren = computed((): DirectorySessionNode[] | DirectoryArcNode[] => {
+  const sortedChildren = computed((): DirectoryArcNode[] => {
     let children = props.campaignNode.loadedChildren;
 
     // if we are using fronts, strip the front folder
@@ -112,9 +112,10 @@
       children = children.slice(1);
     }
 
-    // sort sessions by number, arcs by name
-    return (children as DirectoryArcNode[]).sort((a, b) => a.name.localeCompare(b.name));
+    // arcs are already in order (they are kept in sortorder by manage arcs dialog)
+    return children as DirectoryArcNode[];
   });
+
   const frontFolderNode = computed((): DirectoryFrontFolder | null => {
     if (ModuleSettings.get(SettingKey.useFronts)) {
       // front is always the first one

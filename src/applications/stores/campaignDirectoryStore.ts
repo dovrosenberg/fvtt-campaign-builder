@@ -78,7 +78,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
         children.push(campaign.uuid + ':front');  // this is the id for the front folder
       }
 
-      // the rest of the children are arcs; otherwise they are sessions
+      // the rest of the children are arcs
       for (const arc of currentSetting.value.campaignIndex.find((c)=>c.uuid===campaign.uuid)?.arcs || []) {
         children.push(arc.uuid);
       }
@@ -219,7 +219,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     const session = await Session.create(campaign);
 
     if (session) {
-      await refreshCampaignDirectoryTree();
+      await refreshCampaignDirectoryTree([session.uuid]);
       return session;
     } else {
       return null;
