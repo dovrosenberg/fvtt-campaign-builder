@@ -127,8 +127,8 @@
     }
 
     &:hover {
-      color: var(--fcb-header-nav-btn-color-hover);
-      background-color: var(--fcb-header-nav-btn-background-hover);
+      color: var(--fcb-button-color-hover);
+      background-color: var(--fcb-button-bg-hover);
       border-color: var(--fcb-control-border-hover);
       box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
     }

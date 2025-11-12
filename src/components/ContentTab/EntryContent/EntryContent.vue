@@ -756,13 +756,6 @@
 </script>
 
 <style lang="scss" scoped>
-  .fcb-generate-button, .fcb-push-to-session-button {
-    &:hover:disabled {
-      // prevent button from looking like you can click it if you can't
-      background: unset;
-    }
-  }
-
   .push-to-active-campaign-menu-item {
     font-weight: bold;
   }

@@ -260,7 +260,7 @@
           gap: 8px;
           min-width: 100px;
           font-size: var(--fcb-font-size-large);
-          color: var(--fcb-button-text);
+          color: var(--fcb-button-color);
           background: var(--fcb-button-bg);
           border-radius: 3px;
           padding: 1px 6px;
@@ -273,7 +273,7 @@
               border-color: var(--fcb-button-border-hover);
               box-shadow: 0 0 5px var(--fcb-accent);
               background: var(--fcb-button-bg-hover);
-              color: var(--fcb-button-text-hover);
+              color: var(--fcb-button-color-hover);
             }
 
           &.default {

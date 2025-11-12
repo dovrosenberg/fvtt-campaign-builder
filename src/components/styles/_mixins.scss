@@ -29,14 +29,28 @@
   }
 
   button {
-    color: var(--fcb-control-text);
+    cursor: pointer;
+    color: var(--fcb-button-color);
     background-color: var(--fcb-button-bg);
     border: 0.8px solid var(--fcb-button-border);
     
     &:hover {
-      color: var(--fcb-button-text-hover);
+      color: var(--fcb-button-color-hover);
       background-color: var(--fcb-button-bg-hover);
       border: 0.8px solid var(--fcb-button-border-hover);
+    }
+
+    &:not(:disabled):hover {
+      background: var(--fcb-button-bg-hover);
+      border-color: var(--fcb-button-border-hover);
+      color: var(--fcb-button-color-hover);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      color: var(--fcb-button-color-disabled);
+      background: var(--fcb-button-bg-disabled);
+      border-color: var(--fcb-button-border-disabled);
     }
   }
 

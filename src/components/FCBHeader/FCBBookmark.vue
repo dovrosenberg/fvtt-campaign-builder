@@ -168,7 +168,7 @@
     white-space: nowrap;
     border: 1px solid var(--fcb-button-border);
     background: var(--fcb-button-bg);
-    color: var(--fcb-button-text);
+    color: var(--fcb-button-color);
 
     &#fcb-add-bookmark {
       border-radius: 4px;
@@ -202,7 +202,7 @@
     &:hover, &#fcb-add-bookmark:not(.disabled):hover {
       background: var(--fcb-button-bg-hover);
       border-color: var(--fcb-button-border-hover);
-      color: var(--fcb-button-text-hover);
+      color: var(--fcb-button-color-hover);
     }
 }
 </style>

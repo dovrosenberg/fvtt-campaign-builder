@@ -29,22 +29,24 @@
     <PlayModeNavigation />
 
     <div class="fcb-bookmark-bar flexrow">
-      <div 
+      <button
         id="fcb-history-back" 
-        :class="'nav-button ' + (canBack ? '' : 'disabled')" 
+        class="nav-button"
+        :disabled="!canBack"
         :title="localize('tooltips.historyBack')"
-        @click="onHistoryBackClick"
+        @click.stop.prevent="onHistoryBackClick"
       >
         <i class="fas fa-chevron-left"></i>
-      </div>
-      <div 
+      </button>
+      <button
         id="fcb-history-forward" 
-        :class="'nav-button ' + (canForward ? '' : 'disabled')" 
+        class="nav-button"
+        :disabled="!canForward"
         :title="localize('tooltips.historyForward')"
-        @click="onHistoryForwardClick"
+        @click.stop.prevent="onHistoryForwardClick"
       >
         <i class="fas fa-chevron-right"></i>
-      </div>
+      </button>
       <hr class="vertical" />
 
       <div 
@@ -425,7 +427,7 @@
   .fcb-bookmark-bar {
     padding-left: 2px;
     flex: 0 0 2.25rem;
-    color: var(--fcb-header-nav-btn-color);
+    color: var(--fcb-button-color);
     overflow: hidden;
     display: flex;
     flex-direction: row;
@@ -466,7 +468,7 @@
       &:hover {
         background: var(--fcb-button-bg-hover);
         border-color: var(--fcb-button-border-hover);
-        color: var(--fcb-button-text-hover);
+        color: var(--fcb-button-color-hover);
       }
     }
 
@@ -485,29 +487,10 @@
     .nav-button {
       flex: 0 0 auto;
       text-align: center;
-      line-height: 1.5rem;
-      font-size: var(--fcb-font-size-large);
       margin-right: 4px;
       width: 1.5rem;
       height: 1.5rem;
-      border-radius: 4px;
-      border: 1px solid var(--fcb-header-nav-btn-border);
-      background-color: var(--fcb-header-nav-btn-background);
       margin-top: 1px;
-
-      &:not(.disabled):hover {
-        box-shadow: 0 0 5px red;
-        cursor: pointer;
-        background: var(--fcb-button-bg-hover);
-        border-color: var(--fcb-button-border-hover);
-        color: var(--fcb-button-text-hover);
-      }
-
-      &.disabled {
-        color: var(--fcb-header-nav-btn-disabled);
-        background: var(--fcb-header-nav-btn-background-disabled);
-        border-color: var(--fcb-header-nav-btn-border-disabled);
-      }
     }
 
     #context-menu li {
