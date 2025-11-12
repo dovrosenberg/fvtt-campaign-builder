@@ -219,7 +219,9 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     const session = await Session.create(campaign);
 
     if (session) {
-      await refreshCampaignDirectoryTree([session.uuid]);
+      // need to force the parent arc to reload (which is always the last one)
+      const lastArc = campaign.arcIndex.at(-1);
+      await refreshCampaignDirectoryTree([session.uuid, lastArc!.uuid]);
       return session;
     } else {
       return null;

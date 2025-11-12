@@ -10,6 +10,7 @@ import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEnt
 import { JournalEntryFlagKey } from '@/settings';
 import { searchService } from '@/utils/search';
 import { getGlobalSetting } from '@/utils/globalSettings';
+import { getLastArcWithSessions } from '@/utils/arcIndex';
 
 type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
 
@@ -106,30 +107,38 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     // we need to add to the last arc and to the session index
     this._clone.system.sessionIndex.push(newSession);
         
-    // no arcId, add to last one
-    let maxArcEnd = -1;
-    let lastArc = null as ArcBasicIndex | null;
-    for (const arc of this.arcIndex) {
-      if (arc.endSessionNumber > maxArcEnd) {
-        maxArcEnd = arc.endSessionNumber;
-        lastArc = arc;
-      }      
-    }
-
-    if (!lastArc) {
+    // add to last arc - we update Arc object, which will update the indexes
+    if (this.arcIndex.length === 0) {
       // create default one
-      this._clone.system.arcIndex.push({
-        uuid: foundry.utils.randomID(),
-        name: 'All sessions',
-        startSessionNumber: session.number,
-        endSessionNumber: session.number,
-        sortOrder: 0,
-      });
+      const arc = await Arc.create(this, 'All Sessions');
+
+      if (!arc)
+        throw new Error('Failed to create default arc in Campaign.addSession()')
+      arc.startSessionNumber = session.number;
+      arc.endSessionNumber = session.number;
+      arc.sortOrder = 0;  // just in case
+      await arc.save();
     } else { 
-      lastArc.endSessionNumber = session.number;
+      const lastArc = this.arcIndex.at(-1);
+      const lastArcWithSessions = getLastArcWithSessions(this._clone.system.arcIndex);
+
+      const lastArcObject = await Arc.fromUuid(lastArc!.uuid);
+      if (!lastArcObject)
+        throw new Error('Failed to get last arc in Campaign.addSession()');
+
+      // if the last one with sessions is also the last one, just extend it
+      if (lastArcWithSessions!.uuid === lastArc!.uuid && lastArc!.endSessionNumber !== session.number) {
+        lastArcObject.endSessionNumber = session.number;
+        await lastArcObject.save();
+      } else if (lastArc!.endSessionNumber !== session.number || lastArc!.startSessionNumber !== session.number) {
+        // otherwise, make a single-session one out of the last one
+        lastArcObject.startSessionNumber = session.number;
+        lastArcObject.endSessionNumber = session.number;
+        await lastArcObject.save();
+      }
     }
 
-    // update the session number
+    // update the session number on the campaign
     if (this.currentSessionNumber==null || session.number > this.currentSessionNumber) {
       this.currentSessionNumber = session.number;
       this.currentSessionId = session.uuid;
@@ -152,13 +161,16 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
-  /** register the arc on the campaign and setting */
+  /** register the arc on the campaign and setting; also set the sort order */
   public async addArc(arc: Arc): Promise<void> {
+    const sortOrder = this._clone.system.arcIndex.length;
+    
     const newArc = {
       uuid: arc.uuid,
       name: arc.name,
       startSessionNumber: arc.startSessionNumber,
       endSessionNumber: arc.endSessionNumber,
+      sortOrder: sortOrder,
     } as ArcBasicIndex;
 
     this._clone.system.arcIndex.push(newArc);
@@ -185,6 +197,11 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     arcIndex.name = arc.name;
     arcIndex.startSessionNumber = arc.startSessionNumber;
     arcIndex.endSessionNumber = arc.endSessionNumber;
+    arcIndex.sortOrder = arc.sortOrder;
+
+    // resort the index
+    this._clone.system.arcIndex.sort((a, b) => a.sortOrder - b.sortOrder);
+
     await this.save();
 
     // need to update on the setting
@@ -196,13 +213,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     if (!campaignIndex)
       throw new Error('Failed to find campaign index in Campaign.updateArc()');
 
-    arcIndex = campaignIndex.arcs.find((a)=>a.uuid===arc.uuid);
-    if (!arcIndex)
-      throw new Error('Arc index not found in Campaign.updateArc()');
-    
-    arcIndex.name = arc.name;
-    arcIndex.startSessionNumber = arc.startSessionNumber;
-    arcIndex.endSessionNumber = arc.endSessionNumber;
+    campaignIndex.arcs = this._clone.system.arcIndex;
     await setting.save();
   }
 

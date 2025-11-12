@@ -98,18 +98,9 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     if (!session)
       return null;
 
-    // update the arc on setting
-    const setting = await session.getSetting();
-    const arcIndex = setting.campaignIndex.find(c=>c.uuid===campaign.uuid)?.arcs.at(-1);
-    if (!arcIndex)
-      throw new Error('Invalid arc in Session.create()');
-
-    arcIndex.endSessionNumber = sessionNumber;
-    await setting.save();    
-
     // add to campaign
     await campaign.addSession(session);
-    
+
     // Add to search index
     try {
       const setting = await getGlobalSetting(session.settingId);

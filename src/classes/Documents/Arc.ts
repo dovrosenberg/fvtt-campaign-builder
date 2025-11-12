@@ -98,7 +98,9 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     if (!arc)
       return null;
 
-    // add to campaign and setting indexes
+    // add to campaign and setting indexes; also sets the sort order
+    //    because we don't want to call Arc.update() until it's been
+    //    added to the index
     await campaign.addArc(arc);
     
     // Add to search index
