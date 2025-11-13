@@ -518,9 +518,6 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     await campaign.deleteArc(this);
     
     await toRaw(this._doc).delete();
-
-    // remove from the expanded list
-    await setting.deleteArcFromSetting(id);
   }
     
 }

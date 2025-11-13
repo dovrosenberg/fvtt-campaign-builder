@@ -15,16 +15,16 @@
           label: localize('labels.reset'),
           default: false,
           close: false,
-          callback: onClickReset,
+          callback: onResetClick,
         },
         {
           label: localize('labels.saveChanges'),
           default: true,
           close: true,
-          callback: onClickSubmit,
+          callback: onSubmitClick,
         },
       ]"
-    >
+    >onArcSelectClick
       <div class="standard-form scrollable">
         <BaseTable
           :rows="rows"
@@ -32,9 +32,6 @@
           :show-add-button="false"
           :show-filter="false"
           :can-reorder="true"
-          :allow-edit="true"
-          :edit-button-label="localize('dialogs.arcManager.labels.edit')"
-          :delete-button-label="localize('dialogs.arcManager.labels.delete')"
           :actions="actions"
           @row-edit-complete="onRowEditComplete"
           @reorder="onRowReorder"
@@ -77,6 +74,9 @@
 
   ////////////////////////////////
   // store
+  const navigationStore = useNavigationStore();
+  const mainStore = useMainStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   
   ////////////////////////////////
   // data
@@ -120,12 +120,11 @@
   });
 
   const actions = computed((): ActionButtonDefinition[] => [
-    // don't allow delete from here... too dangerous
-    // { 
-    //   icon: 'fa-trash', 
-    //   callback: (data) => onDeleteItem(data.uuid), 
-    //   tooltip: localize('dialogs.arcManager.labels.delete') 
-    // },
+    { 
+      icon: 'fa-trash', 
+      callback: (data) => onDeleteItem(data.uuid), 
+      tooltip: localize('dialogs.arcManager.labels.delete') 
+    },
     { 
       icon: 'fa-edit', 
       callback: (data) => onEditItem(data.uuid), 
@@ -172,6 +171,8 @@
     if (arcIndex !== -1) {
       arcs.value.splice(arcIndex, 1);
     }
+
+    cleanArcs(foundry.utils.deepClone(arcs.value));
   };
 
   const onEditItem = async (uuid: string): Promise<void> => {
@@ -331,79 +332,97 @@
    * Handles a row moving in the table
    */
   const onRowReorder = (reorderedRows: any[], _dragIndex: number, dropIndex:number) => {
-    // if there aren't any sessions, everything should be 0
-    if (lowestSession.value === Number.MAX_SAFE_INTEGER) {
-      for (let i=0; i<reorderedRows.length; i++) {
-        reorderedRows[i].startSessionNumber = -1;
-        reorderedRows[i].endSessionNumber = -1;
-        reorderedRows[i].sortOrder = i;
-        arcs.value[i] = reorderedRows[i];
-      }
-      return;
-    }
-    
     // the one that moved should have all sessions removed
     reorderedRows[dropIndex].startSessionNumber = -1;
     reorderedRows[dropIndex].endSessionNumber = -1;
 
+    cleanArcs(reorderedRows);
+  };
+
+  /* Starting with passed in rows, adjusts everything to properly cover all the sessions.
+   *   Can be used to handle a set or just reordered rows or if a row was just deleted.
+   * 
+   */
+  const cleanArcs = (rowsToClean: ArcBasicIndex[]) => {
+    // if there aren't any sessions, everything should be 0
+    if (lowestSession.value === Number.MAX_SAFE_INTEGER) {
+      for (let i=0; i<rowsToClean.length; i++) {
+        rowsToClean[i].startSessionNumber = -1;
+        rowsToClean[i].endSessionNumber = -1;
+        rowsToClean[i].sortOrder = i;
+        arcs.value[i] = rowsToClean[i];
+      }
+      return;
+    }
+    
     // find the first and last ones with a session in them
     let firstWithSessions = -1;
     let lastWithSessions = -1;
 
-    for (let i=0; i<reorderedRows.length; i++) {
-      if (firstWithSessions === -1 && reorderedRows[i].startSessionNumber !== -1) {
+    for (let i=0; i<rowsToClean.length; i++) {
+      if (firstWithSessions === -1 && rowsToClean[i].startSessionNumber !== -1) {
         firstWithSessions = i;
       }
-      if (reorderedRows[i].startSessionNumber !== -1) {
+      if (rowsToClean[i].startSessionNumber !== -1) {
         lastWithSessions = i;
       }
     }
     
     // extend 1st to lowest and last to highest
-    reorderedRows[firstWithSessions].startSessionNumber = lowestSession.value!;
-    reorderedRows[lastWithSessions].endSessionNumber = highestSession.value!;
+    rowsToClean[firstWithSessions].startSessionNumber = lowestSession.value!;
+    rowsToClean[lastWithSessions].endSessionNumber = highestSession.value!;
     
     // then close any gaps
-    for (let i=0; i<reorderedRows.length; i++) {
+    for (let i=0; i<rowsToClean.length; i++) {
       // skip blank ones
-      if (reorderedRows[i].startSessionNumber === -1) 
+      if (rowsToClean[i].startSessionNumber === -1) 
         continue;
       
       // when we get to the last one, quit
       if (lastWithSessions === i) {
-        reorderedRows[i].endSessionNumber = highestSession.value;
+        rowsToClean[i].endSessionNumber = highestSession.value;
         break;
       }
 
       // function to find the next starting number after this row
       const getNextStart = () => {
-        for (let j=i+1; j<reorderedRows.length; j++) {
-          if (reorderedRows[j].startSessionNumber !== -1) {
-            return reorderedRows[j].startSessionNumber;
+        for (let j=i+1; j<rowsToClean.length; j++) {
+          if (rowsToClean[j].startSessionNumber !== -1) {
+            return rowsToClean[j].startSessionNumber;
           }
         }
         return -1;  // should never happen 
       }      
 
-      reorderedRows[i].endSessionNumber = getNextStart() - 1;
+      rowsToClean[i].endSessionNumber = getNextStart() - 1;
     }
     
     // Update the sortOrder for all arcs based on the new order
-    for (let i=0; i<reorderedRows.length; i++) {
-      arcs.value[i] = reorderedRows[i];
+    for (let i=0; i<rowsToClean.length; i++) {
+      arcs.value[i] = rowsToClean[i];
       arcs.value[i].sortOrder = i;
     }
   };
 
-  const onClickSubmit = async () => {
+  const onSubmitClick = async () => {
     if (!campaign.value) return;
 
     // update the arcs and the indexes will get updated
+    // first delete any arcs that we removed
+    for (const existingArc of foundry.utils.deepClone(campaign.value.arcIndex)) {
+      if (!arcs.value.find(a => a.uuid === existingArc.uuid)) {
+        (await Arc.fromUuid(existingArc.uuid))?.delete();
+
+        // update tabs/bookmarks
+        await navigationStore.cleanupDeletedEntry(existingArc.uuid);
+      }
+    }
+
     for (const arcIndex of arcs.value) {
       const arc = await Arc.fromUuid(arcIndex.uuid);
 
       if (!arc)
-        throw new Error ('Bad arc in ArcManager.onClickSubmit()');
+        throw new Error ('Bad arc in ArcManager.onSubmitClick()');
 
       const nameChange = arc.name !== arcIndex.name;
 
@@ -415,20 +434,20 @@
 
       // if name changed, need to propagate the change
       if (nameChange) {
-        await useNavigationStore().propagateNameChange(arc.uuid, arcIndex.name);
+        await navigationStore.propagateNameChange(arc.uuid, arcIndex.name);
 
-        if (useMainStore().currentArc?.uuid === arc.uuid) {
-          await useMainStore().refreshCurrentContent();
+        if (mainStore.currentArc?.uuid === arc.uuid) {
+          await mainStore.refreshCurrentContent();
         }
       }
     }
 
     // force reload of all the arcs
     const ids = arcs.value.map(a => a.uuid);
-    await useCampaignDirectoryStore().refreshCampaignDirectoryTree(ids);
+    await campaignDirectoryStore.refreshCampaignDirectoryTree(ids);
   };
 
-  const onClickReset = async () => {
+  const onResetClick = async () => {
     loadData();
   };
 

@@ -330,22 +330,9 @@
       type: Array as PropType<any[]>,
       required: true,
     },
-    /** show the edit action icon */
-    allowEdit: {
-      type: Boolean,
-      default: false,
-    },
-    editItemLabel: {
-      type: String,
-      default: '',
-    },
     actions: {
       type: Array as PropType<ActionButtonDefinition[]>,
       default: [],
-    },
-    deleteItemLabel: {
-      type: String,
-      default: '',
     },
     draggableRows: {
       type: Boolean,

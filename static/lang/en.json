@@ -400,6 +400,7 @@
       "locationName": "Location Name",
       "organizationName": "Organization Name",
       "pcName": "PC Name",
+      "arcName": "Arc Name",
       "campaignName": "Campaign Name",
       "settingName": "Setting Name",
       "sessionName": "Session Name",
