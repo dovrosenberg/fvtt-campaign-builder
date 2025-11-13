@@ -5,6 +5,7 @@
 
 - You can now use fronts.  They can be disabled in the module settings.
 - Fixed bug when trying to move lore to the next session when that session wasn't yet created.
+- Fixed bug where changes to referenced document names wasn't always updating the names referenced in campaign builder.
 
 ## v1.5.3 - Fixed bug adding journal entries to lore
 ![](https://img.shields.io/badge/release%20date-November%2011%2C%202025-blue)

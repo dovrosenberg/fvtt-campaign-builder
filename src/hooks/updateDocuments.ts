@@ -3,10 +3,13 @@ import { Topics, EntryFilterIndex } from '@/types';
 import { isClientGM } from '@/utils/game';
 
 export function registerForUpdateHooks() {
-  registerForActorHooks();
-  registerForItemHooks();
-  registerForSceneHooks();
-  registerForJournalHooks();
+  // need to wait until ready so user is available
+  Hooks.once('ready', () => {
+    registerForActorHooks();
+    registerForItemHooks();
+    registerForSceneHooks();
+    registerForJournalHooks();
+  });
 }
 
 /**
@@ -27,15 +30,18 @@ function registerForActorHooks() {
       const settings = await mainStore.getAllSettings();
       for (const setting of settings) {
         const folder = setting.topicFolders[Topics.PC];
-        const pcs = await folder.filterEntries((e: EntryFilterIndex) => e.topic===Topics.PC, true);
+        const pcs = await folder.filterEntries((e: EntryFilterIndex) => (e.topic===Topics.PC && e.actorId===actor.uuid), true);
         for (const pc of pcs) {
-          if (pc.actorId !== actor.uuid)
-            continue;
-          
           pc.name = actor.name;
           await pc.save();
           await navigationStore.propagateNameChange(pc.uuid, actor.name);
           await settingDirectoryStore.refreshSettingDirectoryTree([pc.uuid]);
+
+          if (mainStore.currentEntry?.uuid === pc.uuid) {
+            // it's not enough to refresh the entry - we need to reload from disk 
+            //   to get the entry cleaned up right
+            await mainStore.setNewTab(mainStore.currentTab!);
+          }
         }
 
         // also need to update the details on campaigns
