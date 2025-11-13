@@ -13,3 +13,18 @@ export function getLastArcWithSessions(arcIndex: ArcBasicIndex[]): ArcBasicIndex
   }
   return null;
 }  
+
+// find the arc that covers the given session number
+export function getArcForSession(arcIndex: ArcBasicIndex[], sessionNumber: number): ArcBasicIndex | null {
+  let retval = null as ArcBasicIndex | null;
+
+  // arcs are always sorted in order
+  for (const index of arcIndex) {
+    if (index.startSessionNumber <= sessionNumber && index.endSessionNumber >= sessionNumber) {
+      retval = index;
+      break;
+    }
+  }
+
+  return retval;
+}

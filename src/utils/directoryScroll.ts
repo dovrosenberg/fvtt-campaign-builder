@@ -1,8 +1,9 @@
 import { nextTick } from 'vue';
 import { useSettingDirectoryStore, useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
 import { WindowTabType, } from '@/types';
-import { Entry, Session, DirectoryTopicFolderNode, DirectoryCampaignNode } from '@/classes';
+import { Entry, Session, DirectoryTopicFolderNode, DirectoryCampaignNode, Arc, Front } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
+import { getArcForSession } from './arcIndex';
 
 /**
  * Scrolls to and expands the path for the currently active entry in the directory tree.
@@ -215,17 +216,36 @@ async function scrollToSession(sessionId: string): Promise<void> {
   }
 
   // Find the campaign node and expand it
-  const currentCampaignTree = campaignDirectoryStore.currentCampaignTree.value;
-  const campaignNode = currentCampaignTree.find(c => c.id === campaign.uuid);
+  // note we have to refresh the tree after each expansion in case the children weren't loaded before
+  let currentCampaignTree = campaignDirectoryStore.currentCampaignTree.value;
+  let campaignNode = currentCampaignTree.find(c => c.id === campaign.uuid);
   
   if (campaignNode && !campaignNode.expanded) {
     // Use toggleWithLoad to expand the campaign node
-    await campaignDirectoryStore.toggleWithLoad(campaignNode as DirectoryCampaignNode, true);
+    await campaignDirectoryStore.toggleWithLoad(campaignNode as DirectoryCampaignNode<any>, true);
+
+    // Refresh the tree and wait for DOM update
+    await campaignDirectoryStore.refreshCampaignDirectoryTree();
+    await nextTick();
+
+    currentCampaignTree = campaignDirectoryStore.currentCampaignTree.value;
+    campaignNode = currentCampaignTree.find(c => c.id === campaign.uuid);
   }
 
-  // Refresh the tree and wait for DOM update
-  await campaignDirectoryStore.refreshCampaignDirectoryTree();
-  await nextTick();
+  if (!campaignNode)
+    return;
+
+  // also need to expand the arc
+  const arc = getArcForSession(campaign.arcIndex, session.number);
+  const arcNode = Object.values(campaignNode.loadedChildren).find(c => c.id === arc?.uuid);
+  if (arcNode && !arcNode.expanded) {
+    // Use toggleWithLoad to expand the campaign node
+    await campaignDirectoryStore.toggleWithLoad(arcNode as DirectoryCampaignNode<any>, true);
+
+    // Refresh the tree and wait for DOM update
+    await campaignDirectoryStore.refreshCampaignDirectoryTree();
+    await nextTick();
+  }
 
   // Find and scroll to the session element (sessions use the same highlighting class as entries)
   await scrollToElement('.fcb-current-directory-entry');
@@ -239,35 +259,55 @@ async function scrollToSession(sessionId: string): Promise<void> {
  * @returns A promise that resolves when the scroll operation is complete
  */
 async function scrollToFront(frontId: string): Promise<void> {
-  // TODO
-  // const campaignDirectoryStore = useCampaignDirectoryStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   
-  // // Load the session to get its campaign
-  // const session = await Session.fromUuid(sessionId);
-  // if (!session) {
-  //   return;
-  // }
+  // Load the front to get its campaign
+  const front = await Front.fromUuid(frontId);
+  if (!front) {
+    return;
+  }
 
-  // const campaign = await session.loadCampaign();
-  // if (!campaign) {
-  //   return;
-  // }
+  const campaign = await front.loadCampaign();
+  if (!campaign) {
+    return;
+  }
 
-  // // Find the campaign node and expand it
-  // const currentCampaignTree = campaignDirectoryStore.currentCampaignTree.value;
-  // const campaignNode = currentCampaignTree.find(c => c.id === campaign.uuid);
+  // Find the campaign node and expand it
+  // note we have to refresh the tree after each expansion in case the children weren't loaded before
+  let currentCampaignTree = campaignDirectoryStore.currentCampaignTree.value;
+  let campaignNode = currentCampaignTree.find(c => c.id === campaign.uuid);
   
-  // if (campaignNode && !campaignNode.expanded) {
-  //   // Use toggleWithLoad to expand the campaign node
-  //   await campaignDirectoryStore.toggleWithLoad(campaignNode as DirectoryCampaignNode, true);
-  // }
+  if (campaignNode && !campaignNode.expanded) {
+    // Use toggleWithLoad to expand the campaign node
+    await campaignDirectoryStore.toggleWithLoad(campaignNode as DirectoryCampaignNode<any>, true);
 
-  // // Refresh the tree and wait for DOM update
-  // await campaignDirectoryStore.refreshCampaignDirectoryTree();
-  // await nextTick();
+    // Refresh the tree and wait for DOM update
+    await campaignDirectoryStore.refreshCampaignDirectoryTree();
+    await nextTick();
 
-  // // Find and scroll to the session element (sessions use the same highlighting class as entries)
-  // await scrollToElement('.fcb-current-directory-entry');
+    currentCampaignTree = campaignDirectoryStore.currentCampaignTree.value;
+    campaignNode = currentCampaignTree.find(c => c.id === campaign.uuid);
+  }
+
+  if (!campaignNode)
+    return;
+
+  // also need to expand the front folder
+  const frontNode = Object.values(campaignNode.loadedChildren).find(c => c.id === `${campaign.uuid}:front`);
+  if (!frontNode)
+    return;
+
+  if (!frontNode.expanded) {
+    // Use toggleWithLoad to expand the campaign node
+    await campaignDirectoryStore.toggleWithLoad(frontNode as DirectoryCampaignNode<any>, true);
+
+    // Refresh the tree and wait for DOM update
+    await campaignDirectoryStore.refreshCampaignDirectoryTree();
+    await nextTick();
+  }
+
+  // Find and scroll to the front element 
+  await scrollToElement('.fcb-current-directory-entry');
 }
 
 /**
@@ -278,35 +318,34 @@ async function scrollToFront(frontId: string): Promise<void> {
  * @returns A promise that resolves when the scroll operation is complete
  */
 async function scrollToArc(arcId: string): Promise<void> {
-  // TODO
-  // const campaignDirectoryStore = useCampaignDirectoryStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   
-  // // Load the session to get its campaign
-  // const session = await Session.fromUuid(sessionId);
-  // if (!session) {
-  //   return;
-  // }
+  // Load the arc to get its campaign
+  const arc = await Arc.fromUuid(arcId);
+  if (!arc) {
+    return;
+  }
 
-  // const campaign = await session.loadCampaign();
-  // if (!campaign) {
-  //   return;
-  // }
+  const campaign = await arc.loadCampaign();
+  if (!campaign) {
+    return;
+  }
 
-  // // Find the campaign node and expand it
-  // const currentCampaignTree = campaignDirectoryStore.currentCampaignTree.value;
-  // const campaignNode = currentCampaignTree.find(c => c.id === campaign.uuid);
+  // Find the campaign node and expand it
+  const currentCampaignTree = campaignDirectoryStore.currentCampaignTree.value;
+  const campaignNode = currentCampaignTree.find(c => c.id === campaign.uuid);
   
-  // if (campaignNode && !campaignNode.expanded) {
-  //   // Use toggleWithLoad to expand the campaign node
-  //   await campaignDirectoryStore.toggleWithLoad(campaignNode as DirectoryCampaignNode, true);
-  // }
+  if (campaignNode && !campaignNode.expanded) {
+    // Use toggleWithLoad to expand the campaign node
+    await campaignDirectoryStore.toggleWithLoad(campaignNode as DirectoryCampaignNode<any>, true);
 
-  // // Refresh the tree and wait for DOM update
-  // await campaignDirectoryStore.refreshCampaignDirectoryTree();
-  // await nextTick();
+    // Refresh the tree and wait for DOM update
+    await campaignDirectoryStore.refreshCampaignDirectoryTree();
+    await nextTick();
+  }
 
-  // // Find and scroll to the session element (sessions use the same highlighting class as entries)
-  // await scrollToElement('.fcb-current-directory-entry');
+  // Find and scroll to the arc element 
+  await scrollToElement('.node-name.active');
 }
 
 /**
