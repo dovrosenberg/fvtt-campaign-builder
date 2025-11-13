@@ -111,29 +111,44 @@
     return [actionColumn, nameColumn, startSessionColumn, startSessionNameColumn, endSessionColumn, endSessionNameColumn];
   });
 
-  const lowestSession = computed((): number => {
+  const lowestSession = computed((): number | null=> {
+    if (!campaign.value?.currentSessionNumber)
+      return null;
+
     return campaign.value?.sessionIndex.reduce((minNumber, currentSession) => {
       return Math.min(minNumber, currentSession.number);
     }, Number.MAX_SAFE_INTEGER);
   });
 
-  const highestSession = computed((): number => {
-    return campaign.value?.currentSessionNumber!;
+  const highestSession = computed((): number | null => {
+    return campaign.value?.currentSessionNumber || null;
   });
 
-  const actions = computed((): ActionButtonDefinition[] => [
-    { 
-      icon: 'fa-trash', 
-      callback: (data) => onDeleteItem(data.uuid), 
-      tooltip: localize('dialogs.arcManager.labels.delete') 
-    },
-    { 
-      icon: 'fa-edit', 
-      callback: (data) => onEditItem(data.uuid), 
-      tooltip: localize('dialogs.arcManager.labels.edit'),
-      isEdit: true
+  const actions = computed((): ActionButtonDefinition[] => {
+    const retval = [] as ActionButtonDefinition[];
+
+    // don't allow delete if only one left
+    if (arcs.value.length > 1) {
+      retval.push(
+        { 
+          icon: 'fa-trash', 
+          callback: (data) => onDeleteItem(data.uuid), 
+          tooltip: localize('dialogs.arcManager.labels.delete') 
+        }
+      );
     }
-  ]);
+
+    retval.push(
+      { 
+        icon: 'fa-edit', 
+        callback: (data) => onEditItem(data.uuid), 
+        tooltip: localize('dialogs.arcManager.labels.edit'),
+        isEdit: true
+      }
+    );
+
+    return retval;
+  });
 
   ////////////////////////////////
   // methods
@@ -248,14 +263,6 @@
     let newStartSession = Number.parseInt(newData.startSessionNumber);
     let newEndSession = Number.parseInt(newData.endSessionNumber);
 
-    // if there are no current sessions, arc must be empty
-    if (campaign.value?.currentSessionNumber == null &&
-      (newStartSession !== -1 || newEndSession !== -1)
-    ) {
-      notifyWarn(localize('dialogs.arcManager.warning.mustBeBlank'));
-      refreshData();
-      return;
-    }
     // make sure the session numbers were blank or a number
     if (isNaN(newStartSession) || isNaN(newEndSession) ||
         newStartSession < -1 || newEndSession < -1) {
@@ -263,6 +270,7 @@
       refreshData();
       return;
     } 
+
     // make sure the start session is less than the end session
     if (newStartSession > newEndSession) {
       notifyWarn(localize('dialogs.arcManager.warning.startTooHigh'));
@@ -276,12 +284,30 @@
       return;
     }
 
-    newStartSession = Math.max(lowestSession.value, Math.min(newStartSession, highestSession.value));
-    newEndSession = Math.max(lowestSession.value, Math.min(newEndSession, highestSession.value));
-    
+    const blankSession = (newStartSession === -1);
+
+    // if there are no current sessions, arc must be empty
+    if (lowestSession.value == null || highestSession.value == null) {
+      if (!blankSession) {
+        notifyWarn(localize('dialogs.arcManager.warning.mustBeBlank'));
+      }
+
+      arc.startSessionNumber = -1;
+      arc.endSessionNumber = -1;
+      arc.name = newData.name;
+      refreshData();
+      return;
+    }
+
     // handle blank ones differently
-    if (newStartSession === -1) {
-      if (prevArc) {
+    if (blankSession) {
+      // if everything else is blank, the first arc needs to be set to cover everything (with
+      //    a warning message to explain)
+      if (!prevArc && !nextArc) {
+        notifyWarn(localize('dialogs.arcManager.warning.allSessionsCovered'));
+        arcs.value[0].startSessionNumber = lowestSession.value;
+        arcs.value[0].endSessionNumber = highestSession.value;
+      } else if (prevArc) {
         // if there's a prior arc, extend it to the beginning of the next arc or
         //    the end of the campaign
         if (nextArc) {
@@ -290,34 +316,47 @@
           prevArc.endSessionNumber = campaign.value?.currentSessionNumber!;
         }
       } else if (nextArc) {
-        // there's a next arc but no prior one; so extend its start back
-        //    to 0
-        nextArc.startSessionNumber = 0;
+        // there's a next arc but no prior one; so extend its start back to beginning
+        nextArc.startSessionNumber = lowestSession.value;
       }
     } else {
-      // if the starting session changed, need to adjust the prior session
-      if (prevArc && data.startSessionNumber !== newData.startSessionNumber) {
-        // if we made it 0, all prior arcs must be empty
-        if (newStartSession === 0) {
-          for (let i=arcIndex-1; i>=0; i--) {
-            arcs.value[i].endSessionNumber = -1;
-            arcs.value[i].startSessionNumber = -1;
+      // constrain within the session bounds
+      newStartSession = Math.max(lowestSession.value, Math.min(newStartSession, highestSession.value));
+      newEndSession = Math.max(lowestSession.value, Math.min(newEndSession, highestSession.value));
+
+      // if the starting session changed, need to adjust the prior session or make sure we go to 0
+      if (data.startSessionNumber !== newData.startSessionNumber) {
+        if (prevArc) {
+          // if we made it 0, all prior arcs must be empty
+          if (newStartSession === lowestSession.value) {
+            for (let i=arcIndex-1; i>=0; i--) {
+              arcs.value[i].endSessionNumber = -1;
+              arcs.value[i].startSessionNumber = -1;
+            }
+          } else {
+            prevArc.endSessionNumber = newStartSession-1;
           }
         } else {
-          prevArc.endSessionNumber = newStartSession-1;
+          // has to go all the way down
+          newStartSession = lowestSession.value;
         }
       }
 
       // if the ending session changed, need to adjust the next session
-      if (nextArc && data.endSessionNumber !== newData.endSessionNumber) {
-        // if we made it >= highest session number, all later arcs must be empty
-        if (newEndSession >= campaign.value?.currentSessionNumber!) {
-          for (let i=arcIndex+1; i<arcs.value.length; i++) {
-            arcs.value[i].endSessionNumber = -1;
-            arcs.value[i].startSessionNumber = -1;
+      if (data.endSessionNumber !== newData.endSessionNumber) {
+        if (nextArc) {
+          // if we made it >= highest session number, all later arcs must be empty 
+          if (newEndSession >= campaign.value?.currentSessionNumber!) {
+            for (let i=arcIndex+1; i<arcs.value.length; i++) {
+              arcs.value[i].endSessionNumber = -1;
+              arcs.value[i].startSessionNumber = -1;
+            }
+          } else {
+            nextArc.startSessionNumber = newEndSession+1;
           }
         } else {
-          nextArc.startSessionNumber = newEndSession+1;
+          // has to go all the way up
+          newEndSession = highestSession.value;
         }
       }
     }
@@ -350,10 +389,22 @@
    * Handles a row moving in the table
    */
   const onRowReorder = (reorderedRows: any[], _dragIndex: number, dropIndex:number) => {
-    // the one that moved should have all sessions removed
-    reorderedRows[dropIndex].startSessionNumber = -1;
-    reorderedRows[dropIndex].endSessionNumber = -1;
+    // replace blanks with -1
+    reorderedRows = reorderedRows.map((row) => {
+      if (row.startSessionNumber === '')
+        row.startSessionNumber = -1;
+      if (row.endSessionNumber === '')
+        row.endSessionNumber = -1;
+      return row;
+    });
 
+    // the one that moved should have all sessions removed UNLESS there are no other
+    //    rows with sessions on them - in that case, we should leave it the way it was
+    if (reorderedRows.some((row, index) => index !== dropIndex && row.startSessionNumber !== -1)) {
+      reorderedRows[dropIndex].startSessionNumber = -1;
+      reorderedRows[dropIndex].endSessionNumber = -1;
+    }
+    
     cleanArcs(reorderedRows);
   };
 
@@ -373,6 +424,7 @@
       return;
     }
     
+    // clean 
     // find the first and last ones with a session in them
     let firstWithSessions = -1;
     let lastWithSessions = -1;
@@ -384,6 +436,14 @@
       if (rowsToClean[i].startSessionNumber !== -1) {
         lastWithSessions = i;
       }
+    }
+    
+    // if there aren't any with sessions, the first row has to get them all (with a warning)
+    if (firstWithSessions === -1) {
+      notifyWarn(localize('dialogs.arcManager.warning.allSessionsCovered'));
+      rowsToClean[0].startSessionNumber = lowestSession.value!;
+      rowsToClean[0].endSessionNumber = highestSession.value!;
+      return;
     }
     
     // extend 1st to lowest and last to highest
@@ -398,7 +458,7 @@
       
       // when we get to the last one, quit
       if (lastWithSessions === i) {
-        rowsToClean[i].endSessionNumber = highestSession.value;
+        rowsToClean[i].endSessionNumber = highestSession.value!;
         break;
       }
 
@@ -425,6 +485,9 @@
   const onSubmitClick = async () => {
     if (!campaign.value) return;
 
+    // do a pass at cleaning the arcs in case they were left in a bad spot somehow
+    cleanArcs(arcs.value);
+
     // update the arcs and the indexes will get updated
     // first delete any arcs that we removed
     for (const existingArc of foundry.utils.deepClone(campaign.value.arcIndex)) {
@@ -437,11 +500,14 @@
     }
 
     for (const arcIndex of arcs.value) {
-      const arc = await Arc.fromUuid(arcIndex.uuid);
+      let arc = await Arc.fromUuid(arcIndex.uuid);
 
       if (!arc) {
         // create a new one
-        TODO
+        arc = await Arc.create(campaign.value, arcIndex.name);
+
+        if (!arc)
+          throw new Error('Failed to create arc in ArcManager.onSubmitClick()');
       }
 
       const nameChange = arc.name !== arcIndex.name;

@@ -483,7 +483,8 @@
           "mustBeBlank": "There are no sessions in the campaign, so start and end must be blank",
           "invalidSessionNumber": "Invalid session number",
           "startTooHigh": "Start session must be less than end session",
-          "bothBlank": "Start and end session numbers must either both be blank or both be non-blank"
+          "bothBlank": "Start and end session numbers must either both be blank or both be non-blank",
+          "allSessionsCovered": "All sessions must be covered by an arc"
         }
       },
       "createPC": {
