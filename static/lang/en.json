@@ -475,7 +475,8 @@
         "title": "Manage Arcs",
         "labels": {
           "edit": "Edit arc",
-          "delete": "Delete arc"
+          "delete": "Delete arc",
+          "addArc": "Add Arc"
         },
         "missingSession": "Missing Session",
         "warning": {

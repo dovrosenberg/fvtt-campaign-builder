@@ -24,16 +24,18 @@
           callback: onSubmitClick,
         },
       ]"
-    >onArcSelectClick
+    >
       <div class="standard-form scrollable">
         <BaseTable
           :rows="rows"
           :columns="columns"
-          :show-add-button="false"
+          :show-add-button="true"
+          :add-button-label="localize('dialogs.arcManager.labels.addArc')"
           :show-filter="false"
           :can-reorder="true"
           :actions="actions"
           @row-edit-complete="onRowEditComplete"
+          @add-item="onAddItem"
           @reorder="onRowReorder"
         />
       </div>
@@ -329,6 +331,22 @@
   };
 
   /** 
+   *  Handles adding a new arc
+   */
+  const onAddItem = () => {
+    // just create an empty one at the end
+    arcs.value.push({
+      uuid: foundry.utils.randomID(),  // temp id until we save
+      name: localize('placeholders.arcName'),
+      startSessionNumber: -1,
+      endSessionNumber: -1,
+      sortOrder: arcs.value.length
+    });
+    
+    refreshData();
+  };
+
+  /** 
    * Handles a row moving in the table
    */
   const onRowReorder = (reorderedRows: any[], _dragIndex: number, dropIndex:number) => {
@@ -421,8 +439,10 @@
     for (const arcIndex of arcs.value) {
       const arc = await Arc.fromUuid(arcIndex.uuid);
 
-      if (!arc)
-        throw new Error ('Bad arc in ArcManager.onSubmitClick()');
+      if (!arc) {
+        // create a new one
+        TODO
+      }
 
       const nameChange = arc.name !== arcIndex.name;
 

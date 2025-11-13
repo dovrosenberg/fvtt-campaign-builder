@@ -3,7 +3,7 @@ import PrimeVue from 'primevue/config';
 
 import App from '@/components/applications/ArcManager.vue';
 import { theme } from '@/components/styles/primeVue';
-import { useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
+import { useMainStore } from '@/applications/stores';
 
 const { ApplicationV2 } = foundry.applications.api;
 
