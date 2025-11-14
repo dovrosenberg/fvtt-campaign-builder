@@ -403,7 +403,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     // get all the journal entries
     const indexSessions = await toRaw(this.compendium).getIndex(sessionIndexFields());
 
-    // find the entries 
+    // find the sessions 
     const sessions = indexSessions
       // first find the relevant ones
       .filter((e)=> (
@@ -423,7 +423,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
     if (!fullSession || sessions.length===0)
       // @ts-ignore - we know it's false and sessions is a SessionFilterIndex[] or it's an empty array
-      return entries;
+      return sessions;
 
     let retval = [] as Session[];
     for (let i=0; i<sessions.length; i++) {

@@ -7,6 +7,12 @@
 - Fixed bug when trying to move lore to the next session when that session wasn't yet created.
 - Fixed bug where changes to referenced document names wasn't always updating the names referenced in campaign builder.
 
+## v1.5.4 - Fixed migration bug 
+![](https://img.shields.io/badge/release%20date-November%2015%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.5.4/module.zip)
+
+- In certain configurations, an error was being through during migration from v1.5.0.  Now fixed
+
 ## v1.5.3 - Fixed bug adding journal entries to lore
 ![](https://img.shields.io/badge/release%20date-November%2011%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.5.3/module.zip)
