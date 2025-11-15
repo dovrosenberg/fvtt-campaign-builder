@@ -103,11 +103,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
     // Add to search index
     try {
-      const setting = await getGlobalSetting(session.settingId);
-      if (!setting)
-        throw new Error('Invalid setting in Session.create()');
-
-      await searchService.addOrUpdateSessionIndex(session, setting);
+      await searchService.addOrUpdateSessionIndex(session);
     } catch (error) {
       console.error('Failed to add session to search index:', error);
     }
@@ -525,7 +521,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
     // Update the search index (rely on retval being null if no changes were made)
     try {
-      await searchService.addOrUpdateSessionIndex(this, setting);
+      await searchService.addOrUpdateSessionIndex(this);
     } catch (error) {
       console.error('Failed to update search index:', error);
     }
@@ -547,8 +543,8 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     
     await toRaw(this._doc).delete();
 
-    // remove from the expanded list
-    await setting.deleteSessionFromSetting(id);
+    // Remove from search index
+    searchService.removeSearchEntry(id);
   }
     
 }

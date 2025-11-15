@@ -101,12 +101,7 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     
     // Add to search index
     try {
-      // TODO: 
-      // const front = await getGlobalSetting(front.settingId);
-      // if (!front)
-      //   throw new Error('Invalid setting in Front.create()');
-
-      // await searchService.addOrUpdateFrontIndex(front, setting);
+      await searchService.addOrUpdateFrontIndex(front);
     } catch (error) {
       console.error('Failed to add front to search index:', error);
     }
@@ -466,8 +461,6 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
    * @returns A promise that resolves after the update
    */
   public async save(): Promise<void> {
-    const campaign = await this.loadCampaign();
-
     // we attempt to save first - because if it fails, we don't 
     //    want to adjust anything else
     try {
@@ -478,13 +471,7 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
 
     // Update the search index (rely on retval being null if no changes were made)
     try {
-      const setting = await getGlobalSetting(this.settingId);
-
-      //TODO
-      // if (!setting)
-      //   throw new Error('Setting not found in Session.save()');
-      
-      // await searchService.addOrUpdateSessionIndex(this, setting);
+      await searchService.addOrUpdateFrontIndex(this);
     } catch (error) {
       console.error('Failed to update search index:', error);
     }
@@ -506,8 +493,8 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     
     await toRaw(this._doc).delete();
 
-    // remove from the expanded list
-    await setting.deleteFrontFromSetting(id);
+    // Remove from search index
+    searchService.removeSearchEntry(id);
   }
     
 }

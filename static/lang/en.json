@@ -314,6 +314,7 @@
         "strongStartHelpText": "A strong start is a short, impactful event that sets the tone for the session. Click to read more from Lazy DM."
       },
       "front": {
+        "front": "Front",
         "motivation": "Motivation",
         "grimPortents": "Grim Portents",
         "participants": "Participants",
@@ -374,6 +375,7 @@
           "createNewDanger": "Create new Danger"
         },
         "arc": {
+          "arc": "Arc",
           "description": "Description"
         },
         "session": {

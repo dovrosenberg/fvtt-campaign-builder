@@ -41,7 +41,7 @@
           <!-- If there's a type use that, otherwise, use the topic -->
           <span class="fcb-search-result-name">
             {{ result.name }} 
-            <span class="fcb-search-result-topic-type">({{ result.resultType === 'entry' ? (result.type ? result.type : result.topic) : result.resultType === 'session' ? localize('labels.session.session') : localize('labels.pc.pc') }})</span>
+            <span class="fcb-search-result-topic-type">({{ getTag(result) }})</span>
           </span>
         </div>
       </div>
@@ -99,6 +99,19 @@
 
   ////////////////////////////////
   // methods
+  const getTag = (result: FCBSearchResult): string => {
+    switch (result.resultType) {
+      case 'entry':
+        return result.type ? result.type : result.topic;
+      case 'session':
+        return localize('labels.session.session');
+      case 'front':
+        return localize('labels.front.front');
+      case 'arc':
+        return localize('labels.arc.arc');
+    }
+    return '';
+  }
   
   /**
    * Performs a search with the current query
@@ -189,7 +202,20 @@
     searchQuery.value = '';
     
     // Open the selected entry - always a new tab
-    navigationStore.openEntry(result.uuid, { newTab: true, activate: true });
+    switch (result.resultType) {
+      case 'entry':
+        navigationStore.openEntry(result.uuid, { newTab: true, activate: true });
+        break;
+      case 'session':
+        navigationStore.openSession(result.uuid, { newTab: true, activate: true });
+        break;
+      case 'front':
+        navigationStore.openFront(result.uuid, { newTab: true, activate: true });
+        break;
+      case 'arc':
+        navigationStore.openArc(result.uuid, { newTab: true, activate: true });
+        break;
+    }
     
     // Emit the selected result
     emit('resultSelected', result.uuid);
