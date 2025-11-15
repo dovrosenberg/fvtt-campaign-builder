@@ -8,7 +8,6 @@ import { Campaign } from './Campaign';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Session } from './Session';
-import { SessionBasicIndex } from '@/types';
 import { getGlobalSetting } from '@/utils/globalSettings';
 
 type ArcDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Arc>;
@@ -105,14 +104,9 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     
     // Add to search index
     try {
-      // TODO: 
-      // const front = await getGlobalSetting(front.settingId);
-      // if (!front)
-      //   throw new Error('Invalid setting in Front.create()');
-
-      // await searchService.addOrUpdateFrontIndex(front, setting);
+      await searchService.addOrUpdateArcIndex(arc);
     } catch (error) {
-      console.error('Failed to add front to search index:', error);
+      console.error('Failed to add arc to search index:', error);
     }
 
     return arc;
@@ -491,13 +485,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
 
     // Update the search index (rely on retval being null if no changes were made)
     try {
-      const setting = await getGlobalSetting(this.settingId);
-
-      //TODO
-      // if (!setting)
-      //   throw new Error('Setting not found in Session.save()');
-      
-      // await searchService.addOrUpdateSessionIndex(this, setting);
+      await searchService.addOrUpdateArcIndex(this);
     } catch (error) {
       console.error('Failed to update search index:', error);
     }
@@ -515,9 +503,15 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     if (!campaign)
       throw new Error('Campaign not found in Front.delete()');
     
-    await campaign.deleteArc(this);
+    await campaign.deleteArc(this);  // removes from setting, too
     
     await toRaw(this._doc).delete();
+
+    // Remove from search index
+    searchService.removeSearchEntry(id);
+
+    // remove from the expanded list
+    await setting.deleteIdFromExpandedList(id);
   }
     
 }

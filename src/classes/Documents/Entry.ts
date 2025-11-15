@@ -455,11 +455,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     await setting.deleteEntryFromSetting(topicFolder, uuid);
 
     // Remove from search index
-    try {
-      searchService.removeEntry(uuid);
-    } catch (error) {
-      console.error('Failed to remove entry from search index:', error);
-    }
+    searchService.removeSearchEntry(uuid);
   }
 
       
