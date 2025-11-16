@@ -108,7 +108,7 @@
   };
 
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
-    const { data, newValue, field, originalEvent } = event;
+    const { data, newValue, field, } = event;
 
     switch (field) {
       case 'text':
@@ -116,7 +116,6 @@
         break;
 
       default:
-        originalEvent?.preventDefault();
         break;
     }  
   }

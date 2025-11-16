@@ -116,7 +116,7 @@
 
   // only applicable to the available lore table
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
-    const { data, newValue, field, originalEvent } = event;
+    const { data, newValue, field, } = event;
 
     switch (field) {
       case 'description':
@@ -124,7 +124,6 @@
         break;
 
       default:
-        originalEvent?.preventDefault();
         break;
     }  
   }
