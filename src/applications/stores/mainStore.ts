@@ -39,6 +39,9 @@ export const useMainStore = defineStore('main', () => {
   /** can set this to tell current entry tab to refresh everything */
   const refreshCurrentEntry = ref<boolean>(false);
 
+  /** whether the arc manager dialog is currently open */
+  const isArcManagerOpen = ref<boolean>(false);
+
   /** prep/play mode toggle - true for play mode, false for prep mode */
   const isInPlayMode = ref<boolean>(ModuleSettings.get(SettingKey.isInPlayMode));
 
@@ -385,6 +388,7 @@ export const useMainStore = defineStore('main', () => {
     currentTab,
     currentContentType,
     currentContentId,
+    isArcManagerOpen,
     rootFolder,
     currentSettingCompendium,
     refreshCurrentEntry,

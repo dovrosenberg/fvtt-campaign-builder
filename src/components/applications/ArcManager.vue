@@ -45,7 +45,8 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref, watch } from 'vue';
+  import { computed, ref, watch, onBeforeUnmount } from 'vue';
+  import { storeToRefs } from 'pinia';
   
   // local imports
   import { localize } from '@/utils/game';
@@ -79,12 +80,21 @@
   const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
+  const { isArcManagerOpen } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
   const campaign = ref<Campaign | null>(null);
   const arcs = ref<ArcBasicIndex[]>([]);
   const show = ref<boolean>(true);
+
+  watch(show, (isVisible) => {
+    isArcManagerOpen.value = isVisible;
+  }, { immediate: true });
+
+  onBeforeUnmount(() => {
+    isArcManagerOpen.value = false;
+  });
 
   ////////////////////////////////
   // computed data

@@ -5,8 +5,11 @@
 
   <div  
     class="fcb"
+    :class="{ 'is-disabled': isArcManagerOpen }"
     @click="onClickApplication"
   >
+    <!-- When the arc manager is open, bad things can happen if you start messing with sessions and then save -->
+    <div v-if="isArcManagerOpen" class="fcb-disabled-overlay"></div>
     <Splitter 
       ref="splitterRef"
       layout="horizontal" 
@@ -83,7 +86,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentSetting, rootFolder, } = storeToRefs(mainStore);
+  const { currentSetting, rootFolder, isArcManagerOpen } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -352,6 +355,19 @@
       flex-wrap: nowrap;
       padding: 0.1rem;
       user-select: text;  // enable most text to be able to be highlighted for copy/paste - critical for things like editors that aren't open
+      position: relative;
+
+      &.is-disabled {
+        filter: grayscale(0.5) brightness(0.8);
+      }
+
+      .fcb-disabled-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(20, 20, 20, 0.45);
+        z-index: 200;
+        pointer-events: all;
+      }
 
       // Sidebar 
       #fcb-directory-sidebar {
