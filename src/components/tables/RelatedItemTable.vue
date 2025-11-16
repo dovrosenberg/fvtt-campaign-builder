@@ -281,22 +281,22 @@
 
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, field, newValue } = event;
-    const uuid = data.uuid;
+    const uuid = data.uuid as string;
 
     const currentFullRow = relatedItemRows.value.find(r => r.uuid === uuid);
     if (!currentFullRow) {
-      throw new Error('Cannot find row in RelatedItemTable.onCellEditComplete:', uuid);
+      throw new Error('Cannot find row in RelatedItemTable.onCellEditComplete:' + uuid);
     }
 
     const relevantExtraFieldDefs = extraFields[currentEntryTopic.value]?.[props.topic] || [];
     if (!relevantExtraFieldDefs.length) {
-      throw new Error('Call to RelatedItemTable.onCellEditComplete without an extra field:', uuid);
+      throw new Error('Call to RelatedItemTable.onCellEditComplete without an extra field:' + uuid);
     }
 
     const extraFieldsToSave: Record<string, string> = { ...currentFullRow.extraFields }; // Start with existing extra fields
 
     // Update the changed field
-    extraFieldsToSave[field] = newValue;
+    extraFieldsToSave[field] = newValue as string;
     
     // Ensure all defined extra fields are present, defaulting to empty string if not set
     relevantExtraFieldDefs.forEach(def => {
