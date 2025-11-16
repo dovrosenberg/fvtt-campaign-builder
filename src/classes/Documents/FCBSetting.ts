@@ -507,21 +507,12 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     await this.save();
   }  
 
-  // remove a session from the setting metadata
-  public async deleteSessionFromSetting(sessionId: string) {
-    // Remove from expanded IDs
-    delete this.expandedIds[sessionId];
-    
-    // Remove from campaigns index
-    for (const campaign of this.campaignIndex) {
-      for (const arc of campaign.arcs) {
-        arc.sessions = arc.sessions.filter(s => s.uuid !== sessionId);
-      }
-    }
-    
+  
+  public async deleteIdFromExpandedList(id: string) {
+    delete this.expandedIds[id];
     await this.save();
   }
-
+  
   protected _prepData(data: SettingDocClass): void {
     // convert unsafe keys
     data.system.hierarchies = cleanKeysOnSave(data.system.hierarchies);

@@ -321,6 +321,8 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     this._clone.system.sessionIndex = this._clone.system.sessionIndex.filter(s => s.uuid !== session.uuid);
     await this.save();
 
+    // note: sessions are no longer stored on setting
+
     if (reset) {
       await this.resetCurrentSession();
     }
@@ -803,7 +805,17 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
           // remove from search results
           const sessions = await this.allSessions();
           for (const session of sessions) {
-            searchService.removeEntry(session.uuid);
+            searchService.removeSearchEntry(session.uuid);
+          }
+
+          const fronts = await this.allFronts();
+          for (const front of fronts) {
+            searchService.removeSearchEntry(front.uuid);
+          }
+
+          const arcs = this.arcIndex;
+          for (const arc of arcs) {
+            searchService.removeSearchEntry(arc.uuid);
           }
 
           // clear the email-to setting if it was set to this one
@@ -816,7 +828,17 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
           // add to search
           const sessions = await this.allSessions();
           for (const session of sessions) {
-            searchService.addOrUpdateSessionIndex(session, setting);
+            searchService.addOrUpdateSessionIndex(session);
+          }
+
+          const fronts = await this.allFronts();
+          for (const front of fronts) {
+            searchService.addOrUpdateFrontIndex(front);
+          }
+
+          for (const index of this.arcIndex) {
+            const arc = await Arc.fromUuid(index.uuid);
+            searchService.addOrUpdateArcIndex(arc!);
           }
         }
       }
