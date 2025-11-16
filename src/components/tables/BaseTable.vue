@@ -273,6 +273,7 @@
   // library components
   import Button from 'primevue/button';
   import DataTable, {
+    DataTableCellEditInitEvent,
     DataTableRowContextMenuEvent,
     DataTableRowSelectEvent,
     type DataTableFilterMetaData,
@@ -285,7 +286,10 @@
   import Checkbox from 'primevue/checkbox';
 
   // types
-  import { TablePagination, BaseTableGridRow, ActionButtonDefinition, CellEditCompleteEvent, RowEditCompleteEvent } from '@/types';
+  import { 
+    TablePagination, BaseTableGridRow, ActionButtonDefinition, 
+    CellEditCompleteEvent, RowEditCompleteEvent 
+  } from '@/types';
 
 
   ////////////////////////////////
@@ -357,6 +361,7 @@
     (e: 'rowSelect', originalEvent: DataTableRowSelectEvent): void;
     (e: 'addItem'): void;
     (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
+    (e: 'cellEditInit'): void;
     (e: 'cellEditComplete', originalEvent: CellEditCompleteEvent): void;
     (e: 'rowEditComplete', originalEvent: RowEditCompleteEvent): void;
     (e: 'markItemDelivered', uuid: string): void;
@@ -452,6 +457,7 @@
     }
 
     emit('setEditingRow', uuid);
+    emit('cellEditInit');
   };
 
   const cancelEdit = () => {
