@@ -501,7 +501,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       throw error;
     }
 
-    // update indexes
+    // update indexes (and arcs if needed)
     await campaign.updateSession(this);
 
     let sessionItem = campaign.sessionIndex.find((e)=> e.uuid === this.uuid);

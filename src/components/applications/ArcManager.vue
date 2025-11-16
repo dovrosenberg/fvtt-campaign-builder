@@ -508,6 +508,8 @@
 
         if (!arc)
           throw new Error('Failed to create arc in ArcManager.onSubmitClick()');
+
+        arcIndex.uuid = arc.uuid;
       }
 
       const nameChange = arc.name !== arcIndex.name;

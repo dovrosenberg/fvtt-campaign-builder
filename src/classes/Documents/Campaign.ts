@@ -10,7 +10,7 @@ import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEnt
 import { JournalEntryFlagKey } from '@/settings';
 import { searchService } from '@/utils/search';
 import { getGlobalSetting } from '@/utils/globalSettings';
-import { getLastArcWithSessions } from '@/utils/arcIndex';
+import { getArcForSession, getFirstArcWithSessions, getLastArcWithSessions } from '@/utils/arcIndex';
 
 type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
 
@@ -52,6 +52,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return allFronts;
   }
 
+  /** Finds the new highest session and updates the campaign to mark that as current */
   public async resetCurrentSession(): Promise<void> {
     // find the uuid of the one with the highest number
     const maxSessionInfo = this.sessionIndex
@@ -159,8 +160,72 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     sessionIndex.name = session.name;
     sessionIndex.date = session.date;
     await this.save();
+
+    await this.updateArcsForNewSessionNumber(session.number);
   }
 
+
+  /**
+   * Ensures the new session number falls inside the current arc coverage.  If not, adjusts the 
+   * arcs as needed.
+   * 
+   * @param newNumber - The new session number
+   */
+  private async updateArcsForNewSessionNumber(newSessionNumber: number): Promise<void> {
+    // see if it's fine already
+    if (getArcForSession(this.arcIndex, newSessionNumber) != null) 
+      return;
+
+    // see if it's too high and/or too low 
+    const firstArcIndex = getFirstArcWithSessions(this.arcIndex);
+    const lastArcIndex = getLastArcWithSessions(this.arcIndex);
+    
+    if (!firstArcIndex || !lastArcIndex) {
+      // no arcs - this shouldn't happen
+      throw new Error('No arcs found in Campaign.updateArcsForNewSessionNumber()');
+    }
+
+    let covered = false;
+    if (newSessionNumber < firstArcIndex.startSessionNumber) {
+      // Need to extend the first arc backwards
+      const firstArc = await Arc.fromUuid(firstArcIndex.uuid);
+      if (!firstArc)
+        throw new Error('First arc not found in Campaign.updateArcsForNewSessionNumber()');
+
+      firstArcIndex.startSessionNumber = newSessionNumber;
+      await firstArc.save();
+      covered = true;
+    }
+
+    if (newSessionNumber > lastArcIndex.endSessionNumber) {
+      // Need to extend the last arc forwards
+      const lastArc = await Arc.fromUuid(lastArcIndex.uuid);
+      if (!lastArc)
+        throw new Error('Last arc not found in Campaign.updateArcsForNewSessionNumber()');
+
+      lastArcIndex.endSessionNumber = newSessionNumber;
+      await lastArc.save();
+      covered = true;
+    }
+
+    // the last possibility is it falls between two arcs... this really shouldn't happen because
+    //    we don't allow holes in the arc numbering even if sessions are missing, but just in case
+    if (!covered) {
+      // find the last arc with an end below this number and extend it up to cover
+      for (let i = this.arcIndex.length - 1; i >= 0; i--) {
+        if (this.arcIndex[i].endSessionNumber < newSessionNumber) {
+          const arc = await Arc.fromUuid(this.arcIndex[i].uuid);
+          if (!arc) {
+            throw new Error('Arc not found in Campaign.updateArcsForNewSessionNumber()');
+          }
+
+          arc.endSessionNumber = newSessionNumber;
+          await arc.save();          
+        }
+      }
+    }
+  }
+  
   /** register the arc on the campaign and setting; also set the sort order */
   public async addArc(arc: Arc): Promise<void> {
     const sortOrder = this._clone.system.arcIndex.length;
