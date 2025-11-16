@@ -8,6 +8,7 @@
 - Fixed bug where changes to referenced document names wasn't always updating the names referenced in campaign builder.
 - You can now properly open sessions from the search results.
 - Type groups now expand if needed to highlight the current entry in the tree when a character is opened in a tab.
+- When PCs are related to character entries, there is now a "relationship" field.
 
 ## v1.5.4 - Fixed migration bug 
 ![](https://img.shields.io/badge/release%20date-November%2015%2C%202025-blue)
