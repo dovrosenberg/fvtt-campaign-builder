@@ -376,7 +376,14 @@
         },
         "arc": {
           "arc": "Arc",
-          "description": "Description"
+          "description": "Description",
+          "pcs": "PCs",
+          "lore": "Lore",
+          "vignettes": "Vignettes",
+          "locations": "Locations",
+          "npcs": "NPCs",
+          "monsters": "Monsters",
+          "magic": "Magic Items"
         },
         "session": {
           "notes": "Notes",
@@ -672,6 +679,8 @@
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",
       "moveToCampaign": "Move to campaign for later usage",
+      "moveToArc": "Move to arc for later usage",
+      "moveToLatestArc": "Move to latest arc",
       "addToCampaign": "Add to campaign",
       "addToASession": "Add to a session",
       "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",

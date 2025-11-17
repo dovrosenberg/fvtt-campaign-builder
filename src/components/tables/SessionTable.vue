@@ -97,7 +97,7 @@
       type: String,
       default: '',
     },
-    showMoveToCampaign: {
+    showMoveToArc: {
       type: Boolean,
       default: false,
     },
@@ -116,11 +116,11 @@
     (e: 'deleteItem', uuid: string): void;
     (e: 'addItem'): void;
     (e: 'cellEditComplete', originalEvent: CellEditCompleteEvent): void;
-    (e: 'rowContextMenu', originalEvent: RowContextMenuEvent): void;
+    (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
     (e: 'markItemDelivered', uuid: string): void;
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;
-    (e: 'moveToCampaign', uuid: string): void;
+    (e: 'moveToArc', uuid: string): void;
     (e: 'dragstart', event: DragEvent, uuid: string): void;
     (e: 'dropRow', event: DragEvent, uuid: string): void;
     (e: 'dropNew', event: DragEvent): void;
@@ -149,48 +149,47 @@
   });
 
   const actions = computed(() => {
-    const actions = [] as ActionButtonDefinition[];
-    if (props.allowDelete)
-      actions.push({ icon: 'fa-trash', callback: (data) => emit('deleteItem', data.uuid), tooltip: props.deleteItemLabel });
-
-    if (props.allowEdit)
-      actions.push({ 
+    return [
+      {
+        icon: 'fa-trash', 
+        display: () => props.allowDelete,
+        callback: (data) => emit('deleteItem', data.uuid), 
+        tooltip: props.deleteItemLabel 
+      },
+      {
         icon: 'fa-pen', 
         isEdit: true, 
+        display: () => props.allowEdit,
         callback: (data) => emit('editItem', data.uuid), 
         tooltip: props.editItemLabel 
-    });
-
-    if (props.showMoveToCampaign)
-      actions.push({ 
+      },
+      { 
         icon: 'fa-arrow-up', 
+        display: (data) => props.showMoveToArc && !data.delivered, // hide arrow for things already delivered
+        callback: (data) => emit('moveToArc', data.uuid), 
+        tooltip: localize('tooltips.moveToArc') 
+      },
+
+      // deliver/undeliver buttons
+      { 
+        icon: 'fa-circle-check', 
         display: (data) => !data.delivered, // hide arrow for things already delivered
-        callback: (data) => emit('moveToCampaign', data.uuid), 
-        tooltip: localize('tooltips.moveToCampaign') 
-      });
-
-    // add the deliver/undeliver buttons
-    actions.push({ 
-      icon: 'fa-circle-check', 
-      display: (data) => !data.delivered, // hide arrow for things already delivered
-      callback: (data) => emit('markItemDelivered', data.uuid), 
-      tooltip: localize('tooltips.markAsDelivered') 
-    });
-    actions.push({ 
-      icon: 'fa-circle-xmark', 
-      display: (data) => data.delivered, 
-      callback: (data) => emit('unmarkItemDelivered', data.uuid), 
-      tooltip: localize('tooltips.unmarkAsDelivered') 
-    });
-    actions.push({ 
-      icon: 'fa-share', 
-      display: (data) => !data.delivered, // hide arrow for things already delivered
-      callback: (data) => emit('moveToNextSession', data.uuid), 
-      tooltip: localize('tooltips.moveToNextSession') 
-    });
-
-
-    return actions;
+        callback: (data) => emit('markItemDelivered', data.uuid), 
+        tooltip: localize('tooltips.markAsDelivered') 
+      },
+      { 
+        icon: 'fa-circle-xmark', 
+        display: (data) => data.delivered, 
+        callback: (data) => emit('unmarkItemDelivered', data.uuid), 
+        tooltip: localize('tooltips.unmarkAsDelivered') 
+      },
+      { 
+        icon: 'fa-share', 
+        display: (data) => !data.delivered, // hide arrow for things already delivered
+        callback: (data) => emit('moveToNextSession', data.uuid), 
+        tooltip: localize('tooltips.moveToNextSession') 
+      }
+    ];
   });
 
   ////////////////////////////////

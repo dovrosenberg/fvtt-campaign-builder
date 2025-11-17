@@ -1,7 +1,7 @@
 // represents a game session 
 
 import { toRaw } from 'vue';
-import { DOCUMENT_TYPES, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, } from '@/documents';
+import { ArcLocation, ArcLore, ArcMonster, ArcParticipant, DOCUMENT_TYPES, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
@@ -167,23 +167,19 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     this._clone.system.img = value;
   }
 
-  get locations(): SessionLocation[] {
+  get locations(): ArcLocation[] {
     return this._clone.system.locations || [];
   }
 
-  set locations(value: SessionLocation[] | readonly SessionLocation[]) {
+  set locations(value: ArcLocation[] | readonly ArcLocation[]) {
     this._clone.system.locations = value.slice();     // we clone it so it can't be edited outside
   }
 
-  async addLocation(uuid: string, delivered: boolean = false): Promise<void> {
+  async addLocation(uuid: string, notes: string = ''): Promise<void> {
     if (this._clone.system.locations.find(l=> l.uuid===uuid))
       return;
 
-    this._clone.system.locations.push({
-      uuid: uuid,
-      delivered: delivered
-    });
-
+    this._clone.system.locations.push({ uuid, notes });
     await this.save();
   }
 
@@ -192,106 +188,56 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     await this.save();
   }
 
-  async markLocationDelivered(uuid: string, delivered: boolean): Promise<void> {
-    const location = this._clone.system.locations.find((l) => l.uuid===uuid);
+  async updateLocationNotes(uuid: string, notes: string): Promise<void> {
+    const location = this._clone.system.locations.find(s=> s.uuid===uuid);
+
     if (!location)
       return;
-    
-    location.delivered = delivered; 
+
+    location.notes = notes;
 
     await this.save();
   }
 
-  get npcs(): SessionNPC[] {
-    return this._clone.system.npcs || [];
+  get participants(): ArcParticipant[] {
+    return this._clone.system.participants || [];
   }
 
-  set npcs(value: SessionNPC[] | readonly SessionNPC[]) {
-    this._clone.system.npcs = value.slice();     // we clone it so it can't be edited outside
+  set participants(value: ArcParticipant[] | readonly ArcParticipant[]) {
+    this._clone.system.participants = value.slice();     // we clone it so it can't be edited outside
   }
 
-  async addNPC(uuid: string, delivered: boolean = false): Promise<void> {
-    if (this._clone.system.npcs.find(l=> l.uuid===uuid))
+  async addParticipant(uuid: string, notes: string = ''): Promise<void> {
+    if (this._clone.system.participants.find(l=> l.uuid===uuid))
       return;
 
-    this._clone.system.npcs.push({
-      uuid: uuid,
-      delivered: delivered
-    });
+    this._clone.system.participants.push({uuid, notes});
 
     await this.save();
   }
 
-  async deleteNPC(uuid: string): Promise<void> {
-    this._clone.system.npcs = this._clone.system.npcs.filter(l=> l.uuid!==uuid);
+  async deleteParticipant(uuid: string): Promise<void> {
+    this._clone.system.participants = this._clone.system.participants.filter(l=> l.uuid!==uuid);
 
     await this.save();
   }
 
-  async markNPCDelivered(uuid: string, delivered: boolean): Promise<void> {
-    const npc = this._clone.system.npcs.find((l) => l.uuid===uuid);
-    if (!npc)
-      return;
-    
-    npc.delivered = delivered;
+  async updateParticipantNotes(uuid: string, notes: string): Promise<void> {
+    const participant = this._clone.system.participants.find(s=> s.uuid===uuid);
 
-    await this.save();
-  }
-
-  get vignettes(): SessionVignette[] {
-    return this._clone.system.vignettes || [];
-  }
-
-  set vignettes(value: SessionVignette[] | readonly SessionVignette[]) {
-    this._clone.system.vignettes = value.slice();     // we clone it so it can't be edited outside
-  }
-
-  async addVignette(description: string): Promise<string> {
-    const uuid = foundry.utils.randomID();
-
-    this._clone.system.vignettes.push({
-      uuid: uuid,
-      description: description,
-      delivered: false
-    });
-
-    await this.save();
-    return uuid;
-  }
-
-  async updateVignetteDescription(uuid: string, description: string): Promise<void> {
-    const vignette = this._clone.system.vignettes.find(s=> s.uuid===uuid);
-
-    if (!vignette)
+    if (!participant)
       return;
 
-    vignette.description = description;
+    participant.notes = notes;
 
     await this.save();
   }
 
-
-  async deleteVignette(uuid: string): Promise<void> {
-    this._clone.system.vignettes = this._clone.system.vignettes.filter(l=> l.uuid!==uuid);
-
-    await this.save();
-  }
-
-  async markVignetteDelivered(uuid: string, delivered: boolean): Promise<void> {
-    const vignette = this._clone.system.vignettes.find((s) => s.uuid===uuid);
-    if (!vignette)
-      return;
-    
-    vignette.delivered = delivered;
-
-    await this.save();
-  }
-
-  get lore(): SessionLore[] {
+  get lore(): ArcLore[] {
     return this._clone.system.lore || [];
   }
 
-  set lore(value: SessionLore[] | readonly SessionLore[]) {
+  set lore(value: ArcLore[] | readonly ArcLore[]) {
     this._clone.system.lore = value.slice();     // we clone it so it can't be edited outside
   }
 
@@ -301,8 +247,6 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     this._clone.system.lore.push({
       uuid: uuid,
       description: description,
-      delivered: false,
-      significant: false,
       journalEntryPageId: null,
       sortOrder: this._clone.system.lore.length,
     });
@@ -340,54 +284,30 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     await this.save();
   }
 
-  async markLoreSignificant(uuid: string, significant: boolean): Promise<void> {
-    const lore = this._clone.system.lore.find((l) => l.uuid===uuid);
-    if (!lore)
-      return;
-    
-    lore.significant = significant;
-
-    await this.save();
-  }
-
-  async markLoreDelivered(uuid: string, delivered: boolean): Promise<void> {
-    const lore = this._clone.system.lore.find((l) => l.uuid===uuid);
-    if (!lore)
-      return;
-    
-    lore.delivered = delivered;
-
-    await this.save();
-  }
-
-  get monsters(): SessionMonster[] {
+  get monsters(): ArcMonster[] {
     return this._clone.system.monsters || [];
   }
 
-  set monsters(value: SessionMonster[] | readonly SessionMonster[]) {
+  set monsters(value: ArcMonster[] | readonly ArcMonster[]) {
     this._clone.system.monsters = value.slice();     // we clone it so it can't be edited outside
   }
 
-  async addMonster(uuid: string, number = 1): Promise<void> {
+  async addMonster(uuid: string, notes: string = ''): Promise<void> {
     if (this._clone.system.monsters.find(l=> l.uuid===uuid))
       return;
 
-    this._clone.system.monsters.push({
-      uuid: uuid,
-      number: number,
-      delivered: false
-    });
+    this._clone.system.monsters.push({ uuid, notes });
 
     await this.save();
   }
 
-  async updateMonsterNumber(uuid: string, value: number): Promise<void> {
+  async updateMonsterNotes(uuid: string, notes: string): Promise<void> {
     const monster = this._clone.system.monsters.find(l=> l.uuid===uuid);
 
     if (!monster)
       return;
 
-    monster.number = value;
+    monster.notes = notes;
 
     await this.save();
   }
@@ -395,50 +315,6 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
   async deleteMonster(uuid: string): Promise<void> {
     this._clone.system.monsters = this._clone.system.monsters.filter(l=> l.uuid!==uuid);
 
-    await this.save();
-  }
-
-  async markMonsterDelivered(uuid: string, delivered: boolean): Promise<void> {
-    const monster = this._clone.system.monsters.find((l) => l.uuid===uuid);
-    if (!monster)
-      return;
-    
-    monster.delivered = delivered;
-
-    await this.save();
-  }
-
-  get items(): SessionItem[] {
-    return this._clone.system.items || [];
-  }
-
-  set items(value: SessionItem[] | readonly SessionItem[]) {
-    this._clone.system.items = value.slice();     // we clone it so it can't be edited outside
-  }
-
-  async addItem(uuid: string): Promise<void> {
-    if (this._clone.system.items.find(i=> i.uuid===uuid))
-      return;
-
-    this._clone.system.items.push({
-      uuid: uuid,
-      delivered: false
-    });
-
-    await this.save();
-  }
-
-  async deleteItem(uuid: string): Promise<void> {
-    this._clone.system.items = this._clone.system.items.filter(i=> i.uuid!==uuid);
-    await this.save();
-  }
-
-  async markItemDelivered(uuid: string, delivered: boolean): Promise<void> {
-    const item = this._clone.system.items.find((i) => i.uuid===uuid);
-    if (!item)
-      return;
-    
-    item.delivered = delivered;
     await this.save();
   }
 
