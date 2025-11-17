@@ -140,12 +140,10 @@
   const tabs = computed(() => [
     { id: 'description', label: localize('labels.tabs.arc.description')},
     { id: 'lore', label: localize('labels.tabs.arc.lore')},
-    { id: 'vignettes', label: localize('labels.tabs.arc.vignettes')},
     { id: 'locations', label: localize('labels.tabs.arc.locations')},
-    { id: 'npcs', label: localize('labels.tabs.arc.npcs')},
-    { id: 'monsters', label: localize('labels.tabs.arc.monsters')},
-    { id: 'magic', label: localize('labels.tabs.arc.magic')},
-    { id: 'pcs', label: localize('labels.tabs.arc.pcs')},
+    { id: 'participants', label: localize('labels.tabs.arc.participants')},
+    { id: 'monsters', label: localize('labels.tabs.arc.monsters')}
+    { id: 'ideas', label: localize('labels.tabs.arc.ideas')}
   ] as ContentTabDescriptor[]);
 
   ////////////////////////////////

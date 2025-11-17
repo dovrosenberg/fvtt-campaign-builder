@@ -12,7 +12,6 @@
     help-link="https://slyflourish.com/sharing_secrets.html"
     :can-reorder="true"
     @add-item="onAddLore"
-    @delete-item="onDeleteLore"
     @cell-edit-complete="onCellEditComplete"
     @dragover-new="onDragover"
     @dragover-row="onDragover"
