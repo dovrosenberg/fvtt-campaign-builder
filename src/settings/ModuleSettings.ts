@@ -104,7 +104,7 @@ export class ModuleSettings {
     await game.settings.set(moduleId, setting, value as SettingKeyType<setting>);
   }
 
-  private static registerSetting(settingKey: SettingKey, settingConfig: ClientSettings.RegisterOptions<string | boolean>) {
+  private static registerSetting(settingKey: SettingKey, settingConfig: ClientSettings.RegisterData<string | boolean, 'campaign-builder', any>) {
     game.settings.register(moduleId, settingKey, settingConfig);
   }
 
@@ -364,21 +364,11 @@ export class ModuleSettings {
       const { settingID, ...settings} = ModuleSettings.menuParams[i];
 
       ModuleSettings.registerMenu(settingID, {
-        ...settings,
-        name: settings.name ? localize(settings.name) : '',
-        hint: settings.hint ? localize(settings.hint) : '',
+        ...settings,        
+        name: settings.name ? localize(settings.name) as string : '',
+        hint: settings.hint ? localize(settings.hint) as string : '',
         restricted: false,
-      });
-    }
-
-    for (let i=0; i<ModuleSettings.localMenuParams.length; i++) {
-      const { settingID, ...settings} = ModuleSettings.localMenuParams[i];
-      ModuleSettings.registerMenu(settingID, {
-        ...settings,
-        name: settings.name ? localize(settings.name) : '',
-        hint: settings.hint ? localize(settings.hint) : '',
-        restricted: false,
-      });
+      } as ClientSettings.RegisterSubmenu);
     }
 
     for (let i=0; i<ModuleSettings.localMenuParams.length; i++) {
@@ -399,7 +389,7 @@ export class ModuleSettings {
         hint: settings.hint ? localize(settings.hint) : '',
         scope: 'world',
         config: true,
-      } as ClientSettings.RegisterOptions<string | boolean>);
+      } as ClientSettings.RegisterData<string | boolean, 'campaign-builder', any>);
     }
 
     for (let i=0; i<ModuleSettings.localDisplayParams.length; i++) {
@@ -410,7 +400,7 @@ export class ModuleSettings {
         hint: settings.hint ? localize(settings.hint) : '',
         scope: 'client',
         config: true,
-      } as ClientSettings.RegisterOptions<string | boolean>);
+      } as ClientSettings.RegisterData<string | boolean, 'campaign-builder', any>);
     }
 
     for (let i=0; i<ModuleSettings.internalParams.length; i++) {
@@ -419,7 +409,7 @@ export class ModuleSettings {
         ...settings,
         scope: 'world',
         config: false,
-      } as ClientSettings.RegisterOptions<string | boolean>);
+      } as ClientSettings.RegisterData<string | boolean, 'campaign-builder', any>);
     }
 
     for (let i=0; i<ModuleSettings.localInternalParams.length; i++) {
@@ -428,7 +418,7 @@ export class ModuleSettings {
         ...settings,
         scope: 'client',
         config: false,
-      } as ClientSettings.RegisterOptions<string | boolean>);
+      } as ClientSettings.RegisterData<string | boolean, 'campaign-builder', any>);
     }
   }
 }

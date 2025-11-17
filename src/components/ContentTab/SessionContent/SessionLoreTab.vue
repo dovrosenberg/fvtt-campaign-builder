@@ -45,13 +45,13 @@
   
   ////////////////////////////////
   // props
-  const props = defineProps<{
+  const props = defineProps({
     arcMode: {
       type: Boolean,
       required: false,
       default: false,
     }
-  }>();
+  });
 
   ////////////////////////////////
   // emits
