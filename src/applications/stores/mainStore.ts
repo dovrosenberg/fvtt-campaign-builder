@@ -401,6 +401,7 @@ export const useMainStore = defineStore('main', () => {
     refreshCampaign,
     refreshSession,
     refreshSetting,
+    refreshArc,
     refreshFront,
     refreshCurrentContent,
     getAllSettings,

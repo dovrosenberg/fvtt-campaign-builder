@@ -9,7 +9,7 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { RelatedPCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea, SessionBasicIndex} from '@/types';
+import { RelatedPCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea,} from '@/types';
 import { Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import Document from 'node_modules/@types/fvtt-types/src/foundry/common/abstract/document.mjs';
@@ -61,7 +61,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     [CampaignTableTypes.Idea]: [
       { field: 'text', style: 'text-align: left', header: 'Idea', sortable: true, editable: true },
     ],
-  } as Record<CampaignTableTypes, FieldData>;
+  } as Record<CampaignTableTypes, FieldData[]>;
 
   ///////////////////////////////
   // other stores

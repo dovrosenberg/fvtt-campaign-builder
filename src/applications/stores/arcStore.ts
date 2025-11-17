@@ -5,11 +5,8 @@ import { ref, watch, } from 'vue';
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { useCampaignDirectoryStore, useMainStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
+import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
-import { localize } from '@/utils/game'; 
-import { htmlToPlainTextReplaceUuid } from '@/utils/sanitizeHtml';
-import { getArcForSession } from '@/utils/arcIndex';
 
 // types
 import { 
@@ -18,13 +15,13 @@ import {
   ArcParticipantDetails, 
   ArcMonsterDetails, 
   ArcLoreDetails,
-  ToDoTypes,
   Idea,
+  Topics,
 } from '@/types';
-import { ArcLore, SessionVignette } from '@/documents';
+import { ArcLore, } from '@/documents';
 
-import { Arc, Entry, Session } from '@/classes';
-import { getTopicText } from 'src/compendia';
+import { Entry, } from '@/classes';
+import { getTopicText } from '@/compendia';
 
 export enum ArcTableTypes {
   None,
@@ -40,9 +37,9 @@ export const useArcStore = defineStore('arc', () => {
   ///////////////////////////////
   // the state
   // used for tables
-  const relatedLocationRows = ref<ArcLocationDetails[]>([]);
-  const relatedParticipantRows = ref<ArcParticipantDetails[]>([]);
-  const relatedMonsterRows = ref<ArcMonsterDetails[]>([]);
+  const locationRows = ref<ArcLocationDetails[]>([]);
+  const participantRows = ref<ArcParticipantDetails[]>([]);
+  const monsterRows = ref<ArcMonsterDetails[]>([]);
   const loreRows = ref<ArcLoreDetails[]>([]); 
   const ideaRows = ref<Idea[]>([]);
   
@@ -64,7 +61,6 @@ export const useArcStore = defineStore('arc', () => {
       { field: 'number', header: 'Number', editable: true, smallEditBox: true },
     ], 
     [ArcTableTypes.Lore]: [
-      { field: 'significant', header: 'Sig.', editable: true, type: 'boolean', tooltip: 'Mark as Significant/Insignificant', style: 'text-align: center; width: 40px; max-width: 40px' },
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
       { field: 'journalEntryPageName', style: 'text-align: left; width: 25%;max-width: 25%', header: 'Journal Page', editable: false,
         onClick: onJournalClick
@@ -73,14 +69,13 @@ export const useArcStore = defineStore('arc', () => {
     [ArcTableTypes.Idea]: [
       { field: 'text', style: 'text-align: left', header: 'Idea', sortable: true, editable: true },
     ],
-  } as unknown as Record<ArcTableTypes, FieldData>;
+  } as unknown as Record<ArcTableTypes, FieldData[]>;
 
   
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentContentTab, currentArc, } = storeToRefs(mainStore);
 
   ///////////////////////////////
@@ -121,25 +116,19 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
-   * Move a location to the last session in the arc.
-   * @param uuid the UUID of the location to move
+   * Copy a location to the last session in the arc.
+   * @param uuid the UUID of the location to copy
    */
-  const moveLocationToSession = async (uuid: string): Promise<void> => {
+  const copyLocationToSession = async (uuid: string): Promise<void> => {
     if (!currentArc.value)
       return;
 
-    // get the sessions for the arc
-
-    const lastSession = xxx;
+    const lastSession = await currentArc.value.getLastSession();
 
     if (!lastSession)
       return;
 
-    // have a next session - add there and delete here
     await lastSession.addLocation(uuid);
-    await currentArc.value.deleteLocation(uuid);
-
-    await _refreshLocationRows();
   }
 
   /**
@@ -172,23 +161,24 @@ export const useArcStore = defineStore('arc', () => {
 
 
   /**
-   * Move a NPC to the next session in the campaign, creating it if needed.
-   * @param uuid the UUID of the character to move
+   * Copy a participant (only a character) to the last session in the arc.
+   * @param uuid the UUID of the participant to copy
    */
-  const moveNPCToNext = async (uuid: string): Promise<void> => {
-    if (!currentSession.value)
+  const copyParticipantToSession = async (uuid: string): Promise<void> => {
+    if (!currentArc.value)
       return;
 
-    const nextSession = await getNextSession();
+    const lastSession = await currentArc.value.getLastSession();
 
-    if (!nextSession)
+    if (!lastSession)
       return;
 
-    // have a next session - add there and delete here
-    await nextSession.addNPC(uuid);
-    await currentSession.value.deleteNPC(uuid);
-
-    await _refreshNPCRows();
+    // need to make sure it's a character
+    const character = await Entry.fromUuid(uuid);
+    if (!character || character.topic!=Topics.Character)
+      return;
+ 
+    await lastSession.addNPC(uuid);
   }
 
   /**
@@ -247,26 +237,25 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
-   * Move a lore to the next session in the campaign, creating it if needed.
+   * Move a lore to the last session in the arc.
    * @param uuid the UUID of the lore to move
    */
-  const moveLoreToNext = async (uuid: string): Promise<void> => {
-    if (!currentSession.value)
+  const moveLoreToSession = async (uuid: string): Promise<void> => {
+    if (!currentArc.value)
       return;
 
-    const nextSession = await getNextSession();
+    const lastSession = await currentArc.value.getLastSession();
 
-    if (!nextSession)
+    if (!lastSession)
       return;
 
-    const currentLore = currentSession.value.lore.find(l=> l.uuid===uuid);
+    const lore = currentArc.value.lore.find(l=> l.uuid===uuid);
 
-    if (!currentLore)
+    if (!lore)
       return;
 
-    // have a next session - add there and delete here
-    await nextSession.addLore(currentLore.description);
-    await currentSession.value.deleteLore(uuid);
+    await lastSession.addLore(lore.description);
+    await currentArc.value.deleteLore(uuid);
 
     await _refreshLoreRows();
   }
@@ -289,40 +278,9 @@ export const useArcStore = defineStore('arc', () => {
     if (!campaign) 
       return;
     
-    // have a next session - add there and delete here
+    // have a next campaign - add there and delete here
     await campaign.addLore(currentLore.description);
     await currentArc.value.deleteLore(uuid);
-
-    await _refreshLoreRows();
-  }
-
-  /**
-   * Move a lore back to the arc as unused.
-   * @param uuid the UUID of the lore to move
-   */
-  const moveLoreToArc = async (uuid: string): Promise<void> => {
-    if (!currentSession.value)
-      return;
-
-    const currentLore = currentSession.value.lore.find(l=> l.uuid===uuid);
-
-    if (!currentLore)
-      return;
-
-
-    const campaign = await currentSession.value.loadCampaign();
-
-    if (!campaign) 
-      return;
-
-    const arcIndex = getArcForSession(campaign.arcIndex, currentSession.value.number);
-    const arc = arcIndex ? await Arc.fromUuid(arcIndex.uuid) : null;
-    if (!arc)
-      return;
-    
-    // have a next session - add there and delete here
-    await arc.addLore(currentLore.description);
-    await currentSession.value.deleteLore(uuid);
 
     await _refreshLoreRows();
   }
@@ -356,40 +314,19 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
-   * Updates the number associated with a a monster row
-   * @param uuid the UUID of the actor
+   * Copy a monster to the last session in the arc.
+   * @param uuid the UUID of the monster to copy
    */
-  const updateMonsterNumber = async (uuid: string, value: number): Promise<void> => {
-    if (!currentSession.value)
-      throw new Error('Invalid session in sessionStore.updateMonsterNumber()');
-
-    await currentSession.value.updateMonsterNumber(uuid, value);
-    await _refreshMonsterRows();
-  }
-
-  /**
-   * Move a monster to the next session in the campaign, creating it if needed.
-   * @param uuid the UUID of the actor to move
-   */
-  const moveMonsterToNext = async (uuid: string): Promise<void> => {
-    if (!currentSession.value)
+  const copyMonsterToSession = async (uuid: string): Promise<void> => {
+    if (!currentArc.value)
       return;
 
-    const currentMonster = currentSession.value.monsters.find(m=> m.uuid===uuid);
+    const lastSession = await currentArc.value.getLastSession();
 
-    if (!currentMonster)
+    if (!lastSession)
       return;
 
-    const nextSession = await getNextSession();
-
-    if (!nextSession)
-      return;
-
-    // have a next session - add there and delete here
-    await nextSession.addMonster(uuid, currentMonster.number);
-    await currentArc.value.deleteMonster(uuid);
-
-    await _refreshMonsterRows();
+    await lastSession.addMonster(uuid);
   }
 
   const reorderLore = async (reorderedLore: ArcLore[]) => {
@@ -439,7 +376,7 @@ export const useArcStore = defineStore('arc', () => {
   // when we click on a parent, open the entry
   async function onParentClick (event: MouseEvent, uuid: string) {
     // get entry Id
-    const parentId = relatedLocationRows.value.find(r=> r.uuid===uuid)?.parentId;
+    const parentId = locationRows.value.find(r=> r.uuid===uuid)?.parentId;
 
     if (parentId)
       navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true });
@@ -447,12 +384,11 @@ export const useArcStore = defineStore('arc', () => {
 
 
   // const _refreshRows = async () => {
-  //   relatedLocationRows.value = [];
-  //   relatedItemRows.value = [];
-  //   relatedNPCRows.value = [];
-  //   relatedMonsterRows.value = [];
-  //   vignetteRows.value = [];
+  //   locationRows.value = [];
+  //   participantRows.value = [];
+  //   locationRows.value = [];
   //   loreRows.value = [];
+  //   ideaRows.value = [];
 
   //   if (!currentSession.value)
   //     return;
@@ -479,22 +415,20 @@ export const useArcStore = defineStore('arc', () => {
 
       const parentId = await entry.getParentId();
       const parent = parentId ? await Entry.fromUuid(parentId) : null;
-      const cleanDescription = await htmlToPlainTextReplaceUuid(entry.description);
 
       if (entry) {
         retval.push({
           uuid: location.uuid,
-          delivered: location.delivered,
           name: entry.name, 
           type: entry.type,
           parent: parent?.name || '',
           parentId: parent?.uuid || null,
-          description: cleanDescription.substring(0, 99) + (cleanDescription.length>100 ? '...' : ''),
+          notes: location.notes,
         });
       }
     }
 
-    relatedLocationRows.value = retval;
+    locationRows.value = retval;
   }
 
 
@@ -509,18 +443,16 @@ export const useArcStore = defineStore('arc', () => {
       const entry = await Entry.fromUuid(participant.uuid);
 
       if (entry) {
-        const cleanDescription = await htmlToPlainTextReplaceUuid(entry.description);
-
         retval.push({
           uuid: participant.uuid,
           name: entry.name, 
           type: entry.type || getTopicText(entry.topic),
-          description: cleanDescription.substring(0, 99) + (cleanDescription.length>100 ? '...' : ''),
+          notes: participant.notes
         });
       }
     }
 
-    relatedParticipantRows.value = retval;
+    participantRows.value = retval;
   }
 
   const _refreshMonsterRows = async () => {
@@ -535,10 +467,8 @@ export const useArcStore = defineStore('arc', () => {
       if (entry) {
         retval.push({
           uuid: monster.uuid,
-          delivered: monster.delivered,
-          number: monster.number,
           name: entry.name, 
-          dragTooltip: localize('tooltips.dragMonsterFromSession'),
+          notes: monster.notes
         });
       } else {
         // the actor was deleted - remove it from our session
@@ -546,7 +476,7 @@ export const useArcStore = defineStore('arc', () => {
       }
     }
 
-    relatedMonsterRows.value = retval;
+    monsterRows.value = retval;
   }
 
   const _refreshLoreRows = async () => {
@@ -617,29 +547,27 @@ export const useArcStore = defineStore('arc', () => {
   ///////////////////////////////
   // return the public interface
   return {
-    relatedLocationRows,
-    relatedMonsterRows
+    locationRows,
     participantRows,
+    monsterRows,
+    ideaRows,
     loreRows,
     extraFields,
     addLocation,
     deleteLocation,
-    moveLocationToNext,
+    copyLocationToSession,
     addParticipant,
     deleteParticipant,
-    moveParticipantToNext,
+    copyParticipantToSession,
     addMonster,
     deleteMonster,
-    updateMonsterNumber,
-    moveMonsterToNext,
+    copyMonsterToSession,
     addLore,
     deleteLore,
     reorderLore,
     updateLoreDescription,
     updateLoreJournalEntry,
-    markLoreSignificant,
-    moveLoreToNext,
+    moveLoreToSession,
     moveLoreToCampaign,
-    moveLoreToArc,
   };
 });

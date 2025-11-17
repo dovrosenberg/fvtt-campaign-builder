@@ -2,7 +2,7 @@
  * An node representing a session in the campaign tree structures
  */
 
-import { CollapsibleNode, Session } from '@/classes';
+import { CollapsibleNode, } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { SessionBasicIndex, SessionDisplayMode } from '@/types';
 import { localize } from '@/utils/game';

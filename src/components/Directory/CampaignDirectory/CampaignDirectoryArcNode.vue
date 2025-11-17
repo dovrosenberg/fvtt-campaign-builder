@@ -56,13 +56,12 @@
   import { getTabTypeIcon } from '@/utils/misc';
 
   // library components
-  import ContextMenu from '@imengyu/vue3-context-menu';
   
   // local components
   import CampaignDirectorySessionNode from './CampaignDirectorySessionNode.vue';
   
   // types
-  import { CollapsibleNode, DirectoryArcNode, DirectorySessionNode } from '@/classes';
+  import { DirectoryArcNode, DirectorySessionNode } from '@/classes';
   import { WindowTabType } from '@/types';
   
   ////////////////////////////////
@@ -97,15 +96,6 @@
     return children.sort((a, b) => a.sessionNumber - b.sessionNumber);
   });
 
-  const onlyArc = computed((): boolean => {
-    const campaign = CollapsibleNode.currentSetting?.campaignIndex.find(c=> c.uuid===props.arcNode.parentId);
-
-    if (!campaign || campaign.arcs.length<2)
-      return true;
-    else
-      return false;
-  });
-
   ////////////////////////////////
   // methods
 
@@ -127,7 +117,7 @@
   // };
 
   // change arc
-  const onArcFolderClick = async (event: MouseEvent) => {
+  const onArcFolderClick = async (_event: MouseEvent) => {
     currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as DirectoryArcNode, !currentNode.value.expanded);
   };
 

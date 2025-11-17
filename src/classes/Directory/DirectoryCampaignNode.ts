@@ -2,7 +2,7 @@
  * A class representing an node representing a campaign in the campaign tree structures
  */
 
-import { ArcBasicIndex, SessionBasicIndex, } from '@/types';
+import { ArcBasicIndex, } from '@/types';
 import { Campaign, CollapsibleNode, DirectoryArcNode, DirectoryFrontFolder, DirectorySessionNode, } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 

@@ -166,6 +166,8 @@ export interface SessionBasicIndex {
   uuid: string;
   name: string; 
   number: number; 
+
+  /** ISO string */
   date: string | null;
 }
 

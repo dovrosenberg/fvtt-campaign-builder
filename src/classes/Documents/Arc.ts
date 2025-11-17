@@ -1,7 +1,7 @@
 // represents a game session 
 
 import { toRaw } from 'vue';
-import { ArcLocation, ArcLore, ArcMonster, ArcParticipant, DOCUMENT_TYPES, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, } from '@/documents';
+import { ArcLocation, ArcLore, ArcMonster, ArcParticipant, DOCUMENT_TYPES, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
@@ -21,10 +21,9 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     sortOrder: 0,
     customFields: {},
     locations: [],  
-    items: [],  
-    npcs: [],  
+    participants: [],  
     monsters: [],  
-    vignettes: [],  
+    ideas: [],
     lore: [],  
     img: '',   
     tags: [],
@@ -131,6 +130,18 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
 
   set endSessionNumber(value: number) {
     this._clone.system.endSessionNumber = value;
+  }
+
+  public async getLastSession(): Promise<Session | null> {
+    if (this.endSessionNumber==-1)
+      return null;
+
+    await this.loadCampaign();
+    const index = this.campaign?.sessionIndex.find(s=> s.number===this.endSessionNumber);
+    if (!index)
+      return null;
+
+    return (await Session.fromUuid(index.uuid)) || null;
   }
 
   get sortOrder(): number {

@@ -13,12 +13,12 @@ export interface ActionButtonDefinition {
   icon: string;
 
   /** receives the row */
-  callback: (data: Record<string, any> & { uuid: string }) => void;
+  callback: ((data: Record<string, any> & { uuid: string }) => void) | (() => void);
 
   tooltip: string;
 
   /** based on the data for the row, should it be displayed */
-  display?: (data: Record<string, any> & { uuid: string}) => boolean;
+  display?: undefined | ((data: Record<string, any> & { uuid: string}) => boolean) | (() => void);
 
   /** if true, pressing the button activates row edit mode */
   isEdit?: boolean;
@@ -30,7 +30,7 @@ export interface FieldData {
   editable?: boolean;
   style?: string;
   sortable?: boolean;
-}[];
+};
 
 export interface PaginationResult<T extends AnyRow> {
   rows: T[];
@@ -139,7 +139,7 @@ export interface RowEditCompleteEvent<T extends Record<string, any>=Record<strin
 
 export interface CellEditCompleteEvent<T=unknown> {
   /** the original row */
-  data: Record<string, unknown>,
+  data: Record<string, unknown> & { uuid: string },
 
   /** name of changed field */
   field: string,

@@ -211,6 +211,7 @@
     app.use(pinia);
 
     // this fixes a vue dev tools bug
+    // @ts-ignore
     if (import.meta.env.MODE === 'development') {
       // need to set _customProperties on all stores - use dynamic import to avoid the import in production
       const module = await import('@/applications/stores/index.ts');

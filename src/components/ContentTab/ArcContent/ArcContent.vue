@@ -92,7 +92,7 @@
   import { ref, watch, onBeforeUnmount, computed, } from 'vue';
 
   // local imports
-  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
+  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { SettingKey, } from '@/settings';
@@ -105,11 +105,9 @@
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import Editor from '@/components/Editor.vue';
   import SessionLocationTab from '@/components/ContentTab/SessionContent/SessionLocationTab.vue';
-  import SessionItemTab from '@/components/ContentTab/SessionContent/SessionItemTab.vue';
   import SessionNPCTab from '@/components/ContentTab/SessionContent/SessionNPCTab.vue';
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
-  import SessionVignetteTab from '@/components/ContentTab/SessionContent/SessionVignetteTab.vue';
-  import ArcLoreTab from '@/components/ContentTab/ArcContent/ArcLoreTab.vue';
+  import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
@@ -130,7 +128,6 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const playingStore = usePlayingStore();
   const { currentArc, } = storeToRefs(mainStore);
   
   ////////////////////////////////

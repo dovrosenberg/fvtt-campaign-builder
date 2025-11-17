@@ -102,10 +102,10 @@
 
     switch (field) {
       case 'number':
-        if (parseInt(newValue))  {
-          await sessionStore.updateMonsterNumber(data.uuid, parseInt(newValue));
+        if (parseInt(newValue as string))  {
+          await sessionStore.updateMonsterNumber(data.uuid, parseInt(newValue as string));
         } else {
-          originalEvent.preventDefault();
+          event.preventDefault();
         }
         break;
 

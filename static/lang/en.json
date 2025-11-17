@@ -678,6 +678,7 @@
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",
+      "copyToNextSession": "Move to next session",
       "moveToCampaign": "Move to campaign for later usage",
       "moveToArc": "Move to arc for later usage",
       "moveToLatestArc": "Move to latest arc",

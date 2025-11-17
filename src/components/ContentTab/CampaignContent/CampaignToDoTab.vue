@@ -112,7 +112,7 @@
 
     switch (field) {
       case 'text':
-        await campaignStore.updateToDoItem(data.uuid, newValue);
+        await campaignStore.updateToDoItem(data.uuid, newValue as string);
         break;
 
       default:

@@ -120,7 +120,7 @@
 
     switch (field) {
       case 'description':
-        await campaignStore.updateLoreDescription(data.uuid, newValue);
+        await campaignStore.updateLoreDescription(data.uuid, newValue as string);
         break;
 
       default:

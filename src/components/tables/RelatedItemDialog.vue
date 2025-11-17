@@ -67,13 +67,7 @@
 
   // types
   import { Topics, ValidTopic, RelatedItemDialogModes, ValidTopicRecord } from '@/types';
-  import { Entry, TopicFolder } from '@/classes';
-
-  interface ExtraFieldValue {
-    field: string;
-    header: string;
-    value: string;
-  };
+  import { Entry, } from '@/classes';
 
   interface ButtonProp {
     label: string;
@@ -227,7 +221,7 @@
     }
 
     buttons.push({
-      label: actionButtonLabel.value,
+      label: actionButtonLabel.value || '',
       disable: props.allowCreate && !isAddFormValid.value,
       default: true,
       close: true,

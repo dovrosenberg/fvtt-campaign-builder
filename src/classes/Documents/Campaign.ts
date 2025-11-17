@@ -158,7 +158,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
     sessionIndex.number = session.number;
     sessionIndex.name = session.name;
-    sessionIndex.date = session.date;
+    sessionIndex.date = session.date?.toISOString() || null;
     await this.save();
 
     await this.updateArcsForNewSessionNumber(session.number);

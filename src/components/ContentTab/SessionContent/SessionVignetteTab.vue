@@ -88,7 +88,7 @@
 
     switch (field) {
       case 'description':
-        await sessionStore.updateVignetteDescription(data.uuid, newValue);
+        await sessionStore.updateVignetteDescription(data.uuid, newValue as string);
         break;
 
       default:

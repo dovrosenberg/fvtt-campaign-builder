@@ -43,8 +43,8 @@
     uuid: string; 
     delivered: boolean;
   };
-  import { ActionButtonDefinition, CellEditCompleteEvent } from '@/types';
-  import  { DataTableRowContextMenuEvent, DataTableRowSelectEvent } from 'primevue/datatable';
+  import { CellEditCompleteEvent } from '@/types';
+  import { DataTableRowContextMenuEvent, DataTableRowSelectEvent } from 'primevue/datatable';
 
   ////////////////////////////////
   // props

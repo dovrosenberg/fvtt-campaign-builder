@@ -273,7 +273,6 @@
   // library components
   import Button from 'primevue/button';
   import DataTable, {
-    DataTableCellEditInitEvent,
     DataTableRowContextMenuEvent,
     DataTableRowSelectEvent,
     type DataTableFilterMetaData,

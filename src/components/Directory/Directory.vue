@@ -143,7 +143,7 @@
   // data
   const root = ref<HTMLElement>();
   const selectedSetting = ref<string | null>(currentSetting.value?.uuid || null);
-  const settingSelectRef = ref<Select | null>(null);
+  const settingSelectRef = ref<typeof Select | null>(null);
   
   ////////////////////////////////
   // computed data

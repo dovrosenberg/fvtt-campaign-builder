@@ -391,8 +391,6 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
    * @returns {Promise<void>} A promise that resolves after the update
    */
   public async save(): Promise<void> {
-    const needNameUpdate = this._clone.name !== this._doc.name;
-
     // we attempt to save first - because if it fails, we don't 
     //    want to adjust anything else
     try {
