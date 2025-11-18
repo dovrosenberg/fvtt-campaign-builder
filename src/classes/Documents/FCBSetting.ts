@@ -351,10 +351,9 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    * inside this setting
    * 
    * @param {(e: EntryFilterIndex) => boolean} filterFn - The filter function
-   * @param {boolean} fullEntry - return full Entry objects or just EntryFilterIndexes
-   * @returns {Entry[] | EntryFilterIndex[]} The entries that pass the filter (or simplified index versions, depending on fullEntry)
+   * @returns {Entry[]} The entries that pass the filter 
    */
-  public async filterEntries<T extends boolean>(filterFn: (e: EntryFilterIndex) => boolean, fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
+  public async filterEntries(filterFn: (e: EntryFilterIndex) => boolean): Promise<Entry[]> { 
     // get all the journal entries
     const indexEntries = await toRaw(this.compendium).getIndex(entryIndexFields());
 
@@ -376,9 +375,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
       // now filter by the function passed in 
       .filter((e: EntryFilterIndex)=> filterFn(e)) || [];
 
-    if (!fullEntry || entries.length===0)
-      // @ts-ignore - we know it's false and entries is a EntryFilterIndex[] or it's an empty array
-      return entries;
+    if (entries.length===0)
+      return [];
 
     let retval = [] as Entry[];
     for (let i=0; i<entries.length; i++) {
@@ -387,7 +385,6 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         retval.push(entry);
     }
 
-    // @ts-ignore - we know fullEntry is true and retval is an Entry[]
     return retval;
   }
 
@@ -396,10 +393,9 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    * inside this setting
    * 
    * @param {(e: SessionFilterIndex) => boolean} filterFn - The filter function
-   * @param {boolean} fullSession - return full Session objects or just SessionFilterIndexes
-   * @returns {Session[] | SessionFilterIndex[]} The sessions that pass the filter (or simplified index versions, depending on fullSession)
+   * @returns {Session[]} The sessions that pass the filter 
    */
-  public async filterSessions<T extends boolean>(filterFn: (s: SessionFilterIndex) => boolean, fullSession: T): Promise<T extends true ? Session[] : SessionFilterIndex[]> { 
+  public async filterSessions(filterFn: (s: SessionFilterIndex) => boolean): Promise<Session[]> { 
     // get all the journal entries
     const indexSessions = await toRaw(this.compendium).getIndex(sessionIndexFields());
 
@@ -421,9 +417,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
       // now filter by the function passed in 
       .filter((s: SessionFilterIndex)=> filterFn(s)) || [];
 
-    if (!fullSession || sessions.length===0)
-      // @ts-ignore - we know it's false and sessions is a SessionFilterIndex[] or it's an empty array
-      return sessions;
+    if (sessions.length===0)
+      return [];
 
     let retval = [] as Session[];
     for (let i=0; i<sessions.length; i++) {
@@ -432,7 +427,6 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         retval.push(session);
     }
 
-    // @ts-ignore - we know fullSession is true and retval is an Session[]
     return retval;
   }
 
@@ -441,8 +435,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    * 
    * @returns {Entry[]} The entries
    */
-  public async allEntries<T extends boolean>(fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
-    return await this.filterEntries(() => true, fullEntry);
+  public async allEntries(): Promise<Entry[]> { 
+    return await this.filterEntries(() => true);
   }
 
   /**
@@ -450,8 +444,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    * 
    * @returns {Session[]} The entries
    */
-  public async allSessions<T extends boolean>(fullSession: T): Promise<T extends true ? Session[] : SessionFilterIndex[]> { 
-    return await this.filterSessions(() => true, fullSession);
+  public async allSessions(): Promise<Session[]> { 
+    return await this.filterSessions(() => true);
   }
 
   public async collapseAll() {
@@ -601,7 +595,7 @@ private async deleteRollTables() : Promise<void> {
   public async deleteActorFromSetting(actorId: string)
    {
     // remove from any PCs that are linked to it
-    for (let pc of (await this.topicFolders[Topics.PC]!.filterEntries((e)=>e.actorId === actorId, true))) {
+    for (let pc of (await this.topicFolders[Topics.PC]!.filterEntries((e)=>e.actorId === actorId))) {
       pc.actorId = '';
       await pc.save();
     }
@@ -620,7 +614,7 @@ private async deleteRollTables() : Promise<void> {
     }
 
     // remove from any Characters that are linked to it
-    for (let character of (await this.topicFolders[Topics.Character]!.allEntries(true))) {
+    for (let character of (await this.topicFolders[Topics.Character]!.allEntries())) {
       // check the related documents
       for (let i=0; i<character.actors.length; i++) {
         if (character.actors[i] === actorId) {
@@ -634,7 +628,7 @@ private async deleteRollTables() : Promise<void> {
 
   public async deleteSceneFromSetting(sceneId: string) {
     // remove from any Locations that are linked to it
-    for (let locations of (await this.topicFolders[Topics.Location]!.allEntries(true))) {
+    for (let locations of (await this.topicFolders[Topics.Location]!.allEntries())) {
       // check the related documents
       for (let i=0; i<locations.scenes.length; i++) {
         if (locations.scenes[i] === sceneId) {
@@ -681,7 +675,7 @@ private async deleteRollTables() : Promise<void> {
 
     // remove from any Entries that are linked to it
     for (let topic of Object.values(this.topicFolders)) {
-      for (let entry of (await topic.allEntries(true))) {
+      for (let entry of (await topic.allEntries())) {
         if (entry.journals.find(j => j.journalUuid === journalId)) {
           entry.journals = entry.journals.filter(j => j.journalUuid !== journalId);
           await entry.save();
@@ -708,7 +702,7 @@ private async deleteRollTables() : Promise<void> {
 
     // remove from any Entries that are linked to it
     for (let topic of Object.values(this.topicFolders)) {
-      for (let entry of (await topic.allEntries(true))) {
+      for (let entry of (await topic.allEntries())) {
         if (entry.journals.find(j => j.pageUuid === journalId)) {
           entry.journals = entry.journals.filter(j => j.pageUuid !== journalId);
           await entry.save();

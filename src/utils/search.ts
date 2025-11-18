@@ -130,7 +130,7 @@ class SearchService {
     const items = [] as SearchableItem[];
 
     // add all the entries
-    const entries = await setting.allEntries(true);
+    const entries = await setting.allEntries();
       
     for (const entry of entries) {
       // Create a searchable item for each entry

@@ -49,12 +49,7 @@
             />
           </div>
         </DescriptionTab>
-        <div class="tab flexcol" data-group="primary" data-tab="pcs">
-          <div class="tab-inner">
-            <CampaignPCsTab />
-          </div>
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="npcs">
+        <div class="tab flexcol" data-group="primary" data-tab="participants">
           <div class="tab-inner">
             <ArcParticipantTab />
           </div>  
@@ -112,7 +107,7 @@
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import Editor from '@/components/Editor.vue';
   import SessionLocationTab from '@/components/ContentTab/SessionContent/SessionLocationTab.vue';
-  import SessionNPCTab from '@/components/ContentTab/SessionContent/SessionNPCTab.vue';
+  import ArcParticipantTab from '@/components/ContentTab/ArcContent/ArcParticipantTab.vue';
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
   import CampaignIdeasTab from '@/components/ContentTab/CampaignContent/CampaignIdeasTab.vue';

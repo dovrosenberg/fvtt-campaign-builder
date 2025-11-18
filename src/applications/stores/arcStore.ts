@@ -234,6 +234,18 @@ export const useArcStore = defineStore('arc', () => {
     await _refreshLoreRows();
   }
 
+    /**
+   * Updates the notes associated with a participant 
+   * @param uuid the UUID of the participant
+   */
+  const updateParticipantNotes = async (uuid: string, description: string): Promise<void> => {
+    if (!currentArc.value)
+      throw new Error('Invalid arc in arcStore.updateParticipantNotes()');
+
+    await currentArc.value.updateParticipantNotes(uuid, description);
+    await _refreshParticipantRows();
+  }
+
   /**
    * Deletes a lore from the arc
    * @param uuid the UUID of the l0ore
@@ -650,6 +662,7 @@ export const useArcStore = defineStore('arc', () => {
     addParticipant,
     deleteParticipant,
     copyParticipantToSession,
+    updateParticipantNotes,
     addMonster,
     deleteMonster,
     copyMonsterToSession,

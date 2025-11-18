@@ -62,7 +62,7 @@ export class TopicFolder {
    * @param {(e: EntryFilterIndex) => boolean} filterFn - The filter function
    * @returns {Entry[]} The entries that pass the filter
    */
-  public async filterEntries<T extends boolean>(filterFn: (s: EntryFilterIndex) => boolean, fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
+  public async filterEntries(filterFn: (s: EntryFilterIndex) => boolean): Promise<Entry[]> { 
     // TODO: we could make this more efficient if we wanted to 
     //    add actorId to the index and then calc id
     // get all the journal entries
@@ -73,7 +73,7 @@ export class TopicFolder {
       .filter((e)=> (
         // filter out just the ones that are in this folders' entries list
         !!e.pages && e.pages.length===1 &&
-        !!this.entryIndex.find((entry)=> entry.uuid === e.uuid)
+        this.entryIndex.some((entry)=> entry.uuid === e.uuid)
       ))
       .map((e) => ({ 
         name: e.name, 
@@ -88,8 +88,8 @@ export class TopicFolder {
       .filter((s: EntryFilterIndex)=> filterFn(s)) || [];
 
     // either fullEntry is false, so we return EntryFilterIndex or its an empty array
-    if (!fullEntry || entries.length===0)
-      return entries as T extends true ? Entry[] : EntryFilterIndex[];
+    if (entries.length===0)
+      return [];
     
     const idList = entries.map((e)=> e.id);
     const documentSet = await this.setting.compendium.getDocuments({ _id__in: idList });
@@ -102,16 +102,16 @@ export class TopicFolder {
     }
 
     // to get here, fullEntry must be true
-    return retval as T extends true ? Entry[] : EntryFilterIndex[];
+    return retval;
   }
   
   /**
    * Returns all the entries inside this topic
    * 
-   * @returns {Entry[] | EntryFilterIndex[]} The entries
+   * @returns {Entry[]} The entries
    */
-  public async allEntries<T extends boolean>(fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
-    return await this.filterEntries(() => true, fullEntry);
+  public async allEntries(): Promise<Entry[]> { 
+    return await this.filterEntries(() => true);
   }
 
    /**
@@ -121,7 +121,7 @@ export class TopicFolder {
    * @returns {Entry | null} The matching entry
    */
    public async findEntry(uuid: string): Promise<Entry | null> { 
-    const entries = await this.filterEntries((e)=> e.uuid === uuid, true);
+    const entries = await this.filterEntries((e)=> e.uuid === uuid);
 
     return entries.length>0 ? entries[0] : null
   }

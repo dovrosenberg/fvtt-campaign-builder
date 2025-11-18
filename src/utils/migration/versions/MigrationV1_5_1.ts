@@ -103,7 +103,7 @@ export class MigrationV1_5_1 implements Migration {
           [Topics.PC]: [] as EntryBasicIndex[],
         } as Record<ValidTopic, EntryBasicIndex[]>;
 
-        const entries = await setting.allEntries(true);
+        const entries = await setting.allEntries();
 
         for (const entry of entries) {
           newEntries[entry.topic].push({
@@ -124,7 +124,7 @@ export class MigrationV1_5_1 implements Migration {
         // have to use allSessions on setting to get them b/c the one on
         //    campaign filters by the (non-existent) index so we create temp index
         const tempIndex = [] as (SessionBasicIndex & { campaignId: string })[];
-        for (const session of await setting.allSessions(true)) {
+        for (const session of await setting.allSessions()) {
           tempIndex.push({
             campaignId: session.campaignId,
             uuid: session.uuid,

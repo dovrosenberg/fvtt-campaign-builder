@@ -290,6 +290,11 @@
         "type": "Type",
         "relationships": "Relationships"
       },
+      "arc": {
+        "addParticipant": "Add Participant",
+        "addParticipantDrag": "(or drag/drop a character/organization)",
+        "participantHelpText": "Characters and organizations likely to come up during the arc"
+      },
       "session": {
         "session": "Session",
         "pc": "PC",

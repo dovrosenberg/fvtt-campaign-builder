@@ -269,5 +269,21 @@ export default definePreset(Aura, {
         }
       },
     },
+    panel: {
+      colorScheme: {
+        light: {
+          background: fcbVariables.light.fcbSurface,
+          color: fcbVariables.light.fcbText,
+          headerColor: fcbVariables.light.fcbText,
+          borderColor: fcbVariables.light.fcbControlBorder,
+        },
+        dark: {
+          background: fcbVariables.dark.fcbSurface,
+          color: fcbVariables.dark.fcbText,
+          headerColor: fcbVariables.dark.fcbText,
+          borderColor: fcbVariables.dark.fcbControlBorder,
+        }
+      }
+    }
   }
 });

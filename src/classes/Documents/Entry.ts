@@ -456,71 +456,22 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     searchService.removeSearchEntry(uuid);
   }
 
-      
-  /**
-   * Find all journal entries of a given topic
-   * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
-   *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
-   *            improvements in lots of places
-   * @param topic the topic to search
-   * @param notRelatedTo if present, only return entries that are not already linked to this entry
-   * @returns a list of Entries
-   */
-  public static async getEntriesForTopic(topicFolder: TopicFolder, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
-    let entries: Entry[];
-    if (notRelatedTo) {
-      const relatedEntries = notRelatedTo.getAllRelatedEntries(topicFolder);
-      entries = await topicFolder.filterEntries((entry)=> (!relatedEntries.includes(entry.uuid) && entry.uuid !== notRelatedTo.uuid), true);
+  // /**
+  //  * Retrieves a list of all uuids that are linked to the current entry for a specified topic.
+  //  * 
+  //  * @param topic - The topic for which to retrieve related items.
+  //  * @returns An array of related uuids. Returns an empty array if there is no current entry.
+  //  */
+  // public getAllRelatedEntries(topicFolder: TopicFolder): string[] {
+  //   // get relationships
+  //   const relationships = this.relationships || {};
 
-    } else {
-      entries = await topicFolder.allEntries(true);
-    }
+  //   if (!relationships[topicFolder.topic])
+  //     return [];
 
-    return entries;
-  }
-  
-  /**
-   * Find all journal entries of a setting, regardless of topic
-   * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
-   *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
-   *            improvements in lots of places
-   * @param setting the setting to search
-   * @param notRelatedTo if present, only return entries that are not already linked to this entry
-   * @returns a list of Entries
-   */
-  public static async getEntriesForSetting(setting: FCBSetting, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
-    let entries: Entry[];
-    if (notRelatedTo) {
-      const topicFolder = setting.topicFolders[notRelatedTo.topic];
-      if (!topicFolder)
-        throw new Error('Can\'t find topic folder for topic in Entry.getEntriesForSetting');
-      
-      const relatedEntries = notRelatedTo.getAllRelatedEntries(topicFolder);
-      entries = await setting.filterEntries((entry)=> (!relatedEntries.includes(entry.uuid) && entry.uuid !== notRelatedTo.uuid), true);
-
-    } else {
-      entries = await setting.allEntries(true);
-    }
-
-    return entries;
-  }
-
-  /**
-   * Retrieves a list of all uuids that are linked to the current entry for a specified topic.
-   * 
-   * @param topic - The topic for which to retrieve related items.
-   * @returns An array of related uuids. Returns an empty array if there is no current entry.
-   */
-  public getAllRelatedEntries(topicFolder: TopicFolder): string[] {
-    // get relationships
-    const relationships = this.relationships || {};
-
-    if (!relationships[topicFolder.topic])
-      return [];
-
-    // if the flag has this topic, it's a Record keyed by uuid
-    return Object.keys(relationships[topicFolder.topic] || {});
-  }
+  //   // if the flag has this topic, it's a Record keyed by uuid
+  //   return Object.keys(relationships[topicFolder.topic] || {});
+  // }
 
   /** Adds the type to the list on the topic, if it's not there already.
    *  Requires the setting to be unlocked already

@@ -15,7 +15,6 @@
     @drop-new="onDropNew"
     @dragoverNew="onDragoverNew"
     @dragstart="onDragStart"
-    @move-to-next-session="onMoveMonsterToNext"
     @cell-edit-complete="onCellEditComplete"
   />
   <RelatedDocumentsDialog
