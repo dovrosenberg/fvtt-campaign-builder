@@ -85,7 +85,7 @@
     [WindowTabType.Campaign]: 'icons/svg/ruins.svg',
     [WindowTabType.Session]: 'icons/svg/combat.svg',
     [WindowTabType.Front]: 'icons/svg/biohazard.svg', 
-    [WindowTabType.Arc]: 'icons/svg/ruins.svg',
+    [WindowTabType.Arc]: 'icons/svg/bridge.svg',
   };
 
   const TOPIC_IMAGES = {

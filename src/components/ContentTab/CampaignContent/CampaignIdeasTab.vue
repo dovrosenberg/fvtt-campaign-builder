@@ -90,7 +90,7 @@
         icon: 'fa-arrow-down', 
         display: () => !props.arcMode,
         callback: (data) => onMoveToArc(data.uuid), 
-        tooltip: localize('tooltips.moveToLatestArc') 
+        tooltip: localize('tooltips.movetoLastArc') 
       },
       { 
         icon: 'fa-arrow-right', 

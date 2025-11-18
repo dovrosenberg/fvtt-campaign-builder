@@ -126,11 +126,18 @@
       tooltip: localize('tooltips.markAsDelivered') 
     },
 
+    // move to next arc
+    { 
+      icon: 'fa-arrow-down', 
+      display: (data) => !data.delivered, // hide arrow for things already delivered
+      callback: (data) => moveLoreToArc(data.uuid), 
+      tooltip: localize('tooltips.movetoLastArc') 
+    },
     // move to next session
     { 
       icon: 'fa-share', 
       display: (data) => !data.delivered, // hide arrow for things already delivered
-      callback: (data) => onMoveLoreToNext(data.uuid), 
+      callback: (data) => moveLoreToLastSession(data.uuid), 
       tooltip: localize('tooltips.moveToNextSession') 
     }
   ]));
@@ -207,8 +214,12 @@
     await campaignStore.markLoreDelivered(uuid, false);
   }
 
-  const onMoveLoreToNext = async (uuid: string) => {
+  const moveLoreToLastSession = async (uuid: string) => {
     await campaignStore.moveLoreToLastSession(uuid);
+  }
+
+  const moveLoreToArc = async (uuid: string) => {
+    await campaignStore.moveLoreToArc(uuid);
   }
 
   const onDragover = (event: DragEvent) => {

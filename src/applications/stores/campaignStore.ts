@@ -10,7 +10,7 @@ import { FCBDialog } from '@/dialogs';
 
 // types
 import { RelatedPCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea,} from '@/types';
-import { Campaign, Entry, Session } from '@/classes';
+import { Arc, Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import Document from 'node_modules/@types/fvtt-types/src/foundry/common/abstract/document.mjs';
 import { notifyWarn } from '@/utils/notifications';
@@ -250,7 +250,32 @@ export const useCampaignStore = defineStore('campaign', () => {
       await _refreshLoreRows();
     }
 
-  const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> => {
+    /**
+     * Move a lore to the last arc in the campaign
+     * @param uuid the UUID of the lore to move
+     */
+    const moveLoreToArc = async (uuid: string): Promise<void> => {
+      if (!currentCampaign.value || currentCampaign.value.arcIndex.length===0)
+        return;
+
+      const lastArc = await Arc.fromUuid(currentCampaign.value.arcIndex[currentCampaign.value.arcIndex.length-1].uuid);
+  
+      if (!lastArc) 
+        return;
+  
+      const currentLore = currentCampaign.value.lore.find(l=> l.uuid===uuid);
+  
+      if (!currentLore)
+        return;
+  
+      // have a next session - add there and delete here
+      await lastArc.addLore(currentLore.description);
+      await currentCampaign.value.deleteLore(uuid);
+  
+      await _refreshLoreRows();
+    }
+
+    const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> => {
     if (!currentCampaign.value)
       return null;
 
@@ -663,6 +688,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     updateLoreJournalEntry,
     markLoreDelivered,
     moveLoreToLastSession,
+    moveLoreToArc,
     addToDoItem,
     mergeToDoItem,
     completeToDoItem,
