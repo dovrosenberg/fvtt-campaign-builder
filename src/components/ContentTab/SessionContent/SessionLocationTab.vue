@@ -89,50 +89,42 @@
     return [ actionColumn, ...extraFields];
   });
 
-  const actions = computed(() => {
-    let retval = [
-      {
-        icon: 'fa-trash', 
-        callback: (data) => onDeleteLocation(data.uuid), 
-        tooltip: localize('tooltips.deleteLocation') 
-      }
-    ] as ActionButtonDefinition[];
+  const actions = computed(() => ([
+    {
+      icon: 'fa-trash', 
+      callback: (data) => onDeleteLocation(data.uuid), 
+      tooltip: localize('tooltips.deleteLocation') 
+    },
+    {
+      icon: 'fa-pen', 
+      isEdit: true, 
+      display: () => props.arcMode,
+      callback: () => {},
+      tooltip: localize('tooltips.editNotes') 
+    },
 
-    if (props.arcMode) {
-      retval.push({
-        icon: 'fa-pen', 
-        isEdit: true, 
-        callback: () => {},
-        tooltip: localize('tooltips.editNotes') 
-      });
+    // deliver/undeliver buttons
+    { 
+      icon: 'fa-circle-check', 
+      display: (data) => !props.arcMode && !data.delivered, // hide arrow for things already delivered
+      callback: (data) => onMarkLocationDelivered(data.uuid), 
+      tooltip: localize('tooltips.markAsDelivered') 
+    },
+    { 
+      icon: 'fa-circle-xmark', 
+      display: (data) => !props.arcMode && data.delivered, 
+      callback: (data) => onUnmarkLocationDelivered(data.uuid), 
+      tooltip: localize('tooltips.unmarkAsDelivered') 
+    },
+
+    // move to next session
+    { 
+      icon: 'fa-share', 
+      display: (data) => props.arcMode || !data.delivered, // hide arrow for things already delivered
+      callback: (data) => onMoveLocationToNext(data.uuid), 
+      tooltip: props.arcMode ? localize('tooltips.copyToNextSession') : localize('tooltips.moveToNextSession') 
     }
-
-    retval = retval.concat([
-      // deliver/undeliver buttons
-      { 
-        icon: 'fa-circle-check', 
-        display: (data) => !props.arcMode && !data.delivered, // hide arrow for things already delivered
-        callback: (data) => onMarkLocationDelivered(data.uuid), 
-        tooltip: localize('tooltips.markAsDelivered') 
-      },
-      { 
-        icon: 'fa-circle-xmark', 
-        display: (data) => !props.arcMode && data.delivered, 
-        callback: (data) => onUnmarkLocationDelivered(data.uuid), 
-        tooltip: localize('tooltips.unmarkAsDelivered') 
-      },
-
-      // move to next session
-      { 
-        icon: 'fa-share', 
-        display: (data) => props.arcMode || !data.delivered, // hide arrow for things already delivered
-        callback: (data) => onMoveLocationToNext(data.uuid), 
-        tooltip: props.arcMode ? localize('tooltips.copyToNextSession') : localize('tooltips.moveToNextSession') 
-      }
-    ]);
-
-    return retval;
-  });
+  ]));
 
   ////////////////////////////////
   // methods

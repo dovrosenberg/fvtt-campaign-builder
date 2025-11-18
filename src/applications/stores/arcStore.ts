@@ -54,11 +54,13 @@ export const useArcStore = defineStore('arc', () => {
     [ArcTableTypes.Participant]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onItemClick },
+      { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
+      { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],  
     [ArcTableTypes.Monster]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onMonsterClick },
-      { field: 'number', header: 'Number', editable: true, smallEditBox: true },
+      { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ], 
     [ArcTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
@@ -325,6 +327,18 @@ export const useArcStore = defineStore('arc', () => {
     await _refreshMonsterRows();
   }
 
+    /**
+   * Updates the notes on a monster
+   * @param uuid the UUID of the monster
+   */
+  const updateMonsterNotes = async (uuid: string, notes: string): Promise<void> => {
+    if (!currentArc.value)
+      throw new Error('Invalid arc in arcStore.updateMonsterNotes()');
+
+    await currentArc.value.updateMonsterNotes(uuid, notes);
+    await _refreshMonsterRows();
+  }
+
   /**
    * Copy a monster to the last session in the arc.
    * @param uuid the UUID of the monster to copy
@@ -575,6 +589,7 @@ export const useArcStore = defineStore('arc', () => {
     addMonster,
     deleteMonster,
     copyMonsterToSession,
+    updateMonsterNotes,
     addLore,
     deleteLore,
     reorderLore,
