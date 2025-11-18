@@ -33,6 +33,8 @@
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
   import { getTopicText } from '@/compendia';
+  import { notifyInfo } from '@/utils/notifications';
+
 
   // library components
 
@@ -126,6 +128,7 @@
 
   const onCopyParticipantToSession = async (uuid: string) => {
     await arcStore.copyParticipantToSession(uuid);
+    notifyInfo(localize('notifications.participantCopiedToNextSession'));
   }
 
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {

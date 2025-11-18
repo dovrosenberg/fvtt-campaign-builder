@@ -34,6 +34,7 @@
   import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getValidatedData, actorDragStart } from '@/utils/dragdrop';
+  import { notifyInfo } from '@/utils/notifications';
 
   // library components
 	
@@ -188,10 +189,12 @@
   }
 
   const onMoveMonsterToNext = async (uuid: string) => {
-    if (props.arcMode)
+    if (props.arcMode) {
       await arcStore.copyMonsterToSession(uuid);
-    else
+      notifyInfo(localize('notifications.monsterCopiedToNextSession'));
+    } else {
       await sessionStore.moveMonsterToNext(uuid);
+    }
   }
 
   const onDragStart = async (event: DragEvent, uuid: string) => {

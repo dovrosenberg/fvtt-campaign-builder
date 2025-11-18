@@ -32,9 +32,10 @@
 
   // local imports
   import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes } from '@/applications/stores';
-  import { Topics, RelatedItemDialogModes, ActionButtonDefinition, CellEditCompleteEvent, } from '@/types';
+  import { Topics, RelatedItemDialogModes, CellEditCompleteEvent, } from '@/types';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
+  import { notifyInfo } from '@/utils/notifications';
 
   // library components
 
@@ -146,16 +147,18 @@
   }
 
   const onMoveLocationToNext = async (uuid: string) => {
-    if (props.arcMode)
+    if (props.arcMode) {
       await arcStore.copyLocationToSession(uuid);
-    else
+      notifyInfo(localize('notifications.locationCopiedToNextSession'));
+    } else {
       await sessionStore.moveLocationToNext(uuid);
+    }
   }
 
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, } = event;
 
-    await arcStore.updateLocationNotes(data.uuid, newValue);
+    await arcStore.updateLocationNotes(data.uuid, newValue as string);
   };
 
   const onDragoverNew = (event: DragEvent) => {
