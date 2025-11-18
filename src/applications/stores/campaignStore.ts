@@ -206,7 +206,22 @@ export const useCampaignStore = defineStore('campaign', () => {
       if (!currentCampaign.value)
         throw new Error('Invalid session in campaignStore.markLoreDelivered()');
   
-      await currentCampaign.value.markLoreDelivered(uuid, delivered);
+      const row = allRelatedLoreRows.value.find(r => r.uuid === uuid);
+      if (!row)
+        throw new Error('Lore not found in campaignStore.markLoreDelivered()');
+
+      if (row.lockedToSessionId) {
+        // Session-tied lore
+        const session = await Session.fromUuid(row.lockedToSessionId);
+        if (!session)
+          throw new Error('Session not found in campaignStore.markLoreDelivered()');
+
+        await session.markLoreDelivered(uuid, delivered);
+      } else {
+        // Campaign-level lore
+        await currentCampaign.value.markLoreDelivered(uuid, delivered);
+      }
+
       await _refreshLoreRows();
     }
   
