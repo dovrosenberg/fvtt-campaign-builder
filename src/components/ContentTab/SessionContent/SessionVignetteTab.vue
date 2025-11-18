@@ -1,21 +1,18 @@
 <template>
-  <SessionTable
+  <BaseTable
     ref="sessionTableRef"
+    :actions="actions"
+    :columns="columns"
     :rows="mappedVignetteRows"
-    :columns="sessionStore.extraFields[SessionTableTypes.Vignette]"
-    :delete-item-label="localize('tooltips.deleteVignette')"
-    :allow-edit="true"
-    :edit-item-label="localize('tooltips.editRow')"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addVignette')"
+    :allow-drop-row="false"
+    :allow-edit="true"
+    :draggable-rows="false"
     :help-text="localize('labels.session.vignetteHelpText')"
     help-link="https://slyflourish.com/scenes_catch_all_step.html"
     :can-reorder="true"
     @add-item="onAddVignette"
-    @delete-item="onDeleteVignette"
-    @mark-item-delivered="onMarkVignetteDelivered"
-    @unmark-item-delivered="onUnmarkVignetteDelivered"
-    @move-to-next-session="onMoveVignetteToNext"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
   />
@@ -34,7 +31,7 @@
   // library components
 	
   // local components
-  import SessionTable from '@/components/tables/SessionTable.vue';
+  import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
   import { BaseTableGridRow, CellEditCompleteEvent } from '@/types';
@@ -62,6 +59,51 @@
       ...row,
     }))
   ));
+
+  const columns = computed(() => {
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+
+    const extraFields = sessionStore.extraFields[SessionTableTypes.Vignette]
+
+    return [ actionColumn, ...extraFields];
+  });
+
+  const actions = computed(() => ([
+    {
+      icon: 'fa-trash', 
+      callback: (data) => onDeleteVignette(data.uuid), 
+      tooltip: localize('tooltips.deleteVignette') 
+    },
+    {
+      icon: 'fa-pen', 
+      isEdit: true, 
+      callback: () => {},
+      tooltip: localize('tooltips.editRow') 
+    },
+
+    // deliver/undeliver buttons
+    { 
+      icon: 'fa-circle-check', 
+      display: (data) => !data.delivered, 
+      callback: (data) => onMarkVignetteDelivered(data.uuid), 
+      tooltip: localize('tooltips.markAsDelivered') 
+    },
+    { 
+      icon: 'fa-circle-xmark', 
+      display: (data) => data.delivered, 
+      callback: (data) => onUnmarkVignetteDelivered(data.uuid), 
+      tooltip: localize('tooltips.unmarkAsDelivered') 
+    },
+
+    // move to next session
+    { 
+      icon: 'fa-share', 
+      display: (data) => !data.delivered, // hide arrow for things already delivered
+      callback: (data) => onMoveVignetteToNext(data.uuid), 
+      tooltip: localize('tooltips.moveToNextSession') 
+    }
+  ]));
+
 
   ////////////////////////////////
   // methods

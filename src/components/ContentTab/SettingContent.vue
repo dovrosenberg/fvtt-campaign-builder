@@ -150,7 +150,7 @@
   
   const tabs = computed(() => [
     { id: 'description', label: localize('labels.tabs.setting.description') },
-    { id: 'journals', label: localize('labels.tabs.setting.journals') },
+    { id: 'journals', label: localize('labels.journals') },
   ]);
 
   ////////////////////////////////

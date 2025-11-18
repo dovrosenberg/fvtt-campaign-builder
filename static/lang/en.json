@@ -212,6 +212,11 @@
       "close": "Close",
       "update": "Update",
       "noToAll": "No to All",
+      "actors": "Actors",
+      "sessions": "Sessions",
+      "scenes": "Scenes",
+      "journals": "Journals",
+
       "tableHeaders": {
         "actions": "Actions",
         "name": "Name",
@@ -283,8 +288,7 @@
       "entry": {
         "topic": "TopicFolder",
         "type": "Type",
-        "relationships": "Relationships",
-        "sessions": "Sessions"
+        "relationships": "Relationships"
       },
       "session": {
         "session": "Session",
@@ -304,6 +308,8 @@
         "addActorDrag": "(or drag/drop an actor)",
         "addScene": "Add scene",
         "addSceneDrag": "(or drag/drop a scene)",
+        "addJournal": "Add Journal",
+        "addJournalDrag": "(or drag/drop a journal or journal page)", 
         "loreHelpText": "Tweet-sized bits of useful and interesting information. Click to read more from Lazy DM.",
         "itemHelpText": "Magic items that fit your PCs and the plot. Click to read more from Lazy DM.",
         "npcHelpText": "NPCs likely to be encountered in the session.",
@@ -322,10 +328,6 @@
         "addParticipant": "Add Participant",
         "addPortent": "Add Grim Portent",
         "portentHelpText": "Grim portents are the events that will occur if the danger is not dealt with. They can bring resolution, open new paths, shift the story."
-      },
-      "journals": {
-        "addJournal": "Add Journal",
-        "dropToAdd": "(or drag/drop a journal or journal page)" 
       },
       "campaign": {
         "addPC": "Add PC",
@@ -347,28 +349,22 @@
       "tabs": {
         "entry": {
           "description": "Description",
-          "journals": "Journals",
           "characters": "Characters",
           "locations": "Locations",
           "pcs": "PCs",
           "locationChildren": "Child locations",
           "organizations": "Organizations",
-          "organizationChildren": "Sub-organizations",
-          "scenes": "Scenes",
-          "actors": "Actors",
-          "sessions": "Sessions"
+          "organizationChildren": "Sub-organizations"
         },
         "campaign": {
           "description": "Description",
-          "journals": "Journals",
           "pcs": "PCs",
           "lore": "Lore",
           "toDo": "To-Do",
           "ideas": "Ideas"
         },
         "setting": {
-          "description": "Description",
-          "journals": "Journals"
+          "description": "Description"
         },
         "front": {
           "description": "Description",

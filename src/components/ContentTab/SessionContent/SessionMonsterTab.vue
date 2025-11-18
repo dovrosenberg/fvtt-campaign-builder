@@ -106,7 +106,7 @@
     // deliver/undeliver buttons
     { 
       icon: 'fa-circle-check', 
-      display: (data) => !data.delivered, 
+      display: (data) => !props.arcMode && !data.delivered, 
       callback: (data) => onMarkMonsterDelivered(data.uuid), 
       tooltip: localize('tooltips.markAsDelivered') 
     },
