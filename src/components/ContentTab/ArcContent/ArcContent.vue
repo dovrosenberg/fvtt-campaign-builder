@@ -32,7 +32,7 @@
           :name="currentArc?.name || 'Arc'"
           :image-url="currentArc?.img"
           :window-type="WindowTabType.Arc"
-          alt-tab-id="notes"
+          alt-tab-id="description"
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
