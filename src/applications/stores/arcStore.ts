@@ -363,6 +363,56 @@ export const useArcStore = defineStore('arc', () => {
     await _refreshLoreRows();
   };
 
+     /**
+     * Adds a lore to the arc.
+     * @param description The description for the idea
+     * @returns The UUID of the created idea
+     */
+    const addIdea = async (description = ''): Promise<string | null> => {
+      if (!currentArc.value)
+        throw new Error('Invalid arc in arcStore.addIdea()');
+  
+      const ideaUuid = await currentArc.value.addIdea(description);
+      await _refreshIdeaRows();
+      return ideaUuid;
+    }
+  
+    const updateIdea = async (uuid: string, newText: string): Promise<void> => {
+      if (!currentArc.value)
+        return;
+  
+      await currentArc.value.updateIdea(uuid, newText);
+      await _refreshIdeaRows();
+    }
+  
+    const deleteIdea = async (uuid: string): Promise<void> => {
+      if (!currentArc.value)
+        return;
+  
+      // confirm
+      if (!(await FCBDialog.confirmDialog('Delete Idea?', 'Are you sure you want to delete this idea?')))
+        return;
+  
+      await currentArc.value.deleteIdea(uuid);
+      await _refreshIdeaRows();
+    }
+  
+    const reorderIdeas = async (reorderedIdeas: Idea[]) => {
+      if (!currentArc.value) return;
+  
+      currentArc.value.ideas = reorderedIdeas;
+      await currentArc.value.save();
+      await _refreshIdeaRows();
+    };
+  
+    const moveIdeaToCampaign = async (uuid: string): Promise<void> => {
+      if (!currentArc.value)
+        return;
+
+      await currentArc.value.moveIdeaToCampaign(uuid);
+      await _refreshIdeaRows();
+    }
+
   ///////////////////////////////
   // computed state
 
@@ -504,6 +554,15 @@ export const useArcStore = defineStore('arc', () => {
 
     monsterRows.value = retval;
   }
+  
+  const _refreshIdeaRows = async () => {
+    ideaRows.value = [];
+
+    if (!currentArc.value)
+      return;
+    
+    ideaRows.value = currentArc.value.ideas.slice();
+  }
 
   const _refreshLoreRows = async () => {
     if (!currentArc.value)
@@ -535,6 +594,9 @@ export const useArcStore = defineStore('arc', () => {
       case 'description':
         // await _refreshLocationRows();
         break;
+      case 'ideas':
+        await _refreshIdeaRows();
+        break;
       case 'lore':
         await _refreshLoreRows();
         break;
@@ -546,9 +608,6 @@ export const useArcStore = defineStore('arc', () => {
         break;
       case 'monsters':
         await _refreshMonsterRows();
-        break;
-      case 'pcs':
-        // handled by campaignStore
         break;
       default:
         break;
@@ -579,6 +638,11 @@ export const useArcStore = defineStore('arc', () => {
     ideaRows,
     loreRows,
     extraFields,
+    addIdea, 
+    deleteIdea,
+    updateIdea,
+    moveIdeaToCampaign,
+    reorderIdeas,
     addLocation,
     deleteLocation,
     copyLocationToSession,

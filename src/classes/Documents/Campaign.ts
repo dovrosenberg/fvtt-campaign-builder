@@ -605,6 +605,23 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
+  public async moveIdeaToArc(uuid: string): Promise<void> {
+    const item = this._clone.system.ideas.find(i => i.uuid === uuid);
+    if (!item || this.arcIndex.length===0)
+      return;
+
+    // get the latest arc
+    const latestArc = this.arcIndex[this.arcIndex.length - 1];
+    const arc = await Arc.fromUuid(latestArc.uuid);
+    if (!arc)
+      return;
+
+    // move it
+    await arc.addIdea(item.text);    
+    this._clone.system.ideas = this._clone.system.ideas.filter(i => i.uuid !== uuid);
+    await this.save();
+  }
+
   /**
    * Moves an idea to the to-do list
    * @param uuid The UUID of the idea to move

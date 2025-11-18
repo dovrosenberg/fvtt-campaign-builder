@@ -80,6 +80,13 @@
             />
           </div>  
         </div>
+        <div class="tab flexcol" data-group="primary" data-tab="ideas">
+          <div class="tab-inner">
+            <CampaignIdeasTab 
+              :arc-mode="true"
+            />
+          </div>  
+        </div>
       </ContentTabStrip>
     </div>
   </form>	 
@@ -108,6 +115,7 @@
   import SessionNPCTab from '@/components/ContentTab/SessionContent/SessionNPCTab.vue';
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
+  import CampaignIdeasTab from '@/components/ContentTab/CampaignContent/CampaignIdeasTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';

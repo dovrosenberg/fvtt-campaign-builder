@@ -9,6 +9,7 @@ import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Session } from './Session';
 import { getGlobalSetting } from '@/utils/globalSettings';
+import { Idea } from '@/types';
 
 type ArcDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Arc>;
 
@@ -131,6 +132,54 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
   set endSessionNumber(value: number) {
     this._clone.system.endSessionNumber = value;
   }
+
+  public get ideas(): readonly Idea[] {
+    return this._clone.system.ideas;
+  }
+
+  public set ideas(value: Idea[] | readonly Idea[]) {
+    this._clone.system.ideas = value.slice();     // we clone it so it can't be edited outside (this is historical)
+  }
+
+  /** Creates a new idea item and adds to the arc*/
+  /** returns the uuid */
+  public async addIdea(text: string): Promise<string | null> {
+    const item: Idea = {
+      uuid: foundry.utils.randomID(),
+      text: text || '',
+      sortOrder: this._clone.system.ideas.reduce((max, item) => Math.max(max, item.sortOrder), -1) + 1,
+    };
+
+    this._clone.system.ideas.push(item);
+    await this.save();
+
+    return item.uuid;
+  }
+  
+  public async updateIdea(uuid: string, newText: string): Promise<void> {
+    const item = this._clone.system.ideas.find(i => i.uuid === uuid);
+    if (!item)
+      return;
+
+    item.text = newText;
+    await this.save();
+  }
+
+  public async deleteIdea(uuid: string): Promise<void> {
+    this._clone.system.ideas = this._clone.system.ideas.filter(i => i.uuid !== uuid);
+    await this.save();
+  }
+
+  public async moveIdeaToCampaign(uuid: string): Promise<void> {
+    const item = this._clone.system.ideas.find(i => i.uuid === uuid);
+    if (!item)
+      return;
+
+    await this.campaign?.addIdea(item.text);    
+    this._clone.system.ideas = this._clone.system.ideas.filter(i => i.uuid !== uuid);
+    await this.save();
+  }
+
 
   public async getLastSession(): Promise<Session | null> {
     if (this.endSessionNumber==-1)

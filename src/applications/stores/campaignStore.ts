@@ -325,6 +325,14 @@ export const useCampaignStore = defineStore('campaign', () => {
     await _refreshIdeaRows();
   };
 
+  const moveIdeaToArc = async (uuid: string): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
+
+    await currentCampaign.value.moveIdeaToArc(uuid);
+    await _refreshIdeaRows();
+  }
+
   const reorderToDos = async (reorderedToDos: ToDoItem[]) => {
     if (!currentCampaign.value) return;
 
@@ -583,7 +591,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!currentCampaign.value)
       return;
     
-    toDoRows.value = Array.from(currentCampaign.value.todoItems);
+    toDoRows.value = currentCampaign.value.todoItems.slice();
   }
 
   const _refreshIdeaRows = async () => {
@@ -592,7 +600,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!currentCampaign.value)
       return;
     
-    ideaRows.value = Array.from(currentCampaign.value.ideas);
+    ideaRows.value = currentCampaign.value.ideas.slice();
   }
 
   const _refreshRowsForTab = async () => {
@@ -663,6 +671,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     updateIdea,
     deleteIdea,
     reorderIdeas,
+    moveIdeaToArc,
     reorderToDos,
     moveIdeaToToDo,
     moveToDoToIdea,
