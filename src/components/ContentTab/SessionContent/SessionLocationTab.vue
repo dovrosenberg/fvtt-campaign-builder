@@ -7,13 +7,14 @@
     :add-button-label="localize('labels.session.addLocation')" 
     :extra-add-text="localize('labels.session.addLocationDrag')"
     :allow-drop-row="false"
-    :allow-edit="false"
+    :allow-edit="props.arcMode"
     :help-text="localize('labels.session.locationHelpText')"
     help-link="https://slyflourish.com/designing_fantastic_locations.html"
     :can-reorder="false"
     @add-item="showLocationPicker=true"
     @dragover-new="onDragoverNew"
     @dropNew="onDropNew"
+    @cell-edit-complete="onCellEditComplete"
   />
   <RelatedItemDialog
     v-model="showLocationPicker"
@@ -31,7 +32,7 @@
 
   // local imports
   import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes } from '@/applications/stores';
-  import { Topics, RelatedItemDialogModes, } from '@/types';
+  import { Topics, RelatedItemDialogModes, ActionButtonDefinition, CellEditCompleteEvent, } from '@/types';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
 
@@ -88,35 +89,50 @@
     return [ actionColumn, ...extraFields];
   });
 
-  const actions = computed(() => ([
-    {
-      icon: 'fa-trash', 
-      callback: (data) => onDeleteLocation(data.uuid), 
-      tooltip: localize('tooltips.deleteLocation') 
-    },
+  const actions = computed(() => {
+    let retval = [
+      {
+        icon: 'fa-trash', 
+        callback: (data) => onDeleteLocation(data.uuid), 
+        tooltip: localize('tooltips.deleteLocation') 
+      }
+    ] as ActionButtonDefinition[];
 
-    // deliver/undeliver buttons
-    { 
-      icon: 'fa-circle-check', 
-      display: (data) => !props.arcMode && !data.delivered, // hide arrow for things already delivered
-      callback: (data) => onMarkLocationDelivered(data.uuid), 
-      tooltip: localize('tooltips.markAsDelivered') 
-    },
-    { 
-      icon: 'fa-circle-xmark', 
-      display: (data) => !props.arcMode && data.delivered, 
-      callback: (data) => onUnmarkLocationDelivered(data.uuid), 
-      tooltip: localize('tooltips.unmarkAsDelivered') 
-    },
-
-    // move to next session
-    { 
-      icon: 'fa-share', 
-      display: (data) => props.arcMode || !data.delivered, // hide arrow for things already delivered
-      callback: (data) => onMoveLocationToNext(data.uuid), 
-      tooltip: props.arcMode ? localize('tooltips.copyToNextSession') : localize('tooltips.moveToNextSession') 
+    if (props.arcMode) {
+      retval.push({
+        icon: 'fa-pen', 
+        isEdit: true, 
+        callback: () => {},
+        tooltip: localize('tooltips.editNotes') 
+      });
     }
-  ]));
+
+    retval = retval.concat([
+      // deliver/undeliver buttons
+      { 
+        icon: 'fa-circle-check', 
+        display: (data) => !props.arcMode && !data.delivered, // hide arrow for things already delivered
+        callback: (data) => onMarkLocationDelivered(data.uuid), 
+        tooltip: localize('tooltips.markAsDelivered') 
+      },
+      { 
+        icon: 'fa-circle-xmark', 
+        display: (data) => !props.arcMode && data.delivered, 
+        callback: (data) => onUnmarkLocationDelivered(data.uuid), 
+        tooltip: localize('tooltips.unmarkAsDelivered') 
+      },
+
+      // move to next session
+      { 
+        icon: 'fa-share', 
+        display: (data) => props.arcMode || !data.delivered, // hide arrow for things already delivered
+        callback: (data) => onMoveLocationToNext(data.uuid), 
+        tooltip: props.arcMode ? localize('tooltips.copyToNextSession') : localize('tooltips.moveToNextSession') 
+      }
+    ]);
+
+    return retval;
+  });
 
   ////////////////////////////////
   // methods
@@ -143,6 +159,12 @@
     else
       await sessionStore.moveLocationToNext(uuid);
   }
+
+  const onCellEditComplete = async (event: CellEditCompleteEvent) => {
+    const { data, newValue, } = event;
+
+    await arcStore.updateLocationNotes(data.uuid, newValue);
+  };
 
   const onDragoverNew = (event: DragEvent) => {
     event.preventDefault();  

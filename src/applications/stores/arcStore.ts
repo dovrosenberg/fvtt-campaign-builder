@@ -49,7 +49,7 @@ export const useArcStore = defineStore('arc', () => {
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
       { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
       { field: 'parent', style: 'text-align: left', header: 'Parent', sortable: true, onClick: onParentClick},
-      { field: 'description', style: 'text-align: left', header: 'Description', sortable: false},
+      { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],
     [ArcTableTypes.Participant]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
@@ -207,6 +207,18 @@ export const useArcStore = defineStore('arc', () => {
     await _refreshLoreRows();
   }
   
+  /**
+   * Updates the notes on a location
+   * @param uuid the UUID of the location
+   */
+  const updateLocationNotes = async (uuid: string, notes: string): Promise<void> => {
+    if (!currentArc.value)
+      throw new Error('Invalid arc in arcStore.updateLocationNotes()');
+
+    await currentArc.value.updateLocationNotes(uuid, notes);
+    await _refreshLocationRows();
+  }
+
   /**
    * Updates the journal entry associated with a lore 
    * @param loreUuid the UUID of the lore
@@ -556,6 +568,7 @@ export const useArcStore = defineStore('arc', () => {
     addLocation,
     deleteLocation,
     copyLocationToSession,
+    updateLocationNotes,
     addParticipant,
     deleteParticipant,
     copyParticipantToSession,

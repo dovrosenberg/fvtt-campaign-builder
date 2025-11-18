@@ -142,7 +142,7 @@
     { id: 'lore', label: localize('labels.tabs.arc.lore')},
     { id: 'locations', label: localize('labels.tabs.arc.locations')},
     { id: 'participants', label: localize('labels.tabs.arc.participants')},
-    { id: 'monsters', label: localize('labels.tabs.arc.monsters')}
+    { id: 'monsters', label: localize('labels.tabs.arc.monsters')},
     { id: 'ideas', label: localize('labels.tabs.arc.ideas')}
   ] as ContentTabDescriptor[]);
 
