@@ -511,6 +511,9 @@
         // update tabs/bookmarks
         await navigationStore.cleanupDeletedEntry(existingArc.uuid);
       }
+
+      // need to refresh the campaign to get the latest index
+      campaign.value = await Campaign.fromUuid(campaign.value!.uuid);
     }
 
     for (const arcIndex of arcs.value) {
@@ -518,12 +521,15 @@
 
       if (!arc) {
         // create a new one
-        arc = await Arc.create(campaign.value, arcIndex.name);
+        arc = await Arc.create(campaign.value!, arcIndex.name);
 
         if (!arc)
           throw new Error('Failed to create arc in ArcManager.onSubmitClick()');
 
         arcIndex.uuid = arc.uuid;
+
+        // need to refresh the campaign to get the latest index
+        campaign.value = await Campaign.fromUuid(campaign.value!.uuid);
       }
 
       const nameChange = arc.name !== arcIndex.name;
@@ -533,6 +539,10 @@
       arc.endSessionNumber = arcIndex.endSessionNumber;
       arc.sortOrder = arcIndex.sortOrder;
       await arc.save();
+
+      // need to refresh the campaign to get the latest index
+      campaign.value = await Campaign.fromUuid(campaign.value!.uuid);
+
 
       // if name changed, need to propagate the change
       if (nameChange) {
