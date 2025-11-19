@@ -4,6 +4,7 @@
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.6.0/module.zip)
 
 - You can now use fronts.  They can be disabled in the module settings.
+- Sessions are now grouped into "arcs" (chapters).  These can be used to track lore and story lines across multiple sessions without having to keep all those pieces in the campaign indefinitely.
 - You can now properly open sessions from the search results.
 - Type groups now expand if needed to highlight the current entry in the tree when a character is opened in a tab.
 - When PCs are related to character entries, there is now a "relationship" field.
