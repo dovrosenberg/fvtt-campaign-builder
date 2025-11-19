@@ -66,14 +66,8 @@
   import Dialog from '@/components/Dialog.vue';
 
   // types
-  import { Topics, ValidTopic, RelatedItemDialogModes, ValidTopicRecord } from '@/types';
-  import { Entry, TopicFolder } from '@/classes';
-
-  interface ExtraFieldValue {
-    field: string;
-    header: string;
-    value: string;
-  };
+  import { Topics, ValidTopic, RelatedItemDialogModes, ValidTopicRecord, TopicBasicIndex, EntryBasicIndex } from '@/types';
+  import { Entry, } from '@/classes';
 
   interface ButtonProp {
     label: string;
@@ -125,7 +119,7 @@
   const mainStore = useMainStore();
   const sessionStore = useSessionStore();
   const frontStore = useFrontStore();
-  const { currentEntry, currentSetting, currentFront, currentEntryTopic, currentSession } = storeToRefs(mainStore);
+  const { currentEntry, currentSetting, currentFront, currentEntryTopic, currentSession, currentArc } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -168,6 +162,8 @@
     buttonTitle: localize('dialogs.relatedItems.entry.buttonTitle'),
   };
 
+  const participantDetails = dangerDetails;
+
   const sessionDetails = {
     buttonTitle: localize('dialogs.relatedItems.addToSession'),
   };
@@ -175,10 +171,13 @@
   ////////////////////////////////
   // computed data
   const dialogTitle = computed(() => {
-    if (props.mode===RelatedItemDialogModes.Danger) {
-      return dangerDetails.title;
-    } else {
-      return (props.topic && topicDetails[props.topic]?.title) || '';
+    switch (props.mode) {
+      case RelatedItemDialogModes.Danger:
+        return dangerDetails.title;
+      case RelatedItemDialogModes.Participant:
+        return participantDetails.title;
+      default:
+        return (props.topic && topicDetails[props.topic]?.title) || '';
     }
   });
 
@@ -186,6 +185,8 @@
     switch (props.mode) {
       case RelatedItemDialogModes.Danger:
         return dangerDetails.buttonTitle;
+      case RelatedItemDialogModes.Participant:
+        return participantDetails.buttonTitle;
       case RelatedItemDialogModes.Add:
         return topicDetails[props.topic]?.buttonTitle;
       case RelatedItemDialogModes.Session:
@@ -196,8 +197,8 @@
 
   // add mode or session mode
   const createButtonLabel = computed(() => {
-    if (props.mode===RelatedItemDialogModes.Danger) 
-      throw new Error('Trying to add create button to danger RelatedItemDialog');
+    if ([RelatedItemDialogModes.Danger, RelatedItemDialogModes.Participant].includes(props.mode)) 
+      throw new Error('Trying to add create button to danger/participant RelatedItemDialog');
 
     return topicDetails[props.topic]?.createButtonTitle || '';
   });
@@ -227,7 +228,7 @@
     }
 
     buttons.push({
-      label: actionButtonLabel.value,
+      label: actionButtonLabel.value || '',
       disable: props.allowCreate && !isAddFormValid.value,
       default: true,
       close: true,
@@ -247,7 +248,7 @@
     emit('update:modelValue', false);
   };
 
-  const mapEntryToOption = function(entry: Entry) {
+  const mapEntryToOption = function(entry: EntryBasicIndex) {
     return {
       id: entry.uuid,
       label: entry.type ? `${entry.name} (${entry.type})` : entry.name,
@@ -339,20 +340,48 @@
     if (newValue) {
       if (!currentSetting.value)
         return;
-
-      if (!currentSession.value && !currentFront.value && !(currentEntry.value && currentEntryTopic.value))
-        throw new Error('Trying to show RelatedItemDialog without a current entry/session/front');
       
-      if (props.mode===RelatedItemDialogModes.Danger) {
-        selectItems.value = (await Entry.getEntriesForSetting(currentSetting.value, currentEntry.value || undefined)).map(mapEntryToOption);
-      } else {
-        selectItems.value = (await Entry.getEntriesForTopic(currentSetting.value.topicFolders[props.topic]!, currentEntry.value || undefined)).map(mapEntryToOption);
+      let entries = [] as {id: string; label: string}[];
+      switch (props.mode) {
+        case RelatedItemDialogModes.Danger:
+          if (!currentFront.value)
+            throw new Error('Trying to show RelatedItemDialog in danger mode without a current front');
+
+            // concat all the topics
+          entries = [];
+          for (const topic of [Topics.Character, Topics.Location, Topics.Organization]) {
+            entries = entries.concat(
+              (currentSetting.value.topics[topic]?.entries || []).map(mapEntryToOption)
+            );
+          }
+          break;
+        case RelatedItemDialogModes.Participant:
+          if (!currentArc.value)
+            throw new Error('Trying to show RelatedItemDialog in participant mode without a current arc');
+          
+          // characters and organizations only
+          entries = [];
+          for (const topic of [Topics.Character, Topics.Organization]) {
+            entries = entries.concat(
+              (currentSetting.value.topics[topic]?.entries || []).map(mapEntryToOption)
+            );
+          }
+          break;
+        default:
+          if (!currentSession.value && !(currentEntry.value && currentEntryTopic.value))
+            throw new Error('Trying to show RelatedItemDialog without a current entry/session/front');
+
+          entries = (currentSetting.value.topics[props.topic]?.entries || []).map(mapEntryToOption);
       }
+
+      selectItems.value = entries;
       
       if (currentSession.value) {
         extraFields.value = currentSession.value ? [] : relationshipStore.extraFields[currentEntryTopic.value][props.topic];
       } else if (currentFront.value) {
         extraFields.value = [{ field: 'role', header: 'Role' }];
+      } else if (currentArc.value) {
+        extraFields.value = [];
       } else {
         extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
       }

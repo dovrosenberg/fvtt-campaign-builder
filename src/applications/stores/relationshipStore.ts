@@ -41,7 +41,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       [Topics.Character]: [{field:'relationship', header:'Relationship'}],
       [Topics.Location]: [{field:'role', header:'Role'}],
       [Topics.Organization]: [{field:'role', header:'Role'}],
-      [Topics.PC]: [],
+      [Topics.PC]: [{field:'relationship', header:'Relationship'}],
     },
     [Topics.Location]: {
       [Topics.Character]: [{field:'role', header:'Role'}],
@@ -56,7 +56,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       [Topics.PC]: [{field:'role', header:'Role'}],
     },    
     [Topics.PC]: {
-      [Topics.Character]: [],
+      [Topics.Character]: [{field:'relationship', header:'Relationship'}],
       [Topics.Location]: [{field:'role', header:'Role'}],
       [Topics.Organization]: [{field:'role', header:'Role'}],
       [Topics.PC]: [],

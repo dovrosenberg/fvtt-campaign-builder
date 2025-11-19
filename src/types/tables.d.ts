@@ -13,12 +13,12 @@ export interface ActionButtonDefinition {
   icon: string;
 
   /** receives the row */
-  callback: (data: Record<string, any> & { uuid: string }) => void;
+  callback: ((data: Record<string, any> & { uuid: string }) => void) | (() => void);
 
   tooltip: string;
 
   /** based on the data for the row, should it be displayed */
-  display?: (data: Record<string, any> & { uuid: string}) => boolean;
+  display?: undefined | ((data: Record<string, any> & { uuid: string}) => boolean) | (() => void);
 
   /** if true, pressing the button activates row edit mode */
   isEdit?: boolean;
@@ -30,7 +30,7 @@ export interface FieldData {
   editable?: boolean;
   style?: string;
   sortable?: boolean;
-}[];
+};
 
 export interface PaginationResult<T extends AnyRow> {
   rows: T[];
@@ -48,13 +48,28 @@ export interface SessionLocationDetails {
   description: string;
   delivered: boolean;
 }
-
+export interface ArcLocationDetails {
+  uuid: string;   // the location entry
+  name: string;
+  type: string;
+  parent: string;
+  parentId: string | null;
+  notes: string;
+}
+  
 export interface SessionNPCDetails {
   uuid: string;   // the character entry
   name: string;
   type: string;
   description: string;
   delivered: boolean;
+}
+
+export interface ArcParticipantDetails {
+  uuid: string;   // the character entry
+  name: string;
+  type: string;
+  notes: string;
 }
 
 export interface SessionItemDetails {
@@ -72,6 +87,11 @@ export interface SessionMonsterDetails {
   dragTooltip?: string;
 }
 
+export interface ArcMonsterDetails {
+  uuid: string;   // the Actor document
+  name: string;
+  notes: string;
+}
 
 export interface SessionLoreDetails {
   uuid: string;   
@@ -80,6 +100,16 @@ export interface SessionLoreDetails {
   journalEntryPageId: string | null;  // the JournalEntryPage document
   journalEntryPageName: string | null;  
   significant: boolean;
+  packId: string | null;  // compendium of the document
+  sortOrder: number;
+  onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
+}
+
+export interface ArcLoreDetails {
+  uuid: string;  
+  description: string; 
+  journalEntryPageId: string | null;  // the JournalEntryPage document
+  journalEntryPageName: string | null;  
   packId: string | null;  // compendium of the document
   sortOrder: number;
   onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
@@ -109,7 +139,7 @@ export interface RowEditCompleteEvent<T extends Record<string, any>=Record<strin
 
 export interface CellEditCompleteEvent<T=unknown> {
   /** the original row */
-  data: Record<string, unknown>,
+  data: Record<string, unknown> & { uuid: string },
 
   /** name of changed field */
   field: string,

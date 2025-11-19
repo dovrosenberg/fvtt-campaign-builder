@@ -182,7 +182,7 @@ export const useFrontStore = defineStore('front', () => {
     
     for (const p of currentDanger.value.participants) {
       // get it from the setting because we don't know topic
-      const items = await currentSetting.value.filterEntries((e) => e.uuid===p.uuid, true);
+      const items = await currentSetting.value.filterEntries((e) => e.uuid===p.uuid);
       
       if (items.length === 0)
         throw new Error('Invalid uuid in frontStore._refreshParticipantRows');

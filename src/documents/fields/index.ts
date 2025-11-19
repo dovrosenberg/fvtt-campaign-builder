@@ -19,6 +19,10 @@ import { SessionBasicIndexSchema } from './SessionBasicIndex';
 import { ArcBasicIndexSchema } from './ArcBasicIndex';
 import { CampaignBasicIndexSchema } from './CampaignBasicIndex';
 import { DangerSchema } from './Danger';
+import { ArcParticipantSchema } from './ArcParticipant';
+import { ArcLocationSchema } from './ArcLocation';
+import { ArcMonsterSchema } from './ArcMonster';
+import { ArcLoreSchema } from './ArcLore';
 
 export type * from './Danger';
 
@@ -45,5 +49,9 @@ export const schemas = {
   ArcBasicIndex: ArcBasicIndexSchema,
   CampaignBasicIndex: CampaignBasicIndexSchema,
   Danger: DangerSchema,
+  ArcParticipant: ArcParticipantSchema,
+  ArcLocation: ArcLocationSchema,
+  ArcMonster: ArcMonsterSchema,
+  ArcLore: ArcLoreSchema,
 }
 

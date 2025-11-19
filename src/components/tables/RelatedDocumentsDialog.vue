@@ -85,13 +85,13 @@
   const documentTypeName = computed(() => {
     switch (props.documentType) {
       case 'actor':
-        return localize('labels.tabs.entry.actors');
+        return localize('labels.actors');
       case 'item':
-        return localize('labels.tabs.entry.items');
+        return localize('labels.tabs.session.magic');
       case 'scene':
-        return localize('labels.tabs.entry.scenes');
+        return localize('labels.scenes');
       case 'journal':
-        return localize('labels.tabs.entry.journals');
+        return localize('labels.journals');
     }
   });
 

@@ -158,7 +158,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
     sessionIndex.number = session.number;
     sessionIndex.name = session.name;
-    sessionIndex.date = session.date;
+    sessionIndex.date = session.date?.toISOString() || null;
     await this.save();
 
     await this.updateArcsForNewSessionNumber(session.number);
@@ -601,6 +601,23 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   public async deleteIdea(uuid: string): Promise<void> {
+    this._clone.system.ideas = this._clone.system.ideas.filter(i => i.uuid !== uuid);
+    await this.save();
+  }
+
+  public async moveIdeaToArc(uuid: string): Promise<void> {
+    const item = this._clone.system.ideas.find(i => i.uuid === uuid);
+    if (!item || this.arcIndex.length===0)
+      return;
+
+    // get the latest arc
+    const latestArc = this.arcIndex[this.arcIndex.length - 1];
+    const arc = await Arc.fromUuid(latestArc.uuid);
+    if (!arc)
+      return;
+
+    // move it
+    await arc.addIdea(item.text);    
     this._clone.system.ideas = this._clone.system.ideas.filter(i => i.uuid !== uuid);
     await this.save();
   }

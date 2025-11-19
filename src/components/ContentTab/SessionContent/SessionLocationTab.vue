@@ -1,21 +1,20 @@
 <template>
-  <SessionTable 
-    :rows="relatedLocationRows"
-    :columns="sessionStore.extraFields[SessionTableTypes.Location]"
-    :delete-item-label="localize('tooltips.deleteLocation')"   
-    :allow-edit="false"
+  <BaseTable 
+    :actions="actions"
+    :rows="mappedLocationRows"
+    :columns="columns"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLocation')" 
     :extra-add-text="localize('labels.session.addLocationDrag')"
+    :allow-drop-row="false"
+    :allow-edit="props.arcMode"
     :help-text="localize('labels.session.locationHelpText')"
     help-link="https://slyflourish.com/designing_fantastic_locations.html"
+    :can-reorder="false"
     @add-item="showLocationPicker=true"
-    @delete-item="onDeleteLocation"
-    @mark-item-delivered="onMarkLocationDelivered"
-    @unmark-item-delivered="onUnmarkLocationDelivered"
-    @move-to-next-session="onMoveLocationToNext"        
-    @dragoverNew="onDragoverNew"
+    @dragover-new="onDragoverNew"
     @dropNew="onDropNew"
+    @cell-edit-complete="onCellEditComplete"
   />
   <RelatedItemDialog
     v-model="showLocationPicker"
@@ -28,25 +27,33 @@
 <script setup lang="ts">
 
   // library imports
-  import { ref, } from 'vue';
+  import { computed, ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, SessionTableTypes } from '@/applications/stores';
-  import { Topics, RelatedItemDialogModes, } from '@/types';
+  import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes } from '@/applications/stores';
+  import { Topics, RelatedItemDialogModes, CellEditCompleteEvent, } from '@/types';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
+  import { notifyInfo } from '@/utils/notifications';
 
   // library components
 
   // local components
-  import SessionTable from '@/components/tables/SessionTable.vue';
+  import BaseTable from '@/components/tables/BaseTable.vue';
   import RelatedItemDialog from '@/components/tables/RelatedItemDialog.vue';
 
   // types
   
   ////////////////////////////////
   // props
+  const props = defineProps({
+    arcMode: {
+      type: Boolean,
+      required: false,
+      default: false,
+    }
+  });
 
   ////////////////////////////////
   // emits
@@ -54,14 +61,71 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const { relatedLocationRows } = storeToRefs(sessionStore);
-  
+  const arcStore = useArcStore();
+  const { relatedLocationRows: sessionLocationRows } = storeToRefs(sessionStore);
+  const { locationRows: arcLocationRows } = storeToRefs(arcStore);
+
   ////////////////////////////////
   // data
   const showLocationPicker = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
+  const locationRows = computed(() => props.arcMode ? arcLocationRows.value : sessionLocationRows.value);
+  const store = computed(() => props.arcMode ? arcStore : sessionStore);
+
+  const mappedLocationRows = computed(() => (
+    locationRows.value.map((row) => ({
+      ...row,
+    }))
+  ));
+
+  const columns = computed(() => {
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+
+    const extraFields = props.arcMode ? 
+      arcStore.extraFields[ArcTableTypes.Location] :
+      sessionStore.extraFields[SessionTableTypes.Location]
+
+    return [ actionColumn, ...extraFields];
+  });
+
+  const actions = computed(() => ([
+    {
+      icon: 'fa-trash', 
+      callback: (data) => onDeleteLocation(data.uuid), 
+      tooltip: localize('tooltips.deleteLocation') 
+    },
+    {
+      icon: 'fa-pen', 
+      isEdit: true, 
+      display: () => props.arcMode,
+      callback: () => {},
+      tooltip: localize('tooltips.editNotes') 
+    },
+
+    // deliver/undeliver buttons
+    { 
+      icon: 'fa-circle-check', 
+      display: (data) => !props.arcMode && !data.delivered, // hide arrow for things already delivered
+      callback: (data) => onMarkLocationDelivered(data.uuid), 
+      tooltip: localize('tooltips.markAsDelivered') 
+    },
+    { 
+      icon: 'fa-circle-xmark', 
+      display: (data) => !props.arcMode && data.delivered, 
+      callback: (data) => onUnmarkLocationDelivered(data.uuid), 
+      tooltip: localize('tooltips.unmarkAsDelivered') 
+    },
+
+    // move to next session
+    { 
+      icon: 'fa-share', 
+      display: (data) => props.arcMode || !data.delivered, // hide arrow for things already delivered
+      callback: (data) => onMoveLocationToNext(data.uuid), 
+      tooltip: props.arcMode ? localize('tooltips.copyToNextSession') : localize('tooltips.moveToNextSession') 
+    }
+  ]));
 
   ////////////////////////////////
   // methods
@@ -69,20 +133,33 @@
   ////////////////////////////////
   // event handlers
   const onDeleteLocation = async (uuid: string) => {
-    await sessionStore.deleteLocation(uuid);
+    await store.value.deleteLocation(uuid);
   }
 
   const onMarkLocationDelivered = async (uuid: string) => {
-    await sessionStore.markLocationDelivered(uuid, true);
+    if (!props.arcMode)
+      await sessionStore.markLocationDelivered(uuid, true);
   }
 
   const onUnmarkLocationDelivered = async (uuid: string) => {
-    await sessionStore.markLocationDelivered(uuid, false);
+    if (!props.arcMode)
+      await sessionStore.markLocationDelivered(uuid, false);
   }
 
   const onMoveLocationToNext = async (uuid: string) => {
-    await sessionStore.moveLocationToNext(uuid);
+    if (props.arcMode) {
+      await arcStore.copyLocationToSession(uuid);
+      notifyInfo(localize('notifications.locationCopiedToNextSession'));
+    } else {
+      await sessionStore.moveLocationToNext(uuid);
+    }
   }
+
+  const onCellEditComplete = async (event: CellEditCompleteEvent) => {
+    const { data, newValue, } = event;
+
+    await arcStore.updateLocationNotes(data.uuid, newValue as string);
+  };
 
   const onDragoverNew = (event: DragEvent) => {
     event.preventDefault();  
@@ -105,7 +182,7 @@
       return;
     }
 
-    await sessionStore.addLocation(data.childId);      
+    await store.value.addLocation(data.childId as string);
   };
 
   ////////////////////////////////

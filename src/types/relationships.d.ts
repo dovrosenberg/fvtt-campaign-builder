@@ -2,7 +2,7 @@ import { DocumentUUID } from '@league-of-foundry-developers/foundry-vtt-types/sr
 import { ValidTopic, FieldData } from '@/types';
 
 // lay out the extra fields for each combination of topics
-export type FieldDataByTopic = ValidTopicRecord<ValidTopicRecord<FieldData>>;
+export type FieldDataByTopic = ValidTopicRecord<ValidTopicRecord<FieldData[]>>;
 
 export interface RelatedItem<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic> {
   uuid: string;   // the other item

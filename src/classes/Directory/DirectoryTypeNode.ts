@@ -14,7 +14,7 @@ export class DirectoryTypeNode extends CollapsibleNode<DirectoryTypeEntryNode> {
     expanded: boolean = false
   ) {
 
-    super(topicId + ':' + name, expanded, null, children, loadedChildren, []);
+    super(`${topicId}:${name}`, expanded, null, children, loadedChildren, []);
 
     this.name = name;
   }

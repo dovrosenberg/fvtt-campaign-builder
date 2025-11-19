@@ -53,6 +53,7 @@
     <!-- First, a setting dropdown if here is more than one setting -->
     <div v-if="settingOptions.length > 1">
       <Select
+        ref="settingSelectRef"
         v-model="selectedSetting"
         :options="settingOptions"
         optionLabel="name"
@@ -142,6 +143,7 @@
   // data
   const root = ref<HTMLElement>();
   const selectedSetting = ref<string | null>(currentSetting.value?.uuid || null);
+  const settingSelectRef = ref<typeof Select | null>(null);
   
   ////////////////////////////////
   // computed data
@@ -197,6 +199,14 @@
   watch(() => currentSetting.value?.uuid, (newSettingId) => {
     if (newSettingId !== selectedSetting.value) {
       selectedSetting.value = newSettingId || null;
+    }
+  });
+
+  watch(() => isInPlayMode.value, (newValue) => {
+    // while it normally closes if we click elsewhere, if the click is to 
+    //    start play mode, the dropdown gets disabled so it doesn't close
+    if (newValue) {
+      settingSelectRef.value?.hide();
     }
   });
 

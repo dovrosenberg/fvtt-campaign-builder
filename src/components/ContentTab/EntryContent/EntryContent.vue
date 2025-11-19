@@ -321,7 +321,7 @@
   const tabs = computed(() => {
     let tabs = [
       { id: 'description', label: localize('labels.tabs.entry.description') },
-      { id: 'journals', label: localize('labels.tabs.entry.journals') },
+      { id: 'journals', label: localize('labels.journals') },
     ] as ContentTabDescriptor[];
 
     // TODO-PC - only show the PC tab if there's already a connection... rare that we'd need to add from here 
@@ -330,11 +330,11 @@
     }
 
     if (topic.value===Topics.Character)
-      tabs.push({ id: 'actors', label: localize('labels.tabs.entry.actors') });
+      tabs.push({ id: 'actors', label: localize('labels.actors') });
     if (topic.value===Topics.Location)
-      tabs.push({ id: 'scenes', label: localize('labels.tabs.entry.scenes') });
+      tabs.push({ id: 'scenes', label: localize('labels.scenes') });
     if (topic.value!==Topics.PC)
-      tabs.push({ id: 'sessions', label: localize('labels.tabs.entry.sessions') });
+      tabs.push({ id: 'sessions', label: localize('labels.sessions') });
 
     return tabs;
   });

@@ -21,6 +21,7 @@
           label: localize('labels.saveChanges'),
           default: true,
           close: true,
+          disable: editingMode,
           callback: onSubmitClick,
         },
       ]"
@@ -34,6 +35,7 @@
           :show-filter="false"
           :can-reorder="true"
           :actions="actions"
+          @cell-edit-init="onCellEditInit"
           @row-edit-complete="onRowEditComplete"
           @add-item="onAddItem"
           @reorder="onRowReorder"
@@ -45,7 +47,8 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref, watch } from 'vue';
+  import { computed, ref, watch, onBeforeUnmount } from 'vue';
+  import { storeToRefs } from 'pinia';
   
   // local imports
   import { localize } from '@/utils/game';
@@ -79,12 +82,22 @@
   const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
+  const { isArcManagerOpen } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
   const campaign = ref<Campaign | null>(null);
   const arcs = ref<ArcBasicIndex[]>([]);
   const show = ref<boolean>(true);
+  const editingMode = ref<boolean>(false);
+
+  watch(show, (isVisible) => {
+    isArcManagerOpen.value = isVisible;
+  }, { immediate: true });
+
+  onBeforeUnmount(() => {
+    isArcManagerOpen.value = false;
+  });
 
   ////////////////////////////////
   // computed data
@@ -141,7 +154,7 @@
     retval.push(
       { 
         icon: 'fa-edit', 
-        callback: (data) => onEditItem(data.uuid), 
+        callback: () => {}, 
         tooltip: localize('dialogs.arcManager.labels.edit'),
         isEdit: true
       }
@@ -167,6 +180,7 @@
    * Forces reactive refresh
    */
   const refreshData = () => {
+    editingMode.value = false;
     arcs.value = [...arcs.value];
   };
 
@@ -174,6 +188,7 @@
    * Load campaign and arcs data from original
    */
   const loadData = () => {
+    editingMode.value = false;
     if (!campaign.value)
       return;
     
@@ -192,10 +207,9 @@
     cleanArcs(foundry.utils.deepClone(arcs.value));
   };
 
-  const onEditItem = async (uuid: string): Promise<void> => {
-    // This would typically open the arc in the main application
-    // For now, we'll just log it
-    console.log('Edit arc:', uuid);
+  // when you start editing, we want to disable the save button
+  const onCellEditInit = () => {
+    editingMode.value = true;
   };
 
   // if we want to allow this, we can't create the actual arcs here
@@ -222,7 +236,7 @@
   
   const onRowEditComplete = async (event: RowEditCompleteEvent<RowType>): Promise<void> => {
     const { data, newData } = event;
-    
+
     // Find the arc in our list and update the specific field
     const arcIndex = arcs.value.findIndex(a => a.uuid === data.uuid);
     const arc = arcs.value[arcIndex];

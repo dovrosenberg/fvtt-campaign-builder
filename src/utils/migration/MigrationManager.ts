@@ -62,7 +62,13 @@ export class MigrationManager {
     }
 
     // sort the list by version so we do them in the right order
-    needed.sort((a: MigrationConstructor, b: MigrationConstructor) => VersionUtils.compareVersions((new a(this.createMigrationContext())).targetVersion, (new b(this.createMigrationContext())).targetVersion));
+    const migrationContext = await this.createMigrationContext(lastVersion);
+    needed.sort((a: MigrationConstructor, b: MigrationConstructor) => 
+      VersionUtils.compareVersions(
+        (new a(migrationContext)).targetVersion, 
+        (new b(migrationContext)).targetVersion
+      )
+    );
 
     return needed;
   }

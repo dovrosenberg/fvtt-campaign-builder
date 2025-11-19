@@ -55,7 +55,11 @@ export class DirectoryTopicFolderNode extends DirectoryTopicTreeNode {
     for (let i=0; i<this.loadedTypes.length; i++) {
       const type = this.loadedTypes[i].name;
 
-      const loadedChildren = this.topicFolder.entryIndex.filter((e: EntryBasicIndex): boolean=> e.type===type);
+      // For the '(none)' group, include entries whose type is actually empty/undefined.
+      // For all other groups, match on the literal type string.
+      const loadedChildren = this.topicFolder.entryIndex.filter((e: EntryBasicIndex): boolean =>
+        (type === NO_TYPE_STRING ? (e.type === type || !e.type) : e.type === type)
+      );
 
       let loadedChildrenNodes = [] as DirectoryTypeEntryNode[];
       for (const index of loadedChildren) {

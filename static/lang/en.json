@@ -212,6 +212,11 @@
       "close": "Close",
       "update": "Update",
       "noToAll": "No to All",
+      "actors": "Actors",
+      "sessions": "Sessions",
+      "scenes": "Scenes",
+      "journals": "Journals",
+
       "tableHeaders": {
         "actions": "Actions",
         "name": "Name",
@@ -283,8 +288,12 @@
       "entry": {
         "topic": "TopicFolder",
         "type": "Type",
-        "relationships": "Relationships",
-        "sessions": "Sessions"
+        "relationships": "Relationships"
+      },
+      "arc": {
+        "addParticipant": "Add Participant",
+        "addParticipantDrag": "(or drag/drop a character/organization)",
+        "participantHelpText": "Characters and organizations likely to come up during the arc"
       },
       "session": {
         "session": "Session",
@@ -304,6 +313,8 @@
         "addActorDrag": "(or drag/drop an actor)",
         "addScene": "Add scene",
         "addSceneDrag": "(or drag/drop a scene)",
+        "addJournal": "Add Journal",
+        "addJournalDrag": "(or drag/drop a journal or journal page)", 
         "loreHelpText": "Tweet-sized bits of useful and interesting information. Click to read more from Lazy DM.",
         "itemHelpText": "Magic items that fit your PCs and the plot. Click to read more from Lazy DM.",
         "npcHelpText": "NPCs likely to be encountered in the session.",
@@ -322,10 +333,6 @@
         "addParticipant": "Add Participant",
         "addPortent": "Add Grim Portent",
         "portentHelpText": "Grim portents are the events that will occur if the danger is not dealt with. They can bring resolution, open new paths, shift the story."
-      },
-      "journals": {
-        "addJournal": "Add Journal",
-        "dropToAdd": "(or drag/drop a journal or journal page)" 
       },
       "campaign": {
         "addPC": "Add PC",
@@ -347,28 +354,22 @@
       "tabs": {
         "entry": {
           "description": "Description",
-          "journals": "Journals",
           "characters": "Characters",
           "locations": "Locations",
           "pcs": "PCs",
           "locationChildren": "Child locations",
           "organizations": "Organizations",
-          "organizationChildren": "Sub-organizations",
-          "scenes": "Scenes",
-          "actors": "Actors",
-          "sessions": "Sessions"
+          "organizationChildren": "Sub-organizations"
         },
         "campaign": {
           "description": "Description",
-          "journals": "Journals",
           "pcs": "PCs",
           "lore": "Lore",
           "toDo": "To-Do",
           "ideas": "Ideas"
         },
         "setting": {
-          "description": "Description",
-          "journals": "Journals"
+          "description": "Description"
         },
         "front": {
           "description": "Description",
@@ -376,7 +377,13 @@
         },
         "arc": {
           "arc": "Arc",
-          "description": "Description"
+          "description": "Description",
+          "pcs": "PCs",
+          "lore": "Lore",
+          "locations": "Locations",
+          "participants": "Participants",
+          "monsters": "Monsters",
+          "ideas": "Ideas"
         },
         "session": {
           "notes": "Notes",
@@ -430,6 +437,9 @@
         "emailSettingsNotSet": "You have enabled the email idea list feature, but you haven't set a default Setting or Campaign.  Please set these in the advanced settings.",
         "rollTablesNotAvailable": "Backend is not available. Automatic RollTables will not be refreshed. Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
       },
+      "participantCopiedToNextSession": "Participant copied to next session",
+      "locationCopiedToNextSession": "Location copied to next session",
+      "monsterCopiedToNextSession": "Monster copied to next session",
       "todoReferenceNotFound": "The linked reference for this to-do item no longer exists.",
       "addedToSession": "added to session",
       "changesSaved": "Changes saved",
@@ -651,6 +661,7 @@
       "historyBack": "Back",
       "historyForward": "Forward",
       "editRelationship": "Edit relationship",
+      "editNotes": "Edit notes",
       "editParticipant": "Edit participant",
       "editPortent": "Edit grim portent",
       "deleteRelationship": "Delete relationship",
@@ -671,7 +682,10 @@
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",
+      "copyToNextSession": "Copy to next session",
       "moveToCampaign": "Move to campaign for later usage",
+      "moveToArc": "Move to arc for later usage",
+      "movetoLastArc": "Move to latest arc",
       "addToCampaign": "Add to campaign",
       "addToASession": "Add to a session",
       "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",

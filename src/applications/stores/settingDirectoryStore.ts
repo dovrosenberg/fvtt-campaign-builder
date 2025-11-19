@@ -16,7 +16,7 @@ import { getGlobalSetting } from '@/utils/globalSettings';
 
 // types
 import { Entry, DirectoryTopicFolderNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder,  } from '@/classes';
-import { DirectorySetting, Hierarchy, Topics, ValidTopic, EntryFilterIndex, ValidTopicRecord } from '@/types';
+import { DirectorySetting, Hierarchy, Topics, ValidTopic, ValidTopicRecord, EntryBasicIndex } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
 // the store definition
@@ -374,7 +374,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   };
 
   // delete an entry from the setting
-  const deleteEntry = async (topic: ValidTopic, entryId: string) => {
+  const deleteEntry = async (_topic: ValidTopic, entryId: string) => {
     if (!currentSetting.value)
       return;
 
@@ -468,7 +468,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       await DirectoryTopicFolderNode.recursivelyLoadNode(expandedNodes, updateEntryIds);
 
       // load the type-grouped entries
-      await DirectoryTopicFolderNode.loadTypeEntries(topicFolders[DirectoryTopicFolderNode.topicFolder.topic].types, expandedNodes);
+      await DirectoryTopicFolderNode.loadTypeEntries(topicFolders[DirectoryTopicFolderNode.topicFolder.topic]!.types, expandedNodes);
     }
 
     // @ts-ignore (fvtt circularity issue)
@@ -592,20 +592,29 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
-      const topicObj = currentSetting.value.topicFolders[topics[i]];
+      const topic = topics[i];
+      const topicObj = currentSetting.value.topicFolders[topic];
 
       if (!topicObj)
         continue;
 
       // filter on name and type
-      const matchedEntryObjects = topicObj.entryIndex.filter((e: EntryBasicIndex)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )));
+      const matchedEntryObjects = topicObj.entryIndex.filter((e: EntryBasicIndex) =>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )));
     
       let allItemsToShow: string[] = [];
 
       // add the ancestors and types;
       for (const entry of matchedEntryObjects) {
         allItemsToShow.push(entry.uuid);
-        allItemsToShow.push(entry.type || NO_TYPE_STRING);
+
+        // type filter IDs must match DirectoryTypeNode.id, which is built as
+        //   `${topicId}:${typeName}` where topicId is the DirectoryTopicFolderNode id.
+        // DirectoryTopicFolderNode ids are built in refreshSettingDirectoryTree as
+        //   `${currentSetting.uuid}.topic.${topic}`.
+        const topicId = `${currentSetting.value.uuid}.topic.${topic}`;
+        const typeName = entry.type || NO_TYPE_STRING;
+        const typeNodeId = `${topicId}:${typeName}`;
+        allItemsToShow.push(typeNodeId);
 
         const hierarchy = hierarchies[entry.uuid];
         if (hierarchy && hierarchy.ancestors) {

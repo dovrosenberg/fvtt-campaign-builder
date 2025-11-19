@@ -108,15 +108,14 @@
   };
 
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
-    const { data, newValue, field, originalEvent } = event;
+    const { data, newValue, field, } = event;
 
     switch (field) {
       case 'text':
-        await campaignStore.updateToDoItem(data.uuid, newValue);
+        await campaignStore.updateToDoItem(data.uuid, newValue as string);
         break;
 
       default:
-        originalEvent?.preventDefault();
         break;
     }  
   }

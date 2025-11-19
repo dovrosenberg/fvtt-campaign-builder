@@ -1,18 +1,14 @@
 <template>
-  <SessionTable 
-    :rows="relatedNPCRows"
-    :columns="sessionStore.extraFields[SessionTableTypes.NPC]"  
-    :delete-item-label="localize('tooltips.deleteNPC')"   
-    :allow-edit="false"
+  <BaseTable 
+    :actions="actions"
+    :rows="mappedNPCRows"
+    :columns="columns"  
     :show-add-button="true"
     :add-button-label="localize('labels.session.addNPC')" 
     :extra-add-text="localize('labels.session.addNPCDrag')"
+    :allow-edit="false"
     :help-text="localize('labels.session.npcHelpText')"
     @add-item="showNPCPicker=true"
-    @delete-item="onDeleteNPC"
-    @mark-item-delivered="onMarkNPCDelivered"
-    @unmark-item-delivered="onUnmarkNPCDelivered"
-    @move-to-next-session="onMoveNPCToNext"        
     @dragoverNew="onDragoverNew"
     @drop-new="onDropNew"
   />
@@ -26,7 +22,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { ref, } from 'vue';
+  import { computed, ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -38,7 +34,7 @@
   // library components
 
   // local components
-  import SessionTable from '@/components/tables/SessionTable.vue';
+  import BaseTable from '@/components/tables/BaseTable.vue';
   import RelatedItemDialog from '@/components/tables/RelatedItemDialog.vue';
 
   // types
@@ -60,6 +56,49 @@
 
   ////////////////////////////////
   // computed data
+  const mappedNPCRows = computed(() => (
+    relatedNPCRows.value.map((row) => ({
+      ...row,
+    }))
+  ));
+
+   const columns = computed(() => {
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+
+    const extraFields = sessionStore.extraFields[SessionTableTypes.NPC]
+
+    return [ actionColumn, ...extraFields];
+  });
+
+   const actions = computed(() => ([
+    {
+      icon: 'fa-trash', 
+      callback: (data) => onDeleteNPC(data.uuid), 
+      tooltip: localize('tooltips.deleteNPC') 
+    },
+
+    // deliver/undeliver buttons
+    { 
+      icon: 'fa-circle-check', 
+      display: (data) => !data.delivered, 
+      callback: (data) => onMarkNPCDelivered(data.uuid), 
+      tooltip: localize('tooltips.markAsDelivered') 
+    },
+    { 
+      icon: 'fa-circle-xmark', 
+      display: (data) => data.delivered, 
+      callback: (data) => onUnmarkNPCDelivered(data.uuid), 
+      tooltip: localize('tooltips.unmarkAsDelivered') 
+    },
+
+    // move to next session
+    { 
+      icon: 'fa-share', 
+      display: (data) => !data.delivered, // hide arrow for things already delivered
+      callback: (data) => onMoveNPCToNext(data.uuid), 
+      tooltip: localize('tooltips.moveToNextSession') 
+    }
+  ]));
 
   ////////////////////////////////
   // methods
@@ -103,7 +142,7 @@
       return;
     }
 
-    await sessionStore.addNPC(data.childId);      
+    await sessionStore.addNPC(data.childId as string);      
   };
 
 

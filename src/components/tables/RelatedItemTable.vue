@@ -51,7 +51,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { Topics, ValidTopic, RelatedItemDetails, RelatedItemDialogModes, EntryNodeDragData, ValidTopicRecord, ActionButtonDefinition } from '@/types';
+  import { Topics, ValidTopic, RelatedItemDetails, RelatedItemDialogModes, EntryNodeDragData, ValidTopicRecord, ActionButtonDefinition, CellEditCompleteEvent } from '@/types';
   
   interface RelatedItemGridRow extends Record<string, any> { 
     uuid: string; 
@@ -161,7 +161,7 @@
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
     const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick }; 
     const typeColumn = { field: 'type', style: 'text-align: left', header: 'Type', sortable: true }; 
-    const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 
+    // const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 
 
     const columns = {
       [Topics.Character]: [
@@ -279,25 +279,24 @@
     }
   };
 
-  const onCellEditComplete = async (event: { data: { uuid: string }; field: string; newValue: any; /* other PrimeVue event fields */ }) => {
-    const uuid = event.data.uuid;
-    const fieldChanged = event.field;
-    const newFieldValue = event.newValue;
+  const onCellEditComplete = async (event: CellEditCompleteEvent) => {
+    const { data, field, newValue } = event;
+    const uuid = data.uuid as string;
 
     const currentFullRow = relatedItemRows.value.find(r => r.uuid === uuid);
     if (!currentFullRow) {
-      throw new Error('Cannot find row in RelatedItemTable.onCellEditComplete:', uuid);
+      throw new Error('Cannot find row in RelatedItemTable.onCellEditComplete:' + uuid);
     }
 
     const relevantExtraFieldDefs = extraFields[currentEntryTopic.value]?.[props.topic] || [];
     if (!relevantExtraFieldDefs.length) {
-      throw new Error('Call to RelatedItemTable.onCellEditComplete without an extra field:', uuid);
+      throw new Error('Call to RelatedItemTable.onCellEditComplete without an extra field:' + uuid);
     }
 
     const extraFieldsToSave: Record<string, string> = { ...currentFullRow.extraFields }; // Start with existing extra fields
 
     // Update the changed field
-    extraFieldsToSave[fieldChanged] = newFieldValue;
+    extraFieldsToSave[field] = newValue as string;
     
     // Ensure all defined extra fields are present, defaulting to empty string if not set
     relevantExtraFieldDefs.forEach(def => {

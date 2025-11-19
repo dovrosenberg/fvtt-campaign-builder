@@ -18,7 +18,7 @@
         <div class="fcb-subtab-wrapper">
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
             <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
-            <a class="item" data-tab="journals">{{ localize('labels.tabs.entry.journals') }}</a>
+            <a class="item" data-tab="journals">{{ localize('labels.journals') }}</a>
             <a 
               v-for="relationship in relationships"
               :key="relationship.tab"

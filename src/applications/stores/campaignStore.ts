@@ -9,8 +9,8 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { RelatedPCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea, SessionBasicIndex} from '@/types';
-import { Campaign, Entry, Session } from '@/classes';
+import { RelatedPCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea,} from '@/types';
+import { Arc, Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import Document from 'node_modules/@types/fvtt-types/src/foundry/common/abstract/document.mjs';
 import { notifyWarn } from '@/utils/notifications';
@@ -61,7 +61,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     [CampaignTableTypes.Idea]: [
       { field: 'text', style: 'text-align: left', header: 'Idea', sortable: true, editable: true },
     ],
-  } as Record<CampaignTableTypes, FieldData>;
+  } as Record<CampaignTableTypes, FieldData[]>;
 
   ///////////////////////////////
   // other stores
@@ -206,7 +206,22 @@ export const useCampaignStore = defineStore('campaign', () => {
       if (!currentCampaign.value)
         throw new Error('Invalid session in campaignStore.markLoreDelivered()');
   
-      await currentCampaign.value.markLoreDelivered(uuid, delivered);
+      const row = allRelatedLoreRows.value.find(r => r.uuid === uuid);
+      if (!row)
+        throw new Error('Lore not found in campaignStore.markLoreDelivered()');
+
+      if (row.lockedToSessionId) {
+        // Session-tied lore
+        const session = await Session.fromUuid(row.lockedToSessionId);
+        if (!session)
+          throw new Error('Session not found in campaignStore.markLoreDelivered()');
+
+        await session.markLoreDelivered(uuid, delivered);
+      } else {
+        // Campaign-level lore
+        await currentCampaign.value.markLoreDelivered(uuid, delivered);
+      }
+
       await _refreshLoreRows();
     }
   
@@ -235,7 +250,32 @@ export const useCampaignStore = defineStore('campaign', () => {
       await _refreshLoreRows();
     }
 
-  const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> => {
+    /**
+     * Move a lore to the last arc in the campaign
+     * @param uuid the UUID of the lore to move
+     */
+    const moveLoreToArc = async (uuid: string): Promise<void> => {
+      if (!currentCampaign.value || currentCampaign.value.arcIndex.length===0)
+        return;
+
+      const lastArc = await Arc.fromUuid(currentCampaign.value.arcIndex[currentCampaign.value.arcIndex.length-1].uuid);
+  
+      if (!lastArc) 
+        return;
+  
+      const currentLore = currentCampaign.value.lore.find(l=> l.uuid===uuid);
+  
+      if (!currentLore)
+        return;
+  
+      // have a next session - add there and delete here
+      await lastArc.addLore(currentLore.description);
+      await currentCampaign.value.deleteLore(uuid);
+  
+      await _refreshLoreRows();
+    }
+
+    const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> => {
     if (!currentCampaign.value)
       return null;
 
@@ -309,6 +349,14 @@ export const useCampaignStore = defineStore('campaign', () => {
     await currentCampaign.value.save();
     await _refreshIdeaRows();
   };
+
+  const moveIdeaToArc = async (uuid: string): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
+
+    await currentCampaign.value.moveIdeaToArc(uuid);
+    await _refreshIdeaRows();
+  }
 
   const reorderToDos = async (reorderedToDos: ToDoItem[]) => {
     if (!currentCampaign.value) return;
@@ -568,7 +616,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!currentCampaign.value)
       return;
     
-    toDoRows.value = Array.from(currentCampaign.value.todoItems);
+    toDoRows.value = currentCampaign.value.todoItems.slice();
   }
 
   const _refreshIdeaRows = async () => {
@@ -577,7 +625,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!currentCampaign.value)
       return;
     
-    ideaRows.value = Array.from(currentCampaign.value.ideas);
+    ideaRows.value = currentCampaign.value.ideas.slice();
   }
 
   const _refreshRowsForTab = async () => {
@@ -640,6 +688,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     updateLoreJournalEntry,
     markLoreDelivered,
     moveLoreToLastSession,
+    moveLoreToArc,
     addToDoItem,
     mergeToDoItem,
     completeToDoItem,
@@ -648,6 +697,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     updateIdea,
     deleteIdea,
     reorderIdeas,
+    moveIdeaToArc,
     reorderToDos,
     moveIdeaToToDo,
     moveToDoToIdea,

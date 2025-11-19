@@ -1,25 +1,21 @@
 <template>
-  <SessionTable
-    :rows="relatedMonsterRows"
-    :columns="sessionStore.extraFields[SessionTableTypes.Monster]"
-    :delete-item-label="localize('tooltips.deleteMonster')"
-    :allow-edit="true"
-    :edit-item-label="localize('tooltips.editRow')"
+  <BaseTable
+    :actions="actions"
+    :rows="mappedMonsterRows"
+    :columns="columns"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addMonster')"
     :extra-add-text="localize('labels.session.addMonsterDrag')"
+    :allow-drop-row="false"
+    :allow-edit="true"
     :draggable-rows="true"
     :help-text="localize('labels.session.monsterHelpText')"
     help-link="https://slyflourish.com/choose_monsters_based_on_the_story.html"
     @add-item="showMonsterPicker=true"
     @drop-new="onDropNew"
     @dragoverNew="onDragoverNew"
-    @delete-item="onDeleteMonster"
-    @mark-item-delivered="onMarkMonsterDelivered"
-    @unmark-item-delivered="onUnmarkMonsterDelivered"
-    @move-to-next-session="onMoveMonsterToNext"
-    @cell-edit-complete="onCellEditComplete"
     @dragstart="onDragStart"
+    @cell-edit-complete="onCellEditComplete"
   />
   <RelatedDocumentsDialog
     v-model="showMonsterPicker"
@@ -31,18 +27,19 @@
 <script setup lang="ts">
 
   // library imports
-  import { ref, } from 'vue';
+  import { ref, computed } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
+  import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getValidatedData, actorDragStart } from '@/utils/dragdrop';
+  import { notifyInfo } from '@/utils/notifications';
 
   // library components
 	
   // local components
-  import SessionTable from '@/components/tables/SessionTable.vue';
+  import BaseTable from '@/components/tables/BaseTable.vue';
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
@@ -50,6 +47,13 @@
   
   ////////////////////////////////
   // props
+  const props = defineProps({
+    arcMode: {
+      type: Boolean,
+      required: false,
+      default: false,
+    }
+  });
 
   ////////////////////////////////
   // emits
@@ -57,7 +61,9 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const { relatedMonsterRows } = storeToRefs(sessionStore);
+  const arcStore = useArcStore();
+  const { relatedMonsterRows: sessionMonsterRows } = storeToRefs(sessionStore);
+  const { monsterRows: arcMonsterRows } = storeToRefs(arcStore);
   
   ////////////////////////////////
   // data
@@ -65,14 +71,69 @@
 
   ////////////////////////////////
   // computed data
+  const monsterRows = computed(() => props.arcMode ? arcMonsterRows.value : sessionMonsterRows.value);
+  const store = computed(() => props.arcMode ? arcStore : sessionStore);
 
+  const mappedMonsterRows = computed(() => (
+    monsterRows.value.map((row) => ({
+      ...row,
+    }))
+  ));
+  
+  const columns = computed(() => {
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+
+    const extraFields = props.arcMode ? 
+      arcStore.extraFields[ArcTableTypes.Monster] :
+      sessionStore.extraFields[SessionTableTypes.Monster]
+
+    return [ actionColumn, ...extraFields];
+  });
+
+  const actions = computed(() => ([
+    {
+      icon: 'fa-trash', 
+      callback: (data) => onDeleteMonster(data.uuid), 
+      tooltip: localize('tooltips.deleteLocation') 
+    },
+    {
+      icon: 'fa-pen', 
+      isEdit: true, 
+      callback: () => {},
+      tooltip: localize('tooltips.editNotes') 
+    },
+
+    // deliver/undeliver buttons
+    { 
+      icon: 'fa-circle-check', 
+      display: (data) => !props.arcMode && !data.delivered, 
+      callback: (data) => onMarkMonsterDelivered(data.uuid), 
+      tooltip: localize('tooltips.markAsDelivered') 
+    },
+    { 
+      icon: 'fa-circle-xmark', 
+      display: (data) => !props.arcMode && data.delivered, 
+      callback: (data) => onUnmarkMonsterDelivered(data.uuid), 
+      tooltip: localize('tooltips.unmarkAsDelivered') 
+    },
+
+    // move to next session
+    { 
+      icon: 'fa-share', 
+      display: (data) => props.arcMode || !data.delivered, // hide arrow for things already delivered
+      callback: (data) => onMoveMonsterToNext(data.uuid), 
+      tooltip: props.arcMode ? localize('tooltips.copyToNextSession') : localize('tooltips.moveToNextSession') 
+    }
+  ]));
+
+  
   ////////////////////////////////
   // methods
 
   ////////////////////////////////
   // event handlers
   const onActorAdded = async (documentUuid: string) => {
-    await sessionStore.addMonster(documentUuid, 1); // Always use 1 as the default
+    await store.value.addMonster(documentUuid);
   }
 
   const onDragoverNew = (event: DragEvent) => {
@@ -93,30 +154,30 @@
 
     // make sure it's the right format
     if (data.type==='Actor' && data.uuid) {
-      await sessionStore.addMonster(data.uuid as string);  
+      await store.value.addMonster(data.uuid as string);  
     }
   }
 
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
-    const { data, newValue, field, originalEvent } = event;
+    const { data, newValue, field, } = event;
 
     switch (field) {
       case 'number':
-        if (parseInt(newValue))  {
-          await sessionStore.updateMonsterNumber(data.uuid, parseInt(newValue));
-        } else {
-          originalEvent.preventDefault();
+        if (parseInt(newValue as string))  {
+          await sessionStore.updateMonsterNumber(data.uuid, parseInt(newValue as string));
         }
+        break;
+      case 'notes':
+        await arcStore.updateMonsterNotes(data.uuid, newValue as string);
         break;
 
       default:
-        originalEvent.preventDefault();
         break;
     }  
   }
 
   const onDeleteMonster = async (uuid: string) => {
-    await sessionStore.deleteMonster(uuid);
+    await store.value.deleteMonster(uuid);
   }
 
   const onMarkMonsterDelivered = async (uuid: string) => {
@@ -128,7 +189,12 @@
   }
 
   const onMoveMonsterToNext = async (uuid: string) => {
-    await sessionStore.moveMonsterToNext(uuid);
+    if (props.arcMode) {
+      await arcStore.copyMonsterToSession(uuid);
+      notifyInfo(localize('notifications.monsterCopiedToNextSession'));
+    } else {
+      await sessionStore.moveMonsterToNext(uuid);
+    }
   }
 
   const onDragStart = async (event: DragEvent, uuid: string) => {

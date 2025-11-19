@@ -2,7 +2,7 @@ import MiniSearch from 'minisearch';
 import { Entry, Session, FCBSetting, Arc, Front } from '@/classes';
 import { Topics, ValidTopic, } from '@/types';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
+import { ArcLore, SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
 
 /**
  * Represents a searchable item in the index, containing all relevant search fields.
@@ -126,14 +126,11 @@ class SearchService {
     if (!this._searchIndex)
       throw new Error('Unable to create _searchIndex in SearchService.buildIndex()');
 
-    // Process each topic 
-    const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
-    
     // Collect all items first
     const items = [] as SearchableItem[];
 
     // add all the entries
-    const entries = await setting.allEntries(true);
+    const entries = await setting.allEntries();
       
     for (const entry of entries) {
       // Create a searchable item for each entry
@@ -297,13 +294,13 @@ class SearchService {
 
     description = session.notes + '|' + session.strongStart;
 
-    await addEntrySnippet(snippets, session.locations, (uuid) => Entry.fromUuid(uuid));
-    await addEntrySnippet(snippets, session.npcs, (uuid) => Entry.fromUuid(uuid));
-    await addEntrySnippet(snippets, session.items, fromUuid);
-    await addEntrySnippet(snippets, session.monsters, fromUuid);
+    await addSessionEntrySnippet(snippets, session.locations, (uuid) => Entry.fromUuid(uuid));
+    await addSessionEntrySnippet(snippets, session.npcs, (uuid) => Entry.fromUuid(uuid));
+    await addSessionEntrySnippet(snippets, session.items, fromUuid);
+    await addSessionEntrySnippet(snippets, session.monsters, fromUuid);
 
-    addShortSnippet(snippets, session.lore);
-    addShortSnippet(snippets, session.vignettes);
+    addSessionShortSnippet(snippets, session.lore);
+    addSessionShortSnippet(snippets, session.vignettes);
 
     return {
       uuid: session.uuid,
@@ -373,13 +370,11 @@ class SearchService {
 
     description = arc.description;
 
-    await addEntrySnippet(snippets, arc.locations, (uuid) => Entry.fromUuid(uuid));
-    await addEntrySnippet(snippets, arc.npcs, (uuid) => Entry.fromUuid(uuid));
-    await addEntrySnippet(snippets, arc.items, fromUuid);
-    await addEntrySnippet(snippets, arc.monsters, fromUuid);
+    await addArcEntrySnippet(snippets, arc.locations, (uuid) => Entry.fromUuid(uuid));
+    await addArcEntrySnippet(snippets, arc.participants, (uuid) => Entry.fromUuid(uuid));
+    await addArcEntrySnippet(snippets, arc.monsters, fromUuid);
 
-    addShortSnippet(snippets, arc.lore);
-    addShortSnippet(snippets, arc.vignettes);
+    addArcShortSnippet(snippets, arc.lore);
 
     return {
       uuid: arc.uuid,
@@ -607,7 +602,7 @@ class SearchService {
 // locations, npcs - entries
 // items, monsters - documents
 // vignettes, lore - documents
-async function addEntrySnippet<T extends SessionRelatedItem>(snippets: string[], relatedEntries: Readonly<T[]>, fromUuidCallback: (string)=>Promise<{name?:string | undefined} | null>) {
+async function addSessionEntrySnippet<T extends SessionRelatedItem>(snippets: string[], relatedEntries: Readonly<T[]>, fromUuidCallback: (string)=>Promise<{name?:string | undefined} | null>) {
   for (const relatedItem of relatedEntries) {
     // only index delivered ones
     if (!relatedItem.delivered) 
@@ -620,13 +615,33 @@ async function addEntrySnippet<T extends SessionRelatedItem>(snippets: string[],
   }
 };
 
+// Add relationship snippets
+// locations, participants - entries
+// monsters - documents
+// lore - documents
+async function addArcEntrySnippet<T extends { uuid: string }>(snippets: string[], relatedEntries: Readonly<T[]>, fromUuidCallback: (string)=>Promise<{name?:string | undefined} | null>) {
+  for (const relatedItem of relatedEntries) {
+    const fullRelatedItem = await fromUuidCallback(relatedItem.uuid);
+    
+    if (fullRelatedItem?.name)
+      snippets.push(`${fullRelatedItem?.name}`);
+  }
+};
+
 // vignettes, lore
-function addShortSnippet(snippets: string[], relatedEntries: readonly SessionLore[] | readonly SessionVignette[]) {
+function addSessionShortSnippet(snippets: string[], relatedEntries: readonly SessionLore[] | readonly SessionVignette[]) {
   for (const relatedItem of relatedEntries) {
     // only index delivered ones
     if (!relatedItem.delivered) 
       continue;
 
+    snippets.push(`${relatedItem?.description}`);
+  }
+};
+
+// vignettes, lore
+function addArcShortSnippet(snippets: string[], relatedEntries: readonly ArcLore[]) {
+  for (const relatedItem of relatedEntries) {
     snippets.push(`${relatedItem?.description}`);
   }
 };

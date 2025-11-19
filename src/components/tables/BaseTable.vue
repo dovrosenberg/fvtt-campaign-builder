@@ -285,7 +285,10 @@
   import Checkbox from 'primevue/checkbox';
 
   // types
-  import { TablePagination, BaseTableGridRow, ActionButtonDefinition, CellEditCompleteEvent, RowEditCompleteEvent } from '@/types';
+  import { 
+    TablePagination, BaseTableGridRow, ActionButtonDefinition, 
+    CellEditCompleteEvent, RowEditCompleteEvent 
+  } from '@/types';
 
 
   ////////////////////////////////
@@ -357,12 +360,12 @@
     (e: 'rowSelect', originalEvent: DataTableRowSelectEvent): void;
     (e: 'addItem'): void;
     (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
+    (e: 'cellEditInit'): void;
     (e: 'cellEditComplete', originalEvent: CellEditCompleteEvent): void;
     (e: 'rowEditComplete', originalEvent: RowEditCompleteEvent): void;
     (e: 'markItemDelivered', uuid: string): void;
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;
-    (e: 'moveToCampaign', uuid: string): void;
     (e: 'dragstart', event: DragEvent, uuid: string): void;
     (e: 'dragoverNew', event: DragEvent): void;
     (e: 'dragoverRow', event: DragEvent, uuid: string): void;
@@ -452,6 +455,7 @@
     }
 
     emit('setEditingRow', uuid);
+    emit('cellEditInit');
   };
 
   const cancelEdit = () => {

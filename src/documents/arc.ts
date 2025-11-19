@@ -1,7 +1,25 @@
+import { Idea } from '@/types';
 import { schemas } from './fields';
-import { SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette } from './session';
 
 const fields = foundry.data.fields;
+
+export interface ArcRelatedItem {
+  uuid: string;
+  notes: string;
+}
+
+export interface ArcLocation extends ArcRelatedItem {}
+
+export interface ArcParticipant extends ArcRelatedItem {}
+
+export interface ArcMonster extends ArcRelatedItem {}
+
+export interface ArcLore {
+  uuid: string;
+  description: string;
+  journalEntryPageId: string | null;
+  sortOrder: number;
+}
 
 export const ArcSchema = {
   /** the campaign this arc is in */
@@ -25,39 +43,33 @@ export const ArcSchema = {
 
   /** array of locations */
   locations: new fields.ArrayField(
-    schemas.SessionLocation(),
-    { initial: [] as SessionLocation[] }
+    schemas.ArcLocation(),
+    { initial: [] as ArcLocation[] }
   ),  
 
-  /** array of npcs */
-  npcs: new fields.ArrayField(
-    schemas.SessionNPC(),
-    { initial: [] as SessionNPC[] }
-  ),  
-
-  /** array of magical items */
-  items: new fields.ArrayField(
-    schemas.SessionItem(),
-    { initial: [] as SessionItem[] }
+  /** array of npcs/organizations */
+  participants: new fields.ArrayField(
+    schemas.ArcParticipant(),
+    { initial: [] as ArcParticipant[] }
   ),  
 
   /** array of monsters */
   monsters: new fields.ArrayField(
-    schemas.SessionMonster(),
-    { initial: [] as SessionMonster[] }
-  ),  
-
-  /** array of vignettes */
-  vignettes: new fields.ArrayField(
-    schemas.SessionVignette(),
-    { initial: [] as SessionVignette[] }
+    schemas.ArcMonster(),
+    { initial: [] as ArcMonster[] }
   ),  
 
   /** array of lore */
   lore: new fields.ArrayField(
-    schemas.SessionLore(),
-    { initial: [] as SessionLore[] }
+    schemas.ArcLore(),
+    { initial: [] as ArcLore[] }
   ),    
+
+  /** ideas */
+  ideas: new fields.ArrayField(
+    schemas.Idea(),
+    { required: true, nullable: false, initial: [] as Idea[] }
+  ),
 };
 
 type ArcSchemaType = typeof ArcSchema;
@@ -89,11 +101,9 @@ export interface ArcDoc extends JournalEntryPage {
 
     // session-like
     campaignId: string;
-    locations: SessionLocation[];
-    items: SessionItem[];
-    npcs: SessionNPC[];
-    monsters: SessionMonster[];
-    vignettes: SessionVignette[];
-    lore: SessionLore[];
+    locations: ArcLocation[];
+    participants: ArcParticipant[];
+    monsters: ArcMonster[];
+    lore: ArcLore[];
   };
 }

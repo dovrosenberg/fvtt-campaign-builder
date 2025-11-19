@@ -1,22 +1,18 @@
 <template>
-  <SessionTable
-    :rows="relatedItemRows"
-    :columns="sessionStore.extraFields[SessionTableTypes.Item]"
-    :delete-item-label="localize('tooltips.deleteItem')"
-    :allow-edit="false"
+  <BaseTable
+    :actions="actions"
+    :rows="mappedItemRows"
+    :columns="columns"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addItem')"
     :extra-add-text="localize('labels.session.addItemDrag')"
+    :allow-edit="false"
     :draggable-rows="true"
     :help-text="localize('labels.session.itemHelpText')"
     help-link="https://slyflourish.com/lazy_magic_items.html"
     @add-item="showItemPicker=true"
     @dragoverNew="onDragoverNew"
     @dropNew="onDropNew"
-    @delete-item="onDeleteItem"
-    @mark-item-delivered="onMarkItemDelivered"
-    @unmark-item-delivered="onUnmarkItemDelivered"
-    @move-to-next-session="onMoveItemToNext"
     @dragstart="onDragStart"
   />
   <RelatedDocumentsDialog
@@ -28,7 +24,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -39,7 +35,7 @@
   // library components
 	
   // local components
-  import SessionTable from '@/components/tables/SessionTable.vue';
+  import BaseTable from '@/components/tables/BaseTable.vue';
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
@@ -64,6 +60,50 @@
 
   ////////////////////////////////
   // methods
+  const mappedItemRows = computed(() => (
+    relatedItemRows.value.map((row) => ({
+      ...row,
+    }))
+  ));
+  
+  const columns = computed(() => {
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+
+    const extraFields = sessionStore.extraFields[SessionTableTypes.Item]
+
+    return [ actionColumn, ...extraFields];
+  });
+
+  const actions = computed(() => ([
+    {
+      icon: 'fa-trash', 
+      callback: (data) => onDeleteItem(data.uuid), 
+      tooltip: localize('tooltips.deleteItem') 
+    },
+
+    // deliver/undeliver buttons
+    { 
+      icon: 'fa-circle-check', 
+      display: (data) => !data.delivered, 
+      callback: (data) => onMarkItemDelivered(data.uuid), 
+      tooltip: localize('tooltips.markAsDelivered') 
+    },
+    { 
+      icon: 'fa-circle-xmark', 
+      display: (data) => data.delivered, 
+      callback: (data) => onUnmarkItemDelivered(data.uuid), 
+      tooltip: localize('tooltips.unmarkAsDelivered') 
+    },
+
+    // move to next session
+    { 
+      icon: 'fa-share', 
+      display: (data) => !data.delivered, // hide arrow for things already delivered
+      callback: (data) => onMoveItemToNext(data.uuid), 
+      tooltip: localize('tooltips.moveToNextSession') 
+    }
+  ]));
+
 
   ////////////////////////////////
   // event handlers
@@ -89,7 +129,7 @@
 
     // make sure it's the right format
     if (data.type === 'Item' && data.uuid) {
-      await sessionStore.addItem(data.uuid);  
+      await sessionStore.addItem(data.uuid as string);  
     }
   }
 

@@ -1,25 +1,17 @@
 <template>
-  <SessionTable
+  <BaseTable
     ref="sessionTableRef"
+    :actions="actions"
     :rows="mappedLoreRows"
-    :columns="sessionStore.extraFields[SessionTableTypes.Lore]"
-    :delete-item-label="localize('tooltips.deleteLore')"
-    :allow-edit="true"
-    :edit-item-label="localize('tooltips.editRow')"
+    :columns="columns"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLore')"
     :extra-add-text="localize('labels.session.addLoreDrag')"
     :allow-drop-row="true"
-    :show-move-to-campaign="true"
     :help-text="localize('labels.session.loreHelpText')"
     help-link="https://slyflourish.com/sharing_secrets.html"
     :can-reorder="true"
     @add-item="onAddLore"
-    @delete-item="onDeleteLore"
-    @mark-item-delivered="onMarkLoreDelivered"
-    @unmark-item-delivered="onUnmarkLoreDelivered"
-    @move-to-next-session="onMoveLoreToNext"
-    @move-to-campaign="onMoveToCampaign"
     @cell-edit-complete="onCellEditComplete"
     @dragover-new="onDragover"
     @dragover-row="onDragover"
@@ -36,7 +28,7 @@
   import { computed, ref } from 'vue';
 
   // local imports
-  import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
+  import { useSessionStore, useArcStore, SessionTableTypes, ArcTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
@@ -44,7 +36,7 @@
   // library components
 	
   // local components
-  import SessionTable from '@/components/tables/SessionTable.vue';
+  import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
   import { CellEditCompleteEvent, BaseTableGridRow, SessionLoreDetails } from '@/types';
@@ -52,6 +44,13 @@
   
   ////////////////////////////////
   // props
+  const props = defineProps({
+    arcMode: {
+      type: Boolean,
+      required: false,
+      default: false,
+    }
+  });
 
   ////////////////////////////////
   // emits
@@ -59,7 +58,9 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const { loreRows } = storeToRefs(sessionStore);
+  const arcStore = useArcStore();
+  const { loreRows: sessionLoreRows } = storeToRefs(sessionStore);
+  const { loreRows: arcLoreRows } = storeToRefs(arcStore);
   
   ////////////////////////////////
   // data
@@ -67,11 +68,71 @@
 
   ////////////////////////////////
   // computed data
+  const loreRows = computed(() => props.arcMode ? arcLoreRows.value : sessionLoreRows.value);
+  const store = computed(() => props.arcMode ? arcStore : sessionStore);
+
   const mappedLoreRows = computed(() => (
     loreRows.value.map((row) => ({
       ...row,
     }))
   ));
+
+  const columns = computed(() => {
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+
+    const extraFields = props.arcMode ? 
+      arcStore.extraFields[ArcTableTypes.Lore] :
+      sessionStore.extraFields[SessionTableTypes.Lore]
+
+    return [ actionColumn, ...extraFields];
+  });
+
+    const actions = computed(() => {
+    return [
+      {
+        icon: 'fa-trash', 
+        callback: (data) => onDeleteLore(data.uuid), 
+        tooltip: localize('tooltips.deleteLore') 
+      },
+      {
+        icon: 'fa-pen', 
+        isEdit: true, 
+        callback: () => {},
+        tooltip: localize('tooltips.editRow')
+      },
+
+      // move up (to arc or campaign)
+      { 
+        icon: 'fa-arrow-up', 
+        display: (data) => props.arcMode || !data.delivered,
+        callback: (data) => onMoveLoreUp(data.uuid), 
+        tooltip: props.arcMode ? localize('tooltips.moveToCampaign') : localize('tooltips.moveToArc') 
+      },
+
+      // deliver/undeliver buttons
+      { 
+        icon: 'fa-circle-check', 
+        display: (data) => !props.arcMode && !data.delivered, // hide arrow for things already delivered
+        callback: (data) => onMarkLoreDelivered(data.uuid), 
+        tooltip: localize('tooltips.markAsDelivered') 
+      },
+      { 
+        icon: 'fa-circle-xmark', 
+        display: (data) => !props.arcMode && data.delivered, 
+        callback: (data) => onUnmarkLoreDelivered(data.uuid), 
+        tooltip: localize('tooltips.unmarkAsDelivered') 
+      },
+
+      // move to next session
+      { 
+        icon: 'fa-share', 
+        display: (data) => props.arcMode || !data.delivered, // hide arrow for things already delivered
+        callback: (data) => onMoveLoreToNext(data.uuid), 
+        tooltip: localize('tooltips.moveToNextSession') 
+      }
+    ];
+  });
+
 
   ////////////////////////////////
   // methods
@@ -80,7 +141,7 @@
   // event handlers
   const onAddLore = async () => {
     // Add the lore and get the UUID of the newly added item
-    const loreUuid = await sessionStore.addLore();
+    const loreUuid = await store.value.addLore();
     
     // If we successfully added a lore item, put its description column into edit mode
     if (loreUuid) {
@@ -94,40 +155,49 @@
   }
 
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
-    const { data, newValue, field, originalEvent } = event;
+    const { data, newValue, field, } = event;
 
     switch (field) {
       case 'description':
-        await sessionStore.updateLoreDescription(data.uuid, newValue);
+        await store.value.updateLoreDescription(data.uuid, newValue as string);
         break;
 
       case 'significant':
-        await sessionStore.markLoreSignificant(data.uuid, newValue);
+        if (!props.arcMode)
+          await sessionStore.markLoreSignificant(data.uuid, newValue as boolean);
         break;
 
       default:
-        originalEvent?.preventDefault();
         break;
     }  
   }
 
   const onDeleteLore = async (uuid: string) => {
-    await sessionStore.deleteLore(uuid);
+    await store.value.deleteLore(uuid);
   }
 
   const onMarkLoreDelivered = async (uuid: string) => {
-    await sessionStore.markLoreDelivered(uuid, true);
+    if (!props.arcMode) 
+      await sessionStore.markLoreDelivered(uuid, true);
   }
 
   const onUnmarkLoreDelivered = async (uuid: string) => {
-    await sessionStore.markLoreDelivered(uuid, false);
+    if (!props.arcMode) 
+      await sessionStore.markLoreDelivered(uuid, false);
   }
 
-  const onMoveToCampaign = async (uuid: string) => {
-    await sessionStore.moveLoreToCampaign(uuid);
+  const onMoveLoreUp = async (uuid: string) => {
+    if (props.arcMode)
+      await arcStore.moveLoreToCampaign(uuid);
+    else 
+      await sessionStore.moveLoreToArc(uuid);
   }
+
   const onMoveLoreToNext = async (uuid: string) => {
-    await sessionStore.moveLoreToNext(uuid);
+    if (props.arcMode) 
+      await arcStore.moveLoreToSession(uuid);
+    else
+      await sessionStore.moveLoreToNext(uuid);
   }
 
   const onDragover = (event: DragEvent) => {
@@ -149,10 +219,10 @@
     // make sure it's the right format - looking for JournalEntry(Page)
     if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && data.uuid) {
       // Create a new lore entry and associate it with the journal entry page
-      const loreId = await sessionStore.addLore('');
+      const loreId = await store.value.addLore('');
 
       if (loreId) {
-        await sessionStore.updateLoreJournalEntry(loreId, data.uuid as string);
+        await store.value.updateLoreJournalEntry(loreId, data.uuid as string);
       }
     }
   }
@@ -174,7 +244,7 @@
         return;
       }
       
-      await sessionStore.updateLoreJournalEntry(rowUuid, data.uuid as string);
+      await store.value.updateLoreJournalEntry(rowUuid, data.uuid as string);
     }
   }
 
@@ -191,7 +261,7 @@
         sortOrder: index 
       } as SessionLore;
     });
-    await sessionStore.reorderLore(reorderedLore);
+    await store.value.reorderLore(reorderedLore);
   };
 
   ////////////////////////////////

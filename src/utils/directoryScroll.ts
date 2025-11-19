@@ -1,6 +1,6 @@
 import { nextTick } from 'vue';
 import { useSettingDirectoryStore, useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
-import { WindowTabType, } from '@/types';
+import { Topics, WindowTabType, } from '@/types';
 import { Entry, Session, DirectoryTopicFolderNode, DirectoryCampaignNode, Arc, Front } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 import { getArcForSession } from './arcIndex';
@@ -95,7 +95,7 @@ async function scrollToEntry(entryId: string): Promise<void> {
     await settingDirectoryStore.toggleTopic(topicNode as DirectoryTopicFolderNode);
   }
 
-  if (isGroupedByType) {
+  if (isGroupedByType || topicNode.topicFolder.topic === Topics.Character) {
     // Handle grouped-by-type view
     await scrollToEntryInGroupedView(entry, topicNode as DirectoryTopicFolderNode);
   } else {

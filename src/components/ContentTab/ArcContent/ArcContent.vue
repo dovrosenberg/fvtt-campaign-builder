@@ -26,13 +26,13 @@
       </div>
       <ContentTabStrip 
         :tabs="tabs" 
-        default-tab="notes"
+        default-tab="description"
       >
         <DescriptionTab
           :name="currentArc?.name || 'Arc'"
           :image-url="currentArc?.img"
           :window-type="WindowTabType.Arc"
-          alt-tab-id="notes"
+          alt-tab-id="description"
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
@@ -49,40 +49,37 @@
             />
           </div>
         </DescriptionTab>
-        <div class="tab flexcol" data-group="primary" data-tab="pcs">
+        <div class="tab flexcol" data-group="primary" data-tab="participants">
           <div class="tab-inner">
-            <CampaignPCsTab />
-          </div>
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="npcs">
-          <div class="tab-inner">
-            <SessionNPCTab />
+            <ArcParticipantTab />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="vignettes">
-          <div class="tab-inner">
-            <SessionVignetteTab />
-          </div>  
-        </div>
-
         <div class="tab flexcol" data-group="primary" data-tab="lore">
           <div class="tab-inner">
-            <SessionLoreTab />
+            <SessionLoreTab 
+              :arc-mode="true"
+            />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="locations">
           <div class="tab-inner">
-            <SessionLocationTab />
+            <SessionLocationTab 
+              :arc-mode="true"
+            />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="monsters">
           <div class="tab-inner">
-            <SessionMonsterTab />
+            <SessionMonsterTab 
+              :arc-mode="true"
+            />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="magic">
+        <div class="tab flexcol" data-group="primary" data-tab="ideas">
           <div class="tab-inner">
-            <SessionItemTab />
+            <CampaignIdeasTab 
+              :arc-mode="true"
+            />
           </div>  
         </div>
       </ContentTabStrip>
@@ -97,7 +94,7 @@
   import { ref, watch, onBeforeUnmount, computed, } from 'vue';
 
   // local imports
-  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
+  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { SettingKey, } from '@/settings';
@@ -110,11 +107,10 @@
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import Editor from '@/components/Editor.vue';
   import SessionLocationTab from '@/components/ContentTab/SessionContent/SessionLocationTab.vue';
-  import SessionItemTab from '@/components/ContentTab/SessionContent/SessionItemTab.vue';
-  import SessionNPCTab from '@/components/ContentTab/SessionContent/SessionNPCTab.vue';
+  import ArcParticipantTab from '@/components/ContentTab/ArcContent/ArcParticipantTab.vue';
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
-  import SessionVignetteTab from '@/components/ContentTab/SessionContent/SessionVignetteTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
+  import CampaignIdeasTab from '@/components/ContentTab/CampaignContent/CampaignIdeasTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
@@ -135,9 +131,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const playingStore = usePlayingStore();
-  const { currentArc,} = storeToRefs(mainStore);
-  const { currentPlayedSessionId, currentPlayedSessionNotes } = storeToRefs(playingStore);
+  const { currentArc, } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -148,13 +142,11 @@
   // computed data
   const tabs = computed(() => [
     { id: 'description', label: localize('labels.tabs.arc.description')},
-    { id: 'lore', label: localize('labels.tabs.session.lore')},
-    { id: 'vignettes', label: localize('labels.tabs.session.vignettes')},
-    { id: 'locations', label: localize('labels.tabs.session.locations')},
-    { id: 'npcs', label: localize('labels.tabs.session.npcs')},
-    { id: 'monsters', label: localize('labels.tabs.session.monsters')},
-    { id: 'magic', label: localize('labels.tabs.session.magic')},
-    { id: 'pcs', label: localize('labels.tabs.session.pcs')},
+    { id: 'lore', label: localize('labels.tabs.arc.lore')},
+    { id: 'locations', label: localize('labels.tabs.arc.locations')},
+    { id: 'participants', label: localize('labels.tabs.arc.participants')},
+    { id: 'monsters', label: localize('labels.tabs.arc.monsters')},
+    { id: 'ideas', label: localize('labels.tabs.arc.ideas')}
   ] as ContentTabDescriptor[]);
 
   ////////////////////////////////
@@ -164,7 +156,6 @@
   // event handlers
   // debounce changes to name/number/strong start
   let nameDebounceTimer: NodeJS.Timeout | undefined = undefined;
-  let numberDebounceTimer: NodeJS.Timeout | undefined = undefined;
 
   const onNameUpdate = (newName: string | undefined) => {
     const debounceTime = 500;

@@ -106,6 +106,7 @@ export enum RelatedItemDialogModes {
   Edit = 'edit',
   Session = 'session', // for adding to sessions
   Danger = 'danger', // for adding any topic item (ex. for front participants)
+  Participant = 'participant'  // for adding participants (character/org) to arcs
 }
 
 export enum ToDoTypes {
@@ -166,6 +167,8 @@ export interface SessionBasicIndex {
   uuid: string;
   name: string; 
   number: number; 
+
+  /** ISO string */
   date: string | null;
 }
 

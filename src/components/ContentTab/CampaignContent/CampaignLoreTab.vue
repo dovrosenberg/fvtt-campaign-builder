@@ -1,23 +1,20 @@
 <template>
   <div class="campaign-lore-container flexcol">
     <!-- For available lore -->
-    <SessionTable
+    <BaseTable
       ref="availableLoreRef"
+      :actions="actions"
       :rows="mappedAvailableLoreRows"
-      :columns="campaignStore.extraFields[CampaignTableTypes.Lore]"
-      :delete-item-label="localize('tooltips.deleteLore')"
-      :allow-edit="true"
+      :columns="columns"
       :show-add-button="true"
       :add-button-label="localize('labels.session.addLore')"
       :extra-add-text="localize('labels.session.addLoreDrag')"
+      :can-reorder="true"
+      :allow-edit="true"
       :allow-drop-row="true"
       :help-text="localize('labels.campaign.loreHelpText')"
       help-link="https://slyflourish.com/sharing_secrets.html"
-      :can-reorder="true"
       @add-item="onAddLore"
-      @delete-item="onDeleteLore"
-      @mark-item-delivered="onMarkLoreDelivered"
-      @move-to-next-session="onMoveLoreToNext"
       @cell-edit-complete="onCellEditComplete"
       @dragover-new="onDragover"
       @dragover-row="onDragover"
@@ -30,16 +27,15 @@
     <div style="font-size: 1.3em; font-weight: bold; margin: 0.5rem 0 -1rem 8px"> 
       Delivered Lore
     </div>
-    <SessionTable
+    <BaseTable
+      :actions="deliveredActions"
       :rows="mappedDeliveredLoreRows"
-      :columns="campaignStore.extraFields[CampaignTableTypes.DeliveredLore]"
+      :columns="deliveredColumns"
+      :allow-drop-row="false"
       :allow-delete="true"
       :delete-item-label="localize('tooltips.deleteLore')"
       :allow-edit="true"
       :show-add-button="false"
-      :allow-drop-row="false"
-      @delete-item="onDeleteLore"
-      @unmark-item-delivered="onUnmarkLoreDelivered"
       @cell-edit-complete="onCellEditComplete"
     />
   </div>
@@ -59,7 +55,7 @@
   // library components
 	
   // local components
-  import SessionTable from '@/components/tables/SessionTable.vue';
+  import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
   import { BaseTableGridRow, CampaignLoreDetails, CellEditCompleteEvent } from '@/types';
@@ -93,6 +89,82 @@
     }))
   ));
 
+  const columns = computed(() => {
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+
+    const extraFields = campaignStore.extraFields[CampaignTableTypes.Lore]
+
+    return [ actionColumn, ...extraFields];
+  });
+
+  const deliveredColumns = computed(() => {
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+
+    const extraFields = campaignStore.extraFields[CampaignTableTypes.DeliveredLore]
+
+    return [ actionColumn, ...extraFields];
+  });
+
+  const actions = computed(() => ([
+    {
+      icon: 'fa-trash', 
+      callback: (data) => onDeleteLore(data.uuid), 
+      tooltip: localize('tooltips.deleteLore') 
+    },
+    {
+      icon: 'fa-pen', 
+      isEdit: true, 
+      callback: () => {},
+      tooltip: localize('tooltips.editRow') 
+    },
+
+    // only deliver on top table
+    { 
+      icon: 'fa-circle-check', 
+      display: (data) => !data.delivered, 
+      callback: (data) => onMarkLoreDelivered(data.uuid), 
+      tooltip: localize('tooltips.markAsDelivered') 
+    },
+
+    // move to next arc
+    { 
+      icon: 'fa-arrow-down', 
+      display: (data) => !data.delivered, // hide arrow for things already delivered
+      callback: (data) => moveLoreToArc(data.uuid), 
+      tooltip: localize('tooltips.movetoLastArc') 
+    },
+    // move to next session
+    { 
+      icon: 'fa-share', 
+      display: (data) => !data.delivered, // hide arrow for things already delivered
+      callback: (data) => moveLoreToLastSession(data.uuid), 
+      tooltip: localize('tooltips.moveToNextSession') 
+    }
+  ]));
+
+  const deliveredActions = computed(() => ([
+    {
+      icon: 'fa-trash', 
+      callback: (data) => onDeleteLore(data.uuid), 
+      tooltip: localize('tooltips.deleteLore') 
+    },
+    {
+      icon: 'fa-pen', 
+      isEdit: true, 
+      callback: () => {},
+      tooltip: localize('tooltips.editRow') 
+    },
+
+    // only undeliver
+    { 
+      icon: 'fa-circle-xmark', 
+      display: (data) => data.delivered, 
+      callback: (data) => onUnmarkLoreDelivered(data.uuid), 
+      tooltip: localize('tooltips.unmarkAsDelivered') 
+    },
+  ]));
+
+
   ////////////////////////////////
   // methods
 
@@ -116,15 +188,14 @@
 
   // only applicable to the available lore table
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
-    const { data, newValue, field, originalEvent } = event;
+    const { data, newValue, field, } = event;
 
     switch (field) {
       case 'description':
-        await campaignStore.updateLoreDescription(data.uuid, newValue);
+        await campaignStore.updateLoreDescription(data.uuid, newValue as string);
         break;
 
       default:
-        originalEvent?.preventDefault();
         break;
     }  
   }
@@ -143,8 +214,12 @@
     await campaignStore.markLoreDelivered(uuid, false);
   }
 
-  const onMoveLoreToNext = async (uuid: string) => {
+  const moveLoreToLastSession = async (uuid: string) => {
     await campaignStore.moveLoreToLastSession(uuid);
+  }
+
+  const moveLoreToArc = async (uuid: string) => {
+    await campaignStore.moveLoreToArc(uuid);
   }
 
   const onDragover = (event: DragEvent) => {

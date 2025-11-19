@@ -614,7 +614,7 @@ const cleanCompendiumIds = async (settingId: string) => {
     // entries object - should already be correct because they're added when they're created
 
     // entries
-    for (const entry of await topicFolder.allEntries(true)) {
+    for (const entry of await topicFolder.allEntries()) {
       // relationships
       const newRelationships = {} as ValidTopicRecord<Record<string, RelatedItemDetails<any, any>>>;
       
@@ -751,7 +751,7 @@ async function buildTagLists(): Promise<void> {
 
     // Count tags from all entries
     for (const topicFolder of Object.values(setting.topicFolders)) {
-      for (const entry of await topicFolder.allEntries(true)) {
+      for (const entry of await topicFolder.allEntries()) {
         for (const tag of entry.tags || []) {
           entryTagCounts[tag] = (entryTagCounts[tag] || 0) + 1;
         }
