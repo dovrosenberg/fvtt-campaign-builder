@@ -338,39 +338,88 @@
       newStartSession = Math.max(lowestSession.value, Math.min(newStartSession, highestSession.value));
       newEndSession = Math.max(lowestSession.value, Math.min(newEndSession, highestSession.value));
 
-      // if the starting session changed, need to adjust the prior session or make sure we go to 0
+      // if the starting session changed, adjust any prior arcs that overlap this range
       if (data.startSessionNumber !== newData.startSessionNumber) {
-        if (prevArc) {
-          // if we made it 0, all prior arcs must be empty
+        // update all prior arcs that have sessions assigned
+        for (let i = 0; i < arcIndex; i++) {
+          const priorArc = arcs.value[i];
+
+          // skip blank arcs
+          if (priorArc.startSessionNumber === -1)
+            continue;
+
+          const priorStart = priorArc.startSessionNumber;
+          const priorEnd = priorArc.endSessionNumber;
+
+          // if we made it the lowest session, all prior arcs must be empty
           if (newStartSession === lowestSession.value) {
-            for (let i=arcIndex-1; i>=0; i--) {
-              arcs.value[i].endSessionNumber = -1;
-              arcs.value[i].startSessionNumber = -1;
-            }
-          } else {
-            prevArc.endSessionNumber = newStartSession-1;
+            priorArc.startSessionNumber = -1;
+            priorArc.endSessionNumber = -1;
+            continue;
           }
-        } else {
-          // has to go all the way down
+
+          // if this prior arc is completely within the new arc range, blank it
+          if (priorStart >= newStartSession && priorEnd <= newEndSession) {
+            priorArc.startSessionNumber = -1;
+            priorArc.endSessionNumber = -1;
+            continue;
+          }
+
+          // if it overlaps the beginning of the new range, cut off its tail
+          if (priorStart < newStartSession && priorEnd >= newStartSession) {
+            priorArc.endSessionNumber = newStartSession - 1;
+          }
+        }
+
+        // if there were no prior arcs with sessions, ensure this arc extends to the lowest session
+        const hasPriorWithSessions = arcs.value
+          .slice(0, arcIndex)
+          .some(a => a.startSessionNumber !== -1);
+
+        if (!hasPriorWithSessions) {
           newStartSession = lowestSession.value;
         }
       }
 
-      // if the ending session changed, need to adjust the next session
+      // if the ending session changed, need to adjust the next session(s)
       if (data.endSessionNumber !== newData.endSessionNumber) {
-        if (nextArc) {
-          // if we made it >= highest session number, all later arcs must be empty 
-          if (newEndSession >= campaign.value?.currentSessionNumber!) {
-            for (let i=arcIndex+1; i<arcs.value.length; i++) {
-              arcs.value[i].endSessionNumber = -1;
-              arcs.value[i].startSessionNumber = -1;
-            }
-          } else {
-            nextArc.startSessionNumber = newEndSession+1;
+        // look for any later arcs that currently have sessions assigned
+        const laterArcs = arcs.value.slice(arcIndex + 1);
+        const hasLaterWithSessions = laterArcs.some(a => a.startSessionNumber !== -1);
+
+        if (!hasLaterWithSessions) {
+          // no later arcs with sessions; clamp to highest session
+          newEndSession = highestSession.value!;
+        } else if (newEndSession >= highestSession.value!) {
+          // if we made it >= highest session number, all later arcs must be empty
+          for (let i = arcIndex + 1; i < arcs.value.length; i++) {
+            arcs.value[i].endSessionNumber = -1;
+            arcs.value[i].startSessionNumber = -1;
           }
         } else {
-          // has to go all the way up
-          newEndSession = highestSession.value;
+          // adjust all later arcs that overlap or are fully contained within this arc's range
+          for (let i = arcIndex + 1; i < arcs.value.length; i++) {
+            const laterArc = arcs.value[i];
+
+            // skip blank arcs
+            if (laterArc.startSessionNumber === -1)
+              continue;
+
+            const laterStart = laterArc.startSessionNumber;
+            const laterEnd = laterArc.endSessionNumber;
+
+            // if this later arc is completely within the new arc range, blank it
+            if (laterStart >= newStartSession && laterEnd <= newEndSession) {
+              laterArc.startSessionNumber = -1;
+              laterArc.endSessionNumber = -1;
+              continue;
+            }
+
+            // if it overlaps the end of the new arc, push its start to just after the new end
+            if (laterStart <= newEndSession && laterEnd > newEndSession) {
+              laterArc.startSessionNumber = newEndSession + 1;
+            }
+          }
         }
       }
     }
