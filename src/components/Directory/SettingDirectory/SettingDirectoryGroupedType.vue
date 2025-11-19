@@ -2,7 +2,7 @@
   <!-- the "type" parent node -->
   <!-- note that filtering by filterNodes will hide unused types even if there's no search filter -->
   <li 
-    v-if="filterNodes[props.topic]?.includes(currentType?.name)"
+    v-if="filterNodes[props.topic]?.includes(currentType?.id)"
     class="fcb-type-item"
   >
     <div 
@@ -51,8 +51,7 @@
   import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useNavigationStore, useSettingDirectoryStore, useMainStore, } from '@/applications/stores';
-  import { localize } from '@/utils/game';
+  import { useSettingDirectoryStore, useMainStore, } from '@/applications/stores';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   import { toTopic } from '@/utils/misc';
   import { getValidatedData } from '@/utils/dragdrop';
@@ -92,7 +91,6 @@
   // store
   const settingDirectoryStore = useSettingDirectoryStore();
   const mainStore = useMainStore();
-  const navigationStore = useNavigationStore();
   const { currentSetting, currentEntry } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(settingDirectoryStore);
   

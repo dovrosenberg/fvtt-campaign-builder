@@ -4,12 +4,13 @@
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.6.0/module.zip)
 
 - You can now use fronts.  They can be disabled in the module settings.
-- Fixed bug when trying to move lore to the next session when that session wasn't yet created.
-- Fixed bug where changes to referenced document names wasn't always updating the names referenced in campaign builder.
 - You can now properly open sessions from the search results.
 - Type groups now expand if needed to highlight the current entry in the tree when a character is opened in a tab.
 - When PCs are related to character entries, there is now a "relationship" field.
 - You can now "undeliver" lore on the campaign lore list that was delivered in a session.  It returns it back to that session as undelivered.
+- Fixed bug when trying to move lore to the next session when that session wasn't yet created.
+- Fixed bug where changes to referenced document names wasn't always updating the names referenced in campaign builder.
+- Fixed a bug where some entries with no type were missing from the 'grouped by type' tree.
 
 ## v1.5.4 - Fixed migration bug 
 ![](https://img.shields.io/badge/release%20date-November%2015%2C%202025-blue)
