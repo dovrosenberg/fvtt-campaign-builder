@@ -20,10 +20,13 @@
 <script setup lang="ts">
   // library imports
   import { computed } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
   import { notifyError, notifyInfo, notifyWarn } from '@/utils/notifications';
   import { localize } from '@/utils/game';
+  import { useMainStore } from '@/applications/stores';
+  import { getTopicText } from '@/compendia';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -34,8 +37,6 @@
   import { Topics, ValidTopic, WindowTabType } from '@/types';
   import { MenuItem } from '@imengyu/vue3-context-menu';
   import { Backend } from '@/classes';
-  import { storeToRefs } from 'pinia';
-  import { useMainStore } from '@/applications/stores';
 
   ////////////////////////////////
   // props
@@ -74,7 +75,7 @@
   ////////////////////////////////
   // data
   const mainStore = useMainStore();
-  const {currentEntry }= storeToRefs(mainStore);
+  const { currentEntry, currentContentType } = storeToRefs(mainStore);
 
 
   ////////////////////////////////
@@ -166,11 +167,17 @@
       }
     } else {
       items = [
+        // {
+        //   icon: 'fa-eye',
+        //   iconFontClass: 'fas',
+        //   label: localize('contextMenus.image.viewImage'),
+        //   onClick: () => showImagePopout()
+        // },
         {
           icon: 'fa-eye',
           iconFontClass: 'fas',
-          label: localize('contextMenus.image.viewImage'),
-          onClick: () => showImagePopout()
+          label: localize('contextMenus.image.showToPlayers'),
+          onClick: () => showImageToPlayers()
         },
         {
           icon: 'fa-copy',
@@ -259,9 +266,7 @@
     // Create a new ImagePopout instance
     const popout = new foundry.applications.apps.ImagePopout({
       window: { title: props.title || 'View Image' },
-      src: props.modelValue,
-      shareable: false,
-      editable: false
+      src: props.modelValue
     });
 
     // Display the ImagePopout
@@ -287,6 +292,38 @@
 
   const postToChat = () => {
     ChatMessage.create({ content: `<img src="${props.modelValue}" alt="Campaign Builder Image">` });
+  };
+
+  const showImageToPlayers = async () => {
+    if (!props.modelValue) return;
+
+    // if the object is an entry, just show the topic
+    // if it is anything else, show the name
+    let title = '';
+    switch (currentContentType.value) {
+      case WindowTabType.Campaign:
+      case WindowTabType.Session:
+      case WindowTabType.Arc:
+      case WindowTabType.Front:
+        title = props.title;
+        break;
+      case WindowTabType.Entry:
+        title = currentEntry.value?.topic ? getTopicText(currentEntry.value.topic) : 'Entry';
+        break;
+      
+      default:
+        title = 'Image';
+    }
+
+
+    game.socket.emit("shareImage", {
+      image: props.modelValue,
+      title: title,
+      caption: '',
+      // uuid: props.uuid,  // this can be used to limit who sees the title
+      showTitle: 'showTitle',
+      // users: Array.isArray(options.users) ? options.users : undefined
+    });
   };
 
   const createScene = () => {

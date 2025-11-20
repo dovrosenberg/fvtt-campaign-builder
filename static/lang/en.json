@@ -618,6 +618,7 @@
       },
       "image": {
         "viewImage": "View Image",
+        "showToPlayers": "Show to players",
         "changeImage": "Change Image",
         "addImage": "Add Image",
         "removeImage": "Remove Image",
