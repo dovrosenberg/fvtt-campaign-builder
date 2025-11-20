@@ -1,9 +1,10 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { useMainStore } from '@/applications/stores';
-import { ArcBasicIndex, } from '@/types';
+import { ArcBasicIndex, SessionBasicIndex, } from '@/types';
 import { Arc, Campaign, } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents';
+import { VersionUtils } from '@/utils/version';
 
 let processed = 0;
 let totalEntries= 0;
@@ -52,6 +53,7 @@ export class MigrationV1_6 implements Migration {
             'uuid', 
             'flags.campaign-builder.campaignBuilderType',
             'pages.system.sessions',
+            'pages.system.sessionIndex',
           ]
         });
 
@@ -71,12 +73,24 @@ export class MigrationV1_6 implements Migration {
           });
           await setting.save();
 
-          // get the sessions off the index
-          const sessionList = campaignIdx.pages?.[0].system?.sessions;
+
+          // get the sessions off the index if we're coming from 1.5.1 or higher
+          // if we're coming from lower, the 1_5_1 migration already moved them 
+          //    to session index
+          let sessionList: SessionBasicIndex[];
+
+          // loading campaign breaks the index, so we have to capture first
+          if (VersionUtils.compareVersions(this._context.originalVersion, '1.5.1') >= 0) {
+            sessionList = campaignIdx.pages?.[0].system?.sessions;
+          }
 
           const campaign = await Campaign.fromUuid(campaignIdx.uuid);
           if (!campaign)
             continue;
+
+          if (VersionUtils.compareVersions(this._context.originalVersion, '1.5.1') < 0) {
+            sessionList = campaign.sessionIndex;
+          }
          
           // create an arc - this will add it to the campaign and setting indexes
           const arc = await Arc.create(campaign, 'All sessions'); 

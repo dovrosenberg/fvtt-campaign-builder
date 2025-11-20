@@ -2,6 +2,8 @@ import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { useMainStore } from '@/applications/stores';
 import { EntryBasicIndex, Hierarchy, SessionBasicIndex, Topics, ValidTopic } from '@/types';
+import { DOCUMENT_TYPES } from '@/documents';
+import { Campaign } from '@/classes';
 
 
 let processed = 0;
@@ -121,8 +123,7 @@ export class MigrationV1_5_1 implements Migration {
 
         // ignore the sessions in the count for simplicity
 
-        // have to use allSessions on setting to get them b/c the one on
-        //    campaign filters by the (non-existent) index so we create temp index
+        // Build a temporary flat index of all sessions in this setting, keyed by campaignId
         const tempIndex = [] as (SessionBasicIndex & { campaignId: string })[];
         for (const session of await setting.allSessions()) {
           tempIndex.push({
@@ -134,22 +135,43 @@ export class MigrationV1_5_1 implements Migration {
           });
         }
 
-        await setting.loadCampaigns();
-        for (const campaign of Object.values(setting.campaigns)) {
-          const newIndex = tempIndex.filter((s)=> s.campaignId === campaign.uuid);
+        // Find all campaign journal entries in this setting's compendium directly
+        const pack = setting.compendium;
+        const campaignIndexEntries = await pack.getIndex({
+          fields: [
+            'name',
+            'uuid',
+            'flags.campaign-builder.campaignBuilderType',
+          ],
+        });
 
-          const index = campaign.sessionIndex;
-          for (const item of newIndex) {
-            index.push({
-              uuid: item.uuid,
-              name: item.name,
-              number: item.number,
-              date: item.date
-            });
-            updateProgress(`Processing campaign: ${campaign.name}`);
-          }
+        const campaignEntries = campaignIndexEntries.filter((idx: any) =>
+          idx.flags?.['campaign-builder']?.campaignBuilderType === DOCUMENT_TYPES.Campaign
+        );
+
+        // For each campaign, rebuild its sessionIndex 
+        for (const idx of campaignEntries) {
+          const campaign = await Campaign.fromUuid(idx.uuid);
+          if (!campaign)
+            continue;
+
+          const newIndex = tempIndex.filter((s) => s.campaignId === campaign.uuid);
+
+          // Overwrite the sessionIndex with the rebuilt list
+          campaign.sessionIndex = newIndex.map((s: SessionBasicIndex) => ({
+            uuid: s.uuid,
+            name: s.name,
+            number: s.number,
+            date: s.date,
+          }));
+
           await campaign.save();
+          updateProgress(`Processing campaign: ${campaign.name}`);
         }
+
+        // After updating campaign pages, force a full compendium index rebuild so that
+        // @ts-ignore - pack.indexFields is provided by Foundry at runtime
+        await pack.getIndex({ fields: [foundry.utils.randomID()]});
       }
     } catch (outer) {
       result.success = false;
