@@ -58,9 +58,7 @@
       "showRolePlayingNotes": "Afficher les notes de jeu de rôle sur les entrées",
       "showRolePlayingNotesHelp": "Lorsque c'est vrai, un champ séparé pour les notes de jeu de rôle sera affiché séparément de la description de l'entrée.",
       "useFronts": "Utiliser les fronts",
-      "useFrontsHelp": "Activer la fonctionnalité de \"front\" de campagne.",
-      "useArcs": "Utiliser les arcs",
-      "useArcsHelp": "Regrouper les sessions en arcs narratifs au sein de chaque campagne."
+      "useFrontsHelp": "Activer la fonctionnalité de \"front\" de campagne."
     },
     "applications": {
       "sessionNotes": {
@@ -246,8 +244,7 @@
       "entry": {
         "topic": "DossierSujet",
         "type": "Type",
-        "relationships": "Relations",
-        "sessions": "Sessions"
+        "relationships": "Relations"
       },
       "session": {
         "session": "Session",
@@ -274,7 +271,9 @@
         "vignetteHelpText": "Scènes qui apportent une résolution, ouvrent de nouveaux chemins, modifient l'histoire. 1 par 45 minutes. Cliquez pour en savoir plus de Lazy DM.",
         "locationHelpText": "Lieux détaillés, mémorables et fantastiques que les personnages peuvent explorer. Cliquez pour en savoir plus de Lazy DM.",
         "strongStart": "Début fort",
-        "strongStartHelpText": "Un début fort est un événement court et percutant qui donne le ton à la session. Cliquez pour en savoir plus de Lazy DM."
+        "strongStartHelpText": "Un début fort est un événement court et percutant qui donne le ton à la session. Cliquez pour en savoir plus de Lazy DM.",
+        "addJournal": "Ajouter un journal",
+        "addJournalDrag": "(ou glisser/déposer un journal ou une page de journal)"
       },
       "campaign": {
         "addPC": "Ajouter un PJ",
@@ -301,10 +300,6 @@
           "locationChildren": "Lieux enfants",
           "organizations": "Organisations",
           "organizationChildren": "Sous-organisations",
-          "scenes": "Scènes",
-          "actors": "Acteurs",
-          "sessions": "Sessions",
-          "journals": "Journaux",
           "pcs": "PCs"
         },
         "campaign": {
@@ -312,8 +307,7 @@
           "pcs": "PJs",
           "lore": "Savoir",
           "toDo": "À faire",
-          "ideas": "Idées",
-          "journals": "Journaux"
+          "ideas": "Idées"
         },
         "session": {
           "notes": "Notes",
@@ -329,12 +323,21 @@
           "noteBox": "Boîte à notes"
         },
         "setting": {
-          "description": "Description",
-          "journals": "Journaux"
+          "description": "Description"
         },
         "front": {
           "description": "Description",
           "createNewDanger": "Créer un nouveau danger"
+        },
+        "arc": {
+          "arc": "Arc",
+          "description": "Description",
+          "pcs": "PJ",
+          "lore": "Lore",
+          "locations": "Lieux",
+          "participants": "Participants",
+          "monsters": "Monstres",
+          "ideas": "Idées"
         }
       },
       "noResults": "Rien ici",
@@ -382,7 +385,16 @@
         "impendingDoom": "Catastrophe imminente",
         "addParticipant": "Ajouter un participant",
         "addPortent": "Ajouter un présage funeste",
-        "portentHelpText": "Les présages funestes sont les événements qui se produiront si le danger n'est pas traité. Ils peuvent apporter une résolution, ouvrir de nouveaux chemins, changer l'histoire."
+        "portentHelpText": "Les présages funestes sont les événements qui se produiront si le danger n'est pas traité. Ils peuvent apporter une résolution, ouvrir de nouveaux chemins, changer l'histoire.",
+        "front": "Front"
+      },
+      "actors": "Acteurs",
+      "sessions": "Sessions",
+      "scenes": "Scènes",
+      "arc": {
+        "addParticipant": "Ajouter un participant",
+        "addParticipantDrag": "(ou glisser/déposer un personnage/organisation)",
+        "participantHelpText": "Personnages et organisations susceptibles d'apparaître pendant l'arc"
       }
     },
     "placeholders": {
@@ -399,7 +411,8 @@
       "linkToActor": "Lien vers l'Acteur",
       "pcName": "Nom du PC",
       "frontName": "Nom du front",
-      "dangerName": "Nom du danger"
+      "dangerName": "Nom du danger",
+      "arcName": "Nom de l'arc"
     },
     "topics": {
       "character": "Personnage",
@@ -497,11 +510,6 @@
         "addedItems": "Ajouter des relations à ceux-ci ?",
         "removedItems": "Supprimer les relations de ceux-ci ?"
       },
-      "contextMenus": {
-        "cannotActivateFromCompendium": "Impossible d'activer depuis le compendium",
-        "cannotToggleNavigationFromCompendium": "Impossible de basculer la navigation depuis une scène dans un compendium",
-        "cannotToggleNavigationWhileActive": "Impossible de basculer la navigation pendant que la scène est active"
-      },
       "saveSessionNotes": {
         "title": "Enregistrer les modifications ?",
         "message": "Voulez-vous enregistrer les notes de session actuelles avant de fermer ?"
@@ -528,6 +536,22 @@
       "createArc": {
         "title": "Créer un arc",
         "arcName": "Nom de l'arc"
+      },
+      "arcManager": {
+        "title": "Gérer les arcs",
+        "labels": {
+          "edit": "Modifier l'arc",
+          "delete": "Supprimer l'arc",
+          "addArc": "Ajouter un arc"
+        },
+        "missingSession": "Session manquante",
+        "warning": {
+          "mustBeBlank": "Il n'y a pas de sessions dans la campagne, donc le début et la fin doivent être vides",
+          "invalidSessionNumber": "Numéro de session invalide",
+          "startTooHigh": "La session de début doit être inférieure à la session de fin",
+          "bothBlank": "Les numéros de début et de fin de session doivent être soit tous les deux vides, soit tous les deux non vides",
+          "allSessionsCovered": "Toutes les sessions doivent être couvertes par un arc"
+        }
       }
     },
     "contextMenus": {
@@ -543,7 +567,9 @@
         "delete": "Supprimer la campagne",
         "markComplete": "Marquer la campagne comme terminée",
         "markActive": "Marquer la campagne comme active",
-        "createFront": "Créer un front"
+        "createFront": "Créer un front",
+        "createArc": "Créer un arc",
+        "manageArcs": "Gérer les arcs"
       },
       "session": {
         "delete": "Supprimer la session"
@@ -557,7 +583,8 @@
         "addImage": "Ajouter une image",
         "generateImage": "Générer une image",
         "copyToClipboard": "Copier dans le presse-papiers",
-        "copyLinkToClipboard": "Copier le lien dans le presse-papiers"
+        "copyLinkToClipboard": "Copier le lien dans le presse-papiers",
+        "showToPlayers": "Montrer aux joueurs"
       },
       "topicFolder": {
         "create": {
@@ -586,6 +613,15 @@
       "settingFolder": {
         "delete": "Supprimer le paramètre",
         "createCampaign": "Créer une campagne"
+      },
+      "arcFolder": {
+        "createSession": "Créer une session",
+        "delete": "Supprimer l'arc"
+      },
+      "dialogs": {
+        "cannotActivateFromCompendium": "Impossible d'activer depuis le compendium",
+        "cannotToggleNavigationFromCompendium": "Impossible de basculer la navigation depuis une scène dans un compendium",
+        "cannotToggleNavigationWhileActive": "Impossible de basculer la navigation pendant qu'une scène est active"
       }
     },
     "tooltips": {
@@ -652,7 +688,11 @@
       "editParticipant": "Modifier le participant",
       "editPortent": "Modifier le présage funeste",
       "deletePortent": "Supprimer le présage funeste",
-      "deleteParticipant": "Supprimer le participant"
+      "deleteParticipant": "Supprimer le participant",
+      "editNotes": "Modifier les notes",
+      "copyToNextSession": "Copier à la session suivante",
+      "moveToArc": "Déplacer vers l'arc pour une utilisation ultérieure",
+      "movetoLastArc": "Déplacer vers le dernier arc"
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori",
@@ -673,7 +713,10 @@
       "migration": {
         "minimumVersionRequired": "Le constructeur de campagne ne peut pas migrer depuis la version {0}. Vous devez d'abord passer à la version {1} ou supérieure avant de passer à {2}.",
         "cannotOpen": "Le constructeur de campagne ne peut pas être ouvert car la migration a échoué. Veuillez vérifier la console pour plus de détails et résoudre le problème de migration."
-      }
+      },
+      "participantCopiedToNextSession": "Participant copié à la session suivante",
+      "locationCopiedToNextSession": "Lieu copié à la session suivante",
+      "monsterCopiedToNextSession": "Monstre copié à la session suivante"
     },
     "contentFolders": {
       "campaigns": "Campagnes",

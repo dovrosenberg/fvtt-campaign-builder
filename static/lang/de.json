@@ -58,9 +58,7 @@
       "showRolePlayingNotes": "Rollenspielnotizen bei Einträgen anzeigen",
       "showRolePlayingNotesHelp": "Wenn wahr, wird ein separates Feld für Rollenspielnotizen getrennt von der Eintragsbeschreibung angezeigt.",
       "useFronts": "Fronten verwenden",
-      "useFrontsHelp": "Aktivieren Sie die Kampagnenfunktion \"Front\".",
-      "useArcs": "Bögen verwenden",
-      "useArcsHelp": "Gruppieren Sie Sitzungen in Handlungsbögen innerhalb jeder Kampagne."
+      "useFrontsHelp": "Aktivieren Sie die Kampagnenfunktion \"Front\"."
     },
     "applications": {
       "sessionNotes": {
@@ -246,8 +244,7 @@
       "entry": {
         "topic": "Themenordner",
         "type": "Typ",
-        "relationships": "Beziehungen",
-        "sessions": "Sitzungen"
+        "relationships": "Beziehungen"
       },
       "session": {
         "session": "Sitzung",
@@ -274,7 +271,9 @@
         "vignetteHelpText": "Szenen, die eine Lösung bringen, neue Wege öffnen, die Geschichte verändern. 1 pro 45 Minuten. Klicken Sie, um mehr von Lazy DM zu lesen.",
         "locationHelpText": "Detaillierte, denkwürdige, fantastische Orte, die die Charaktere erkunden können. Klicken Sie, um mehr von Lazy DM zu lesen.",
         "strongStart": "Starker Start",
-        "strongStartHelpText": "Ein starker Start ist ein kurzes, eindrucksvolles Ereignis, das den Ton für die Sitzung angibt. Klicken Sie, um mehr von Lazy DM zu lesen."
+        "strongStartHelpText": "Ein starker Start ist ein kurzes, eindrucksvolles Ereignis, das den Ton für die Sitzung angibt. Klicken Sie, um mehr von Lazy DM zu lesen.",
+        "addJournal": "Journal hinzufügen",
+        "addJournalDrag": "(oder ziehen/ablegen eines Journals oder einer Journalseite)"
       },
       "campaign": {
         "addPC": "PC hinzufügen",
@@ -301,10 +300,6 @@
           "locationChildren": "Untergeordnete Orte",
           "organizations": "Organisationen",
           "organizationChildren": "Unterorganisationen",
-          "scenes": "Szenen",
-          "actors": "Schauspieler",
-          "sessions": "Sitzungen",
-          "journals": "Journale",
           "pcs": "PCs"
         },
         "campaign": {
@@ -312,8 +307,7 @@
           "pcs": "PCs",
           "lore": "Überlieferung",
           "toDo": "Zu erledigen",
-          "ideas": "Ideen",
-          "journals": "Journale"
+          "ideas": "Ideen"
         },
         "session": {
           "notes": "Notizen",
@@ -329,12 +323,21 @@
           "noteBox": "Notizbox"
         },
         "setting": {
-          "description": "Beschreibung",
-          "journals": "Journale"
+          "description": "Beschreibung"
         },
         "front": {
           "description": "Beschreibung",
           "createNewDanger": "Neue Gefahr erstellen"
+        },
+        "arc": {
+          "arc": "Bogen",
+          "description": "Beschreibung",
+          "pcs": "SCs",
+          "lore": "Überlieferung",
+          "locations": "Orte",
+          "participants": "Teilnehmer",
+          "monsters": "Monster",
+          "ideas": "Ideen"
         }
       },
       "noResults": "Nichts hier",
@@ -382,7 +385,16 @@
         "impendingDoom": "Drohendem Untergang",
         "addParticipant": "Teilnehmer hinzufügen",
         "addPortent": "Düsteres Vorzeichen hinzufügen",
-        "portentHelpText": "Düstere Vorzeichen sind die Ereignisse, die eintreten werden, wenn die Gefahr nicht beseitigt wird. Sie können eine Lösung bringen, neue Wege eröffnen, die Geschichte verändern."
+        "portentHelpText": "Düstere Vorzeichen sind die Ereignisse, die eintreten werden, wenn die Gefahr nicht beseitigt wird. Sie können eine Lösung bringen, neue Wege eröffnen, die Geschichte verändern.",
+        "front": "Vorderseite"
+      },
+      "actors": "Schauspieler",
+      "sessions": "Sitzungen",
+      "scenes": "Szenen",
+      "arc": {
+        "addParticipant": "Teilnehmer hinzufügen",
+        "addParticipantDrag": "(oder ziehen/ablegen eines Charakters/Organisation)",
+        "participantHelpText": "Charaktere und Organisationen, die wahrscheinlich während des Bogens auftauchen"
       }
     },
     "placeholders": {
@@ -399,7 +411,8 @@
       "linkToActor": "Mit Schauspieler verknüpfen",
       "pcName": "PC-Name",
       "frontName": "Frontname",
-      "dangerName": "Gefahrenname"
+      "dangerName": "Gefahrenname",
+      "arcName": "Bogenname"
     },
     "topics": {
       "character": "Charakter",
@@ -497,11 +510,6 @@
         "addedItems": "Beziehungen zu diesen hinzufügen?",
         "removedItems": "Beziehungen von diesen entfernen?"
       },
-      "contextMenus": {
-        "cannotActivateFromCompendium": "Kann nicht aus dem Kompendium aktiviert werden",
-        "cannotToggleNavigationFromCompendium": "Navigation kann nicht aus einer Szene im Kompendium umgeschaltet werden",
-        "cannotToggleNavigationWhileActive": "Navigation kann nicht umgeschaltet werden, während die Szene aktiv ist"
-      },
       "saveSessionNotes": {
         "title": "Änderungen speichern?",
         "message": "Möchten Sie die aktuellen Sitzungsnotizen vor dem Schließen speichern?"
@@ -528,6 +536,22 @@
       "createArc": {
         "title": "Bogen erstellen",
         "arcName": "Bogenname"
+      },
+      "arcManager": {
+        "title": "Bögen verwalten",
+        "labels": {
+          "edit": "Bogen bearbeiten",
+          "delete": "Bogen löschen",
+          "addArc": "Bogen hinzufügen"
+        },
+        "missingSession": "Fehlende Sitzung",
+        "warning": {
+          "mustBeBlank": "Es gibt keine Sitzungen in der Kampagne, daher müssen Anfang und Ende leer sein",
+          "invalidSessionNumber": "Ungültige Sitzungsnummer",
+          "startTooHigh": "Die Anfangssitzung muss kleiner als die Endesitzung sein",
+          "bothBlank": "Anfangs- und Endesitzungsnummern müssen entweder beide leer oder beide nicht leer sein",
+          "allSessionsCovered": "Alle Sitzungen müssen von einem Bogen abgedeckt sein"
+        }
       }
     },
     "contextMenus": {
@@ -543,7 +567,9 @@
         "delete": "Kampagne löschen",
         "markComplete": "Kampagne als abgeschlossen markieren",
         "markActive": "Kampagne als aktiv markieren",
-        "createFront": "Eine Front erstellen"
+        "createFront": "Eine Front erstellen",
+        "createArc": "Einen Bogen erstellen",
+        "manageArcs": "Bögen verwalten"
       },
       "session": {
         "delete": "Sitzung löschen"
@@ -557,7 +583,8 @@
         "addImage": "Bild hinzufügen",
         "generateImage": "Bild generieren",
         "copyToClipboard": "In die Zwischenablage kopieren",
-        "copyLinkToClipboard": "Link in die Zwischenablage kopieren"
+        "copyLinkToClipboard": "Link in die Zwischenablage kopieren",
+        "showToPlayers": "Spielern zeigen"
       },
       "topicFolder": {
         "create": {
@@ -586,6 +613,15 @@
       "settingFolder": {
         "delete": "Einstellung löschen",
         "createCampaign": "Kampagne erstellen"
+      },
+      "arcFolder": {
+        "createSession": "Eine Sitzung erstellen",
+        "delete": "Bogen löschen"
+      },
+      "dialogs": {
+        "cannotActivateFromCompendium": "Kann nicht aus dem Kompendium aktiviert werden",
+        "cannotToggleNavigationFromCompendium": "Kann die Navigation von einer Szene im Kompendium nicht umschalten",
+        "cannotToggleNavigationWhileActive": "Kann die Navigation nicht umschalten, während die Szene aktiv ist"
       }
     },
     "tooltips": {
@@ -652,7 +688,11 @@
       "editParticipant": "Teilnehmer bearbeiten",
       "editPortent": "Düsteres Vorzeichen bearbeiten",
       "deletePortent": "Düsteres Vorzeichen löschen",
-      "deleteParticipant": "Teilnehmer löschen"
+      "deleteParticipant": "Teilnehmer löschen",
+      "editNotes": "Notizen bearbeiten",
+      "copyToNextSession": "In die nächste Sitzung kopieren",
+      "moveToArc": "Zum späteren Gebrauch in den Bogen verschieben",
+      "movetoLastArc": "Zum neuesten Bogen verschieben"
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert",
@@ -673,7 +713,10 @@
       "migration": {
         "minimumVersionRequired": "Campign Builder kann nicht von Version {0} migrieren. Sie müssen zuerst auf Version {1} oder höher aktualisieren, bevor Sie auf {2} upgraden.",
         "cannotOpen": "Campaign Builder kann nicht geöffnet werden, da die Migration fehlgeschlagen ist. Bitte überprüfen Sie die Konsole auf Details und beheben Sie das Migrationsproblem."
-      }
+      },
+      "participantCopiedToNextSession": "Teilnehmer in die nächste Sitzung kopiert",
+      "locationCopiedToNextSession": "Ort in die nächste Sitzung kopiert",
+      "monsterCopiedToNextSession": "Monster in die nächste Sitzung kopiert"
     },
     "contentFolders": {
       "campaigns": "Kampagnen",
