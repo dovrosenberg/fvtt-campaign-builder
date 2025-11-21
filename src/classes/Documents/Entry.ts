@@ -7,7 +7,7 @@ import { getTopicText } from '@/compendia';
 import { TopicFolder,  } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
-import { useMainStore, usePlayingStore } from '@/applications/stores';
+import { useMainStore, usePlayingStore, useSettingDirectoryStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { cleanTopicKeysOnSave } from '@/utils/cleanKeys';
@@ -114,16 +114,16 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     let folderName = '';
     switch (topicFolder.topic) {
       case Topics.Character:
-        folderName = 'Characters';
+        folderName = localize('topics.characters');
         break;
       case Topics.Location:
-        folderName = 'Locations';
+        folderName = localize('topics.locations');
         break;
       case Topics.Organization:
-        folderName = 'Organizations';
+        folderName = localize('topics.organizations');
         break;
       case Topics.PC:
-        folderName = 'PCs';
+        folderName = localize('topics.pcs');
         break;
     }
     const setting = topicFolder.setting;
@@ -391,7 +391,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
    * @returns {Promise<void>} A promise that resolves after the update
    */
   public async save(): Promise<void> {
-    const needNameUpdate = this._clone.name !== this._doc.name;
+    const needToAddType = this._doc.system.type !== this._clone.system.type;
 
     // we attempt to save first - because if it fails, we don't 
     //    want to adjust anything else
@@ -405,7 +405,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     const setting = await this.getSetting();
 
     // add the type to the master list if it was changed and doesn't exist
-    if (this._clone.system.type !== this._doc.system.type) {
+    if (needToAddType) {
       const topicFolder = setting.topicFolders[this.topic];
 
       await Entry.addTypeIfNeeded(topicFolder!, this._clone.system.type);
@@ -436,6 +436,11 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     const sessionNumber = campaign?.currentSessionNumber;
     if (useMainStore().isInPlayMode && campaign && sessionNumber!==null) {
       await campaign.mergeToDoItem(ToDoTypes.Entry, `Edited during session ${sessionNumber}`, this.uuid);
+    }
+
+    // if we might have added a type, refresh the tree
+    if (needToAddType) {
+      await useSettingDirectoryStore().refreshSettingDirectoryTree();
     }
   }
 
