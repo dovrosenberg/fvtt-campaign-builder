@@ -37,15 +37,14 @@ export class DirectoryCampaignNode<
       return;
     }
 
-    // there are a few possibilities here:
-    //   - if we are using fronts, the first child is the front folder
-    //   - the rest of the children are arcs
+    // if we are using fronts, the first child is the front folder
     if (ModuleSettings.get(SettingKey.useFronts)) {
       // add the front folder
       const newNode = await DirectoryFrontFolder.fromCampaign(this.id);
       CollapsibleNode._loadedNodes[newNode.id] = newNode;
     }
 
+    // the rest of the children are arcs
     const campaign = await Campaign.fromUuid(this.id);
     if (!campaign)
       throw new Error('Bad campaign id in DirectoryCampaignNode._loadNodeList()');
