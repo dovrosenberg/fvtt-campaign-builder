@@ -1,9 +1,9 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, } from '@/settings';
-import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder, WindowTab } from '@/classes';
+import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder, WindowTab, Arc } from '@/classes';
 import { updateGlobalSetting } from '@/utils/globalSettings';
-import { Bookmark, defaultCustomFields, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, TabHeader, ToDoItem, Topics, ValidTopic, ValidTopicRecord } from '@/types';
+import { Bookmark, defaultCustomFields, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, TabHeader, ToDoItem, Topics, ValidTopic, ValidTopicRecord, ArcBasicIndex } from '@/types';
 import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, } from '@/documents';
 import { cleanKeysOnLoad } from '@/utils/cleanKeys';
 
@@ -236,7 +236,7 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   
   // @ts-ignore
   // we no longer use campaign names, but we need to know them
-  const oldCampaignNames = folder.getFlag(moduleId, 'campaignNames') || {};
+  const oldCampaignNames = cleanKeysOnLoad(folder.getFlag(moduleId, 'campaignNames') || {});
   
   // @ts-ignore
   newSetting.expandedIds = folder.getFlag(moduleId, 'expandedIds') || {};
@@ -393,6 +393,39 @@ async function migrateCampaign(oldCampaign: JournalEntry, setting: FCBSetting): 
 
   globalUuidMap[oldCampaign.uuid] = newCampaign.uuid;
 
+    // create a default arc covering all sessions for this campaign
+  const sessionList = oldCampaign.pages.contents;
+  if (sessionList.length > 0) {
+    const arc = await Arc.create(newCampaign, 'All sessions');
+
+    if (!arc)
+      throw new Error('Failed to create catch-all arc in MigrationV1_5.migrateCampaign()');
+
+    let minSessionNumber = Number.MAX_SAFE_INTEGER;
+    let maxSessionNumber = Number.MIN_SAFE_INTEGER;
+    for (const sessionIdx of sessionList) {
+      if (sessionIdx.number < minSessionNumber)
+        minSessionNumber = sessionIdx.number;
+      if (sessionIdx.number > maxSessionNumber)
+        maxSessionNumber = sessionIdx.number;
+    }
+
+    arc.startSessionNumber = minSessionNumber;
+    arc.endSessionNumber = maxSessionNumber;
+    console.warn('Arc before save:', JSON.stringify(arc));
+    await arc.save();
+
+    const arcIndex = {
+      uuid: arc.uuid,
+      name: arc.name,
+      startSessionNumber: arc.startSessionNumber,
+      endSessionNumber: arc.endSessionNumber,
+    } as ArcBasicIndex;
+
+    newCampaign.arcIndex = [arcIndex];
+    await newCampaign.save();  
+  }
+
   // now migrate all the sessions
   for (const session of oldCampaign.pages) {
     await migrateSession(newCampaign, session);
@@ -542,7 +575,6 @@ async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): 
   newEntry.actors = system.actors as string[] || [];
   newEntry.journals = system.journals || [];
 
-  console.log(JSON.stringify(newEntry.tags));
   await newEntry.save();  
 
   // add to the mapping
@@ -674,6 +706,32 @@ const cleanCompendiumIds = async (settingId: string) => {
     campaign.houseRules = cleanUuid(campaign.houseRules);
 
     await campaign.save();
+
+    // Normalize the single default arc (for pre-1.5.0 worlds) so that it covers
+    // the full range of existing sessions. Some legacy data can leave this arc
+    // with invalid sentinel ranges.
+    if (campaign.arcIndex.length === 1) {
+      let minSessionNumber = Number.MAX_SAFE_INTEGER;
+      let maxSessionNumber = Number.MIN_SAFE_INTEGER;
+
+      if (campaign.sessionIndex.length > 0) {
+        for (const idx of campaign.sessionIndex) {
+          if (idx.number < minSessionNumber)
+            minSessionNumber = idx.number;
+          if (idx.number > maxSessionNumber)
+            maxSessionNumber = idx.number;
+        }
+      } else {
+        minSessionNumber = -1;
+        maxSessionNumber = -1;
+      }
+
+      const firstArc = campaign.arcIndex[0];
+      firstArc.startSessionNumber = minSessionNumber;
+      firstArc.endSessionNumber = maxSessionNumber;
+      campaign.arcIndex = [firstArc];
+      await campaign.save();
+    }
 
     // sessions
     for (const sessionIndex of campaign.sessionIndex) {
