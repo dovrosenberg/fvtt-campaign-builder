@@ -26,6 +26,7 @@ export class SpeciesListApplication extends VueApplicationMixin(ApplicationV2) {
     },
     position: {
       width: 800,
+      height: 600
     },
     form: {
       // closeOnSubmit: false,

@@ -1,35 +1,37 @@
 <template>
-  <section class="window-content standard-form">
-    <div class="standard-form scrollable">
-      <BaseTable
-        :rows="rows"
-        :columns="columns"
-        :show-add-button="true"
-        :show-filter="false"
-        :allow-edit="true"
-        :add-button-label="localize('applications.speciesList.labels.add')"
-        :delete-item-label="localize('applications.speciesList.labels.delete')"
-        @delete-item="onDeleteItem"
-        @add-item="onAddItem"
-        @cell-edit-complete="onCellEditComplete"
-      />
+  <section class="standard-form">
+    <div class="fcb-sheet-container flexcol species-list">
+      <div class="species-list-table" data-application-part="content">
+        <BaseTable
+          :rows="rows"
+          :columns="columns"
+          :show-add-button="true"
+          :show-filter="false"
+          :allow-edit="true"
+          :add-button-label="localize('applications.speciesList.labels.add')"
+          :delete-item-label="localize('applications.speciesList.labels.delete')"
+          @delete-item="onDeleteItem"
+          @add-item="onAddItem"
+          @cell-edit-complete="onCellEditComplete"
+        />
+      </div>
 
       <footer class="form-footer" data-application-part="footer">
-        <button 
-          data-testid="species-list-reset-button"
-          @click="onClickReset"
-        >
-          <i class="fa-solid fa-undo"></i>
-          <label>{{ localize('labels.reset') }}</label>
-        </button>
-        <button 
-          data-testid="species-list-save-button"
-          @click="onClickSubmit"
-        >
-          <i class="fa-solid fa-save"></i>
-          <label>{{ localize('labels.saveChanges') }}</label>
-        </button>
-      </footer>
+      <button 
+        data-testid="species-list-reset-button"
+        @click="onClickReset"
+      >
+        <i class="fa-solid fa-undo"></i>
+        <label>{{ localize('labels.reset') }}</label>
+      </button>
+      <button 
+        data-testid="species-list-save-button"
+        @click="onClickSubmit"
+      >
+        <i class="fa-solid fa-save"></i>
+        <label>{{ localize('labels.saveChanges') }}</label>
+      </button>
+    </footer>
     </div>
   </section>
 </template> 
@@ -155,5 +157,39 @@
 </script>
 
 <style lang="scss">
+  .fcb-species-list {
+    background-color: var(--fcb-surface);
+  }
+
+  .fcb-species-list .window-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    /* allow the body to scroll; footer will be pinned with position: sticky */
+    overflow-y: auto;
+  }
+
+  .fcb-species-list .fcb-sheet-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .fcb-species-list .species-list-table {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  /* keep the footer visible while content scrolls */
+  .fcb-species-list .form-footer {
+    // keep footer pinned to the bottom of the scrolling area
+    position: sticky;
+    flex: 0 0 auto;
+    bottom: 0;
+    background-color: var(--fcb-surface);
+    z-index: 1;
+  }
 </style>
 

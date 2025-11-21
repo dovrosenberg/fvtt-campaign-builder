@@ -1,5 +1,5 @@
 <template>
-  <section class="window-content standard-form">
+  <section class="standard-form">
     <div ref="contentRef" class="fcb-sheet-container flexcol">
       <div class="fcb-sheet-subtab-container flexrow">
         <div class="fcb-subtab-wrapper">
