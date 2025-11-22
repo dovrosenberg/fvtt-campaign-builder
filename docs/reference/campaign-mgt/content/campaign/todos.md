@@ -4,8 +4,8 @@ prev:
   text: 'Campaign Ideas Tab'
   link: '/reference/campaign-mgt/content/campaign/ideas'
 next: 
-  text: 'Play Mode'
-  link: '/reference/play-mode'
+  text: 'Arcs'
+  link: '/reference/campaign-mgt/content/arc'
 ---
 # Campaign To-Do Tab
 
@@ -55,3 +55,4 @@ To-Dos retain their order.  You can use the tab on the left of each row to reord
 The actions column lets you take several actions with the to-do items:
   - **Delete** - Delete the to-do item.
   - **Edit** - Opens the to-do text for editing as if you clicked on it. Press Enter to save.
+  - **Move to ideas** - Moves the to-do item to the ideas list.

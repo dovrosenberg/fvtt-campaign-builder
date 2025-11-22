@@ -19,7 +19,7 @@ This tab provides:
 ## Adding Lore
 Click "Add Lore" to create a new lore entry.
 
-You can drag and drop Journal Entry Pages (not whole journals) from Foundry VTT onto the box at the top to create a linked lore item or onto an existing lore item to link it to the journal entry page.  
+You can drag and drop Journal Entry Pages (or Journal Entries) from Foundry VTT onto the box at the top to create a linked lore item or onto an existing lore item to link it to the journal entry page.  
   
 You cannot currently remove a linked entry - I recommend just creating a new lore item and copy/paste the text before removing the old one.
 
@@ -36,7 +36,8 @@ The actions column lets you take several actions with the lore entries:
   - **Delete** - Delete the lore
   - **Edit** - Opens the lore description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save.
   - **Mark as delivered** - Marks the lore as having been delivered to the players.  This isn't recommended generally from the campaign tab, because it allows for better tracking if you move it to the session and deliver it there, but sometimes it happens.  This will move the entry to the "Delivered Lore" list below.
-  - **Move to next session** - This moves the lore to the next session.  This is typically what you'd do in preparation for the session in which you think it might come up.
+  - **Move to last arc** - This moves the lore to the last [^Arc] in the Campaign.  This is typically what you'd do in preparation for building out an Arc.  Note that the last arc might be later in the Campaign than the next Session.
+  - **Move to next session** - This moves the lore to the next session.  This is typically what you'd do in preparation for the session in which you think it might come up.  
 
 
 ## The delivered lore list

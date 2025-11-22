@@ -22,6 +22,9 @@ Before prepping for a session, you first have to create the overall [^Campaign] 
 * Start to capture your [Ideas](/reference/campaign-mgt/content/campaign/ideas)
 * Create or update [Fronts](/reference/campaign-mgt/content/front/) to track long-term threats and storylines for the campaign
 
+### Arcs and long-term planning
+* [Create](/reference/campaign-mgt/content/arc/) story [^Arcs] to [group](/reference/campaign-mgt/content/arc/manager) related sessions
+
 ### Sessions
 * Review [PCs](/reference/campaign-mgt/content/session/pcs) - think through plot points to bring in to the next game
 * Outline your [Strong Start](/reference/campaign-mgt/content/session/notes#start)
@@ -188,7 +191,7 @@ After each session:
      - Move to campaign: For Lore items in particular, you can move them back to the campaign lore list if you want to keep it for later.
      - Delivered: Marking any item as delivered means it came up during the session.  This is an easy way to track what's come up already as you work through the session.  It also adds the item to the To-Do list as a reminder that it came up in case after the session you want to flesh out notes, or update the entry in Setting in case it comes up again in the future.  Finally, marking NPCs and Locations as delivered will add a cross-reference to them on their Entry screen so you can quickly look back at when different things came up in the campaign.
     
->[!Tip]
+>[!TIP]
 > For Lore items, marking them as delivered can also add the Lore to the master campaign list.  Lore items that are marked as [significant](/reference/campaign-mgt/content/session/#significant) and also delivered will show up on the campaign's "Delivered Lore" list.  
 
 

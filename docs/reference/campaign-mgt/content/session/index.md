@@ -1,8 +1,8 @@
 ---
 title: Session Details
 prev: 
-  text: 'PC journals tab'
-  link: '/reference/campaign-mgt/content/pc/journals'
+  text: 'Arc Manager'
+  link: '/reference/campaign-mgt/content/arc/manager'
 next: 
   text: 'Session Notes Tab'
   link: '/reference/campaign-mgt/content/session/notes'

@@ -28,6 +28,8 @@
 [^PC]: A player character - linked to Campaigns/Sessions. Generally NOT tied to Setting Characters.
 [^PCs]: Player characters - linked to Campaigns/Sessions. Generally NOT tied to Setting Characters.
 [^Prep mode]: Indicated by the Prep/Play toggle in the title bar, this is the default mode where you're typically building out your Setting and preparing for the next Session.
+[^Arc]: A story arc or chapter within a Campaign.  Used to group Sessions.
+[^Arcs]: Story arcs or chapters within a Campaign.  Used to group Sessions.
 [^Session]: A single play session. When running in "Play Mode", the most recent Session is enabled with additional functionality that you can use during your play session.
 [^Sessions]: Single play sessions. When running in "Play Mode", the most recent Session is enabled with additional functionality that you can use during your play session.
 [^Setting]: The fictional setting where your Campaigns take place (i.e. the equivalent of The Forgotten Realms, Eberron, etc.).

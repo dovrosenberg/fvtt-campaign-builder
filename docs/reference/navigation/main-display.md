@@ -12,11 +12,13 @@ next:
 The bulk of the main window is the content display.  This is where you can see whatever Entry, etc. you have selected in the sidebar.
 
 ## Types of content
-There are 4 types of content you can see, and each has its own set of functionality:
+There are 6 types of content you can see, and each has its own set of functionality:
 - [Settings](/reference/world-building/content/setting/)
 - [Entries](/reference/world-building/content/entry/)
 - [Campaigns](/reference/campaign-mgt/content/campaign/)
+- [Arcs](/reference/campaign-mgt/content/arc/)
 - [Sessions](/reference/campaign-mgt/content/session/)
+- [Fronts](/reference/campaign-mgt/content/front/)
 
 
 ## Editors
@@ -48,12 +50,10 @@ You can add a new image by:
 Once you have an image, selected, clicking it will open a larger view, so you can see more details.  In the top-right corner, there is an option to "Show to Players" (which will make the image available to players).
 
 Right-clicking on the image will open a context menu with the following options:
-- "View Image" - Open the zoomed-in view of the image (same as clicking the image).
+- "Show to players" - Open the zoomed-in view of the image and push to all players' screens.  Campaigns, Sessions, Arcs, and Fronts will be titled with the name of the Campaign, Session, etc.  Entries will show the [^Topic] but not the name of the Entry, in case you don't want players to know it.
+- "Copy to clipboard" - Copy the image to the clipboard.
+- "Copy link to clipboard" - Copy the image's source link to the clipboard.  Particularly useful if you want to reuse it elsewhere without creating duplicate storage.
 - "Change Image" - Open the Foundry image selector to choose a new image.
 - "Remove Image" - Remove the image from the Entry (restoring the placeholder).
-- "Copy to clipboard" - Copy the image to the clipboard.
-- "Copy image source to clipboard" - Copy the image to the clipboard.
-- "Copy link to clipboard" - Copy the image's source link to the clipboard.  Particularly useful if you want to reuse it elsewhere without creating duplicate storage.
-- "Generate Image" (Entries only) - Generate a new image for the Entry, based on the current description. [[Advanced Feature]]
 - "Post to Chat" - Post the image in the Foundry chat for everyone to see.
 - "Create Scene" ([^Locations] only) - Create a new Foundry scene with the image as the background.  Helpful for Theater of the Mind scenes.

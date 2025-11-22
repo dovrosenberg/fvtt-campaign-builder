@@ -23,6 +23,8 @@ Click "Add Monster" to create a new Monster entry.  You will be prompted to sear
 > [!WARNING]
 > Deleting from Foundry an actor that is associated with a Session as a Monster will completely remove the Monster from the Session, even if it had previously been marked as delivered.
 
+You can also drag/drop an actor from a the world, a compendium, or other modules like search tools that allow for drag and drop.
+
 ## The Monster list
 This list contains the individual Monsters.  For each Monster, you can see its name, and can specify a number of this monster type that you're planning to use for encounters.
 

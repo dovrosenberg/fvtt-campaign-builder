@@ -1,16 +1,19 @@
 ---
-title: Session Lore Tab
+title: Arc Lore Tab
 prev: 
-  text: 'Session Start Tab'
-  link: '/reference/campaign-mgt/content/session/start'
+  text: 'Arc Description Tab'
+  link: '/reference/campaign-mgt/content/arc/description'
 next: 
-  text: 'Session Vignettes Tab'
-  link: '/reference/campaign-mgt/content/session/vignettes'
+  text: 'Arc Locations Tab'
+  link: '/reference/campaign-mgt/content/arc/locations'
 ---
-# Session Lore Tab
-![Session Lore Tab](/assets/images/session-lore-tab.webp)
 
-The Lore tab (equivalent to "secrets and clues" in the [Lazy DM] method) allows you to manage pieces of Lore that you might want to deliver to players during the Session.
+# Arc Lore Tab
+![Arc Lore Tab](/assets/images/arc-lore-tab.webp)
+
+The Lore tab (equivalent to "secrets and clues" in the [Lazy DM] method) allows you to manage pieces of Lore that you might want to deliver to players during the Arc.
+
+It sits between [Campaign Lore](/reference/campaign-mgt/content/campaign/lore) and [Session Lore](/reference/campaign-mgt/content/session/lore) and can help to track lore that will be coming up in the next few sessions without making the Campaign lore list too long.  
 
 This tab provides:
 
@@ -31,10 +34,8 @@ New lore items are added to the bottom of the list, but you can reorder the list
 The actions column lets you take several actions with the Lore entries:
   - **Delete** - Delete the Lore
   - **Edit** - Opens the Lore description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save.
-  - **Mark as delivered** - Marks the Lore as having been delivered to the players. This will make it show in the "Delivered Lore" list on the [Campaign Lore Tab](/reference/campaign-mgt/content/campaign/lore).  If you mark Lore as delivered while in [^Play Mode], this will add the Lore item to the Campaign [To-Do List]. 
-  - **Move to arc** - This moves the Lore back to the [Arc Lore](/reference/campaign-mgt/content/arc/lore) list.  You would typically do this after a Session for Lore that you want to keep but don't think the next Session will be appropriate.
+  - **Move to campaign** - This moves the Lore up to the [Campaign Lore](/reference/campaign-mgt/content/campaign/lore) list.  You can do this for lore that you've decided to handle in a future Arc.
   - **Move to next session** - This moves the Lore to the next Session.  You would typically do this after a Session for Lore that you didn't deliver but still want to.  If a next Session doesn't exist, it will create one.
 
-### "Significant" lore {#significant}
-The "Sig." (Significant) column indicates whether this lore should be treated as significant to the overall Campaign or only relevant to this Session.  This determines whether it will show up on the Campaign delivered lore list or not.
-
+  > [!NOTE]
+  > The "Move to next session" option ignores which arc the current Session is in.  It will move it to the last Session in the Campaign, regardless. 

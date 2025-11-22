@@ -43,6 +43,7 @@ Structure and organize your campaigns and sessions.
 - [Overview](campaign-mgt/)
 - [Campaign Directory](navigation/sidebar#campaign-directory)
 - [Campaign Details](campaign-mgt/content/campaign/)
+- [Arc Details](campaign-mgt/content/arc/)
 - [Session Details](campaign-mgt/content/session/)
 - [Front Details](campaign-mgt/content/front/)
 - [To-do List](campaign-mgt/content/campaign/todos)

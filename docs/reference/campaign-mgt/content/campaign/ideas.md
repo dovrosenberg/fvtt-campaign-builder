@@ -17,6 +17,8 @@ The Ideas tab provides a simple way to capture and organize ideas for your campa
 * Click on any idea text (or the edit button) to edit it inline; hit enter to save. 
 * Delete ideas when they're no longer relevant or have been used
 * Re-order ideas by dragging the handle on the left side of each row to move rows up and down.
+* Move an idea to the latest arc by clicking the "Move to arc" button.
+* Move an idea to the to-do list to remember to deal with it later.
 
 ## Email to the list [[Advanced Feature]]
 In addition to working on the list here, with the use of the backend, you can [set up an email box](/reference/backend/email) where you can send emails and have them show up in the ideas list.  This is a great way for capturing ideas you have at work, while driving (pull over before sending email or use a hands-free assistant), or in the shower (unplug your phone before using in the shower).
