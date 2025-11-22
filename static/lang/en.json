@@ -78,6 +78,8 @@
           "edit": "Edit species",
           "delete": "Delete species"
         },
+        "newSpecies": "New Species",
+        "newDescription": "Description for new species",
         "defaultSpecies": {
           "dwarf": {
             "name": "Dwarf",

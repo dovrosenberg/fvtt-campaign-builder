@@ -104,8 +104,8 @@
     // Add a new empty species to our list
     const newSpecies = {
       id: foundry.utils.randomID(),
-      name: '!New Species',   // ! to put at top of the list to make visible (since you'll probably be there when adding)
-      description: 'Description for new species',
+      name: `!${localize('applications.speciesList.newSpecies')}`,   // ! to put at top of the list to make visible (since you'll probably be there when adding)
+      description: localize('applications.speciesList.newDescription'),
     };
     speciesList.value.push(newSpecies);
   };
