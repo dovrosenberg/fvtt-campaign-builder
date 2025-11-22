@@ -55,6 +55,10 @@ export const useFrontStore = defineStore('front', () => {
     if (!currentDanger.value || currentDangerIndex.value == null)
       return null;
 
+    // no duplicates
+    if (currentDanger.value.participants.some(p => p.uuid === entryToAdd.uuid))
+      return null;
+
     const uuid = entryToAdd.uuid;
     currentFront.value?.updateDanger(currentDangerIndex.value, {
       ...currentDanger.value,

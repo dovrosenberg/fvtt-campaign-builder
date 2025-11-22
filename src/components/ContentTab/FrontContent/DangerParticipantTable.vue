@@ -4,7 +4,8 @@
     :show-add-button="true"
     :show-filter="false"
     :filter-fields="[]"
-    :add-button-label="localize('labels.front.addParticipant')"
+    :add-button-label="localize('labels.danger.addParticipant')"
+    :extra-add-text="localize('labels.danger.addParticipantDrag')"
     :rows="participantRows"
     :columns="columns"
     :actions="actions"
@@ -12,6 +13,8 @@
     @add-item="onAddParticipant"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
+    @dragover-new="onDragoverNew"
+    @dropNew="onDropNew"
   />
 
   <!-- note topic doesn't matter for this mode -->
@@ -31,13 +34,15 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useFrontStore } from '@/applications/stores';
+  import { getValidatedData } from '@/utils/dragdrop';
   
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
   import RelatedItemDialog from '@/components/tables/RelatedItemDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, ActionButtonDefinition, BaseTableGridRow, DangerParticipant, RelatedItemDialogModes, Topics, } from '@/types';
+  import { CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, RelatedItemDialogModes, Topics, } from '@/types';
+  import { Entry } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -135,6 +140,31 @@
 
   const onReorder = (reorderedRows: DangerParticipant[]) => {
     frontStore.reorderParticipants(reorderedRows);
+  };
+
+  const onDragoverNew = (event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  };
+
+  const onDropNew = async (event: DragEvent) => {
+    event.preventDefault();
+
+    const data = getValidatedData(event);
+    if (!data)
+      return;
+
+    if (![Topics.Character, Topics.Organization].includes(data.topic as Topics) || !data.childId)
+      return;
+
+    const entry = await Entry.fromUuid(data.childId as string);
+    if (!entry)
+      return;
+
+    await frontStore.addParticipant(entry, { role: '' });
   };
 
 

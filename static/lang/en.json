@@ -334,9 +334,12 @@
         "grimPortents": "Grim Portents",
         "participants": "Participants",
         "impendingDoom": "Impending Doom",
-        "addParticipant": "Add Participant",
         "addPortent": "Add Grim Portent",
         "portentHelpText": "Grim portents are the events that will occur if the danger is not dealt with. They can bring resolution, open new paths, shift the story."
+      },
+      "danger": {
+        "addParticipant": "Add Participant",
+        "addParticipantDrag": "(or drag/drop a character/organization)"
       },
       "campaign": {
         "addPC": "Add PC",
