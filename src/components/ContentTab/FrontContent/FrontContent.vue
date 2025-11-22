@@ -7,6 +7,7 @@
           v-model="name"
           for="fcb-input-name" 
           class="fcb-input-name"
+          :showImage="false"
           unstyled
           :placeholder="localize('placeholders.frontName')"
           :pt="{

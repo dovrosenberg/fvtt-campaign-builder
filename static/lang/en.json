@@ -618,6 +618,9 @@
       "session": {
         "delete": "Delete session"
       },
+      "front": {
+        "delete": "Delete front"
+      },
       "dialogs": {
         "cannotActivateFromCompendium": "Cannot activate from compendium",
         "cannotToggleNavigationFromCompendium": "Cannot toggle navigation from scene in a compendium",

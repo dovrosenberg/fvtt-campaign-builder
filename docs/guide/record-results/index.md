@@ -18,6 +18,7 @@ It can even be fun to clean up your notes after a session!  This is when you go 
 * Go through the Session [Notes](/reference/campaign-mgt/content/session/notes) and the [To-do List](/reference/campaign-mgt/content/campaign/todos)
    * Add any new [^Locations], [^Characters], or [^Organizations] to the [^Setting] (you can do this while playing but it may be easier to just take quick notes and do it afterwards)
    * Flesh out details on the same that came up in the Session
+* Review any affected [Fronts](/reference/campaign-mgt/content/front/) and update or check off relevant [Grim Portents](/reference/campaign-mgt/content/front/dangers#grim-portents) to reflect what actually happened
 * Create a new session for next time and [add any initial thoughts](/reference/campaign-mgt/content/session/notes)
 
 ## Core Recording Results Components

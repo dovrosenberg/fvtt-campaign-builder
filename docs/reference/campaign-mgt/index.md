@@ -17,4 +17,5 @@ The [Campaign Directory] is your primary workspace for creating and managing con
 Various elements in the directory will bring up detailed displays when clicked:
 * [Campaign Details](./content/campaign/) - Description of the Campaign, associates players, and lists of notes and to-do items
 * [Session Details](./content/session/) - Used to prepare and play a Session, tracking characters, locations, plot points, etc., as well as the notes from the Session about what happened.
+* [Front Details](./content/front/) - Long-term threats and storylines composed of one or more dangers.
 

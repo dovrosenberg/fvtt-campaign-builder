@@ -20,7 +20,7 @@ Clicking a search result opens it in a new tab.
 ### Searching Entries
 This box searches all [^Entries], looking across these fields:
 * Name
-* [Tags](/reference/world-building/content/entry/tags)
+* [Tags](/reference/navigation/tags)
 * Description
 * [^Topic]
 * Type 

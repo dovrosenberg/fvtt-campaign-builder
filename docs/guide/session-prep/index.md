@@ -20,6 +20,7 @@ Before prepping for a session, you first have to create the overall [^Campaign] 
 * [Create](/reference/campaign-mgt/content/campaign/) your Campaign
 * Attach the [PCs](/reference/campaign-mgt/content/campaign/pcs) to the campaign
 * Start to capture your [Ideas](/reference/campaign-mgt/content/campaign/ideas)
+* Create or update [Fronts](/reference/campaign-mgt/content/front/) to track long-term threats and storylines for the campaign
 
 ### Sessions
 * Review [PCs](/reference/campaign-mgt/content/session/pcs) - think through plot points to bring in to the next game
@@ -41,6 +42,17 @@ Before prepping for a session, you first have to create the overall [^Campaign] 
 * [Campaign Directory](/reference/navigation/sidebar#campaign-directory)
 * [Campaign Details](/reference/campaign-mgt/content/campaign/)
 * [Session Details](/reference/campaign-mgt/content/session/)
+* [Front Details](/reference/campaign-mgt/content/front/)
+
+## Fronts and long-term threats
+[Fronts] are an optional tool for tracking larger-scale threats and story threads across many sessions. A [^Front] is made up of one or more [^Dangers], each with [^Grim Portents] and an [^Impending Doom].
+
+If you like to think about how the world changes off-screen, or want to keep track of villain plans and looming disasters, Fronts give you a home for that work:
+- During **World Building**, you create the people, places, and organizations that Fronts will later reference.
+- During **Session Prep**, you can update Fronts so their Dangers are ready to intersect with the next session.  You can mark Grim Portents complete as events unfold.
+- When you **Record Results**, you can adjust Fronts based on what actually happened at the table.
+
+You can safely ignore Fronts if you don’t need this level of structure, or turn them off entirely in [Module Settings].
 
 ## Sample Session Preparation Walkthrough
 

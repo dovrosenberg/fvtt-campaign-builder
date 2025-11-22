@@ -40,3 +40,10 @@
 [^Types]: The user-defined categorizations of Entries to assist in finding Entries within a Topic. For example, Characters might have Types such as NPC, PC, Monster, etc.; Locations could have Types such as City, Town, Dungeon, Ruin, etc.  They can be shown in the Setting tree, and are used to facilitate search and AI character description/image creation.
 [^Vignette]: Called "Scenes" by The Lazy DM, a potential element that can be used to build a session. They are not necessarily a fixed, linear script but rather a collection of ideas, encounters, or plot points that can be woven together depending on player actions and the flow of the game.
 [^Vignettes]: Called "Scenes" by The Lazy DM, potential elements that can be used to build a session. They are not necessarily a fixed, linear script but rather a collection of ideas, encounters, or plot points that can be woven together depending on player actions and the flow of the game.
+[^Front]: An organizational tool for the GM to manage larger-scale threats and story threads, ensuring the world feels dynamic and reactive even if the players aren't directly involved. Fronts are collections of dangers - forces and events that a Front moves forward according to its own timeline, regardless of player actions
+[^Fronts]: Organizational tool for the GM to manage larger-scale threats and story threads, ensuring the world feels dynamic and reactive even if the players aren't directly involved. Fronts are collections of dangers - forces and events that a Front moves forward according to its own timeline, regardless of player actions
+[^Danger]: A significant threat or an active, driving force within a larger Front
+[^Dangers]: Significant threats or active, driving forces within a larger Front
+[^Grim Portent]: A step in the timeline of a Danger that moves it toward its Impending Doom
+[^Grim Portents]: Steps in the timeline of a Danger that move it toward its Impending Doom
+[^Impending Doom]: The end-state or worst-case outcome of a Danger

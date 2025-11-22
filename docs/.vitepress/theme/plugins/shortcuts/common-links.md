@@ -6,11 +6,13 @@
 [Organizations]: /reference/world-building/content/organization/
 [Character]: /reference/world-building/content/character/
 [Characters]: /reference/world-building/content/character/
+[Front]: /reference/campaign-mgt/content/front/
+[Fronts]: /reference/campaign-mgt/content/front/
 [Setting Directory]: /reference/navigation/sidebar#setting-directory
 [Campaign Directory]: /reference/navigation/sidebar#campaign-directory
 [Image]: /reference/navigation/main-display#images
 [Generate Window]: /reference/dialogs/generate/
-[Tags]: /reference/world-building/content/entry/tags
+[Tags]: /reference/navigation/tags
 [Module Setting]: /reference/configuration/
 [Module Settings]: /reference/configuration/
 [Current Session]: /reference/navigation/prep-play#current-session

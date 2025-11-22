@@ -66,15 +66,20 @@ The bottom half of the Directory Sidebar is the Campaign Directory.  This shows 
 
 Each Campaign is shown as a folder.  Click the Campaign name to open a [Campaign Details tab](/reference/campaign-mgt/content/campaign/).
 
-Within each Campaign, you'll find all of its [^Sessions].  You can click on a Session to open a [Session Details tab](/reference/campaign-mgt/content/session/).  
+Within each Campaign, you'll find all of its [^Sessions] and [Fronts](/reference/campaign-mgt/content/front/).  You can click on a Session to open a [Session Details tab](/reference/campaign-mgt/content/session/) or on a Front to open a [Front Details tab](/reference/campaign-mgt/content/front/).  
 
-### Session sorting
-By default, the Sessions are sorted by session number.  You can rearrange the Sessions (i.e. change their numbers) by editing the number in [Session Details](/reference/campaign-mgt/content/session/).
+### Session display
+Sessions are sorted by session number.  You can rearrange the Sessions (i.e. change their numbers) by editing the number in [Session Details](/reference/campaign-mgt/content/session/).
+
+
+By default, Sessions are shown with their number in the directory.  You can hover over a Session to see its name and date.  You can also choose to show the Sessions by name and/or date in [Module Settings].
 
 ### Context menus
 Right-clicking on items in the Campaign tree provides additional options depending on the item type:
-1. Campaign - Create a session, Delete the Campaign, Mark Campaign Complete/Active
+1. Campaign - Create a session, Create a Front, Delete the Campaign, Mark Campaign Complete/Active
 2. Session - Delete the Session
+3. Fronts folder - Create a front
+4. Front - Delete the Front
 
 "Completing" a campaign does not remove any of the data associated with it, but has the following effects:
 - Grays it out and keeps it collapsed in the tree

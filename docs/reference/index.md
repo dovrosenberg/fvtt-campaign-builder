@@ -44,6 +44,7 @@ Structure and organize your campaigns and sessions.
 - [Campaign Directory](navigation/sidebar#campaign-directory)
 - [Campaign Details](campaign-mgt/content/campaign/)
 - [Session Details](campaign-mgt/content/session/)
+- [Front Details](campaign-mgt/content/front/)
 - [To-do List](campaign-mgt/content/campaign/todos)
 - [Play Mode Navigation](play-mode/session-links)
 - [Session Notes Popup](play-mode/session-notes-popup)

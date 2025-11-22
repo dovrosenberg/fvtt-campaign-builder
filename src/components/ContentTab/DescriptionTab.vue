@@ -3,6 +3,7 @@
     <div class="tab-inner">
       <div class="fcb-description-wrapper flexrow">
         <ImagePicker
+          v-if="props.showImage"
           class="fcb-description-image"
           v-model="currentImageURL"
           :title="props.name"
@@ -43,6 +44,11 @@
     imageUrl: {
       type: String,
       default: '',
+      required: false,
+    },
+    showImage: {
+      type: Boolean,
+      default: true,
       required: false,
     },
     name: {

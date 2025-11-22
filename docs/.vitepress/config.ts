@@ -79,6 +79,7 @@ export default defineConfig({
           { text: 'Campaign Management', link: '/reference/campaign-mgt/', items: [
             { text: 'Campaigns', link: '/reference/campaign-mgt/content/campaign/' },
             { text: 'Sessions', link: '/reference/campaign-mgt/content/session/' },
+            { text: 'Fronts', link: '/reference/campaign-mgt/content/front/' },
             { text: 'To-do List', link: '/reference/campaign-mgt/content/campaign/todos' },
           ] },
           { text: 'Play Mode', link: '/reference/play-mode/' },
