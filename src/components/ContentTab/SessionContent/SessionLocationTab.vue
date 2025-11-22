@@ -19,7 +19,7 @@
   <RelatedItemDialog
     v-model="showLocationPicker"
     :topic="Topics.Location"
-    :mode="RelatedItemDialogModes.Session"
+    :mode="props.arcMode ? RelatedItemDialogModes.ArcLocation : RelatedItemDialogModes.Session"
   />
 
 </template>

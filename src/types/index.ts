@@ -106,7 +106,8 @@ export enum RelatedItemDialogModes {
   Edit = 'edit',
   Session = 'session', // for adding to sessions
   Danger = 'danger', // for adding any topic item (ex. for front participants)
-  Participant = 'participant'  // for adding participants (character/org) to arcs
+  ArcParticipant = 'arcParticipant',  // for adding participants (character/org) to arcs
+  ArcLocation = 'arcLocation',  // for adding locations to arcs
 }
 
 export enum ToDoTypes {

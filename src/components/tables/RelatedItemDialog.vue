@@ -54,7 +54,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useRelationshipStore, useSessionStore, useFrontStore } from '@/applications/stores';
+  import { useMainStore, useRelationshipStore, useSessionStore, useFrontStore, useArcStore } from '@/applications/stores';
   import { FCBDialog } from '@/dialogs';
   import { localize } from '@/utils/game';
 
@@ -119,6 +119,7 @@
   const mainStore = useMainStore();
   const sessionStore = useSessionStore();
   const frontStore = useFrontStore();
+  const arcStore = useArcStore();
   const { currentEntry, currentSetting, currentFront, currentEntryTopic, currentSession, currentArc } = storeToRefs(mainStore);
 
   ////////////////////////////////
@@ -164,6 +165,11 @@
 
   const participantDetails = dangerDetails;
 
+  const locationDetails = {
+    title: topicDetails[Topics.Location]?.title,
+    buttonTitle: localize('dialogs.relatedItems.entry.buttonTitle'),
+  };
+
   const sessionDetails = {
     buttonTitle: localize('dialogs.relatedItems.addToSession'),
   };
@@ -174,7 +180,7 @@
     switch (props.mode) {
       case RelatedItemDialogModes.Danger:
         return dangerDetails.title;
-      case RelatedItemDialogModes.Participant:
+      case RelatedItemDialogModes.ArcParticipant:
         return participantDetails.title;
       default:
         return (props.topic && topicDetails[props.topic]?.title) || '';
@@ -185,8 +191,10 @@
     switch (props.mode) {
       case RelatedItemDialogModes.Danger:
         return dangerDetails.buttonTitle;
-      case RelatedItemDialogModes.Participant:
+      case RelatedItemDialogModes.ArcParticipant:
         return participantDetails.buttonTitle;
+      case RelatedItemDialogModes.ArcLocation:
+        return locationDetails.buttonTitle;
       case RelatedItemDialogModes.Add:
         return topicDetails[props.topic]?.buttonTitle;
       case RelatedItemDialogModes.Session:
@@ -197,7 +205,7 @@
 
   // add mode or session mode
   const createButtonLabel = computed(() => {
-    if ([RelatedItemDialogModes.Danger, RelatedItemDialogModes.Participant].includes(props.mode)) 
+    if ([RelatedItemDialogModes.Danger, RelatedItemDialogModes.ArcParticipant].includes(props.mode)) 
       throw new Error('Trying to add create button to danger/participant RelatedItemDialog');
 
     return topicDetails[props.topic]?.createButtonTitle || '';
@@ -289,6 +297,26 @@
         };
         break;
 
+      case RelatedItemDialogModes.ArcLocation:
+        if (entryToAdd.value) {
+          const fullEntry = await Entry.fromUuid(entryToAdd.value);
+
+          if (fullEntry) {
+            await arcStore.addLocation(fullEntry.uuid, extraFieldsToSend.role || '');
+          }
+        };
+        break;
+
+      case RelatedItemDialogModes.ArcParticipant:
+        if (entryToAdd.value) {
+          const fullEntry = await Entry.fromUuid(entryToAdd.value);
+
+          if (fullEntry) {
+            await arcStore.addParticipant(fullEntry.uuid, extraFieldsToSend.role || '');
+          }
+        };
+        break;
+
       case RelatedItemDialogModes.Session:
         if (entryToAdd.value) {
           const fullEntry = await Entry.fromUuid(entryToAdd.value);
@@ -355,7 +383,7 @@
             );
           }
           break;
-        case RelatedItemDialogModes.Participant:
+        case RelatedItemDialogModes.ArcParticipant:
           if (!currentArc.value)
             throw new Error('Trying to show RelatedItemDialog in participant mode without a current arc');
           
@@ -366,6 +394,13 @@
               (currentSetting.value.topics[topic]?.entries || []).map(mapEntryToOption)
             );
           }
+          break;
+        case RelatedItemDialogModes.ArcLocation:
+          if (!currentArc.value)
+            throw new Error('Trying to show RelatedItemDialog in arc location mode without a current arc');
+          
+          // locations only
+          entries = (currentSetting.value.topics[Topics.Location]?.entries || []).map(mapEntryToOption);
           break;
         default:
           if (!currentSession.value && !(currentEntry.value && currentEntryTopic.value))

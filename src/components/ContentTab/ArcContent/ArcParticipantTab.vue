@@ -16,7 +16,7 @@
   <RelatedItemDialog
     v-model="showParticipantPicker"
     :topic="Topics.Character"
-    :mode="RelatedItemDialogModes.Participant"
+    :mode="RelatedItemDialogModes.ArcParticipant"
     :allow-create="false"
   />
 </template>
