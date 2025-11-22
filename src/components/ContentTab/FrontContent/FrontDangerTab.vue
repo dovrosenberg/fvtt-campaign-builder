@@ -23,7 +23,24 @@
             style: {'margin-top': '0.5em' },
           },
         }"
-      >
+      >        
+        <!-- Description -->
+        <div class="flexrow form-group">
+          <LabelWithHelp
+            label-text="labels.description"
+            top-label
+          />
+        </div>
+
+        <div class="flexrow form-group" style="margin-top: 1rem">
+          <Editor
+            :initial-content="currentDanger?.description || ''"
+            fixed-height="120px"
+            :current-entity-uuid="currentFront?.uuid"
+            @editor-saved="onDescriptionEditorSaved"
+          />
+        </div>
+
         <!-- Impending Doom -->
         <div class="flexrow form-group">
           <LabelWithHelp
@@ -36,22 +53,6 @@
             unstyled
             style="width: calc(100% - 2px); font-family: var(--fcb-font-family)"
             @update:model-value="onImpendingDoomUpdate"
-          />
-        </div>
-        
-        <!-- Description -->
-        <div class="flexrow form-group">
-          <LabelWithHelp
-            label-text="labels.description"
-            top-label
-          />
-        </div>
-        <div class="flexrow form-group">
-          <Editor
-            :initial-content="currentDanger?.description || ''"
-            fixed-height="120px"
-            :current-entity-uuid="currentFront?.uuid"
-            @editor-saved="onDescriptionEditorSaved"
           />
         </div>
       </Panel>

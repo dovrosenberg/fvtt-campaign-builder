@@ -5,6 +5,10 @@
     font-family: var(--fcb-font-family) !important;
   }
 
+  .p-panel-title {
+    font-size: var(--fcb-font-size-header);
+  }
+
   // set the default control colors
   input[type="text"], input[type="checkbox"], textarea, select {
     color: var(--fcb-control-text);

@@ -22,7 +22,7 @@ The overall structure of the PC Details interface is similar to the common [Entr
 PCs are directly tied to the Actors for those characters in Foundry.  To make the connection, drag an actor from Foundry and drop it on the PC image.  This will set the PC's name and image.  Simply change them on the Actor side to automatically update the PC.
 
 > [!NOTE]
-> Deleting an actor in Foundry that is attached to PC will automatically and safely remove it from the PC without deleting the PC.  The PC will need to have a new actor attached to it.
+> Deleting an actor in Foundry that is attached to a PC will automatically and safely remove it from the PC without deleting the PC.  The PC will need to have a new actor attached to it.
 
 ### Description
 The description tab has the following fields instead of the normal ones:

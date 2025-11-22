@@ -244,6 +244,11 @@
               border-bottom: var(--fcb-sheet-tab-border);
               max-width: 150px;
 
+              /* prevent wrapping and show ellipsis for long labels */
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+
               &.first-child {
                 margin-left: 0;
               }

@@ -18,6 +18,7 @@ const fcbVariables = {
     fcbSheetInputBorder: 'rgb(122, 121, 113)',
     fcbSplitterGutter: 'hsl(210 10% 82%)',
     fcbTableHeaderBottomBorder: 'hsl(210 7% 50%)',
+    fcbPrimary: 'hsl(164 48% 20%)',
   },
   dark: {
     fcbText: 'hsl(210 20% 94%)',
@@ -35,6 +36,7 @@ const fcbVariables = {
     fcbSheetInputBorder: 'rgb(122, 121, 113)',
     fcbSplitterGutter: 'hsl(210 10% 28%)',
     fcbTableHeaderBottomBorder: 'hsl(210 8% 65%)',
+    fcbPrimary: 'hsl(164 45% 28%)',
   },
   fcbDarkOverlay: 'rgba(0, 0, 0, 0.05)',
   fcbLightOverlay: 'rgba(255, 255, 255, 0.10)',
@@ -44,7 +46,6 @@ const fcbVariables = {
   fcbPrimary: 'hsl(164 48% 20%)',
   fcbPrimary300: '#9cb089',  //'color-mix(in oklch, var(--fcb-primary-500), white 58%)',
   fcbPrimary100: '#e7e0e2',  //color-mix(in oklch, var(--fcb-primary-500), white 86%)
-  
 };
 
 export default definePreset(Aura, {
@@ -275,13 +276,13 @@ export default definePreset(Aura, {
           background: fcbVariables.light.fcbSurface,
           color: fcbVariables.light.fcbText,
           headerColor: fcbVariables.light.fcbText,
-          borderColor: fcbVariables.light.fcbControlBorder,
+          borderColor: fcbVariables.light.fcbPrimary,
         },
         dark: {
           background: fcbVariables.dark.fcbSurface,
           color: fcbVariables.dark.fcbText,
           headerColor: fcbVariables.dark.fcbText,
-          borderColor: fcbVariables.dark.fcbControlBorder,
+          borderColor: fcbVariables.dark.fcbPrimary,
         }
       }
     }
