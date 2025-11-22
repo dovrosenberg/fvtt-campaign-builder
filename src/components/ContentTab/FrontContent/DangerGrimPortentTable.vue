@@ -54,6 +54,14 @@
       header: 'Actions' 
     },
     { 
+      field: 'complete', 
+      header: localize('labels.complete'),
+      style: 'text-align: center; width: 80px; max-width: 80px',
+      editable: true,
+      type: 'boolean',
+      clickable: true,
+    },
+    { 
       field: 'description', 
       header: localize('labels.description'),
       sortable: true,
@@ -115,9 +123,12 @@
   };
 
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
-    const { data, newValue, } = event;
+    const { data, newValue, field } = event;
 
-    await frontStore.updateGrimPortent(data.uuid, newValue);
+    if (field === 'description')
+      await frontStore.updateGrimPortent(data.uuid, newValue as string, data.complete as boolean);
+    else if (field === 'complete')
+      await frontStore.updateGrimPortent(data.uuid, data.description as string, newValue as boolean);
   };
 
   const onReorder = (reorderedRows: GrimPortent[]) => {

@@ -80,9 +80,9 @@
 
   const columns = computed((): any[] => {
     // for now, just action and name
-    const actionColumn = { field: 'actions', style: 'text-align: left; width: 75px;', header: 'Actions' };
-    const nameColumn = { field: 'name', style: 'text-align: left; width: 20%;', header: 'Name', sortable: true, editable: true, smallEditBox: true }; 
-    const descriptionColumn = { field: 'description', style: 'text-align: left', header: 'Description', sortable: true, editable: true }; 
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 75px;', header: localize('labels.tableHeaders.actions') };
+    const nameColumn = { field: 'name', style: 'text-align: left; width: 20%;', header: localize('labels.tableHeaders.name'), sortable: true, editable: true, smallEditBox: true }; 
+    const descriptionColumn = { field: 'description', style: 'text-align: left', header: localize('labels.tableHeaders.description'), sortable: true, editable: true }; 
 
     return [actionColumn, nameColumn, descriptionColumn];
   });

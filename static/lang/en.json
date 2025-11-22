@@ -213,6 +213,7 @@
       "no": "No",
       "close": "Close",
       "update": "Update",
+      "complete": "Complete",
       "noToAll": "No to All",
       "actors": "Actors",
       "sessions": "Sessions",
@@ -226,7 +227,8 @@
         "journalName": "Journal",
         "pageName": "Journal Page",
         "type": "Type",
-        "role": "Role"
+        "role": "Role",
+        "description": "Description"
       },
       "locations": {
         "compendium": "Compendium",

@@ -13,13 +13,12 @@ const fields = foundry.data.fields;
 export interface DangerParticipant {
   uuid: string;    // links to a character, location, or organization
   role: string;
-  // sortOrder: number;
 }
 
 export interface GrimPortent {
   uuid: string;
   description: string;
-  // sortOrder: number;
+  complete: boolean;
 }
 
 export const DangerSchema = () => 
@@ -35,7 +34,6 @@ export const DangerSchema = () =>
       new fields.SchemaField({
         uuid: new fields.DocumentUUIDField({ required: true, nullable: false }),
         role: new fields.StringField({ required: true, nullable: false, initial: '' }),
-        // sortOrder: new fields.NumberField({ required: true, nullable: false }),
       })
     ),
 
@@ -47,7 +45,7 @@ export const DangerSchema = () =>
         // uuid is just a random id, not a document uuid
         uuid: new fields.StringField({ required: true, nullable: false }),
         description: new fields.StringField({ required: true, nullable: false, initial: '',}),
-        // sortOrder: new fields.NumberField({ required: true, nullable: false }),
+        complete: new fields.BooleanField({ required: true, nullable: false, initial: false }),
       })
     ),
   });
