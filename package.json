@@ -75,6 +75,7 @@
     "@imengyu/vue3-context-menu": "^1.4.4",
     "@primevue/themes": "^4.2.5",
     "@yaireo/tagify": "^4.34.0",
+    "cytoscape": "^3.33.1",
     "mermaid": "^11.12.1",
     "minisearch": "^7.1.2",
     "pinia": "^2.3.0",

@@ -13,8 +13,7 @@
     <div 
       v-if="nodeCount > 0" 
       ref="diagramRef" 
-      class="mermaid-diagram"
-      v-html="diagramHtml"
+      class="cytoscape-diagram"
     ></div>
     
     <div v-else-if="!loading" class="no-relationships-message">
@@ -25,8 +24,10 @@
 
 <script setup lang="ts">
 // library imports
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
-import mermaid from 'mermaid';
+import { ref, computed, watch, onMounted, onUnmounted, nextTick, toRaw } from 'vue';
+
+// @ts-ignore - Cytoscape doesn't have perfect TypeScript definitions
+const cytoscape = require('cytoscape');
 
 // local imports
 import { localize } from '@/utils/game';
@@ -64,7 +65,7 @@ const { currentEntry } = mainStore;
 // data
 const diagramRef = ref<HTMLElement | null>(null);
 const loading = ref<boolean>(false);
-const diagramHtml = ref<string>('');
+const cy = ref<any | null>(null); // Use any to avoid complex type issues
 const nodes = ref<RelationshipNode[]>([]);
 const edges = ref<RelationshipEdge[]>([]);
 
@@ -74,26 +75,6 @@ const nodeCount = computed(() => nodes.value.length);
 
 ///////////////////////////////
 // methods
-const initializeMermaid = () => {
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: 'default',
-    themeVariables: {
-      primaryColor: '#409EFF',
-      primaryTextColor: '#303133',
-      primaryBorderColor: '#409EFF',
-      lineColor: '#909399',
-      secondaryColor: '#E1F3D8',
-      tertiaryColor: '#FCE4EC'
-    },
-    flowchart: {
-      useMaxWidth: true,
-      htmlLabels: true,
-      curve: 'basis'
-    }
-  });
-};
-
 const getTopicColor = (topic: Topics): string => {
   switch (topic) {
     case Topics.Character:
@@ -112,20 +93,16 @@ const getTopicColor = (topic: Topics): string => {
 const getTopicShape = (topic: Topics): string => {
   switch (topic) {
     case Topics.Character:
-      return 'round'; // Rounded rectangle for characters
+      return 'round-rectangle'; // Rounded rectangle for characters
     case Topics.Location:
-      return 'stadium'; // Stadium shape for locations
+      return 'round-rectangle'; // Stadium shape for locations
     case Topics.Organization:
       return 'hexagon'; // Hexagon for organizations
     case Topics.PC:
       return 'diamond'; // Diamond for PCs
     default:
-      return 'rect'; // Rectangle for unknown
+      return 'rectangle'; // Rectangle for unknown
   }
-};
-
-const sanitizeName = (name: string): string => {
-  return name.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
 };
 
 const extractRelationships = async () => {
@@ -203,69 +180,152 @@ const extractRelationships = async () => {
   }
 };
 
-const generateMermaidDiagram = (): string => {
-  if (nodes.value.length === 0) {
-    return '';
-  }
-
-  let mermaidCode = 'flowchart TD; ';
-  
-  // Define node styles
-  const topicColors = new Map<Topics, string>();
-  nodes.value.forEach(node => {
-    const color = getTopicColor(node.topic);
-    topicColors.set(node.topic, color);
-  });
-
-  // Add nodes with styling
-  nodes.value.forEach(node => {
-    const shape = getTopicShape(node.topic);
-    const color = getTopicColor(node.topic);
-    const sanitizedName = sanitizeName(node.name);
-    const topicLabel = node.type || Topics[node.topic];
-    
-    // Create styled node definition
-    mermaidCode += `    ${node.id}["${node.name}<br/><small>${topicLabel}</small>"]:::${topicLabel};\n `;
-  });
-
-  // mermaidCode += '\n';
-
-  // Add edges with labels
-  edges.value.forEach(edge => {
-    const label = edge.label ? `---|${edge.label}|` : '---';
-    mermaidCode += `    ${edge.from} ${label} ${edge.to};\n `;
-  });
-
-  // mermaidCode += '\n';
-
-  // Add style definitions
-  topicColors.forEach((color, topic) => {
-    const topicLabel = Topics[topic];
-    mermaidCode += `    classDef ${topicLabel} fill:${color},stroke:#333,stroke-width:2px,color:#fff;\n`;
-  });
-
-  return mermaidCode;
-};
-
-const renderDiagram = async () => {
-  if (nodes.value.length === 0) {
-    diagramHtml.value = '';
+const renderCytoscapeDiagram = async () => {
+  if (!diagramRef.value || nodes.value.length === 0) {
     return;
   }
 
   try {
-    const mermaidCode = generateMermaidDiagram();
-    const { svg } = await mermaid.render('relationship-diagram-svg', mermaidCode);
-    diagramHtml.value = svg;
+    // Destroy existing instance if it exists
+    if (cy.value) {
+      cy.value.destroy();
+      cy.value = null;
+    }
+
+    // Convert nodes and edges to plain JavaScript objects (avoid Vue reactivity)
+    const rawNodes = toRaw(nodes.value);
+    const rawEdges = toRaw(edges.value);
+
+    const cytoscapeNodes = rawNodes.map(node => ({
+      data: {
+        id: node.id,
+        name: node.name,
+        topic: node.topic,
+        type: node.type,
+        color: getTopicColor(node.topic)
+      }
+    }));
+
+    const cytoscapeEdges = rawEdges.map(edge => ({
+      data: {
+        id: `${edge.from}-${edge.to}`,
+        source: edge.from,
+        target: edge.to,
+        label: edge.label || ''
+      }
+    }));
+
+    // Create cytoscape instance with plain objects
+    cy.value = cytoscape({
+      container: diagramRef.value,
+      
+      elements: [
+        ...cytoscapeNodes,
+        ...cytoscapeEdges
+      ],
+
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'background-color': 'data(color)',
+            'label': 'data(name)',
+            'text-valign': 'center',
+            'text-halign': 'center',
+            'color': '#ffffff',
+            'text-outline-color': '#000000',
+            'text-outline-width': 2,
+            'font-size': '12px',
+            'font-weight': 'bold',
+            'width': '80px',
+            'height': '80px',
+            'shape': 'round-rectangle',
+            'border-width': 2,
+            'border-color': '#333333',
+            'text-wrap': 'wrap',
+            'text-max-width': '80px'
+          }
+        },
+        {
+          selector: 'node[topic = "organization"]',
+          style: {
+            'shape': 'hexagon'
+          }
+        },
+        {
+          selector: 'node[topic = "pc"]',
+          style: {
+            'shape': 'diamond'
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            'width': 2,
+            'line-color': '#666666',
+            'target-arrow-color': '#666666',
+            'target-arrow-shape': 'triangle',
+            'curve-style': 'bezier',
+            'label': 'data(label)',
+            'font-size': '10px',
+            'color': '#333333',
+            'text-rotation': 'autorotate',
+            'text-margin-y': -10
+          }
+        },
+        {
+          selector: 'edge[label = ""]',
+          style: {
+            'label': ''
+          }
+        },
+        {
+          selector: 'node:selected',
+          style: {
+            'border-width': 4,
+            'border-color': '#FFD700'
+          }
+        }
+      ],
+
+      layout: {
+        name: 'cose',
+        idealEdgeLength: 100,
+        nodeOverlap: 20,
+        refresh: 20,
+        fit: true,
+        padding: 50,
+        randomize: false,
+        componentSpacing: 100,
+        nodeRepulsion: 400000,
+        edgeElasticity: 100,
+        nestingFactor: 5,
+        gravity: 80,
+        numIter: 1000,
+        initialTemp: 200,
+        coolingFactor: 0.95,
+        minTemp: 1.0
+      }
+    });
+
+    // Add interaction handlers
+    cy.value.on('tap', 'node', (evt: any) => {
+      const node = evt.target;
+      console.log('Tapped node:', node.data('name'));
+    });
+
   } catch (error) {
-    console.error('Error rendering mermaid diagram:', error);
-    diagramHtml.value = `<p class="error">${localize('errors.diagramRenderError')}</p>`;
+    console.error('Error rendering cytoscape diagram:', error);
+    // Fallback to simple error message
+    if (diagramRef.value) {
+      diagramRef.value.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Error loading diagram. Please check console for details.</div>';
+    }
   }
 };
 
 const refreshDiagram = async () => {
   await extractRelationships();
-  await renderDiagram();
+  await renderCytoscapeDiagram();
 };
 
 ///////////////////////////////
@@ -277,8 +337,15 @@ watch(() => currentEntry?.uuid, async () => {
 ///////////////////////////////
 // lifecycle events
 onMounted(async () => {
-  initializeMermaid();
   await refreshDiagram();
+});
+
+onUnmounted(() => {
+  // Clean up cytoscape instance to prevent memory leaks
+  if (cy.value) {
+    cy.value.destroy();
+    cy.value = null;
+  }
 });
 </script>
 
@@ -302,22 +369,15 @@ onMounted(async () => {
   color: var(--color-text-secondary);
 }
 
-.mermaid-diagram {
+.cytoscape-diagram {
   flex: 1;
-  overflow: auto;
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  padding: 1rem;
   margin: 0 1rem 1rem 1rem;
   background: var(--color-background);
   width: calc(100% - 2rem);
-  
-  :deep(svg) {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-  }
+  height: 500px;
+  min-height: 400px;
 }
 
 .no-relationships-message {
