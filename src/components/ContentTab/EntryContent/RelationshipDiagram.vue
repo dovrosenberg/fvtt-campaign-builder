@@ -4,7 +4,7 @@
       <div class="diagram-info">
         <span v-if="loading">{{ localize('common.loading') }}...</span>
         <span v-else-if="nodeCount > 0">
-          {{ localize('labels.relationshipDiagram.showingNodes', { count: nodeCount }) }}
+          <!-- {{ localize('labels.relationshipDiagram.showingNodes') }} -->
         </span>
         <span v-else>{{ localize('labels.relationshipDiagram.noRelationships') }}</span>
       </div>
@@ -13,7 +13,7 @@
     <div 
       v-if="nodeCount > 0" 
       ref="diagramRef" 
-      class="cytoscape-diagram"
+      class="relationship-diagram"
     ></div>
     
     <div v-else-if="!loading" class="no-relationships-message">
@@ -25,14 +25,12 @@
 <script setup lang="ts">
 // library imports
 import { ref, computed, watch, onMounted, onUnmounted, nextTick, toRaw } from 'vue';
-
-// @ts-ignore - Cytoscape doesn't have perfect TypeScript definitions
-const cytoscape = require('cytoscape');
+import { Network } from 'vis-network';
+import { DataSet } from 'vis-data';
 
 // local imports
 import { localize } from '@/utils/game';
 import { useMainStore, useRelationshipStore } from '@/applications/stores';
-import { Entry } from '@/classes';
 import { Topics } from '@/types';
 
 // types
@@ -65,7 +63,7 @@ const { currentEntry } = mainStore;
 // data
 const diagramRef = ref<HTMLElement | null>(null);
 const loading = ref<boolean>(false);
-const cy = ref<any | null>(null); // Use any to avoid complex type issues
+const network = ref<Network | null>(null);
 const nodes = ref<RelationshipNode[]>([]);
 const edges = ref<RelationshipEdge[]>([]);
 
@@ -97,7 +95,7 @@ const getTopicShape = (topic: Topics): string => {
     case Topics.Location:
       return 'round-rectangle'; // Stadium shape for locations
     case Topics.Organization:
-      return 'hexagon'; // Hexagon for organizations
+      return 'round-rectangle'; // Hexagon for organizations
     case Topics.PC:
       return 'diamond'; // Diamond for PCs
     default:
@@ -180,142 +178,137 @@ const extractRelationships = async () => {
   }
 };
 
-const renderCytoscapeDiagram = async () => {
+const renderDiagram = async () => {
   if (!diagramRef.value || nodes.value.length === 0) {
     return;
   }
 
   try {
-    // Destroy existing instance if it exists
-    if (cy.value) {
-      cy.value.destroy();
-      cy.value = null;
+    // Destroy existing network if it exists
+    if (network.value) {
+      network.value.destroy();
+      network.value = null;
     }
 
     // Convert nodes and edges to plain JavaScript objects (avoid Vue reactivity)
     const rawNodes = toRaw(nodes.value);
     const rawEdges = toRaw(edges.value);
 
-    const cytoscapeNodes = rawNodes.map(node => ({
-      data: {
-        id: node.id,
-        name: node.name,
-        topic: node.topic,
-        type: node.type,
-        color: getTopicColor(node.topic)
-      }
-    }));
-
-    const cytoscapeEdges = rawEdges.map(edge => ({
-      data: {
-        id: `${edge.from}-${edge.to}`,
-        source: edge.from,
-        target: edge.to,
-        label: edge.label || ''
-      }
-    }));
-
-    // Create cytoscape instance with plain objects
-    cy.value = cytoscape({
-      container: diagramRef.value,
-      
-      elements: [
-        ...cytoscapeNodes,
-        ...cytoscapeEdges
-      ],
-
-      style: [
-        {
-          selector: 'node',
-          style: {
-            'background-color': 'data(color)',
-            'label': 'data(name)',
-            'text-valign': 'center',
-            'text-halign': 'center',
-            'color': '#ffffff',
-            'text-outline-color': '#000000',
-            'text-outline-width': 2,
-            'font-size': '12px',
-            'font-weight': 'bold',
-            'width': '80px',
-            'height': '80px',
-            'shape': 'round-rectangle',
-            'border-width': 2,
-            'border-color': '#333333',
-            'text-wrap': 'wrap',
-            'text-max-width': '80px'
-          }
-        },
-        {
-          selector: 'node[topic = "organization"]',
-          style: {
-            'shape': 'hexagon'
-          }
-        },
-        {
-          selector: 'node[topic = "pc"]',
-          style: {
-            'shape': 'diamond'
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            'width': 2,
-            'line-color': '#666666',
-            'target-arrow-color': '#666666',
-            'target-arrow-shape': 'triangle',
-            'curve-style': 'bezier',
-            'label': 'data(label)',
-            'font-size': '10px',
-            'color': '#333333',
-            'text-rotation': 'autorotate',
-            'text-margin-y': -10
-          }
-        },
-        {
-          selector: 'edge[label = ""]',
-          style: {
-            'label': ''
-          }
-        },
-        {
-          selector: 'node:selected',
-          style: {
-            'border-width': 4,
-            'border-color': '#FFD700'
-          }
+    // Create vis.js dataset for nodes
+    const visNodes = new DataSet(rawNodes.map(node => ({
+      id: node.id,
+      label: node.name,
+      color: {
+        background: getTopicColor(node.topic),
+        border: '#333333',
+        highlight: {
+          background: getTopicColor(node.topic),
+          border: '#FFD700'
         }
-      ],
+      },
+      shape: getTopicShape(node.topic),
+      font: {
+        color: '#ffffff',
+        size: 12,
+        face: 'arial',
+        strokeWidth: 0,
+        // strokeColor: '#000000'
+      },
+      borderWidth: 2,
+      borderWidthSelected: 4,
+      margin: 10
+    })));
 
-      layout: {
-        name: 'cose',
-        idealEdgeLength: 100,
-        nodeOverlap: 20,
-        refresh: 20,
-        fit: true,
-        padding: 50,
-        randomize: false,
-        componentSpacing: 100,
-        nodeRepulsion: 400000,
-        edgeElasticity: 100,
-        nestingFactor: 5,
-        gravity: 80,
-        numIter: 1000,
-        initialTemp: 200,
-        coolingFactor: 0.95,
-        minTemp: 1.0
+    // Create vis.js dataset for edges
+    const visEdges = new DataSet(rawEdges.map(edge => ({
+      id: `${edge.from}-${edge.to}`,
+      from: edge.from,
+      to: edge.to,
+      label: edge.label || '',
+      color: {
+        color: '#666666',
+        highlight: '#409EFF'
+      },
+      width: 2,
+      arrows: {
+        to: {
+          enabled: true,
+          scaleFactor: 0.8
+        }
+      },
+      font: {
+        color: '#333333',
+        size: 10,
+        strokeWidth: 2,
+        strokeColor: '#ffffff'
+      },
+      smooth: {
+        enabled: true,
+        type: 'curvedCW',
+        roundness: 0.2
       }
-    });
+    })));
 
-    // Add interaction handlers
-    cy.value.on('tap', 'node', (evt: any) => {
-      const node = evt.target;
-      console.log('Tapped node:', node.data('name'));
+    // Create vis.js network
+    const data = {
+      nodes: visNodes,
+      edges: visEdges
+    };
+
+    const options = {
+      layout: {
+        hierarchical: {
+          enabled: false
+        },
+        improvedLayout: true
+      },
+      physics: {
+        enabled: true,
+        barnesHut: {
+          gravitationalConstant: -8000,
+          centralGravity: 0.3,
+          springLength: 95,
+          springConstant: 0.04,
+          damping: 0.09,
+          avoidOverlap: 0.1
+        }
+      },
+      interaction: {
+        hover: true,
+        tooltipDelay: 200,
+        zoomView: true,
+        dragView: true
+      },
+      nodes: {
+        shape: 'box',
+        scaling: {
+          min: 20,
+          max: 30
+        }
+      },
+      edges: {
+        scaling: {
+          min: 1,
+          max: 3
+        }
+      }
+    };
+
+    network.value = new Network(diagramRef.value, data, options);
+
+    // Add click handler
+    network.value.on('click', (params: any) => {
+      if (params.nodes.length > 0) {
+        const nodeId = params.nodes[0];
+        const node = rawNodes.find(n => n.id === nodeId);
+        if (node) {
+          console.log('Clicked node:', node.name);
+        }
+      }
     });
 
   } catch (error) {
-    console.error('Error rendering cytoscape diagram:', error);
+    console.error('Error rendering vis.js network:', error);
     // Fallback to simple error message
     if (diagramRef.value) {
       diagramRef.value.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Error loading diagram. Please check console for details.</div>';
@@ -325,7 +318,7 @@ const renderCytoscapeDiagram = async () => {
 
 const refreshDiagram = async () => {
   await extractRelationships();
-  await renderCytoscapeDiagram();
+  await renderDiagram();
 };
 
 ///////////////////////////////
@@ -341,10 +334,10 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  // Clean up cytoscape instance to prevent memory leaks
-  if (cy.value) {
-    cy.value.destroy();
-    cy.value = null;
+  // Clean up vis.js network instance to prevent memory leaks
+  if (network.value) {
+    network.value.destroy();
+    network.value = null;
   }
 });
 </script>
@@ -369,7 +362,7 @@ onUnmounted(() => {
   color: var(--color-text-secondary);
 }
 
-.cytoscape-diagram {
+.relationship-diagram {
   flex: 1;
   border: 1px solid var(--color-border);
   border-radius: 4px;
