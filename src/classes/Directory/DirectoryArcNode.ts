@@ -26,22 +26,20 @@ export class DirectoryArcNode extends CollapsibleNode<DirectorySessionNode> {
    * @param updateIds uuids of the nodes that should be refreshed
    */
   override async _loadNodeList(ids: string[], updateIds: string[] ): Promise<void> {
-    // make sure we've loaded what we need
-    if (!CollapsibleNode._currentSetting) {
-      CollapsibleNode._loadedNodes = {};
-      return;
-    }
+    if (!CollapsibleNode._currentSetting)
+      throw new Error('No current setting in DirectoryArcNode._loadNodeList()');
 
-    // we only want to load ones not already in _loadedNodes, unless its in updateIds
-    const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
-
-    const campaign = await Campaign.fromUuid(this.parentId!);
+    // Get fresh campaign data from setting's campaigns cache (which was just refreshed)
+    const campaign = CollapsibleNode._currentSetting.campaigns[this.parentId!] || await Campaign.fromUuid(this.parentId!);
     if (!campaign)
       throw new Error('Bad campaign id in DirectoryArcNode._loadNodeList()');
     
     const arc = await Arc.fromUuid(this.id);
     if (!arc)
       throw new Error('Bad arc id in DirectoryArcNode._loadNodeList()');
+
+    // we only want to load ones not already in _loadedNodes, unless its in updateIds
+    const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
     const sessions = campaign.sessionIndex.filter((s) => s.number>=arc.startSessionNumber && s.number<=arc.endSessionNumber);
     const sessionsToUse = uuidsToLoad.length===0 ? [] : 

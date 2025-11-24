@@ -52,8 +52,8 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return allFronts;
   }
 
-  /** Finds the new highest session and updates the campaign to mark that as current */
-  public async resetCurrentSession(): Promise<void> {
+  /** Updates current session to highest numbered session without saving */
+  public resetCurrentSessionIfNeeded(): void {
     // find the uuid of the one with the highest number
     const maxSessionInfo = this.sessionIndex
       .reduce((maxInfo: {num: number; sessionId: string}, s): { num: number; sessionId: string}=> {
@@ -72,7 +72,11 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       this.currentSessionNumber = maxSessionInfo.num;
       this.currentSessionId = maxSessionInfo.sessionId;
     }
-
+  }
+  
+  /** Finds the new highest session and updates the campaign to mark that as current (with save) */
+  public async resetCurrentSession(): Promise<void> {
+    this.resetCurrentSessionIfNeeded();
     await this.save();
   }    
   
@@ -162,30 +166,15 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
   }
 
-  /** update indices for a session */
-  public async updateSession(session: Session): Promise<void> {
-    // find it in the index
-    const sessionIndex = this._clone.system.sessionIndex.find((s)=>s.uuid===session.uuid);
-
-    if (!sessionIndex)
-      throw new Error('Session index not found in Campaign.updateSession()');
-
-    sessionIndex.number = session.number;
-    sessionIndex.name = session.name;
-    sessionIndex.date = session.date?.toISOString() || null;
-    await this.save();
-
-    await this.updateArcsForNewSessionNumber(session.number);
-  }
 
 
   /**
    * Ensures the new session number falls inside the current arc coverage.  If not, adjusts the 
-   * arcs as needed.
+   * arcs as needed. Modifies arcIndex directly without saving - caller must save campaign.
    * 
    * @param newNumber - The new session number
    */
-  private async updateArcsForNewSessionNumber(newSessionNumber: number): Promise<void> {
+  public async updateArcsForNewSessionNumber(newSessionNumber: number): Promise<void> {
     // see if it's fine already
     if (getArcForSession(this.arcIndex, newSessionNumber) != null) 
       return;
@@ -201,26 +190,14 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
     let covered = false;
     if (newSessionNumber < firstArcIndex.startSessionNumber) {
-      // Need to extend the first arc backwards
-      const firstArc = await Arc.fromUuid(firstArcIndex.uuid);
-      if (!firstArc)
-        throw new Error('First arc not found in Campaign.updateArcsForNewSessionNumber()');
-
-      firstArc.campaign = this;
+      // Need to extend the first arc backwards - modify index directly
       firstArcIndex.startSessionNumber = newSessionNumber;
-      await firstArc.save();
       covered = true;
     }
 
     if (newSessionNumber > lastArcIndex.endSessionNumber) {
-      // Need to extend the last arc forwards
-      const lastArc = await Arc.fromUuid(lastArcIndex.uuid);
-      if (!lastArc)
-        throw new Error('Last arc not found in Campaign.updateArcsForNewSessionNumber()');
-
-      lastArc.campaign = this;
+      // Need to extend the last arc forwards - modify index directly
       lastArcIndex.endSessionNumber = newSessionNumber;
-      await lastArc.save();
       covered = true;
     }
 
@@ -230,20 +207,14 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       // find the last arc with an end below this number and extend it up to cover
       for (let i = this.arcIndex.length - 1; i >= 0; i--) {
         if (this.arcIndex[i].endSessionNumber < newSessionNumber) {
-          const arc = await Arc.fromUuid(this.arcIndex[i].uuid);
-          if (!arc) {
-            throw new Error('Arc not found in Campaign.updateArcsForNewSessionNumber()');
-          }
-
-          arc.campaign = this;
-          arc.endSessionNumber = newSessionNumber;
-          await arc.save();          
+          this.arcIndex[i].endSessionNumber = newSessionNumber;
+          break;
         }
       }
     }
   }
   
-  /** register the arc on the campaign and setting; also set the sort order */
+  /** Register the arc on the campaign; also set the sort order. Campaign.save() syncs to setting. */
   public async addArc(arc: Arc): Promise<void> {
     const sortOrder = this._clone.system.arcIndex.length;
     
@@ -256,48 +227,11 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     } as ArcBasicIndex;
 
     this._clone.system.arcIndex.push(newArc);
+    
+    // Save campaign once - this will sync to setting automatically
     await this.save();
-
-    const setting = await this.getSetting();
-    if (!setting)
-      throw new Error('Failed to get setting in Campaign.addArc()');
-
-    const campaignIndex = setting.campaignIndex.find(c=> c.uuid===this.uuid);
-    if (!campaignIndex)
-      throw new Error('Failed to find campaign index in Campaign.addArc()');
-
-    campaignIndex.arcs.push(newArc);
-    await setting.save();
   }
 
-  /** update any changes to arc index */
-  public async updateArc(arc: Arc): Promise<void> {
-    let arcIndex = this._clone.system.arcIndex.find((a)=>a.uuid===arc.uuid);
-    if (!arcIndex)
-      throw new Error('Arc index not found in Campaign.updateArc()');
-
-    arcIndex.name = arc.name;
-    arcIndex.startSessionNumber = arc.startSessionNumber;
-    arcIndex.endSessionNumber = arc.endSessionNumber;
-    arcIndex.sortOrder = arc.sortOrder;
-
-    // resort the index
-    this._clone.system.arcIndex.sort((a, b) => a.sortOrder - b.sortOrder);
-
-    await this.save();
-
-    // need to update on the setting
-    const setting = await this.getSetting();
-    if (!setting)
-      throw new Error('Failed to get setting in Campaign.updateArc()');
-
-    const campaignIndex = setting.campaignIndex.find(c=> c.uuid===this.uuid);
-    if (!campaignIndex)
-      throw new Error('Failed to find campaign index in Campaign.updateArc()');
-
-    campaignIndex.arcs = this._clone.system.arcIndex;
-    await setting.save();
-  }
 
   public async addFront(front: Front): Promise<void> {
     this._clone.system.frontIds.push(front.uuid);    
@@ -308,19 +242,8 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     // Remove from index
     this._clone.system.arcIndex = this._clone.system.arcIndex.filter(a => a.uuid !== arc.uuid);
     
+    // Save campaign once - this will sync to setting automatically
     await this.save();
-
-    // remove from the setting
-    const setting = await this.getSetting();
-    if (!setting)
-      throw new Error('Failed to get setting in Campaign.deleteArc()');
-
-    const campaignIndex = setting.campaignIndex.find(c=> c.uuid===this.uuid);
-    if (!campaignIndex)
-      throw new Error('Failed to find campaign index in Campaign.deleteArc()');
-
-    campaignIndex.arcs = campaignIndex.arcs.filter(a => a.uuid !== arc.uuid);
-    await setting.save();
   }
  
   public async deleteFront(front: Front): Promise<void> {
@@ -331,54 +254,53 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
   /** delete a session from the campaign; adjusting current session if needed */
   public async deleteSession(session: Session): Promise<void> {
-    // Remove from master indexes
-    const reset = (session.uuid === this.currentSessionId);
-
+    console.log('🗑️ Campaign.deleteSession() called for:', session.uuid, session.name, 'number:', session.number);
+    console.log('📋 Campaign sessionIndex before filter:', this._clone.system.sessionIndex.map(s => ({uuid: s.uuid, name: s.name, number: s.number})));
+    
     // Remove from index
+    const beforeCount = this._clone.system.sessionIndex.length;
     this._clone.system.sessionIndex = this._clone.system.sessionIndex.filter(s => s.uuid !== session.uuid);
-    await this.save();
+    const afterCount = this._clone.system.sessionIndex.length;
+    
+    console.log('📊 SessionIndex count change:', beforeCount, '->', afterCount);
+    console.log('📋 Campaign sessionIndex after filter:', this._clone.system.sessionIndex.map(s => ({uuid: s.uuid, name: s.name, number: s.number})));
 
-    let arcIndexToUpdate = '';
+    // Reset current session if needed (doesn't save)
+    if (session.uuid === this.currentSessionId) {
+      console.log('🔄 Resetting current session');
+      this.resetCurrentSessionIfNeeded();
+    }
 
-    // find the arc it was in
+    // Adjust arc boundaries for the deleted session (directly modify arcIndex)
     for (const arcIndex of this.arcIndex) {
       if (arcIndex.startSessionNumber > session.number || arcIndex.endSessionNumber < session.number)
         continue;
 
-      // if there was only one, empty it
+      console.log('🎯 Found arc containing session:', arcIndex.name, 'start:', arcIndex.startSessionNumber, 'end:', arcIndex.endSessionNumber);
+
+      // if there was only one session, empty it
       if (arcIndex.startSessionNumber === arcIndex.endSessionNumber) {
         arcIndex.startSessionNumber = -1;
         arcIndex.endSessionNumber = -1;
+        console.log('📏 Arc emptied - set to -1,-1');
       } else if (arcIndex.startSessionNumber === session.number) {
         // it was at the start, make the new start one higher 
         arcIndex.startSessionNumber++;
+        console.log('📏 Arc start incremented to:', arcIndex.startSessionNumber);
       } else if (arcIndex.endSessionNumber === session.number) {
         // it was at the end, make the new end one lower
         arcIndex.endSessionNumber--;
-      } else {
-        // it was in the middle - do nothing
-        break;
+        console.log('📏 Arc end decremented to:', arcIndex.endSessionNumber);
       }
+      // if in the middle, no change needed
 
-      await this.save();
-
-      const arc = await Arc.fromUuid(arcIndex.uuid);
-      if (!arc)
-        throw new Error('Arc not found in Campaign.deleteSession()');
-
-      arc.campaign = this;
-      arc.startSessionNumber = arcIndex.startSessionNumber;
-      arc.endSessionNumber = arcIndex.endSessionNumber;
-      await arc.save();  // this should update the indexes
-
-      arcIndexToUpdate = arcIndex.uuid;
+      break; // Session can only be in one arc
     }
 
-    // note: sessions are no longer stored on setting
-
-    if (reset) {
-      await this.resetCurrentSession();
-    }
+    console.log('💾 About to save campaign...');
+    // Save campaign once - this syncs to setting automatically
+    await this.save();
+    console.log('✅ Campaign.deleteSession() completed');
   }
 
   public get description(): string {
@@ -856,64 +778,79 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @returns Promise that returns after the update
    */
   public async save(): Promise<void> {
-    // we attempt to save first - because if it fails, we don't 
-    //    want to adjust anything else
-    try {
-      const justCompleted = this._clone.system.completed && !this._doc?.system.completed;
-      const justIncompleted = !this._clone.system.completed && this._doc?.system.completed;
+    console.log('💾 Campaign.save() called for:', this.uuid, this.name);
+    console.log('📋 Campaign sessionIndex at save time:', this.sessionIndex.map(s => ({uuid: s.uuid, name: s.name, number: s.number})));
+    
+    const justCompleted = this._clone.system.completed && !this._doc?.system.completed;
+    const justIncompleted = !this._clone.system.completed && this._doc?.system.completed;
 
-      await super.save();
+    // Save campaign document
+    await super.save();
+    console.log('✅ Campaign document saved to database');
 
-      // if we just changed completed status, we need to make some changes
-      if (justCompleted || justIncompleted) {
-        const setting = await this.getSetting();
-
-        if (justCompleted) {
-          // collapse the node
-          await setting.collapseNode(this.uuid);
-
-          // remove from search results
-          const sessions = await this.allSessions();
-          for (const session of sessions) {
-            searchService.removeSearchEntry(session.uuid);
-          }
-
-          const fronts = await this.allFronts();
-          for (const front of fronts) {
-            searchService.removeSearchEntry(front.uuid);
-          }
-
-          const arcs = this.arcIndex;
-          for (const arc of arcs) {
-            searchService.removeSearchEntry(arc.uuid);
-          }
-
-          // clear the email-to setting if it was set to this one
-          if (ModuleSettings.get(SettingKey.emailDefaultCampaign)===this.uuid)
-            await ModuleSettings.set(SettingKey.emailDefaultCampaign, '');
-        }
-
-        // if we just marked incomplete, we need to make some changes
-        if (justIncompleted) {
-          // add to search
-          const sessions = await this.allSessions();
-          for (const session of sessions) {
-            searchService.addOrUpdateSessionIndex(session);
-          }
-
-          const fronts = await this.allFronts();
-          for (const front of fronts) {
-            searchService.addOrUpdateFrontIndex(front);
-          }
-
-          for (const index of this.arcIndex) {
-            const arc = await Arc.fromUuid(index.uuid);
-            searchService.addOrUpdateArcIndex(arc!);
-          }
-        }
+    // Sync campaign indices to setting
+    const setting = await this.getSetting();
+    if (setting) {
+      const campaignIndex = setting.campaignIndex.find(c => c.uuid === this.uuid);
+      if (campaignIndex) {
+        console.log('🔄 Syncing to setting - before:', campaignIndex.arcs.map(a => ({uuid: a.uuid, name: a.name, start: a.startSessionNumber, end: a.endSessionNumber})));
+        
+        campaignIndex.name = this.name;
+        campaignIndex.completed = this.completed;
+        campaignIndex.arcs = this.arcIndex.slice(); // Full sync of arc indices
+        
+        console.log('🔄 Syncing to setting - after:', campaignIndex.arcs.map(a => ({uuid: a.uuid, name: a.name, start: a.startSessionNumber, end: a.endSessionNumber})));
       }
-    } catch (error) {
-      throw error;
+      
+      await setting.save();
+      console.log('✅ Setting saved to database');
+    }
+
+    // Handle completed status changes
+    if (justCompleted) {
+      if (setting) {
+        // collapse the node
+        await setting.collapseNode(this.uuid);
+      }
+
+      // remove from search results
+      const sessions = await this.allSessions();
+      for (const session of sessions) {
+        searchService.removeSearchEntry(session.uuid);
+      }
+
+      const fronts = await this.allFronts();
+      for (const front of fronts) {
+        searchService.removeSearchEntry(front.uuid);
+      }
+
+      const arcs = this.arcIndex;
+      for (const arc of arcs) {
+        searchService.removeSearchEntry(arc.uuid);
+      }
+
+      // clear the email-to setting if it was set to this one
+      if (ModuleSettings.get(SettingKey.emailDefaultCampaign) === this.uuid)
+        await ModuleSettings.set(SettingKey.emailDefaultCampaign, '');
+    }
+
+    // if we just marked incomplete, we need to make some changes
+    if (justIncompleted) {
+      // add to search
+      const sessions = await this.allSessions();
+      for (const session of sessions) {
+        searchService.addOrUpdateSessionIndex(session);
+      }
+
+      const fronts = await this.allFronts();
+      for (const front of fronts) {
+        searchService.addOrUpdateFrontIndex(front);
+      }
+
+      for (const index of this.arcIndex) {
+        const arc = await Arc.fromUuid(index.uuid);
+        searchService.addOrUpdateArcIndex(arc!);
+      }
     }
   }
 

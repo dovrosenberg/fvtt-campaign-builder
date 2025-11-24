@@ -398,28 +398,42 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     await campaign.deleteSession(session);
   }
 
+  /**
+   * Updates arc index in campaign without saving
+   */
+  private _updateArcIndexInCampaign(campaign: Campaign): void {
+    const index = campaign.arcIndex.find(a => a.uuid === this.uuid);
+    if (index) {
+      index.name = this.name;
+      index.startSessionNumber = this.startSessionNumber;
+      index.endSessionNumber = this.endSessionNumber;
+      index.sortOrder = this.sortOrder;
+    }
+    // Resort the index
+    campaign.arcIndex.sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+
   // used to set arbitrary properties on the entryDoc
   /**
-   * Updates a front in the database
+   * Updates an arc in the database
    * 
    * @returns A promise that resolves after the update
    */
   public async save(): Promise<void> {
-    // we attempt to save first - because if it fails, we don't 
-    //    want to adjust anything else
-    try {
-      await super.save();
-    } catch (error) {
-      throw error;
-    }
+    // Save arc document
+    await super.save();
 
-    // update the campaign and setting indexes
+    // Update campaign indices (doesn't save)
     const campaign = await this.loadCampaign();
     if (!campaign)
       throw new Error('Invalid campaign in Arc.save()');
-    await campaign.updateArc(this);
+    
+    this._updateArcIndexInCampaign(campaign);
+    
+    // Save campaign which will sync to setting
+    await campaign.save();
 
-    // Update the search index (rely on retval being null if no changes were made)
+    // Update the search index
     try {
       await searchService.addOrUpdateArcIndex(this);
     } catch (error) {

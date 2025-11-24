@@ -455,6 +455,18 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this._clone.system.campaignId = value;
   }
 
+  /**
+   * Updates session index in campaign without saving
+   */
+  private _updateSessionIndexInCampaign(campaign: Campaign): void {
+    const index = campaign.sessionIndex.find(s => s.uuid === this.uuid);
+    if (index) {
+      index.name = this.name;
+      index.number = this.number;
+      index.date = this.date?.toISOString() || null;
+    }
+  }
+
   // used to set arbitrary properties on the entryDoc
   /**
    * Updates a session in the database
@@ -462,64 +474,46 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
    * @returns A promise that resolves after the update
    */
   public async save(): Promise<void> {
-    const setting = await this.getSetting();
     const campaign = await this.loadCampaign();
 
-    if (!setting || !campaign)
-      throw new Error('Invalid setting or campaign in Session.save()');
+    if (!campaign)
+      throw new Error('Invalid campaign in Session.save()');
     
-    // we attempt to save first - because if it fails, we don't 
-    //    want to adjust anything else
-    try {
-      // see if the number is taken, if so, everything after it needs to be renumbered
-      const sessions = campaign.sessionIndex.sort((a, b) => a.number - b.number);
+    // Handle session renumbering if needed
+    const sessions = campaign.sessionIndex.sort((a, b) => a.number - b.number);
+    const currentNumberedSession = sessions.findIndex(s => s.number === this.number && s.uuid !== this.uuid);
 
-      // find the index of the session with the same number 
-      const currentNumberedSession = sessions.findIndex(s=> s.number===this.number && s.uuid!==this.uuid);
+    if (currentNumberedSession !== -1) {
+      // Need to re-number everything after this one
+      // Go backward because otherwise these saves will kickoff a cascade of changes
+      for (let i = sessions.length - 1; i >= currentNumberedSession; i--) {
+        if (sessions[i].uuid !== this.uuid) {
+          const session = await Session.fromUuid(sessions[i].uuid); 
+          if (!session)
+            throw new Error('Invalid session in Session.save()');
 
-      if (currentNumberedSession!==-1) {
-        // need to re-number everything after this one
-        // go backward because otherwise these saves will kickoff a cascade of changes
-        for (let i = sessions.length-1; i>= currentNumberedSession; i--) {
-          if (sessions[i].uuid!==this.uuid) {
-            const session = await Session.fromUuid(sessions[i].uuid); 
-            if (!session)
-              throw new Error('Invalid session in Session.save()');
-
-            session.number++;
-            await session.save();
-          }
+          session.number++;
+          await session.save(); // This will recursively update campaign
         }
       }
-
-      await super.save();
-    } catch (error) {
-      throw error;
     }
 
-    // update indexes (and arcs if needed)
-    await campaign.updateSession(this);
+    // Save session document
+    await super.save();
 
-    let sessionItem = campaign.sessionIndex.find((e)=> e.uuid === this.uuid);
-    if (!sessionItem) {
-      sessionItem = {
-        uuid: this.uuid,
-        name: this._clone.name,
-        number: this._clone.system.number,
-        date: this._clone.system.date,
-      };
-    } else {
-      sessionItem.name = this._clone.name;
-      sessionItem.number = this._clone.system.number;
-      sessionItem.date = this._clone.system.date;
-    }
+    // Update campaign indices (doesn't save)
+    this._updateSessionIndexInCampaign(campaign);
+    
+    // Adjust arc boundaries if needed (doesn't save)
+    await campaign.updateArcsForNewSessionNumber(this.number);
+    
+    // Reset current session if needed (doesn't save)
+    campaign.resetCurrentSessionIfNeeded();
+    
+    // Save campaign once with all updates
     await campaign.save();
 
-    // we could get more specific about exactly whether we need to renumber the
-    //    campaign or not, but don't bother
-    await campaign.resetCurrentSession();
-
-    // Update the search index (rely on retval being null if no changes were made)
+    // Update the search index
     try {
       await searchService.addOrUpdateSessionIndex(this);
     } catch (error) {
@@ -529,6 +523,8 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
   public async delete() {
     const id = this.uuid;
+    console.log('🗑️ Session.delete() called for:', id, this.name);
+    
     const setting = await getGlobalSetting(this.settingId);
 
     if (!setting)
@@ -539,12 +535,18 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     if (!campaign)
       throw new Error('Campaign not found in Session.delete()');
     
+    console.log('📋 Campaign sessionIndex before delete:', campaign.sessionIndex.map(s => ({uuid: s.uuid, name: s.name, number: s.number})));
+    
     await campaign.deleteSession(this);
+    
+    console.log('📋 Campaign sessionIndex after delete:', campaign.sessionIndex.map(s => ({uuid: s.uuid, name: s.name, number: s.number})));
     
     await toRaw(this._doc).delete();
 
     // Remove from search index
     searchService.removeSearchEntry(id);
+    
+    console.log('✅ Session.delete() completed for:', id);
   }
     
 }
