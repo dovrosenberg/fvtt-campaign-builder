@@ -207,6 +207,16 @@
         <div class="tab flexcol" data-group="primary" data-tab="sessions">
           <SessionsTab />
         </div>
+        <div 
+          v-if="topic===Topics.Character"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="relationships"
+        >
+          <div class="tab-inner">
+            <RelationshipDiagram />
+          </div>
+        </div>
       </ContentTabStrip>
     </div>
 
@@ -256,6 +266,7 @@
   import SessionsTab from '@/components/ContentTab/EntryContent/SessionsTab.vue';
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
+  import RelationshipDiagram from '@/components/ContentTab/EntryContent/RelationshipDiagram.vue';
   
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal, ContentTabDescriptor } from '@/types';
@@ -335,6 +346,10 @@
       tabs.push({ id: 'scenes', label: localize('labels.scenes') });
     if (topic.value!==Topics.PC)
       tabs.push({ id: 'sessions', label: localize('labels.sessions') });
+
+    // Add relationship diagram tab for characters
+    if (topic.value===Topics.Character)
+      tabs.push({ id: 'relationships', label: localize('labels.tabs.entry.relationships') });
 
     return tabs;
   });

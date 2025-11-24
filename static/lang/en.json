@@ -219,6 +219,7 @@
       "sessions": "Sessions",
       "scenes": "Scenes",
       "journals": "Journals",
+      "refresh": "Refresh",
 
       "tableHeaders": {
         "actions": "Actions",
@@ -229,6 +230,11 @@
         "type": "Type",
         "role": "Role",
         "description": "Description"
+      },
+      "relationshipDiagram": {
+        "showingNodes": "Showing {count} relationships",
+        "noRelationships": "No relationships found",
+        "noRelationshipsMessage": "This character has no relationships yet. Add connections to other characters, locations, organizations, or PCs to see them visualized here."
       },
       "locations": {
         "compendium": "Compendium",
@@ -366,7 +372,8 @@
           "pcs": "PCs",
           "locationChildren": "Child locations",
           "organizations": "Organizations",
-          "organizationChildren": "Sub-organizations"
+          "organizationChildren": "Sub-organizations",
+          "relationships": "Relationships"
         },
         "campaign": {
           "description": "Description",
@@ -731,7 +738,8 @@
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark",
-      "nameRequired": "Name cannot be blank"
+      "nameRequired": "Name cannot be blank",
+      "diagramRenderError": "Error rendering relationship diagram"
     }
   }
 }
