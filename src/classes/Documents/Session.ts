@@ -505,10 +505,10 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this._updateSessionIndexInCampaign(campaign);
     
     // Adjust arc boundaries if needed (doesn't save)
-    await campaign.updateArcsForNewSessionNumber(this.number);
+    campaign.updateArcsForNewSessionNumber(this.number);
     
     // Reset current session if needed (doesn't save)
-    campaign.resetCurrentSessionIfNeeded();
+    campaign.resetCurrentSession();
     
     // Save campaign once with all updates
     await campaign.save();
@@ -521,10 +521,8 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     }
   }
 
-  public async delete() {
+  public async delete(): Promise<void> {
     const id = this.uuid;
-    console.log('🗑️ Session.delete() called for:', id, this.name);
-    
     const setting = await getGlobalSetting(this.settingId);
 
     if (!setting)
@@ -535,18 +533,12 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     if (!campaign)
       throw new Error('Campaign not found in Session.delete()');
     
-    console.log('📋 Campaign sessionIndex before delete:', campaign.sessionIndex.map(s => ({uuid: s.uuid, name: s.name, number: s.number})));
-    
     await campaign.deleteSession(this);
-    
-    console.log('📋 Campaign sessionIndex after delete:', campaign.sessionIndex.map(s => ({uuid: s.uuid, name: s.name, number: s.number})));
     
     await toRaw(this._doc).delete();
 
     // Remove from search index
     searchService.removeSearchEntry(id);
-    
-    console.log('✅ Session.delete() completed for:', id);
   }
     
 }

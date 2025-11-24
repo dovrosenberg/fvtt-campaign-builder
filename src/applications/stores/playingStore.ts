@@ -170,7 +170,8 @@ export const usePlayingStore = defineStore('playing', () => {
         return;
       
       // make sure the sessions are up to date (we shouldn't really need this)
-      await currentPlayedCampaign.value?.resetCurrentSession();
+      await currentPlayedCampaign.value.resetCurrentSession();
+      await currentPlayedCampaign.value.save();
       
       const sessionNumber = await currentPlayedCampaign.value?.currentSessionNumber;
       if (ModuleSettings.get(SettingKey.displaySessionNotes) && sessionNumber!==null) {

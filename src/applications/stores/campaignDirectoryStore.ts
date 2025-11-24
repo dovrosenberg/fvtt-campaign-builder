@@ -6,10 +6,11 @@ import { reactive, ref, watch, nextTick } from 'vue';
 
 // local imports
 import { useMainStore, useNavigationStore, usePlayingStore } from '@/applications/stores';
-import { DirectoryCampaignNode, Campaign, Session, FCBSetting, Front, DirectoryArcNode, DirectoryFrontFolder, Arc, } from '@/classes';
 import { FCBDialog } from '@/dialogs';
-import { notifyWarn } from '@/utils/notifications';
+import { DirectoryCampaignNode, DirectoryArcNode, DirectoryFrontFolder, Campaign, Session, Front, Arc, FCBSetting } from '@/classes';
+import { getArcForSession } from '@/utils/arcIndex';
 import { ModuleSettings, SettingKey } from '@/settings';
+import { notifyWarn } from '@/utils/notifications';
 
 // types
 
@@ -54,8 +55,9 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     }
 
     // need to have a current setting and journals loaded
-    if (!currentSetting.value)
+    if (!currentSetting.value) {
       return;
+    }
 
     isCampaignTreeRefreshing.value = true;
 
@@ -79,7 +81,9 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       }
 
       // the rest of the children are arcs
-      for (const arc of currentSetting.value.campaignIndex.find((c)=>c.uuid===campaign.uuid)?.arcs || []) {
+      const campaignIndexArcs = currentSetting.value.campaignIndex.find((c)=>c.uuid===campaign.uuid)?.arcs || [];
+      
+      for (const arc of campaignIndexArcs) {
         children.push(arc.uuid);
       }
 
@@ -179,12 +183,21 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (!(await FCBDialog.confirmDialog('Delete session?', 'Are you sure you want to delete this session?')))
       return;
   
+    // Find the affected arc before deleting
+    const campaign = await Campaign.fromUuid(session.campaignId);
+    if (!campaign)
+      throw new Error('Campaign not found in campaignDirectoryStore.deleteSession()');
+    
+    const affectedArc = getArcForSession(campaign.arcIndex, session.number);
+    const affectedArcUuid = affectedArc?.uuid || null;
+    
     await session.delete();  // this will remove from the campaign, etc.
 
     // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(sessionId);
 
-    await refreshCampaignDirectoryTree();
+    // Refresh tree with the specific arc that was affected
+    await refreshCampaignDirectoryTree(affectedArcUuid ? [affectedArcUuid] : []);
   };
 
   const deleteFront = async (frontId: string): Promise<void> => {
@@ -219,9 +232,13 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     const session = await Session.create(campaign);
 
     if (session) {
-      // need to force the parent arc to reload (which is always the last one)
-      const lastArc = campaign.arcIndex.at(-1);
-      await refreshCampaignDirectoryTree([session.uuid, lastArc!.uuid]);
+      // Find the arc that contains the new session and refresh it
+      const affectedArc = getArcForSession(campaign.arcIndex, session.number);
+      const affectedArcUuid = affectedArc?.uuid || null;
+      
+      if (affectedArcUuid) {
+        await refreshCampaignDirectoryTree([affectedArcUuid]);
+      }
       return session;
     } else {
       return null;

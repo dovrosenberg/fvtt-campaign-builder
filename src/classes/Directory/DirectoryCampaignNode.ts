@@ -45,8 +45,10 @@ export class DirectoryCampaignNode<
     }
 
     // the rest of the children are arcs
-    // Get fresh campaign data from setting's campaigns cache (which was just refreshed)
+    // const campaign = await Campaign.fromUuid(this.id);
+    //     // Get fresh campaign data from setting's campaigns cache (which was just refreshed)
     const campaign = CollapsibleNode._currentSetting.campaigns[this.id] || await Campaign.fromUuid(this.id);
+
     if (!campaign)
       throw new Error('Bad campaign id in DirectoryCampaignNode._loadNodeList()');
 

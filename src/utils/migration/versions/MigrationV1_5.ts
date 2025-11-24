@@ -433,6 +433,7 @@ async function migrateCampaign(oldCampaign: JournalEntry, setting: FCBSetting): 
 
   // update the final session
   await newCampaign.resetCurrentSession();
+  await newCampaign.save();
   
   // delete the old campaign (and all the sessions)
   await oldCampaign.delete();

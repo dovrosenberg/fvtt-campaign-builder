@@ -420,7 +420,8 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
    * @returns A promise that resolves after the update
    */
   public async save(): Promise<void> {
-    // Save arc document
+    // we attempt to save first - because if it fails, we don't 
+    //    want to adjust anything else
     await super.save();
 
     // Update campaign indices (doesn't save)

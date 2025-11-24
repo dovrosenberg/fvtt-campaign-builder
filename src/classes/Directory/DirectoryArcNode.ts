@@ -42,9 +42,10 @@ export class DirectoryArcNode extends CollapsibleNode<DirectorySessionNode> {
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
     const sessions = campaign.sessionIndex.filter((s) => s.number>=arc.startSessionNumber && s.number<=arc.endSessionNumber);
+    
     const sessionsToUse = uuidsToLoad.length===0 ? [] : 
       sessions.filter((s: SessionBasicIndex)=> uuidsToLoad.includes(s.uuid));
-
+    
     for (const session of sessionsToUse) {
       const newNode = DirectorySessionNode.fromSessionBasicIndex(session, this.id);
       CollapsibleNode._loadedNodes[newNode.id] = newNode;

@@ -1,16 +1,15 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { DOCUMENT_TYPES, CampaignLore, frontIndexFields } from '@/documents';
-import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex,} from '@/types';
-import { Entry, Session, FCBSetting, Front, Arc } from '@/classes';
-import { FCBDialog } from '@/dialogs';
-import { localize } from '@/utils/game';
-import { ToDoItem, ToDoTypes, Idea } from '@/types';
+import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, ToDoItem, ToDoTypes, Idea,} from '@/types';
+import { Entry, Session, FCBSetting, Front, Arc, } from '@/classes';
+import { getArcForSession, getFirstArcWithSessions, getLastArcWithSessions } from '@/utils/arcIndex';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
 import { JournalEntryFlagKey } from '@/settings';
 import { searchService } from '@/utils/search';
 import { getGlobalSetting } from '@/utils/globalSettings';
-import { getArcForSession, getFirstArcWithSessions, getLastArcWithSessions } from '@/utils/arcIndex';
+import { FCBDialog } from '@/dialogs';
+import { localize } from '@/utils/game';
 
 type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
 
@@ -53,7 +52,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   /** Updates current session to highest numbered session without saving */
-  public resetCurrentSessionIfNeeded(): void {
+  public resetCurrentSession(): void {
     // find the uuid of the one with the highest number
     const maxSessionInfo = this.sessionIndex
       .reduce((maxInfo: {num: number; sessionId: string}, s): { num: number; sessionId: string}=> {
@@ -73,12 +72,6 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       this.currentSessionId = maxSessionInfo.sessionId;
     }
   }
-  
-  /** Finds the new highest session and updates the campaign to mark that as current (with save) */
-  public async resetCurrentSession(): Promise<void> {
-    this.resetCurrentSessionIfNeeded();
-    await this.save();
-  }    
   
   public get sessionIndex(): SessionBasicIndex[] {
     return this._clone.system.sessionIndex;
@@ -174,7 +167,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * 
    * @param newNumber - The new session number
    */
-  public async updateArcsForNewSessionNumber(newSessionNumber: number): Promise<void> {
+  public updateArcsForNewSessionNumber(newSessionNumber: number): void {
     // see if it's fine already
     if (getArcForSession(this.arcIndex, newSessionNumber) != null) 
       return;
@@ -214,7 +207,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     }
   }
   
-  /** Register the arc on the campaign; also set the sort order. Campaign.save() syncs to setting. */
+  /** Register the arc to the end of the campaign (and setting); saves Campaign */
   public async addArc(arc: Arc): Promise<void> {
     const sortOrder = this._clone.system.arcIndex.length;
     
@@ -254,53 +247,34 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
   /** delete a session from the campaign; adjusting current session if needed */
   public async deleteSession(session: Session): Promise<void> {
-    console.log('🗑️ Campaign.deleteSession() called for:', session.uuid, session.name, 'number:', session.number);
-    console.log('📋 Campaign sessionIndex before filter:', this._clone.system.sessionIndex.map(s => ({uuid: s.uuid, name: s.name, number: s.number})));
     
     // Remove from index
-    const beforeCount = this._clone.system.sessionIndex.length;
     this._clone.system.sessionIndex = this._clone.system.sessionIndex.filter(s => s.uuid !== session.uuid);
-    const afterCount = this._clone.system.sessionIndex.length;
     
-    console.log('📊 SessionIndex count change:', beforeCount, '->', afterCount);
-    console.log('📋 Campaign sessionIndex after filter:', this._clone.system.sessionIndex.map(s => ({uuid: s.uuid, name: s.name, number: s.number})));
-
     // Reset current session if needed (doesn't save)
     if (session.uuid === this.currentSessionId) {
-      console.log('🔄 Resetting current session');
-      this.resetCurrentSessionIfNeeded();
+      this.resetCurrentSession();
     }
 
     // Adjust arc boundaries for the deleted session (directly modify arcIndex)
-    for (const arcIndex of this.arcIndex) {
-      if (arcIndex.startSessionNumber > session.number || arcIndex.endSessionNumber < session.number)
-        continue;
-
-      console.log('🎯 Found arc containing session:', arcIndex.name, 'start:', arcIndex.startSessionNumber, 'end:', arcIndex.endSessionNumber);
-
+    const arcIndex = getArcForSession(this.arcIndex, session.number);
+    if (arcIndex) {
       // if there was only one session, empty it
       if (arcIndex.startSessionNumber === arcIndex.endSessionNumber) {
         arcIndex.startSessionNumber = -1;
         arcIndex.endSessionNumber = -1;
-        console.log('📏 Arc emptied - set to -1,-1');
       } else if (arcIndex.startSessionNumber === session.number) {
         // it was at the start, make the new start one higher 
         arcIndex.startSessionNumber++;
-        console.log('📏 Arc start incremented to:', arcIndex.startSessionNumber);
       } else if (arcIndex.endSessionNumber === session.number) {
         // it was at the end, make the new end one lower
         arcIndex.endSessionNumber--;
-        console.log('📏 Arc end decremented to:', arcIndex.endSessionNumber);
       }
       // if in the middle, no change needed
-
-      break; // Session can only be in one arc
     }
 
-    console.log('💾 About to save campaign...');
     // Save campaign once - this syncs to setting automatically
     await this.save();
-    console.log('✅ Campaign.deleteSession() completed');
   }
 
   public get description(): string {
@@ -778,32 +752,24 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @returns Promise that returns after the update
    */
   public async save(): Promise<void> {
-    console.log('💾 Campaign.save() called for:', this.uuid, this.name);
-    console.log('📋 Campaign sessionIndex at save time:', this.sessionIndex.map(s => ({uuid: s.uuid, name: s.name, number: s.number})));
-    
+    // we attempt to save first - because if it fails, we don't 
+    //    want to adjust anything else
     const justCompleted = this._clone.system.completed && !this._doc?.system.completed;
     const justIncompleted = !this._clone.system.completed && this._doc?.system.completed;
 
-    // Save campaign document
     await super.save();
-    console.log('✅ Campaign document saved to database');
 
     // Sync campaign indices to setting
     const setting = await this.getSetting();
     if (setting) {
       const campaignIndex = setting.campaignIndex.find(c => c.uuid === this.uuid);
       if (campaignIndex) {
-        console.log('🔄 Syncing to setting - before:', campaignIndex.arcs.map(a => ({uuid: a.uuid, name: a.name, start: a.startSessionNumber, end: a.endSessionNumber})));
-        
         campaignIndex.name = this.name;
         campaignIndex.completed = this.completed;
         campaignIndex.arcs = this.arcIndex.slice(); // Full sync of arc indices
-        
-        console.log('🔄 Syncing to setting - after:', campaignIndex.arcs.map(a => ({uuid: a.uuid, name: a.name, start: a.startSessionNumber, end: a.endSessionNumber})));
       }
       
       await setting.save();
-      console.log('✅ Setting saved to database');
     }
 
     // Handle completed status changes
