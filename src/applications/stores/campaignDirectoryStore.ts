@@ -55,9 +55,8 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     }
 
     // need to have a current setting and journals loaded
-    if (!currentSetting.value) {
+    if (!currentSetting.value)
       return;
-    }
 
     isCampaignTreeRefreshing.value = true;
 
