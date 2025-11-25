@@ -24,9 +24,8 @@
 
 <script setup lang="ts">
 // library imports
-import { ref, computed, watch, onMounted, onUnmounted, nextTick, toRaw } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, toRaw } from 'vue';
 import { Network } from 'vis-network';
-import { DataSet } from 'vis-data';
 
 // local imports
 import { localize } from '@/utils/game';
@@ -194,65 +193,60 @@ const renderDiagram = async () => {
     const rawNodes = toRaw(nodes.value);
     const rawEdges = toRaw(edges.value);
 
-    // Create vis.js dataset for nodes
-    const visNodes = new DataSet(rawNodes.map(node => ({
-      id: node.id,
-      label: node.name,
-      color: {
-        background: getTopicColor(node.topic),
-        border: '#333333',
-        highlight: {
+    // Create vis.js network data
+    const config = {
+      locale: 'xx',
+      locales: getLocales(),
+      nodes: rawNodes.map(node => ({
+        id: node.id,
+        label: node.name,
+        color: {
           background: getTopicColor(node.topic),
-          border: '#FFD700'
-        }
-      },
-      shape: getTopicShape(node.topic),
-      font: {
-        color: '#ffffff',
-        size: 12,
-        face: 'arial',
-        strokeWidth: 0,
-        // strokeColor: '#000000'
-      },
-      borderWidth: 2,
-      borderWidthSelected: 4,
-      margin: 10
-    })));
-
-    // Create vis.js dataset for edges
-    const visEdges = new DataSet(rawEdges.map(edge => ({
-      id: `${edge.from}-${edge.to}`,
-      from: edge.from,
-      to: edge.to,
-      label: edge.label || '',
-      color: {
-        color: '#666666',
-        highlight: '#409EFF'
-      },
-      width: 2,
-      arrows: {
-        to: {
+          border: '#333333',
+          highlight: {
+            background: getTopicColor(node.topic),
+            border: '#FFD700'
+          }
+        },
+        shape: getTopicShape(node.topic),
+        font: {
+          color: '#ffffff',
+          size: 12,
+          face: 'arial',
+          strokeWidth: 0
+        },
+        borderWidth: 2,
+        borderWidthSelected: 4,
+        margin: 10
+      })),
+      edges: rawEdges.map(edge => ({
+        id: `${edge.from}-${edge.to}`,
+        from: edge.from,
+        to: edge.to,
+        label: edge.label || '',
+        color: {
+          color: '#666666',
+          highlight: '#409EFF'
+        },
+        width: 2,
+        arrows: {
+          to: {
+            enabled: true,
+            scaleFactor: 0.8
+          }
+        },
+        font: {
+          color: '#333333',
+          size: 10,
+          strokeWidth: 2,
+          strokeColor: '#ffffff'
+        },
+        smooth: {
           enabled: true,
-          scaleFactor: 0.8
+          type: 'curvedCW',
+          roundness: 0.2
         }
-      },
-      font: {
-        color: '#333333',
-        size: 10,
-        strokeWidth: 2,
-        strokeColor: '#ffffff'
-      },
-      smooth: {
-        enabled: true,
-        type: 'curvedCW',
-        roundness: 0.2
-      }
-    })));
-
-    // Create vis.js network
-    const data = {
-      nodes: visNodes,
-      edges: visEdges
+      }))
     };
 
     const options = {
@@ -294,7 +288,7 @@ const renderDiagram = async () => {
       }
     };
 
-    network.value = new Network(diagramRef.value, data, options);
+    network.value = new Network(diagramRef.value, config, options);
 
     // Add click handler
     network.value.on('click', (params: any) => {
@@ -321,6 +315,26 @@ const refreshDiagram = async () => {
   await renderDiagram();
 };
 
+const getLocales = () => ({
+  // define a custom locale
+  xx: {
+    edit: localize('relationships.edit'),
+    del: localize('relationships.del'),
+    back: localize('relationships.back'),
+    addNode: localize('relationships.addNode'),
+    addEdge: localize('relationships.addEdge'),
+    editNode: localize('relationships.editNode'),
+    editEdge: localize('relationships.editEdge'),
+    addDescription: localize('relationships.addDescription'),
+    edgeDescription: localize('relationships.edgeDescription'),
+    editEdgeDescription: localize('relationships.editEdgeDescription'),
+    createEdgeError: localize('relationships.createEdgeError'),
+    deleteClusterError: localize('relationships.deleteClusterError'),
+    editClusterError: localize('relationships.editClusterError')
+  }
+
+});
+
 ///////////////////////////////
 // watchers
 watch(() => currentEntry?.uuid, async () => {
@@ -343,54 +357,54 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.relationship-diagram-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-}
-
-.diagram-controls {
-  margin-bottom: 1rem;
-  align-items: center;
-  gap: 1rem;
-  padding: 0 1rem;
-}
-
-.diagram-info {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-}
-
-.relationship-diagram {
-  flex: 1;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  margin: 0 1rem 1rem 1rem;
-  background: var(--color-background);
-  width: calc(100% - 2rem);
-  height: 500px;
-  min-height: 400px;
-}
-
-.no-relationships-message {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: var(--color-text-secondary);
-  margin: 0 1rem 1rem 1rem;
-  
-  p {
-    font-size: 1rem;
-    margin: 0;
+  .relationship-diagram-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
   }
-}
 
-.error {
-  color: var(--color-error);
-  text-align: center;
-  padding: 1rem;
-}
+  .diagram-controls {
+    margin-bottom: 1rem;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .diagram-info {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+
+  .relationship-diagram {
+    flex: 1;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    margin: 0 1rem 1rem 1rem;
+    background: var(--color-background);
+    width: calc(100% - 2rem);
+    height: 500px;
+    min-height: 400px;
+  }
+
+  .no-relationships-message {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--color-text-secondary);
+    margin: 0 1rem 1rem 1rem;
+    
+    p {
+      font-size: 1rem;
+      margin: 0;
+    }
+  }
+
+  .error {
+    color: var(--color-error);
+    text-align: center;
+    padding: 1rem;
+  }
 </style>
