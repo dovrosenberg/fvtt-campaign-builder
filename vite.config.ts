@@ -67,6 +67,7 @@ export default defineConfig(({ mode }) => {
       // }),
       // combine all the scss output into one file
       scss({
+        api: 'modern',
         output: 'styles/style.css',
         sourceMap: isDevelopment,
         include: ['src/**/*.scss', 'src/**/*.css', 
