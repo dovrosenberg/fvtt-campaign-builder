@@ -1,15 +1,15 @@
 /* 
- * A class representing an node representing a campaign in the campaign tree structures
+ * A class representing a folder containing story webs in the campaign tree structures
  */
 
-import { Campaign, CollapsibleNode, DirectoryFrontNode, } from '@/classes';
-import { FrontFilterIndex } from '@/types';
+import { Campaign, CollapsibleNode, DirectoryStoryWebNode } from '@/classes';
+import { StoryWebFilterIndex } from '@/types';
 
-export class DirectoryFrontFolder extends CollapsibleNode<DirectoryFrontNode> {
+export class DirectoryStoryWebFolder extends CollapsibleNode<DirectoryStoryWebNode> {
   name: string;
   
   constructor(id: string, name: string, campaignId: string, children: string[] = [], 
-    loadedChildren: DirectoryFrontNode[] = [], expanded: boolean = false
+    loadedChildren: DirectoryStoryWebNode[] = [], expanded: boolean = false
   ) {
 
     super(id, expanded, campaignId, children, loadedChildren, []);
@@ -35,26 +35,26 @@ export class DirectoryFrontFolder extends CollapsibleNode<DirectoryFrontNode> {
 
     const campaign = await Campaign.fromUuid(this.parentId!);
     if (!campaign)
-      throw new Error('Bad campaign id in DirectoryFrontFolder._loadNodeList()');
+      throw new Error('Bad campaign id in DirectoryStoryWebFolder._loadNodeList()');
 
-    const fronts = uuidsToLoad.length===0 ? [] : await campaign.filterFronts((s: FrontFilterIndex)=> uuidsToLoad.includes(s.uuid));
+    const storyWebs = uuidsToLoad.length===0 ? [] : await campaign.filterStoryWebs((s: StoryWebFilterIndex)=> uuidsToLoad.includes(s.uuid));
 
-    for (let i=0; i<fronts.length; i++) {
-      const newNode = DirectoryFrontNode.fromFront(fronts[i], this.id);
+    for (let i=0; i<storyWebs.length; i++) {
+      const newNode = DirectoryStoryWebNode.fromStoryWeb(storyWebs[i], this.id);
       CollapsibleNode._loadedNodes[newNode.id] = newNode;
     }
   }
 
-  static async fromCampaign(campaignId: string): Promise<DirectoryFrontFolder> {
+  static async fromCampaign(campaignId: string): Promise<DirectoryStoryWebFolder> {
     const campaign = await Campaign.fromUuid(campaignId);
     if (!campaign)
-      throw new Error('Bad campaign id in DirectoryFrontFolder.fromCampaign()');
+      throw new Error('Bad campaign id in DirectoryStoryWebFolder.fromCampaign()');
 
-    return new DirectoryFrontFolder(
-      `${campaignId}:front`,
-      'Fronts',
+    return new DirectoryStoryWebFolder(
+      `${campaignId}:storywebs`,
+      'Story Webs',
       campaignId,
-      campaign.frontIds.slice()
+      campaign.storyWebIds.slice()
     );
   }
 }

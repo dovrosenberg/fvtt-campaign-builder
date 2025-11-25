@@ -13,7 +13,7 @@ import { getGlobalSetting } from '@/utils/globalSettings';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { FCBSetting, WindowTab, Entry, Campaign, Session, Front, Arc, CollapsibleNode, RootFolder } from '@/classes';
+import { FCBSetting, WindowTab, Entry, Campaign, Session, Front, Arc, StoryWeb, CollapsibleNode, RootFolder } from '@/classes';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 // the store definition
@@ -29,6 +29,7 @@ export const useMainStore = defineStore('main', () => {
   const _currentFront = ref<Front | null>(null);  // current front (when showing a front tab)
   const _currentArc = ref<Arc | null>(null);  // current arc (when showing a front tab)
   const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
+  const _currentStoryWeb = ref<StoryWeb | null>(null);  // current story web (when showing a story web tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
   const _currentSetting = ref<FCBSetting | null>(null);  // the current setting
 
@@ -63,6 +64,7 @@ export const useMainStore = defineStore('main', () => {
   const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
   const currentArc = computed((): Arc | null => (_currentArc?.value || null) as Arc | null);
   const currentFront = computed((): Front | null => (_currentFront?.value || null) as Front | null);
+  const currentStoryWeb = computed((): StoryWeb | null => (_currentStoryWeb?.value || null) as StoryWeb | null);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
   const currentTab = computed((): WindowTab | null => _currentTab?.value);  
   const currentSetting = computed((): FCBSetting | null => (_currentSetting?.value || null) as FCBSetting | null);
@@ -74,6 +76,7 @@ export const useMainStore = defineStore('main', () => {
       _currentSession.value ? _currentSession.value.uuid : 
       _currentArc.value ? _currentArc.value.uuid : 
       _currentFront.value ? _currentFront.value.uuid : 
+      _currentStoryWeb.value ? _currentStoryWeb.value.uuid : 
       null;
   });
 
@@ -121,6 +124,7 @@ export const useMainStore = defineStore('main', () => {
     _currentSession.value = null;
     _currentArc.value = null;
     _currentFront.value = null;
+    _currentStoryWeb.value = null;
 
     switch (tab.tabType) {
       case WindowTabType.Entry:
@@ -162,6 +166,13 @@ export const useMainStore = defineStore('main', () => {
           _currentArc.value = await Arc.fromUuid(tab.header.uuid);
           if (!_currentArc.value)
             throw new Error(`Invalid arc uuid ${tab.header.uuid} in mainStore.setNewTab()`);
+        }
+        break;
+      case WindowTabType.StoryWeb:
+        if (tab.header.uuid) {
+          _currentStoryWeb.value = await StoryWeb.fromUuid(tab.header.uuid);
+          if (!_currentStoryWeb.value)
+            throw new Error(`Invalid story web uuid ${tab.header.uuid} in mainStore.setNewTab()`);
         }
         break;
       default:  // make it a 'new entry' window
@@ -385,6 +396,7 @@ export const useMainStore = defineStore('main', () => {
     currentSession,
     currentFront,
     currentArc,
+    currentStoryWeb,
     currentTab,
     currentContentType,
     currentContentId,

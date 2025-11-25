@@ -40,6 +40,12 @@
       <FrontContent />
     </div>
     <div 
+      v-else-if="currentContentType===WindowTabType.StoryWeb"
+      class="fcb-content-wrapper"
+    >
+      <StoryWebContent />
+    </div>
+    <div 
       v-else-if="currentContentType===WindowTabType.NewTab"
       class="fcb-content-wrapper"
     >
@@ -68,6 +74,7 @@
   import SettingContent from '@/components/ContentTab/SettingContent.vue';
   import FrontContent from '@/components/ContentTab/FrontContent/FrontContent.vue';
   import ArcContent from '@/components/ContentTab/ArcContent/ArcContent.vue';
+  import StoryWebContent from '@/components/ContentTab/StoryWebContent/StoryWebContent.vue';
   
   // types
   import { WindowTabType } from '@/types';

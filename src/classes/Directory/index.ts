@@ -10,4 +10,6 @@ export * from './DirectorySessionNode';
 export * from './DirectoryArcNode';
 export * from './DirectoryFrontFolder';
 export * from './DirectoryFrontNode';
+export * from './DirectoryStoryWebFolder';
+export * from './DirectoryStoryWebNode';
 

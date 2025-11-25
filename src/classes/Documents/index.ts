@@ -4,4 +4,5 @@ export * from './Session';
 export * from './Entry';
 export * from './Front';
 export * from './Arc';
+export * from './StoryWeb';
 

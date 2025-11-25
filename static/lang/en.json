@@ -7,7 +7,8 @@
       "entries": "Entries",
       "sessions": "Sessions",
       "fronts": "Fronts",
-      "arcs": "Arcs"
+      "arcs": "Arcs",
+      "storyWebs": "Story Webs"
     },
     "settings": {
       "startCollapsed": "Sidebar starts collapsed?",
@@ -65,7 +66,9 @@
       "showRolePlayingNotes": "Show role playing notes on entries",
       "showRolePlayingNotesHelp": "When true, a separate field for role playing notes will be shown separately from the Entry description.",
       "useFronts": "Use Fronts",
-      "useFrontsHelp": "Turn on campaign \"front\" functionality."
+      "useFrontsHelp": "Turn on campaign \"front\" functionality.",
+      "useWebs": "Use Story Webs",
+      "useWebsHelp": "Turn on campaign \"story web\" functionality."
     },
     "applications": {
       "sessionNotes": {
@@ -606,6 +609,7 @@
         "createSession": "Create a session",
         "createFront": "Create a front",
         "createArc": "Create an arc",
+        "createStoryWeb": "Create a story web",
         "manageArcs": "Manage arcs",
         "delete": "Delete campaign",
         "markComplete": "Mark campaign complete",
@@ -621,7 +625,22 @@
       "front": {
         "delete": "Delete front"
       },
+      "storyWeb": {
+        "untitled": "Untitled Story Web",
+        "namePlaceholder": "Story Web Name",
+        "addCustomNode": "Add Custom Node",
+        "nodeName": "Node Name",
+        "nodeNamePlaceholder": "Enter node name",
+        "nodeDescription": "Description",
+        "nodeDescriptionPlaceholder": "Enter node description",
+        "delete": "Delete Story Web",
+        "disabled": "Story webs are disabled in settings. Enable 'Use Story Webs' in the module settings to use this feature."
+      },
       "dialogs": {
+        "createStoryWeb": {
+          "title": "Create Story Web",
+          "webName": "Story Web Name"
+        },
         "cannotActivateFromCompendium": "Cannot activate from compendium",
         "cannotToggleNavigationFromCompendium": "Cannot toggle navigation from scene in a compendium",
         "cannotToggleNavigationWhileActive": "Cannot toggle navigation while scene is active"

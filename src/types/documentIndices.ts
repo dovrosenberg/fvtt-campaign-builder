@@ -49,6 +49,13 @@ export interface FrontFilterIndex {
   uuid: string;
 }
 
+/** the tyoe available for use in filterWebs */
+export interface StoryWebFilterIndex {
+  name: string;
+  id: string;
+  uuid: string;
+}
+
 /** the type available for use in filterEntries */
 export interface EntryFilterIndex {
   name: string;

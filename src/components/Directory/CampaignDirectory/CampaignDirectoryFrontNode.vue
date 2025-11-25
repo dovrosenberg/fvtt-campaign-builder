@@ -34,7 +34,7 @@
 
   // types
   import { DirectoryFrontNode,  } from '@/classes';
-  import { SessionNodeDragData } from '@/types';
+  import { FrontNodeDragData, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -75,10 +75,10 @@
     event.stopPropagation();
 
     const dragData = {
-      type: 'fcb-session',
-      sessionId: props.frontNode.id,
+      type: 'fcb-front',
+      frontId: props.frontNode.id,
       name: props.frontNode.name
-    } as SessionNodeDragData;
+    } as FrontNodeDragData;
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };

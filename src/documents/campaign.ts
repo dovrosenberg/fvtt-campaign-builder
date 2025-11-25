@@ -33,6 +33,12 @@ export const CampaignSchema = {
     { required: true, nullable: false, initial: [] as string[] }
   ),
 
+  /** all the storyWebIds */
+  storyWebIds: new fields.ArrayField(
+    new fields.DocumentUUIDField({ required: true, nullable: false }),
+    { required: true, nullable: false, initial: [] as string[] }
+  ),
+
   /** campaign lore */
   lore: new fields.ArrayField(
     schemas.CampaignLore(),

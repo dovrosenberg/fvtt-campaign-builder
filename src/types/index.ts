@@ -31,6 +31,7 @@ export enum WindowTabType  {
   Setting,
   Front,
   Arc,
+  StoryWeb,
 }
 
 export interface WindowTabHistory {
@@ -197,7 +198,8 @@ export type ValidDocType =
   typeof DOCUMENT_TYPES.Entry | 
   typeof DOCUMENT_TYPES.Session |
   typeof DOCUMENT_TYPES.Front |
-  typeof DOCUMENT_TYPES.Arc;
+  typeof DOCUMENT_TYPES.Arc |
+  typeof DOCUMENT_TYPES.StoryWeb;
 
 export interface ContentTabDescriptor {
   id: string;

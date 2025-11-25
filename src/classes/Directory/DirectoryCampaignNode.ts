@@ -3,12 +3,12 @@
  */
 
 import { ArcBasicIndex, } from '@/types';
-import { Campaign, CollapsibleNode, DirectoryArcNode, DirectoryFrontFolder, DirectorySessionNode, } from '@/classes';
+import { Campaign, CollapsibleNode, DirectoryArcNode, DirectoryFrontFolder, DirectorySessionNode, DirectoryStoryWebFolder, } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 
 export class DirectoryCampaignNode<
   SessionNodes extends DirectorySessionNode | DirectoryArcNode,
-  PossibleNodes extends SessionNodes | DirectoryFrontFolder = SessionNodes | DirectoryFrontFolder 
+  PossibleNodes extends SessionNodes | DirectoryFrontFolder | DirectoryStoryWebFolder = SessionNodes | DirectoryFrontFolder | DirectoryStoryWebFolder 
 > extends CollapsibleNode<PossibleNodes> {
   name: string;
   completed: boolean;
@@ -42,6 +42,12 @@ export class DirectoryCampaignNode<
       // add the front folder
       const newNode = await DirectoryFrontFolder.fromCampaign(this.id);
       CollapsibleNode._loadedNodes[newNode.id] = newNode;
+    }
+
+    // ditto for story web folder
+    if (ModuleSettings.get(SettingKey.useWebs)) {
+      const storyWebNode = await DirectoryStoryWebFolder.fromCampaign(this.id);
+      CollapsibleNode._loadedNodes[storyWebNode.id] = storyWebNode;
     }
 
     // the rest of the children are arcs

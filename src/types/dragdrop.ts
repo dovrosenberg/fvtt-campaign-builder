@@ -8,6 +8,18 @@ export interface EntryNodeDragData {
   topic: ValidTopic;
 };
 
+export interface StoryWebNodeDragData {
+  type: 'fcb-storyWeb';
+  storyWebId: string;
+  name: string;
+};
+
+export interface FrontNodeDragData {
+  type: 'fcb-front';
+  frontId: string;
+  name: string;
+};
+
 export interface CampaignNodeDragData {
   type: 'fcb-campaign';
   campaignId: string;

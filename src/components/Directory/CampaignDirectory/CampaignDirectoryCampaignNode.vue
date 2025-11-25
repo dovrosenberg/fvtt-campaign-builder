@@ -42,6 +42,14 @@
         class="fcb-entry-item" 
         draggable="false"
       />
+      <!-- story webs -->
+      <CampaignDirectoryStoryWebFolder 
+        v-if="storyWebFolderNode"
+        :story-web-folder-node="storyWebFolderNode"
+        :campaign-id="props.campaignNode.id"
+        class="fcb-entry-item" 
+        draggable="false"
+      />
       <CampaignDirectoryArcNode 
         v-for="node in sortedChildren"
         :key="'arc' + node.id"
@@ -72,9 +80,10 @@
   // local components
   import CampaignDirectoryArcNode from './CampaignDirectoryArcNode.vue';
   import CampaignDirectoryFrontFolder from './CampaignDirectoryFrontFolder.vue';
+  import CampaignDirectoryStoryWebFolder from './CampaignDirectoryStoryWebFolder.vue';
 
   // types
-  import { Campaign, DirectoryArcNode, DirectoryCampaignNode, DirectorySessionNode, DirectoryFrontFolder } from '@/classes';
+  import { Campaign, DirectoryArcNode, DirectoryCampaignNode, DirectorySessionNode, DirectoryFrontFolder, DirectoryStoryWebFolder } from '@/classes';
   import { CampaignNodeDragData, WindowTabType } from '@/types';
   
   ////////////////////////////////
@@ -108,7 +117,13 @@
     let children = props.campaignNode.loadedChildren;
 
     // if we are using fronts, strip the front folder
+    // they are always ordered fronts (if there), webs (if there), then arcs
     if (ModuleSettings.get(SettingKey.useFronts)) {
+      children = children.slice(1);
+    }
+
+    // if we are using webs, strip the story web folder
+    if (ModuleSettings.get(SettingKey.useWebs)) {
       children = children.slice(1);
     }
 
@@ -123,6 +138,15 @@
     } else {
       return null;
     }
+  });
+
+  const storyWebFolderNode = computed((): DirectoryStoryWebFolder | null => {
+    if (!ModuleSettings.get(SettingKey.useWebs)) {
+      return null;
+    }
+    // story webs are always the second one after fronts (if fronts are enabled)
+    const frontOffset = ModuleSettings.get(SettingKey.useFronts) ? 1 : 0;
+    return props.campaignNode.loadedChildren[frontOffset] as DirectoryStoryWebFolder || null;
   });
 
   // Check if this campaign is current showing in the content window

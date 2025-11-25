@@ -6,6 +6,7 @@ import { SettingDataModel } from './fcbSetting';
 import { CampaignDataModel } from './campaign';
 import { FrontDataModel } from './front';
 import { ArcDataModel } from './arc';
+import { StoryWebDataModel } from './storyWeb';
 
 // only need these for things that are actually subtyped
 // updated all to x2 at v1.5 because the whole structure changed (journal entry pages
@@ -18,6 +19,7 @@ export const DOCUMENT_TYPES = {
   Campaign: `${moduleId}.campaign2` as const,
   Front: `${moduleId}.front2` as const,
   Arc: `${moduleId}.arc2`as const,
+  StoryWeb: `${moduleId}.storyWeb2` as const,
 } as const;
 
 export type FCB_DOCUMENT_TYPES = typeof DOCUMENT_TYPES[keyof typeof DOCUMENT_TYPES];
@@ -28,7 +30,8 @@ export type JournalEntryPageTypes =
   { [K in (typeof DOCUMENT_TYPES)['Session']]: typeof SessionDataModel } &
   { [K in (typeof DOCUMENT_TYPES)['Setting']]: typeof SettingDataModel } &
   { [K in (typeof DOCUMENT_TYPES)['Front']]: typeof FrontDataModel } &
-  { [K in (typeof DOCUMENT_TYPES)['Arc']]: typeof ArcDataModel };
+  { [K in (typeof DOCUMENT_TYPES)['Arc']]: typeof ArcDataModel } &
+  { [K in (typeof DOCUMENT_TYPES)['StoryWeb']]: typeof StoryWebDataModel };
 
 // type equivalents
 declare global {

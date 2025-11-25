@@ -71,6 +71,8 @@ export function getTabTypeIcon(type: string | number | WindowTabType | null | un
       return 'fa-skull';
     case WindowTabType.Arc:
       return 'fa-route';  //'fa-book-open';
+    case WindowTabType.StoryWeb:
+      return 'fa-diagram-project';
     case WindowTabType.Entry:
       throw new Error('Tried to use getTabTypeIcon() for Entry');
     default: 

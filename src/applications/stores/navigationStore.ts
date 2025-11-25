@@ -19,7 +19,7 @@ import { getGlobalSetting } from '@/utils/globalSettings';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, Front, Arc } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, Front, Arc, StoryWeb } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -75,6 +75,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       [WindowTabType.Front]: 'description',
       [WindowTabType.Session]: 'notes',
       [WindowTabType.Arc]: 'description',
+      [WindowTabType.StoryWeb]: '', // no tabs
       [WindowTabType.NewTab]: '',  // no tabs
     } as Record<WindowTabType, string>;
 
@@ -143,6 +144,16 @@ export const useNavigationStore = defineStore('navigation', () => {
           } else {
             name = arc.name;
             icon = getTabTypeIcon(WindowTabType.Arc);
+          }
+          break;
+        }
+        case WindowTabType.StoryWeb: {
+          const storyWeb = await StoryWeb.fromUuid(contentId);
+          if (!storyWeb) {
+            badId = true;
+          } else {
+            name = storyWeb.name;
+            icon = getTabTypeIcon(WindowTabType.StoryWeb);
           }
           break;
         }
@@ -255,6 +266,21 @@ export const useNavigationStore = defineStore('navigation', () => {
    */
   const openFront = async function(frontId = null as string | null, options?: OpenContentOptions) {
     await openContent(frontId, WindowTabType.Front, options);
+  };
+
+  /**
+   * Open a new tab to the given story web. If no story web is given, a blank "New Tab" is opened.
+   * 
+   * @param storyWebId The uuid of the story web to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the story web open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the story web be added to the history of the tab? Defaults to true.
+   * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @returns The newly opened tab.
+   */
+  const openStoryWeb = async function(storyWebId = null as string | null, options?: OpenContentOptions) {
+    await openContent(storyWebId, WindowTabType.StoryWeb, options);
   }; 
 
   /**
@@ -797,6 +823,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     openSetting,
     openContent,
     openArc,
+    openStoryWeb,
     updateContentTab,
     getActiveTab,
     loadTabs,
