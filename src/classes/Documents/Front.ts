@@ -16,15 +16,10 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
   static override _documentType = DOCUMENT_TYPES.Front;
   static override _defaultSystem = { 
     campaignId: '',  
-    // strongStart: '',  
-    // locations: [],  
-    // items: [],  
-    // npcs: [],  
-    // monsters: [],  
-    // vignettes: [],  
-    // lore: [],  
+    dangers: [],
+    customFields: {},
+    tags: [],
     img: '',   
-    // tags: [],
   } as unknown as FrontDocClass['system'];
 
   public campaign: Campaign | null;  // the campaign the front is in (if we don't setup up front, we can load it later)

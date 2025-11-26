@@ -1,6 +1,11 @@
 <template>
   <div class="vis-network-wrapper">
-    <div ref="networkContainer" class="network-container">
+    <div 
+      ref="networkContainer" 
+      class="network-container"
+      @drop="onDrop"
+      @dragover="onDragover"
+    >
       <!-- Debug: StoryWebGraph rendered -->
     </div>
   </div>
@@ -16,7 +21,8 @@
   import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useStoryWebStore } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { notifyWarn } from '@/utils/notifications';
-
+  import { getValidatedData } from '@/utils/dragdrop';
+  
   // library components
 
   // local components
@@ -63,19 +69,7 @@
     try {
       console.log('StoryWebGraph: starting graph initialization');
       isGraphLoading.value = true;
-      graphError.value = null;
-      
-      // // Dynamically import the composable
-      // console.log('StoryWebGraph: importing useStoryWebGraph');
-      // const { useStoryWebGraph: dynamicUseStoryWebGraph } = await import('@/composables/useStoryWebGraph');
-      
-      // // Initialize the composable
-      // console.log('StoryWebGraph: initializing composable');
-      // graphComposable.value = dynamicUseStoryWebGraph();
-      
-      // // Initialize graph with the container and get network instance
-      // console.log('StoryWebGraph: calling initializeGraph');
-      // await graphComposable.value.initializeGraph(container, storyWeb);
+      graphError.value = null;      
       
       console.log('StoryWebGraph: graph initialization completed');
       
@@ -90,47 +84,62 @@
     }
   };
 
-  // Initialize drag handlers on the vis-network canvas
-  const initializeDragHandlers = async () => {
-    console.log('initializeDragHandlers called');
-    console.log('networkContainer.value:', networkContainer.value);
-    
-    if (!networkContainer.value) {
-      console.log('networkContainer.value is null, returning');
-      return;
-    }
+  // // Initialize drag handlers on the vis-network canvas
+  // const initializeDragHandlers = async () => {
+  //   if (!networkContainer.value) {
+  //     console.log('networkContainer.value is null, returning');
+  //     return;
+  //   }
 
-    // Wait for next tick to ensure parent listeners are attached
-    await nextTick();
-    console.log('About to emit ready event with container:', networkContainer.value);
-    // Emit ready event immediately since container is available
-    emit('ready', networkContainer.value);
-    console.log('Ready event emitted');
+  //   // Wait for next tick to ensure parent listeners are attached
+  //   await nextTick();
 
-    console.log('Setting up MutationObserver');
-    // Wait for vis-network to create its canvas
-    const observer = new MutationObserver(() => {
-      const canvas = networkContainer.value?.querySelector('canvas');
-      if (canvas) {
-        console.log('Found vis-network canvas, attaching drag handlers');
+  //   console.log('Setting up MutationObserver');
+  //   // Wait for vis-network to create its canvas
+  //   const observer = new MutationObserver(() => {
+  //     const canvas = networkContainer.value;
+  //     if (canvas) {
+  //       console.log('Found vis-network canvas, attaching drag handlers');
         
-        // Attach drag handlers directly to the canvas
-        // canvas.addEventListener('dragover', onDragOver);
-        // canvas.addEventListener('dragenter', onDragEnter);
-        // canvas.addEventListener('drop', onDrop);
+  //       // Attach drag handlers directly to the canvas
+  //       canvas.addEventListener('dragover', () => {console.log('a');});
+  //       // canvas.addEventListener('dragenter', onDragEnter);
+  //       // canvas.addEventListener('drop', onDrop);
         
-        // Stop observing once we've attached handlers
-        observer.disconnect();
-      }
-    });
+  //       // Stop observing once we've attached handlers
+  //       observer.disconnect();
+  //     }
+  //   });
 
-    // Start observing for canvas creation
-    observer.observe(networkContainer.value, { childList: true, subtree: true });
-    console.log('MutationObserver started');
-  };
+  //   // Start observing for canvas creation
+  //   observer.observe(networkContainer.value, { childList: true, subtree: true });
+  //   console.log('MutationObserver started');
+  // };
 
   ////////////////////////////////
   // event handlers
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // make sure it's a legit droppable
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  };
+
+  const onDrop = (event: DragEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const data = getValidatedData(event);
+    if (!data)
+      return;
+
+    // we can drop entries
+    if (data.type === 'fcb-entry') {
+      storyWebStore.addEntry(data.childId);      
+    }
+  };
   
 
   ////////////////////////////////
@@ -145,9 +154,9 @@
   ////////////////////////////////
   // lifecycle events
   // Watch for storyWeb changes and reinitialize
-  onMounted(() => {
-    console.log('StoryWebGraph onMounted called');
-    initializeDragHandlers();
+  onMounted(async () => {
+    // for now, we fake some data
+    await storyWebStore.addEntry('Compendium.world.zS2AygHmUfQTWDTh.JournalEntry.otDnRZTdcda4DZeP');
     
     // // Initialize graph if storyWeb is already available
     // if (props.storyWeb && networkContainer.value) {
@@ -160,7 +169,7 @@
     // Clean up event listeners
     const canvas = networkContainer.value?.querySelector('canvas');
     if (canvas) {
-      // canvas.removeEventListener('dragover', onDragOver);
+      // canvas.removeEventListener('dragover', () => {console.log('a');});
       // canvas.removeEventListener('dragenter', onDragEnter);
       // canvas.removeEventListener('drop', onDrop);
     }

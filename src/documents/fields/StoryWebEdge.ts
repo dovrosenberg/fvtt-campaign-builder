@@ -21,4 +21,4 @@ export interface StoryWebEdge {
   from: string;
   to: string;
   label: string;
-} 
+}

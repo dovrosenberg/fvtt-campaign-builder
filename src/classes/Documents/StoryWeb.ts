@@ -2,10 +2,11 @@ import { toRaw } from 'vue';
 import { DOCUMENT_TYPES } from '@/documents';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Campaign } from './Campaign';
-import { StoryWebConfig } from '@/documents/storyWeb';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
-import { searchService } from '@/utils/search';
+import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes } from '@/types';
+import { topicToNodeType } from '@/utils/misc';
+import { getCurrentSetting } from 'src/compendia';
 
 type StoryWebDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb>;
 
@@ -13,17 +14,8 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
   static override _documentType = DOCUMENT_TYPES.StoryWeb;
   static override _defaultSystem = {
     campaignId: '',
-    name: 'New Story Web',
-    description: '',
-    config: {
-      id: '',
-      name: 'New Story Web',
-      manuallyAddedItems: [],
-      nodes: [],
-      edges: [],
-      createdAt: '',
-      updatedAt: ''
-    }
+    nodes: [],
+    edges: [],
   } as unknown as StoryWebDocClass['system'];
 
   public campaign: Campaign | null;
@@ -102,20 +94,11 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
   }
 
   get name(): string {
-    return this._clone.system.name;
+    return this._clone.name;
   }
 
   set name(value: string) {
-    this._clone.system.name = value;
-    this._clone.system.config.name = value;
-  }
-
-  get description(): string {
-    return this._clone.system.description || '';
-  }
-
-  set description(value: string) {
-    this._clone.system.description = value;
+    this._clone.name = value;
   }
 
   get campaignId(): string {
@@ -126,61 +109,38 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     this._clone.system.campaignId = value;
   }
 
-  get config(): StoryWebConfig {
-    return this._clone.system.config as StoryWebConfig;
+  get nodes(): StoryWebNode[] {
+    return this._clone.system.nodes || [];
   }
 
-  set config(value: Partial<StoryWebConfig>) {
-    this._clone.system.config = { ...this.config, ...value, updatedAt: new Date().toISOString() };
+  set nodes(value: StoryWebNode[]) {
+    this._clone.system.nodes = [...value];
   }
 
-  get manuallyAddedItems(): string[] {
-    return this.config.manuallyAddedItems || [];
-  }
-
-  set manuallyAddedItems(value: string[]) {
-    this.config.manuallyAddedItems = [...value];
-  }
-
-  get nodes(): any[] {
-    return this.config.nodes || [];
-  }
-
-  set nodes(value: any[]) {
-    this.config.nodes = [...value];
-  }
-
-  get edges(): any[] {
-    return this.config.edges || [];
+  get edges(): StoryWebEdge[] {
+    return this._clone.system.edges || [];
   }
 
   set edges(value: any[]) {
-    this.config.edges = [...value];
+    this._clone.system.edges = [...value];
   }
 
-  get customNodes(): any[] {
-    return this.config.nodes?.filter(node => node.source === 'custom') || [];
-  }
+  async addEntry(uuid: string) : Promise<void> {
+    const entry = await Entry.fromUuid(uuid);
+    if (!entry)
+      return;
 
-  set customNodes(value: any[]) {
-    // Update the unified nodes array, keeping non-custom nodes and setting new custom nodes
-    const nonCustomNodes = this.config.nodes?.filter(node => node.source !== 'custom') || [];
-    this.config.nodes = [...nonCustomNodes, ...value];
-  }
+    // create the node
+    this._clone.system.nodes.push({
+      uuid,
+      type: topicToNodeType(entry.topic),
+      source: StoryWebNodeSource.Explicit,
+    });
 
-  async addManuallyAddedItem(uuid: string): Promise<void> {
-    if (!this.manuallyAddedItems.includes(uuid)) {
-      this.manuallyAddedItems = [...this.manuallyAddedItems, uuid];
-      await this.save();
-    }
-  }
-
-  async removeManuallyAddedItem(uuid: string): Promise<void> {
-    this.manuallyAddedItems = this.manuallyAddedItems.filter(id => id !== uuid);
     await this.save();
   }
-
-  async addNode(node: any): Promise<void> {
+  
+  async addNode(node: StoryWebNode): Promise<void> {
     const nodeId = foundry.utils.randomID(16);
     const newNode = { ...node, id: nodeId };
     this.nodes = [...this.nodes, newNode];

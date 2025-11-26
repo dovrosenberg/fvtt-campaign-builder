@@ -1,31 +1,17 @@
-import { schemas } from './fields';
+import { schemas, StoryWebNode, StoryWebEdge } from './fields';
 
 const fields = foundry.data.fields;
 
-export interface StoryWebNode {
-  uuid: string;
-  label: string;
-  type: 'character' | 'location' | 'organization' | 'pc' | 'front' | 'danger' | 'custom';
-  source: 'manual' | 'relationship' | 'custom';
-}
+export const StoryWebSchema ={
+  /** the campaign this web is in */
+  campaignId: new fields.DocumentUUIDField({ required: true, nullable: false }),
 
-export interface StoryWebEdge {
-  uuid: string;
-  from: string;
-  to: string;
-  label: string;
-  custom?: boolean; // true for custom node connections
-}
-
-export const StoryWebSchema {
-  campaignId: fields.DocumentUUIDField({ required: true, nullable: false }),
-
-  nodes: fields.ArrayField(
+  nodes: new fields.ArrayField(
     schemas.StoryWebNode(),
-  , { required: true, initial: [] }),
-  edges: fields.ArrayField(
+    { required: true, initial: [] }),
+  edges: new fields.ArrayField(
     schemas.StoryWebEdge(),
-  , { required: true, initial: [] }),
+    { required: true, initial: [] }),
 };
 
 type StoryWebSchemaType = typeof StoryWebSchema;

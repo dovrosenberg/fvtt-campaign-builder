@@ -1,4 +1,4 @@
-import { Topics, WindowTabType } from '@/types';
+import { StoryWebNodeTypes, Topics, WindowTabType } from '@/types';
 
 /**
  * Safely converts a topic value to the Topics enum type.  Sometimes topic ends up a string
@@ -88,4 +88,14 @@ export function formatDate(ISODate: string): string {
     hour: 'numeric',
     minute: '2-digit',
   }).replace(/\s*([AP]M)/i, (_, p1) => p1.toLowerCase()); // replace AM/PM with am/pm
+}
+
+export function topicToNodeType(topic: Topics): StoryWebNodeTypes {
+  switch (topic) {
+    case Topics.Character: return StoryWebNodeTypes.Character;
+    case Topics.Location: return StoryWebNodeTypes.Location;
+    case Topics.Organization: return StoryWebNodeTypes.Organization;
+    case Topics.PC: return StoryWebNodeTypes.PC;
+    default: throw new Error('Invalid topic in storyWebStore.topicToNodeType()');
+  }
 }

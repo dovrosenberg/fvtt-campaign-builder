@@ -11,6 +11,7 @@ import { useMainStore, } from '@/applications/stores';
 // types
 import { RelatedEntryDetails, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Entry } from '@/classes';
+import { topicToNodeType } from '@/utils/misc';
 
 // the store definition
 export const useStoryWebStore = defineStore('storyWeb', () => {
@@ -36,7 +37,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   const nodeConfig: Record<StoryWebNodeTypes, Partial<Node>> = {
     [StoryWebNodeTypes.Character]: {
       font: {
-        color: 'black',
+        color: 'white',
       },
       color: {
         background: '#2d93ad',
@@ -83,15 +84,6 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       },
     },
   }
-  const topicToNode = (topic: Topics) => {
-    switch (topic) {
-      case Topics.Character: return StoryWebNodeTypes.Character;
-      case Topics.Location: return StoryWebNodeTypes.Location;
-      case Topics.Organization: return StoryWebNodeTypes.Organization;
-      case Topics.PC: return StoryWebNodeTypes.PC;
-      default: throw new Error('Invalid topic in storyWebStore.topicToNode');
-    }
-  }
 
   ///////////////////////////////
   // other stores
@@ -129,13 +121,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     }
     
     // we will pull the list of nodes and edges from the storyWeb 
-
-    // for now, we fake 
-    const addedNodes: StoryWebNode[] = [{
-      uuid: 'Compendium.world.zS2AygHmUfQTWDTh.JournalEntry.otDnRZTdcda4DZeP',
-      type: StoryWebNodeTypes.Character,
-      source: StoryWebNodeSource.Explicit,
-    }];
+    const addedNodes = currentStoryWeb.value?.nodes;
 
     // build out the graph using the selected ones and everything connected to them
     const nodes: Node[] = [];
@@ -179,7 +165,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
               ...implicitNodeFormat,
               id: relatedEntry.uuid,
               label: `${relatedEntry.name} (${relatedEntry.type ? relatedEntry.type : relatedEntry.topic})`,
-              ...nodeConfig[topicToNode(relatedEntry.topic)],
+              ...nodeConfig[topicToNodeType(relatedEntry.topic)],
             });
           }
 
@@ -193,11 +179,27 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       }
     }
 
-      const options = {};
+      const options = {
+        physics: {
+          barnesHut: {
+              // Default is around 95, increase this for longer edges
+              springLength: 200, 
+              springConstant: 0.04 
+          }
+        // ... other physics options
+        }
+      };
 
       currentNetwork.value = new Network(currentContainer.value, { nodes, edges }, options);
     }
 
+    /** add entry to the story web */
+    const addEntry = (entryUuid: string) => {
+      if (!currentStoryWeb.value)
+        return;
+
+      currentStoryWeb.value.addEntry(entryUuid);
+    };
 
   /** add participant to given danger */
   // const addParticipant = async (entryToAdd: Entry, extraFields: Record<string, string>): Promise<string | null> => {
@@ -383,14 +385,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     currentContainer,
     currentNetwork,
     
-    // addParticipant,
-    // deleteParticipant,
-    // updateParticipant,
-    // addGrimPortent,
-    // deleteGrimPortent,
-    // updateGrimPortent,  
-    // reorderGrimPortents,
-    // reorderParticipants,  
+    addEntry,
   };
 });
 
