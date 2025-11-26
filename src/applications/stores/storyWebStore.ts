@@ -3,13 +3,13 @@
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
 import { watch, ref, } from 'vue';
-import { Network } from 'vis-network';
+import { Edge, Network, Node } from 'vis-network';
 
 // local imports
 import { useMainStore, } from '@/applications/stores';
 
 // types
-import { RelatedEntryDetails, Topics } from '@/types';
+import { RelatedEntryDetails, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Entry } from '@/classes';
 
 // the store definition
@@ -23,10 +23,75 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   // the current vis-network network object
   const currentNetwork = ref<Network | null>(null);
 
-  // used for tables
-  // const participantRows = ref<(DangerParticipant & { name: string; type: string })[]>([]);
-  // const grimPortentRows = ref<GrimPortent[]>([]);
-
+  // formatting for the boxes
+  const explicitNodeFormat = {
+    shape: 'box'
+  };
+  const implicitNodeFormat = {
+    shape: 'ellipse'
+  }
+  const manualNodeFormat = {
+    shape: 'box'
+  }
+  const nodeConfig: Record<StoryWebNodeTypes, Partial<Node>> = {
+    [StoryWebNodeTypes.Character]: {
+      font: {
+        color: 'black',
+      },
+      color: {
+        background: '#2d93ad',
+      },
+    },
+    [StoryWebNodeTypes.Location]: {
+      font: {
+        color: 'black',
+      },
+      color: {
+        background: '#bcab79',
+      },
+    },
+    [StoryWebNodeTypes.Organization]: {
+      font: {
+        color: 'white',
+      },
+      color: {
+        background: '#7f5a83',
+      },
+    },
+    [StoryWebNodeTypes.PC]: {
+      font: {
+        color: 'black',
+      },
+      color: {
+        background: '#c9eddc',
+      },
+    },
+    [StoryWebNodeTypes.Danger]: {
+      font: {
+        color: 'white',
+      },
+      color: {
+        background: '#45050c',
+      },
+    },
+    [StoryWebNodeTypes.Custom]: {
+      font: {
+        color: 'white',
+      },
+      color: {
+        background: 'black',
+      },
+    },
+  }
+  const topicToNode = (topic: Topics) => {
+    switch (topic) {
+      case Topics.Character: return StoryWebNodeTypes.Character;
+      case Topics.Location: return StoryWebNodeTypes.Location;
+      case Topics.Organization: return StoryWebNodeTypes.Organization;
+      case Topics.PC: return StoryWebNodeTypes.PC;
+      default: throw new Error('Invalid topic in storyWebStore.topicToNode');
+    }
+  }
 
   ///////////////////////////////
   // other stores
@@ -68,28 +133,38 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     // for now, we fake 
     const addedNodes: StoryWebNode[] = [{
       uuid: 'Compendium.world.zS2AygHmUfQTWDTh.JournalEntry.otDnRZTdcda4DZeP',
+      type: StoryWebNodeTypes.Character,
+      source: StoryWebNodeSource.Explicit,
     }];
 
     // build out the graph using the selected ones and everything connected to them
-    const nodes: { id: string; label: string; }[] = [];
-    const edges: { from: string; to: string; label: string}[] = [];
+    const nodes: Node[] = [];
+    const edges: Edge[] = [];
 
     // add the manual ones
     for (const node of addedNodes) {
-      const index = currentSetting.value?.topics[Topics.Character]?.entries.find(e => e.uuid === node.uuid);
+      // these are entries the user added
+      if (node.source === StoryWebNodeSource.Explicit) {
+        const index = currentSetting.value?.topics[Topics.Character]?.entries.find(e => e.uuid === node.uuid);
 
-      if (!index)
-        continue;
+        if (!index)
+          continue;
 
-      nodes.push({
-        id: index.uuid,
-        label: `${index.name} (${index.type})`
-      });
+        nodes.push({
+          ...explicitNodeFormat,
+          id: index.uuid,
+          label: `${index.name} (${index.type})`,
+          ...nodeConfig[node.type],
+        });
+      }
     }
   
     // add each of the connections
     const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
     for (const node of addedNodes) {
+      if (node.source !== StoryWebNodeSource.Explicit)
+        continue;
+      
       const entry = await Entry.fromUuid(node.uuid);
 
       for (const topic of topics) {
@@ -101,8 +176,10 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
           // see if it's already been added
           if (!nodes.some(n => n.id === relatedEntry.uuid)) {
             nodes.push({
+              ...implicitNodeFormat,
               id: relatedEntry.uuid,
-              label: `${relatedEntry.name} (${relatedEntry.type})`
+              label: `${relatedEntry.name} (${relatedEntry.type ? relatedEntry.type : relatedEntry.topic})`,
+              ...nodeConfig[topicToNode(relatedEntry.topic)],
             });
           }
 

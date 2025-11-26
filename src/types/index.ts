@@ -20,6 +20,9 @@ export type * from './generators.ts';
 export * from './customFields.ts';
 export type * from './customFields.ts';
 
+export * from '@/documents/fields/StoryWebEdge';
+export * from '@/documents/fields/StoryWebNode';
+
 // get all the ones defined in the schemas
 export type * from '@/documents/fields/index.ts';
 

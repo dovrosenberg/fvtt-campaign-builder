@@ -1,11 +1,11 @@
+import { schemas } from './fields';
+
 const fields = foundry.data.fields;
 
 export interface StoryWebNode {
   uuid: string;
   label: string;
   type: 'character' | 'location' | 'organization' | 'pc' | 'front' | 'danger' | 'custom';
-  entryUuid?: string; // for non-custom nodes
-  description?: string; 
   source: 'manual' | 'relationship' | 'custom';
 }
 
@@ -18,22 +18,14 @@ export interface StoryWebEdge {
 }
 
 export const StoryWebSchema {
-  campaignId: new fields.DocumentUUIDField({ required: true, nullable: false }),
-  nodes: new fields.ArrayField(new fields.SchemaField({
-    uuid: new fields.StringField({ required: true, blank: false }),
-    label: new fields.StringField({ required: true, blank: false }),
-    type: new fields.StringField({ required: true, blank: false, choices: ['character', 'location', 'organization', 'pc', 'front', 'danger', 'custom'] }),
-    entryUuid: new fields.StringField({ required: false, blank: true }),
-    description: new fields.StringField({ required: false, blank: true }),
-    source: new fields.StringField({ required: true, blank: false, choices: ['manual', 'relationship', 'custom'] }),
-  }), { required: true, initial: [] }),
-  edges: new fields.ArrayField(new fields.SchemaField({
-    uuid: new fields.StringField({ required: true, blank: false }),
-    from: new fields.StringField({ required: true, blank: false }),
-    to: new fields.StringField({ required: true, blank: false }),
-    label: new fields.StringField({ required: true, blank: false, initial: "" }),
-    custom: new fields.BooleanField({ required: true, initial: false }),
-  }), { required: true, initial: [] }),
+  campaignId: fields.DocumentUUIDField({ required: true, nullable: false }),
+
+  nodes: fields.ArrayField(
+    schemas.StoryWebNode(),
+  , { required: true, initial: [] }),
+  edges: fields.ArrayField(
+    schemas.StoryWebEdge(),
+  , { required: true, initial: [] }),
 };
 
 type StoryWebSchemaType = typeof StoryWebSchema;

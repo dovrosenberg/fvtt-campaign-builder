@@ -115,9 +115,9 @@
         console.log('Found vis-network canvas, attaching drag handlers');
         
         // Attach drag handlers directly to the canvas
-        canvas.addEventListener('dragover', onDragOver);
-        canvas.addEventListener('dragenter', onDragEnter);
-        canvas.addEventListener('drop', onDrop);
+        // canvas.addEventListener('dragover', onDragOver);
+        // canvas.addEventListener('dragenter', onDragEnter);
+        // canvas.addEventListener('drop', onDrop);
         
         // Stop observing once we've attached handlers
         observer.disconnect();
@@ -160,9 +160,9 @@
     // Clean up event listeners
     const canvas = networkContainer.value?.querySelector('canvas');
     if (canvas) {
-      canvas.removeEventListener('dragover', onDragOver);
-      canvas.removeEventListener('dragenter', onDragEnter);
-      canvas.removeEventListener('drop', onDrop);
+      // canvas.removeEventListener('dragover', onDragOver);
+      // canvas.removeEventListener('dragenter', onDragEnter);
+      // canvas.removeEventListener('drop', onDrop);
     }
   });
 

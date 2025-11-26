@@ -23,8 +23,12 @@ import { ArcParticipantSchema } from './ArcParticipant';
 import { ArcLocationSchema } from './ArcLocation';
 import { ArcMonsterSchema } from './ArcMonster';
 import { ArcLoreSchema } from './ArcLore';
+import { StoryWebNodeSchema } from './StoryWebNode';
+import { StoryWebEdgeSchema } from './StoryWebEdge';
 
 export type * from './Danger';
+export type * from './StoryWebNode';
+export type * from './StoryWebEdge';
 
 export const schemas = {
   ToDoItem: ToDoItemSchema,
@@ -53,5 +57,7 @@ export const schemas = {
   ArcLocation: ArcLocationSchema,
   ArcMonster: ArcMonsterSchema,
   ArcLore: ArcLoreSchema,
+  StoryWebNode: StoryWebNodeSchema,
+  StoryWebEdge: StoryWebEdgeSchema,
 }
 
