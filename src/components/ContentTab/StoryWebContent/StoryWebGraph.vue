@@ -1,5 +1,5 @@
 <template>
-  <div class="vis-network-wrapper" @click="onWrapperClick">
+  <div class="vis-network-wrapper">
     <div ref="networkContainer" class="network-container">
       <!-- Debug: StoryWebGraph rendered -->
     </div>
@@ -8,11 +8,12 @@
 
 <script setup lang="ts">
   // library imports
-  import { PropType, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
+  import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
   import { localize } from '@/utils/game';
-  import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useStoryWebStore } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { notifyWarn } from '@/utils/notifications';
 
@@ -25,12 +26,6 @@
 
   ////////////////////////////////
   // props
-  const props = defineProps({
-    storyWeb: {
-      type: Object as PropType<StoryWeb>,
-      required: true
-    }
-  });
 
   ////////////////////////////////
   // emits
@@ -45,6 +40,8 @@
 
   ////////////////////////////////
   // store
+  const storyWebStore = useStoryWebStore();
+  const { currentContainer } = storeToRefs(storyWebStore);
 
   ////////////////////////////////
   // data
@@ -59,25 +56,26 @@
   ////////////////////////////////
   // methods
   // Initialize graph when storyWeb changes
-  const initializeGraph = async (container: HTMLElement, storyWeb: StoryWeb) => {
-    if (!storyWeb) return;
+  const initializeGraph = async () => {
+
+    // if (!storyWebStore.currentStoryWeb.value) return;
 
     try {
       console.log('StoryWebGraph: starting graph initialization');
       isGraphLoading.value = true;
       graphError.value = null;
       
-      // Dynamically import the composable
-      console.log('StoryWebGraph: importing useStoryWebGraph');
-      const { useStoryWebGraph: dynamicUseStoryWebGraph } = await import('@/composables/useStoryWebGraph');
+      // // Dynamically import the composable
+      // console.log('StoryWebGraph: importing useStoryWebGraph');
+      // const { useStoryWebGraph: dynamicUseStoryWebGraph } = await import('@/composables/useStoryWebGraph');
       
-      // Initialize the composable
-      console.log('StoryWebGraph: initializing composable');
-      graphComposable.value = dynamicUseStoryWebGraph();
+      // // Initialize the composable
+      // console.log('StoryWebGraph: initializing composable');
+      // graphComposable.value = dynamicUseStoryWebGraph();
       
-      // Initialize graph with the container and get network instance
-      console.log('StoryWebGraph: calling initializeGraph');
-      await graphComposable.value.initializeGraph(container, storyWeb);
+      // // Initialize graph with the container and get network instance
+      // console.log('StoryWebGraph: calling initializeGraph');
+      // await graphComposable.value.initializeGraph(container, storyWeb);
       
       console.log('StoryWebGraph: graph initialization completed');
       
@@ -92,7 +90,7 @@
     }
   };
 
-    // Initialize drag handlers on the vis-network canvas
+  // Initialize drag handlers on the vis-network canvas
   const initializeDragHandlers = async () => {
     console.log('initializeDragHandlers called');
     console.log('networkContainer.value:', networkContainer.value);
@@ -133,36 +131,14 @@
 
   ////////////////////////////////
   // event handlers
-  const onWrapperClick = () => {
-    console.log('StoryWebGraph clicked - event binding works!');
-  };
-
-  const onDragOver = (event: DragEvent) => {
-    console.log('Canvas drag over event');
-    event.preventDefault();
-    event.stopPropagation();
-    emit('dragOver', event);
-  };
-
-  const onDragEnter = (event: DragEvent) => {
-    console.log('Canvas drag enter event');
-    event.preventDefault();
-    event.stopPropagation();
-    emit('dragEnter', event);
-  };
-
-  const onDrop = (event: DragEvent) => {
-    console.log('Canvas drop event');
-    event.preventDefault();
-    event.stopPropagation();
-    emit('drop', event);
-  };
+  
 
   ////////////////////////////////
   // watchers
-  watch(() => props.storyWeb, (newStoryWeb) => {
-    if (newStoryWeb && networkContainer.value) {
-      initializeGraph(networkContainer.value, newStoryWeb);
+  // once the ref is set - pass to the store
+  watch(() => networkContainer.value, () => {
+    if (networkContainer.value) {
+      currentContainer.value = networkContainer.value;
     }
   });
 
@@ -173,10 +149,10 @@
     console.log('StoryWebGraph onMounted called');
     initializeDragHandlers();
     
-    // Initialize graph if storyWeb is already available
-    if (props.storyWeb && networkContainer.value) {
-      initializeGraph(networkContainer.value, props.storyWeb);
-    }
+    // // Initialize graph if storyWeb is already available
+    // if (props.storyWeb && networkContainer.value) {
+    //   initializeGraph(networkContainer.value, props.storyWeb);
+    // }
   });
 
   onBeforeUnmount(() => {
