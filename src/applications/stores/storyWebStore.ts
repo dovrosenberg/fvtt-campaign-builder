@@ -9,9 +9,8 @@ import { Network } from 'vis-network';
 import { useMainStore, } from '@/applications/stores';
 
 // types
-import { DangerParticipant, GrimPortent} from '@/types';
-import { Entry, StoryWeb } from '@/classes';
-import { reactive } from 'vue';
+import { RelatedEntryDetails, Topics } from '@/types';
+import { Entry } from '@/classes';
 
 // the store definition
 export const useStoryWebStore = defineStore('storyWeb', () => {
@@ -59,43 +58,68 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   ///////////////////////////////
   // actions
   // generate the new network from a storyWeb
-  const generateNetwork = () => {
-    console.log('generateNetwork called:', {
-      hasContainer: !!currentContainer.value,
-      hasStoryWeb: !!currentStoryWeb.value
-    });
-    
+  const generateNetwork = async () => {
     if (!currentContainer.value || !currentStoryWeb.value) {
-      console.log('generateNetwork returning - missing container or storyWeb');
       return;
     }
     
-    // create an array with nodes
-    var nodes = [
-        {id: 1, label: 'Node 1'},
-        {id: 2, label: 'Node 2'},
-        {id: 3, label: 'Node 3'},
-        {id: 4, label: 'Node 4'},
-        {id: 5, label: 'Node 5'}
-    ];
+    // we will pull the list of nodes and edges from the storyWeb 
 
-    // create an array with edges
-    var edges = [
-        {from: 1, to: 3},
-        {from: 1, to: 2},
-        {from: 2, to: 4},
-        {from: 2, to: 5}
-    ];
+    // for now, we fake 
+    const addedNodes: StoryWebNode[] = [{
+      uuid: 'Compendium.world.zS2AygHmUfQTWDTh.JournalEntry.otDnRZTdcda4DZeP',
+    }];
 
-     // provide the data in the vis format
-    var data = {
-        nodes: nodes,
-        edges: edges
-    };
-    var options = {};
+    // build out the graph using the selected ones and everything connected to them
+    const nodes: { id: string; label: string; }[] = [];
+    const edges: { from: string; to: string; label: string}[] = [];
 
-    currentNetwork.value = new Network(currentContainer.value, data, options);
-  }
+    // add the manual ones
+    for (const node of addedNodes) {
+      const index = currentSetting.value?.topics[Topics.Character]?.entries.find(e => e.uuid === node.uuid);
+
+      if (!index)
+        continue;
+
+      nodes.push({
+        id: index.uuid,
+        label: `${index.name} (${index.type})`
+      });
+    }
+  
+    // add each of the connections
+    const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
+    for (const node of addedNodes) {
+      const entry = await Entry.fromUuid(node.uuid);
+
+      for (const topic of topics) {
+        const relatedEntries = entry?.relationships?.[topic] as RelatedEntryDetails<any, any>[] | undefined;
+        if (!relatedEntries)
+          continue;
+
+        for (const relatedEntry of Object.values(relatedEntries)) {
+          // see if it's already been added
+          if (!nodes.some(n => n.id === relatedEntry.uuid)) {
+            nodes.push({
+              id: relatedEntry.uuid,
+              label: `${relatedEntry.name} (${relatedEntry.type})`
+            });
+          }
+
+          // add the relationship edge
+          edges.push({
+            from: node.uuid,
+            to: relatedEntry.uuid,
+            label: relatedEntry.extraFields.rols || relatedEntry.extraFields.relationship || ''
+          });
+        }
+      }
+    }
+
+      const options = {};
+
+      currentNetwork.value = new Network(currentContainer.value, { nodes, edges }, options);
+    }
 
 
   /** add participant to given danger */
@@ -269,8 +293,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   watch([currentContainer, currentStoryWeb], async () => {
     if (!currentContainer.value || !currentStoryWeb.value) 
       return;
-    
-    console.log('watcher triggered', { currentContainer: currentContainer.value, currentStoryWeb: currentStoryWeb.value });
+
     await generateNetwork();
   });
 
