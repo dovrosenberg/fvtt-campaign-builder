@@ -132,7 +132,7 @@
 
   ////////////////////////////////
   // event handlers
-  // debounce changes to name/number/strong start
+  // debounce changes to name
   let nameDebounceTimer: NodeJS.Timeout | undefined = undefined;
 
   const onNameUpdate = (newName: string | undefined) => {
@@ -203,13 +203,12 @@
     }
   });
   
+  ////////////////////////////////
+  // lifecycle events
   // cleanup timers on unmount
   onBeforeUnmount(() => {
     clearTimeout(nameDebounceTimer);
   });
-
-  ////////////////////////////////
-  // lifecycle events
 
 
 </script>

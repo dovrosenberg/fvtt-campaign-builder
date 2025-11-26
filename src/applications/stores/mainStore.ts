@@ -208,6 +208,14 @@ export const useMainStore = defineStore('main', () => {
     _currentFront.value = new Front(_currentFront.value.raw.parent as unknown as JournalEntry);
   };
 
+  const refreshStoryWeb = async function (): Promise<void> {
+    if (!_currentStoryWeb.value?.raw?.parent || !currentSetting.value)
+      return;
+
+    // just force all reactivity to update
+    _currentStoryWeb.value = new StoryWeb(_currentStoryWeb.value.raw.parent as unknown as JournalEntry);
+  };
+
   const refreshSetting = async function (reload = false): Promise<void> {
     if (!_currentSetting.value?.raw?.parent)
       return;
@@ -268,6 +276,9 @@ export const useMainStore = defineStore('main', () => {
         break;
       case WindowTabType.Setting:
         await refreshSetting();
+        break;
+      case WindowTabType.StoryWeb:
+        await refreshStoryWeb();
         break;
       default:
     }
@@ -415,6 +426,7 @@ export const useMainStore = defineStore('main', () => {
     refreshSetting,
     refreshArc,
     refreshFront,
+    refreshStoryWeb,
     refreshCurrentContent,
     getAllSettings,
     propagateSettingNameChange,

@@ -7,7 +7,7 @@ import { reactive, ref, watch, nextTick } from 'vue';
 // local imports
 import { useMainStore, useNavigationStore, usePlayingStore } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
-import { DirectoryCampaignNode, DirectoryArcNode, DirectoryFrontFolder, Campaign, Session, Front, Arc, FCBSetting } from '@/classes';
+import { DirectoryCampaignNode, DirectoryArcNode, DirectoryFrontFolder, Campaign, Session, Front, Arc, FCBSetting, StoryWeb } from '@/classes';
 import { getArcForSession } from '@/utils/arcIndex';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyWarn } from '@/utils/notifications';
@@ -79,6 +79,11 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
         let children: string[] = [];
         if (ModuleSettings.get(SettingKey.useFronts)) {
           children.push(campaign.uuid + ':front');  // this is the id for the front folder
+        }
+
+        // if we are using webs, add the story web folder
+        if (ModuleSettings.get(SettingKey.useWebs)) {
+          children.push(campaign.uuid + ':storywebs');  // this is the id for the story web folder
         }
 
         // the rest of the children are arcs
@@ -223,6 +228,24 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     await refreshCampaignDirectoryTree();
   };
 
+  const deleteStoryWeb = async (storyWebId: string): Promise<void> => {
+    const storyWeb = await StoryWeb.fromUuid(storyWebId);
+
+    if (!storyWeb) 
+      throw new Error('Bad story web in campaignDirectoryStore.deleteStoryWeb()');
+
+    // confirm
+    if (!(await FCBDialog.confirmDialog('Delete story web?', 'Are you sure you want to delete this story web?')))
+      return;
+  
+    await storyWeb.delete();
+
+    // update tabs/bookmarks
+    await navigationStore.cleanupDeletedEntry(storyWebId);
+
+    await refreshCampaignDirectoryTree();
+  };
+
   /** create a session in campaign. Puts it at the end.
    *  @param campaignId the campaign to create the session 
    */
@@ -271,6 +294,21 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (front) {
       await refreshCampaignDirectoryTree();
       return front;
+    } else {
+      return null;
+    }
+  };
+
+  const createStoryWeb = async (campaignId: string): Promise<StoryWeb | null> => {
+    const campaign = await Campaign.fromUuid(campaignId);
+    if (!campaign)
+      throw new Error('Bad campaign in campaignDirectoryStore.createStoryWeb()');
+
+    const storyWeb = await StoryWeb.create(campaign);
+
+    if (storyWeb) {
+      await refreshCampaignDirectoryTree();
+      return storyWeb;
     } else {
       return null;
     }
@@ -384,10 +422,12 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     deleteCampaign,
     deleteSession,
     deleteFront,
+    deleteStoryWeb,
     createSession,
     refreshAllCampaignArcs,
     createArc,
     createFront,
+    createStoryWeb,
     createCampaign,
     getCampaigns,
   };

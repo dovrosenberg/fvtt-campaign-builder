@@ -22,7 +22,7 @@ import { localize } from '@/utils/game';
 
 // types
 import { DOCUMENT_TYPES, } from '@/documents';
-import { Entry, Campaign, Session, Front, Arc } from '@/classes';
+import { Entry, Campaign, Session, Front, Arc, StoryWeb } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 import { ValidTopic, WindowTabType } from '@/types';
 import { getGlobalSetting } from '@/utils/globalSettings';
@@ -321,6 +321,16 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
             return brokenAnchor(data);
           } else {  // this is an fcb item for this setting
             return goodAnchor(unknownItem, WindowTabType.Front, hash, data.name || front.name, `fas ${getTabTypeIcon(WindowTabType.Front)}`); 
+          }
+        }; break;
+        case DOCUMENT_TYPES.StoryWeb: {
+          const storyWeb = new StoryWeb(unknownItem as unknown as JournalEntry);
+
+          // handle the ones we don't care about
+          if (storyWeb.settingId !== settingId) {
+            return brokenAnchor(data);
+          } else {  // this is an fcb item for this setting
+            return goodAnchor(unknownItem, WindowTabType.StoryWeb, hash, data.name || storyWeb.name, `fas ${getTabTypeIcon(WindowTabType.StoryWeb)}`); 
           }
         }; break;
         case DOCUMENT_TYPES.Setting: {
