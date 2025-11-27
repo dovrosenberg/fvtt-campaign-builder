@@ -129,13 +129,8 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
             if (!index)
               continue;
 
-            const targetUuid = 'Compendium.world.zS2AygHmUfQTWDTh.JournalEntry.lKXlWShR8C4wXARs';
             const positionInfo = currentStoryWeb.value?.positions?.[index.uuid] || {};
             
-            if (index.uuid === targetUuid) {
-              console.log(`🔍 DEBUG: LOADING target node ${index.name} with position:`, positionInfo);
-            }
-
             nodes.push({
               ...explicitNodeFormat,
               id: index.uuid,
@@ -222,14 +217,14 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         }
       };
 
-      console.log('🔍 DEBUG: Final nodes being passed to vis-network (target node):', nodes.find(n => n.id === 'Compendium.world.zS2AygHmUfQTWDTh.JournalEntry.lKXlWShR8C4wXARs'));
       currentNetwork.value = new Network(currentContainer.value, { nodes, edges }, options);
 
       // attach the event handlers
       currentNetwork.value.on('doubleClick', onNetworkDoubleClick);
-      currentNetwork.value.on('dragEnd', () => {
-        console.log('🔍 DEBUG: dragEnd event fired');
-        capturePositions();
+      currentNetwork.value.on('dragEnd', (event) => {
+        // this gets called if we drag the canvas, too
+        if (event.nodes.length === 0)
+          capturePositions();
       });
     } catch (error) {
       isWebLoading.value = false;
@@ -282,11 +277,10 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       return;
 
     const positions = currentNetwork.value.getPositions();
-    console.log('🔍 DEBUG: capturePositions called, saving positions to centralized structure');
     
     currentStoryWeb.value.positions = positions;
+    
     await currentStoryWeb.value.save();
-    console.log('🔍 DEBUG: positions saved to storyWeb:', positions);
   }
 
 

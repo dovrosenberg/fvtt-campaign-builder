@@ -7,6 +7,7 @@ import { localize } from '@/utils/game';
 import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, } from '@/types';
 import { topicToNodeType } from '@/utils/misc';
 import { Entry } from '@/classes';
+import { cleanKeysOnSave, cleanKeysOnLoad } from '@/utils/cleanKeys';
 
 type StoryWebDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb>;
 
@@ -109,7 +110,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
   }
 
   get positions(): Record<string, { x: number, y: number }> {
-    return this._clone.system.positions || {} as Record<string, { x: number, y: number }>;
+    return this._clone.system.positions || {};
   }
 
   set positions(value: Record<string, { x: number, y: number }>) {
@@ -149,9 +150,10 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     await this.save();
   }
 
-  // async removeCustomNode(nodeId: string): Promise<void> {
-  //   await this.removeNode(nodeId);
-  // }
+  protected _prepData(data: StoryWebDocClass): void {
+    // convert unsafe keys
+    data.system.positions = cleanKeysOnSave(data.system.positions);
+  }
 
   public async save(): Promise<void> {
     // nothing special

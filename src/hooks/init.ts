@@ -1,6 +1,6 @@
 import { moduleId, ModuleSettings, } from '@/settings';
 import { KeyBindings } from '@/settings/KeyBindings';
-import { CampaignDataModel, DOCUMENT_TYPES, ArcDataModel, FrontDataModel, EntryDataModel, SessionDataModel, SettingDataModel, } from '@/documents';
+import { CampaignDataModel, DOCUMENT_TYPES, ArcDataModel, FrontDataModel, EntryDataModel, SessionDataModel, SettingDataModel, StoryWebDataModel } from '@/documents';
 import { CampaignBuilderApplication } from '@/applications/CampaignBuilder';
 import { JournalEntryFlagKey } from '@/settings';
 
@@ -29,6 +29,7 @@ async function init(): Promise<void> {
     [DOCUMENT_TYPES.Campaign]: CampaignDataModel,
     [DOCUMENT_TYPES.Front]: FrontDataModel,
     [DOCUMENT_TYPES.Setting]: SettingDataModel,
+    [DOCUMENT_TYPES.StoryWeb]: StoryWebDataModel,
   });
 
   // register the index fields we need
