@@ -1,3 +1,4 @@
+import { cleanKeysOnLoad } from '@/utils/cleanKeys';
 import { schemas, StoryWebNode, StoryWebEdge } from './fields';
 
 const fields = foundry.data.fields;
@@ -29,9 +30,9 @@ export class StoryWebDataModel<Schema extends StoryWebSchemaType, ParentNode ext
     return StoryWebSchema;
   }
 
-  /** @override */
-  // prepareBaseData(): void {
-  // }
+  override prepareBaseData(): void {
+    this.positions = cleanKeysOnLoad(this.positions);
+  }
 }
 
 // @ts-ignore - error because ts can't properly handle the structure of JournalEntryPage
