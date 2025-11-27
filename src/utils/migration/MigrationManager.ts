@@ -139,6 +139,7 @@ export class MigrationManager {
     const neededMigrations = await this.getNeededMigrations();
     
     if (neededMigrations.length === 0) {
+      await VersionUtils.saveCurrentVersion();
       return {
         success: true,
         migratedCount: 0,

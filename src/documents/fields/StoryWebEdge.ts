@@ -6,7 +6,7 @@ export const StoryWebEdgeSchema = () => (
     uuid: new fields.StringField({ required: true, nullable: false }),
 
     /** uuid of first node */
-    from: new fields.StringField({ required: false, nullable: false }),
+    from: new fields.StringField({ required: true, nullable: false }),
 
     /** uuid of second node */
     to: new fields.StringField({ required: true, nullable: false }),

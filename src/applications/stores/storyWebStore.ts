@@ -114,21 +114,19 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
   ///////////////////////////////
   // actions
-  // generate the new network from a storyWeb
+  // generate the new network from the current story web
   const generateNetwork = async () => {
     if (!currentContainer.value || !currentStoryWeb.value) {
       return;
     }
     
-    // we will pull the list of nodes and edges from the storyWeb 
-    const addedNodes = currentStoryWeb.value?.nodes;
-
     // build out the graph using the selected ones and everything connected to them
     const nodes: Node[] = [];
     const edges: Edge[] = [];
 
+    // we pull the list of nodes and edges from the storyWeb 
     // add the manual ones
-    for (const node of addedNodes) {
+    for (const node of currentStoryWeb.value?.nodes) {
       // these are entries the user added
       if (node.source === StoryWebNodeSource.Explicit) {
         const index = currentSetting.value?.topics[Topics.Character]?.entries.find(e => e.uuid === node.uuid);
@@ -147,7 +145,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   
     // add each of the connections
     const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
-    for (const node of addedNodes) {
+    for (const node of currentStoryWeb.value?.nodes) {
       if (node.source !== StoryWebNodeSource.Explicit)
         continue;
       
@@ -194,11 +192,14 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     }
 
     /** add entry to the story web */
-    const addEntry = (entryUuid: string) => {
+    const addEntry = async (entryUuid: string) => {
       if (!currentStoryWeb.value)
         return;
 
       currentStoryWeb.value.addEntry(entryUuid);
+
+      // refresh the drawing
+      await mainStore.refreshStoryWeb();
     };
 
   /** add participant to given danger */

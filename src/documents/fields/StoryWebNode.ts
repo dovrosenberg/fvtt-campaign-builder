@@ -1,11 +1,13 @@
+import { SchemaField } from 'node_modules/@types/fvtt-types/src/foundry/common/data/fields.mjs';
+
 const fields = foundry.data.fields;
 
 export const StoryWebNodeSchema = () => (
   new fields.SchemaField({
     uuid: new fields.StringField({ required: true, nullable: false }),
-    label: new fields.StringField({ required: false, nullable: true }),
-    type: new fields.StringField({ required: true, nullable: false, choices: ['character', 'location', 'organization', 'pc', 'danger', 'custom'] }),
-    source: new fields.StringField({ required: true, nullable: false, choices: ['explicit', 'custom'] }),
+    label: new fields.StringField({ required: true, nullable: true, default: null }),
+    type: new fields.StringField({ required: true, nullable: false, choices: Object.values(StoryWebNodeTypes) }),
+    source: new fields.StringField({ required: true, nullable: false, choices: Object.values(StoryWebNodeSource) }),
   }, { required: true, nullable: false} )
 );
 
@@ -23,9 +25,10 @@ export enum StoryWebNodeSource {
   Custom = 'custom',
 }
 
+
 export interface StoryWebNode {
   uuid: string;
-  label?: string | null | undefined;
+  label: string | null;
   type: StoryWebNodeTypes;
   source: StoryWebNodeSource;
 }

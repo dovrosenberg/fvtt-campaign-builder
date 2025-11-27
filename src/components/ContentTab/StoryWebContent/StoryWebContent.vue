@@ -35,6 +35,7 @@
   import { notifyWarn } from '@/utils/notifications';
 
   // library components
+  import InputText from 'primevue/inputtext';
 
   // local components
   import StoryWebGraph from './StoryWebGraph.vue';
@@ -100,13 +101,15 @@
   // watchers
   // Watch for story web changes
   watch(currentStoryWeb, (newStoryWeb: StoryWeb | null) => {
-    if (newStoryWeb && newStoryWeb.uuid) {
-      name.value = newStoryWeb.name || '';
-    }
-  }, { deep: true });
+    name.value = newStoryWeb?.name || '';
+  });
 
   ////////////////////////////////
   // lifecycle events
+  onMounted(async () => {
+    name.value = currentStoryWeb.value?.name || '';
+  });
+
   // Cleanup
   onBeforeUnmount(() => {
     clearTimeout(nameDebounceTimer);

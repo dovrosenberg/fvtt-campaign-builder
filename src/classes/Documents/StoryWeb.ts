@@ -4,9 +4,9 @@ import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntr
 import { Campaign } from './Campaign';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
-import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes } from '@/types';
+import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, } from '@/types';
 import { topicToNodeType } from '@/utils/misc';
-import { getCurrentSetting } from 'src/compendia';
+import { Entry } from '@/classes';
 
 type StoryWebDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb>;
 
@@ -60,29 +60,11 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     if (!nameToUse)
       return null;
 
-    const configId = foundry.utils.randomID(16);
-    const now = new Date().toISOString();
-
     const storyWeb = await super._create(
       campaign.compendiumId,
       nameToUse,
       localize('contentFolders.storyWebs'),
-      {
-        system: {
-          campaignId: campaign.uuid,
-          name: nameToUse,
-          description: '',
-          config: {
-            id: configId,
-            name: nameToUse,
-            manuallyAddedItems: [],
-            nodes: [],
-            edges: [],
-            createdAt: now,
-            updatedAt: now
-          }
-        }
-      }
+      { system: { campaignId: campaign.uuid }}
     ) as unknown as StoryWeb | null;
 
     if (!storyWeb)
@@ -135,51 +117,28 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
       uuid,
       type: topicToNodeType(entry.topic),
       source: StoryWebNodeSource.Explicit,
+      label: null,
     });
+
 
     await this.save();
   }
   
-  async addNode(node: StoryWebNode): Promise<void> {
-    const nodeId = foundry.utils.randomID(16);
-    const newNode = { ...node, id: nodeId };
-    this.nodes = [...this.nodes, newNode];
-    await this.save();
-  }
+  // async addCustomNode(node: any): Promise<void> {
+  //   const nodeId = foundry.utils.randomID(16);
+  //   const newNode = { 
+  //     ...node, 
+  //     id: nodeId,
+  //     source: 'custom' as const,
+  //     type: 'custom' as const
+  //   };
+  //   this.nodes = [...this.nodes, newNode];
+  //   await this.save();
+  // }
 
-  async removeNode(nodeId: string): Promise<void> {
-    this.nodes = this.nodes.filter(n => n.id !== nodeId);
-    this.edges = this.edges.filter(e => e.from !== nodeId && e.to !== nodeId);
-    await this.save();
-  }
-
-  async addEdge(edge: any): Promise<void> {
-    const edgeId = foundry.utils.randomID(16);
-    const newEdge = { ...edge, id: edgeId };
-    this.edges = [...this.edges, newEdge];
-    await this.save();
-  }
-
-  async removeEdge(edgeId: string): Promise<void> {
-    this.edges = this.edges.filter(e => e.id !== edgeId);
-    await this.save();
-  }
-
-  async addCustomNode(node: any): Promise<void> {
-    const nodeId = foundry.utils.randomID(16);
-    const newNode = { 
-      ...node, 
-      id: nodeId,
-      source: 'custom' as const,
-      type: 'custom' as const
-    };
-    this.nodes = [...this.nodes, newNode];
-    await this.save();
-  }
-
-  async removeCustomNode(nodeId: string): Promise<void> {
-    await this.removeNode(nodeId);
-  }
+  // async removeCustomNode(nodeId: string): Promise<void> {
+  //   await this.removeNode(nodeId);
+  // }
 
   public async save(): Promise<void> {
     await super.save();

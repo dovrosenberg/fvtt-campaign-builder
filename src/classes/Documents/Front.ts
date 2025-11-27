@@ -82,7 +82,6 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
       campaign.compendiumId, 
       nameToUse,
       localize('contentFolders.fronts'),
-      //TODO put in proper starting system
       { system: { campaignId: campaign.uuid }}
     ) as unknown as Front | null;
 
