@@ -30,7 +30,7 @@
   // library components
   
   // local components
-  import RelatedItemDialog from '@/components/tables/RelatedItemDialog.vue';
+  import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
 
   // types
   import { Topics, ValidTopic, RelatedEntryDialogModes, ValidTopicRecord, EntryBasicIndex } from '@/types';

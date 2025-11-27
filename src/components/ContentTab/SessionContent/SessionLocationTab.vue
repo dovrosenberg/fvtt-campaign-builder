@@ -41,7 +41,7 @@
 
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
-  import RelatedEntryDialog from '@/components/tables/RelatedEntryDialog.vue';
+  import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
   
