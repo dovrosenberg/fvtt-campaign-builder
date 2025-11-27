@@ -140,6 +140,8 @@
     switch (props.mode) {
       case RelatedEntryDialogModes.Danger:
         return dangerDetails.buttonTitle;
+      case RelatedEntryDialogModes.ArcLocation:
+        return locationDetails.buttonTitle;
       case RelatedEntryDialogModes.Add:
         return topicDetails[props.topic]?.buttonTitle || '';
       case RelatedEntryDialogModes.Session:
