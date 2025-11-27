@@ -14,13 +14,13 @@ export const StoryWebSchema ={
     schemas.StoryWebEdge(),
     { required: true, initial: [] }),
   /** centralized position storage for all nodes by UUID */
-  positions: new fields.ObjectField(
+  positions: new fields.TypedObjectField(
     new fields.SchemaField({
       x: new fields.NumberField({ required: true }),
       y: new fields.NumberField({ required: true }),
     }),
-    { required: true, initial: {} }
-  ),
+    { required: true, nullable: false, initial: {} as Record<string, { x: number, y: number }> }
+  ),  
 };
 
 type StoryWebSchemaType = typeof StoryWebSchema;
