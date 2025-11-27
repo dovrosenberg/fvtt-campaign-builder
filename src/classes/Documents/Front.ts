@@ -457,11 +457,7 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
   public async save(): Promise<void> {
     // we attempt to save first - because if it fails, we don't 
     //    want to adjust anything else
-    try {
-      await super.save();
-    } catch (error) {
-      throw error;
-    }
+    await super.save();
 
     // Update the search index (rely on retval being null if no changes were made)
     try {

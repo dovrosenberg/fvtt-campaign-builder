@@ -108,6 +108,10 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
   }
 
   async addEntry(uuid: string) : Promise<void> {
+    // make sure it's not already there
+    if (this.nodes.some(n => n.uuid === uuid))
+      return;
+    
     const entry = await Entry.fromUuid(uuid);
     if (!entry)
       return;
@@ -141,6 +145,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
   // }
 
   public async save(): Promise<void> {
+    // nothing special
     await super.save();
   }
 

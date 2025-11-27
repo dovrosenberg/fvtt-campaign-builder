@@ -11,7 +11,7 @@ import { useMainStore, } from '@/applications/stores';
 // types
 import { RelatedEntryDetails, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Entry } from '@/classes';
-import { topicToNodeType } from '@/utils/misc';
+import { nodeTypeToTopic, topicToNodeType } from '@/utils/misc';
 
 // the store definition
 export const useStoryWebStore = defineStore('storyWeb', () => {
@@ -40,6 +40,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         color: 'white',
       },
       color: {
+        border: '#2d93ad',
         background: '#2d93ad',
       },
     },
@@ -48,6 +49,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         color: 'black',
       },
       color: {
+        border: '#bcab79',
         background: '#bcab79',
       },
     },
@@ -56,6 +58,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         color: 'white',
       },
       color: {
+        border: '#7f5a83',
         background: '#7f5a83',
       },
     },
@@ -64,6 +67,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         color: 'black',
       },
       color: {
+        border: '#c9eddc',
         background: '#c9eddc',
       },
     },
@@ -72,6 +76,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         color: 'white',
       },
       color: {
+        border: '#45050c',
         background: '#45050c',
       },
     },
@@ -80,9 +85,15 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         color: 'white',
       },
       color: {
+        border: 'black',
         background: 'black',
       },
     },
+  }
+
+  const edgeConfig = {
+    color: 'hsl(164, 48%, 20%)',  // light mode fcb-primary
+
   }
 
   ///////////////////////////////
@@ -129,17 +140,25 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     for (const node of currentStoryWeb.value?.nodes) {
       // these are entries the user added
       if (node.source === StoryWebNodeSource.Explicit) {
-        const index = currentSetting.value?.topics[Topics.Character]?.entries.find(e => e.uuid === node.uuid);
+        // if an entry, we need the topic
+        const topic = nodeTypeToTopic(node.type);
+        if (topic !== null) {
+          const index = currentSetting.value?.topics[topic]?.entries.find(e => e.uuid === node.uuid);
 
-        if (!index)
-          continue;
+          if (!index)
+            continue;
 
-        nodes.push({
-          ...explicitNodeFormat,
-          id: index.uuid,
-          label: `${index.name} (${index.type})`,
-          ...nodeConfig[node.type],
-        });
+          nodes.push({
+            ...explicitNodeFormat,
+            id: index.uuid,
+            label: `${index.name} (${index.type})`,
+            ...nodeConfig[node.type],
+          });
+        } else if (node.type === StoryWebNodeTypes.Danger) {
+          // TODO
+        } else if (node.type === StoryWebNodeTypes.Custom) {
+          // TODO
+        }
       }
     }
   
@@ -148,223 +167,77 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     for (const node of currentStoryWeb.value?.nodes) {
       if (node.source !== StoryWebNodeSource.Explicit)
         continue;
-      
-      const entry = await Entry.fromUuid(node.uuid);
 
-      for (const topic of topics) {
-        const relatedEntries = entry?.relationships?.[topic] as RelatedEntryDetails<any, any>[] | undefined;
-        if (!relatedEntries)
-          continue;
 
-        for (const relatedEntry of Object.values(relatedEntries)) {
-          // see if it's already been added
-          if (!nodes.some(n => n.id === relatedEntry.uuid)) {
-            nodes.push({
-              ...implicitNodeFormat,
-              id: relatedEntry.uuid,
-              label: `${relatedEntry.name} (${relatedEntry.type ? relatedEntry.type : relatedEntry.topic})`,
-              ...nodeConfig[topicToNodeType(relatedEntry.topic)],
-            });
+      if (nodeTypeToTopic(node.type) != null) {
+        // it's an entry
+        const entry = await Entry.fromUuid(node.uuid);
+
+        for (const topic of topics) {
+          const relatedEntries = entry?.relationships?.[topic] as RelatedEntryDetails<any, any>[] | undefined;
+          if (!relatedEntries)
+            continue;
+
+          for (const relatedEntry of Object.values(relatedEntries)) {
+            // see if it's already been added
+            if (!nodes.some(n => n.id === relatedEntry.uuid)) {
+              nodes.push({
+                ...implicitNodeFormat,
+                id: relatedEntry.uuid,
+                label: `${relatedEntry.name} (${relatedEntry.type ? relatedEntry.type : relatedEntry.topic})`,
+                ...nodeConfig[topicToNodeType(relatedEntry.topic)],
+              });
+            }
+
+            // add the relationship edge
+            // it's possible the edge is already there - specifically if we put two nodes on manually that
+            //   relate to each other
+            if (!edges.some(e => e.to === node.uuid && e.from === relatedEntry.uuid))
+              edges.push({
+                from: node.uuid,
+                to: relatedEntry.uuid,
+                label: relatedEntry.extraFields.rols || relatedEntry.extraFields.relationship || '',
+                ...edgeConfig
+              });
           }
-
-          // add the relationship edge
-          edges.push({
-            from: node.uuid,
-            to: relatedEntry.uuid,
-            label: relatedEntry.extraFields.rols || relatedEntry.extraFields.relationship || ''
-          });
         }
+      } else if (node.type === StoryWebNodeTypes.Danger) {
+
+      } else {
+      // custom ones don't have relationships
+        continue;
       }
+
     }
 
-      const options = {
-        physics: {
-          barnesHut: {
-              // Default is around 95, increase this for longer edges
-              springLength: 200, 
-              springConstant: 0.04 
-          }
-        // ... other physics options
+    const options = {
+      physics: {
+        barnesHut: {
+            // Default is around 95, increase this for longer edges
+            springLength: 200, 
+            springConstant: 0.04 
         }
-      };
-
-      currentNetwork.value = new Network(currentContainer.value, { nodes, edges }, options);
-    }
-
-    /** add entry to the story web */
-    const addEntry = async (entryUuid: string) => {
-      if (!currentStoryWeb.value)
-        return;
-
-      currentStoryWeb.value.addEntry(entryUuid);
-
-      // refresh the drawing
-      await mainStore.refreshStoryWeb();
+      },
+      // we set a fixed seed so we get the same general layout every time
+      layout: {
+        randomSeed: '0.9545178996348908:1764205380774'
+      }
     };
 
-  /** add participant to given danger */
-  // const addParticipant = async (entryToAdd: Entry, extraFields: Record<string, string>): Promise<string | null> => {
-  //   if (!currentDanger.value || currentDangerIndex.value == null)
-  //     return null;
+    currentNetwork.value = new Network(currentContainer.value, { nodes, edges }, options);
+  }
 
-  //   // no duplicates
-  //   if (currentDanger.value.participants.some(p => p.uuid === entryToAdd.uuid))
-  //     return null;
+  /** add entry to the story web */
+  const addEntry = async (entryUuid: string) => {
+    if (!currentStoryWeb.value)
+      return;
 
-  //   const uuid = entryToAdd.uuid;
-  //   currentFront.value?.updateDanger(currentDangerIndex.value, {
-  //     ...currentDanger.value,
-  //     participants: [...currentDanger.value.participants, { uuid, role: extraFields.role || '' }],
-  //   });
-  //   await currentFront.value?.save();
+    await currentStoryWeb.value.addEntry(entryUuid);
 
-  //   await _refreshParticipantRows();
+    // refresh the drawing
+    await mainStore.refreshStoryWeb();
+  };
 
-  //   return uuid;
-  // };
-
-  // /** remove participant from given danger */
-  // const deleteParticipant = async (uuid: string): Promise<void> => {
-  //   if (!currentDanger.value || currentDangerIndex.value == null)
-  //     return;
-    
-  //   currentFront.value?.updateDanger(currentDangerIndex.value, {
-  //     ...currentDanger.value,
-  //     participants: currentDanger.value.participants.filter(p => p.uuid !== uuid),
-  //   });
-  //   await currentFront.value?.save();
-
-  //   await _refreshParticipantRows();
-  // };
-
-  // /** update participant in given danger */
-  // const updateParticipant = async (uuid: string, role: string): Promise<void> => {
-  //   if (!currentDanger.value || currentDangerIndex.value == null)
-  //     return;
-
-  //   currentFront.value?.updateDanger(currentDangerIndex.value, {
-  //     ...currentDanger.value,
-  //     participants: currentDanger.value.participants.map(p => p.uuid === uuid ? { uuid, role } : p),
-  //   });
-  //   await currentFront.value?.save();
-
-  //   await _refreshParticipantRows();
-  // };
-  
-  // /** add portent to given danger 
-  //  * @returns the uuid of the new portent
-  //  */
-  // const addGrimPortent = async (description = ''): Promise<string | null> => {
-  //   if (!currentDanger.value || currentDangerIndex.value == null)
-  //     return null;
-    
-  //   const uuid = foundry.utils.randomID();
-  //   currentFront.value?.updateDanger(currentDangerIndex.value, {
-  //     ...currentDanger.value,
-  //     grimPortents: [...currentDanger.value.grimPortents, { uuid, description, complete: false }],
-  //   });
-  //   await currentFront.value?.save();
-
-  //   await _refreshPortentRows();
-
-  //   return uuid;
-  // };
-
-  //   /** remove portent from given danger */
-  // const deleteGrimPortent = async (uuid: string): Promise<void> => {
-  //   if (!currentDanger.value || currentDangerIndex.value == null)
-  //     return;
-    
-  //   currentFront.value?.updateDanger(currentDangerIndex.value, {
-  //     ...currentDanger.value,
-  //     grimPortents: currentDanger.value.grimPortents.filter(p => p.uuid !== uuid),
-  //   });
-  //   await currentFront.value?.save();
-
-  //   await _refreshPortentRows();
-  // };
-
-  // /** update portent in given danger */
-  // const updateGrimPortent = async (uuid: string, description: string, complete: boolean): Promise<void> => {
-  //   if (!currentDanger.value || currentDangerIndex.value == null)
-  //     return;
-    
-  //   currentFront.value?.updateDanger(currentDangerIndex.value, {
-  //     ...currentDanger.value,
-  //     grimPortents: currentDanger.value.grimPortents.map(p => p.uuid === uuid ? { uuid, description, complete } : p),
-  //   });
-  //   await currentFront.value?.save();
-
-  //   await _refreshPortentRows();
-  // };
-  
-  // const reorderGrimPortents = async (reorderedPortents: GrimPortent[]) => {
-  //   if (!currentFront.value || currentDangerIndex.value == null || !currentDanger.value) 
-  //     return;
-
-  //   currentFront.value?.updateDanger(currentDangerIndex.value, {
-  //     ...currentDanger.value,
-  //     grimPortents: reorderedPortents,
-  //   });
-  //   await currentFront.value?.save();
-
-  //   await _refreshPortentRows();
-  // };
-
-  // const reorderParticipants = async (reorderedParticipants: DangerParticipant[]) => {
-  //   if (!currentFront.value || currentDangerIndex.value == null || !currentDanger.value) 
-  //     return;
-
-  //   currentFront.value?.updateDanger(currentDangerIndex.value, {
-  //     ...currentDanger.value,
-  //     participants: reorderedParticipants,
-  //   });
-  //   await currentFront.value?.save();
-
-  //   await _refreshParticipantRows();
-  // };
-
-  ///////////////////////////////
-  // computed state
-
-  ///////////////////////////////
-  // internal functions
-  // force reactive update of current table rows
-  // const _refreshParticipantRows = async (): Promise<void> => {
-  //   participantRows.value = [];
-
-  //   if (!currentDanger.value || !currentSetting.value)
-  //     return;
-    
-  //   for (const p of currentDanger.value.participants) {
-  //     // get it from the setting because we don't know topic
-  //     const items = await currentSetting.value.filterEntries((e) => e.uuid===p.uuid);
-      
-  //     if (items.length === 0)
-  //       throw new Error('Invalid uuid in frontStore._refreshParticipantRows');
-
-  //     participantRows.value.push({
-  //       uuid: p.uuid,
-  //       name: items[0].name,
-  //       type: items[0].type,
-  //       role: p.role,
-  //     });
-  //   }
-  // }
-
-  // const _refreshPortentRows = (): void => {
-  //   grimPortentRows.value = [];
-
-  //   if (!currentDanger.value)
-  //     return;
-    
-  //   grimPortentRows.value = [...currentDanger.value.grimPortents];
-  // }
-
-  // const _refreshDangerRows = async(): Promise<void> => {
-  //   await _refreshParticipantRows();
-  //   await _refreshPortentRows();
-  // };
 
 
   ///////////////////////////////
