@@ -9,7 +9,7 @@ import { Edge, Network, Node } from 'vis-network';
 import { useMainStore, } from '@/applications/stores';
 
 // types
-import { RelatedEntryDetails, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
+import { RelatedEntryDetails, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Entry } from '@/classes';
 import { nodeTypeToTopic, topicToNodeType } from '@/utils/misc';
 
