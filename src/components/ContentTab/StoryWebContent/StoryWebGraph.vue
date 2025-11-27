@@ -7,28 +7,31 @@
       @dragover="onDragover"
     >
       <!-- Debug: StoryWebGraph rendered -->
+      <div 
+        v-if="isWebLoading" 
+        class="loading"
+      >
+        <ProgressSpinner />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
+  import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { localize } from '@/utils/game';
-  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useStoryWebStore } from '@/applications/stores';
-  import { getTabTypeIcon } from '@/utils/misc';
-  import { notifyWarn } from '@/utils/notifications';
+  import { useStoryWebStore } from '@/applications/stores';
   import { getValidatedData } from '@/utils/dragdrop';
   
   // library components
+  import ProgressSpinner from 'primevue/progressspinner';
 
   // local components
 
   // types
-  import { StoryWeb } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -47,75 +50,17 @@
   ////////////////////////////////
   // store
   const storyWebStore = useStoryWebStore();
-  const { currentContainer } = storeToRefs(storyWebStore);
+  const { currentContainer, isWebLoading } = storeToRefs(storyWebStore);
 
   ////////////////////////////////
   // data
   const networkContainer = ref<HTMLElement>();
-  const graphComposable = ref<any | null>(null);
-  const isGraphLoading = ref(false);
-  const graphError = ref<string | null>(null);
 
   ////////////////////////////////
   // computed data
 
   ////////////////////////////////
   // methods
-  // Initialize graph when storyWeb changes
-  const initializeGraph = async () => {
-
-    // if (!storyWebStore.currentStoryWeb.value) return;
-
-    try {
-      console.log('StoryWebGraph: starting graph initialization');
-      isGraphLoading.value = true;
-      graphError.value = null;      
-      
-      console.log('StoryWebGraph: graph initialization completed');
-      
-    } catch (error) {
-      console.error('StoryWebGraph: failed to load story web graph:', error);
-      graphError.value = 'Failed to load story web functionality';
-      emit('error', graphError.value);
-    } finally {
-      console.log('StoryWebGraph: initialization complete');
-      isGraphLoading.value = false;
-      emit('loading', isGraphLoading.value);
-    }
-  };
-
-  // // Initialize drag handlers on the vis-network canvas
-  // const initializeDragHandlers = async () => {
-  //   if (!networkContainer.value) {
-  //     console.log('networkContainer.value is null, returning');
-  //     return;
-  //   }
-
-  //   // Wait for next tick to ensure parent listeners are attached
-  //   await nextTick();
-
-  //   console.log('Setting up MutationObserver');
-  //   // Wait for vis-network to create its canvas
-  //   const observer = new MutationObserver(() => {
-  //     const canvas = networkContainer.value;
-  //     if (canvas) {
-  //       console.log('Found vis-network canvas, attaching drag handlers');
-        
-  //       // Attach drag handlers directly to the canvas
-  //       canvas.addEventListener('dragover', () => {console.log('a');});
-  //       // canvas.addEventListener('dragenter', onDragEnter);
-  //       // canvas.addEventListener('drop', onDrop);
-        
-  //       // Stop observing once we've attached handlers
-  //       observer.disconnect();
-  //     }
-  //   });
-
-  //   // Start observing for canvas creation
-  //   observer.observe(networkContainer.value, { childList: true, subtree: true });
-  //   console.log('MutationObserver started');
-  // };
-
   ////////////////////////////////
   // event handlers
   const onDragover = (event: DragEvent) => {
@@ -187,5 +132,13 @@
 .network-container {
   width: 100%;
   height: 100%;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
 }
 </style>
