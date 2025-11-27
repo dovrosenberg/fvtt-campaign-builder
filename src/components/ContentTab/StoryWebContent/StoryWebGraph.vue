@@ -8,7 +8,7 @@
     >
       <!-- Debug: StoryWebGraph rendered -->
       <div 
-        v-if="isWebLoading" 
+        v-show="isWebLoading" 
         class="loading"
       >
         <ProgressSpinner />
@@ -94,7 +94,7 @@
     if (networkContainer.value) {
       currentContainer.value = networkContainer.value;
     }
-  });
+  }, { flush: 'post' });
 
   ////////////////////////////////
   // lifecycle events

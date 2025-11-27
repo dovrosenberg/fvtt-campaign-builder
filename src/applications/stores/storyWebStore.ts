@@ -31,69 +31,57 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   const implicitNodeFormat = {
     shape: 'ellipse'
   }
-  const manualNodeFormat = {
+  const customNodeFormat = {
     shape: 'box'
   }
+
   const nodeConfig: Record<StoryWebNodeTypes, Partial<Node>> = {
     [StoryWebNodeTypes.Character]: {
-      font: {
-        color: 'white',
-      },
+      font: { color: 'white' },
       color: {
         border: '#2d93ad',
         background: '#2d93ad',
       },
     },
     [StoryWebNodeTypes.Location]: {
-      font: {
-        color: 'black',
-      },
+      font: { color: 'black' },
       color: {
-        border: '#bcab79',
-        background: '#bcab79',
+        border: '#dfd687',
+        background: '#dfd687',
       },
     },
     [StoryWebNodeTypes.Organization]: {
-      font: {
-        color: 'white',
-      },
+      font: { color: 'white' },
       color: {
-        border: '#7f5a83',
-        background: '#7f5a83',
+        border: '#746d75',
+        background: '#746d75',
       },
     },
     [StoryWebNodeTypes.PC]: {
-      font: {
-        color: 'black',
-      },
+      font: { color: 'black' },
       color: {
         border: '#c9eddc',
         background: '#c9eddc',
       },
     },
     [StoryWebNodeTypes.Danger]: {
-      font: {
-        color: 'white',
-      },
+      font: { color: 'white' },
       color: {
         border: '#45050c',
         background: '#45050c',
       },
     },
     [StoryWebNodeTypes.Custom]: {
-      font: {
-        color: 'white',
-      },
+      font: { color: 'hsl(164, 48%, 20%)' },
       color: {
-        border: 'black',
-        background: 'black',
+        border: 'hsl(164, 48%, 20%)',  // light mode fcb-primary
+        background: 'white',
       },
     },
   }
 
   const edgeConfig = {
     color: 'hsl(164, 48%, 20%)',  // light mode fcb-primary
-
   }
 
   ///////////////////////////////
@@ -129,7 +117,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       const edges: Edge[] = [];
 
       // we pull the list of nodes and edges from the storyWeb 
-      // add the manual ones
+      // add the explicit ones
       for (const node of currentStoryWeb.value?.nodes) {
         // these are entries the user added
         if (node.source === StoryWebNodeSource.Explicit) {
@@ -141,17 +129,32 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
             if (!index)
               continue;
 
+            const targetUuid = 'Compendium.world.zS2AygHmUfQTWDTh.JournalEntry.lKXlWShR8C4wXARs';
+            const positionInfo = currentStoryWeb.value?.positions?.[index.uuid] || {};
+            
+            if (index.uuid === targetUuid) {
+              console.log(`🔍 DEBUG: LOADING target node ${index.name} with position:`, positionInfo);
+            }
+
             nodes.push({
               ...explicitNodeFormat,
               id: index.uuid,
               label: `${index.name} (${index.type})`,
+              ...positionInfo,
               ...nodeConfig[node.type],
             });
           } else if (node.type === StoryWebNodeTypes.Danger) {
             // TODO
-          } else if (node.type === StoryWebNodeTypes.Custom) {
-            // TODO
           }
+        } else if (node.type === StoryWebNodeTypes.Custom) {
+          const positionInfo = currentStoryWeb.value?.positions?.[node.uuid] || {};
+          nodes.push({
+            ...customNodeFormat,
+            id: node.uuid,
+            label: node.label || '',
+            ...positionInfo,
+            ...nodeConfig[node.type],
+          });
         }
       }
     
@@ -174,10 +177,12 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
             for (const relatedEntry of Object.values(relatedEntries)) {
               // see if it's already been added
               if (!nodes.some(n => n.id === relatedEntry.uuid)) {
+                const positionInfo = currentStoryWeb.value?.positions?.[relatedEntry.uuid] || {};
                 nodes.push({
                   ...implicitNodeFormat,
                   id: relatedEntry.uuid,
                   label: `${relatedEntry.name} (${relatedEntry.type ? relatedEntry.type : relatedEntry.topic})`,
+                  ...positionInfo,
                   ...nodeConfig[topicToNodeType(relatedEntry.topic)],
                 });
               }
@@ -202,7 +207,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         }
 
       }
-
+      
       const options = {
         physics: {
           barnesHut: {
@@ -217,7 +222,15 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         }
       };
 
+      console.log('🔍 DEBUG: Final nodes being passed to vis-network (target node):', nodes.find(n => n.id === 'Compendium.world.zS2AygHmUfQTWDTh.JournalEntry.lKXlWShR8C4wXARs'));
       currentNetwork.value = new Network(currentContainer.value, { nodes, edges }, options);
+
+      // attach the event handlers
+      currentNetwork.value.on('doubleClick', onNetworkDoubleClick);
+      currentNetwork.value.on('dragEnd', () => {
+        console.log('🔍 DEBUG: dragEnd event fired');
+        capturePositions();
+      });
     } catch (error) {
       isWebLoading.value = false;
       throw error;
@@ -237,6 +250,44 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     await mainStore.refreshStoryWeb();
   };
 
+  /** add a manual node to the story web */
+  const addCustomNode = async (text: string) => {
+    if (!currentStoryWeb.value)
+      return;
+
+    await currentStoryWeb.value.addCustomNode(text);
+
+    // refresh the drawing
+    await mainStore.refreshStoryWeb();
+  };
+
+  ///////////////////////////////
+  // methods
+  const onNetworkDoubleClick = async (eventInfo: { nodes: {}[], edges: {}[], pointer: { canvas: { x: number, y: number }} }) => {
+    // nodes is a list of nodes clicked on
+    // edges is either edges clicked on or could be edges connected to nodes clicked
+    const { nodes, edges } = eventInfo;
+    
+    // for now, we only care about double clicking in open space
+    if (nodes.length !== 0 || edges.length !== 0) 
+      return;
+
+    // create a manual node at the location of the click
+    await addCustomNode('abcdef');    
+  }
+
+  /** save all the node positions */
+  const capturePositions = async () => {
+    if (!currentNetwork.value || !currentStoryWeb.value)
+      return;
+
+    const positions = currentNetwork.value.getPositions();
+    console.log('🔍 DEBUG: capturePositions called, saving positions to centralized structure');
+    
+    currentStoryWeb.value.positions = positions;
+    await currentStoryWeb.value.save();
+    console.log('🔍 DEBUG: positions saved to storyWeb:', positions);
+  }
 
 
   ///////////////////////////////

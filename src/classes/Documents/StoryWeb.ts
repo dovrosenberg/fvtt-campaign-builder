@@ -4,7 +4,7 @@ import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntr
 import { Campaign } from './Campaign';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
-import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, } from '@/types';
+import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, } from '@/types';
 import { topicToNodeType } from '@/utils/misc';
 import { Entry } from '@/classes';
 
@@ -16,6 +16,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     campaignId: '',
     nodes: [],
     edges: [],
+    positions: {},
   } as unknown as StoryWebDocClass['system'];
 
   public campaign: Campaign | null;
@@ -107,6 +108,14 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     this._clone.system.edges = [...value];
   }
 
+  get positions(): Record<string, { x: number, y: number }> {
+    return this._clone.system.positions || {} as Record<string, { x: number, y: number }>;
+  }
+
+  set positions(value: Record<string, { x: number, y: number }>) {
+    this._clone.system.positions = { ...value };
+  }
+
   async addEntry(uuid: string) : Promise<void> {
     // make sure it's not already there
     if (this.nodes.some(n => n.uuid === uuid))
@@ -124,21 +133,21 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
       label: null,
     });
 
-
     await this.save();
   }
   
-  // async addCustomNode(node: any): Promise<void> {
-  //   const nodeId = foundry.utils.randomID(16);
-  //   const newNode = { 
-  //     ...node, 
-  //     id: nodeId,
-  //     source: 'custom' as const,
-  //     type: 'custom' as const
-  //   };
-  //   this.nodes = [...this.nodes, newNode];
-  //   await this.save();
-  // }
+  async addCustomNode(text: string) : Promise<void> {
+    // create the node
+    this._clone.system.nodes.push({
+      uuid: foundry.utils.randomID(16),
+      type: StoryWebNodeTypes.Custom,
+      source: StoryWebNodeSource.Custom,
+      label: text,
+    });
+
+
+    await this.save();
+  }
 
   // async removeCustomNode(nodeId: string): Promise<void> {
   //   await this.removeNode(nodeId);

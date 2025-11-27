@@ -2,7 +2,7 @@
 
 // library imports
 import { defineStore, } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, nextTick } from 'vue';
 
 // local imports
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, moduleId, } from '@/settings';
@@ -116,6 +116,7 @@ export const useMainStore = defineStore('main', () => {
     if (!currentSetting.value)
       return;
 
+    await nextTick();
     _currentTab.value = tab;
 
     // clear everything

@@ -12,6 +12,14 @@ export const StoryWebSchema ={
   edges: new fields.ArrayField(
     schemas.StoryWebEdge(),
     { required: true, initial: [] }),
+  /** centralized position storage for all nodes by UUID */
+  positions: new fields.ObjectField(
+    new fields.SchemaField({
+      x: new fields.NumberField({ required: true }),
+      y: new fields.NumberField({ required: true }),
+    }),
+    { required: true, initial: {} }
+  ),
 };
 
 type StoryWebSchemaType = typeof StoryWebSchema;
@@ -34,6 +42,7 @@ export interface StoryWebDoc extends JournalEntryPage {
     campaignId: string;
     nodes: StoryWebNode[];
     edges: StoryWebEdge[];
+    positions: Record<string, { x: number, y: number }>;
   };
 }
 

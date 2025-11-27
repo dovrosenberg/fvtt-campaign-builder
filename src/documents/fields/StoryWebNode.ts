@@ -1,5 +1,3 @@
-import { SchemaField } from 'node_modules/@types/fvtt-types/src/foundry/common/data/fields.mjs';
-
 const fields = foundry.data.fields;
 
 export const StoryWebNodeSchema = () => (
