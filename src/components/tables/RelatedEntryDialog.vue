@@ -1,55 +1,25 @@
 <template>
   <Teleport to="body">
-    <Dialog
+    <RelatedItemDialog
       v-model="show"
       :title="dialogTitle"
-      :buttons="dialogButtons"
-    >
-      <div class="add-related-items-content flexcol">
-        <div v-if="selectItems.length > 0">
-          <TypeAhead 
-            ref="nameSelectRef"
-            :initial-value="props.itemId || ''"
-            :initial-list="selectItems" 
-            :allow-new-items="false"
-            @selection-made="onSelectionMade"
-          />
-          <div class="extra-fields-container" v-if="extraFields.length > 0">
-            <h3 class="extra-fields-title">{{ localize('dialogs.relatedEntries.additionalInformation') }}</h3>
-            <div class="extra-fields-group">
-              <div
-                v-for="field in extraFields"
-                :key="field.field"
-                class="field-wrapper"
-              >
-                <div class='field-name'>
-                  {{ field.header }}
-                  <!-- <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you create a new type, it will be added to the master list"></i> -->
-                </div>
-                <InputText
-                  :id="field.field"
-                  v-model="extraFieldValuesObj[field.field]"
-                  type="text"
-                  unstyled
-                  class="field-input"
-                  :pt="{ root: { style: { 'font-size': 'var(--fcb-font-size-large)' }}}"      
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div v-else class="no-items-message">
-          <i class="fas fa-info-circle"></i>
-          <span>{{ localize('dialogs.relatedEntries.allItemsConnected') }}</span>
-        </div>
-      </div>
-    </Dialog>
+      :main-button-label="actionButtonLabel"
+      :create-button-label="createButtonLabel"
+      :options="selectItems"
+      :extra-fields="extraFields"
+      :item-id="props.itemId"
+      :item-name="props.itemName"
+      :allow-create="props.allowCreate"
+      @main-button-click="onMainButtonClick"
+      @create-click="onCreateClick"
+      @cancel-click="onCancelClick"
+    />
   </Teleport>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch, nextTick, } from 'vue';
+  import { ref, computed, PropType, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -58,25 +28,13 @@
   import { localize } from '@/utils/game';
 
   // library components
-  import InputText from 'primevue/inputtext';
-  import TypeAhead from '@/components/TypeAhead.vue';
   
   // local components
-  import Dialog from '@/components/Dialog.vue';
+  import RelatedItemDialog from '@/components/tables/RelatedItemDialog.vue';
 
   // types
-  import { Topics, ValidTopic, RelatedEntryDialogModes, ValidTopicRecord, TopicBasicIndex, EntryBasicIndex } from '@/types';
+  import { Topics, ValidTopic, RelatedEntryDialogModes, ValidTopicRecord, EntryBasicIndex } from '@/types';
   import { Entry, } from '@/classes';
-
-  interface ButtonProp {
-    label: string;
-    close?: boolean;
-    default?: boolean;
-    icon?: string;
-    disable?: boolean;
-    hidden?: boolean;
-    callback?: () => void;
-  };
 
   ////////////////////////////////
   // props
@@ -124,11 +82,8 @@
   ////////////////////////////////
   // data
   const show = ref(props.modelValue);
-  const entryToAdd = ref<string | null>(null);  // the selected item from the dropdown (uuid)
-  const extraFieldValuesObj = ref<Record<string, string>>({});
   const selectItems = ref<{id: string; label: string}[]>([]);
   const extraFields = ref<{field:string; header:string}[]>([]);
-  const nameSelectRef = ref<typeof TypeAhead | null>(null);
 
   const topicDetails = {
     [Topics.Character]: {
@@ -186,7 +141,7 @@
     }
   });
 
-  const actionButtonLabel = computed(() => {
+  const actionButtonLabel = computed((): string => {
     switch (props.mode) {
       case RelatedEntryDialogModes.Danger:
         return dangerDetails.buttonTitle;
@@ -195,7 +150,7 @@
       case RelatedEntryDialogModes.ArcLocation:
         return locationDetails.buttonTitle;
       case RelatedEntryDialogModes.Add:
-        return topicDetails[props.topic]?.buttonTitle;
+        return topicDetails[props.topic]?.buttonTitle || '';
       case RelatedEntryDialogModes.Session:
         return sessionDetails.buttonTitle;
     }
@@ -210,47 +165,9 @@
     return topicDetails[props.topic]?.createButtonTitle || '';
   });
 
-  const isAddFormValid = computed((): boolean => {
-    return !!entryToAdd.value;
-  });
-
-  const dialogButtons = computed((): ButtonProp[] => {
-    const buttons = [] as ButtonProp[];
-
-    buttons.push({
-      label: localize('labels.cancel'),
-      default: false,
-      close: true,
-      callback: onCancel
-    });
-
-    if (props.allowCreate) {
-      buttons.push({
-        label: createButtonLabel.value,
-        default: false,
-        close: true,
-        callback: onCreateClick,
-        icon: 'fa-plus'
-      });
-    }
-
-    buttons.push({
-      label: actionButtonLabel.value || '',
-      disable: props.allowCreate && !isAddFormValid.value,
-      default: true,
-      close: true,
-      callback: onActionClick,
-      icon: 'fa-save'
-    });
-
-    return buttons;
-  });
-
   ////////////////////////////////
   // methods
   const resetDialog = function() {
-    entryToAdd.value = null;
-    extraFieldValuesObj.value = {};
     show.value = false;
     emit('update:modelValue', false);
   };
@@ -264,68 +181,58 @@
 
   ////////////////////////////////
   // event handlers
-  const onSelectionMade = function(uuid: string) {
-    entryToAdd.value = uuid || null;
-  };
-
-  const onActionClick = async function() {
-    // replace nulls with empty strings
-    const extraFieldsToSend = extraFields.value.reduce((acc, field) => {
-      acc[field.field] = extraFieldValuesObj.value[field.field] || '';
-      return acc;
-    }, {} as Record<string, string>);
-
+  const onMainButtonClick = async function(selectedItemId: string, extraFieldValues: Record<string, string>) {
     switch (props.mode) {
       case RelatedEntryDialogModes.Add:
-        if (entryToAdd.value) {
-          const fullEntry = await Entry.fromUuid(entryToAdd.value);
+        if (selectedItemId) {
+          const fullEntry = await Entry.fromUuid(selectedItemId);
 
           if (fullEntry) {
-            await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
+            await relationshipStore.addRelationship(fullEntry, extraFieldValues);
           }
         };
         break;
       
       case RelatedEntryDialogModes.Danger:
-        if (entryToAdd.value) {
-          const fullEntry = await Entry.fromUuid(entryToAdd.value);
+        if (selectedItemId) {
+          const fullEntry = await Entry.fromUuid(selectedItemId);
 
           if (fullEntry) {
-            await frontStore.addParticipant(fullEntry, extraFieldsToSend);
+            await frontStore.addParticipant(fullEntry, extraFieldValues);
           }
         };
         break;
 
       case RelatedEntryDialogModes.ArcLocation:
-        if (entryToAdd.value) {
-          const fullEntry = await Entry.fromUuid(entryToAdd.value);
+        if (selectedItemId) {
+          const fullEntry = await Entry.fromUuid(selectedItemId);
 
           if (fullEntry) {
-            await arcStore.addLocation(fullEntry.uuid, extraFieldsToSend.role || '');
+            await arcStore.addLocation(fullEntry.uuid, extraFieldValues.role || '');
           }
         };
         break;
 
       case RelatedEntryDialogModes.ArcParticipant:
-        if (entryToAdd.value) {
-          const fullEntry = await Entry.fromUuid(entryToAdd.value);
+        if (selectedItemId) {
+          const fullEntry = await Entry.fromUuid(selectedItemId);
 
           if (fullEntry) {
-            await arcStore.addParticipant(fullEntry.uuid, extraFieldsToSend.role || '');
+            await arcStore.addParticipant(fullEntry.uuid, extraFieldValues.role || '');
           }
         };
         break;
 
       case RelatedEntryDialogModes.Session:
-        if (entryToAdd.value) {
-          const fullEntry = await Entry.fromUuid(entryToAdd.value);
+        if (selectedItemId) {
+          const fullEntry = await Entry.fromUuid(selectedItemId);
 
           if (fullEntry) {
             // Handle session-specific relationships
             if (props.topic === Topics.Character) {
-              await sessionStore.addNPC(entryToAdd.value);
+              await sessionStore.addNPC(selectedItemId);
             } else if (props.topic === Topics.Location) {
-              await sessionStore.addLocation(entryToAdd.value);
+              await sessionStore.addLocation(selectedItemId);
             } else {
               throw new Error('Trying to add invalid topic to session in RelatedEntryDialog.onActionClick');
             }
@@ -342,14 +249,13 @@
     const newEntry = await FCBDialog.createEntryDialog(props.topic, { generateMode: true } );
 
     if (newEntry) {
-      entryToAdd.value = newEntry.uuid;
-      await onActionClick();
+      await onMainButtonClick(newEntry.uuid, {});
     }
 
     resetDialog();
   }
 
-  const onCancel = function() {
+  const onCancelClick = function() {
     resetDialog();
   };
   
@@ -419,14 +325,6 @@
       } else {
         extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
       }
-      extraFieldValuesObj.value = {};
-      if (props.itemId)
-        entryToAdd.value = props.itemId;  // assign starting value, if any
-
-      // focus on the input
-      await nextTick();
-      // @ts-ignore - not sure why $el isn't found
-      nameSelectRef.value?.$el?.querySelector('input')?.focus();
     }
   });
 
