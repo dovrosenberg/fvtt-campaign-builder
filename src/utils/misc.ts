@@ -1,4 +1,4 @@
-import { StoryWebNodeTypes, Topics, WindowTabType } from '@/types';
+import { EntryBasicIndex, StoryWebNodeTypes, Topics, WindowTabType } from '@/types';
 
 /**
  * Safely converts a topic value to the Topics enum type.  Sometimes topic ends up a string
@@ -109,3 +109,11 @@ export function nodeTypeToTopic(type: StoryWebNodeTypes): Topics | null {
     default: return null;  // fronts, etc.
   }
 }
+
+/** Maps an entry or an entry index to an option for a typeahead */
+export const mapEntryToOption = function(entry: EntryBasicIndex | Entry) {
+  return {
+    id: entry.uuid,
+    label: entry.type ? `${entry.name} (${entry.type})` : entry.name,
+  };
+};

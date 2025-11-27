@@ -47,7 +47,7 @@
   // library components
 
   // local components
-  import RelatedEntryDialog from './RelatedEntryDialog.vue';
+  import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
@@ -227,7 +227,7 @@
     event.preventDefault();
 
     // parse the data
-    let data = getValidatedData(event) as EntryNodeDragData;
+    let data = getValidatedData(event) as unknown as EntryNodeDragData;
     if (!data || data.type !== 'fcb-entry')
       return;
 

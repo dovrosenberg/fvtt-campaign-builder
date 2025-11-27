@@ -110,7 +110,6 @@ export enum RelatedEntryDialogModes {
   Edit = 'edit',
   Session = 'session', // for adding to sessions
   Danger = 'danger', // for adding any topic item (ex. for front participants)
-  ArcParticipant = 'arcParticipant',  // for adding participants (character/org) to arcs
   ArcLocation = 'arcLocation',  // for adding locations to arcs
 }
 

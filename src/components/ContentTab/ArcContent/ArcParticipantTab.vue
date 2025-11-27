@@ -8,16 +8,19 @@
     :extra-add-text="localize('labels.arc.addParticipantDrag')"
     :allow-edit="true"
     :help-text="localize('labels.arc.participantHelpText')"
-    @add-item="showParticipantPicker=true"
+    @add-item="onAddItem"
     @dragoverNew="onDragoverNew"
     @drop-new="onDropNew"
     @cell-edit-complete="onCellEditComplete"
   />
-  <RelatedEntryDialog
+  <RelatedItemDialog
     v-model="showParticipantPicker"
-    :topic="Topics.Character"
-    :mode="RelatedEntryDialogModes.ArcParticipant"
+    :title="localize('dialogs.relatedEntries.entry.title')"
+    :main-button-label="localize('dialogs.relatedEntries.entry.buttonTitle')"
+    :options="addOptions"
+    :extra-fields="[]"
     :allow-create="false"
+    @main-button-click="onDialogSubmitClick"
   />
 </template>
 
@@ -29,21 +32,23 @@
 
   // local imports
   import { ArcTableTypes, useArcStore, useMainStore } from '@/applications/stores';
-  import { Topics, RelatedEntryDialogModes, CellEditCompleteEvent,} from '@/types';
+  import { Topics, CellEditCompleteEvent,} from '@/types';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
   import { getTopicText } from '@/compendia';
   import { notifyInfo } from '@/utils/notifications';
+  import { mapEntryToOption } from '@/utils/misc';
 
 
   // library components
 
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
-  import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
-
-  // types
+  import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
   
+  // types
+  import { Entry } from '@/classes';
+
   ////////////////////////////////
   // props
 
@@ -60,6 +65,7 @@
   ////////////////////////////////
   // data
   const showParticipantPicker = ref<boolean>(false);
+  const addOptions = ref<{id: string; label: string}[]>([]);
 
   ////////////////////////////////
   // computed data
@@ -161,6 +167,31 @@
     await arcStore.addParticipant(data.childId as string);      
   };
 
+  const onDialogSubmitClick = async (selectedItemId: string, extraFieldValues: Record<string, string>) => {
+    if (selectedItemId) {
+      const fullEntry = await Entry.fromUuid(selectedItemId);
+
+      if (fullEntry) {
+        await arcStore.addParticipant(fullEntry.uuid, extraFieldValues.role || '');
+      }
+    };
+  };
+
+  const onAddItem = () => {
+    if (!currentSetting.value)
+      return;
+
+    // characters and organizations only
+    let entries = [] as { id: string; label: string }[];
+    for (const topic of [Topics.Character, Topics.Organization]) {
+      entries = entries.concat(
+        (currentSetting.value.topics[topic]?.entries || []).map(mapEntryToOption)
+      );
+    }
+    addOptions.value = entries;
+
+    showParticipantPicker.value = true;
+  };
 
   ////////////////////////////////
   // watchers

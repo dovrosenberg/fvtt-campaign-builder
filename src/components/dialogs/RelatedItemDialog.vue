@@ -87,7 +87,8 @@
     },
     createButtonLabel: {
       type: String,
-      required: true
+      required: false,
+      default: ''
     },
     options: {
       type: Array as PropType<{id: string; label: string}[]>,

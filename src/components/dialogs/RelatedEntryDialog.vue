@@ -1,20 +1,18 @@
 <template>
-  <Teleport to="body">
-    <RelatedItemDialog
-      v-model="show"
-      :title="dialogTitle"
-      :main-button-label="actionButtonLabel"
-      :create-button-label="createButtonLabel"
-      :options="selectItems"
-      :extra-fields="extraFields"
-      :item-id="props.itemId"
-      :item-name="props.itemName"
-      :allow-create="props.allowCreate"
-      @main-button-click="onMainButtonClick"
-      @create-click="onCreateClick"
-      @cancel-click="onCancelClick"
-    />
-  </Teleport>
+  <RelatedItemDialog
+    v-model="show"
+    :title="dialogTitle"
+    :main-button-label="actionButtonLabel"
+    :create-button-label="createButtonLabel"
+    :options="selectItems"
+    :extra-fields="extraFields"
+    :item-id="props.itemId"
+    :item-name="props.itemName"
+    :allow-create="props.allowCreate"
+    @main-button-click="onMainButtonClick"
+    @create-click="onCreateClick"
+    @cancel-click="onCancelClick"
+  />
 </template>
 
 <script setup lang="ts">
@@ -26,6 +24,7 @@
   import { useMainStore, useRelationshipStore, useSessionStore, useFrontStore, useArcStore } from '@/applications/stores';
   import { FCBDialog } from '@/dialogs';
   import { localize } from '@/utils/game';
+  import { mapEntryToOption } from '@/utils/misc';
 
   // library components
   
@@ -117,8 +116,6 @@
     buttonTitle: localize('dialogs.relatedEntries.entry.buttonTitle'),
   };
 
-  const participantDetails = dangerDetails;
-
   const locationDetails = {
     title: topicDetails[Topics.Location]?.title,
     buttonTitle: localize('dialogs.relatedEntries.entry.buttonTitle'),
@@ -134,8 +131,6 @@
     switch (props.mode) {
       case RelatedEntryDialogModes.Danger:
         return dangerDetails.title;
-      case RelatedEntryDialogModes.ArcParticipant:
-        return participantDetails.title;
       default:
         return (props.topic && topicDetails[props.topic]?.title) || '';
     }
@@ -145,10 +140,6 @@
     switch (props.mode) {
       case RelatedEntryDialogModes.Danger:
         return dangerDetails.buttonTitle;
-      case RelatedEntryDialogModes.ArcParticipant:
-        return participantDetails.buttonTitle;
-      case RelatedEntryDialogModes.ArcLocation:
-        return locationDetails.buttonTitle;
       case RelatedEntryDialogModes.Add:
         return topicDetails[props.topic]?.buttonTitle || '';
       case RelatedEntryDialogModes.Session:
@@ -159,8 +150,8 @@
 
   // add mode or session mode
   const createButtonLabel = computed(() => {
-    if ([RelatedEntryDialogModes.Danger, RelatedEntryDialogModes.ArcParticipant].includes(props.mode)) 
-      throw new Error('Trying to add create button to danger/participant RelatedEntryDialog');
+    if ([RelatedEntryDialogModes.Danger].includes(props.mode)) 
+      throw new Error('Trying to add create button to danger RelatedEntryDialog');
 
     return topicDetails[props.topic]?.createButtonTitle || '';
   });
@@ -170,13 +161,6 @@
   const resetDialog = function() {
     show.value = false;
     emit('update:modelValue', false);
-  };
-
-  const mapEntryToOption = function(entry: EntryBasicIndex) {
-    return {
-      id: entry.uuid,
-      label: entry.type ? `${entry.name} (${entry.type})` : entry.name,
-    };
   };
 
   ////////////////////////////////
@@ -209,16 +193,6 @@
 
           if (fullEntry) {
             await arcStore.addLocation(fullEntry.uuid, extraFieldValues.role || '');
-          }
-        };
-        break;
-
-      case RelatedEntryDialogModes.ArcParticipant:
-        if (selectedItemId) {
-          const fullEntry = await Entry.fromUuid(selectedItemId);
-
-          if (fullEntry) {
-            await arcStore.addParticipant(fullEntry.uuid, extraFieldValues.role || '');
           }
         };
         break;
@@ -283,18 +257,6 @@
             // concat all the topics
           entries = [];
           for (const topic of [Topics.Character, Topics.Location, Topics.Organization]) {
-            entries = entries.concat(
-              (currentSetting.value.topics[topic]?.entries || []).map(mapEntryToOption)
-            );
-          }
-          break;
-        case RelatedEntryDialogModes.ArcParticipant:
-          if (!currentArc.value)
-            throw new Error('Trying to show RelatedEntryDialog in participant mode without a current arc');
-          
-          // characters and organizations only
-          entries = [];
-          for (const topic of [Topics.Character, Topics.Organization]) {
             entries = entries.concat(
               (currentSetting.value.topics[topic]?.entries || []).map(mapEntryToOption)
             );
