@@ -137,15 +137,19 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     await this.save();
   }
   
-  async addCustomNode(text: string) : Promise<void> {
+  async addCustomNode(text: string, x?: number, y?: number) : Promise<void> {
     // create the node
+    const id = foundry.utils.randomID(16);
     this._clone.system.nodes.push({
-      uuid: foundry.utils.randomID(16),
+      uuid: id,
       type: StoryWebNodeTypes.Custom,
       source: StoryWebNodeSource.Custom,
       label: text,
     });
 
+    if (x !== undefined && y !== undefined) {
+      this._clone.system.positions[id] = { x, y };
+    }
 
     await this.save();
   }

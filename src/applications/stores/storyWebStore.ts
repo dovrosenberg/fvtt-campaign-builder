@@ -40,6 +40,8 @@ window.fcbStoryWebPhysics = {
 import { RelatedEntryDetails, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Entry } from '@/classes';
 import { nodeTypeToTopic, topicToNodeType } from '@/utils/misc';
+import { FCBDialog } from '@/dialogs';
+import { localize } from 'src/utils/game';
 
 // the store definition
 export const useStoryWebStore = defineStore('storyWeb', () => {
@@ -277,11 +279,11 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   };
 
   /** add a manual node to the story web */
-  const addCustomNode = async (text: string) => {
+  const addCustomNode = async (text: string, x?: number, y?: number) => {
     if (!currentStoryWeb.value)
       return;
 
-    await currentStoryWeb.value.addCustomNode(text);
+    await currentStoryWeb.value.addCustomNode(text, x, y);
 
     // refresh the drawing
     await mainStore.refreshStoryWeb();
@@ -289,17 +291,47 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
   ///////////////////////////////
   // methods
-  const onNetworkDoubleClick = async (eventInfo: { nodes: {}[], edges: {}[], pointer: { canvas: { x: number, y: number }} }) => {
+  const getText = async (title:string, prompt: string, initialText: string): Promise<string | null> => {
+    let value: string | null = initialText;
+
+
+    do {  // if hit ok, must have a value
+      value = await FCBDialog.inputDialog(title, prompt, initialText); 
+    } while (value==='');  
+    
+    return value;
+  }
+
+  const onNetworkDoubleClick = async (eventInfo: { nodes: {id: string, label: string}[], edges: {id: string, label: string}[], pointer: { canvas: { x: number, y: number }} }) => {
     // nodes is a list of nodes clicked on
     // edges is either edges clicked on or could be edges connected to nodes clicked
-    const { nodes, edges } = eventInfo;
+    const { nodes, edges, pointer } = eventInfo;
     
-    // for now, we only care about double clicking in open space
-    if (nodes.length !== 0 || edges.length !== 0) 
-      return;
+    // see what we clicked on
+    if (nodes.length > 0) {
+      // make sure it's a manual one
+      const node = currentStoryWeb.value?.nodes.find(n => n.uuid === nodes[0].id);
+      if (!node || node.source !== StoryWebNodeSource.Custom)
+        return;
 
-    // create a manual node at the location of the click
-    await addCustomNode('abcdef');    
+      const newText = await getText(localize('labels.storyWeb.editText'), localize('labels.storyWeb.enterText'), nodes[0].label || ''); 
+      if (!newText)
+        return;
+
+      node.label = newText;
+      await currentStoryWeb.value?.save();
+      await mainStore.refreshStoryWeb();
+    } else if (edges.length > 0) {
+
+    } else {
+      // create a manual node at the location of the click
+      const newText = await getText(localize('labels.storyWeb.addText'), localize('labels.storyWeb.enterText'), ''); 
+      if (!newText)
+        return;
+
+      await addCustomNode(newText, pointer.canvas.x, pointer.canvas.y);
+      await mainStore.refreshStoryWeb();
+    }
   }
 
   /** save all the node positions */

@@ -344,6 +344,12 @@
         "addParticipant": "Add Participant",
         "addParticipantDrag": "(or drag/drop a character/organization)"
       },
+      "storyWeb": {
+        "addText": "Add Text",
+        "enterText": "Enter new text",
+        "editText": "Edit Text",
+        "editRelationship": "Edit Relationship Description"
+      },
       "campaign": {
         "addPC": "Add PC",
         "addPCDrag": "(or drag/drop a PC)",
