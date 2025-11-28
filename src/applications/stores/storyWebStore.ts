@@ -23,9 +23,9 @@ window.fcbStoryWebPhysics = {
   repulsion: {
     nodeDistance: 100,
     springLength: 100,      // "rest" length of edges (shorter = tighter cluster)
-    springConstant: 0.05,  // how strong springs pull (higher = neighbors move more)
-    centralGravity: 0.3,    // pulls everything toward center (higher = more drift)
-    damping: .5,  //0.09,          // friction (higher = motion dies out faster)
+    springConstant: 0.03,  // how strong springs pull (higher = neighbors move more)
+    centralGravity: 0.05,    // pulls everything toward center (higher = more drift)
+    damping: .3,            // friction (higher = motion dies out faster)
   },
   stabilization: {
     enabled: true,
