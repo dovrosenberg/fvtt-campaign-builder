@@ -8,6 +8,23 @@ import type { Edge, Network, Node } from 'vis-network';
 // local imports
 import { useMainStore, } from '@/applications/stores';
 
+// Global physics options for console debugging and tuning
+// Initialize global physics options with current defaults
+window.fcbStoryWebPhysics = {
+  solver: 'barnesHut',
+  barnesHut: {
+    avoidOverlap: 1,        // ensure nodes don't overlap
+    springLength: 100,      // "rest" length of edges (shorter = tighter cluster)
+    springConstant: 0.04,  // how strong springs pull (higher = neighbors move more)
+    gravitationalConstant: -3500, // -3500 // how strongly nodes repel (more negative = more push)
+    centralGravity: 1,  //0.3,    // pulls everything toward center (higher = more drift)
+    damping: 4,  //0.09,          // friction (higher = motion dies out faster)
+  },
+  stabilization: true,
+  maxVelocity: 50,
+  minVelocity: 5
+};
+
 // types
 import { RelatedEntryDetails, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Entry } from '@/classes';
@@ -204,11 +221,11 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       }
       
       const options = {
-        physics: {
-          barnesHut: {
-              // Default is around 95, increase this for longer edges
-              springLength: 200, 
-              springConstant: 0.04 
+        physics: window.fcbStoryWebPhysics,
+        edges: {
+          smooth: {
+            enabled: true,
+            type: 'dynamic',  // participates in physics
           }
         },
         // we set a fixed seed so we get the same general layout every time
