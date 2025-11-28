@@ -20,7 +20,10 @@ window.fcbStoryWebPhysics = {
     centralGravity: 1,  //0.3,    // pulls everything toward center (higher = more drift)
     damping: 4,  //0.09,          // friction (higher = motion dies out faster)
   },
-  stabilization: true,
+  stabilization: {
+    enabled: true,
+    onlyDynamicEdges: true,
+  },
   maxVelocity: 50,
   minVelocity: 5
 };
