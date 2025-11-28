@@ -11,21 +11,29 @@ import { useMainStore, } from '@/applications/stores';
 // Global physics options for console debugging and tuning
 // Initialize global physics options with current defaults
 window.fcbStoryWebPhysics = {
-  solver: 'barnesHut',
-  barnesHut: {
-    avoidOverlap: 1,        // ensure nodes don't overlap
+  solver: 'repulsion',
+  // barnesHut: {
+  //   avoidOverlap: 1,        // ensure nodes don't overlap
+  //   springLength: 100,      // "rest" length of edges (shorter = tighter cluster)
+  //   springConstant: 0.04,  // how strong springs pull (higher = neighbors move more)
+  //   gravitationalConstant: -3500, // -3500 // how strongly nodes repel (more negative = more push)
+  //   centralGravity: 1,  //0.3,    // pulls everything toward center (higher = more drift)
+  //   damping: 4,  //0.09,          // friction (higher = motion dies out faster)
+  // },
+  repulsion: {
+    nodeDistance: 100,
     springLength: 100,      // "rest" length of edges (shorter = tighter cluster)
-    springConstant: 0.04,  // how strong springs pull (higher = neighbors move more)
-    gravitationalConstant: -3500, // -3500 // how strongly nodes repel (more negative = more push)
-    centralGravity: 1,  //0.3,    // pulls everything toward center (higher = more drift)
-    damping: 4,  //0.09,          // friction (higher = motion dies out faster)
+    springConstant: 0.05,  // how strong springs pull (higher = neighbors move more)
+    centralGravity: 0.3,    // pulls everything toward center (higher = more drift)
+    damping: .5,  //0.09,          // friction (higher = motion dies out faster)
   },
   stabilization: {
     enabled: true,
     onlyDynamicEdges: true,
+    updateInterval: 1,
   },
   maxVelocity: 50,
-  minVelocity: 5
+  minVelocity: 1
 };
 
 // types
@@ -232,20 +240,23 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
           }
         },
         // we set a fixed seed so we get the same general layout every time
-        layout: {
-          randomSeed: '0.9545178996348908:1764205380774'
-        }
+          layout: {
+            // randomSeed: '0.9545178996348908:1764205380774'
+          }
       };
 
       currentNetwork.value = new Network(currentContainer.value, { nodes, edges }, options);
 
       // attach the event handlers
       currentNetwork.value.on('doubleClick', onNetworkDoubleClick);
-      currentNetwork.value.on('dragEnd', (event) => {
-        // this gets called if we drag the canvas, too
-        if (event.nodes.length === 0)
-          capturePositions();
-      });
+      currentNetwork.value.on('stabilized', capturePositions);
+      // currentNetwork.value.on('dragEnd', (event) => {
+      //   // this gets called if we drag the canvas, too
+      //   if (event.nodes.length !== 0) {
+      //     capturePositions();
+      //     currentNetwork.value?.stabilize();
+      //   }
+      // });
     } catch (error) {
       isWebLoading.value = false;
       throw error;
