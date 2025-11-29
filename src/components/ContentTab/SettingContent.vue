@@ -70,7 +70,7 @@
               top-label
             />
           </div>
-          <div class="flexrow form-group description">
+          <div class="flexrow form-group fcb-description">
             <Editor
                 :initial-content="currentSetting.description || ''"
                 fixed-height="300px"

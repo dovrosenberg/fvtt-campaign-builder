@@ -29,7 +29,9 @@ If applicable, add screenshots to help explain your problem.
  - OS: [e.g. iOS]
  - Browser [e.g. chrome, safari] or Foundry desktop?
  - Foundry version
+ - Foundry game system (i.e. DND5e, PF2e, etc.)
  - Logging in as GM or player?
+ - Have you confirmed the bug occurs even when all other modules are disabled?
 
 **Additional context**
 Add any other context about the problem here.
