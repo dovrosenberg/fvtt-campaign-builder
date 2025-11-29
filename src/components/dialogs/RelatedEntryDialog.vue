@@ -111,11 +111,6 @@
     createButtonTitle: string;
   }>;
 
-  const dangerDetails = {
-    title: localize('dialogs.relatedEntries.entry.title'),
-    buttonTitle: localize('dialogs.relatedEntries.entry.buttonTitle'),
-  };
-
   const locationDetails = {
     title: topicDetails[Topics.Location]?.title,
     buttonTitle: localize('dialogs.relatedEntries.entry.buttonTitle'),
@@ -128,18 +123,11 @@
   ////////////////////////////////
   // computed data
   const dialogTitle = computed(() => {
-    switch (props.mode) {
-      case RelatedEntryDialogModes.Danger:
-        return dangerDetails.title;
-      default:
-        return (props.topic && topicDetails[props.topic]?.title) || '';
-    }
+    return (props.topic && topicDetails[props.topic]?.title) || '';
   });
 
   const actionButtonLabel = computed((): string => {
     switch (props.mode) {
-      case RelatedEntryDialogModes.Danger:
-        return dangerDetails.buttonTitle;
       case RelatedEntryDialogModes.ArcLocation:
         return locationDetails.buttonTitle;
       case RelatedEntryDialogModes.Add:
@@ -152,9 +140,6 @@
 
   // add mode or session mode
   const createButtonLabel = computed(() => {
-    if ([RelatedEntryDialogModes.Danger].includes(props.mode)) 
-      throw new Error('Trying to add create button to danger RelatedEntryDialog');
-
     return topicDetails[props.topic]?.createButtonTitle || '';
   });
 
@@ -179,16 +164,6 @@
         };
         break;
       
-      case RelatedEntryDialogModes.Danger:
-        if (selectedItemId) {
-          const fullEntry = await Entry.fromUuid(selectedItemId);
-
-          if (fullEntry) {
-            await frontStore.addParticipant(fullEntry, extraFieldValues);
-          }
-        };
-        break;
-
       case RelatedEntryDialogModes.ArcLocation:
         if (selectedItemId) {
           const fullEntry = await Entry.fromUuid(selectedItemId);
@@ -252,18 +227,6 @@
       
       let entries = [] as {id: string; label: string}[];
       switch (props.mode) {
-        case RelatedEntryDialogModes.Danger:
-          if (!currentFront.value)
-            throw new Error('Trying to show RelatedEntryDialog in danger mode without a current front');
-
-            // concat all the topics
-          entries = [];
-          for (const topic of [Topics.Character, Topics.Location, Topics.Organization]) {
-            entries = entries.concat(
-              (currentSetting.value.topics[topic]?.entries || []).map(mapEntryToOption)
-            );
-          }
-          break;
         case RelatedEntryDialogModes.ArcLocation:
           if (!currentArc.value)
             throw new Error('Trying to show RelatedEntryDialog in arc location mode without a current arc');
@@ -282,8 +245,6 @@
       
       if (currentSession.value) {
         extraFields.value = currentSession.value ? [] : relationshipStore.extraFields[currentEntryTopic.value][props.topic];
-      } else if (currentFront.value) {
-        extraFields.value = [{ field: 'role', header: 'Role' }];
       } else if (currentArc.value) {
         extraFields.value = [];
       } else {

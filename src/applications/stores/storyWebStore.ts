@@ -7,6 +7,9 @@ import type { Edge, Network, Node } from 'vis-network';
 
 // local imports
 import { useMainStore, } from '@/applications/stores';
+import { nodeTypeToTopic, topicToNodeType } from '@/utils/misc';
+import { FCBDialog } from '@/dialogs';
+import { localize } from '@/utils/game';
 
 // Global physics options for console debugging and tuning
 // Initialize global physics options with current defaults
@@ -39,9 +42,6 @@ window.fcbStoryWebPhysics = {
 // types
 import { RelatedEntryDetails, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Entry } from '@/classes';
-import { nodeTypeToTopic, topicToNodeType } from '@/utils/misc';
-import { FCBDialog } from '@/dialogs';
-import { localize } from 'src/utils/game';
 
 // the store definition
 export const useStoryWebStore = defineStore('storyWeb', () => {
@@ -302,7 +302,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     return value;
   }
 
-  const onNetworkDoubleClick = async (eventInfo: { nodes: {id: string, label: string}[], edges: {id: string, label: string}[], pointer: { canvas: { x: number, y: number }} }) => {
+  const onNetworkDoubleClick = async (eventInfo: { nodes: string[], edges: string[], pointer: { canvas: { x: number, y: number }} }) => {
     // nodes is a list of nodes clicked on
     // edges is either edges clicked on or could be edges connected to nodes clicked
     const { nodes, edges, pointer } = eventInfo;
@@ -310,11 +310,11 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     // see what we clicked on
     if (nodes.length > 0) {
       // make sure it's a manual one
-      const node = currentStoryWeb.value?.nodes.find(n => n.uuid === nodes[0].id);
+      const node = currentStoryWeb.value?.nodes.find(n => n.uuid === nodes[0]);
       if (!node || node.source !== StoryWebNodeSource.Custom)
         return;
 
-      const newText = await getText(localize('labels.storyWeb.editText'), localize('labels.storyWeb.enterText'), nodes[0].label || ''); 
+      const newText = await getText(localize('labels.storyWeb.editText'), localize('labels.storyWeb.enterText'), node.label || ''); 
       if (!newText)
         return;
 
