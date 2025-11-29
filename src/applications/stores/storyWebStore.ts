@@ -312,24 +312,24 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
   /** remove a node from the story web */
   const removeNode = async (nodeId: string) => {
-    if (!currentStoryWeb.value)
+    if (!currentStoryWeb.value || !currentNetwork.value)
       return;
 
-    // if it's explicit, remove any implicit connections not connected to anything else
+    // if it's explicit, remove any implicit nodes not connected to anything else
     if (currentStoryWeb.value.nodes.find(n => n.uuid === nodeId)?.source === StoryWebNodeSource.Explicit) {
-      const implicitConnections = currentStoryWeb.value.edges.filter(e => e.from === nodeId || e.to === nodeId);
+      const connectedNodes = currentNetwork.value.getConnectedNodes(nodeId) as string[];
       
-      for (const connection of implicitConnections) {
-        const otherNodeId = connection.from === nodeId ? connection.to : connection.from;
-        const otherNode = currentStoryWeb.value.nodes.find(n => n.uuid === otherNodeId);
-        if (!otherNode || otherNode.source === StoryWebNodeSource.Explicit)
-          continue;
-
-        currentStoryWeb.value.nodes = currentStoryWeb.value.nodes.filter(n => n.uuid !== otherNodeId);
-        // currentStoryWeb.value.edges = currentStoryWeb.value.edges.filter(e => e.uuid !== connection.id);
-      }
-      
+      for (const connection of connectedNodes) {
+        // if it has no other connections and is implicit, delete it
+        if (currentNetwork.value.getConnectedNodes(connection).length === 1) {
+          const nodeDetails = currentStoryWeb.value.nodes.find(n => n.uuid === connection);
+          if (!nodeDetails || nodeDetails.source === StoryWebNodeSource.Implicit) {
+            currentStoryWeb.value.nodes = currentStoryWeb.value.nodes.filter(n => n.uuid !== connection);
+          }
+        }
+      }      
     }
+
     currentStoryWeb.value.nodes = currentStoryWeb.value.nodes.filter(n => n.uuid !== nodeId);
 
     await currentStoryWeb.value.save(); 
