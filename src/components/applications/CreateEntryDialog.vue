@@ -163,13 +163,13 @@
                 <div><span class="label">{{ localize('dialogs.createEntry.generatedName')}}:</span> {{ generatedName }}</div>
               </div>
               <div v-if="generatedDescription" class="generated-content" style="background: var(--fcb-surface-shaded)">
-                <div class="description">
+                <div class="fcb-description">
                   <p><span class="label">{{ localize('dialogs.createEntry.generatedDescription')}}:</span></p>
                   {{ generatedDescription }}
                 </div>
               </div>
               <div v-if="generatedRoleplayNotes" class="generated-content" style="background: var(--fcb-surface-shaded)">
-                <div class="description">
+                <div class="fcb-description">
                   <p><span class="label">{{ localize('dialogs.createEntry.generatedRoleplayNotes')}}</span></p>
                   {{ generatedRoleplayNotes }}
                 </div>

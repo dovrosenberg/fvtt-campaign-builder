@@ -128,7 +128,7 @@
               top-label
             />
           </div>
-          <div class="flexrow form-group description">
+          <div class="flexrow form-group fcb-description">
             <Editor
               :initial-content="currentEntry?.description || ''"
               :current-entity-uuid="currentEntry?.uuid"
