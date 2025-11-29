@@ -291,6 +291,30 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     await mainStore.refreshStoryWeb();
   };
 
+  /** remove a node from the story web */
+  const removeNode = async (nodeId: string) => {
+    if (!currentStoryWeb.value)
+      return;
+
+    currentStoryWeb.value.nodes = currentStoryWeb.value.nodes.filter(n => n.uuid !== nodeId);
+    await currentStoryWeb.value.save(); 
+
+    // refresh the drawing
+    await mainStore.refreshStoryWeb();
+  };
+
+  /** remove an edge from the story web */
+  const removeEdge = async (edgeId: string) => {
+    if (!currentStoryWeb.value)
+      return;
+
+    currentStoryWeb.value.edges = currentStoryWeb.value.edges.filter(e => e.uuid !== nodeId);
+    await currentStoryWeb.value.save(); 
+
+    // refresh the drawing
+    await mainStore.refreshStoryWeb();
+  };
+
   ///////////////////////////////
   // methods
   const getText = async (title:string, prompt: string, initialText: string): Promise<string | null> => {
@@ -371,6 +395,8 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     isWebLoading,
     
     addEntry,
+    removeNode,
+    removeEdge,
   };
 });
 

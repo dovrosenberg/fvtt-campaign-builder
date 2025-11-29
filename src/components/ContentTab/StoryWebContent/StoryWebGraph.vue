@@ -5,6 +5,7 @@
       class="network-container"
       @drop="onDrop"
       @dragover="onDragover"
+      @keydown="onKeydown"
     >
       <!-- Debug: StoryWebGraph rendered -->
       <div 
@@ -19,7 +20,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+  import { ref, onMounted, onBeforeUnmount, watch, toRaw } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -50,7 +51,7 @@
   ////////////////////////////////
   // store
   const storyWebStore = useStoryWebStore();
-  const { currentContainer, isWebLoading } = storeToRefs(storyWebStore);
+  const { currentContainer, isWebLoading, currentNetwork } = storeToRefs(storyWebStore);
 
   ////////////////////////////////
   // data
@@ -61,8 +62,26 @@
 
   ////////////////////////////////
   // methods
+
   ////////////////////////////////
   // event handlers
+  const onKeydown = (event: KeyboardEvent) => {
+    if (!currentNetwork.value)
+      return;
+    
+    switch (event.key) {
+      case 'Delete':
+        for (const node of toRaw(currentNetwork.value).getSelectedNodes()) {
+          storyWebStore.removeNode(node as string);
+        }
+
+        for (const edge of toRaw(currentNetwork.value).getSelectedEdges()) {
+          storyWebStore.removeEdge(edge as string);
+        }
+        break;
+    }
+  };
+
   const onDragover = (event: DragEvent) => {
     event.preventDefault();
     event.stopPropagation();
