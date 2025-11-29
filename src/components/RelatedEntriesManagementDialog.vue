@@ -228,7 +228,7 @@
   gap: 1.5rem;
   padding: 1rem;
 
-  .description {
+  .fcb-description {
     margin-bottom: 1rem;
     color: var(--fcb-text);
     font-size: var(--fcb-font-size-large);
