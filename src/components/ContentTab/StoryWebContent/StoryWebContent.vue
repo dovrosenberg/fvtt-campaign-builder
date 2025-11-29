@@ -4,6 +4,7 @@
       <header class="fcb-name-header flexrow">
         <i :class="`fas ${getTabTypeIcon(WindowTabType.StoryWeb)} sheet-icon`"></i>
         <InputText
+          v-if="currentStoryWeb"
           v-model="name"
           for="fcb-input-name" 
           class="fcb-input-name"

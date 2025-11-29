@@ -431,6 +431,7 @@
       "sessionName": "Session Name",
       "frontName": "Front Name",
       "dangerName": "Danger Name",
+      "storyWebName": "Story Web Name",
       "sessionDate": "Date",
       "sessionNumber": "Session Number",
       "linkToActor": "Link to Actor"
