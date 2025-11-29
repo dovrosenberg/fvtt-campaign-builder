@@ -20,6 +20,7 @@ export enum StoryWebNodeTypes {
 
 export enum StoryWebNodeSource {
   Explicit = 'explicit',
+  Implicit = 'implicit',
   Custom = 'custom',
 }
 

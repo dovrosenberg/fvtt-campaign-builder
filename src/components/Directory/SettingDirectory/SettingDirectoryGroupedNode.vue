@@ -20,7 +20,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSettingDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
+  import { useSettingDirectoryStore, useMainStore, useNavigationStore, useStoryWebStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { toTopic } from '@/utils/misc';
 
@@ -58,7 +58,8 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const settingDirectoryStore = useSettingDirectoryStore();
-  const { currentEntry, currentSetting } = storeToRefs(mainStore);
+  const storyWebStore = useStoryWebStore();
+  const { currentEntry, currentSetting, currentStoryWeb } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(settingDirectoryStore);
 
   ////////////////////////////////
@@ -125,6 +126,24 @@
             await settingDirectoryStore.deleteEntry(props.topic, props.node.id);
           }
         },
+        {
+          icon: 'fa-plus',
+          iconFontClass: 'fas',
+          label: 'Add to current Story Web',
+          disabled: !currentStoryWeb.value,
+          onClick: async () => {
+            await storyWebStore.addEntry(props.node.id, null, false);
+          }
+        },
+        {
+          icon: 'fa-sitemap',
+          iconFontClass: 'fas',
+          label: 'Add with Relationships',
+          disabled: !currentStoryWeb.value,
+          onClick: async () => {
+            await storyWebStore.addEntry(props.node.id, null, true);
+          }
+        }
       ]
     });
   };

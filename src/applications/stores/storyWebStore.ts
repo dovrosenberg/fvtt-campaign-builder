@@ -15,24 +15,24 @@ import { localize } from '@/utils/game';
 // Initialize global physics options with current defaults
 window.fcbStoryWebPhysics = {
   solver: 'repulsion',
-  // barnesHut: {
-  //   avoidOverlap: 1,        // ensure nodes don't overlap
-  //   springLength: 100,      // "rest" length of edges (shorter = tighter cluster)
-  //   springConstant: 0.04,  // how strong springs pull (higher = neighbors move more)
-  //   gravitationalConstant: -3500, // -3500 // how strongly nodes repel (more negative = more push)
-  //   centralGravity: 1,  //0.3,    // pulls everything toward center (higher = more drift)
-  //   damping: 4,  //0.09,          // friction (higher = motion dies out faster)
-  // },
-  repulsion: {
-    nodeDistance: 100,
+  barnesHut: {
+    avoidOverlap: 1,        // ensure nodes don't overlap
     springLength: 100,      // "rest" length of edges (shorter = tighter cluster)
-    springConstant: 0.03,  // how strong springs pull (higher = neighbors move more)
-    centralGravity: 0.05,    // pulls everything toward center (higher = more drift)
-    damping: .3,            // friction (higher = motion dies out faster)
+    springConstant: .002,  //0.01,  // how strong springs pull (higher = neighbors move more)
+    gravitationalConstant: -500,  //-3500, // -3500 // how strongly nodes repel (more negative = more push)
+    centralGravity: .05, //1,  //0.3,    // pulls everything toward center (higher = more drift)
+    damping: .1,  //0.09,          // friction (higher = motion dies out faster)
   },
+  // repulsion: {
+  //   nodeDistance: 100,
+  //   springLength: 100,      // "rest" length of edges (shorter = tighter cluster)
+  //   springConstant: 0.03,  // how strong springs pull (higher = neighbors move more)
+  //   centralGravity: 0.05,    // pulls everything toward center (higher = more drift)
+  //   damping: .3,            // friction (higher = motion dies out faster)
+  // },
   stabilization: {
     enabled: true,
-    onlyDynamicEdges: true,
+    onlyDynamicEdges: false,
     updateInterval: 1,
   },
   maxVelocity: 50,
@@ -107,6 +107,11 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         border: 'hsl(164, 48%, 20%)',  // light mode fcb-primary
         background: 'white',
       },
+      // these can be both narrower and wider than normal ones
+      widthConstraint: {
+        minimum: 70,
+        maximum: 280,
+      },
     },
   }
 
@@ -164,12 +169,31 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
             nodes.push({
               ...explicitNodeFormat,
               id: index.uuid,
-              label: `${index.name} (${index.type})`,
+              label: `${index.name}${index.type ? `\n(${index.type})` : ''}`,
               ...positionInfo,
               ...nodeConfig[node.type],
             });
           } else if (node.type === StoryWebNodeTypes.Danger) {
             // TODO
+          }
+        } else if (node.source === StoryWebNodeSource.Implicit) {
+          // implicit nodes - render as ellipses
+          const topic = nodeTypeToTopic(node.type);
+          if (topic !== null) {
+            const index = currentSetting.value?.topics[topic]?.entries.find(e => e.uuid === node.uuid);
+
+            if (!index)
+              continue;
+
+            const positionInfo = currentStoryWeb.value?.positions?.[index.uuid] || {};
+            
+            nodes.push({
+              ...implicitNodeFormat,
+              id: index.uuid,
+              label: `${index.name}${index.type ? `\n(${index.type})` : ''}`,
+              ...positionInfo,
+              ...nodeConfig[node.type],
+            });
           }
         } else if (node.type === StoryWebNodeTypes.Custom) {
           const positionInfo = currentStoryWeb.value?.positions?.[node.uuid] || {};
@@ -186,65 +210,58 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       // add each of the connections
       const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
       for (const node of currentStoryWeb.value?.nodes) {
-        if (node.source !== StoryWebNodeSource.Explicit)
+        // only create edges for entry nodes (not custom or danger nodes)
+        if (nodeTypeToTopic(node.type) == null)
           continue;
 
+        // it's an entry
+        const entry = await Entry.fromUuid(node.uuid);
+        if (!entry)
+          continue;
 
-        if (nodeTypeToTopic(node.type) != null) {
-          // it's an entry
-          const entry = await Entry.fromUuid(node.uuid);
+        for (const topic of topics) {
+          const relatedEntries = entry?.relationships?.[topic] as RelatedEntryDetails<any, any>[] | undefined;
+          if (!relatedEntries)
+            continue;
 
-          for (const topic of topics) {
-            const relatedEntries = entry?.relationships?.[topic] as RelatedEntryDetails<any, any>[] | undefined;
-            if (!relatedEntries)
+          for (const relatedEntry of Object.values(relatedEntries)) {
+            // only add edge if the related node is also in the story web
+            if (!nodes.some(n => n.id === relatedEntry.uuid))
               continue;
 
-            for (const relatedEntry of Object.values(relatedEntries)) {
-              // see if it's already been added
-              if (!nodes.some(n => n.id === relatedEntry.uuid)) {
-                const positionInfo = currentStoryWeb.value?.positions?.[relatedEntry.uuid] || {};
-                nodes.push({
-                  ...implicitNodeFormat,
-                  id: relatedEntry.uuid,
-                  label: `${relatedEntry.name} (${relatedEntry.type ? relatedEntry.type : relatedEntry.topic})`,
-                  ...positionInfo,
-                  ...nodeConfig[topicToNodeType(relatedEntry.topic)],
-                });
-              }
-
-              // add the relationship edge
-              // it's possible the edge is already there - specifically if we put two nodes on manually that
-              //   relate to each other
-              if (!edges.some(e => e.to === node.uuid && e.from === relatedEntry.uuid))
-                edges.push({
-                  from: node.uuid,
-                  to: relatedEntry.uuid,
-                  label: relatedEntry.extraFields.rols || relatedEntry.extraFields.relationship || '',
-                  ...edgeConfig
-                });
+            // add the relationship edge
+            // it's possible the edge is already there - specifically if we put two nodes on manually that
+            //   relate to each other
+            if (!edges.some(e => e.to === node.uuid && e.from === relatedEntry.uuid)) {
+              edges.push({
+                from: node.uuid,
+                to: relatedEntry.uuid,
+                label: relatedEntry.extraFields.rols || relatedEntry.extraFields.relationship || '',
+                ...edgeConfig
+              });
             }
           }
-        } else if (node.type === StoryWebNodeTypes.Danger) {
-
-        } else {
-        // custom ones don't have relationships
-          continue;
         }
-
       }
       
       const options = {
+        configure: 'physics',  // change to 'physics' to get a physics config panel
         physics: window.fcbStoryWebPhysics,
         edges: {
           smooth: {
             enabled: true,
-            type: 'dynamic',  // participates in physics
+            type: 'continuous',   //type: 'dynamic',  // participates in physics
+            roundness: 0.5
           }
         },
-        // we set a fixed seed so we get the same general layout every time
-          layout: {
-            // randomSeed: '0.9545178996348908:1764205380774'
-          }
+        nodes: {
+          margin: 3,  // padding in px
+          // keep all nodes the same size
+          widthConstraint: {
+            minimum: 140,
+            maximum: 140,
+          },
+        }
       };
 
       currentNetwork.value = new Network(currentContainer.value, { nodes, edges }, options);
@@ -269,15 +286,17 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
   /** add entry to the story web */
   /** @param position - position to place the node at - relative to DOM */
-  const addEntry = async (entryUuid: string, position: { x: number, y: number } | null = null) => {
+  /** @param withRelationships - whether to also add all related nodes implicitly */
+  const addEntry = async (entryUuid: string, position: { x: number, y: number } | null = null, withRelationships: boolean = false) => {
     if (!currentStoryWeb.value || !currentNetwork.value)
       return;
 
     const convertedPosition = position ? currentNetwork.value.DOMtoCanvas(position) : null;
-    await currentStoryWeb.value.addEntry(entryUuid, convertedPosition);
+    await currentStoryWeb.value.addEntry(entryUuid, convertedPosition, withRelationships);
 
     // refresh the drawing
     await mainStore.refreshStoryWeb();
+    currentNetwork.value?.stabilize(50);
   };
 
   /** add a manual node to the story web */
@@ -296,7 +315,23 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     if (!currentStoryWeb.value)
       return;
 
+    // if it's explicit, remove any implicit connections not connected to anything else
+    if (currentStoryWeb.value.nodes.find(n => n.uuid === nodeId)?.source === StoryWebNodeSource.Explicit) {
+      const implicitConnections = currentStoryWeb.value.edges.filter(e => e.from === nodeId || e.to === nodeId);
+      
+      for (const connection of implicitConnections) {
+        const otherNodeId = connection.from === nodeId ? connection.to : connection.from;
+        const otherNode = currentStoryWeb.value.nodes.find(n => n.uuid === otherNodeId);
+        if (!otherNode || otherNode.source === StoryWebNodeSource.Explicit)
+          continue;
+
+        currentStoryWeb.value.nodes = currentStoryWeb.value.nodes.filter(n => n.uuid !== otherNodeId);
+        // currentStoryWeb.value.edges = currentStoryWeb.value.edges.filter(e => e.uuid !== connection.id);
+      }
+      
+    }
     currentStoryWeb.value.nodes = currentStoryWeb.value.nodes.filter(n => n.uuid !== nodeId);
+
     await currentStoryWeb.value.save(); 
 
     // refresh the drawing

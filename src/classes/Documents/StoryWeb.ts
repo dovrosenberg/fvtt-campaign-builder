@@ -4,10 +4,10 @@ import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntr
 import { Campaign } from './Campaign';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
-import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, } from '@/types';
+import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, Topics, RelatedEntryDetails } from '@/types';
 import { topicToNodeType } from '@/utils/misc';
 import { Entry } from '@/classes';
-import { cleanKeysOnSave, cleanKeysOnLoad } from '@/utils/cleanKeys';
+import { cleanKeysOnSave, } from '@/utils/cleanKeys';
 
 type StoryWebDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb>;
 
@@ -117,16 +117,31 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     this._clone.system.positions = { ...value };
   }
 
-  async addEntry(uuid: string, position: { x: number, y: number } | null = null) : Promise<void> {
-    // make sure it's not already there
-    if (this.nodes.some(n => n.uuid === uuid))
-      return;
-    
+  /** withRelationships will also bring in all the related entries */
+  async addEntry(uuid: string, position: { x: number, y: number } | null = null, withRelationships: boolean = false) : Promise<void> {
     const entry = await Entry.fromUuid(uuid);
     if (!entry)
       return;
 
-    // create the node
+    // check if node already exists
+    const existingNode = this.nodes.find(n => n.uuid === uuid);
+    
+    if (existingNode) {
+      // if it exists and is implicit, upgrade it to explicit
+      if (existingNode.source === StoryWebNodeSource.Implicit) {
+        existingNode.source = StoryWebNodeSource.Explicit;
+        
+        // update position if provided
+        if (position) {
+          this._clone.system.positions[uuid] = position;
+        }
+        
+        await this.save();
+      }
+      return;
+    }
+    
+    // create the explicit node
     this._clone.system.nodes.push({
       uuid,
       type: topicToNodeType(entry.topic),
@@ -138,7 +153,36 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
       this._clone.system.positions[uuid] = position;
     }
 
+    // if withRelationships is true, add all related nodes as implicit
+    if (withRelationships) {
+      await this.addRelatedNodesImplicitly(entry);
+    }
+
     await this.save();
+  }
+
+  private async addRelatedNodesImplicitly(entry: Entry): Promise<void> {
+    const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
+    
+    for (const topic of topics) {
+      const relatedEntries = entry?.relationships?.[topic] as RelatedEntryDetails<any, any>[] | undefined;
+      if (!relatedEntries)
+        continue;
+
+      for (const relatedEntry of Object.values(relatedEntries)) {
+        // make sure it's not already there
+        if (this.nodes.some(n => n.uuid === relatedEntry.uuid))
+          continue;
+
+        // add as implicit node
+        this._clone.system.nodes.push({
+          uuid: relatedEntry.uuid,
+          type: topicToNodeType(relatedEntry.topic),
+          source: StoryWebNodeSource.Implicit,
+          label: null,
+        });
+      }
+    }
   }
   
   async addCustomNode(text: string, x?: number, y?: number) : Promise<void> {

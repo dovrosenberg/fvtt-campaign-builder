@@ -7,7 +7,7 @@ import { reactive, onMounted, ref, watch, nextTick } from 'vue';
 // local imports
 import { ModuleSettings, SettingKey, } from '@/settings';
 import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
-import { useMainStore, useNavigationStore } from '@/applications/stores';
+import { useMainStore, useNavigationStore, useStoryWebStore } from '@/applications/stores';
 import { getCurrentSetting, getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
@@ -28,7 +28,8 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentSetting, currentEntry, refreshCurrentEntry, } = storeToRefs(mainStore); 
+  const storyWebStore = useStoryWebStore();
+  const { currentSetting, currentEntry, refreshCurrentEntry, currentStoryWeb } = storeToRefs(mainStore); 
   
   ///////////////////////////////
   // internal state
@@ -494,7 +495,10 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (!topic || !currentSetting.value)
       throw new Error('Invalid topic in getTopicNodeContextMenuItems()');
 
-    return [{ 
+    const items = [] as MenuItem[];
+
+    if (hasHierarchy(topic)) {
+      items.push({ 
         icon: 'fa-atlas',
         iconFontClass: 'fas',
         label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child',
@@ -505,18 +509,39 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
             await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
           }
         }
-      },
-      {
+      });
+    }
+
+    items.push({
       icon: 'fa-trash',
       iconFontClass: 'fas',
       label: localize('contextMenus.directoryEntry.delete'),
       onClick: async () => {
         await deleteEntry(topic, entryId);
       }
-    }]
-    .filter((item)=>(hasHierarchy(topic) || (item.icon!=='fa-atlas')))
-    // the line above is to remove the "add/generate child" option from entries that don't have hierarchy;
-    // not really ideal but a bit cleaner than having two separate arrays and concatenating
+    });
+
+    // Add story web options if a story web is active
+    items.push({
+      icon: 'fa-plus',
+      iconFontClass: 'fas',
+      label: 'Add to current Story Web',
+      disabled: !currentStoryWeb.value,
+      onClick: async () => {
+        await storyWebStore.addEntry(entryId, null, false);
+      }
+    });
+    items.push({
+      icon: 'fa-sitemap',
+      iconFontClass: 'fas',
+      label: 'Add with Relationships',
+      disabled: !currentStoryWeb.value,
+      onClick: async () => {
+        await storyWebStore.addEntry(entryId, null, true);
+      }
+    });
+
+    return items;
   }
 
   const getGroupedTypeNodeContextMenuItems = (topic: ValidTopic, type: string): MenuItem[] => {
