@@ -539,6 +539,10 @@
         "title": "Create Setting",
         "settingName": "Setting Name"
       },
+      "createStoryWeb": {
+        "title": "Create Story Web",
+        "webName": "Story Web Name"
+      },
       "deleteEntry": {
         "title": "Delete entry?",
         "message": "Are you sure you want to delete this entry?  It will be removed from all relationships and sessions.  Any references to it in editors will become broken."
@@ -643,10 +647,6 @@
         "disabled": "Story webs are disabled in settings. Enable 'Use Story Webs' in the module settings to use this feature."
       },
       "dialogs": {
-        "createStoryWeb": {
-          "title": "Create Story Web",
-          "webName": "Story Web Name"
-        },
         "cannotActivateFromCompendium": "Cannot activate from compendium",
         "cannotToggleNavigationFromCompendium": "Cannot toggle navigation from scene in a compendium",
         "cannotToggleNavigationWhileActive": "Cannot toggle navigation while scene is active"

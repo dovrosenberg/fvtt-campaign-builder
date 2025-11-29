@@ -117,7 +117,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     this._clone.system.positions = { ...value };
   }
 
-  async addEntry(uuid: string) : Promise<void> {
+  async addEntry(uuid: string, position: { x: number, y: number } | null = null) : Promise<void> {
     // make sure it's not already there
     if (this.nodes.some(n => n.uuid === uuid))
       return;
@@ -133,6 +133,10 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
       source: StoryWebNodeSource.Explicit,
       label: null,
     });
+
+    if (position) {
+      this._clone.system.positions[uuid] = position;
+    }
 
     await this.save();
   }

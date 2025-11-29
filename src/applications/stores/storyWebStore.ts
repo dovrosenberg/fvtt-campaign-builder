@@ -268,11 +268,13 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   }
 
   /** add entry to the story web */
-  const addEntry = async (entryUuid: string) => {
-    if (!currentStoryWeb.value)
+  /** @param position - position to place the node at - relative to DOM */
+  const addEntry = async (entryUuid: string, position: { x: number, y: number } | null = null) => {
+    if (!currentStoryWeb.value || !currentNetwork.value)
       return;
 
-    await currentStoryWeb.value.addEntry(entryUuid);
+    const convertedPosition = position ? currentNetwork.value.DOMtoCanvas(position) : null;
+    await currentStoryWeb.value.addEntry(entryUuid, convertedPosition);
 
     // refresh the drawing
     await mainStore.refreshStoryWeb();

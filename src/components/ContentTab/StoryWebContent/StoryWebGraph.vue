@@ -82,7 +82,7 @@
 
     // we can drop entries
     if (data.type === 'fcb-entry') {
-      await storyWebStore.addEntry(data.childId as string);      
+      await storyWebStore.addEntry(data.childId as string, { x: event.offsetX, y: event.offsetY });      
     }
   };
   
