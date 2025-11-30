@@ -6,7 +6,7 @@ import { watch, ref, toRaw, } from 'vue';
 import type { Edge, Network, Node } from 'vis-network';
 
 // local imports
-import { useMainStore, useRelationshipStore } from '@/applications/stores';
+import { useMainStore, useRelationshipStore, useNavigationStore } from '@/applications/stores';
 import { nodeTypeToTopic, } from '@/utils/misc';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
@@ -138,6 +138,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   // other stores
   const mainStore = useMainStore();
   const relationshipStore = useRelationshipStore();
+  const navigationStore = useNavigationStore();
   const { currentStoryWeb, currentSetting } = storeToRefs(mainStore);
   
 
@@ -171,7 +172,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       // add the explicit ones
       for (const node of currentStoryWeb.value?.nodes) {
         // these are entries the user added
-        if (node.source === StoryWebNodeSource.Explicit) {
+        if ([StoryWebNodeSource.Explicit, StoryWebNodeSource.Implicit].includes(node.source)) {
           // if an entry, we need the topic
           const topic = nodeTypeToTopic(node.type);
           if (topic !== null) {
@@ -182,34 +183,22 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
             const positionInfo = currentStoryWeb.value?.positions?.[index.uuid] || {};
             
+            const format = node.source === StoryWebNodeSource.Explicit ? explicitNodeFormat : implicitNodeFormat;
+
+            // titles may require additional css... not working and maybe not worth bigger package size
+            // const title = getTopicText(topic) + '\n' + 
+            //   node.source === StoryWebNodeSource.Explicit ? 'added directly' : 'added via relationship'; 
+
             nodes.push({
-              ...explicitNodeFormat,
+              ...format,
               id: index.uuid,
               label: `${index.name}${index.type ? `\n(${index.type})` : ''}`,
+              // title,
               ...positionInfo,
               ...nodeConfig[node.type],
             });
           } else if (node.type === StoryWebNodeTypes.Danger) {
             // TODO
-          }
-        } else if (node.source === StoryWebNodeSource.Implicit) {
-          // implicit nodes - render as ellipses
-          const topic = nodeTypeToTopic(node.type);
-          if (topic !== null) {
-            const index = currentSetting.value?.topics[topic]?.entries.find(e => e.uuid === node.uuid);
-
-            if (!index)
-              continue;
-
-            const positionInfo = currentStoryWeb.value?.positions?.[index.uuid] || {};
-            
-            nodes.push({
-              ...implicitNodeFormat,
-              id: index.uuid,
-              label: `${index.name}${index.type ? `\n(${index.type})` : ''}`,
-              ...positionInfo,
-              ...nodeConfig[node.type],
-            });
           }
         } else if (node.type === StoryWebNodeTypes.Custom) {
           const positionInfo = currentStoryWeb.value?.positions?.[node.uuid] || {};
@@ -442,6 +431,21 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     return value;
   }
 
+  const editCustomNode = async (nodeId: string) => {
+    // make sure it's a manual one
+    const node = currentStoryWeb.value?.nodes.find(n => n.uuid === nodeId);
+    if (!node || node.source !== StoryWebNodeSource.Custom)
+      return;
+
+    const newText = await getText(localize('labels.storyWeb.editText'), localize('labels.storyWeb.enterText'), node.label || ''); 
+    if (!newText)
+      return;
+
+    node.label = newText;
+    await currentStoryWeb.value?.save();
+    await mainStore.refreshStoryWeb();
+  }
+
   const onNetworkDoubleClick = async (eventInfo: NetworkClickEventInfo) => {
     // nodes is a list of nodes clicked on
     // edges is either edges clicked on or could be edges connected to nodes clicked
@@ -449,18 +453,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     
     // see what we clicked on
     if (nodes.length > 0) {
-      // make sure it's a manual one
-      const node = currentStoryWeb.value?.nodes.find(n => n.uuid === nodes[0]);
-      if (!node || node.source !== StoryWebNodeSource.Custom)
-        return;
-
-      const newText = await getText(localize('labels.storyWeb.editText'), localize('labels.storyWeb.enterText'), node.label || ''); 
-      if (!newText)
-        return;
-
-      node.label = newText;
-      await currentStoryWeb.value?.save();
-      await mainStore.refreshStoryWeb();
+      await editCustomNode(nodes[0]);
     } else if (edges.length > 0) {
 
     } else {
@@ -520,20 +513,49 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     toRaw(currentNetwork.value).unselectAll();
     toRaw(currentNetwork.value).selectNodes([nodeId]);
 
+    // Check if this is an entry node (not custom)
+    const node = currentStoryWeb.value?.nodes.find(n => n.uuid === nodeId);
+    const isDangerNode = node && node.type === StoryWebNodeTypes.Danger;
+    const isEntryNode = node && [StoryWebNodeSource.Explicit, StoryWebNodeSource.Implicit].includes(node.source) && !isDangerNode;
+
+    // Build menu items
+    const menuItems = [
+      {
+        icon: 'fa-external-link-alt',
+        iconFontClass: 'fas',
+        label: localize('contextMenus.storyWebGraph.openEntryInNewTab'),
+        onClick: async () => { await navigationStore.openEntry(nodeId, { newTab: true }); },
+        hidden: !isEntryNode
+      },
+      {
+        icon: 'fa-external-link-alt',
+        iconFontClass: 'fas',
+        label: localize('contextMenus.storyWebGraph.openDangerInNewTab'),
+        onClick: async () => { alert('todo'); },
+        hidden: !isDangerNode
+      },
+      {
+        icon: 'fa-edit',
+        iconFontClass: 'fas',
+        label: localize('contextMenus.storyWebGraph.editText'),
+        onClick: async () => { await editCustomNode(nodeId); },
+        hidden: !node || node.source !== StoryWebNodeSource.Custom
+      },
+      {
+        icon: 'fa-trash',
+        iconFontClass: 'fas',
+        label: isEntryNode ? localize('contextMenus.storyWebGraph.removeFromDiagram') : localize('contextMenus.storyWebGraph.delete'),
+        onClick: async () => { await removeNode(nodeId); await mainStore.refreshStoryWeb(); }
+      },
+    ];
+
     //show our menu
     ContextMenu.showContextMenu({
       customClass: 'fcb',
       x: position.x,
       y: position.y,
       zIndex: 300,
-      items: [
-        {
-          icon: 'fa-trash',
-          iconFontClass: 'fas',
-          label: localize('contextMenus.storyWebGraph.delete'),
-          onClick: async () => { await removeNode(nodeId); await mainStore.refreshStoryWeb(); }
-        },
-      ]
+      items: menuItems
     });
   }
 

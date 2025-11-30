@@ -646,12 +646,16 @@
       },
       "storyWebGraph": {
         "delete": "Delete",
+        "removeFromDiagram": "Remove from diagram",
         "addText": "Add Text",
         "addEntry": "Add Entry",
+        "editText": "Edit Text",
         "addEntryWithRelationships": "Add Entry with relationships",
         "addDanger": "Add Danger",
         "addDangerWithRelationships": "Add Danger with relationships",
-        "addTextPrompt": "Enter text to add to the diagram"
+        "addTextPrompt": "Enter text to add to the diagram",
+        "openEntryInNewTab": "Open Entry in new tab",
+        "openDangerInNewTab": "Open Danger in new tab"
       },
       "dialogs": {
         "cannotActivateFromCompendium": "Cannot activate from compendium",
