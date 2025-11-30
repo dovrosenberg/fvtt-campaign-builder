@@ -351,6 +351,8 @@
         "editRelationship": "Edit Relationship Description",
         "removeRelationship": "Remove Relationship",
         "removeRelationshipConfirm": "Are you sure you want to delete this relationship? This will remove the relationship on the entries, not just the diagram.",
+        "addConnection": "Add Connection",
+        "enterConnectionLabel": "Enter connection label (optional)",
         "zoomIn": "Zoom In",
         "zoomOut": "Zoom Out",
         "fitToWindow": "Fit to Window"
@@ -650,6 +652,7 @@
         "addText": "Add Text",
         "addEntry": "Add Entry",
         "editText": "Edit Text",
+        "addConnection": "Add Connection",
         "addEntryWithRelationships": "Add Entry with relationships",
         "addDanger": "Add Danger",
         "addDangerWithRelationships": "Add Danger with relationships",

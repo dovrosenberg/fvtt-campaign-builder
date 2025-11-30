@@ -150,6 +150,16 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   ///////////////////////////////
   // external state
   const isWebLoading = ref<boolean>(false);
+  
+  // connection mode state
+  const isConnectionMode = ref<boolean>(false);
+  const connectionStartNode = ref<string | null>(null);
+  const tempEdge = ref<{ from: { x: number, y: number }, to: { x: number, y: number } } | null>(null);
+  const escapeKeyHandler = ref<((event: KeyboardEvent) => void) | null>(null);
+  const mouseMoveHandler = ref<((event: MouseEvent) => void) | null>(null);
+  const clickHandler = ref<((event: MouseEvent) => void) | null>(null);
+  const highlightedNode = ref<string | null>(null);
+  const isCreatingConnection = ref<boolean>(false);
 
 
   ///////////////////////////////
@@ -162,6 +172,11 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
     if (isWebLoading.value) 
       return;
+
+    // Clean up connection mode if network is being regenerated
+    if (isConnectionMode.value) {
+      endConnectionMode();
+    }
 
     isWebLoading.value = true;
 
@@ -314,6 +329,20 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
               }
             }
           }
+        }
+      }
+
+      // Add manual edges from storyWeb.edges array
+      for (const edge of currentStoryWeb.value?.edges || []) {
+        // Only add edge if both nodes exist in the graph
+        if (nodes.some(n => n.id === edge.from) && nodes.some(n => n.id === edge.to)) {
+          const label = edge.label || '';
+          edges.push({
+            from: edge.from,
+            to: edge.to,
+            label,
+            ...(label ? edgeWithLabelConfig : edgeConfig)
+          });
         }
       }
       
@@ -640,6 +669,240 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     await currentStoryWeb.value.save();
   }
 
+  const startConnectionMode = async (nodeId: string) => {
+    if (!currentNetwork.value || !currentContainer.value)
+      return;
+
+    isConnectionMode.value = true;
+    connectionStartNode.value = nodeId;
+
+    // Initialize temporary edge from the start node position
+    const nodePosition = toRaw(currentNetwork.value).getPositions([nodeId])[nodeId];
+    tempEdge.value = {
+      from: toRaw(currentNetwork.value).canvasToDOM(nodePosition),
+      to: { x: 0, y: 0 } // Will be updated on mouse move
+    };
+
+    // Disable physics and node dragging during connection mode
+    toRaw(currentNetwork.value).setOptions({
+      physics: { enabled: false },
+      interaction: { dragNodes: false }
+    });
+
+    // Get canvas element and add DOM event listeners
+    const canvas = currentContainer.value.querySelector('canvas');
+    if (canvas) {
+      mouseMoveHandler.value = (event: MouseEvent) => {
+        if (!tempEdge.value || !isConnectionMode.value || !currentNetwork.value)
+          return;
+
+        const rect = canvas.getBoundingClientRect();
+        const domX = event.clientX - rect.left;
+        const domY = event.clientY - rect.top;
+        
+        tempEdge.value.to = { x: domX, y: domY };
+
+        // Check for node under cursor and highlight if valid target
+        const nodeUnderCursor = toRaw(currentNetwork.value).getNodeAt({ x: domX, y: domY });
+        
+        if (nodeUnderCursor && connectionStartNode.value) {
+          const isValid = isValidConnection(connectionStartNode.value, nodeUnderCursor as string);
+          
+          if (isValid && highlightedNode.value !== nodeUnderCursor) {
+            // Clear previous highlight
+            if (highlightedNode.value) {
+              toRaw(currentNetwork.value).unselectAll();
+            }
+            // Highlight new valid node
+            toRaw(currentNetwork.value).selectNodes([nodeUnderCursor as string]);
+            highlightedNode.value = nodeUnderCursor as string;
+          } else if (!isValid && highlightedNode.value) {
+            // Clear highlight if hovering over invalid node or empty space
+            toRaw(currentNetwork.value).unselectAll();
+            highlightedNode.value = null;
+          }
+        } else if (highlightedNode.value) {
+          // Clear highlight if hovering over empty space
+          toRaw(currentNetwork.value).unselectAll();
+          highlightedNode.value = null;
+        }
+        
+        toRaw(currentNetwork.value).redraw();
+      };
+
+      clickHandler.value = async (event: MouseEvent) => {
+        if (!isConnectionMode.value || !connectionStartNode.value || !currentNetwork.value || isCreatingConnection.value) {
+          endConnectionMode();
+          return;
+        }
+
+        const rect = canvas.getBoundingClientRect();
+        const domX = event.clientX - rect.left;
+        const domY = event.clientY - rect.top;
+        
+        // Check if we clicked on a valid node
+        const targetNodeId = toRaw(currentNetwork.value).getNodeAt({ x: domX, y: domY });
+        
+        if (targetNodeId && isValidConnection(connectionStartNode.value, targetNodeId as string)) {
+          isCreatingConnection.value = true;
+          await createConnection(connectionStartNode.value, targetNodeId as string);
+          isCreatingConnection.value = false;
+        }
+
+        endConnectionMode();
+      };
+
+      canvas.addEventListener('mousemove', mouseMoveHandler.value);
+      canvas.addEventListener('click', clickHandler.value);
+    }
+
+    toRaw(currentNetwork.value).on('beforeDrawing', onBeforeDrawing);
+
+    // Add ESC key handler
+    escapeKeyHandler.value = (event: KeyboardEvent) => {
+      event.stopImmediatePropagation();  // make sure foundry doesn't handle it
+      if (event.key === 'Escape') {
+        endConnectionMode();
+      }
+    };
+    document.addEventListener('keydown', escapeKeyHandler.value);
+  };
+
+  const endConnectionMode = () => {
+    isConnectionMode.value = false;
+    connectionStartNode.value = null;
+    tempEdge.value = null;
+    highlightedNode.value = null;
+
+    // Remove ESC key listener
+    if (escapeKeyHandler.value) {
+      document.removeEventListener('keydown', escapeKeyHandler.value);
+      escapeKeyHandler.value = null;
+    }
+
+    if (!currentNetwork.value)
+      return;
+
+    // Re-enable physics and node dragging
+    toRaw(currentNetwork.value).setOptions({
+      physics: { enabled: true },
+      interaction: { dragNodes: true }
+    });
+
+    // Remove DOM event listeners from canvas
+    const canvas = currentContainer.value?.querySelector('canvas');
+    if (canvas) {
+      if (mouseMoveHandler.value) {
+        canvas.removeEventListener('mousemove', mouseMoveHandler.value);
+        mouseMoveHandler.value = null;
+      }
+      if (clickHandler.value) {
+        canvas.removeEventListener('click', clickHandler.value);
+        clickHandler.value = null;
+      }
+    }
+
+    toRaw(currentNetwork.value).off('beforeDrawing', onBeforeDrawing);
+
+    // Redraw to clear temporary edge
+    toRaw(currentNetwork.value).redraw();
+  };
+
+  // can the two nodes be connected?
+  const isValidConnection = (fromNode: string, toNode: string): boolean => {
+    if (fromNode === toNode || !currentNetwork.value)
+      return false;
+
+    // first make sure there isn't already a connecting edge
+    if ((currentNetwork.value.getConnectedNodes(fromNode) as string[]).includes(toNode))
+      return false;
+
+    const fromNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === fromNode);
+    const toNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === toNode);
+
+    if (!fromNodeData || !toNodeData)
+      return false;
+
+    // Custom text can connect to anything
+    if (fromNodeData.type === StoryWebNodeTypes.Custom || toNodeData.type === StoryWebNodeTypes.Custom)
+      return true;
+
+    // Entries can connect to custom text, other entries, and dangers (only characters/organizations)
+    switch (fromNodeData.type) {
+      case StoryWebNodeTypes.Character:
+      case StoryWebNodeTypes.Organization:
+        // these can connect to any entry or danger
+        return true;  
+      case StoryWebNodeTypes.Location:
+      case StoryWebNodeTypes.PC:
+        // these can connect to entries but not danger
+        return toNodeData.type !== StoryWebNodeTypes.Danger;
+      case StoryWebNodeTypes.Danger:
+        // can connect to character/org
+        return [StoryWebNodeTypes.Character, StoryWebNodeTypes.Organization].includes(toNodeData.type);
+      default:
+    }
+
+    throw new Error('Bad type in storyWebStore.isValidConnection()');
+  };
+
+  
+  const onBeforeDrawing = (ctx: CanvasRenderingContext2D) => {
+    if (!tempEdge.value || !currentNetwork.value)
+      return;
+
+    const fromCanvas = toRaw(currentNetwork.value).DOMtoCanvas(tempEdge.value.from);
+    const toCanvas = toRaw(currentNetwork.value).DOMtoCanvas(tempEdge.value.to);
+
+    ctx.strokeStyle = '#ff0000';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(fromCanvas.x, fromCanvas.y);
+    ctx.lineTo(toCanvas.x, toCanvas.y);
+    ctx.stroke();
+  };
+
+  const createConnection = async (fromNode: string, toNode: string) => {
+    if (!currentStoryWeb.value)
+      return;
+
+    // Check if relationship already exists
+    const existingEdge = currentStoryWeb.value.edges.find(e => 
+      (e.from === fromNode && e.to === toNode) || (e.from === toNode && e.to === fromNode)
+    );
+
+    if (existingEdge)
+      return; // Already connected
+
+    // Hide temporary edge before showing dialog
+    tempEdge.value = null;
+    if (currentNetwork.value) {
+      toRaw(currentNetwork.value).redraw();
+    }
+
+    // Get relationship label from user
+    const label = await FCBDialog.inputDialog(
+      localize('labels.storyWeb.addConnection'),
+      localize('labels.storyWeb.enterConnectionLabel'),
+      ''
+    );
+
+    if (label === null) // User cancelled
+      return;
+
+    // Create the edge
+    const edgeUuid = [fromNode, toNode].sort().join('|');
+    currentStoryWeb.value.edges.push({
+      uuid: edgeUuid,
+      from: fromNode,
+      to: toNode,
+      label: label || ''
+    });
+
+    await currentStoryWeb.value.save();
+    await mainStore.refreshStoryWeb();
+  };
+
   const showNodeContextMenu = (nodeId: string, position: { x: number, y: number }) => {
     if (!currentContainer.value || !currentNetwork.value)
       return;
@@ -655,6 +918,12 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
     // Build menu items
     const menuItems = [
+      {
+        icon: 'fa-link',
+        iconFontClass: 'fas',
+        label: localize('contextMenus.storyWebGraph.addConnection'),
+        onClick: async () => { await startConnectionMode(nodeId); }
+      },
       {
         icon: 'fa-external-link-alt',
         iconFontClass: 'fas',
