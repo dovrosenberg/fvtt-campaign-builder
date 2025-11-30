@@ -15,7 +15,10 @@
             @selection-made="onSelectionMade"
           />
 
-          <div v-if="options2.length > 0">
+          <div 
+            v-if="options2.length > 0"
+            style="margin-top: 0.5rem"
+          >
             <TypeAhead 
               ref="nameSelectRef"
               :initial-value="''"

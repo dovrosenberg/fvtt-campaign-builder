@@ -97,7 +97,7 @@
       group: 'mainContent', 
       navSelector: '.tabs', 
       contentSelector: '.fcb-tab-body', 
-      initial: props.defaultTab, 
+      initial: currentContentTab.value || props.defaultTab, 
       callback: () => {
         // update the store when tab changes
         currentContentTab.value = tabs.value?.active || null;

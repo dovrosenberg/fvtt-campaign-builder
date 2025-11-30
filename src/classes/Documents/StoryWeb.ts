@@ -4,9 +4,9 @@ import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntr
 import { Campaign } from './Campaign';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
-import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, Topics, RelatedEntryDetails } from '@/types';
+import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, Topics, RelatedEntryDetails, Danger } from '@/types';
 import { topicToNodeType } from '@/utils/misc';
-import { Entry } from '@/classes';
+import { Entry, Front } from '@/classes';
 import { cleanKeysOnSave, } from '@/utils/cleanKeys';
 
 type StoryWebDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb>;
@@ -119,7 +119,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
 
   /** withRelationships will also bring in all the related entries */
   /** @param position - position to place the node at - relative to canvas */
-  async addEntry(uuid: string, position: { x: number, y: number } | null = null, withRelationships: boolean = false) : Promise<void> {
+  public async addEntry(uuid: string, position: { x: number, y: number } | null = null, withRelationships: boolean = false) : Promise<void> {
     const entry = await Entry.fromUuid(uuid);
     if (!entry)
       return;
@@ -156,13 +156,65 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
 
     // if withRelationships is true, add all related nodes as implicit
     if (withRelationships) {
-      await this.addRelatedNodesImplicitly(entry);
+      await this.addEntryRelatedNodesImplicitly(entry);
     }
 
     await this.save();
   }
 
-  private async addRelatedNodesImplicitly(entry: Entry): Promise<void> {
+  /** withRelationships will also bring in all the related entries 
+   * @param dangerId  - frontId|dangerId
+   * @param position - position to place the node at - relative to canvas */
+  public async addDanger(dangerId: string, position: { x: number, y: number } | null = null, withRelationships: boolean = false) : Promise<void> {
+    const [frontId, dangerIndex] = dangerId.split('|');
+
+    const front = await Front.fromUuid(frontId);
+    if (!front)
+      return;
+
+    const danger = front.dangers[Number.parseInt(dangerIndex)];
+    if (!danger)
+      return;
+
+    // check if node already exists
+    const existingNode = this.nodes.find(n => n.uuid === dangerId);
+    
+    if (existingNode) {
+      // if it exists and is implicit, upgrade it to explicit
+      if (existingNode.source === StoryWebNodeSource.Implicit) {
+        existingNode.source = StoryWebNodeSource.Explicit;
+        
+        // update position if provided
+        if (position) {
+          this._clone.system.positions[dangerId] = position;
+        }
+        
+        await this.save();
+      }
+      return;
+    }
+    
+    // create the explicit node
+    this._clone.system.nodes.push({
+      uuid: dangerId,
+      type: StoryWebNodeTypes.Danger,
+      source: StoryWebNodeSource.Explicit,
+      label: null,
+    });
+
+    if (position) {
+      this._clone.system.positions[dangerId] = position;
+    }
+
+    // if withRelationships is true, add all related nodes as implicit
+    if (withRelationships) {
+      await this.addDangerRelatedNodesImplicitly(danger);
+    }
+
+    await this.save();
+  }
+
+  private async addEntryRelatedNodesImplicitly(entry: Entry): Promise<void> {
     const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
     
     for (const topic of topics) {
@@ -186,7 +238,29 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     }
   }
   
-  async addCustomNode(text: string, canvasPosition: { x: number, y: number } | null = null) : Promise<void> {
+  private async addDangerRelatedNodesImplicitly(danger: Danger): Promise<void> {
+    // we just need to handle participants     
+    for (const participant of danger.participants) {
+      // make sure it's not already there
+      if (this.nodes.some(n => n.uuid === participant.uuid))
+        continue;
+
+      // to get the topic we have to get the entry
+      const entry = await Entry.fromUuid(participant.uuid);
+      if (!entry)
+        continue;
+
+      // add as implicit node
+      this._clone.system.nodes.push({
+        uuid: entry.uuid,
+        type: topicToNodeType(entry.topic),
+        source: StoryWebNodeSource.Implicit,
+        label: null,
+      });
+    }
+  }
+
+  public async addCustomNode(text: string, canvasPosition: { x: number, y: number } | null = null) : Promise<void> {
     // create the node
     const id = foundry.utils.randomID(16);
     this._clone.system.nodes.push({

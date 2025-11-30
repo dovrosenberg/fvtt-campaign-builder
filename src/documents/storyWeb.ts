@@ -13,11 +13,11 @@ export const StoryWebSchema ={
   edges: new fields.ArrayField(
     schemas.StoryWebEdge(),
     { required: true, initial: [] }),
-  /** centralized position storage for all nodes by UUID */
+  /** centralized position storage for all nodes keyed by UUID */
   positions: new fields.TypedObjectField(
     new fields.SchemaField({
-      x: new fields.NumberField({ required: true }),
-      y: new fields.NumberField({ required: true }),
+      x: new fields.NumberField({ required: true, nullable: false }),
+      y: new fields.NumberField({ required: true, nullable: false }),
     }),
     { required: true, nullable: false, initial: {} as Record<string, { x: number, y: number }> }
   ),  

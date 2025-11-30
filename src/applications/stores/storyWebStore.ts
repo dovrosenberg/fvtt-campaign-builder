@@ -44,8 +44,8 @@ window.fcbStoryWebPhysics = {
 };
 
 // types
-import { RelatedEntryDetails, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
-import { Entry } from '@/classes';
+import { Danger, FrontFilterIndex, RelatedEntryDetails, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
+import { Campaign, Entry, Front } from '@/classes';
 
 interface NetworkClickEventInfo {
   nodes: string[],
@@ -134,8 +134,13 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     color: 'hsl(164, 48%, 20%)',  // light mode fcb-primary
   }
 
-  ///////////////////////////////
-  // other stores
+  // edges with labels are a bit longer 
+  const edgeWithLabelConfig = {
+    ...edgeConfig,
+    length: 150,
+  }
+
+
   const mainStore = useMainStore();
   const relationshipStore = useRelationshipStore();
   const navigationStore = useNavigationStore();
@@ -151,7 +156,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   // actions
   // generate the new network from the current story web
   const generateNetwork = async () => {
-    if (!currentContainer.value || !currentStoryWeb.value) {
+    if (!currentContainer.value || !currentStoryWeb.value || !currentSetting.value) {
       return;
     }
 
@@ -168,37 +173,68 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       const nodes: Node[] = [];
       const edges: Edge[] = [];
 
+      // load all the fronts so we have them to reference
+      let fronts: Front[] = [];
+      for (const campaignIdx of currentSetting.value.campaignIndex) {
+        const campaign = await Campaign.fromUuid(campaignIdx.uuid);
+        if (!campaign)
+          continue;
+        
+        fronts = fronts.concat(await campaign.allFronts());
+      }
+
+
       // we pull the list of nodes and edges from the storyWeb 
       // add the explicit ones
       for (const node of currentStoryWeb.value?.nodes) {
         // these are entries the user added
         if ([StoryWebNodeSource.Explicit, StoryWebNodeSource.Implicit].includes(node.source)) {
-          // if an entry, we need the topic
-          const topic = nodeTypeToTopic(node.type);
-          if (topic !== null) {
-            const index = currentSetting.value?.topics[topic]?.entries.find(e => e.uuid === node.uuid);
-
-            if (!index)
+          if (node.type === StoryWebNodeTypes.Danger) {
+            // getting the name is a bit tricky 
+            const [frontId, dangerIndex] = node.uuid.split('|');
+            const front = fronts.find(f => f.uuid === frontId);
+            if (!front)
+              continue;
+            const danger = front.dangers[Number.parseInt(dangerIndex)];
+            if (!danger)
               continue;
 
-            const positionInfo = currentStoryWeb.value?.positions?.[index.uuid] || {};
-            
+            const positionInfo = currentStoryWeb.value?.positions?.[node.uuid] || {};            
             const format = node.source === StoryWebNodeSource.Explicit ? explicitNodeFormat : implicitNodeFormat;
-
-            // titles may require additional css... not working and maybe not worth bigger package size
-            // const title = getTopicText(topic) + '\n' + 
-            //   node.source === StoryWebNodeSource.Explicit ? 'added directly' : 'added via relationship'; 
-
             nodes.push({
               ...format,
-              id: index.uuid,
-              label: `${index.name}${index.type ? `\n(${index.type})` : ''}`,
+              id: node.uuid,
+              label: `${danger.name}\n(${front.name})`,
               // title,
               ...positionInfo,
-              ...nodeConfig[node.type],
+              ...nodeConfig[StoryWebNodeTypes.Danger],
             });
-          } else if (node.type === StoryWebNodeTypes.Danger) {
-            // TODO
+          } else {
+            // if an entry, we need the topic
+            const topic = nodeTypeToTopic(node.type);
+            if (topic !== null) {
+              const index = currentSetting.value?.topics[topic]?.entries.find(e => e.uuid === node.uuid);
+
+              if (!index)
+                continue;
+
+              const positionInfo = currentStoryWeb.value?.positions?.[index.uuid] || {};
+              
+              const format = node.source === StoryWebNodeSource.Explicit ? explicitNodeFormat : implicitNodeFormat;
+
+              // titles may require additional css... not working and maybe not worth bigger package size
+              // const title = getTopicText(topic) + '\n' + 
+              //   node.source === StoryWebNodeSource.Explicit ? 'added directly' : 'added via relationship'; 
+
+              nodes.push({
+                ...format,
+                id: index.uuid,
+                label: `${index.name}${index.type ? `\n(${index.type})` : ''}`,
+                // title,
+                ...positionInfo,
+                ...nodeConfig[node.type],
+              });
+            }
           }
         } else if (node.type === StoryWebNodeTypes.Custom) {
           const positionInfo = currentStoryWeb.value?.positions?.[node.uuid] || {};
@@ -215,35 +251,67 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       // add each of the connections
       const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
       for (const node of currentStoryWeb.value?.nodes) {
-        // only create edges for entry nodes (not custom or danger nodes)
-        if (nodeTypeToTopic(node.type) == null)
+        // only create edges for entry and danger nodes (not custom nodes)
+        if (node.type === StoryWebNodeTypes.Custom)
           continue;
 
-        // it's an entry
-        const entry = await Entry.fromUuid(node.uuid);
-        if (!entry)
-          continue;
-
-        for (const topic of topics) {
-          const relatedEntries = entry?.relationships?.[topic] as RelatedEntryDetails<any, any>[] | undefined;
-          if (!relatedEntries)
+        if (node.type === StoryWebNodeTypes.Danger) {
+          const [frontId, dangerId] = node.uuid.split('|');
+          const front = fronts.find(f => f.uuid === frontId);
+          if (!front)
+            continue;
+          const danger = front.dangers[Number.parseInt(dangerId)];
+          if (!danger)
             continue;
 
-          for (const relatedEntry of Object.values(relatedEntries)) {
+          // do the participants
+          for (const participant of danger.participants) {
             // only add edge if the related node is also in the story web
-            if (!nodes.some(n => n.id === relatedEntry.uuid))
+            if (!nodes.some(n => n.id === participant.uuid))
               continue;
 
             // add the relationship edge
             // it's possible the edge is already there - specifically if we put two nodes on manually that
             //   relate to each other
-            if (!edges.some(e => e.to === node.uuid && e.from === relatedEntry.uuid)) {
+            if (!edges.some(e => e.to === node.uuid && e.from === participant.uuid)) {
+              const label = participant.role || '';
               edges.push({
                 from: node.uuid,
-                to: relatedEntry.uuid,
-                label: relatedEntry.extraFields.rols || relatedEntry.extraFields.relationship || '',
-                ...edgeConfig
+                to: participant.uuid,
+                label,
+                  ...(label ? edgeWithLabelConfig : edgeConfig)
               });
+            }
+          }
+        } else {
+          // it's an entry
+          const entry = await Entry.fromUuid(node.uuid);
+          if (!entry)
+            continue;
+
+          for (const topic of topics) {
+            const relatedEntries = entry?.relationships?.[topic] as RelatedEntryDetails<any, any>[] | undefined;
+            if (!relatedEntries)
+              continue;
+
+            for (const relatedEntry of Object.values(relatedEntries)) {
+              // only add edge if the related node is also in the story web
+              if (!nodes.some(n => n.id === relatedEntry.uuid))
+                continue;
+
+              // add the relationship edge
+              // it's possible the edge is already there - specifically if we put two nodes on manually that
+              //   relate to each other
+              if (!edges.some(e => e.to === node.uuid && e.from === relatedEntry.uuid)) {
+                const label = relatedEntry.extraFields.role || relatedEntry.extraFields.relationship || '';
+
+                edges.push({
+                  from: node.uuid,
+                  to: relatedEntry.uuid,
+                  label,
+                  ...(label ? edgeWithLabelConfig : edgeConfig)
+                });
+              }
             }
           }
         }
@@ -270,6 +338,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         }
       };
 
+      // @ts-ignore - options type is bad on visnetwork
       currentNetwork.value = new Network(currentContainer.value, { nodes, edges }, options);
 
       // attach the event handlers
@@ -305,6 +374,20 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     toRaw(currentNetwork.value)?.stabilize(50);
   };
 
+  /** add danger to the story web */
+  /** @param position - position to place the node at - relative to canvas */
+  /** @param withRelationships - whether to also add all related nodes implicitly */
+  const addDanger = async (dangerId: string, position: { x: number, y: number } | null = null, withRelationships: boolean = false) => {
+    if (!currentStoryWeb.value || !currentNetwork.value)
+      return;
+
+    await currentStoryWeb.value.addDanger(dangerId, position, withRelationships);
+
+    // refresh the drawing
+    await mainStore.refreshStoryWeb();
+    toRaw(currentNetwork.value)?.stabilize(50);
+  };
+
   /** select an entry from dialog and insert at a location; will let user pick from all entries
    *    in the setting, but will exclude any that are already in the story web (explicitly)
    * @param position - position to place the node at - relative to canvas 
@@ -333,6 +416,58 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       return;
 
     await addEntry(entryUuid, position, withRelationships);
+  };
+
+  /** select an danger from dialog and insert at a location; will let user pick from fronts
+   *    and then dangers, but will exclude any that are already in the story web (explicitly)
+   * @param position - position to place the node at - relative to canvas 
+   * @param withRelationships - whether to also add all related nodes implicitly
+   */
+  const selectAndAddDanger = async (position: { x: number, y: number } | null = null, withRelationships: boolean = false) => {
+    if (!currentSetting.value)
+      return;
+
+    // fronts aren't indexed so we have to load from each campaign
+    let frontOptions = [] as { id:string, label: string }[];
+
+    for (const campaignIdx of currentSetting.value.campaignIndex) {
+      const campaign = await Campaign.fromUuid(campaignIdx.uuid);
+      if (!campaign)
+        continue;
+
+      const fronts = await campaign.allFronts();
+      frontOptions = frontOptions.concat(fronts.map(f => ({ id: f.uuid, label: f.name })));
+    }
+
+    // given the id of a selected front, give all the dangers as options
+    const getDangerOptions = async (frontUuid: string) => {
+      const front = await Front.fromUuid(frontUuid);
+      if (!front)
+        return [];
+
+      // for dangers, we're going to use front|danger as the uuid to let us open
+      //    it later
+      let options = front.dangers.map((d: Danger, idx: number) => ({ id: `${frontUuid}|${idx}`, label: d.name }));
+
+      // take out things already in the map explicitly
+      options = options.filter(o => !currentStoryWeb.value?.nodes.some(n => n.uuid === o.id && n.source === StoryWebNodeSource.Explicit));
+
+      return options;
+    };
+
+    // options = options.sort((a, b) => a.label.localeCompare(b.label));
+
+    const dangerId = await FCBDialog.relatedItemDialog(
+      localize('contextMenus.storyWebGraph.addDanger'),
+      localize('contextMenus.storyWebGraph.addDanger'),
+      frontOptions,
+      true,
+      getDangerOptions
+    );
+    if (!dangerId)
+      return;
+
+    await addDanger(dangerId, position, withRelationships);
   };
 
   /** add a manual node to the story web */
@@ -531,7 +666,11 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         icon: 'fa-external-link-alt',
         iconFontClass: 'fas',
         label: localize('contextMenus.storyWebGraph.openDangerInNewTab'),
-        onClick: async () => { alert('todo'); },
+        onClick: async () => {
+          const [frontId, dangerId] = nodeId.split('|'); 
+
+          await navigationStore.openFront(frontId, { newTab: true, contentTabId: `danger${dangerId}` }); 
+        },
         hidden: !isDangerNode
       },
       {
@@ -619,13 +758,13 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
           icon: 'fa-diagram-project',
           iconFontClass: 'fas',
           label: localize('contextMenus.storyWebGraph.addDanger'),
-          onClick: async () => { /*await addDanger(); */}
+          onClick: async () => { await selectAndAddDanger(canvasPosition, false); }
         },
         {
           icon: 'fa-sitemap',
           iconFontClass: 'fas',
           label: localize('contextMenus.storyWebGraph.addDangerWithRelationships'),
-          onClick: async () => { /*await addDanger(); */}
+          onClick: async () => { await selectAndAddDanger(canvasPosition, true); }
         },
       ]
     });

@@ -49,11 +49,11 @@
           </div>
         </DescriptionTab>
 
-        <!-- the danger tabs are named by danger index -->
+        <!-- the danger tabs are named by danger index with 'danger' prefix -->
         <div 
           v-for="(_danger, index) in currentFront?.dangers"
           :key="index"
-          class="tab flexcol" data-group="primary" :data-tab="index"
+          class="tab flexcol" data-group="primary" :data-tab="`danger${index}`"
         >
           <div class="tab-inner">
             <FrontDangerTab 
@@ -117,11 +117,11 @@
       { id: 'description', label: localize('labels.tabs.front.description')},
     ];
 
-    // danger tabs are just keyed by index
+    // danger tabs are keyed by index with 'danger' prefix
     for (let i=0; i < (currentFront.value?.dangers?.length || 0); i++) {
       const danger = currentFront.value!.dangers[i];
       
-      retval.push({ id: i.toString(), label: danger.name });
+      retval.push({ id: `danger${i}`, label: danger.name });
     }
     
     return retval;

@@ -493,6 +493,11 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     await mainStore.setNewTab(newTab);
 
+    // Update the content tab to match the activated tab's content tab
+    if (newTab.contentTab) {
+      mainStore.currentContentTab = newTab.contentTab;
+    }
+
     // Scroll to and expand the active entry in the directory tree
     await scrollToActiveEntry();
 

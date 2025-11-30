@@ -1,4 +1,12 @@
 # Change Log
+## 1.7.0 - Relationship graphs and better tab history!
+![](https://img.shields.io/badge/release%20date-November%20___%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.7.0/module.zip)
+
+- You can now create graphs tracking the relationships between your characters, locations, PCs, dangers, etc.  Right click on the new "Story webs" folder to create one and get started.
+- Main tabs (ex. entries, sessions, etc.) now remember which subtab they had open when you go back to them.  I think this is a huge quality of life improvement.
+
+
 ## v1.6.3 - Cairn system issue fix
 ![](https://img.shields.io/badge/release%20date-November%2029%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.6.3/module.zip)
