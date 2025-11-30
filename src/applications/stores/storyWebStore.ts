@@ -851,15 +851,22 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     if (!tempEdge.value || !currentNetwork.value)
       return;
 
+    // Save context state to prevent affecting other edges
+    ctx.save();
+
     const fromCanvas = toRaw(currentNetwork.value).DOMtoCanvas(tempEdge.value.from);
     const toCanvas = toRaw(currentNetwork.value).DOMtoCanvas(tempEdge.value.to);
 
-    ctx.strokeStyle = '#ff0000';
+    ctx.strokeStyle = 'hsl(22, 100%, 55%)';  // our main accent color
     ctx.lineWidth = 2;
+    ctx.setLineDash([10, 5]);  // 1st number is length, 2nd is gap
     ctx.beginPath();
     ctx.moveTo(fromCanvas.x, fromCanvas.y);
     ctx.lineTo(toCanvas.x, toCanvas.y);
     ctx.stroke();
+
+    // Restore context state to prevent affecting other edges
+    ctx.restore();
   };
 
   const createConnection = async (fromNode: string, toNode: string) => {
