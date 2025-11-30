@@ -2,24 +2,28 @@
 //
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { watch, ref, } from 'vue';
+import { watch, ref, toRaw, } from 'vue';
 import type { Edge, Network, Node } from 'vis-network';
 
 // local imports
-import { useMainStore, } from '@/applications/stores';
-import { nodeTypeToTopic, topicToNodeType } from '@/utils/misc';
+import { useMainStore, useRelationshipStore } from '@/applications/stores';
+import { nodeTypeToTopic, } from '@/utils/misc';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 
+// library componentns
+import ContextMenu from '@imengyu/vue3-context-menu';
+
 // Global physics options for console debugging and tuning
 // Initialize global physics options with current defaults
+// @ts-ignore
 window.fcbStoryWebPhysics = {
-  solver: 'repulsion',
+  solver: 'barnesHut',
   barnesHut: {
-    avoidOverlap: 1,        // ensure nodes don't overlap
+    avoidOverlap: 0.5,        // ensure nodes don't overlap
     springLength: 100,      // "rest" length of edges (shorter = tighter cluster)
     springConstant: .002,  //0.01,  // how strong springs pull (higher = neighbors move more)
-    gravitationalConstant: -500,  //-3500, // -3500 // how strongly nodes repel (more negative = more push)
+    gravitationalConstant: -1550,  //-500,  //-3500, // -3500 // how strongly nodes repel (more negative = more push)
     centralGravity: .05, //1,  //0.3,    // pulls everything toward center (higher = more drift)
     damping: .1,  //0.09,          // friction (higher = motion dies out faster)
   },
@@ -42,6 +46,17 @@ window.fcbStoryWebPhysics = {
 // types
 import { RelatedEntryDetails, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Entry } from '@/classes';
+
+interface NetworkClickEventInfo {
+  nodes: string[],
+  edges: string[],
+  pointer: { 
+    DOM: { x: number, y: number },
+    canvas: { x: number, y: number }
+  },
+  event: MouseEvent
+};
+
 
 // the store definition
 export const useStoryWebStore = defineStore('storyWeb', () => {
@@ -122,6 +137,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
+  const relationshipStore = useRelationshipStore();
   const { currentStoryWeb, currentSetting } = storeToRefs(mainStore);
   
 
@@ -245,12 +261,13 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       }
       
       const options = {
-        configure: 'physics',  // change to 'physics' to get a physics config panel
+        configure: false,  // change to 'physics' to get a physics config panel
+        // @ts-ignore
         physics: window.fcbStoryWebPhysics,
         edges: {
           smooth: {
             enabled: true,
-            type: 'continuous',   //type: 'dynamic',  // participates in physics
+            type: 'discrete',   // 'continuous' //type: 'dynamic',  // participates in physics
             roundness: 0.5
           }
         },
@@ -268,6 +285,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
       // attach the event handlers
       currentNetwork.value.on('doubleClick', onNetworkDoubleClick);
+      currentNetwork.value.on('oncontext', onNetworkContentMenu);
       currentNetwork.value.on('stabilized', capturePositions);
       // currentNetwork.value.on('dragEnd', (event) => {
       //   // this gets called if we drag the canvas, too
@@ -285,18 +303,17 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   }
 
   /** add entry to the story web */
-  /** @param position - position to place the node at - relative to DOM */
+  /** @param position - position to place the node at - relative to canvas */
   /** @param withRelationships - whether to also add all related nodes implicitly */
   const addEntry = async (entryUuid: string, position: { x: number, y: number } | null = null, withRelationships: boolean = false) => {
     if (!currentStoryWeb.value || !currentNetwork.value)
       return;
 
-    const convertedPosition = position ? currentNetwork.value.DOMtoCanvas(position) : null;
-    await currentStoryWeb.value.addEntry(entryUuid, convertedPosition, withRelationships);
+    await currentStoryWeb.value.addEntry(entryUuid, position, withRelationships);
 
     // refresh the drawing
     await mainStore.refreshStoryWeb();
-    currentNetwork.value?.stabilize(50);
+    toRaw(currentNetwork.value)?.stabilize(50);
   };
 
   /** add a manual node to the story web */
@@ -317,11 +334,11 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
     // if it's explicit, remove any implicit nodes not connected to anything else
     if (currentStoryWeb.value.nodes.find(n => n.uuid === nodeId)?.source === StoryWebNodeSource.Explicit) {
-      const connectedNodes = currentNetwork.value.getConnectedNodes(nodeId) as string[];
+      const connectedNodes = toRaw(currentNetwork.value).getConnectedNodes(nodeId) as string[];
       
       for (const connection of connectedNodes) {
         // if it has no other connections and is implicit, delete it
-        if (currentNetwork.value.getConnectedNodes(connection).length === 1) {
+        if (toRaw(currentNetwork.value).getConnectedNodes(connection).length === 1) {
           const nodeDetails = currentStoryWeb.value.nodes.find(n => n.uuid === connection);
           if (!nodeDetails || nodeDetails.source === StoryWebNodeSource.Implicit) {
             currentStoryWeb.value.nodes = currentStoryWeb.value.nodes.filter(n => n.uuid !== connection);
@@ -338,14 +355,41 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     await mainStore.refreshStoryWeb();
   };
 
-  /** remove an edge from the story web */
+  /** remove an edge from the story web 
+  */
+
   const removeEdge = async (edgeId: string) => {
     if (!currentStoryWeb.value)
       return;
 
-    currentStoryWeb.value.edges = currentStoryWeb.value.edges.filter(e => e.uuid !== nodeId);
-    await currentStoryWeb.value.save(); 
+    // confirm
+    const nodes = toRaw(currentNetwork.value)?.getConnectedNodes(edgeId) as string[];
 
+    // show confirmation if both are entries
+    const node1 = currentStoryWeb.value?.nodes.find(n => n.uuid === nodes[0]);
+    const node2 = currentStoryWeb.value?.nodes.find(n => n.uuid === nodes[1]);
+
+    if (!node1 || !node2) 
+      throw new Error('Missing node in storyWebStore.removeEdge()');
+
+    if (node1?.source !== StoryWebNodeSource.Custom && node2?.source !== StoryWebNodeSource.Custom) {
+      const result = await FCBDialog.confirmDialog(localize('labels.storyWeb.removeRelationship'), localize('labels.storyWeb.removeRelationshipConfirm'));
+      if (!result)
+        return;
+
+      await relationshipStore.deleteArbitraryRelationship(node1.uuid, node2.uuid);
+    } 
+
+    // if either edge was implicit, remove that one too
+    if (node1?.source === StoryWebNodeSource.Implicit)
+      await removeNode(node1.uuid);
+    if (node2?.source === StoryWebNodeSource.Implicit)
+      await removeNode(node2.uuid);
+  
+    // remove from the web if it was a manual edge
+    currentStoryWeb.value.edges = currentStoryWeb.value.edges.filter(e => e.uuid !== edgeId);
+    await currentStoryWeb.value.save(); 
+    
     // refresh the drawing
     await mainStore.refreshStoryWeb();
   };
@@ -363,7 +407,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     return value;
   }
 
-  const onNetworkDoubleClick = async (eventInfo: { nodes: string[], edges: string[], pointer: { canvas: { x: number, y: number }} }) => {
+  const onNetworkDoubleClick = async (eventInfo: NetworkClickEventInfo) => {
     // nodes is a list of nodes clicked on
     // edges is either edges clicked on or could be edges connected to nodes clicked
     const { nodes, edges, pointer } = eventInfo;
@@ -395,18 +439,132 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     }
   }
 
+  const onNetworkContentMenu = (eventInfo: NetworkClickEventInfo) => {
+    // nodes is a list of nodes clicked on
+    // edges is either edges clicked on or could be edges connected to nodes clicked
+    const { pointer, event } = eventInfo;
+
+    //prevent the browser's default menu
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!currentNetwork.value || !currentContainer.value)
+      return;
+    
+    // clear the selection
+    toRaw(currentNetwork.value).unselectAll();
+
+    // make sure there's a node or edge underneath us
+    const node = toRaw(currentNetwork.value).getNodeAt(pointer.DOM);
+    const edge = toRaw(currentNetwork.value).getEdgeAt(pointer.DOM);
+
+    const rect = currentContainer.value.getBoundingClientRect();
+
+    // nodes get priority
+    if (node) {
+      showNodeContextMenu(node as string, { x: pointer.DOM.x + rect.left, y: pointer.DOM.y + rect.top });
+    } else if (edge) {
+      showEdgeContextMenu(edge as string, { x: pointer.DOM.x + rect.left, y: pointer.DOM.y + rect.top });
+    } else {
+      showBlankContextMenu({ x: pointer.DOM.x + rect.left, y: pointer.DOM.y + rect.top });
+    }    
+  };
+
   /** save all the node positions */
   const capturePositions = async () => {
     if (!currentNetwork.value || !currentStoryWeb.value)
       return;
 
-    const positions = currentNetwork.value.getPositions();
+    const positions = toRaw(currentNetwork.value).getPositions();
     
     currentStoryWeb.value.positions = positions;
     
     await currentStoryWeb.value.save();
   }
 
+  const showNodeContextMenu = (nodeId: string, position: { x: number, y: number }) => {
+    if (!currentContainer.value || !currentNetwork.value)
+      return;
+
+    // set selection to be the node so it's visually clear what's happening
+    toRaw(currentNetwork.value).unselectAll();
+    toRaw(currentNetwork.value).selectNodes([nodeId]);
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: position.x,
+      y: position.y,
+      zIndex: 300,
+      items: [
+        {
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWebGraph.delete'),
+          onClick: async () => { await removeNode(nodeId); await mainStore.refreshStoryWeb(); }
+        },
+      ]
+    });
+  }
+
+  const showEdgeContextMenu = (edgeId: string, position: { x: number, y: number }) => {
+    if (!currentContainer.value || !currentNetwork.value)
+      return;
+
+    // set selection to be the edge so it's visually clear what's happening
+    toRaw(currentNetwork.value).unselectAll();
+    toRaw(currentNetwork.value).selectEdges([edgeId]);
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: position.x,
+      y: position.y,
+      zIndex: 300,
+      items: [
+        {
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWebGraph.delete'),
+          onClick: async () => { await removeEdge(edgeId); await mainStore.refreshStoryWeb(); }
+        },
+      ]
+    });
+  }
+
+  /** shows the context menu for right click on empty space */
+  const showBlankContextMenu = (position: { x: number, y: number }) => {
+    if (!currentContainer.value)
+      return;
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: position.x,
+      y: position.y,
+      zIndex: 300,
+      items: [
+        {
+          icon: 'fa-plus',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWebGraph.addCustomNode'),
+          onClick: async () => { await addCustomNode(''); }
+        },
+        {
+          icon: 'fa-plus',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWebGraph.addEntry'),
+          onClick: async () => { await addEntry(); }
+        },
+        {
+          icon: 'fa-plus',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWebGraph.addDanger'),
+          onClick: async () => { /*await addDanger(); */}
+        },
+      ]
+    });
+  }
 
   ///////////////////////////////
   // watchers

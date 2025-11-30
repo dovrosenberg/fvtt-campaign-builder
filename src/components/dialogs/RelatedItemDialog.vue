@@ -14,6 +14,17 @@
             :allow-new-items="false"
             @selection-made="onSelectionMade"
           />
+
+          <div v-if="options2.length > 0">
+            <TypeAhead 
+              ref="nameSelectRef"
+              :initial-value="''"
+              :initial-list="options2" 
+              :allow-new-items="false"
+              @selection-made="onSelection2Made"
+            />
+          </div>
+
           <div class="extra-fields-container" v-if="props.extraFields.length > 0">
             <h3 class="extra-fields-title">{{ localize('dialogs.relatedEntries.additionalInformation') }}</h3>
             <div class="extra-fields-group">
@@ -94,6 +105,16 @@
       type: Array as PropType<{id: string; label: string}[]>,
       required: true
     },
+    useOptions2: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    options2: {
+      type: Function as PropType<(id: string) => Promise<{id: string; label: string}[]>>,
+      required: false,
+      default: () => []
+    },
     extraFields: {
       type: Array as PropType<{field: string; header: string}[]>,
       required: false,
@@ -133,7 +154,7 @@
   const entryToAdd = ref<string | null>(null);  // the selected item from the dropdown (uuid)
   const extraFieldValuesObj = ref<Record<string, string>>({});
   const nameSelectRef = ref<typeof TypeAhead | null>(null);
-
+  const options2 = ref<{id: string; label: string}[]>([]);
 
   ////////////////////////////////
   // computed data
@@ -184,7 +205,17 @@
 
   ////////////////////////////////
   // event handlers
-  const onSelectionMade = function(uuid: string) {
+  const onSelectionMade = async function(uuid: string) {
+    if (props.useOptions2) {
+      options2.value = await props.options2(uuid);
+      entryToAdd.value = null;
+    } else { 
+      entryToAdd.value = uuid || null;
+      options2.value = [];
+    }
+  };
+
+  const onSelection2Made = function(uuid: string) {
     entryToAdd.value = uuid || null;
   };
 

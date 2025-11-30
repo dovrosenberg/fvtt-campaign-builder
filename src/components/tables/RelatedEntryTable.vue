@@ -275,7 +275,7 @@
     );
     
     if (confirmed) {
-      void relationshipStore.deleteRelationship(props.topic, _id);
+      void relationshipStore.deleteRelationship(_id);
     }
   };
 

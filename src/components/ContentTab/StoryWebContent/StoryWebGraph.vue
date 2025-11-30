@@ -39,14 +39,6 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits<{
-    drop: [event: DragEvent];
-    dragOver: [event: DragEvent];
-    dragEnter: [event: DragEvent];
-    ready: [container: HTMLElement];
-    loading: [isLoading: boolean];
-    error: [error: string | null];
-  }>();
 
   ////////////////////////////////
   // store
@@ -96,12 +88,14 @@
     event.preventDefault();
 
     const data = getValidatedData(event);
-    if (!data)
+    if (!data || !currentNetwork.value)
       return;
 
     // we can drop entries
     if (data.type === 'fcb-entry') {
-      await storyWebStore.addEntry(data.childId as string, { x: event.offsetX, y: event.offsetY }, false);      
+      const convertedPosition = toRaw(currentNetwork.value).DOMtoCanvas({ x: event.offsetX, y: event.offsetY });
+
+      await storyWebStore.addEntry(data.childId as string, convertedPosition, false);      
     }
   };
   

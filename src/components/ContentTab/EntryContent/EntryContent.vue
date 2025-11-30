@@ -717,7 +717,7 @@
 
     // Handle removed relationships
     for (const entry of removedEntries) {
-      await relationshipStore.deleteRelationship(entry.topic, entry.uuid);
+      await relationshipStore.deleteRelationship(entry.uuid);
     }
   };
 

@@ -348,7 +348,9 @@
         "addText": "Add Text",
         "enterText": "Enter new text",
         "editText": "Edit Text",
-        "editRelationship": "Edit Relationship Description"
+        "editRelationship": "Edit Relationship Description",
+        "removeRelationship": "Remove Relationship",
+        "removeRelationshipConfirm": "Are you sure you want to delete this relationship? This will remove the relationship on the entries, not just the diagram."
       },
       "campaign": {
         "addPC": "Add PC",
@@ -646,6 +648,9 @@
         "nodeDescriptionPlaceholder": "Enter node description",
         "delete": "Delete Story Web",
         "disabled": "Story webs are disabled in settings. Enable 'Use Story Webs' in the module settings to use this feature."
+      },
+      "storyWebGraph": {
+        "delete": "Delete"
       },
       "dialogs": {
         "cannotActivateFromCompendium": "Cannot activate from compendium",

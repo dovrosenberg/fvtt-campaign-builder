@@ -523,7 +523,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     // Add story web options if a story web is active
     items.push({
-      icon: 'fa-plus',
+      icon: 'fa-diagram-project',
       iconFontClass: 'fas',
       label: 'Add to current Story Web',
       disabled: !currentStoryWeb.value,

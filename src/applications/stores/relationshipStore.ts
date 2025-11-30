@@ -262,15 +262,25 @@ export const useRelationshipStore = defineStore('relationship', () => {
     await mainStore.refreshEntry();
   }
 
-  // remove a relationship to the current entry
-  async function deleteRelationship(relatedTopic: Topics, relatedId: string): Promise<void> {
+  /** remove a relationship to the current entry */
+  async function deleteRelationship(relatedId: string): Promise<void> {
     if (!currentEntry.value)
       throw new Error('Invalid entry in relationshipStore.deleteRelationship()');
 
-    const entry = currentEntry.value;
-    const relatedEntry = await Entry.fromUuid(relatedId); 
+    await deleteArbitraryRelationship(currentEntry.value.uuid, relatedId);
+
+    await mainStore.refreshEntry();
+  }
+
+  // used to delete the relationship between two entries 
+  async function deleteArbitraryRelationship(entry1Uuid: string, entry2Uuid: string): Promise<void> {
+    const entry = await Entry.fromUuid(entry1Uuid); 
+    if (!entry)
+      throw new Error('Invalid entry1 in relationshipStore.deleteRelationship()');
+
+    const relatedEntry = await Entry.fromUuid(entry2Uuid); 
     if (!relatedEntry)
-      throw new Error('Invalid entry in relationshipStore.deleteRelationship()');
+      throw new Error('Invalid entry2 in relationshipStore.deleteRelationship()');
 
     const entryTopic = entry.topic;
     const relatedEntryTopic = relatedEntry.topic;
@@ -279,11 +289,11 @@ export const useRelationshipStore = defineStore('relationship', () => {
       throw new Error('Missing topic in relationshipStore.deleteRelationship()');
 
     // update the entries
-    const entryRelationships = foundry.utils.deepClone(currentEntry.value.relationships);
+    const entryRelationships = foundry.utils.deepClone(entry.relationships);
     const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.relationships);
 
     if (entryRelationships && entryRelationships[relatedEntryTopic] && entryRelationships[relatedEntryTopic][relatedEntry.uuid]) {
-      delete entryRelationships[relatedTopic][relatedEntry.uuid];
+      delete entryRelationships[relatedEntryTopic][relatedEntry.uuid];
 
       entry.relationships = entryRelationships;
       await entry.save();
@@ -294,8 +304,6 @@ export const useRelationshipStore = defineStore('relationship', () => {
       relatedEntry.relationships = relatedEntryRelationships;
       await relatedEntry.save();
     }
-
-    await mainStore.refreshEntry();
   }
 
   /**
@@ -530,6 +538,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
     addRelationship,
     deleteRelationship,
+    deleteArbitraryRelationship,
     editRelationship,
     getRelationships,
     propagateFieldChange,
