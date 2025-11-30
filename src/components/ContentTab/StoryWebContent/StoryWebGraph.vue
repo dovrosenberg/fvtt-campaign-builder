@@ -15,6 +15,34 @@
         <ProgressSpinner />
       </div>
     </div>
+    
+    <!-- Zoom controls - positioned outside network container -->
+    <div class="zoom-controls">
+      <button 
+        class="zoom-button"
+        @click.prevent.stop="adjustScale(1.2)"
+        :disabled="!currentNetwork"
+        :title="localize('labels.storyWeb.zoomIn')"
+      >
+        <i class="fas fa-search-plus"></i>
+      </button>
+      <button 
+        class="zoom-button"
+        @click.prevent.stop="adjustScale(0.8)"
+        :disabled="!currentNetwork"
+        :title="localize('labels.storyWeb.zoomOut')"
+      >
+        <i class="fas fa-search-minus"></i>
+      </button>
+      <button 
+        class="zoom-button"
+        @click.prevent.stop="fitToWindow"
+        :disabled="!currentNetwork"
+        :title="localize('labels.storyWeb.fitToWindow')"
+      >
+        <i class="fas fa-expand"></i>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -26,6 +54,7 @@
   // local imports
   import { useStoryWebStore } from '@/applications/stores';
   import { getValidatedData } from '@/utils/dragdrop';
+  import { localize } from '@/utils/game';
   
   // library components
   import ProgressSpinner from 'primevue/progressspinner';
@@ -73,6 +102,32 @@
         break;
     }
   };
+
+  const adjustScale = (scaleAdjust: number = 1) => {
+    if (!currentNetwork.value) 
+      return;
+    
+    const scale = toRaw(currentNetwork.value).getScale();
+    toRaw(currentNetwork.value).moveTo({
+      scale: scale * scaleAdjust,
+      animation: {
+        duration: 300,
+        easingFunction: 'easeInOutQuad'
+      }
+    });
+  }
+  
+  const fitToWindow = () => {
+    if (!currentNetwork.value) 
+      return;
+    
+    toRaw(currentNetwork.value).fit({
+      animation: {
+        duration: 300,
+        easingFunction: 'easeInOutQuad'
+      }
+    });
+  }
 
   const onDragover = (event: DragEvent) => {
     event.preventDefault();
@@ -153,5 +208,47 @@
   align-items: center;
   height: 100%;
   width: 100%;
+}
+
+.zoom-controls {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+
+.zoom-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background-color: hsl(164, 48%, 95%);
+  color: hsl(164, 48%, 20%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.zoom-button:hover:not(:disabled) {
+  background-color: hsl(164, 48%, 85%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.zoom-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.zoom-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>
