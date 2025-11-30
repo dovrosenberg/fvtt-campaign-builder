@@ -116,7 +116,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     // add to last arc - we update Arc object, which will update the indexes
     if (this.arcIndex.length === 0) {
       // create default one
-      const arc = await Arc.create(this, 'All Sessions');
+      const arc = await Arc.create(this, localize('placeholders.allSessions'));
 
       if (!arc)
         throw new Error('Failed to create default arc in Campaign.addSession()')

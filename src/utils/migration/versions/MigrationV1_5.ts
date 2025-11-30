@@ -6,6 +6,7 @@ import { updateGlobalSetting } from '@/utils/globalSettings';
 import { Bookmark, defaultCustomFields, Hierarchy, Idea, RelatedEntryDetails, RelatedJournal, RelatedPCDetails, TabHeader, ToDoItem, Topics, ValidTopic, ValidTopicRecord, ArcBasicIndex } from '@/types';
 import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, } from '@/documents';
 import { cleanKeysOnLoad } from '@/utils/cleanKeys';
+import { localize } from '@/utils/game';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
@@ -395,7 +396,7 @@ async function migrateCampaign(oldCampaign: JournalEntry, setting: FCBSetting): 
     // create a default arc covering all sessions for this campaign
   const sessionList = oldCampaign.pages.contents;
   if (sessionList.length > 0) {
-    const arc = await Arc.create(newCampaign, 'All sessions');
+    const arc = await Arc.create(newCampaign, localize('placeholders.allSessions'));
 
     if (!arc)
       throw new Error('Failed to create catch-all arc in MigrationV1_5.migrateCampaign()');

@@ -230,19 +230,21 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (!currentSetting.value)
       return null;
 
-    const campaign = await Campaign.fromUuid(campaignId);
+    let campaign = await Campaign.fromUuid(campaignId);
     if (!campaign)
       throw new Error('Bad campaign in campaignDirectoryStore.createSessionInArc()');
 
     const session = await Session.create(campaign);
 
     if (session) {
+      // it might have updated the campaign, so make sure we have the latest copy
+      campaign = session.campaign!;
+
       // Find the arc that contains the new session and refresh it
       const affectedArc = getArcForSession(campaign.arcIndex, session.number);
-      const affectedArcUuid = affectedArc?.uuid || null;
       
-      if (affectedArcUuid) {
-        await refreshCampaignDirectoryTree([affectedArcUuid]);
+      if (affectedArc?.uuid) {
+        await refreshCampaignDirectoryTree([affectedArc?.uuid]);
       }
       return session;
     } else {
