@@ -316,12 +316,47 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     toRaw(currentNetwork.value)?.stabilize(50);
   };
 
+  /** select an entry from dialog and insert at a location; will let user pick from all entries
+   *    in the setting, but will exclude any that are already in the story web (explicitly)
+   * @param position - position to place the node at - relative to canvas 
+   * @param withRelationships - whether to also add all related nodes implicitly
+   */
+  const selectAndAddEntry = async (position: { x: number, y: number } | null = null, withRelationships: boolean = false) => {
+    if (!currentSetting.value)
+      return;
+
+    let options = Object.values(currentSetting.value.topics).reduce((acc, topic) => {
+      acc.push(...topic.entries.map(e => ({ id: e.uuid, label: e.name })));
+      return acc;
+    }, [] as { id: string; label: string }[]); 
+
+    // take out things already in the map explicitly
+    options = options.filter(o => !currentStoryWeb.value?.nodes.some(n => n.uuid === o.id && n.source === StoryWebNodeSource.Explicit));
+
+    // options = options.sort((a, b) => a.label.localeCompare(b.label));
+
+    const entryUuid = await FCBDialog.relatedItemDialog(
+      localize('contextMenus.storyWebGraph.addEntry'),
+      localize('contextMenus.storyWebGraph.addEntry'),
+      options, 
+    );
+    if (!entryUuid)
+      return;
+
+    await addEntry(entryUuid, position, withRelationships);
+  };
+
   /** add a manual node to the story web */
-  const addCustomNode = async (text: string, x?: number, y?: number) => {
+  const addCustomNode = async (canvasPosition: { x: number, y: number } | null = null) => {
     if (!currentStoryWeb.value)
       return;
 
-    await currentStoryWeb.value.addCustomNode(text, x, y);
+    // get the initial text from a dialog
+    const text = await FCBDialog.inputDialog(localize('contextMenus.storyWebGraph.addText'), localize('contextMenus.storyWebGraph.addTextPrompt'));
+    if (!text)
+      return;
+
+    await currentStoryWeb.value.addCustomNode(text, canvasPosition);
 
     // refresh the drawing
     await mainStore.refreshStoryWeb();
@@ -429,12 +464,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     } else if (edges.length > 0) {
 
     } else {
-      // create a manual node at the location of the click
-      const newText = await getText(localize('labels.storyWeb.addText'), localize('labels.storyWeb.enterText'), ''); 
-      if (!newText)
-        return;
-
-      await addCustomNode(newText, pointer.canvas.x, pointer.canvas.y);
+      await addCustomNode(pointer.canvas);
       await mainStore.refreshStoryWeb();
     }
   }
@@ -466,7 +496,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     } else if (edge) {
       showEdgeContextMenu(edge as string, { x: pointer.DOM.x + rect.left, y: pointer.DOM.y + rect.top });
     } else {
-      showBlankContextMenu({ x: pointer.DOM.x + rect.left, y: pointer.DOM.y + rect.top });
+      showBlankContextMenu({ x: pointer.DOM.x + rect.left, y: pointer.DOM.y + rect.top }, pointer.canvas);
     }    
   };
 
@@ -533,33 +563,46 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   }
 
   /** shows the context menu for right click on empty space */
-  const showBlankContextMenu = (position: { x: number, y: number }) => {
-    if (!currentContainer.value)
+  /** @param position - position to place the node at - relative to canvas */
+  const showBlankContextMenu = (menuPosition: { x: number, y: number }, canvasPosition: { x: number, y: number }) => {
+    if (!currentContainer.value || !currentNetwork.value)
       return;
 
     //show our menu
     ContextMenu.showContextMenu({
       customClass: 'fcb',
-      x: position.x,
-      y: position.y,
+      x: menuPosition.x,
+      y: menuPosition.y,
       zIndex: 300,
       items: [
         {
           icon: 'fa-plus',
           iconFontClass: 'fas',
-          label: localize('contextMenus.storyWebGraph.addCustomNode'),
-          onClick: async () => { await addCustomNode(''); }
+          label: localize('contextMenus.storyWebGraph.addText'),
+          onClick: async () => { await addCustomNode(canvasPosition); }
         },
         {
-          icon: 'fa-plus',
+          icon: 'fa-diagram-project',
           iconFontClass: 'fas',
           label: localize('contextMenus.storyWebGraph.addEntry'),
-          onClick: async () => { await addEntry(); }
+          onClick: async () => { await selectAndAddEntry(canvasPosition); }
         },
         {
-          icon: 'fa-plus',
+          icon: 'fa-sitemap',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWebGraph.addEntryWithRelationships'),
+          onClick: async () => { await selectAndAddEntry(canvasPosition, true); }
+        },
+        {
+          icon: 'fa-diagram-project',
           iconFontClass: 'fas',
           label: localize('contextMenus.storyWebGraph.addDanger'),
+          onClick: async () => { /*await addDanger(); */}
+        },
+        {
+          icon: 'fa-sitemap',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWebGraph.addDangerWithRelationships'),
           onClick: async () => { /*await addDanger(); */}
         },
       ]

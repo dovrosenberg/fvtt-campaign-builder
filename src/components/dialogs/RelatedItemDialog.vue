@@ -5,7 +5,7 @@
       :title="props.title"
       :buttons="dialogButtons"
     >
-      <div class="add-related-items-content flexcol">
+      <div class="fcb-add-related-items-content flexcol">
         <div v-if="props.options.length > 0">
           <TypeAhead 
             ref="nameSelectRef"
@@ -134,6 +134,11 @@
       type: Boolean,
       default: true,
     },
+    /** when submitted will call this with selected id */
+    callback: {
+      type: Function as PropType<(selectedId: string) => Promise<void>>,
+      required: false,
+    }
   });
 
   ////////////////////////////////
@@ -227,6 +232,9 @@
     }, {} as Record<string, string>);
 
     emit('mainButtonClick', entryToAdd.value || '', extraFieldsToSend);
+    if (props.callback && entryToAdd.value)
+      await props.callback(entryToAdd.value);
+
     resetDialog();
   };
   
@@ -270,8 +278,13 @@
 
 </script>
 
-<style lang="scss" scoped>
-.add-related-items-content {
+<style lang="scss">
+.application.fcb-related-item {
+  // hide the wrapper window
+  display:none;
+}
+
+.fcb-add-related-items-content {
   gap: 1.5rem;
   width: 100%;
   padding: 0.5rem 0;

@@ -118,6 +118,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
   }
 
   /** withRelationships will also bring in all the related entries */
+  /** @param position - position to place the node at - relative to canvas */
   async addEntry(uuid: string, position: { x: number, y: number } | null = null, withRelationships: boolean = false) : Promise<void> {
     const entry = await Entry.fromUuid(uuid);
     if (!entry)
@@ -185,7 +186,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     }
   }
   
-  async addCustomNode(text: string, x?: number, y?: number) : Promise<void> {
+  async addCustomNode(text: string, canvasPosition: { x: number, y: number } | null = null) : Promise<void> {
     // create the node
     const id = foundry.utils.randomID(16);
     this._clone.system.nodes.push({
@@ -195,8 +196,8 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
       label: text,
     });
 
-    if (x !== undefined && y !== undefined) {
-      this._clone.system.positions[id] = { x, y };
+    if (canvasPosition) {
+      this._clone.system.positions[id] = canvasPosition;
     }
 
     await this.save();

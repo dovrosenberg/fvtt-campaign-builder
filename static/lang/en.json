@@ -639,18 +639,16 @@
         "delete": "Delete front"
       },
       "storyWeb": {
-        "untitled": "Untitled Story Web",
-        "namePlaceholder": "Story Web Name",
-        "addCustomNode": "Add Custom Node",
-        "nodeName": "Node Name",
-        "nodeNamePlaceholder": "Enter node name",
-        "nodeDescription": "Description",
-        "nodeDescriptionPlaceholder": "Enter node description",
-        "delete": "Delete Story Web",
-        "disabled": "Story webs are disabled in settings. Enable 'Use Story Webs' in the module settings to use this feature."
+        "delete": "Delete Story Web"
       },
       "storyWebGraph": {
-        "delete": "Delete"
+        "delete": "Delete",
+        "addText": "Add Text",
+        "addEntry": "Add Entry",
+        "addEntryWithRelationships": "Add Entry with relationships",
+        "addDanger": "Add Danger",
+        "addDangerWithRelationships": "Add Danger with relationships",
+        "addTextPrompt": "Enter text to add to the diagram"
       },
       "dialogs": {
         "cannotActivateFromCompendium": "Cannot activate from compendium",

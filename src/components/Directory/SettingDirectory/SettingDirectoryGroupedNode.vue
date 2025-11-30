@@ -127,7 +127,7 @@
           }
         },
         {
-          icon: 'fa-plus',
+          icon: 'fa-diagram-project',
           iconFontClass: 'fas',
           label: 'Add to current Story Web',
           disabled: !currentStoryWeb.value,
