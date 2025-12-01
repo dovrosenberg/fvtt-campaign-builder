@@ -787,41 +787,101 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     if (!currentStoryWeb.value)
       return;
 
-    // Check if relationship already exists
-    const existingEdge = currentStoryWeb.value.edges.find(e => 
-      (e.from === fromNode && e.to === toNode) || (e.from === toNode && e.to === fromNode)
-    );
-
-    if (existingEdge)
-      return; // Already connected
-
-    // Hide temporary edge before showing dialog
+    // Hide temporary edge before starting
     tempEdge.value = null;
     if (currentNetwork.value) {
       toRaw(currentNetwork.value).redraw();
     }
 
-    // Get relationship label from user
-    const label = await FCBDialog.inputDialog(
-      localize('labels.storyWeb.addConnection'),
-      localize('labels.storyWeb.enterConnectionLabel'),
-      ''
-    );
+    // Get node data for both nodes
+    const fromNodeData = currentStoryWeb.value.nodes.find(n => n.uuid === fromNode);
+    const toNodeData = currentStoryWeb.value.nodes.find(n => n.uuid === toNode);
 
-    if (label === null) // User cancelled
+    if (!fromNodeData || !toNodeData)
+      throw new Error('Missing node data in storyWebStore.createConnection()');
+
+    // reconfirm its legal
+    if (!isValidConnection(fromNode, toNode))
       return;
 
-    // Create the edge
-    const edgeUuid = [fromNode, toNode].sort().join('|');
-    currentStoryWeb.value.edges.push({
-      uuid: edgeUuid,
-      from: fromNode,
-      to: toNode,
-      label: label || ''
-    });
+    // Handle different connection types
+    // custom connected to anything gets a custom edge
+    if ([fromNodeData.type, toNodeData.type].includes(StoryWebNodeTypes.Custom)) {
+      // Get label from user
+      const label = await FCBDialog.inputDialog(
+        localize('labels.storyWeb.addConnection'),
+        localize('labels.storyWeb.enterConnectionLabel'),
+        ''
+      );
 
-    await currentStoryWeb.value.save();
-    await mainStore.refreshStoryWeb();
+      if (label === null) // User cancelled
+        return;
+
+      // Create the edge
+      const edgeUuid = [fromNode, toNode].sort().join('|');
+      currentStoryWeb.value.edges.push({
+        uuid: edgeUuid,
+        from: fromNode,
+        to: toNode,
+        label: label || ''
+      });
+
+      await currentStoryWeb.value.save();
+      await mainStore.refreshStoryWeb();
+      return;
+    }
+
+    // at this point, we know from/to are either both entries or an entry and danger
+    if (fromNodeData.type === StoryWebNodeTypes.Danger || toNodeData.type === StoryWebNodeTypes.Danger) {
+      // entry to danger connection
+      const entryUuid = fromNodeData.type === StoryWebNodeTypes.Danger ? toNode : fromNode;
+      const dangerUuid = fromNodeData.type === StoryWebNodeTypes.Danger ? fromNode : toNode;
+
+      // Parse danger UUID to get front and danger index
+      const [frontId, dangerIndex] = dangerUuid.split('|');
+      const front = await Front.fromUuid(frontId);
+      if (!front)
+        throw new Error('Invalid front in storyWebStore.createConnection()');
+
+      const danger = front.dangers[Number.parseInt(dangerIndex)];
+      if (!danger)
+        throw new Error('Invalid danger in storyWebStore.createConnection()');
+
+      // note: if participant already existed there would have been a edge to the 
+      //   danger so we would have already caught it
+
+      // we're going to add with blank role because easy for user to add with another click
+      // Add entry as participant to danger
+      const entry = await Entry.fromUuid(entryUuid);
+      if (!entry)
+        throw new Error('Invalid entry in storyWebStore.createConnection()');
+
+      // Update danger with new participant
+      front.updateDanger(Number.parseInt(dangerIndex), {
+        ...danger,
+        participants: [...danger.participants, { uuid: entryUuid, role: '' }],
+      });
+      await front.save();
+
+      await mainStore.refreshStoryWeb();
+      return;
+    } else {
+      // entry to entry connection
+      const fromEntry = await Entry.fromUuid(fromNode);
+      const toEntry = await Entry.fromUuid(toNode);
+      
+      if (!fromEntry || !toEntry)
+        throw new Error('Invalid entry in storyWebStore.createConnection()');
+      
+      // note: if relationship already existed there would have been a edge to the 
+      //   there so we would have already caught it
+
+      // we're going to create without a label, since it's easy for user to add a label in a second step
+      // Use relationship store to connect them with proper field name
+      await relationshipStore.addArbitraryRelationship(fromNode, toNode, {});
+      await mainStore.refreshStoryWeb();
+      return;
+    }
   };
 
   ///////////////////////////////

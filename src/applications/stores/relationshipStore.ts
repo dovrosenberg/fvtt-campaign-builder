@@ -88,51 +88,9 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
     if (!entry || !relatedEntry)
       throw new Error('Invalid entry in relationshipStore.addRelationship()');
-    if (!entry.relationships || !relatedEntry.relationships || !entry.topic || !relatedEntry.topic)
-      throw new Error('Missing system variable in relationshipStore.addRelationship()');
 
-    const entryTopic = entry.topic;
-    const relatedEntryTopic = relatedEntry.topic;
-
-    // create the relationship items
-    const relatedEntry1 = {
-      uuid: relatedEntry.uuid,
-      name: relatedEntry.name,
-      topic: relatedEntry.topic,
-      type: relatedEntry.type || '',
-      extraFields: extraFields,
-    };
-    const relatedEntry2 = {
-      uuid: entry.uuid,
-      name: entry.name,
-      topic: entry.topic,
-      type: entry.type || '',
-      extraFields: extraFields,
-    };
-
-    // update the entries
-    const entryRelationships = foundry.utils.deepClone(entry.relationships);
-    const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.relationships);
-
-    if (!entryRelationships[relatedEntryTopic]) {
-      entryRelationships[relatedEntryTopic] = {
-        [relatedEntry.uuid]: relatedEntry1
-      };
-    } else {
-      entryRelationships[relatedEntryTopic][relatedEntry.uuid] = relatedEntry1;
-    }
-    if (!relatedEntryRelationships[entryTopic]) {
-      relatedEntryRelationships[entryTopic] = {
-        [entry.uuid]: relatedEntry2
-      };
-    } else {
-      relatedEntryRelationships[entryTopic][entry.uuid] = relatedEntry2;
-    }
-
-    entry.relationships = entryRelationships;
-    await entry.save();
-    relatedEntry.relationships = relatedEntryRelationships;
-    await relatedEntry.save();
+    // Use addArbitraryRelationship to handle the actual relationship creation
+    await addArbitraryRelationship(entry.uuid, relatedEntry.uuid, extraFields);
 
     await mainStore.refreshEntry();
   }
@@ -304,6 +262,63 @@ export const useRelationshipStore = defineStore('relationship', () => {
       relatedEntry.relationships = relatedEntryRelationships;
       await relatedEntry.save();
     }
+  }
+
+  // used to add a relationship between two entries 
+  async function addArbitraryRelationship(entry1Uuid: string, entry2Uuid: string, extraFields: Record<string, string>): Promise<void> {
+    const entry = await Entry.fromUuid(entry1Uuid); 
+    if (!entry)
+      throw new Error('Invalid entry1 in relationshipStore.addArbitraryRelationship()');
+
+    const relatedEntry = await Entry.fromUuid(entry2Uuid); 
+    if (!relatedEntry)
+      throw new Error('Invalid entry2 in relationshipStore.addArbitraryRelationship()');
+
+    const entryTopic = entry.topic;
+    const relatedEntryTopic = relatedEntry.topic;
+
+    if (!entryTopic || !relatedEntryTopic)
+      throw new Error('Missing topic in relationshipStore.addArbitraryRelationship()');
+
+    // create the relationship items
+    const relatedEntry1 = {
+      uuid: relatedEntry.uuid,
+      name: relatedEntry.name,
+      topic: relatedEntry.topic,
+      type: relatedEntry.type || '',
+      extraFields: extraFields,
+    };
+    const relatedEntry2 = {
+      uuid: entry.uuid,
+      name: entry.name,
+      topic: entry.topic,
+      type: entry.type || '',
+      extraFields: extraFields,
+    };
+
+    // update the entries
+    const entryRelationships = foundry.utils.deepClone(entry.relationships);
+    const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.relationships);
+
+    if (!entryRelationships[relatedEntryTopic]) {
+      entryRelationships[relatedEntryTopic] = {
+        [relatedEntry.uuid]: relatedEntry1
+      };
+    } else {
+      entryRelationships[relatedEntryTopic][relatedEntry.uuid] = relatedEntry1;
+    }
+    if (!relatedEntryRelationships[entryTopic]) {
+      relatedEntryRelationships[entryTopic] = {
+        [entry.uuid]: relatedEntry2
+      };
+    } else {
+      relatedEntryRelationships[entryTopic][entry.uuid] = relatedEntry2;
+    }
+
+    entry.relationships = entryRelationships;
+    await entry.save();
+    relatedEntry.relationships = relatedEntryRelationships;
+    await relatedEntry.save();
   }
 
   /**
@@ -539,6 +554,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     addRelationship,
     deleteRelationship,
     deleteArbitraryRelationship,
+    addArbitraryRelationship,
     editRelationship,
     getRelationships,
     propagateFieldChange,

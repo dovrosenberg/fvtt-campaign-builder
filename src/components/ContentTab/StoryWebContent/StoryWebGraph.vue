@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, onMounted, onBeforeUnmount, watch, toRaw } from 'vue';
+  import { ref, watch, toRaw } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -166,27 +166,6 @@
 
   ////////////////////////////////
   // lifecycle events
-  // Watch for storyWeb changes and reinitialize
-  onMounted(async () => {
-    // for now, we fake some data
-    // await storyWebStore.addEntry('Compendium.world.zS2AygHmUfQTWDTh.JournalEntry.otDnRZTdcda4DZeP');
-    
-    // // Initialize graph if storyWeb is already available
-    // if (props.storyWeb && networkContainer.value) {
-    //   initializeGraph(networkContainer.value, props.storyWeb);
-    // }
-  });
-
-  onBeforeUnmount(() => {
-    console.log('StoryWebGraph onBeforeUnmount called');
-    // Clean up event listeners
-    const canvas = networkContainer.value?.querySelector('canvas');
-    if (canvas) {
-      // canvas.removeEventListener('dragover', () => {console.log('a');});
-      // canvas.removeEventListener('dragenter', onDragEnter);
-      // canvas.removeEventListener('drop', onDrop);
-    }
-  });
 
 </script>
 
