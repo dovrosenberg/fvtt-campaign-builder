@@ -414,7 +414,6 @@ async function migrateCampaign(oldCampaign: JournalEntry, setting: FCBSetting): 
 
     arc.startSessionNumber = minSessionNumber;
     arc.endSessionNumber = maxSessionNumber;
-    console.warn('Arc before save:', JSON.stringify(arc));
     await arc.save();
 
     const arcIndex = {
