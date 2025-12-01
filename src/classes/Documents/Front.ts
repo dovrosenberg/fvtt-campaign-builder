@@ -60,7 +60,7 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     this.campaign = await Campaign.fromUuid(this._clone.system.campaignId);
 
     if (!this.campaign)
-      throw new Error('Invalid campaignId in Front.loadCampaign()');
+      throw new Error('Invalid campaignId in Front.loadCampaign(): ' + this.uuid + ' ' + this._clone.system.campaignId );
 
     return this.campaign;
   }

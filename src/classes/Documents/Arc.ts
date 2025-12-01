@@ -68,7 +68,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     this.campaign = await Campaign.fromUuid(this._clone.system.campaignId);
 
     if (!this.campaign)
-      throw new Error('Invalid campaignId in Arc.loadCampaign()');
+      throw new Error('Invalid campaignId in Arc.loadCampaign(): ' + this.uuid + ' ' + this._clone.system.campaignId );
 
     return this.campaign;
   }

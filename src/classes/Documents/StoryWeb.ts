@@ -47,7 +47,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     this.campaign = await Campaign.fromUuid(this._clone.system.campaignId);
 
     if (!this.campaign)
-      throw new Error('Invalid campaignId in StoryWeb.loadCampaign()');
+      throw new Error('Invalid campaignId in StoryWeb.loadCampaign(): ' + this.uuid + ' ' + this._clone.system.campaignId );
 
     return this.campaign;
   }

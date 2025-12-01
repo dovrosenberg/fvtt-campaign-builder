@@ -66,7 +66,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this.campaign = await Campaign.fromUuid(this._clone.system.campaignId);
 
     if (!this.campaign)
-      throw new Error('Invalid campaignId in Session.loadCampaign()');
+      throw new Error('Invalid campaignId in Session.loadCampaign(): ' + this.uuid + ' ' + this._clone.system.campaignId );
 
     return this.campaign;
   }

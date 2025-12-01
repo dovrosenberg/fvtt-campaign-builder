@@ -1,6 +1,7 @@
 import { registerForHooks } from '@/hooks';
 import { moduleId } from '@/settings';
 import { DevModeApi } from '@/libraries/foundry/devMode';
+import '@/utils/globalScripts'; // Import global scripts to register window functions
 
 console.log('Campaign Builder: main.ts is loading');
 

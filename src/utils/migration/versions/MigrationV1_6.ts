@@ -2,7 +2,7 @@ import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { useMainStore } from '@/applications/stores';
 import { ArcBasicIndex, SessionBasicIndex, } from '@/types';
-import { Arc, Campaign, FCBSetting, } from '@/classes';
+import { Arc, Campaign,  } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents';
 import { VersionUtils } from '@/utils/version';
 
