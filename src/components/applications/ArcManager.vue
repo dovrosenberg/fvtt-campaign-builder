@@ -128,13 +128,22 @@
     if (!campaign.value?.currentSessionNumber)
       return null;
 
-    return campaign.value?.sessionIndex.reduce((minNumber, currentSession) => {
+    const retval = campaign.value?.sessionIndex.reduce((minNumber, currentSession) => {
       return Math.min(minNumber, currentSession.number);
     }, Number.MAX_SAFE_INTEGER);
+
+    return retval === Number.MAX_SAFE_INTEGER ? null : retval;
   });
 
   const highestSession = computed((): number | null => {
-    return campaign.value?.currentSessionNumber || null;
+    if (!campaign.value?.currentSessionNumber)
+      return null;
+
+    const retval = campaign.value?.sessionIndex.reduce((maxNumber, currentSession) => {
+      return Math.max(maxNumber, currentSession.number);
+    }, Number.MIN_SAFE_INTEGER);
+
+    return retval === Number.MIN_SAFE_INTEGER ? null : retval;
   });
 
   const actions = computed((): ActionButtonDefinition[] => {
@@ -479,8 +488,12 @@
    * 
    */
   const cleanArcs = (rowsToClean: ArcBasicIndex[]) => {
-    // if there aren't any sessions, everything should be 0
-    if (lowestSession.value === Number.MAX_SAFE_INTEGER) {
+    // if there are no arcs, do nothing
+    if (rowsToClean.length === 0)
+      return;
+    
+    // if there aren't any sessions, everything should be empty
+    if (lowestSession.value === null || highestSession.value === null) {
       for (let i=0; i<rowsToClean.length; i++) {
         rowsToClean[i].startSessionNumber = -1;
         rowsToClean[i].endSessionNumber = -1;
@@ -496,10 +509,9 @@
     let lastWithSessions = -1;
 
     for (let i=0; i<rowsToClean.length; i++) {
-      if (firstWithSessions === -1 && rowsToClean[i].startSessionNumber !== -1) {
-        firstWithSessions = i;
-      }
       if (rowsToClean[i].startSessionNumber !== -1) {
+        if (firstWithSessions === -1)
+          firstWithSessions = i;
         lastWithSessions = i;
       }
     }
@@ -556,17 +568,30 @@
 
     // update the arcs and the indexes will get updated
     // first delete any arcs that we removed
+    let needToSave = false;
     for (const existingArc of foundry.utils.deepClone(campaign.value.arcIndex)) {
       if (!arcs.value.find(a => a.uuid === existingArc.uuid)) {
-        (await Arc.fromUuid(existingArc.uuid))?.delete();
+        const arc = await Arc.fromUuid(existingArc.uuid);
+        if (arc) {
+          await arc.delete();
+        } else {
+          // Arc doesn't exist, but we still need to clean up the index (just in case something broken)
+          campaign.value.arcIndex = campaign.value.arcIndex.filter(a => a.uuid !== existingArc.uuid);
+          await campaign.value.save();
+        }
+
+        needToSave = true;
 
         // update tabs/bookmarks
         await navigationStore.cleanupDeletedEntry(existingArc.uuid);
       }
-
-      // need to refresh the campaign to get the latest index
-      campaign.value = await Campaign.fromUuid(campaign.value!.uuid);
     }
+
+    if (needToSave)
+      await campaign.value.save();
+    
+    // need to refresh the campaign to get the latest index after deletions
+    campaign.value = await Campaign.fromUuid(campaign.value!.uuid);
 
     for (const arcIndex of arcs.value) {
       let arc = await Arc.fromUuid(arcIndex.uuid);

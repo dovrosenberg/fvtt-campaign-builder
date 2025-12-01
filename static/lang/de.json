@@ -410,16 +410,17 @@
       "characterName": "Charaktername",
       "locationName": "Ortsname",
       "organizationName": "Organisationsname",
+      "pcName": "PC-Name",
+      "arcName": "Bogenname",
+      "allSessions": "Alle Sitzungen",
       "campaignName": "Kampagnenname",
       "settingName": "Name der Einstellung",
       "sessionName": "Sitzungsname",
-      "sessionDate": "Datum",
-      "sessionNumber": "Sitzungsnummer",
-      "linkToActor": "Mit Schauspieler verknüpfen",
-      "pcName": "PC-Name",
       "frontName": "Frontname",
       "dangerName": "Gefahrenname",
-      "arcName": "Bogenname"
+      "sessionDate": "Datum",
+      "sessionNumber": "Sitzungsnummer",
+      "linkToActor": "Mit Schauspieler verknüpfen"
     },
     "topics": {
       "character": "Charakter",

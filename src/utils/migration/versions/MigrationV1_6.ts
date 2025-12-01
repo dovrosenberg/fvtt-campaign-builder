@@ -2,9 +2,11 @@ import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { useMainStore } from '@/applications/stores';
 import { ArcBasicIndex, SessionBasicIndex, } from '@/types';
-import { Arc, Campaign, FCBSetting, } from '@/classes';
+import { Arc, Campaign, } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents';
 import { VersionUtils } from '@/utils/version';
+import { localize } from '@/utils/game';
+import { migrationVersions } from '.';
 
 let processed = 0;
 let totalEntries= 0;
@@ -47,7 +49,7 @@ export class MigrationV1_6 implements Migration {
       // shift from campaignNames to campaigns
       for (const setting of settings) {
         // we have to load the campaigns manually b/c setting.campaignNames isn't valid any more
-        const campaignIndex = await setting.compendium.getIndex({
+        const allDocumentsIndex = await setting.compendium.getIndex({
           fields: [
             'name', 
             // @ts-ignore
@@ -60,16 +62,22 @@ export class MigrationV1_6 implements Migration {
             'pages.system.sessionIndex',
           ]
         });
+        
+        const campaignList = allDocumentsIndex.filter((idx) => idx.flags?.['campaign-builder']?.campaignBuilderType === DOCUMENT_TYPES.Campaign);
+        const arcList = allDocumentsIndex.filter((idx) => idx.flags?.['campaign-builder']?.campaignBuilderType === DOCUMENT_TYPES.Arc);
+
+        // there shouldn't be arcs - so if there are, they are left over from failed migrations
+        for (const arcIdx of arcList) {
+          const arc = await fromUuid(arcIdx.uuid);
+          if (!arc)
+            continue;
+          await arc.delete();
+        }
 
         // need to setup the campaign index on the setting
         setting.campaignIndex = [];
 
-        for (const campaignIdx of campaignIndex) {
-          // @ts-ignore
-          if (campaignIdx.flags?.['campaign-builder']?.campaignBuilderType !== DOCUMENT_TYPES.Campaign)
-            continue;
-
-
+        for (const campaignIdx of campaignList) {
           // get the sessions off the index if we're coming from 1.5.1 or higher
           // if we're coming from lower, the 1_5_1 migration already moved them 
           //    to session index
@@ -77,13 +85,14 @@ export class MigrationV1_6 implements Migration {
 
           // loading campaign breaks the index, so we have to capture first
           if (VersionUtils.compareVersions(this._context.originalVersion, '1.5.1') >= 0) {
-            sessionList = campaignIdx.pages?.[0].system?.sessions;
+            sessionList = campaignIdx.pages?.[0].system?.sessions || [];
           }
 
           const campaign = await Campaign.fromUuid(campaignIdx.uuid);
           if (!campaign)
             continue;
 
+          // older ones have the new format because we built it when migrating sessions
           if (VersionUtils.compareVersions(this._context.originalVersion, '1.5.1') < 0) {
             sessionList = campaign.sessionIndex;
           }
@@ -102,7 +111,7 @@ export class MigrationV1_6 implements Migration {
             await setting.save();
 
             // create an arc - this will add it to the campaign and setting indexes
-            const arc = await Arc.create(campaign, 'All sessions'); 
+            const arc = await Arc.create(campaign, localize('placeholders.allSessions')); 
             if (!arc)
               throw new Error('Failed to create catch-all arc');
 
@@ -127,7 +136,7 @@ export class MigrationV1_6 implements Migration {
               endSessionNumber: arc.endSessionNumber,
             } as ArcBasicIndex;
 
-            // renamed sessions on the campaign
+            // renamed sessions to sessionIndex on the campaign
             campaign.sessionIndex = sessionList;
             campaign.arcIndex = [arcIndex];
             await campaign.save();

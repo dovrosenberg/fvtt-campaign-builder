@@ -417,6 +417,7 @@
       "organizationName": "Organization Name",
       "pcName": "PC Name",
       "arcName": "Arc Name",
+      "allSessions": "All Sessions",
       "campaignName": "Campaign Name",
       "settingName": "Setting Name",
       "sessionName": "Session Name",

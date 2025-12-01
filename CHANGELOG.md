@@ -1,5 +1,12 @@
 # Change Log
-## v1.6.2 - Cairn system issue fix
+## v1.6.4 - Arc deleting bug fix; Migration fix
+![](https://img.shields.io/badge/release%20date-November%2029%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.6.4/module.zip)
+
+- Fixed a bug that was preventing the deletion of arcs in some cases.
+- Fixed a bug that was preventing migration from v1.5.1 to v1.6.0 in some cases.
+
+## v1.6.3 - Cairn system issue fix
 ![](https://img.shields.io/badge/release%20date-November%2029%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.6.3/module.zip)
 
