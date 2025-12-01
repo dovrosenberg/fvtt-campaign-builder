@@ -146,21 +146,17 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   const navigationStore = useNavigationStore();
   const { currentStoryWeb, currentSetting } = storeToRefs(mainStore);
   
+  // connection mode state
+  const isConnectionMode = ref<boolean>(false);
+  const connectionStartNode = ref<string | null>(null);
+  const tempEdge = ref<{ from: { x: number, y: number }, to: { x: number, y: number } } | null>(null);
+  const highlightedNode = ref<string | null>(null);
+  const isCreatingConnection = ref<boolean>(false);
 
   ///////////////////////////////
   // external state
   const isWebLoading = ref<boolean>(false);
   
-  // connection mode state
-  const isConnectionMode = ref<boolean>(false);
-  const connectionStartNode = ref<string | null>(null);
-  const tempEdge = ref<{ from: { x: number, y: number }, to: { x: number, y: number } } | null>(null);
-  const escapeKeyHandler = ref<((event: KeyboardEvent) => void) | null>(null);
-  const mouseMoveHandler = ref<((event: MouseEvent) => void) | null>(null);
-  const clickHandler = ref<((event: MouseEvent) => void) | null>(null);
-  const highlightedNode = ref<string | null>(null);
-  const isCreatingConnection = ref<boolean>(false);
-
 
   ///////////////////////////////
   // actions
@@ -374,13 +370,6 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       currentNetwork.value.on('doubleClick', onNetworkDoubleClick);
       currentNetwork.value.on('oncontext', onNetworkContentMenu);
       currentNetwork.value.on('stabilized', capturePositions);
-      // currentNetwork.value.on('dragEnd', (event) => {
-      //   // this gets called if we drag the canvas, too
-      //   if (event.nodes.length !== 0) {
-      //     capturePositions();
-      //     currentNetwork.value?.stabilize();
-      //   }
-      // });
     } catch (error) {
       isWebLoading.value = false;
       throw error;
@@ -692,80 +681,14 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     // Get canvas element and add DOM event listeners
     const canvas = currentContainer.value.querySelector('canvas');
     if (canvas) {
-      mouseMoveHandler.value = (event: MouseEvent) => {
-        if (!tempEdge.value || !isConnectionMode.value || !currentNetwork.value)
-          return;
-
-        const rect = canvas.getBoundingClientRect();
-        const domX = event.clientX - rect.left;
-        const domY = event.clientY - rect.top;
-        
-        tempEdge.value.to = { x: domX, y: domY };
-
-        // Check for node under cursor and highlight if valid target
-        const nodeUnderCursor = toRaw(currentNetwork.value).getNodeAt({ x: domX, y: domY });
-        
-        if (nodeUnderCursor && connectionStartNode.value) {
-          const isValid = isValidConnection(connectionStartNode.value, nodeUnderCursor as string);
-          
-          if (isValid && highlightedNode.value !== nodeUnderCursor) {
-            // Clear previous highlight
-            if (highlightedNode.value) {
-              toRaw(currentNetwork.value).unselectAll();
-            }
-            // Highlight new valid node
-            toRaw(currentNetwork.value).selectNodes([nodeUnderCursor as string]);
-            highlightedNode.value = nodeUnderCursor as string;
-          } else if (!isValid && highlightedNode.value) {
-            // Clear highlight if hovering over invalid node or empty space
-            toRaw(currentNetwork.value).unselectAll();
-            highlightedNode.value = null;
-          }
-        } else if (highlightedNode.value) {
-          // Clear highlight if hovering over empty space
-          toRaw(currentNetwork.value).unselectAll();
-          highlightedNode.value = null;
-        }
-        
-        toRaw(currentNetwork.value).redraw();
-      };
-
-      clickHandler.value = async (event: MouseEvent) => {
-        if (!isConnectionMode.value || !connectionStartNode.value || !currentNetwork.value || isCreatingConnection.value) {
-          endConnectionMode();
-          return;
-        }
-
-        const rect = canvas.getBoundingClientRect();
-        const domX = event.clientX - rect.left;
-        const domY = event.clientY - rect.top;
-        
-        // Check if we clicked on a valid node
-        const targetNodeId = toRaw(currentNetwork.value).getNodeAt({ x: domX, y: domY });
-        
-        if (targetNodeId && isValidConnection(connectionStartNode.value, targetNodeId as string)) {
-          isCreatingConnection.value = true;
-          await createConnection(connectionStartNode.value, targetNodeId as string);
-          isCreatingConnection.value = false;
-        }
-
-        endConnectionMode();
-      };
-
-      canvas.addEventListener('mousemove', mouseMoveHandler.value);
-      canvas.addEventListener('click', clickHandler.value);
+      canvas.addEventListener('mousemove', onConnectionModeMouseMove);
+      canvas.addEventListener('click', onConnectionModeClick);
     }
 
     toRaw(currentNetwork.value).on('beforeDrawing', onBeforeDrawing);
 
     // Add ESC key handler
-    escapeKeyHandler.value = (event: KeyboardEvent) => {
-      event.stopImmediatePropagation();  // make sure foundry doesn't handle it
-      if (event.key === 'Escape') {
-        endConnectionMode();
-      }
-    };
-    document.addEventListener('keydown', escapeKeyHandler.value);
+    document.addEventListener('keydown', onConnectionModeKeydown);
   };
 
   const endConnectionMode = () => {
@@ -775,10 +698,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     highlightedNode.value = null;
 
     // Remove ESC key listener
-    if (escapeKeyHandler.value) {
-      document.removeEventListener('keydown', escapeKeyHandler.value);
-      escapeKeyHandler.value = null;
-    }
+    document.removeEventListener('keydown', onConnectionModeKeydown);
 
     if (!currentNetwork.value)
       return;
@@ -792,14 +712,8 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     // Remove DOM event listeners from canvas
     const canvas = currentContainer.value?.querySelector('canvas');
     if (canvas) {
-      if (mouseMoveHandler.value) {
-        canvas.removeEventListener('mousemove', mouseMoveHandler.value);
-        mouseMoveHandler.value = null;
-      }
-      if (clickHandler.value) {
-        canvas.removeEventListener('click', clickHandler.value);
-        clickHandler.value = null;
-      }
+      canvas.removeEventListener('mousemove', onConnectionModeMouseMove);
+      canvas.removeEventListener('click', onConnectionModeClick);
     }
 
     toRaw(currentNetwork.value).off('beforeDrawing', onBeforeDrawing);
@@ -908,6 +822,84 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
     await currentStoryWeb.value.save();
     await mainStore.refreshStoryWeb();
+  };
+
+  ///////////////////////////////
+  // private methods
+  
+  const onConnectionModeMouseMove = (event: MouseEvent) => {
+    if (!tempEdge.value || !isConnectionMode.value || !currentNetwork.value || !currentContainer.value)
+      return;
+
+    const canvas = currentContainer.value.querySelector('canvas');
+    if (!canvas)
+      return;
+
+    const rect = canvas.getBoundingClientRect();
+    const domX = event.clientX - rect.left;
+    const domY = event.clientY - rect.top;
+    
+    tempEdge.value.to = { x: domX, y: domY };
+
+    // Check for node under cursor and highlight if valid target
+    const nodeUnderCursor = toRaw(currentNetwork.value).getNodeAt({ x: domX, y: domY });
+    
+    if (nodeUnderCursor && connectionStartNode.value) {
+      const isValid = isValidConnection(connectionStartNode.value, nodeUnderCursor as string);
+      
+      if (isValid && highlightedNode.value !== nodeUnderCursor) {
+        // Clear previous highlight
+        if (highlightedNode.value) {
+          toRaw(currentNetwork.value).unselectAll();
+        }
+        // Highlight new valid node
+        toRaw(currentNetwork.value).selectNodes([nodeUnderCursor as string]);
+        highlightedNode.value = nodeUnderCursor as string;
+      } else if (!isValid && highlightedNode.value) {
+        // Clear highlight if hovering over invalid node or empty space
+        toRaw(currentNetwork.value).unselectAll();
+        highlightedNode.value = null;
+      }
+    } else if (highlightedNode.value) {
+      // Clear highlight if hovering over empty space
+      toRaw(currentNetwork.value).unselectAll();
+      highlightedNode.value = null;
+    }
+    
+    toRaw(currentNetwork.value).redraw();
+  };
+
+  const onConnectionModeClick = async (event: MouseEvent) => {
+    if (!isConnectionMode.value || !connectionStartNode.value || !currentNetwork.value || !currentContainer.value || isCreatingConnection.value) {
+      endConnectionMode();
+      return;
+    }
+
+    const canvas = currentContainer.value.querySelector('canvas');
+    if (!canvas)
+      return;
+
+    const rect = canvas.getBoundingClientRect();
+    const domX = event.clientX - rect.left;
+    const domY = event.clientY - rect.top;
+    
+    // Check if we clicked on a valid node
+    const targetNodeId = toRaw(currentNetwork.value).getNodeAt({ x: domX, y: domY });
+    
+    if (targetNodeId && isValidConnection(connectionStartNode.value, targetNodeId as string)) {
+      isCreatingConnection.value = true;
+      await createConnection(connectionStartNode.value, targetNodeId as string);
+      isCreatingConnection.value = false;
+    }
+
+    endConnectionMode();
+  };
+
+  const onConnectionModeKeydown = (event: KeyboardEvent) => {
+    event.stopImmediatePropagation(); // make sure foundry doesn't handle it
+    if (event.key === 'Escape') {
+      endConnectionMode();
+    }
   };
 
   const showNodeContextMenu = (nodeId: string, position: { x: number, y: number }) => {
