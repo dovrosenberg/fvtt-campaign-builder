@@ -1,11 +1,17 @@
 # Change Log
 ## 1.7.0 - Relationship graphs and better tab history!
-![](https://img.shields.io/badge/release%20date-November%20___%2C%202025-blue)
+![](https://img.shields.io/badge/release%20date-December%20____%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.7.0/module.zip)
 
 - You can now create graphs tracking the relationships between your characters, locations, PCs, dangers, etc.  Right click on the new "Story webs" folder to create one and get started.
 - Main tabs (ex. entries, sessions, etc.) now remember which subtab they had open when you go back to them.  I think this is a huge quality of life improvement.
 
+## v1.6.4 - Arc deleting bug fix; Migration fix
+![](https://img.shields.io/badge/release%20date-December%201%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.6.4/module.zip)
+
+- Fixed a bug that was preventing the deletion of arcs in some cases.
+- Fixed a bug that was preventing migration from v1.5.1 to v1.6.0 in some cases.
 
 ## v1.6.3 - Cairn system issue fix
 ![](https://img.shields.io/badge/release%20date-November%2029%2C%202025-blue)
