@@ -411,15 +411,16 @@
       "locationName": "Название локация",
       "organizationName": "Название организации",
       "pcName": "Имя персонажа игрока",
+      "arcName": "Название арки",
+      "allSessions": "Все сессии",
       "campaignName": "Название кампании",
       "settingName": "Название настройки",
       "sessionName": "Название сессии",
-      "sessionDate": "Дата",
-      "sessionNumber": "Номер сессии",
-      "linkToActor": "Связать с актером",
       "frontName": "Название фронта",
       "dangerName": "Название опасности",
-      "arcName": "Название арки"
+      "sessionDate": "Дата",
+      "sessionNumber": "Номер сессии",
+      "linkToActor": "Связать с актером"
     },
     "topics": {
       "character": "Персонаж",

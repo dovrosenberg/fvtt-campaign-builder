@@ -410,16 +410,17 @@
       "characterName": "Nom du Personnage",
       "locationName": "Nom du Lieu",
       "organizationName": "Nom de l'Organisation",
+      "pcName": "Nom du PC",
+      "arcName": "Nom de l'arc",
+      "allSessions": "Toutes les sessions",
       "campaignName": "Nom de la Campagne",
       "settingName": "Nom du Paramètre",
       "sessionName": "Nom de la Session",
-      "sessionDate": "Date",
-      "sessionNumber": "Numéro de Session",
-      "linkToActor": "Lien vers l'Acteur",
-      "pcName": "Nom du PC",
       "frontName": "Nom du front",
       "dangerName": "Nom du danger",
-      "arcName": "Nom de l'arc"
+      "sessionDate": "Date",
+      "sessionNumber": "Numéro de Session",
+      "linkToActor": "Lien vers l'Acteur"
     },
     "topics": {
       "character": "Personnage",
