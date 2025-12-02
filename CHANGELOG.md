@@ -1,6 +1,12 @@
 # Change Log
+## v1.6.4.2 - One more migration fix
+![](https://img.shields.io/badge/release%20date-December%202%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.6.4.2/module.zip)
+
+- Fixed a bug that was preventing migration from v1.5.1 to v1.6.0 for worlds that had a deleted campaign in them.
+
 ## v1.6.4 - Arc deleting bug fix; Migration fix
-![](https://img.shields.io/badge/release%20date-November%2029%2C%202025-blue)
+![](https://img.shields.io/badge/release%20date-December%201%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.6.4/module.zip)
 
 - Fixed a bug that was preventing the deletion of arcs in some cases.
