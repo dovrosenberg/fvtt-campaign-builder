@@ -2,6 +2,13 @@
   "fcb": {
     "title": "Constructeur de Campagne",
     "defaultRootFolderName": "Constructeur de Campagne",
+    "contentFolders": {
+      "campaigns": "Campagnes",
+      "entries": "Entrées",
+      "sessions": "Sessions",
+      "fronts": "Fronts",
+      "arcs": "Arcs"
+    },
     "settings": {
       "startCollapsed": "La barre latérale commence-t-elle repliée ?",
       "startCollapsedHelp": "La barre latérale doit-elle être fermée lors de la première ouverture de la fenêtre ?",
@@ -299,9 +306,7 @@
           "description": "Description",
           "characters": "Personnages",
           "locations": "Lieux",
-          "locationChildren": "Lieux enfants",
           "organizations": "Organisations",
-          "organizationChildren": "Sous-organisations",
           "pcs": "PCs"
         },
         "campaign": {
@@ -373,10 +378,6 @@
         "compendium": "Compendium",
         "world": "Monde"
       },
-      "journals": {
-        "addJournal": "Ajouter un journal",
-        "dropToAdd": "(ou glisser/déposer un journal ou une page de journal)"
-      },
       "add": "Ajouter",
       "description": "Description",
       "addParticipant": "Ajouter un participant",
@@ -393,16 +394,19 @@
       "actors": "Acteurs",
       "sessions": "Sessions",
       "scenes": "Scènes",
+      "journals": "Journaux",
       "arc": {
         "addParticipant": "Ajouter un participant",
         "addParticipantDrag": "(ou glisser/déposer un personnage/organisation)",
-        "participantHelpText": "Personnages et organisations susceptibles d'apparaître pendant l'arc"
+        "participantHelpText": "Personnages et organisations susceptibles d'apparaître pendant l'arc",
+        "arc": "Arc"
       },
       "complete": "Terminer",
       "danger": {
         "addParticipant": "Ajouter un participant",
         "addParticipantDrag": "(ou glisser/déposer un personnage/organisation)"
-      }
+      },
+      "searching": "Recherche"
     },
     "placeholders": {
       "search": "Rechercher",
@@ -682,7 +686,8 @@
         "parent": "Peut influencer le texte généré dans certains cas",
         "species": "Si vide, une espèce aléatoire de votre Paramètre sera utilisée pour la génération par IA. Les entrées personnalisées seront transmises à l'IA mais ne seront pas ajoutées à votre liste d'espèces",
         "longDescriptions": "Générer une description détaillée ou un court résumé ?",
-        "generateImage": "Générer une nouvelle image en arrière-plan après la création"
+        "generateImage": "Générer une nouvelle image en arrière-plan après la création",
+        "addToCurrentSession": "Ajouter à la session actuelle"
       },
       "moveToCampaign": "Déplacer vers la campagne pour une utilisation ultérieure",
       "addToCampaign": "Ajouter à la campagne",
@@ -703,7 +708,8 @@
       "editNotes": "Modifier les notes",
       "copyToNextSession": "Copier à la session suivante",
       "moveToArc": "Déplacer vers l'arc pour une utilisation ultérieure",
-      "movetoLastArc": "Déplacer vers le dernier arc"
+      "movetoLastArc": "Déplacer vers le dernier arc",
+      "editSession": "Modifier la session"
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori",
@@ -728,13 +734,6 @@
       "participantCopiedToNextSession": "Participant copié à la session suivante",
       "locationCopiedToNextSession": "Lieu copié à la session suivante",
       "monsterCopiedToNextSession": "Monstre copié à la session suivante"
-    },
-    "contentFolders": {
-      "campaigns": "Campagnes",
-      "entries": "Entrées",
-      "sessions": "Sessions",
-      "fronts": "Fronts",
-      "arcs": "Arcs"
     }
   }
 }

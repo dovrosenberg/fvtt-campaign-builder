@@ -744,7 +744,6 @@ const createCompendium = async(name: string): Promise<string> => {
     localize('contentFolders.campaigns'),
     localize('contentFolders.entries'),
     localize('contentFolders.fronts'),
-    // localize('contentFolders.settings'),  // we now put the settings in the top level
   ];
 
   const folders = folderNames.map((folderName) => ({

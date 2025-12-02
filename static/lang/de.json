@@ -2,6 +2,13 @@
   "fcb": {
     "title": "Kampagnen-Builder",
     "defaultRootFolderName": "Kampagnen-Builder",
+    "contentFolders": {
+      "campaigns": "Kampagnen",
+      "entries": "Einträge",
+      "sessions": "Sitzungen",
+      "fronts": "Fronten",
+      "arcs": "Bögen"
+    },
     "settings": {
       "startCollapsed": "Seitenleiste startet eingeklappt?",
       "startCollapsedHelp": "Soll die Seitenleiste geschlossen starten, wenn das Fenster zum ersten Mal geöffnet wird?",
@@ -299,9 +306,7 @@
           "description": "Beschreibung",
           "characters": "Charaktere",
           "locations": "Orte",
-          "locationChildren": "Untergeordnete Orte",
           "organizations": "Organisationen",
-          "organizationChildren": "Unterorganisationen",
           "pcs": "PCs"
         },
         "campaign": {
@@ -373,10 +378,6 @@
         "compendium": "Kompendium",
         "world": "Welt"
       },
-      "journals": {
-        "addJournal": "Journal hinzufügen",
-        "dropToAdd": "(oder ein Journal oder eine Journalseite ziehen/ablegen)"
-      },
       "add": "Hinzufügen",
       "description": "Beschreibung",
       "addParticipant": "Teilnehmer hinzufügen",
@@ -393,16 +394,19 @@
       "actors": "Schauspieler",
       "sessions": "Sitzungen",
       "scenes": "Szenen",
+      "journals": "Journal",
       "arc": {
         "addParticipant": "Teilnehmer hinzufügen",
         "addParticipantDrag": "(oder ziehen/ablegen eines Charakters/Organisation)",
-        "participantHelpText": "Charaktere und Organisationen, die wahrscheinlich während des Bogens auftauchen"
+        "participantHelpText": "Charaktere und Organisationen, die wahrscheinlich während des Bogens auftauchen",
+        "arc": "Bogen"
       },
       "complete": "Vollständig",
       "danger": {
         "addParticipant": "Teilnehmer hinzufügen",
         "addParticipantDrag": "(oder ziehen/ablegen eines Charakters/Organisation)"
-      }
+      },
+      "searching": "Suche"
     },
     "placeholders": {
       "search": "Suche",
@@ -682,7 +686,8 @@
         "parent": "Kann in einigen Fällen den generierten Text beeinflussen",
         "species": "Wenn leer, wird eine zufällige Art aus Ihrer Einstellung für die KI-Generierung verwendet. Benutzerdefinierte Einträge werden an die KI übergeben, aber nicht zu Ihrer Artenliste hinzugefügt",
         "longDescriptions": "Detaillierte Beschreibung oder kurze Zusammenfassung generieren?",
-        "generateImage": "Nach der Erstellung ein neues Bild im Hintergrund generieren"
+        "generateImage": "Nach der Erstellung ein neues Bild im Hintergrund generieren",
+        "addToCurrentSession": "Zur aktuellen Sitzung hinzufügen"
       },
       "moveToCampaign": "In die Kampagne für spätere Verwendung verschieben",
       "addToCampaign": "Zur Kampagne hinzufügen",
@@ -703,7 +708,8 @@
       "editNotes": "Notizen bearbeiten",
       "copyToNextSession": "In die nächste Sitzung kopieren",
       "moveToArc": "Zum späteren Gebrauch in den Bogen verschieben",
-      "movetoLastArc": "Zum neuesten Bogen verschieben"
+      "movetoLastArc": "Zum neuesten Bogen verschieben",
+      "editSession": "Sitzung bearbeiten"
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert",
@@ -728,13 +734,6 @@
       "participantCopiedToNextSession": "Teilnehmer in die nächste Sitzung kopiert",
       "locationCopiedToNextSession": "Ort in die nächste Sitzung kopiert",
       "monsterCopiedToNextSession": "Monster in die nächste Sitzung kopiert"
-    },
-    "contentFolders": {
-      "campaigns": "Kampagnen",
-      "entries": "Einträge",
-      "sessions": "Sitzungen",
-      "fronts": "Fronten",
-      "arcs": "Bögen"
     }
   }
 }

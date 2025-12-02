@@ -7,7 +7,7 @@
       <div
         class="noborder"
         style="margin-bottom:0px"
-        :data-tooltip="props.arcNode.completed ? localize('tooltip.arcComplete') : ''"
+        :data-tooltip="props.arcNode.completed ? localize('tooltips.arcComplete') : ''"
         @contextmenu="onArcContextMenu"
       >
         <i

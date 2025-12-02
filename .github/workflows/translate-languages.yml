@@ -10,6 +10,12 @@ on:
   
   # Allow manual triggering of the workflow
   workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Branch to create PR against'
+        required: false
+        default: 'dev'
+        type: string
 
 jobs:
   translate:
@@ -19,6 +25,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Fetch all history for all branches and tags
+          ref: ${{ github.event.inputs.target_branch || 'dev' }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -39,6 +46,6 @@ jobs:
           token: ${{ secrets.RELEASE_TOKEN }}  # needs access to repo scope in classic tokens (can be same as release script)
           commit-message: "Update translations"
           title: "Update translations"
-          body: "Update translations"
+          body: "Update translations for ${{ github.event.inputs.target_branch || 'dev' }}"
           branch: translations-${{ github.sha }}
-          base: dev
+          base: ${{ github.event.inputs.target_branch || 'dev' }}
