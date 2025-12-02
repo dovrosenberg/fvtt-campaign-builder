@@ -219,7 +219,7 @@
       "sessions": "Sessions",
       "scenes": "Scenes",
       "journals": "Journals",
-
+      "searching": "Searching",
       "tableHeaders": {
         "actions": "Actions",
         "name": "Name",
@@ -295,6 +295,7 @@
         "relationships": "Relationships"
       },
       "arc": {
+        "arc": "Arc",
         "addParticipant": "Add Participant",
         "addParticipantDrag": "(or drag/drop a character/organization)",
         "participantHelpText": "Characters and organizations likely to come up during the arc"
@@ -364,9 +365,7 @@
           "characters": "Characters",
           "locations": "Locations",
           "pcs": "PCs",
-          "locationChildren": "Child locations",
-          "organizations": "Organizations",
-          "organizationChildren": "Sub-organizations"
+          "organizations": "Organizations"
         },
         "campaign": {
           "description": "Description",
@@ -674,6 +673,7 @@
       "historyForward": "Forward",
       "editRelationship": "Edit relationship",
       "editNotes": "Edit notes",
+      "editSession": "Edit session",
       "editParticipant": "Edit participant",
       "editPortent": "Edit grim portent",
       "deleteRelationship": "Delete relationship",
@@ -721,6 +721,7 @@
         "4": "Setting"
       },
       "createEntry": {
+        "addToCurrentSession": "Add to current session",
         "name": "If left blank, a name will be generated automatically",
         "type": "If you create a new type, it will be added to the master list",
         "description": "Optional. Use to specify physical features or personality traits you want included",

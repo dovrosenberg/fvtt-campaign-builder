@@ -2,6 +2,13 @@
   "fcb": {
     "title": "Конструктор кампании",
     "defaultRootFolderName": "Конструктор кампании",
+    "contentFolders": {
+      "campaigns": "Кампании",
+      "entries": "Записи",
+      "sessions": "Сессии",
+      "fronts": "Фронты",
+      "arcs": "Арки"
+    },
     "settings": {
       "startCollapsed": "Боковая панель начинается в свернутом виде?",
       "startCollapsedHelp": "Должна ли боковая панель начинаться в закрытом виде при первом открытии окна?",
@@ -307,10 +314,6 @@
         "addJournal": "Добавить журнал",
         "addJournalDrag": "(или перетащите журнал или страницу журнала)"
       },
-      "journals": {
-        "addJournal": "Добавить журнал",
-        "dropToAdd": "(или перетащите журнал или страницу журнала)"
-      },
       "campaign": {
         "addPC": "Добавить персонажа игрока",
         "addPCDrag": "(или перетащите персонажа игрока)",
@@ -334,9 +337,7 @@
           "characters": "Персонажи",
           "locations": "Локации",
           "pcs": "Персонаж игрока",
-          "locationChildren": "Дочерние локации",
-          "organizations": "Организации",
-          "organizationChildren": "Подорганизации"
+          "organizations": "Организации"
         },
         "campaign": {
           "description": "Описание",
@@ -393,6 +394,7 @@
       "actors": "Актёры",
       "sessions": "Сессии",
       "scenes": "Сцены",
+      "journals": "Журналы",
       "arc": {
         "addParticipant": "Добавить участника",
         "addParticipantDrag": "(или перетащите персонажа/организацию)",
@@ -728,13 +730,6 @@
     "errors": {
       "duplicateBookmark": "Уже сохранено как закладка",
       "nameRequired": "Имя не может быть пустым"
-    },
-    "contentFolders": {
-      "campaigns": "Кампании",
-      "entries": "Записи",
-      "sessions": "Сессии",
-      "fronts": "Фронты",
-      "arcs": "Арки"
     }
   }
 }

@@ -2,6 +2,13 @@
   "fcb": {
     "title": "Constructeur de Campagne",
     "defaultRootFolderName": "Constructeur de Campagne",
+    "contentFolders": {
+      "campaigns": "Campagnes",
+      "entries": "Entrées",
+      "sessions": "Sessions",
+      "fronts": "Fronts",
+      "arcs": "Arcs"
+    },
     "settings": {
       "startCollapsed": "La barre latérale commence-t-elle repliée ?",
       "startCollapsedHelp": "La barre latérale doit-elle être fermée lors de la première ouverture de la fenêtre ?",
@@ -299,9 +306,7 @@
           "description": "Description",
           "characters": "Personnages",
           "locations": "Lieux",
-          "locationChildren": "Lieux enfants",
           "organizations": "Organisations",
-          "organizationChildren": "Sous-organisations",
           "pcs": "PCs"
         },
         "campaign": {
@@ -373,10 +378,6 @@
         "compendium": "Compendium",
         "world": "Monde"
       },
-      "journals": {
-        "addJournal": "Ajouter un journal",
-        "dropToAdd": "(ou glisser/déposer un journal ou une page de journal)"
-      },
       "add": "Ajouter",
       "description": "Description",
       "addParticipant": "Ajouter un participant",
@@ -393,6 +394,7 @@
       "actors": "Acteurs",
       "sessions": "Sessions",
       "scenes": "Scènes",
+      "journals": "Journaux",
       "arc": {
         "addParticipant": "Ajouter un participant",
         "addParticipantDrag": "(ou glisser/déposer un personnage/organisation)",
@@ -728,13 +730,6 @@
       "participantCopiedToNextSession": "Participant copié à la session suivante",
       "locationCopiedToNextSession": "Lieu copié à la session suivante",
       "monsterCopiedToNextSession": "Monstre copié à la session suivante"
-    },
-    "contentFolders": {
-      "campaigns": "Campagnes",
-      "entries": "Entrées",
-      "sessions": "Sessions",
-      "fronts": "Fronts",
-      "arcs": "Arcs"
     }
   }
 }

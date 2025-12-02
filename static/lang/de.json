@@ -2,6 +2,13 @@
   "fcb": {
     "title": "Kampagnen-Builder",
     "defaultRootFolderName": "Kampagnen-Builder",
+    "contentFolders": {
+      "campaigns": "Kampagnen",
+      "entries": "Einträge",
+      "sessions": "Sitzungen",
+      "fronts": "Fronten",
+      "arcs": "Bögen"
+    },
     "settings": {
       "startCollapsed": "Seitenleiste startet eingeklappt?",
       "startCollapsedHelp": "Soll die Seitenleiste geschlossen starten, wenn das Fenster zum ersten Mal geöffnet wird?",
@@ -299,9 +306,7 @@
           "description": "Beschreibung",
           "characters": "Charaktere",
           "locations": "Orte",
-          "locationChildren": "Untergeordnete Orte",
           "organizations": "Organisationen",
-          "organizationChildren": "Unterorganisationen",
           "pcs": "PCs"
         },
         "campaign": {
@@ -373,10 +378,6 @@
         "compendium": "Kompendium",
         "world": "Welt"
       },
-      "journals": {
-        "addJournal": "Journal hinzufügen",
-        "dropToAdd": "(oder ein Journal oder eine Journalseite ziehen/ablegen)"
-      },
       "add": "Hinzufügen",
       "description": "Beschreibung",
       "addParticipant": "Teilnehmer hinzufügen",
@@ -393,6 +394,7 @@
       "actors": "Schauspieler",
       "sessions": "Sitzungen",
       "scenes": "Szenen",
+      "journals": "Journal",
       "arc": {
         "addParticipant": "Teilnehmer hinzufügen",
         "addParticipantDrag": "(oder ziehen/ablegen eines Charakters/Organisation)",
@@ -728,13 +730,6 @@
       "participantCopiedToNextSession": "Teilnehmer in die nächste Sitzung kopiert",
       "locationCopiedToNextSession": "Ort in die nächste Sitzung kopiert",
       "monsterCopiedToNextSession": "Monster in die nächste Sitzung kopiert"
-    },
-    "contentFolders": {
-      "campaigns": "Kampagnen",
-      "entries": "Einträge",
-      "sessions": "Sitzungen",
-      "fronts": "Fronten",
-      "arcs": "Bögen"
     }
   }
 }
