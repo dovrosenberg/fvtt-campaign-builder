@@ -6,7 +6,6 @@ import { Arc, Campaign, } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents';
 import { VersionUtils } from '@/utils/version';
 import { localize } from '@/utils/game';
-import { migrationVersions } from '.';
 
 let processed = 0;
 let totalEntries= 0;

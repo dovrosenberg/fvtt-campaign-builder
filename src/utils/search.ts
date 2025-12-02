@@ -153,6 +153,12 @@ class SearchService {
 
       for (const index of campaign.arcIndex) { 
         const arc = await Arc.fromUuid(index.uuid);
+        if (!arc) {
+          // remove from the index
+          campaign.arcIndex = campaign.arcIndex.filter((arc) => arc.uuid !== index.uuid);
+          await campaign.save();
+          continue;
+        }
         
         // Create a searchable item for each arc
         const item = await this.createSearchableItemFromArc(arc!);
