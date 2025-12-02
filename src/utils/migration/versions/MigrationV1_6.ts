@@ -85,7 +85,7 @@ export class MigrationV1_6 implements Migration {
 
           // loading campaign breaks the index, so we have to capture first
           if (VersionUtils.compareVersions(this._context.originalVersion, '1.5.1') >= 0) {
-            sessionList = campaignIdx.pages?.[0].system?.sessions || [];
+            sessionList = campaignIdx.pages?.[0]?.system?.sessions || [];
           }
 
           const campaign = await Campaign.fromUuid(campaignIdx.uuid);
