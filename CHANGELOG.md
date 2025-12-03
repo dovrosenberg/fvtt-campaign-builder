@@ -6,6 +6,12 @@
 - You can now create graphs tracking the relationships between your characters, locations, PCs, dangers, etc.  Right click on the new "Story webs" folder to create one and get started.
 - Main tabs (ex. entries, sessions, etc.) now remember which subtab they had open when you go back to them.  I think this is a huge quality of life improvement.
 
+## v1.6.5 - One more migration fix
+![](https://img.shields.io/badge/release%20date-December%202%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.6.5/module.zip)
+
+- Fixed a bug that was preventing migration from v1.5.1 to v1.6.0 for worlds that had a deleted campaign in them.
+
 ## v1.6.4 - Arc deleting bug fix; Migration fix
 ![](https://img.shields.io/badge/release%20date-December%201%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.6.4/module.zip)
