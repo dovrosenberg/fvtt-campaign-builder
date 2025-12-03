@@ -535,7 +535,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     
     await campaign.deleteSession(this);
     
-    await toRaw(this._doc).delete();
+    await super._delete();
 
     // Remove from search index
     searchService.removeSearchEntry(id);

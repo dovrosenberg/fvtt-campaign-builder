@@ -204,7 +204,7 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     
     await campaign.deleteFront(this);
     
-    await toRaw(this._doc).delete();
+    await super._delete();
 
     // Remove from search index
     searchService.removeSearchEntry(id);

@@ -437,7 +437,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     const uuid = this.uuid;
     const topicFolder = await this.getTopicFolder();
     
-    await toRaw(this._doc).delete();
+    await super._delete();
 
     // remove from master entry index and topnodes    
     topicFolder.entryIndex = topicFolder.entryIndex.filter((e)=> e.uuid !== uuid);

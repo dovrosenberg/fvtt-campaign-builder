@@ -294,6 +294,6 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
 
     await campaign.deleteStoryWeb(this);
 
-    await toRaw(this._doc).delete();
+    await super._delete();
   }
 }

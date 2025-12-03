@@ -99,6 +99,12 @@ export class FCBJournalEntryPage<
     return setting;
   }
 
+  // handle deletes
+  protected async _delete(): Promise<void> {
+    // doc is the page - we need to delete the parent
+    await toRaw(this._doc.parent)?.delete();
+  }
+
   /** takes the uuid of the wrapper entry */
   static async fromUuid<
     DocType extends ValidDocType,

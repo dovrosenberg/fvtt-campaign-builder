@@ -456,7 +456,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     
     await campaign.deleteArc(this);  // removes from setting, too
     
-    await toRaw(this._doc).delete();
+    await super._delete();
 
     // Remove from search index
     searchService.removeSearchEntry(id);

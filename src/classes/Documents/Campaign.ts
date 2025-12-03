@@ -919,7 +919,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     if (!setting)
       throw new Error('Invalid setting in Campaign.delete()');
 
-    await toRaw(this._doc)?.delete();
+    await super._delete();
 
     await setting.deleteCampaignFromSetting(id);
   }
