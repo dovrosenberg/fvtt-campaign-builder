@@ -5,6 +5,7 @@ import { isClientGM, localize } from '@/utils/game';
 import { refreshAllSettingRollTables } from '@/utils/nameGenerators';
 import { Backend, ExternalAPI } from '@/classes';
 import { MigrationManager } from '@/utils/migration';
+import { attachGlobalScripts } from '@/utils/globalScripts';
 
 export function registerForReadyHook() {
   Hooks.once('ready', ready);
@@ -19,7 +20,11 @@ async function ready(): Promise<void> {
   
   // Mount the external API
   const module = game.modules.get(moduleId);
+  // @ts-ignore
   module.api = new ExternalAPI();
+
+  // mount the internal api
+  attachGlobalScripts();
 
   // setup the enricher
   setupEnricher();

@@ -1,9 +1,10 @@
 import { getGlobalSetting } from './globalSettings';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { FCBSetting, Campaign, Entry, Session, Arc, Front, StoryWeb } from '@/classes';
-import { EntryBasicIndex, CampaignBasicIndex, SessionBasicIndex, ArcBasicIndex, Topics } from '@/types';
+import { EntryBasicIndex, CampaignBasicIndex, SessionBasicIndex, ArcBasicIndex, Topics, Hierarchy } from '@/types';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { wbApp } from '@/applications/CampaignBuilder';
+
 
 /**
  * Repairs all document indexes across all settings and their campaigns.
@@ -13,9 +14,10 @@ import { wbApp } from '@/applications/CampaignBuilder';
  * 
  * Usage: Call this function from the browser console or via window.repairAllIndexes()
  * 
+ * @param settingId - Optional setting ID to repair indexes for. If not provided, all settings will be repaired.
  * @returns Promise that resolves when all indexes have been repaired
  */
-export const repairAllIndexes = async (): Promise<void> => {
+const repairAllIndexes = async (settingId?: string): Promise<void> => {
   console.log('Starting repair of all document indexes...');
   debugger;
 
@@ -36,6 +38,10 @@ export const repairAllIndexes = async (): Promise<void> => {
     // Repair each setting's indexes
     for (const settingIndex of settingIndexes) {
       try {
+        if (settingId && settingIndex.settingId !== settingId) {
+          continue;
+        }
+
         console.log(`Repairing indexes for setting: ${settingIndex.name} (${settingIndex.settingId})`);
         
         // Load the setting
@@ -169,6 +175,23 @@ async function repairSettingIndexes(
     }
   }
   
+  // clean up heierarchies - we can't adjust parents but we can remove any references to bad entries
+  const newHierarchies: Record<string, Hierarchy> = {};
+  for (const key in setting.hierarchies) {
+    // if key is invalid, drop it
+    if (!entryIds.includes(key)) 
+      continue;
+
+    const hierarchy = setting.hierarchies[key];
+    const newHierarchy: Hierarchy = {
+      type: hierarchy.type,
+      ancestors: hierarchy.ancestors.filter((ancestor) => entryIds.includes(ancestor)),
+      children: hierarchy.children.filter((child) => entryIds.includes(child)),
+      parentId: hierarchy.parentId && entryIds.includes(hierarchy.parentId) ? hierarchy.parentId : null,
+    };
+    newHierarchies[key] = newHierarchy;
+  }
+
   // Update topic data and identify top-level entries (those without parents)
   [Topics.Character, Topics.Location, Topics.Organization, Topics.PC].forEach(topicKey => {
     const entryList = topicEntries.get(topicKey.toString()) || [];
@@ -270,4 +293,13 @@ async function repairCampaignIndexes(
 if (typeof window !== 'undefined') {
   (window as any).repairAllIndexes = repairAllIndexes;
   console.log('Global script loaded: window.repairAllIndexes() is now available');
+}
+
+export const attachGlobalScripts = () => {
+  const module = game.modules.get(moduleId); 
+  if (!module)
+    throw new Error('Couldn\'t find module in globalScripts.attachGlobalScripts()');
+
+  // @ts-ignore
+  module.repairAllIndexes = repairAllIndexes;
 }

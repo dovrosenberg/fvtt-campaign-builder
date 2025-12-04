@@ -18,11 +18,11 @@ const updateProgress = (status: string) => {
 
 /**
  * Migration 1.6.0
- * Rebuilds the topic folder entries index
+ * Creates initial arcs
  */
 export class MigrationV1_6 implements Migration {
   public readonly targetVersion = '1.6.0';
-  public readonly description = 'Rebuilds the campaign index';
+  public readonly description = 'Creates initial arcs';
 
   private _context: MigrationContext;
 
@@ -63,15 +63,6 @@ export class MigrationV1_6 implements Migration {
         });
         
         const campaignList = allDocumentsIndex.filter((idx) => idx.flags?.['campaign-builder']?.campaignBuilderType === DOCUMENT_TYPES.Campaign);
-        const arcList = allDocumentsIndex.filter((idx) => idx.flags?.['campaign-builder']?.campaignBuilderType === DOCUMENT_TYPES.Arc);
-
-        // there shouldn't be arcs - so if there are, they are left over from failed migrations
-        for (const arcIdx of arcList) {
-          const arc = await fromUuid(arcIdx.uuid);
-          if (!arc)
-            continue;
-          await arc.delete();
-        }
 
         // need to setup the campaign index on the setting
         setting.campaignIndex = [];
@@ -84,6 +75,10 @@ export class MigrationV1_6 implements Migration {
 
           // loading campaign breaks the index, so we have to capture first
           if (VersionUtils.compareVersions(this._context.originalVersion, '1.5.1') >= 0) {
+            // if there's no page, skip it
+            if (!campaignIdx.pages || campaignIdx.pages.length === 0)
+              continue;
+
             sessionList = campaignIdx.pages?.[0]?.system?.sessions || [];
           }
 
