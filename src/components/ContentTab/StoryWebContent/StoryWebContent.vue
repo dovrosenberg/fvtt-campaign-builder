@@ -8,7 +8,7 @@
           v-model="name"
           for="fcb-input-name" 
           class="fcb-input-name"
-          :showImage="false"
+          :show-image="false"
           unstyled
           :placeholder="localize('placeholders.storyWebName')"
           :pt="{
