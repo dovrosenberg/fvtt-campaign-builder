@@ -573,12 +573,16 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
   ///////////////////////////////
   // methods
-  const getText = async (title:string, prompt: string, initialText: string): Promise<string | null> => {
+  /** @param required - whether the input must have a value (false means it can be blank) */
+  const getText = async (title:string, prompt: string, initialText: string, required: boolean): Promise<string | null> => {
     let value: string | null = initialText;
 
 
     do {  // if hit ok, must have a value
       value = await FCBDialog.inputDialog(title, prompt, initialText); 
+
+      if (!required)
+        return value;
     } while (value==='');  
     
     return value;
@@ -590,13 +594,191 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     if (!node || node.source !== StoryWebNodeSource.Custom)
       return;
 
-    const newText = await getText(localize('labels.storyWeb.editText'), localize('labels.storyWeb.enterText'), node.label || ''); 
+    const newText = await getText(localize('labels.storyWeb.editText'), localize('labels.storyWeb.enterText'), node.label || '', true); 
     if (!newText)
       return;
 
     node.label = newText;
     await currentStoryWeb.value?.save();
     await mainStore.refreshStoryWeb();
+  }
+
+  const editEdge = async (edgeId: string) => {
+    if (!currentStoryWeb.value || !currentNetwork.value)
+      return;
+
+    // Get the connected nodes to determine what type of edge this is
+    const connectedNodes = toRaw(currentNetwork.value).getConnectedNodes(edgeId) as string[];
+    if (connectedNodes.length !== 2)
+      return;
+
+    const [fromNode, toNode] = connectedNodes;
+    
+    // Get current edge label
+    const currentLabel = await getCurrentEdgeLabel(fromNode, toNode);
+    
+    // Get new label from user
+    const newLabel = await getText(
+      localize('labels.storyWeb.editRelationship'), 
+      localize('labels.storyWeb.newConnectionLabel'), 
+      currentLabel || '',
+      false
+    );
+    
+    if (newLabel === null) // User cancelled
+      return;
+
+    // Update the edge based on its type
+    await updateEdgeLabel(fromNode, toNode, newLabel);
+    
+    await mainStore.refreshStoryWeb();
+  }
+
+  const getCurrentEdgeLabel = async (fromNode: string, toNode: string): Promise<string> => {
+    // Check if it's a manual edge first
+    const manualEdge = getManualEdge(fromNode, toNode);
+    if (manualEdge) {
+      return manualEdge.label || '';
+    }
+
+    // Check if it's a danger participant edge
+    const fromNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === fromNode);
+    const toNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === toNode);
+    
+    if (fromNodeData?.type === StoryWebNodeTypes.Danger || toNodeData?.type === StoryWebNodeTypes.Danger) {
+      const dangerUuid = fromNodeData?.type === StoryWebNodeTypes.Danger ? fromNode : toNode;
+      const entryUuid = fromNodeData?.type === StoryWebNodeTypes.Danger ? toNode : fromNode;
+      
+      // Parse danger UUID to get front and danger index
+      const [frontId, dangerIndex] = dangerUuid.split('|');
+      const front = await Front.fromUuid(frontId);
+      if (!front)
+        return '';
+
+      const danger = front.dangers[Number.parseInt(dangerIndex)];
+      if (!danger)
+        return '';
+
+      // Find the participant role for this entry
+      const participant = danger.participants.find(p => p.uuid === entryUuid);
+      return participant?.role || '';
+    }
+
+    // For entry-to-entry relationships, check the relationship store
+    try {
+      const fromEntry = await Entry.fromUuid(fromNode);
+      if (!fromEntry?.relationships)
+        return '';
+
+      // Check all relationship topics for the target entry
+      for (const topic of RELATIONSHIP_TOPICS) {
+        const relatedEntries = fromEntry.relationships[topic] as RelatedEntryDetails<any, any>[] | undefined;
+        if (!relatedEntries)
+          continue;
+
+        const relatedEntry = relatedEntries[toNode];
+        if (relatedEntry) {
+          return relatedEntry.extraFields.role || relatedEntry.extraFields.relationship || '';
+        }
+      }
+    } catch (error) {
+      console.warn('Error fetching current edge label:', error);
+    }
+
+    return '';
+  }
+
+  const getManualEdge = (fromNode: string, toNode: string) => {
+    const edgeUuid = [fromNode, toNode].sort().join('|');
+    const manualEdge = currentStoryWeb.value?.edges.find(e => e.uuid === edgeUuid);
+    return manualEdge;
+  }
+
+  const updateEdgeLabel = async (fromNode: string, toNode: string, newLabel: string) => {
+    // Check if it's a manual edge first
+    const manualEdge = getManualEdge(fromNode, toNode);
+    if (manualEdge) {
+      manualEdge.label = newLabel;
+      await currentStoryWeb.value?.save();
+      return;
+    }
+
+    // Check if it's a danger participant edge
+    const fromNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === fromNode);
+    const toNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === toNode);
+    
+    if (fromNodeData?.type === StoryWebNodeTypes.Danger || toNodeData?.type === StoryWebNodeTypes.Danger) {
+      const dangerUuid = fromNodeData?.type === StoryWebNodeTypes.Danger ? fromNode : toNode;
+      const entryUuid = fromNodeData?.type === StoryWebNodeTypes.Danger ? toNode : fromNode;
+      
+      // Parse danger UUID to get front and danger index
+      const [frontId, dangerIndex] = dangerUuid.split('|');
+      const front = await Front.fromUuid(frontId);
+      if (!front)
+        return;
+
+      const danger = front.dangers[Number.parseInt(dangerIndex)];
+      if (!danger)
+        return;
+
+      // Update the participant role
+      const updatedParticipants = danger.participants.map(p => 
+        p.uuid === entryUuid ? { ...p, role: newLabel } : p
+      );
+      
+      front.updateDanger(Number.parseInt(dangerIndex), {
+        ...danger,
+        participants: updatedParticipants
+      });
+      await front.save();
+      return;
+    }
+
+    // For entry-to-entry relationships, update the relationship fields directly on both entries
+    const entry = await Entry.fromUuid(fromNode);
+    const relatedEntry = await Entry.fromUuid(toNode);
+    
+    if (!entry || !relatedEntry)
+      return;
+
+    const entryTopic = entry.topic;
+    const relatedEntryTopic = relatedEntry.topic;
+
+    if (!entryTopic || !relatedEntryTopic)
+      return;
+
+    // Determine which field to update based on the topic pairing (same logic as addArbitraryRelationship)
+    const extraFields = relationshipStore.extraFields;
+    let updateField = '';
+    
+    if (extraFields[entryTopic]?.[relatedEntryTopic]?.length > 0) {
+      updateField = extraFields[entryTopic][relatedEntryTopic][0].field;
+    } else if (extraFields[relatedEntryTopic]?.[entryTopic]?.length > 0) {
+      updateField = extraFields[relatedEntryTopic][entryTopic][0].field;
+    }
+
+    if (!updateField)
+      return;
+
+    // Clone the relationships to avoid mutation issues
+    const entryRelationships = foundry.utils.deepClone(entry.relationships);
+    const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.relationships);
+
+    // Update the relationship on both entries
+    if (entryRelationships[relatedEntryTopic]?.[relatedEntry.uuid]) {
+      entryRelationships[relatedEntryTopic][relatedEntry.uuid].extraFields[updateField] = newLabel;
+    }
+    
+    if (relatedEntryRelationships[entryTopic]?.[entry.uuid]) {
+      relatedEntryRelationships[entryTopic][entry.uuid].extraFields[updateField] = newLabel;
+    }
+
+    // Save both entries
+    entry.relationships = entryRelationships;
+    relatedEntry.relationships = relatedEntryRelationships;
+    
+    await entry.save();
+    await relatedEntry.save();
   }
 
   const onNetworkDoubleClick = async (eventInfo: NetworkClickEventInfo) => {
@@ -608,7 +790,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     if (nodes.length > 0) {
       await editCustomNode(nodes[0]);
     } else if (edges.length > 0) {
-
+      await editEdge(edges[0]);
     } else {
       await addCustomNode(pointer.canvas);
       await mainStore.refreshStoryWeb();
@@ -810,7 +992,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       // Get label from user
       const label = await FCBDialog.inputDialog(
         localize('labels.storyWeb.addConnection'),
-        localize('labels.storyWeb.enterConnectionLabel'),
+        localize('labels.storyWeb.newConnectionLabel'),
         ''
       );
 
@@ -1041,6 +1223,12 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       y: position.y,
       zIndex: 300,
       items: [
+        {
+          icon: 'fa-edit',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWebGraph.editRelationship'),
+          onClick: async () => { await editEdge(edgeId); await mainStore.refreshStoryWeb(); }
+        },
         {
           icon: 'fa-trash',
           iconFontClass: 'fas',
