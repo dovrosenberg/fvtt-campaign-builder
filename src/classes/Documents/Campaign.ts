@@ -370,7 +370,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   // returns the uuid
-  public async addLore(description: string): Promise<string> {
+  public async addLore(description: string, journalEntryPageId: string | null = null): Promise<string> {
     const uuid = foundry.utils.randomID();
 
     this._clone.system.lore.push({
@@ -378,7 +378,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       description: description,
       delivered: false,
       significant: true,
-      journalEntryPageId: null,
+      journalEntryPageId: journalEntryPageId,
       lockedToSessionId: null,
       lockedToSessionName: null,
       sortOrder: this._clone.system.lore.reduce((max, lore) => Math.max(max, lore.sortOrder), -1) + 1,

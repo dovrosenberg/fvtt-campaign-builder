@@ -736,7 +736,7 @@
       "copyToNextSession": "Copy to next session",
       "moveToCampaign": "Move to campaign for later usage",
       "moveToArc": "Move to arc for later usage",
-      "movetoLastArc": "Move to latest arc",
+      "movetoLatestArc": "Move to latest arc",
       "addToCampaign": "Add to campaign",
       "addToASession": "Add to a session",
       "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",

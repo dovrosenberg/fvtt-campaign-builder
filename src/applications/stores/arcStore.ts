@@ -280,7 +280,7 @@ export const useArcStore = defineStore('arc', () => {
     if (!lore)
       return;
 
-    await lastSession.addLore(lore.description);
+    await lastSession.addLore(lore.description, lore.journalEntryPageId);
     await currentArc.value.deleteLore(uuid);
 
     await _refreshLoreRows();
@@ -305,7 +305,7 @@ export const useArcStore = defineStore('arc', () => {
       return;
     
     // have a next campaign - add there and delete here
-    await campaign.addLore(currentLore.description);
+    await campaign.addLore(currentLore.description, currentLore.journalEntryPageId);
     await currentArc.value.deleteLore(uuid);
 
     await _refreshLoreRows();

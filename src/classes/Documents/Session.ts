@@ -300,7 +300,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this._clone.system.lore = value.slice();     // we clone it so it can't be edited outside
   }
 
-  async addLore(description: string): Promise<string> {
+  async addLore(description: string, journalEntryPageId: string | null = null): Promise<string> {
     const uuid = foundry.utils.randomID();
 
     this._clone.system.lore.push({
@@ -308,7 +308,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       description: description,
       delivered: false,
       significant: false,
-      journalEntryPageId: null,
+      journalEntryPageId: journalEntryPageId,
       sortOrder: this._clone.system.lore.length,
     });
 

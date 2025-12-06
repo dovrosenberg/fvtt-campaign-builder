@@ -708,7 +708,7 @@
       "editNotes": "Modifier les notes",
       "copyToNextSession": "Copier à la session suivante",
       "moveToArc": "Déplacer vers l'arc pour une utilisation ultérieure",
-      "movetoLastArc": "Déplacer vers le dernier arc",
+      "movetoLatestArc": "Déplacer vers le dernier arc",
       "editSession": "Modifier la session"
     },
     "errors": {

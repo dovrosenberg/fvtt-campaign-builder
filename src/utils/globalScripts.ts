@@ -4,6 +4,7 @@ import { FCBSetting, Campaign, Entry, Session, Arc, Front, StoryWeb } from '@/cl
 import { EntryBasicIndex, CampaignBasicIndex, SessionBasicIndex, ArcBasicIndex, Topics, Hierarchy } from '@/types';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { wbApp } from '@/applications/CampaignBuilder';
+import { toRaw } from 'vue';
 
 
 /**
@@ -22,9 +23,9 @@ const repairAllIndexes = async (settingId?: string): Promise<void> => {
   debugger;
 
   // Check if FCB window is open and exit if so
-  if (wbApp && wbApp.rendered) {
-    console.warn('Cannot repair indexes while Campaign Builder window is open. Please close the window and try again.');
-    return;
+  if (wbApp) {
+    await wbApp.close();
+    console.warn('Cannot repair indexes while Campaign Builder window is open. Closing window.');
   }
   
   try {
@@ -45,7 +46,7 @@ const repairAllIndexes = async (settingId?: string): Promise<void> => {
         console.log(`Repairing indexes for setting: ${settingIndex.name} (${settingIndex.settingId})`);
         
         // Load the setting
-        const setting = await getGlobalSetting(settingIndex.settingId);
+        const setting = toRaw(await getGlobalSetting(settingIndex.settingId));
         if (!setting) {
           console.warn(`Could not load setting: ${settingIndex.name} (${settingIndex.settingId})`);
           totalErrors++;

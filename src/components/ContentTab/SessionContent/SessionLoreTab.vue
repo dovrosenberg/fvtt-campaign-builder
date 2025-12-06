@@ -28,7 +28,7 @@
   import { computed, ref } from 'vue';
 
   // local imports
-  import { useSessionStore, useArcStore, SessionTableTypes, ArcTableTypes, } from '@/applications/stores';
+  import { useSessionStore, useArcStore, useMainStore, SessionTableTypes, ArcTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
@@ -59,8 +59,10 @@
   // store
   const sessionStore = useSessionStore();
   const arcStore = useArcStore();
+  const mainStore = useMainStore();
   const { loreRows: sessionLoreRows } = storeToRefs(sessionStore);
   const { loreRows: arcLoreRows } = storeToRefs(arcStore);
+  const { currentArc } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -70,6 +72,7 @@
   // computed data
   const loreRows = computed(() => props.arcMode ? arcLoreRows.value : sessionLoreRows.value);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
+  const arcHasSessions = computed((): boolean => (currentArc.value?.startSessionNumber != -1 ));
 
   const mappedLoreRows = computed(() => (
     loreRows.value.map((row) => ({
@@ -126,7 +129,9 @@
       // move to next session
       { 
         icon: 'fa-share', 
-        display: (data) => props.arcMode || !data.delivered, // hide arrow for things already delivered
+        // we hide if already deleivered in session mode or no sessions in arc mode
+        display: (data) => (props.arcMode && arcHasSessions.value) 
+          || (!props.arcMode && !data.delivered), // hide arrow for things already delivered
         callback: (data) => onMoveLoreToNext(data.uuid), 
         tooltip: localize('tooltips.moveToNextSession') 
       }

@@ -708,7 +708,7 @@
       "editNotes": "Notizen bearbeiten",
       "copyToNextSession": "In die nächste Sitzung kopieren",
       "moveToArc": "Zum späteren Gebrauch in den Bogen verschieben",
-      "movetoLastArc": "Zum neuesten Bogen verschieben",
+      "movetoLatestArc": "Zum neuesten Bogen verschieben",
       "editSession": "Sitzung bearbeiten"
     },
     "errors": {

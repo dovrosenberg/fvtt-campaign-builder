@@ -483,7 +483,7 @@ export const useSessionStore = defineStore('session', () => {
       return;
 
     // have a next session - add there and delete here
-    await nextSession.addLore(currentLore.description);
+    await nextSession.addLore(currentLore.description, currentLore.journalEntryPageId);
     await currentSession.value.deleteLore(uuid);
 
     await _refreshLoreRows();
@@ -508,7 +508,7 @@ export const useSessionStore = defineStore('session', () => {
       return;
     
     // have a next session - add there and delete here
-    await campaign.addLore(currentLore.description);
+    await campaign.addLore(currentLore.description, currentLore.journalEntryPageId);
     await currentSession.value.deleteLore(uuid);
 
     await _refreshLoreRows();
@@ -539,7 +539,7 @@ export const useSessionStore = defineStore('session', () => {
       return;
     
     // have a next session - add there and delete here
-    await arc.addLore(currentLore.description);
+    await arc.addLore(currentLore.description, currentLore.journalEntryPageId);
     await currentSession.value.deleteLore(uuid);
 
     await _refreshLoreRows();

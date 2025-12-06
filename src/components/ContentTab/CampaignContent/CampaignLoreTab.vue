@@ -131,7 +131,7 @@
       icon: 'fa-arrow-down', 
       display: (data) => !data.delivered, // hide arrow for things already delivered
       callback: (data) => moveLoreToArc(data.uuid), 
-      tooltip: localize('tooltips.movetoLastArc') 
+      tooltip: localize('tooltips.movetoLatestArc') 
     },
     // move to next session
     { 
