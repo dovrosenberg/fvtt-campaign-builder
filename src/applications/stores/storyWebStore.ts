@@ -436,6 +436,34 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     await addEntry(entryUuid, position, withRelationships);
   };
 
+  /** handle dropping an entry on top of an existing node to create a connection
+   * @param entryUuid - UUID of the entry being dropped
+   * @param targetNodeId - UUID of the node under the drop position
+   * @param position - position to place the new node at - relative to canvas
+   */
+  const handleDropOnNode = async (entryUuid: string, targetNodeId: string, position: { x: number, y: number }) => {
+    if (!currentStoryWeb.value)
+      return;
+
+    // Check if the dropped entry is already in the graph
+    const entryAlreadyInGraph = currentStoryWeb.value.nodes.some(
+      node => node.uuid === entryUuid
+    );
+    
+    // Add the entry if it's not already in the graph
+    if (!entryAlreadyInGraph) {
+      await addEntry(entryUuid, position, false);
+    }
+
+    // Check if connection is valid before proceeding
+    if (!isValidConnection(targetNodeId, entryUuid)) {
+      return;
+    }
+
+    // Create the connection (target node to new/existing entry)
+    await createConnection(targetNodeId, entryUuid);
+  };
+
   /** select an danger from dialog and insert at a location; will let user pick from fronts
    *    and then dangers, but will exclude any that are already in the story web (explicitly)
    * @param position - position to place the node at - relative to canvas 
@@ -1310,6 +1338,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     addEntry,
     removeNode,
     removeEdge,
+    handleDropOnNode,
   };
 });
 

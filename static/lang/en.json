@@ -354,6 +354,8 @@
         "removeRelationshipConfirm": "Are you sure you want to delete this relationship? This will remove the relationship on the entries, not just the diagram.",
         "addConnection": "Add Connection",
         "newConnectionLabel": "New relationship label (can be blank)",
+        "createConnection": "Create Connection",
+        "createConnectionPrompt": "You dropped an entry on top of an existing node. Do you want to create a connection between them?",
         "zoomIn": "Zoom In",
         "zoomOut": "Zoom Out",
         "fitToWindow": "Fit to Window"

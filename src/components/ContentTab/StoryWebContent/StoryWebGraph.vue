@@ -55,6 +55,7 @@
   import { useStoryWebStore } from '@/applications/stores';
   import { getValidatedData } from '@/utils/dragdrop';
   import { localize } from '@/utils/game';
+  import { confirmDialog } from '@/dialogs/confirm';
   
   // library components
   import ProgressSpinner from 'primevue/progressspinner';
@@ -148,9 +149,31 @@
 
     // we can drop entries
     if (data.type === 'fcb-entry') {
-      const convertedPosition = toRaw(currentNetwork.value).DOMtoCanvas({ x: event.offsetX, y: event.offsetY });
+      const domPosition = { x: event.offsetX, y: event.offsetY };
+      const convertedPosition = toRaw(currentNetwork.value).DOMtoCanvas(domPosition);
 
-      await storyWebStore.addEntry(data.childId as string, convertedPosition, false);      
+      // Check if there's a node under the drop position
+      const nodeUnderCursor = toRaw(currentNetwork.value).getNodeAt(domPosition) as string | null;
+      
+      if (nodeUnderCursor) {
+        // User dropped on top of an existing node, ask if they want to create a connection
+        const shouldConnect = await confirmDialog(
+          localize('labels.storyWeb.createConnection'),
+          localize('labels.storyWeb.createConnectionPrompt')
+        );
+        
+        if (!shouldConnect) {
+          // User cancelled, just add the entry normally
+          await storyWebStore.addEntry(data.childId as string, convertedPosition, false);
+          return;
+        }
+
+        // Handle the drop on node using the store method
+        await storyWebStore.handleDropOnNode(data.childId as string, nodeUnderCursor, convertedPosition);
+      } else {
+        // Normal drop - just add the entry
+        await storyWebStore.addEntry(data.childId as string, convertedPosition, false);      
+      }
     }
   };
   
