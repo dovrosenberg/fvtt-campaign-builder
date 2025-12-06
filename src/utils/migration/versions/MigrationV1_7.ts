@@ -56,7 +56,6 @@ export class MigrationV1_7 implements Migration {
           ]
         });
         
-        debugger;
         for (const doc of allDocumentsIndex) {
           // see if there's no page - these were deleted poorly in a prior release
           if (!doc.pages || doc.pages.length===0) {

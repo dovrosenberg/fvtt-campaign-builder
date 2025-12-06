@@ -20,7 +20,6 @@ import { toRaw } from 'vue';
  */
 const repairAllIndexes = async (settingId?: string): Promise<void> => {
   console.log('Starting repair of all document indexes...');
-  debugger;
 
   // Check if FCB window is open and exit if so
   if (wbApp) {
