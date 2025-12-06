@@ -81,6 +81,7 @@ export default defineConfig({
             { text: 'Arcs', link: '/reference/campaign-mgt/content/arc/' },
             { text: 'Sessions', link: '/reference/campaign-mgt/content/session/' },
             { text: 'Fronts', link: '/reference/campaign-mgt/content/front/' },
+            { text: 'Story Webs', link: '/reference/campaign-mgt/content/storyWeb/' },
             { text: 'To-do List', link: '/reference/campaign-mgt/content/campaign/todos' },
           ] },
           { text: 'Play Mode', link: '/reference/play-mode/' },

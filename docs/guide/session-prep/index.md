@@ -15,12 +15,20 @@ Campaign Builder is designed after the [Lazy DM] method, though it should be ada
 ## Campaigns
 Before prepping for a session, you first have to create the overall [^Campaign] it fits into.  You can outline a description and house rules, and connect the PCs (see below).
 
+## Core Session Prep Components
+* [Campaign Directory](/reference/navigation/sidebar#campaign-directory)
+* [Campaign Details](/reference/campaign-mgt/content/campaign/)
+* [Session Details](/reference/campaign-mgt/content/session/)
+* [Front Details](/reference/campaign-mgt/content/front/)
+* [Story Web Details](/reference/campaign-mgt/content/storyWeb/)
+
 ## Core concepts
 ### Campaigns
 * [Create](/reference/campaign-mgt/content/campaign/) your Campaign
 * Attach the [PCs](/reference/campaign-mgt/content/campaign/pcs) to the campaign
 * Start to capture your [Ideas](/reference/campaign-mgt/content/campaign/ideas)
 * Create or update [Fronts](/reference/campaign-mgt/content/front/) to track long-term threats and storylines for the campaign
+* Use [Story Webs](/reference/campaign-mgt/content/storyWeb/) to visualize the relationships between your characters, locations, etc. in diagrams.
 
 ### Arcs and long-term planning
 * [Create](/reference/campaign-mgt/content/arc/) story [^Arcs] to [group](/reference/campaign-mgt/content/arc/manager) related sessions
@@ -35,19 +43,12 @@ Before prepping for a session, you first have to create the overall [^Campaign] 
 * Sketch out the [Monsters](/reference/campaign-mgt/content/session/monsters), so you have tokens and stat sheets at your fingertips
 * Prepare a list of [Magic Items](/reference/campaign-mgt/content/session/magic-items) you might hand out to players for victory
 
-
-## Note on Locations, Vignettes and Scenes
+### Note on Locations, Vignettes and Scenes
 - [^Locations] are places (in [^Settings]) that represent a country, a city, a building (or a room in building), etc. They can be tied to Foundry scenes - and more than one, in case you want to use them for different parts of the location or different times (pre/post a fire, for ex. or night vs day).
   - Locations can be added to Sessions and then with a click you can get the lore you've built in the world around that location, as well as 1-click access to activate any of the related Foundry scenes.
 - [^Vignettes] are what the Lazy DM calls "scenes".  The are short descriptions of a scene that could happen during a session. I renamed them to Vignettes to avoid confusion with Foundry scenes.
 
-## Core Session Prep Components
-* [Campaign Directory](/reference/navigation/sidebar#campaign-directory)
-* [Campaign Details](/reference/campaign-mgt/content/campaign/)
-* [Session Details](/reference/campaign-mgt/content/session/)
-* [Front Details](/reference/campaign-mgt/content/front/)
-
-## Fronts and long-term threats
+### Fronts and long-term threats
 [Fronts] are an optional tool for tracking larger-scale threats and story threads across many sessions. A [^Front] is made up of one or more [^Dangers], each with [^Grim Portents] and an [^Impending Doom].
 
 If you like to think about how the world changes off-screen, or want to keep track of villain plans and looming disasters, Fronts give you a home for that work:
@@ -56,6 +57,10 @@ If you like to think about how the world changes off-screen, or want to keep tra
 - When you **Record Results**, you can adjust Fronts based on what actually happened at the table.
 
 You can safely ignore Fronts if you don’t need this level of structure, or turn them off entirely in [Module Settings].
+
+### Story Webs
+[Story Webs] are an optional tool that allows you to visualize the interconnections between the elements of your world/campaign in a diagram.
+
 
 ## Sample Session Preparation Walkthrough
 

@@ -4,8 +4,8 @@ prev:
   text: 'Front Details'
   link: '/reference/campaign-mgt/content/front'
 next: 
-  text: 'To-do List'
-  link: '/reference/campaign-mgt/content/campaign/todos'
+  text: 'Story Web Details'
+  link: '/reference/campaign-mgt/content/storyWeb/'
 ---
 
 # Danger Details

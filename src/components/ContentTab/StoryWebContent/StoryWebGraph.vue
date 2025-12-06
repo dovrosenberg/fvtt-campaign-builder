@@ -55,7 +55,6 @@
   import { useStoryWebStore } from '@/applications/stores';
   import { getValidatedData } from '@/utils/dragdrop';
   import { localize } from '@/utils/game';
-  import { confirmDialog } from '@/dialogs/confirm';
   
   // library components
   import ProgressSpinner from 'primevue/progressspinner';
@@ -156,18 +155,6 @@
       const nodeUnderCursor = toRaw(currentNetwork.value).getNodeAt(domPosition) as string | null;
       
       if (nodeUnderCursor) {
-        // User dropped on top of an existing node, ask if they want to create a connection
-        const shouldConnect = await confirmDialog(
-          localize('labels.storyWeb.createConnection'),
-          localize('labels.storyWeb.createConnectionPrompt')
-        );
-        
-        if (!shouldConnect) {
-          // User cancelled, just add the entry normally
-          await storyWebStore.addEntry(data.childId as string, convertedPosition, false);
-          return;
-        }
-
         // Handle the drop on node using the store method
         await storyWebStore.handleDropOnNode(data.childId as string, nodeUnderCursor, convertedPosition);
       } else {

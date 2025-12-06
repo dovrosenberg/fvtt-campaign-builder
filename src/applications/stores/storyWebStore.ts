@@ -44,8 +44,9 @@ window.fcbStoryWebPhysics = {
 };
 
 // types
-import { Danger, FrontFilterIndex, RelatedEntryDetails, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
+import { Danger, RelatedEntryDetails, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Campaign, Entry, Front } from '@/classes';
+import { confirmDialog } from '@/dialogs/confirm';
 
 interface NetworkClickEventInfo {
   nodes: string[],
@@ -453,15 +454,25 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     // Add the entry if it's not already in the graph
     if (!entryAlreadyInGraph) {
       await addEntry(entryUuid, position, false);
+
+      // add any edges needed
+      await mainStore.refreshStoryWeb();
+      await nextTick();
     }
 
     // Check if connection is valid before proceeding
-    if (!isValidConnection(targetNodeId, entryUuid)) {
-      return;
-    }
-
-    // Create the connection (target node to new/existing entry)
-    await createConnection(targetNodeId, entryUuid);
+    if (isValidConnection(targetNodeId, entryUuid)) {
+      // ask if they want to create a connection
+      const shouldConnect = await confirmDialog(
+        localize('labels.storyWeb.createConnection'),
+        localize('labels.storyWeb.createConnectionPrompt')
+      );
+      
+      if (shouldConnect) {
+        // Create the connection (target node to new/existing entry)
+        await createConnection(targetNodeId, entryUuid);
+      }
+    } 
   };
 
   /** select an danger from dialog and insert at a location; will let user pick from fronts
@@ -699,7 +710,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         return '';
 
       // Check all relationship topics for the target entry
-      for (const topic of RELATIONSHIP_TOPICS) {
+      for (const topic of [Topics.Character, Topics.Location, Topics.Organization, Topics.PC]) {
         const relatedEntries = fromEntry.relationships[topic] as RelatedEntryDetails<any, any>[] | undefined;
         if (!relatedEntries)
           continue;
