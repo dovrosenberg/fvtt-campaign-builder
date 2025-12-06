@@ -72,7 +72,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       
       // get all the campaigns - we could just use campaignNames but this will clean up any bad ones (i.e. got deleted incompletely)
       await currentSetting.value.loadCampaigns();
-      const campaigns = currentSetting.value.campaigns;
+      const campaigns = currentSetting.value.campaigns || {};
 
       for (const campaign of Object.values(campaigns)) {
         // if we are using fronts, the first child is the front folder

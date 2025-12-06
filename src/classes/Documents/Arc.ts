@@ -1,6 +1,5 @@
 // represents a game session 
 
-import { toRaw } from 'vue';
 import { ArcLocation, ArcLore, ArcMonster, ArcParticipant, DOCUMENT_TYPES, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
@@ -447,12 +446,12 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     const setting = await getGlobalSetting(this.settingId);
 
     if (!setting)
-      throw new Error('Setting not found in Front.delete()');
+      throw new Error('Setting not found in Arc.delete()');
     
     // remove from campaign
     const campaign = await Campaign.fromUuid(this.campaignId);
     if (!campaign)
-      throw new Error('Campaign not found in Front.delete()');
+      throw new Error('Campaign not found in Arc.delete()');
     
     await campaign.deleteArc(this);  // removes from setting, too
     
