@@ -12,8 +12,8 @@ next:
 ## Basic settings
 
 - **Hide missing backend warning**: If you're planning not to use the [Advanced Features], turn this on to avoid being warned about it every time to open the main window.  
-- **Use fronts**: Turn on/off whether to use [Fronts]. 
-- **Use story webs**: Turn on/off whether to use [Story Webs]. 
+- **Use fronts**: Turn on/off whether to use [Fronts]. Disabling them removes the "Fronts" folder from campaigns, but won't impact any Fronts you've already created.
+- **Use story webs**: Turn on/off whether to use [Story Webs]. Disabling them removes the "Story Webs" folder from campaigns, but won't impact any Story Webs you've already created.
 - **Show types in Setting tree**: If set, when the Setting directory isn't grouped by type, it will instead show the type of each Entry in the tree.
 - **Show roleplaying notes on entries**: If set, shows the extra roleplaying notes box on entries (in addition to description).
 - **Sidebar starts collapsed**: If set, the directory sidebar will be collapsed when you open the main window.  
