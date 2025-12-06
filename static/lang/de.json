@@ -7,7 +7,8 @@
       "entries": "Einträge",
       "sessions": "Sitzungen",
       "fronts": "Fronten",
-      "arcs": "Bögen"
+      "arcs": "Bögen",
+      "storyWebs": "Story-Netze"
     },
     "settings": {
       "startCollapsed": "Seitenleiste startet eingeklappt?",
@@ -65,7 +66,9 @@
       "showRolePlayingNotes": "Rollenspielnotizen bei Einträgen anzeigen",
       "showRolePlayingNotesHelp": "Wenn wahr, wird ein separates Feld für Rollenspielnotizen getrennt von der Eintragsbeschreibung angezeigt.",
       "useFronts": "Fronten verwenden",
-      "useFrontsHelp": "Aktivieren Sie die Kampagnenfunktion \"Front\"."
+      "useFrontsHelp": "Aktivieren Sie die Kampagnenfunktion \"Front\".",
+      "useWebs": "Story-Netze verwenden",
+      "useWebsHelp": "Aktivieren Sie die Funktionalität des Kampagnen-\"Story-Netzes\"."
     },
     "applications": {
       "sessionNotes": {
@@ -406,7 +409,22 @@
         "addParticipant": "Teilnehmer hinzufügen",
         "addParticipantDrag": "(oder ziehen/ablegen eines Charakters/Organisation)"
       },
-      "searching": "Suche"
+      "searching": "Suche",
+      "storyWeb": {
+        "addText": "Text hinzufügen",
+        "enterText": "Neuen Text eingeben",
+        "editText": "Text bearbeiten",
+        "editRelationship": "Beziehung bearbeiten",
+        "removeRelationship": "Beziehung entfernen",
+        "removeRelationshipConfirm": "Sind Sie sicher, dass Sie diese Beziehung löschen möchten? Dies wird die Beziehung bei den Einträgen entfernen, nicht nur im Diagramm.",
+        "addConnection": "Verbindung hinzufügen",
+        "newConnectionLabel": "Neues Beziehungslabel (kann leer sein)",
+        "createConnection": "Verbindung erstellen",
+        "createConnectionPrompt": "Sie haben einen Eintrag auf einen bestehenden Knoten gezogen. Möchten Sie eine Verbindung zwischen ihnen erstellen?",
+        "zoomIn": "Vergrößern",
+        "zoomOut": "Verkleinern",
+        "fitToWindow": "An Fenster anpassen"
+      }
     },
     "placeholders": {
       "search": "Suche",
@@ -424,7 +442,8 @@
       "dangerName": "Gefahrenname",
       "sessionDate": "Datum",
       "sessionNumber": "Sitzungsnummer",
-      "linkToActor": "Mit Schauspieler verknüpfen"
+      "linkToActor": "Mit Schauspieler verknüpfen",
+      "storyWebName": "Story-Netz-Name"
     },
     "topics": {
       "character": "Charakter",
@@ -564,6 +583,10 @@
           "bothBlank": "Anfangs- und Endesitzungsnummern müssen entweder beide leer oder beide nicht leer sein",
           "allSessionsCovered": "Alle Sitzungen müssen von einem Bogen abgedeckt sein"
         }
+      },
+      "createStoryWeb": {
+        "title": "Story-Netz erstellen",
+        "webName": "Story-Netz-Name"
       }
     },
     "contextMenus": {
@@ -581,7 +604,8 @@
         "markActive": "Kampagne als aktiv markieren",
         "createFront": "Eine Front erstellen",
         "createArc": "Einen Bogen erstellen",
-        "manageArcs": "Bögen verwalten"
+        "manageArcs": "Bögen verwalten",
+        "createStoryWeb": "Ein Story-Netz erstellen"
       },
       "session": {
         "delete": "Sitzung löschen"
@@ -637,6 +661,24 @@
       },
       "front": {
         "delete": "Vorderseite löschen"
+      },
+      "storyWeb": {
+        "delete": "Story-Netz löschen"
+      },
+      "storyWebGraph": {
+        "delete": "Löschen",
+        "removeFromDiagram": "Aus dem Diagramm entfernen",
+        "addText": "Text hinzufügen",
+        "addEntry": "Eintrag hinzufügen",
+        "editText": "Text bearbeiten",
+        "editRelationship": "Beziehung bearbeiten",
+        "addConnection": "Verbindung hinzufügen",
+        "addEntryWithRelationships": "Eintrag mit Beziehungen hinzufügen",
+        "addDanger": "Gefahr hinzufügen",
+        "addDangerWithRelationships": "Gefahr mit Beziehungen hinzufügen",
+        "addTextPrompt": "Text eingeben, der dem Diagramm hinzugefügt werden soll",
+        "openEntryInNewTab": "Eintrag in neuem Tab öffnen",
+        "openDangerInNewTab": "Gefahr in neuem Tab öffnen"
       }
     },
     "tooltips": {

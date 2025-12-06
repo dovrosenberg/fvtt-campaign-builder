@@ -7,7 +7,8 @@
       "entries": "Entrées",
       "sessions": "Sessions",
       "fronts": "Fronts",
-      "arcs": "Arcs"
+      "arcs": "Arcs",
+      "storyWebs": "Toiles d'histoires"
     },
     "settings": {
       "startCollapsed": "La barre latérale commence-t-elle repliée ?",
@@ -65,7 +66,9 @@
       "showRolePlayingNotes": "Afficher les notes de jeu de rôle sur les entrées",
       "showRolePlayingNotesHelp": "Lorsque c'est vrai, un champ séparé pour les notes de jeu de rôle sera affiché séparément de la description de l'entrée.",
       "useFronts": "Utiliser les fronts",
-      "useFrontsHelp": "Activer la fonctionnalité de \"front\" de campagne."
+      "useFrontsHelp": "Activer la fonctionnalité de \"front\" de campagne.",
+      "useWebs": "Utiliser les toiles d'histoires",
+      "useWebsHelp": "Activer la fonctionnalité de \"toile d'histoire\" de la campagne."
     },
     "applications": {
       "sessionNotes": {
@@ -406,7 +409,22 @@
         "addParticipant": "Ajouter un participant",
         "addParticipantDrag": "(ou glisser/déposer un personnage/organisation)"
       },
-      "searching": "Recherche"
+      "searching": "Recherche",
+      "storyWeb": {
+        "addText": "Ajouter du texte",
+        "enterText": "Entrer un nouveau texte",
+        "editText": "Modifier le texte",
+        "editRelationship": "Modifier la relation",
+        "removeRelationship": "Supprimer la relation",
+        "removeRelationshipConfirm": "Êtes-vous sûr de vouloir supprimer cette relation ? Cela supprimera la relation sur les entrées, pas seulement sur le diagramme.",
+        "addConnection": "Ajouter une connexion",
+        "newConnectionLabel": "Nouvelle étiquette de relation (peut être vide)",
+        "createConnection": "Créer une connexion",
+        "createConnectionPrompt": "Vous avez déposé une entrée sur un nœud existant. Voulez-vous créer une connexion entre eux ?",
+        "zoomIn": "Zoomer",
+        "zoomOut": "Dézoomer",
+        "fitToWindow": "Ajuster à la fenêtre"
+      }
     },
     "placeholders": {
       "search": "Rechercher",
@@ -424,7 +442,8 @@
       "dangerName": "Nom du danger",
       "sessionDate": "Date",
       "sessionNumber": "Numéro de Session",
-      "linkToActor": "Lien vers l'Acteur"
+      "linkToActor": "Lien vers l'Acteur",
+      "storyWebName": "Nom de la toile d'histoire"
     },
     "topics": {
       "character": "Personnage",
@@ -564,6 +583,10 @@
           "bothBlank": "Les numéros de début et de fin de session doivent être soit tous les deux vides, soit tous les deux non vides",
           "allSessionsCovered": "Toutes les sessions doivent être couvertes par un arc"
         }
+      },
+      "createStoryWeb": {
+        "title": "Créer une toile d'histoire",
+        "webName": "Nom de la toile d'histoire"
       }
     },
     "contextMenus": {
@@ -581,7 +604,8 @@
         "markActive": "Marquer la campagne comme active",
         "createFront": "Créer un front",
         "createArc": "Créer un arc",
-        "manageArcs": "Gérer les arcs"
+        "manageArcs": "Gérer les arcs",
+        "createStoryWeb": "Créer une toile d'histoire"
       },
       "session": {
         "delete": "Supprimer la session"
@@ -637,6 +661,24 @@
       },
       "front": {
         "delete": "Supprimer l'avant"
+      },
+      "storyWeb": {
+        "delete": "Supprimer la toile d'histoire"
+      },
+      "storyWebGraph": {
+        "delete": "Supprimer",
+        "removeFromDiagram": "Retirer du diagramme",
+        "addText": "Ajouter du texte",
+        "addEntry": "Ajouter une entrée",
+        "editText": "Modifier le texte",
+        "editRelationship": "Modifier la relation",
+        "addConnection": "Ajouter une connexion",
+        "addEntryWithRelationships": "Ajouter une entrée avec des relations",
+        "addDanger": "Ajouter un danger",
+        "addDangerWithRelationships": "Ajouter un danger avec des relations",
+        "addTextPrompt": "Entrer le texte à ajouter au diagramme",
+        "openEntryInNewTab": "Ouvrir l'entrée dans un nouvel onglet",
+        "openDangerInNewTab": "Ouvrir le danger dans un nouvel onglet"
       }
     },
     "tooltips": {

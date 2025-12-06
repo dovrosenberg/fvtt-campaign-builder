@@ -7,7 +7,8 @@
       "entries": "Записи",
       "sessions": "Сессии",
       "fronts": "Фронты",
-      "arcs": "Арки"
+      "arcs": "Арки",
+      "storyWebs": "Сетевые истории"
     },
     "settings": {
       "startCollapsed": "Боковая панель начинается в свернутом виде?",
@@ -65,7 +66,9 @@
       "showRolePlayingNotes": "Показывать заметки по ролевой игре в записях",
       "showRolePlayingNotesHelp": "При включении отдельное поле для заметок по ролевой игре будет показано отдельно от описания записи.",
       "useFronts": "Использовать фронты",
-      "useFrontsHelp": "Включить функциональность \"фронтов\" кампании."
+      "useFrontsHelp": "Включить функциональность \"фронтов\" кампании.",
+      "useWebs": "Использовать сетевые истории",
+      "useWebsHelp": "Включить функцию \"сетевых историй\" для кампании."
     },
     "applications": {
       "sessionNotes": {
@@ -406,7 +409,22 @@
         "addParticipant": "Добавить участника",
         "addParticipantDrag": "(или перетащите персонажа/организацию)"
       },
-      "searching": "Поиск"
+      "searching": "Поиск",
+      "storyWeb": {
+        "addText": "Добавить текст",
+        "enterText": "Введите новый текст",
+        "editText": "Редактировать текст",
+        "editRelationship": "Редактировать связь",
+        "removeRelationship": "Удалить связь",
+        "removeRelationshipConfirm": "Вы уверены, что хотите удалить эту связь? Это удалит связь в записях, а не только на диаграмме.",
+        "addConnection": "Добавить связь",
+        "newConnectionLabel": "Новая метка связи (может быть пустой)",
+        "createConnection": "Создать связь",
+        "createConnectionPrompt": "Вы поместили запись на существующий узел. Хотите создать связь между ними?",
+        "zoomIn": "Увеличить",
+        "zoomOut": "Уменьшить",
+        "fitToWindow": "По размеру окна"
+      }
     },
     "placeholders": {
       "search": "Поиск",
@@ -424,7 +442,8 @@
       "dangerName": "Название опасности",
       "sessionDate": "Дата",
       "sessionNumber": "Номер сессии",
-      "linkToActor": "Связать с актером"
+      "linkToActor": "Связать с актером",
+      "storyWebName": "Название сетевой истории"
     },
     "topics": {
       "character": "Персонаж",
@@ -584,6 +603,10 @@
           "bothBlank": "Номера начальной и конечной сессий должны быть либо оба пустыми, либо оба заполненными",
           "allSessionsCovered": "Все сессии должны быть охвачены аркой"
         }
+      },
+      "createStoryWeb": {
+        "title": "Создать сетевую историю",
+        "webName": "Название сетевой истории"
       }
     },
     "contextMenus": {
@@ -609,7 +632,8 @@
         "markActive": "Отметить кампанию активной",
         "createFront": "Создать фронт",
         "createArc": "Создать арку",
-        "manageArcs": "Управление арками"
+        "manageArcs": "Управление арками",
+        "createStoryWeb": "Создать сетевую историю"
       },
       "session": {
         "delete": "Удалить сессию"
@@ -657,6 +681,24 @@
       },
       "front": {
         "delete": "Удалить переднюю часть"
+      },
+      "storyWeb": {
+        "delete": "Удалить сетевую историю"
+      },
+      "storyWebGraph": {
+        "delete": "Удалить",
+        "removeFromDiagram": "Удалить из диаграммы",
+        "addText": "Добавить текст",
+        "addEntry": "Добавить запись",
+        "editText": "Редактировать текст",
+        "editRelationship": "Редактировать связь",
+        "addConnection": "Добавить связь",
+        "addEntryWithRelationships": "Добавить запись со связями",
+        "addDanger": "Добавить опасность",
+        "addDangerWithRelationships": "Добавить опасность со связями",
+        "addTextPrompt": "Введите текст для добавления на диаграмму",
+        "openEntryInNewTab": "Открыть запись в новой вкладке",
+        "openDangerInNewTab": "Открыть опасность в новой вкладке"
       }
     },
     "tooltips": {
