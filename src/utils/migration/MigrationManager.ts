@@ -209,8 +209,8 @@ export class MigrationManager {
               console.error(errorMsg);
               progress.updateStatus(`Migration failed for version ${currentVersion}`);
               
-              // Re-throw to break out of the loop
-              throw error;
+              // break out of loop
+              break;
             }
 
             completedMigrations++;

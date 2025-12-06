@@ -74,10 +74,10 @@ export class MigrationV1_7 implements Migration {
       }
     } catch (outer) {
       result.success = false;
-      result.errors?.push(`MigrationV1_6 failed: ${outer}`);
+      result.errors?.push(`MigrationV1_7 failed: ${outer}`);
       // eslint-disable-next-line no-console
-      notifyError(`MigrationV1_6 failed: ${outer}`);
-      console.error('MigrationV1_6 fatal error:', outer);
+      notifyError(`MigrationV1_7 failed: ${outer}`);
+      console.error('MigrationV1_7 fatal error:', outer);
     }
 
     return result;
