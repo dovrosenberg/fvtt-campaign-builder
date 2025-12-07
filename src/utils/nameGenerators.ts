@@ -1,6 +1,6 @@
 import { moduleId } from '@/settings';
 import { isClientGM, localize } from '@/utils/game';
-import { Backend } from '@/classes';
+import { useBackendStore } from '@/applications/stores';
 import { nameStyles } from '@/utils/nameStyles';
 
 import { GeneratorType, SettingGeneratorConfig } from '@/types';
@@ -130,8 +130,9 @@ const getOrCreateSettingRollTableFolder = async(setting: FCBSetting): Promise<st
  * @throws {Error} If the backend is unavailable or generation fails
  */
 const generateSettingTableResults = async (type: GeneratorType, count: number, setting: FCBSetting): Promise<string[]> => {
+  const backendStore = useBackendStore();
   // If backend is not available, just return
-  if (!Backend.available || !Backend.api) {
+  if (!backendStore.available) {
     return [];
   }
 
@@ -159,19 +160,19 @@ const generateSettingTableResults = async (type: GeneratorType, count: number, s
     let response;
     switch (type) {
       case GeneratorType.NPC:
-        response = await Backend.api.apiNameCharactersPost(request);
+        response = await backendStore.generateCharacterNames(request);
         break;
 
       case GeneratorType.Store:
-        response = await Backend.api.apiNameStoresPost(request);
+        response = await backendStore.generateStoreNames(request);
         break;
 
       case GeneratorType.Tavern:
-        response = await Backend.api.apiNameTavernsPost(request);
+        response = await backendStore.generateTavernNames(request);
         break;
 
       case GeneratorType.Town:
-        response = await Backend.api.apiNameTownsPost(request);
+        response = await backendStore.generateTownNames(request);
         break;
 
       default:
@@ -226,7 +227,8 @@ async function createSettingRollTable(type: GeneratorType, folderId: string, set
  */
 export const refreshSettingRollTable = async (rollTable: RollTable, setting: FCBSetting) : Promise<void> => {
   // requires backend
-  if (!Backend.available || !Backend.api) {
+  const backendStore = useBackendStore();
+  if (!backendStore.available) {
     throw new Error('Backend is not available. Please check your backend settings.');
   }
 

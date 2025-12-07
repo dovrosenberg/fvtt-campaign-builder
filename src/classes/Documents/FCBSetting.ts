@@ -5,7 +5,7 @@ import { TopicFolder, RootFolder, Entry, Session, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
-import { Backend } from '@/classes';
+import { useBackendStore } from '@/applications/stores';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Documents/FCBJournalEntryPage';
 import { entryIndexFields, NameStyleExamples, sessionIndexFields, } from '@/documents';
@@ -305,7 +305,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     
     // If auto-refresh is enabled, populate tables in background
     const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
-    if (autoRefresh && Backend.available && Backend.api) {
+    if (autoRefresh && useBackendStore().available) {
       void refreshSettingRollTables(newSetting);
     }
 

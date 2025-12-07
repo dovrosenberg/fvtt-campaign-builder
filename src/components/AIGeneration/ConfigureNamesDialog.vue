@@ -61,8 +61,7 @@
   
   // local imports
   import { localize } from '@/utils/game';
-  import { Backend } from '@/classes';
-  import { useMainStore } from '@/applications/stores';
+  import { useMainStore, useBackendStore } from '@/applications/stores';
   import { nameStyles, } from '@/utils/nameStyles';
   
   // library components
@@ -96,6 +95,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
+  const backendStore = useBackendStore();
   const { currentSetting } = storeToRefs(mainStore);
 
   ////////////////////////////////
@@ -166,11 +166,11 @@
         previewData.value = storedExamples.examples;
       } else {
         // If no stored examples or they don't match, generate new ones
-        const response = await Backend.api.apiNamePreviewPost({
-          nameStyles: nameStylePrompts.value,
-          genre: currentSetting.value.genre,
-          settingFeeling: currentSetting.value.settingFeeling
-        });
+        const response = await backendStore.getNamePreview(
+          nameStylePrompts.value, 
+          currentSetting.value.genre, 
+          currentSetting.value.settingFeeling
+        );
         
         previewData.value = response.data.preview;
 

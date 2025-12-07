@@ -25,7 +25,7 @@
   // local imports
   import { notifyError, notifyInfo, notifyWarn } from '@/utils/notifications';
   import { localize } from '@/utils/game';
-  import { useMainStore } from '@/applications/stores';
+  import { useMainStore, useBackendStore } from '@/applications/stores';
   import { getTopicText } from '@/compendia';
 
   // library components
@@ -36,7 +36,6 @@
   // types
   import { Topics, ValidTopic, WindowTabType } from '@/types';
   import { MenuItem } from '@imengyu/vue3-context-menu';
-  import { Backend } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -75,7 +74,9 @@
   ////////////////////////////////
   // data
   const mainStore = useMainStore();
+  const backendStore = useBackendStore();
   const { currentEntry, currentContentType } = storeToRefs(mainStore);
+  const { available, isGeneratingImage } = storeToRefs(backendStore);
 
 
   ////////////////////////////////
@@ -156,13 +157,13 @@
         },
       ];
 
-      if (Backend.available && [Topics.Character, Topics.Location, Topics.Organization, Topics.PC].includes(props.topic)) {
+      if (available.value && [Topics.Character, Topics.Location, Topics.Organization, Topics.PC].includes(props.topic)) {
         items.push({
           icon: 'fa-head-side-virus',
           iconFontClass: 'fas',
           label: localize('contextMenus.image.generateImage'),
           onClick: () => generateImage(),
-          disabled: Backend.isGeneratingImage[currentEntry.value?.uuid as string],
+          disabled: isGeneratingImage.value[currentEntry.value?.uuid as string],
         });
       }
     } else {
@@ -220,14 +221,14 @@
         });
       }
 
-      if (Backend.available && [Topics.Character, Topics.Location, Topics.Organization].includes(props.topic)) {
+      if (available.value && [Topics.Character, Topics.Location, Topics.Organization].includes(props.topic)) {
         // insert it after change image
         items.splice(items.findIndex((i)=> i.icon === 'fa-edit'), 0, {
           icon: 'fa-head-side-virus',
           iconFontClass: 'fas',
           label: localize('contextMenus.image.generateImage'),
           onClick: () => generateImage(),
-          disabled: Backend.isGeneratingImage[currentEntry.value?.uuid as string],
+          disabled: isGeneratingImage.value[currentEntry.value?.uuid as string],
         });
       }
     } 

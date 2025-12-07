@@ -212,7 +212,7 @@
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend, Campaign, } from '@/classes';
+  import { useBackendStore } from '@/applications/stores';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
   import { getGlobalSetting } from '@/utils/globalSettings';
@@ -226,6 +226,7 @@
   import RangePicker from '@/components/RangePicker.vue';
 
   // types
+  import { Campaign, } from '@/classes';
   import { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from '@/apiClient';
   
   ////////////////////////////////
@@ -236,6 +237,7 @@
 
   ////////////////////////////////
   // store
+  const backendStore = useBackendStore();
   
   ////////////////////////////////
   // data
@@ -266,7 +268,7 @@
 
   const loadTextModels = async () => {
     try {
-      const response = await Backend.api.apiModelsTextGet();
+      const response = await backendStore.getTextModels();
       textModelOptions.value = response.data.models || [];
       selectedTextModel.value = ModuleSettings.get(SettingKey.selectedTextModel) || textModelOptions.value[0]?.id || '';
     } catch (error) {
@@ -277,7 +279,7 @@
 
   const loadImageModels = async () => {
     try {
-      const response = await Backend.api.apiModelsImageGet();
+      const response = await backendStore.getImageModels();
       imageModelOptions.value = response.data.models || [];
       selectedImageModel.value = ModuleSettings.get(SettingKey.selectedImageModel) || imageModelOptions.value[0]?.id || '';
     } catch (error) {
@@ -326,7 +328,7 @@
     await ModuleSettings.set(SettingKey.selectedImageModel, selectedImageModel.value as ApiLocationGenerateImagePostRequestImageModelEnum);
 
     // reset the backend
-    await Backend.configure(true);
+    await useBackendStore().configure(true);
 
     // close
     advancedSettingsApp?.close();
