@@ -44,7 +44,9 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   const toggleWithLoad = async<
     T extends DirectoryCampaignNode<any> | DirectoryArcNode | DirectoryFrontFolder
   >(node: T, expanded: boolean) : Promise<T>=> {
-    return await node.toggleWithLoad(expanded) as T;
+    const retval = await node.toggleWithLoad(expanded) as T;
+    await refreshCampaignDirectoryTree();
+    return retval;
   };
 
   // refreshes the campaign tree 

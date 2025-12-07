@@ -838,7 +838,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     // we attempt to save first - because if it fails, we don't 
     //    want to adjust anything else
     const justCompleted = this._clone.system.completed && !this._doc?.system.completed;
-    const justIncompleted = !this._clone.system.completed && this._doc?.system.completed;
+    const justActive = !this._clone.system.completed && this._doc?.system.completed;
 
     await super.save();
 
@@ -883,8 +883,8 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
         await ModuleSettings.set(SettingKey.emailDefaultCampaign, '');
     }
 
-    // if we just marked incomplete, we need to make some changes
-    if (justIncompleted) {
+    // if we just marked active, we need to make some changes
+    if (justActive) {
       // add to search
       const sessions = await this.allSessions();
       for (const session of sessions) {
