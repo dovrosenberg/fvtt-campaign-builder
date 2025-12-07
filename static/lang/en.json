@@ -71,7 +71,9 @@
       "useFronts": "Use Fronts",
       "useFrontsHelp": "Turn on campaign \"front\" functionality.",
       "useWebs": "Use Story Webs",
-      "useWebsHelp": "Turn on campaign \"story web\" functionality."
+      "useWebsHelp": "Turn on campaign \"story web\" functionality.",
+      "subTabsSavePosition": "Sub-tabs save position",
+      "subTabsSavePositionHelp": "When enabled, every tab will remember which interior sub-tab was open and return to it when you re-open that tab. When disabled, tabs will always revert to the first one (usually description)."
     },
     "applications": {
       "sessionNotes": {
