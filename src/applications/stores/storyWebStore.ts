@@ -575,11 +575,11 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   */
 
   const removeEdge = async (edgeId: string) => {
-    if (!currentStoryWeb.value)
+    if (!currentStoryWeb.value || !currentNetwork.value)
       return;
 
     // confirm
-    const nodes = toRaw(currentNetwork.value)?.getConnectedNodes(edgeId) as string[];
+    const nodes = toRaw(currentNetwork.value).getConnectedNodes(edgeId) as string[];
 
     // show confirmation if both are entries
     const node1 = currentStoryWeb.value?.nodes.find(n => n.uuid === nodes[0]);
@@ -596,12 +596,19 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       await relationshipStore.deleteArbitraryRelationship(node1.uuid, node2.uuid);
     } 
 
-    // if either edge was implicit, remove that one too
-    if (node1?.source === StoryWebNodeSource.Implicit)
-      await removeNode(node1.uuid);
-    if (node2?.source === StoryWebNodeSource.Implicit)
-      await removeNode(node2.uuid);
-  
+    // if either edge was implicit, remove that one too - unless it's attached to something else
+    if (node1?.source === StoryWebNodeSource.Implicit) {
+      // see if this node is attached to anything else
+      if (toRaw(currentNetwork.value).getConnectedNodes(node1.uuid).length === 1) {
+        await removeNode(node1.uuid);
+      }
+    }
+    if (node2?.source === StoryWebNodeSource.Implicit) {
+      if (toRaw(currentNetwork.value).getConnectedNodes(node2.uuid).length === 1) {
+        await removeNode(node2.uuid);
+      }
+    }
+
     // remove from the web if it was a manual edge
     currentStoryWeb.value.edges = currentStoryWeb.value.edges.filter(e => e.uuid !== edgeId);
     await currentStoryWeb.value.save(); 

@@ -365,7 +365,7 @@
           notifyInfo('Image copied to clipboard');
           return;
         } catch (directError) {
-          console.log('Direct copy failed, trying canvas conversion:', directError);
+          console.warn('Direct copy failed, trying canvas conversion:', directError);
           // Fall through to canvas conversion
         }
       }
