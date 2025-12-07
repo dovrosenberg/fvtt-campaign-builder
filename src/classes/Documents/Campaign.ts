@@ -755,7 +755,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @returns {Front[]} The entries that pass the filter
    */
   public async filterFronts(filterFn: (s: FrontFilterIndex) => boolean): Promise<Front[]> { 
-    // get all the journal entries
+    // get all entries
     const entries = await toRaw(this.compendium).getIndex(frontIndexFields());
 
     // find the sessions connected to this campaign

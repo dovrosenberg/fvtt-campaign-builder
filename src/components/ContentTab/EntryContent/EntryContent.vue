@@ -230,7 +230,7 @@
   // local imports
   import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useSettingDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, usePlayingStore, } from '@/applications/stores';
+  import { useSettingDirectoryStore, useBackendStore, useMainStore, useNavigationStore, useRelationshipStore, usePlayingStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -260,9 +260,8 @@
   
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal, ContentTabDescriptor } from '@/types';
-  import { FCBSetting, TopicFolder, Backend, Entry, Session, Campaign } from '@/classes';
+  import { FCBSetting, TopicFolder, Entry, Session, Campaign } from '@/classes';
   import { DOCUMENT_TYPES } from '@/documents';
-
 
   ////////////////////////////////
   // props
@@ -277,9 +276,11 @@
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
   const playingStore = usePlayingStore();
+  const backendStore = useBackendStore();
   const { currentEntry, currentSetting, refreshCurrentEntry, } = storeToRefs(mainStore);
   const { currentPlayedCampaign } = storeToRefs(playingStore);
   const { isInPlayMode } = storeToRefs(mainStore);
+  const { isGeneratingImage, available } = storeToRefs(backendStore); 
 
   ////////////////////////////////
   // data
@@ -314,7 +315,7 @@
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
   const canGenerate = computed(() => topic.value && [Topics.Character, Topics.Location, Topics.Organization].includes(topic.value));
-  const generateDisabled = computed(() => !Backend.available);
+  const generateDisabled = computed(() => !available.value);
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const roleplayAboveDescription = computed(() => ModuleSettings.get(SettingKey.showRolePlayingNotes) && isInPlayMode.value);
   const roleplayBelowDescription = computed(() => ModuleSettings.get(SettingKey.showRolePlayingNotes) && !isInPlayMode.value);
@@ -587,8 +588,8 @@
       menuItems.push({
         icon: 'fa-image',
         iconFontClass: 'fas',
-        label: `${localize('contextMenus.generate.image')} ${Backend.isGeneratingImage[currentEntry.value?.uuid as string] ? ` - ${localize('contextMenus.generate.inProgress')}` : ''}`,
-        disabled: Backend.isGeneratingImage[currentEntry.value?.uuid as string],
+        label: `${localize('contextMenus.generate.image')} ${isGeneratingImage.value[currentEntry.value?.uuid as string] ? ` - ${localize('contextMenus.generate.inProgress')}` : ''}`,
+        disabled: isGeneratingImage.value[currentEntry.value?.uuid as string],
         onClick: async () => {
           if (currentSetting.value && currentEntry.value) {
             await generateImage(currentSetting.value, currentEntry.value);

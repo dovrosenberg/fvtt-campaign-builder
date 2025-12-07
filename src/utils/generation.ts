@@ -1,7 +1,7 @@
 // library imports
 
 // local imports
-import { useMainStore, useSettingDirectoryStore, } from '@/applications/stores';
+import { useMainStore, useSettingDirectoryStore, useBackendStore, } from '@/applications/stores';
 
 // types
 import { 
@@ -12,7 +12,6 @@ import {
   Topics, 
 } from '@/types';
 import { Entry, TopicFolder, FCBSetting, } from '@/classes';
-import { Backend } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyError, notifyInfo } from './notifications';
 
@@ -92,12 +91,12 @@ export const generateImage = async (forSetting: FCBSetting, entry: Entry): Promi
     return;
   }
 
-  if (Backend.isGeneratingImage[entry.uuid]) {
+  if (useBackendStore().isGeneratingImage[entry.uuid]) {
     return;
   }
 
   const entryGenerated = entry.uuid;
-  Backend.isGeneratingImage[entryGenerated] = true;
+  useBackendStore().isGeneratingImage[entryGenerated] = true;
 
   try {
     // Show a notification that we're generating an image
@@ -114,7 +113,7 @@ export const generateImage = async (forSetting: FCBSetting, entry: Entry): Promi
     switch (entry.topic) {
       case Topics.Character:
         // Call the API to generate an image
-         result = await Backend.api.apiCharacterGenerateImagePost({
+         result = await useBackendStore().generateCharacterImage({
           genre: forSetting.genre,
           settingFeeling: forSetting.settingFeeling,
           name: entry.name,
@@ -162,9 +161,9 @@ export const generateImage = async (forSetting: FCBSetting, entry: Entry): Promi
         };
 
         if (entry.topic === Topics.Location)  {
-          result = await Backend.api.apiLocationGenerateImagePost(options);
+          result = await useBackendStore().generateLocationImage(options);
         } else if (entry.topic === Topics.Organization) {
-          result = await Backend.api.apiOrganizationGenerateImagePost(options);
+          result = await useBackendStore().generateOrganizationImage(options);
         }
         break;
     }
@@ -185,6 +184,6 @@ export const generateImage = async (forSetting: FCBSetting, entry: Entry): Promi
     notifyError(message);
     throw new Error(message);
   } finally {
-    Backend.isGeneratingImage[entryGenerated] = false;
+    useBackendStore().isGeneratingImage[entryGenerated] = false;
   }
 };

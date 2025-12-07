@@ -226,10 +226,9 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useSessionStore } from '@/applications/stores';
+  import { useMainStore, useSessionStore, useBackendStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend } from '@/classes';
   import { generatedTextToHTML, htmlToPlainText } from '@/utils/sanitizeHtml';
   import { hasHierarchy, } from '@/utils/hierarchy';
   import { nameStyles } from '@/utils/nameStyles';
@@ -312,7 +311,9 @@
   // store
   const mainStore = useMainStore();
   const sessionStore = useSessionStore();
+  const backendStore = useBackendStore();
   const { currentSetting, isInPlayMode } = storeToRefs(mainStore);
+  const { available } = storeToRefs(backendStore);
 
   ////////////////////////////////
   // data
@@ -359,7 +360,7 @@
   });
 
   const generateMode = computed((): boolean => {
-    return props.generateMode && Backend.available;
+    return props.generateMode && available.value;
   });
 
   const useRoleplayNotes = computed((): boolean => {
@@ -409,7 +410,7 @@
       generateComplete.value = false;
       generateError.value = '';
 
-      let result: Awaited<ReturnType<typeof Backend.api.apiOrganizationGeneratePost | typeof Backend.api.apiLocationGeneratePost | typeof Backend.api.apiCharacterGeneratePost>>;
+      let result: Awaited<ReturnType<typeof backendStore.generateCharacter | typeof backendStore.generateLocation | typeof backendStore.generateOrganization>>;
 
       if (props.topic===Topics.Character) {
         let speciesDescription = '';
@@ -425,7 +426,7 @@
         const speciesToUse = speciesList.find(s => s.id === speciesId.value);
         speciesDescription = speciesToUse?.description || speciesName.value;  // might not be there because could be just added
 
-        result = await Backend.api.apiCharacterGeneratePost({
+        result = await backendStore.generateCharacter({
           genre: currentSetting.value.genre,
           rpgStyle: ModuleSettings.get(SettingKey.rpgStyle),
           settingFeeling: currentSetting.value.settingFeeling,
@@ -473,9 +474,9 @@
         };
 
         if (props.topic === Topics.Location) {
-          result = await Backend.api.apiLocationGeneratePost(options);
+          result = await backendStore.generateLocation(options);
         } else if (props.topic === Topics.Organization) {
-          result = await Backend.api.apiOrganizationGeneratePost(options);
+          result = await backendStore.generateOrganization(options);
         } 
       } else {
         throw new Error('Invalid topic in createEntryDialog.onGenerateClick():' + props.topic);
@@ -659,9 +660,9 @@
   }
   
   // Ensure dialog is always on top of Foundry UI
-  body > .fcb-dialog {
-    // z-index: 9999 !important;
-  }
+  // body > .fcb-dialog {
+  //   // z-index: 9999 !important;
+  // }
 
   .create-entry-dialog-content {
     .field-label {

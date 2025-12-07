@@ -2,7 +2,7 @@
 //
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { watch, ref, toRaw, } from 'vue';
+import { watch, ref, toRaw, nextTick } from 'vue';
 import type { Edge, Network, Node } from 'vis-network';
 
 // local imports
