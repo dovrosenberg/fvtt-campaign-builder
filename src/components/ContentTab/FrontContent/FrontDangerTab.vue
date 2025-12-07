@@ -1,6 +1,6 @@
 <template>
   <div class="fcb-description-wrapper flexrow">
-    <div ref="contentRef" class="fcb-sheet-container flexcol" style="overflow-y: visible">
+    <div class="fcb-sheet-container flexcol" style="overflow-y: visible">
       <header class="fcb-name-header flexrow">
         <InputText
           v-model="name"
@@ -147,7 +147,6 @@
   
   ////////////////////////////////
   // data
-  const contentRef = ref<HTMLElement | null>(null);
   const name = ref('');
   const impendingDoom = ref('');
   const motivation = ref('');
@@ -175,7 +174,7 @@
       // name can't be blank
       if (newValue.trim() === '') {
         notifyWarn(localize('errors.nameRequired'));
-        name.value = currentDanger.value?.name!;
+        name.value = currentDanger.value?.name || localize('placeholders.dangerName');
         return;
       }
 
@@ -244,7 +243,7 @@
     if (newDanger) {
       refreshDanger();
     }
-  });
+  }, { immediate: true });
   
 
   ////////////////////////////////

@@ -8,6 +8,7 @@
 - In the module settings, you can now configure to now show images on the description pages of different content types.  This lets you have a bit more room for the description boxes for places you don't use images.
 - Fixed a bug where deleting content in the module was still leaving stray journal entries in the setting's compendium.  It didn't really hurt anything, but it was confusing if you opened the compendium manually.  Plus they were still taking up unneeded space.
 - Fixed a bug where moving lore around between sessions, arcs, and campaigns would lose the connection to any attached journal entries.
+- Fixed a bug where the danger name textbox wasn't working.
 
 ## v1.6.5 - One more migration fix
 ![](https://img.shields.io/badge/release%20date-December%202%2C%202025-blue)

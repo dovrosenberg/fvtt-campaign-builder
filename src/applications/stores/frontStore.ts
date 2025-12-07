@@ -34,7 +34,8 @@ export const useFrontStore = defineStore('front', () => {
     if (!currentFront.value || currentContentTab.value == null)
       return null;
 
-    const index = parseInt(currentContentTab.value);
+    // danger tabs are keyed as 'danger0', 'danger1', etc.
+    const index = parseInt(currentContentTab.value.toString().replace('danger', ''));
     if (isNaN(index) || index < 0 || index >= currentFront.value.dangers.length)
       return null;
 
