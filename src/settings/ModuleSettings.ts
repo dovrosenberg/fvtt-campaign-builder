@@ -4,7 +4,7 @@ import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSet
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { ImageSettingsApplication } from '@/applications/settings/ImageSettingsApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
-import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, defaultCustomFields, WindowTabType } from '@/types';
+import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, defaultCustomFields, } from '@/types';
 import type { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from '@/apiClient';
 
 export interface ImageVisibility {
@@ -30,6 +30,7 @@ export enum SettingKey {
   showRolePlayingNotes = 'showRolePlayingNotes',  // whether to show role playing notes on entries
   useFronts = 'useFronts', // allow creation and viewing of fronts
   useWebs = 'useWebs', // allow creation and viewing of story webs
+  subTabsSavePosition = 'subTabsSavePosition', // whether sub-tabs remember their last position
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
@@ -80,6 +81,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.showRolePlayingNotes ? boolean :
     K extends SettingKey.useFronts ? boolean :
     K extends SettingKey.useWebs ? boolean :
+    K extends SettingKey.subTabsSavePosition ? boolean :
     K extends SettingKey.rpgStyle ? boolean :
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
@@ -253,6 +255,13 @@ export class ModuleSettings {
       settingID: SettingKey.autoRelationships,
       name: 'settings.autoRelationships',
       hint: 'settings.autoRelationshipsHelp',
+      default: true,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.subTabsSavePosition,
+      name: 'settings.subTabsSavePosition',
+      hint: 'settings.subTabsSavePositionHelp',
       default: true,
       type: Boolean,
     },

@@ -1225,7 +1225,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         onClick: async () => {
           const [frontId, dangerId] = nodeId.split('|'); 
 
-          await navigationStore.openFront(frontId, { newTab: true, contentTabId: `danger${dangerId}` }); 
+          await navigationStore.openFront(frontId, { newTab: true, contentTabId: `danger${dangerId}`, forceTab: true }); 
         },
         hidden: !isDangerNode
       },
