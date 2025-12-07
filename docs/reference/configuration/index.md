@@ -48,3 +48,6 @@ This relates to the [RollTables](/reference/play-mode/name-generation#rolltables
 
 Clicking the "Refresh all tables" button will regenerate all the RollTables for all Settings.  This is particularly useful if you've changed the [name styles](/reference/world-building/content/setting/namestyles) for a Setting and want to regenerate the names to only include the styles you want.
 
+### Configure Content Images
+This allows you to hide the images on content pages for settings, entries, campaigns, etc.  This lets you have a bit more screen real estate for content types for which you don't use images.
+

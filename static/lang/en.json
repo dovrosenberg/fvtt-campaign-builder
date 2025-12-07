@@ -60,7 +60,10 @@
       "enableToDoList": "Enable To-do List",
       "enableToDoListHelp": "If disabled, the todo list feature will be turned off.",
       "autoRelationships": "Auto-suggest relationships",
-      "autoRelationshipsHelp": "If enabled, the editor will automatically suggest changes to relationships between entries based changes made to the description.",
+      "autoRelationshipsHelp": "If enabled, the system will automatically suggest changes to relationships between entries based on changes made to the description.",
+      "images": "Configure Content Images",
+      "imagesLabel": "Content Images",
+      "imagesHelp": "Configure image visibility settings for different content types",
       "showTypesInTree": "Show types in Setting tree",
       "showTypesInTreeHelp": "When true, if the Setting directory is not grouped by type, it will show the type of each Entry in the tree.",
       "showRolePlayingNotes": "Show role playing notes on entries",
@@ -602,6 +605,16 @@
         "save": "Save Changes",
         "discard": "Discard Changes",
         "cancel": "Cancel"
+      },
+      "imageSettings": {
+        "title": "Image Visibility Settings",
+        "description": "Choose which content types should display images on their description pages.",
+        "settings": "Settings",
+        "entries": "Entries",
+        "campaigns": "Campaigns",
+        "arcs": "Arcs",
+        "sessions": "Sessions",
+        "fronts": "Fronts"
       },
       "relatedEntriesManagement": {
         "title": "Manage Related Entries",

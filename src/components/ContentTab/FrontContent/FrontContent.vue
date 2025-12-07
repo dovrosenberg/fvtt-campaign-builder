@@ -7,7 +7,6 @@
           v-model="name"
           for="fcb-input-name" 
           class="fcb-input-name"
-          :show-image="false"
           unstyled
           :placeholder="localize('placeholders.frontName')"
           :pt="{
@@ -36,6 +35,7 @@
           :name="currentFront?.name || 'Front'"
           :image-url="currentFront?.img"
           :window-type="WindowTabType.Front"
+          :show-image="ModuleSettings.get(SettingKey.showImages)?.fronts ?? true"
           alt-tab-id="description"
           @image-change="onImageChange"
         >
@@ -75,8 +75,8 @@
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
-  import { SettingKey, } from '@/settings';
   import { notifyWarn } from '@/utils/notifications';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
   import InputText from 'primevue/inputtext';

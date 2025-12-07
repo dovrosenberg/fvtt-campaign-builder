@@ -32,6 +32,7 @@
           :name="currentSession?.name || 'Session'"
           :image-url="currentSession?.img"
           :window-type="WindowTabType.Session"
+          :show-image="ModuleSettings.get(SettingKey.showImages)?.sessions ?? true"
           alt-tab-id="notes"
           @image-change="onImageChange"
         >
@@ -171,8 +172,8 @@
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
-  import { SettingKey, } from '@/settings';
   import { notifyWarn } from '@/utils/notifications';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
   import InputText from 'primevue/inputtext';

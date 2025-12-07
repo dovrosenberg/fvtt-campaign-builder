@@ -24,6 +24,7 @@
           :name="currentCampaign?.name || 'Campaign'"
           :image-url="currentCampaign?.img"
           :window-type="WindowTabType.Campaign"
+          :show-image="ModuleSettings.get(SettingKey.showImages)?.campaigns ?? true"
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">

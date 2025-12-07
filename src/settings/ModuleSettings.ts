@@ -2,9 +2,20 @@ import { localize } from '@/utils/game';
 import { moduleId } from './index';
 import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSettingsApplication';
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
+import { ImageSettingsApplication } from '@/applications/settings/ImageSettingsApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
-import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, defaultCustomFields } from '@/types';
+import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, defaultCustomFields, WindowTabType } from '@/types';
 import type { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from '@/apiClient';
+
+export interface ImageVisibility {
+  settings: boolean;
+  entries: boolean;
+  campaigns: boolean;
+  arcs: boolean;
+  sessions: boolean;
+  fronts: boolean;
+}
+
 
 export enum SettingKey {
   // displayed in main settings window
@@ -50,6 +61,11 @@ export enum SettingKey {
 
   speciesListMenu = 'speciesListMenu',  // display the species list screen
   speciesList = 'speciesList',
+
+  // image visibility settings
+  imageMenu = 'imageMenu', // display the image visibility menu
+  showImages = 'showImages', // whether to show images on settings, campaigns, etc
+
 }
 
 export type SettingKeyType<K extends SettingKey> =
@@ -76,6 +92,8 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.autoRefreshRollTables ? boolean :
     K extends SettingKey.generatorDefaultTypes ? Record<GeneratorType, string> :
     K extends SettingKey.speciesList ? Species[] :
+    K extends SettingKey.imageMenu ? never :
+    K extends SettingKey.showImages ? ImageVisibility :
     K extends SettingKey.entryTags ? TagList :
     K extends SettingKey.sessionTags ? TagList :
     K extends SettingKey.frontTags ? TagList :
@@ -147,6 +165,15 @@ export class ModuleSettings {
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
       permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: RollTableSettingsApplication,
+    },
+    {
+      settingID: SettingKey.imageMenu,
+      name: 'settings.images',
+      label: 'fcb.settings.imagesLabel',   // localized by Foundry
+      hint: 'settings.imagesHelp',
+      icon: 'fas fa-image',               // A Font Awesome icon used in the submenu button
+      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
+      type: ImageSettingsApplication,
     }
   ];
 
@@ -352,6 +379,18 @@ export class ModuleSettings {
       settingID: SettingKey.longDescriptionParagraphs,
       default: 1,
       type: Number,
+    },
+    {
+      settingID: SettingKey.showImages,
+      default: {
+        settings: true,
+        entries: true,
+        campaigns: true,
+        arcs: true,
+        sessions: true,
+        fronts: true,
+      },
+      type: Object,
     },
   ];
   

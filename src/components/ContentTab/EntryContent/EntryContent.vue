@@ -56,6 +56,7 @@
           :name="currentEntry?.name || 'Entry'"
           :image-url="currentEntry?.img"
           :window-type="WindowTabType.Entry"
+          :show-image="ModuleSettings.get(SettingKey.showImages)?.entries ?? true"
           :topic="topic as ValidTopic"
           @image-change="onImageChange"
         >

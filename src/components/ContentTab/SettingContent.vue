@@ -34,6 +34,7 @@
           :name="currentSetting.name || 'Setting'"
           :image-url="currentSetting.img"
           :window-type="WindowTabType.Setting"
+          :show-image="ModuleSettings.get(SettingKey.showImages)?.settings ?? true"
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
@@ -107,6 +108,7 @@
   import { updateWindowTitle } from '@/utils/titleUpdater';
   import { Backend } from '@/classes';
   import { notifyWarn } from '@/utils/notifications';
+  import { ModuleSettings, SettingKey } from '@/settings/ModuleSettings';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -140,7 +142,7 @@
   ////////////////////////////////
   // data
   const name = ref<string>('');
-  const icon =  getTabTypeIcon(WindowTabType.Setting);
+  const icon = getTabTypeIcon(WindowTabType.Setting);
   const showConfigureNamesDialog = ref<boolean>(false);
 
   ////////////////////////////////

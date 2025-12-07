@@ -32,6 +32,7 @@
           :name="currentArc?.name || 'Arc'"
           :image-url="currentArc?.img"
           :window-type="WindowTabType.Arc"
+          :show-image="ModuleSettings.get(SettingKey.showImages)?.arcs ?? true"
           alt-tab-id="description"
           @image-change="onImageChange"
         >
@@ -97,14 +98,13 @@
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
-  import { SettingKey, } from '@/settings';
+  import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyWarn } from '@/utils/notifications';
 
   // library components
   import InputText from 'primevue/inputtext';
   
   // local components
-  import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import Editor from '@/components/Editor.vue';
   import SessionLocationTab from '@/components/ContentTab/SessionContent/SessionLocationTab.vue';
   import ArcParticipantTab from '@/components/ContentTab/ArcContent/ArcParticipantTab.vue';
@@ -115,7 +115,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
-  
+
   // types
   import { ContentTabDescriptor, WindowTabType } from '@/types';
   import { Arc } from '@/classes';
