@@ -54,12 +54,13 @@
   // local imports
   import { pinia } from '@/applications/stores';
   import { getCurrentSetting, } from '@/compendia';
-  import { SettingKey, ModuleSettings, moduleId } from '@/settings';
+  import { SettingKey, ModuleSettings, } from '@/settings';
   import { useMainStore, useNavigationStore, useBackendStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { updateWindowTitle } from '@/utils/titleUpdater';
   import { theme } from '@/components/styles/primeVue';
   import { notifyWarn } from '@/utils/notifications';
+  import { closeCampaignBuilderApp } from '@/utils/appWindow';
   
   // library components
   import Splitter from 'primevue/splitter';
@@ -255,8 +256,7 @@
     const setting = await getCurrentSetting();
     if (!setting) {
       // likely asked to create new one and was canceled - just close the window
-      // @ts-ignore
-      game.modules.get(moduleId)?.activeWindow?.close();
+      closeCampaignBuilderApp();
       return;
     }
 

@@ -3,7 +3,7 @@ import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/set
 import { FCBSetting, Campaign, Entry, Session, Arc, Front, StoryWeb } from '@/classes';
 import { EntryBasicIndex, CampaignBasicIndex, SessionBasicIndex, ArcBasicIndex, Topics, Hierarchy } from '@/types';
 import { DOCUMENT_TYPES } from '@/documents/types';
-import { wbApp } from '@/applications/CampaignBuilder';
+import { closeCampaignBuilderApp, isCampaignBuilderAppOpen } from '@/utils/appWindow';
 import { toRaw } from 'vue';
 
 
@@ -22,8 +22,8 @@ const repairAllIndexes = async (settingId?: string): Promise<void> => {
   console.log('Starting repair of all document indexes...');
 
   // Check if FCB window is open and exit if so
-  if (wbApp) {
-    await wbApp.close();
+  if (isCampaignBuilderAppOpen()) {
+    await closeCampaignBuilderApp();
     console.warn('Cannot repair indexes while Campaign Builder window is open. Closing window.');
   }
   

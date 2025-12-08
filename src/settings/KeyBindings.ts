@@ -1,5 +1,6 @@
 import { moduleId } from '@/settings';
-import { renderCampaignBuilderApp, wbApp } from '@/applications/CampaignBuilder';
+import { isCampaignBuilderAppOpen, closeCampaignBuilderApp, } from '@/utils/appWindow';
+import { renderCampaignBuilderApp } from '@/applications/CampaignBuilder';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
 
 export enum KeyBindingKeys {
@@ -21,7 +22,7 @@ export class KeyBindings {
         hint: 'fcb.settings.keybindings.closeTabHelp',
         onDown: () => { 
           // only trap this when the window is open
-          if (wbApp?.rendered) {
+          if (isCampaignBuilderAppOpen()) {
             const store = useNavigationStore();
             const tab = store.getActiveTab();
             if (tab) {
@@ -45,7 +46,7 @@ export class KeyBindings {
         hint: 'fcb.settings.keybindings.historyBackHelp',
         onDown: async () => { 
           // only trap this when the window is open
-          if (wbApp?.rendered) {
+          if (isCampaignBuilderAppOpen()) {
             const store = useNavigationStore();
             await store.navigateHistory(-1);
           }
@@ -66,7 +67,7 @@ export class KeyBindings {
         hint: 'fcb.settings.keybindings.historyForwardHelp',
         onDown: async () => { 
           // only trap this when the window is open
-          if (wbApp?.rendered) {
+          if (isCampaignBuilderAppOpen()) {
             const store = useNavigationStore();
             await store.navigateHistory(1);
           }
@@ -85,12 +86,12 @@ export class KeyBindings {
         bindingId: KeyBindingKeys.toggleWindow,
         name: 'fcb.settings.keybindings.toggleWindow',
         hint: 'fcb.settings.keybindings.toggleWindowHelp',
-        onDown: async () => { 
+        onDown: () => { 
           // only trap this when the window is open
-          if (wbApp?.rendered) {
-            wbApp.close();
+          if (isCampaignBuilderAppOpen()) {
+            closeCampaignBuilderApp();
           } else {
-            renderCampaignBuilderApp(true);
+            renderCampaignBuilderApp();
           }
         },
         editable: [
