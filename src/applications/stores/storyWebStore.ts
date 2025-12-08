@@ -132,7 +132,6 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   }
 
   const edgeConfig = {
-    color: 'hsl(164, 48%, 20%)',  // light mode fcb-primary
   }
 
   // edges with labels are a bit longer 
@@ -260,6 +259,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         }
       }
     
+      const edgeConfig = getEdgeConfig(false);
+      const edgeWithLabelConfig = getEdgeConfig(true);
+
       // add each of the connections
       const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
       for (const node of currentStoryWeb.value?.nodes) {
@@ -291,7 +293,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
                 from: node.uuid,
                 to: participant.uuid,
                 label,
-                  ...(label ? edgeWithLabelConfig : edgeConfig)
+                ...(label ? edgeWithLabelConfig : edgeConfig),
               });
             }
           }
@@ -321,7 +323,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
                   from: node.uuid,
                   to: relatedEntry.uuid,
                   label,
-                  ...(label ? edgeWithLabelConfig : edgeConfig)
+                  ...(label ? edgeWithLabelConfig : edgeConfig),
                 });
               }
             }
@@ -338,7 +340,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
             from: edge.from,
             to: edge.to,
             label,
-            ...(label ? edgeWithLabelConfig : edgeConfig)
+            ...(label ? edgeWithLabelConfig : edgeConfig),
           });
         }
       }
@@ -619,6 +621,32 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
   ///////////////////////////////
   // methods
+
+  /** Some colors need to be different in dark mode but we can't use css variables in canvas.
+   *   Instead we call then when we generate the graph to read the variables and set the right colors
+   */
+  const getEdgeConfig = (hasLabel: boolean) => {
+    // get the base
+    const config = hasLabel ? edgeWithLabelConfig : edgeConfig;
+
+    // use some computed variables to set the right style
+    config.color = getComputedStyle(document.body).getPropertyValue('--fcb-primary');
+
+    if (document.body.classList.contains('theme-dark')) {
+      config.font = {
+        strokeWidth: 0,
+        color: 'white'
+      };
+    } else {
+      config.font = {
+        strokeWidth: 0,
+        color: 'black'
+      };
+    }
+
+    return config;
+  }
+
   /** @param required - whether the input must have a value (false means it can be blank) */
   const getText = async (title:string, prompt: string, initialText: string, required: boolean): Promise<string | null> => {
     let value: string | null = initialText;
