@@ -50,7 +50,7 @@
       "enableToDoList": "ToDo-Liste aktivieren",
       "enableToDoListHelp": "Wenn deaktiviert, wird die ToDo-Listen-Funktion ausgeschaltet.",
       "autoRelationships": "Beziehungen automatisch vorschlagen",
-      "autoRelationshipsHelp": "Wenn aktiviert, schlägt der Editor automatisch Änderungen an den Beziehungen zwischen Einträgen basierend auf Änderungen in der Beschreibung vor.",
+      "autoRelationshipsHelp": "Wenn aktiviert, wird das System automatisch Änderungen an Beziehungen zwischen Einträgen vorschlagen, basierend auf Änderungen, die an der Beschreibung vorgenommen wurden.",
       "keybindings": {
         "closeTab": "Tab schließen",
         "closeTabHelp": "Den aktuellen Tab schließen",

@@ -50,7 +50,7 @@
       "enableToDoList": "Activer la liste de tâches",
       "enableToDoListHelp": "Si désactivé, la fonctionnalité de liste de tâches sera désactivée.",
       "autoRelationships": "Suggérer automatiquement des relations",
-      "autoRelationshipsHelp": "Si activé, l'éditeur suggérera automatiquement des modifications aux relations entre les entrées en fonction des changements apportés à la description.",
+      "autoRelationshipsHelp": "Si activé, le système suggérera automatiquement des modifications aux relations entre les entrées en fonction des modifications apportées à la description.",
       "keybindings": {
         "closeTab": "Fermer l'onglet",
         "closeTabHelp": "Fermer l'onglet actuel",
