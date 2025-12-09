@@ -67,11 +67,13 @@
       "showRolePlayingNotesHelp": "Wenn wahr, wird ein separates Feld für Rollenspielnotizen getrennt von der Eintragsbeschreibung angezeigt.",
       "useFronts": "Fronten verwenden",
       "useFrontsHelp": "Aktivieren Sie die Kampagnenfunktion \"Front\".",
+      "useWebs": "Story-Netze verwenden",
+      "useWebsHelp": "Aktivieren Sie die Funktionalität des Kampagnen-\"Story-Netzes\".",
       "images": "Inhaltsbilder konfigurieren",
       "imagesLabel": "Inhaltsbilder",
-      "imagesHelp": "Sichtbarkeitseinstellungen für Bilder für verschiedene Inhaltstypen konfigurieren",
-      "useWebs": "Story-Netze verwenden",
-      "useWebsHelp": "Aktivieren Sie die Kampagnenfunktion \"Story-Netz\"."
+      "imagesHelp": "Konfigurieren Sie die Sichtbarkeitseinstellungen für Bilder für verschiedene Inhaltstypen",
+      "subTabsSavePosition": "Unterregisterkarten speichern Position",
+      "subTabsSavePositionHelp": "Wenn aktiviert, merkt sich jede Registerkarte, welcher innere Unterregisterkarte geöffnet war, und kehrt zu dieser zurück, wenn Sie die Registerkarte erneut öffnen. Wenn deaktiviert, kehren die Registerkarten immer zur ersten zurück (normalerweise Beschreibung)."
     },
     "applications": {
       "sessionNotes": {
@@ -419,11 +421,11 @@
         "editText": "Text bearbeiten",
         "editRelationship": "Beziehung bearbeiten",
         "removeRelationship": "Beziehung entfernen",
-        "removeRelationshipConfirm": "Sind Sie sicher, dass Sie diese Beziehung löschen möchten? Dies wird die Beziehung in den Einträgen entfernen, nicht nur im Diagramm.",
+        "removeRelationshipConfirm": "Sind Sie sicher, dass Sie diese Beziehung löschen möchten? Dies wird die Beziehung bei den Einträgen entfernen, nicht nur im Diagramm.",
         "addConnection": "Verbindung hinzufügen",
         "newConnectionLabel": "Neues Beziehungslabel (kann leer sein)",
         "createConnection": "Verbindung erstellen",
-        "createConnectionPrompt": "Sie haben einen Eintrag auf einen vorhandenen Knoten gezogen. Möchten Sie eine Verbindung zwischen ihnen herstellen?",
+        "createConnectionPrompt": "Sie haben einen Eintrag auf einen bestehenden Knoten gezogen. Möchten Sie eine Verbindung zwischen ihnen erstellen?",
         "zoomIn": "Vergrößern",
         "zoomOut": "Verkleinern",
         "fitToWindow": "An Fenster anpassen"
@@ -446,7 +448,7 @@
       "sessionDate": "Datum",
       "sessionNumber": "Sitzungsnummer",
       "linkToActor": "Mit Schauspieler verknüpfen",
-      "storyWebName": "Name des Story-Netzes"
+      "storyWebName": "Story-Netz-Name"
     },
     "topics": {
       "character": "Charakter",
@@ -589,10 +591,10 @@
       },
       "createStoryWeb": {
         "title": "Story-Netz erstellen",
-        "webName": "Name des Story-Netzes"
+        "webName": "Story-Netz-Name"
       },
       "imageSettings": {
-        "title": "Sichtbarkeitseinstellungen für Bilder",
+        "title": "Einstellungen zur Bildsichtbarkeit",
         "description": "Wählen Sie, welche Inhaltstypen Bilder auf ihren Beschreibungsseiten anzeigen sollen.",
         "settings": "Einstellungen",
         "entries": "Einträge",

@@ -8,7 +8,7 @@
       "sessions": "Sessions",
       "fronts": "Fronts",
       "arcs": "Arcs",
-      "storyWebs": "Toiles de récits"
+      "storyWebs": "Toiles d'histoires"
     },
     "settings": {
       "startCollapsed": "La barre latérale commence-t-elle repliée ?",
@@ -67,11 +67,13 @@
       "showRolePlayingNotesHelp": "Lorsque c'est vrai, un champ séparé pour les notes de jeu de rôle sera affiché séparément de la description de l'entrée.",
       "useFronts": "Utiliser les fronts",
       "useFrontsHelp": "Activer la fonctionnalité de \"front\" de campagne.",
+      "useWebs": "Utiliser les toiles d'histoires",
+      "useWebsHelp": "Activer la fonctionnalité de \"toile d'histoire\" de la campagne.",
       "images": "Configurer les images de contenu",
       "imagesLabel": "Images de contenu",
       "imagesHelp": "Configurer les paramètres de visibilité des images pour différents types de contenu",
-      "useWebs": "Utiliser les toiles de récits",
-      "useWebsHelp": "Activer la fonctionnalité de \"toile de récits\" de la campagne."
+      "subTabsSavePosition": "Enregistrer la position des sous-onglets",
+      "subTabsSavePositionHelp": "Lorsqu'il est activé, chaque onglet se souviendra du sous-onglet intérieur qui était ouvert et y retournera lorsque vous rouvrirez cet onglet. Lorsqu'il est désactivé, les onglets reviendront toujours au premier (généralement la description)."
     },
     "applications": {
       "sessionNotes": {
@@ -419,7 +421,7 @@
         "editText": "Modifier le texte",
         "editRelationship": "Modifier la relation",
         "removeRelationship": "Supprimer la relation",
-        "removeRelationshipConfirm": "Êtes-vous sûr de vouloir supprimer cette relation ? Cela supprimera la relation sur les entrées, pas seulement le diagramme.",
+        "removeRelationshipConfirm": "Êtes-vous sûr de vouloir supprimer cette relation ? Cela supprimera la relation sur les entrées, pas seulement sur le diagramme.",
         "addConnection": "Ajouter une connexion",
         "newConnectionLabel": "Nouvelle étiquette de relation (peut être vide)",
         "createConnection": "Créer une connexion",
@@ -446,7 +448,7 @@
       "sessionDate": "Date",
       "sessionNumber": "Numéro de Session",
       "linkToActor": "Lien vers l'Acteur",
-      "storyWebName": "Nom de la toile de récit"
+      "storyWebName": "Nom de la toile d'histoire"
     },
     "topics": {
       "character": "Personnage",
@@ -588,8 +590,8 @@
         }
       },
       "createStoryWeb": {
-        "title": "Créer une toile de récit",
-        "webName": "Nom de la toile de récit"
+        "title": "Créer une toile d'histoire",
+        "webName": "Nom de la toile d'histoire"
       },
       "imageSettings": {
         "title": "Paramètres de visibilité des images",
@@ -618,7 +620,7 @@
         "createFront": "Créer un front",
         "createArc": "Créer un arc",
         "manageArcs": "Gérer les arcs",
-        "createStoryWeb": "Créer une toile de récit"
+        "createStoryWeb": "Créer une toile d'histoire"
       },
       "session": {
         "delete": "Supprimer la session"
@@ -676,7 +678,7 @@
         "delete": "Supprimer l'avant"
       },
       "storyWeb": {
-        "delete": "Supprimer la toile de récit"
+        "delete": "Supprimer la toile d'histoire"
       },
       "storyWebGraph": {
         "delete": "Supprimer",
@@ -689,7 +691,7 @@
         "addEntryWithRelationships": "Ajouter une entrée avec des relations",
         "addDanger": "Ajouter un danger",
         "addDangerWithRelationships": "Ajouter un danger avec des relations",
-        "addTextPrompt": "Entrez le texte à ajouter au diagramme",
+        "addTextPrompt": "Entrer le texte à ajouter au diagramme",
         "openEntryInNewTab": "Ouvrir l'entrée dans un nouvel onglet",
         "openDangerInNewTab": "Ouvrir le danger dans un nouvel onglet"
       }

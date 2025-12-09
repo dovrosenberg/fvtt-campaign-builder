@@ -112,6 +112,7 @@ export const useMainStore = defineStore('main', () => {
     await UserFlags.set(UserFlagKey.currentSetting, settingId);
   };
 
+  /** loads the content associated with the specified tab; updates currentTab */
   const setNewTab = async function (tab: WindowTab): Promise<void> {
     if (!currentSetting.value)
       return;
