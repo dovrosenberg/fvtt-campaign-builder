@@ -68,7 +68,12 @@
       "useFronts": "Fronten verwenden",
       "useFrontsHelp": "Aktivieren Sie die Kampagnenfunktion \"Front\".",
       "useWebs": "Story-Netze verwenden",
-      "useWebsHelp": "Aktivieren Sie die Funktionalität des Kampagnen-\"Story-Netzes\"."
+      "useWebsHelp": "Aktivieren Sie die Funktionalität des Kampagnen-\"Story-Netzes\".",
+      "images": "Inhaltsbilder konfigurieren",
+      "imagesLabel": "Inhaltsbilder",
+      "imagesHelp": "Konfigurieren Sie die Sichtbarkeitseinstellungen für Bilder für verschiedene Inhaltstypen",
+      "subTabsSavePosition": "Unterregisterkarten speichern Position",
+      "subTabsSavePositionHelp": "Wenn aktiviert, merkt sich jede Registerkarte, welcher innere Unterregisterkarte geöffnet war, und kehrt zu dieser zurück, wenn Sie die Registerkarte erneut öffnen. Wenn deaktiviert, kehren die Registerkarten immer zur ersten zurück (normalerweise Beschreibung)."
     },
     "applications": {
       "sessionNotes": {
@@ -587,6 +592,16 @@
       "createStoryWeb": {
         "title": "Story-Netz erstellen",
         "webName": "Story-Netz-Name"
+      },
+      "imageSettings": {
+        "title": "Einstellungen zur Bildsichtbarkeit",
+        "description": "Wählen Sie, welche Inhaltstypen Bilder auf ihren Beschreibungsseiten anzeigen sollen.",
+        "settings": "Einstellungen",
+        "entries": "Einträge",
+        "campaigns": "Kampagnen",
+        "arcs": "Bögen",
+        "sessions": "Sitzungen",
+        "fronts": "Fronten"
       }
     },
     "contextMenus": {
