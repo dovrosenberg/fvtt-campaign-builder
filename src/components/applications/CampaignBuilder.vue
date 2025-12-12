@@ -262,6 +262,14 @@
 
     mainStore.setNewSetting(setting.uuid);
 
+    // Add the prep/play toggle to the header
+    // Use setTimeout to ensure the DOM is fully rendered
+    setTimeout(() => {
+      createTitleBarComponents();
+      // Initialize the window title with the current setting name
+      updateWindowTitle(currentSetting.value?.name || null);
+    }, 100);
+
     // Wait up to 5 seconds for the backend to finish configuring
     for (let i = 0; i < 50; i++) {
       if (!inProgress.value) break;
@@ -279,14 +287,6 @@
     }
 
     mainStore.refreshCurrentContent();
-
-    // Add the prep/play toggle to the header
-    // Use setTimeout to ensure the DOM is fully rendered
-    setTimeout(() => {
-      createTitleBarComponents();
-      // Initialize the window title with the current setting name
-      updateWindowTitle(currentSetting.value?.name || null);
-    }, 100);
   });
 
 </script>
