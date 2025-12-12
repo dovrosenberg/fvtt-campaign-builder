@@ -41,7 +41,30 @@ Right-click on the Story Web in the Campaign Directory and select "Delete" to re
 
 The Story Web interface provides an interactive canvas where you can manipulate shapes representing [^Entries] and [^Dangers] and the connections between them to visualize relationships.
 
-### Adding Content to the Graph
+### Node positioning
+
+- Drag nodes to arrange them however you like
+- Dragging a node to an edge will cause the graph to pan
+- Positions are automatically saved so your layout persists when you reopen the Story Web
+
+### Overall view controls
+
+- Use the zoom in/out buttons to adjust the graph view
+- Scroll to zoom (if supported by your device)
+- Pan the whole graph by clicking and dragging on empty graph space
+
+### Viewing content details
+
+- Right click an Entry or Danger and choose "open in new tab" to view the content
+
+### Deleting content and connections
+
+- Select a node or connection line and press the Delete key
+- Deleting Entries or Dangers does not impact the content in your Setting/Campaign - it just removes it from the graph.
+- Deleting connections will remove the relationship between the content in your Setting/Campaign.
+
+
+## Adding content to the graph
 
 You can add three types of content to your Story Web:
   * Entries
@@ -97,44 +120,22 @@ By type of content:
 - **Dangers** - Dark red
 - **Custom text** - White boxes with dark green border
 
-### Working with Connections
+### Working with connections
 
-#### Creating Relationships
+#### Creating relationships
 
 **Method 1: Drag and drop**
 - Drag one Entry node from the diretory and drop it onto an Entry, Danger, or custom Text in the graph and you will be prompted to create a new relationship between them.  Other than for customer text, this will also add the relationship to the Content items in your Setting/Campaign.
 
-**Method 2: "Add Connection"**
+**Method 2: "Add connection"**
 - Right click on any node and select "Add Connection".  You will be switched to connection mode where you can move the mouse to point at any other node and click to connect them.  
 - Press escape to cancel the connection activity.
 
-#### Connection Labels
+#### Connection labels
 
 - The text on connections shows the "relationship" or "role" field from the actual relationship
 - You can edit connection text directly on the graph by double-clicking the connection or right clicking and choosing "Edit Connection".  Other than for custom text, these changes will also update the decription of the relationship in your Setting/Campaign.
 
-### Graph Navigation and Interaction
-
-#### Viewing Entry Details
-
-- Right click an Entry or Danger and choose "open in new tab" to view the content
-
-#### Deleting Content and Connections
-
-- Select a node or connection line and press the Delete key
-- Deleting Entries or Dangers does not impact the content in your Setting/Campaign - it just removes it from the graph.
-- Deleting connections will remove the relationship between the content in your Setting/Campaign.
-
-#### Zoom Controls
-
-- Use the zoom in/out buttons to adjust the graph view
-- Scroll to zoom (if supported by your device)
-- Pan the whole graph by clicking and dragging on empty graph space
-
-### Node Positioning
-
-- Drag nodes to arrange them however you like
-- Positions are automatically saved so your layout persists when you reopen the Story Web
 
 
 <!-- ## Tips for Using Story Web

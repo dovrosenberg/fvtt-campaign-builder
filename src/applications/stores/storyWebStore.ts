@@ -10,6 +10,7 @@ import { useMainStore, useRelationshipStore, useNavigationStore } from '@/applic
 import { nodeTypeToTopic, } from '@/utils/misc';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
+import { ModuleSettings, SettingKey } from '@/settings';
 
 // library componentns
 import ContextMenu from '@imengyu/vue3-context-menu';
@@ -153,11 +154,13 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   const highlightedNode = ref<string | null>(null);
   const isCreatingConnection = ref<boolean>(false);
 
+  // Auto-panning state
+  let autoPanAnimationId: number | null = null;
+
   ///////////////////////////////
   // external state
   const isWebLoading = ref<boolean>(false);
   
-
   ///////////////////////////////
   // actions
   // generate the new network from the current story web
@@ -348,7 +351,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       const options = {
         configure: false,  // change to 'physics' to get a physics config panel
         // @ts-ignore
-        physics: window.fcbStoryWebPhysics,
+        physics: ModuleSettings.get(SettingKey.storyWebAutoArrange) ? window.fcbStoryWebPhysics : false,
         edges: {
           smooth: {
             enabled: true,
@@ -373,6 +376,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       currentNetwork.value.on('doubleClick', onNetworkDoubleClick);
       currentNetwork.value.on('oncontext', onNetworkContentMenu);
       currentNetwork.value.on('stabilized', capturePositions);
+      currentNetwork.value.on('dragStart', onDragStart);
+      currentNetwork.value.on('dragging', onDragging);
+      currentNetwork.value.on('dragEnd', onDragEnd);
     } catch (error) {
       isWebLoading.value = false;
       throw error;
@@ -871,6 +877,241 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     }
   }
 
+  const onDragStart = (eventInfo: NetworkClickEventInfo) => {
+    const network = toRaw(currentNetwork.value);
+    if (!network)
+      return;
+
+    const { pointer } = eventInfo;
+
+    const node = network.getNodeAt(pointer.DOM);
+    const edge = network.getEdgeAt(pointer.DOM);
+
+    if (!node && !edge) {
+      network.unselectAll();
+    }
+  };
+
+  /** The basic flow here is:
+   *    1. When dragging, check if we brought a node to an edge of the canvas
+   *    2. If so, start auto-panning mode - that starts a sequence of panning and location checks to see if we need to pan
+   *    3. Auto-pan mode ends when either we 'drop' or the node moves out of the pan zone
+   */
+  // Track previous node position to detect user drag direction
+  let previousNodePosition: { x: number, y: number } | null = null;
+
+  const onDragging = () => {
+    const network = toRaw(currentNetwork.value);
+    if (!network) return;
+    
+    // Log selected node location and viewport coordinates
+    const selectedNodes = network.getSelectedNodes();
+    if (selectedNodes.length === 1) {
+      const nodeId = selectedNodes[0];
+      const nodePosition = network.getPositions([nodeId])[nodeId];
+      const nodeBoundingBox = network.getBoundingBox(nodeId);
+      const viewport = network.getViewPosition();
+      
+      console.log('🔄 onDragging - Selected Node:', nodeId);
+      console.log('  Node position (canvas units):', nodePosition);
+      console.log('  Node bounding box (canvas units):', nodeBoundingBox);
+      
+      // Convert to DOM units
+      const domTopLeft = network.canvasToDOM({ x: nodeBoundingBox.left, y: nodeBoundingBox.top });
+      const domBottomRight = network.canvasToDOM({ x: nodeBoundingBox.right, y: nodeBoundingBox.bottom });
+      console.log('  Node bounding box (DOM units):', {
+        left: domTopLeft.x,
+        top: domTopLeft.y,
+        right: domBottomRight.x,
+        bottom: domBottomRight.y
+      });
+      
+      console.log('  Viewport coordinates:', viewport);
+      console.log('  Auto-pan active:', !!autoPanAnimationId);
+      
+      // Track movement direction
+      if (previousNodePosition) {
+        const deltaX = nodePosition.x - previousNodePosition.x;
+        const deltaY = nodePosition.y - previousNodePosition.y;
+        console.log('  Node movement delta (canvas):', { x: deltaX, y: deltaY });
+        console.log('  User dragging', deltaX < 0 ? 'left' : deltaX > 0 ? 'right' : 'none', 
+                    deltaY < 0 ? 'up' : deltaY > 0 ? 'down' : 'none');
+      }
+      previousNodePosition = { x: nodePosition.x, y: nodePosition.y };
+    }
+    
+    // if we're not already panning, check if we need to start
+    if (!autoPanAnimationId)
+      startAutoPan();
+  };
+
+  const onDragEnd = () => {
+    stopAutoPan();
+  };
+
+  // returns null for no, or the direction to scroll 0/-1
+  const inPanZone = (): { x: number, y: number } | null => {
+    if (!currentNetwork.value || !currentContainer.value)
+      return null;
+
+    const network = toRaw(currentNetwork.value);
+    const selectedNodes = network.getSelectedNodes() as string[];
+    if (selectedNodes.length === 0)
+      return null;
+
+    // we're going to operate in DOM space because it's much simpler
+
+    // Get viewport boundaries
+    const canvas = currentContainer.value.querySelector('canvas') as HTMLCanvasElement;
+    if (!canvas)
+      return null;
+
+    const edgeThreshold = 55; // px from edge to trigger panning (increased from 50 to handle timing drift)
+    const canvasDOMRect = canvas.getBoundingClientRect();
+
+    // Check if node is near the edge
+    let needsAutoPan = false;
+    let newPanDirection = { x: 0, y: 0 };
+
+    // Use different thresholds based on whether auto-pan is already active
+    const startThreshold = edgeThreshold; // 55px to start
+    const stopThreshold = edgeThreshold + 10; // 65px to stop
+    const threshold = autoPanAnimationId ? stopThreshold : startThreshold;
+    
+    console.log('🎯 Using threshold:', threshold, 'autoPanAnimationId:', !!autoPanAnimationId);
+
+    // get the bounding box for the selected nodes
+    const nodePositions = selectedNodes.map(node => {
+      const canvasBB = network.getBoundingBox(node);
+      const topLeft = network.canvasToDOM({ x: canvasBB.left, y: canvasBB.top });
+      const bottomRight = network.canvasToDOM({ x: canvasBB.right, y: canvasBB.bottom });
+      return { 
+        left: topLeft.x,
+        top: topLeft.y,
+        right: bottomRight.x,
+        bottom: bottomRight.y
+      }
+    });
+
+    const minX = Math.min(...nodePositions.map(pos => pos.left));
+    const maxX = Math.max(...nodePositions.map(pos => pos.right));
+    const minY = Math.min(...nodePositions.map(pos => pos.top));
+    const maxY = Math.max(...nodePositions.map(pos => pos.bottom));
+    
+    // Check each edge using the bounding box with appropriate threshold
+    if (minX <= threshold) {
+      newPanDirection.x = -1; // Pan left
+      needsAutoPan = true;
+    } else if (maxX > canvasDOMRect.width - threshold) {
+      newPanDirection.x = 1; // Pan right
+      needsAutoPan = true;
+    }
+    
+    if (minY <= threshold) {
+      newPanDirection.y = -1; // Pan down
+      needsAutoPan = true;
+    } else if (maxY > canvasDOMRect.height - threshold) {
+      newPanDirection.y = 1; // Pan up
+      needsAutoPan = true;
+    }
+    
+    console.log('🎯 inPanZone called - minX:', minX, 'threshold:', threshold, 'canvas width:', canvasDOMRect.width);
+    
+    return needsAutoPan ? newPanDirection : null;
+  };
+
+  const startAutoPan = () => {
+    console.log('🚀 startAutoPan called');
+    const network = toRaw(currentNetwork.value);
+    if (!network) {
+      console.log('❌ No network, exiting startAutoPan');
+      return;
+    }
+
+    const normalPanSpeed = 10; // pixels per frame
+
+    const animate = () => {
+      console.log('🎬 animate function called');
+      if (!network) {
+        stopAutoPan();
+        return;
+      }
+
+      // Continue checking edge detection even if dragging event stops firing
+      const panDirection = inPanZone();
+      console.log('🎬 Animation frame - panDirection:', panDirection);
+      
+      if (!panDirection) {
+        console.log('🚫 Auto-pan paused - panDirection:', panDirection);
+        // Continue checking but don't pan 
+        autoPanAnimationId = requestAnimationFrame(animate);
+        return;
+      }
+
+      const viewPosition = network.getViewPosition();
+      const scale = network.getScale();
+      
+      // Convert DOM pixel speed to canvas coordinates
+      const panOffset = {
+        x: (panDirection.x * normalPanSpeed) / scale,
+        y: (panDirection.y * normalPanSpeed) / scale
+      };
+
+      // move all the selected nodes
+      const nodes = network.getSelectedNodes();
+
+      // shouldn't be empty (because the pan check should have stopped, but just in case
+      if (nodes.length===0) {
+        stopAutoPan();
+        return;
+      }
+
+      const positions = network.getPositions(nodes);
+      
+      // Move nodes opposite to viewport pan to keep them stationary in DOM space
+      for (const node in positions) {
+        network.moveNode(node, positions[node].x + panOffset.x, positions[node].y + panOffset.y);
+      }
+      
+      // Log before network.moveTo
+      const viewportBefore = network.getViewPosition();
+      console.log('🎯 Before network.moveTo - Viewport:', viewportBefore);
+      
+      // Pan the viewport to keep nodes in view
+      network.moveTo({
+        position: {
+          x: viewPosition.x + panOffset.x * 1.0,
+          y: viewPosition.y + panOffset.y* 1.0
+        },
+        animation: false
+      });
+      
+      // Log after network.moveTo
+      const viewportAfter = network.getViewPosition();
+      console.log('🎯 After network.moveTo - Viewport:', viewportAfter);
+
+      // if we're still in pan mode, keep going
+      console.log('🔄 About to call requestAnimationFrame - autoPanAnimationId:', autoPanAnimationId);
+      if (autoPanAnimationId) {
+        autoPanAnimationId = requestAnimationFrame(animate);
+        console.log('✅ requestAnimationFrame scheduled - new autoPanAnimationId:', autoPanAnimationId);
+      } else {
+        console.log('❌ autoPanAnimationId is null, not scheduling next frame');
+      }
+    };
+
+    // kick it off
+    autoPanAnimationId = requestAnimationFrame(animate);
+  };
+
+  const stopAutoPan = () => {
+    console.trace();
+    if (autoPanAnimationId) {
+      cancelAnimationFrame(autoPanAnimationId);
+      autoPanAnimationId = null;
+    }
+  };
+
   const onNetworkContentMenu = (eventInfo: NetworkClickEventInfo) => {
     // nodes is a list of nodes clicked on
     // edges is either edges clicked on or could be edges connected to nodes clicked
@@ -961,7 +1202,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
     // Re-enable physics and node dragging
     toRaw(currentNetwork.value).setOptions({
-      physics: { enabled: true },
+      physics: { enabled: ModuleSettings.get(SettingKey.storyWebAutoArrange) },
       interaction: { dragNodes: true }
     });
 
