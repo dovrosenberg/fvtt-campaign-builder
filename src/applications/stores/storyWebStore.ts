@@ -449,8 +449,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
    * @param entryUuid - UUID of the entry being dropped
    * @param targetNodeId - UUID of the node under the drop position
    * @param position - position to place the new node at - relative to canvas
+   * @param withRelationships - whether to also add all related nodes implicitly
    */
-  const handleDropOnNode = async (entryUuid: string, targetNodeId: string, position: { x: number, y: number }) => {
+  const handleDropOnNode = async (entryUuid: string, targetNodeId: string, position: { x: number, y: number }, withRelationships: boolean = false) => {
     if (!currentStoryWeb.value)
       return;
 
@@ -461,7 +462,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     
     // Add the entry if it's not already in the graph
     if (!entryAlreadyInGraph) {
-      await addEntry(entryUuid, position, false);
+      await addEntry(entryUuid, position, withRelationships);
 
       // add any edges needed
       await mainStore.refreshStoryWeb();

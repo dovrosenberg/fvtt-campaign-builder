@@ -77,6 +77,7 @@ You can add three types of content to your Story Web:
 - Drag Entries from the [^Setting Directory] directly onto the graph
 - Only the dragged Entry is added 
 - Dropping an Entry onto an existing shape in the Web will prompt you to create a new relationship between the two (if they aren't already connected)
+- Holding the Control key while dropping an Entry will add it to the graph while also bringing in all of the directly-related entries(like "Add with relations" from the context menu)
 
 **Method 2: From the directory context menu**
 - Right-click an Entry in the Setting Directory
