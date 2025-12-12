@@ -22,6 +22,7 @@ next:
 - **Enable To-do List**: If disabled, the To-do List won't automatically be populated based on activities during Play Mode.
 - **Auto-suggest relationships**: If set, whenever you edit the description for an Entry, Campaign Builder will scan it for references to other Entries and recommend changes to the [relationships](/reference/world-building/content/entry/relationships).
 - **Sub-tabs save position**: If set, every tab will remember which interior sub-tab was open and return to it when you re-open that tab. When disabled, tabs will always revert to the first sub-tab (usually description) when re-opened.
+- **Story webs auto arrange**: If set, as you move items around in a story web diagram, the picture will adjust to try to keep everything clean and visible.  If disabled, you will have to manually position everything, but you can put each item exactly where you want it.
 - **Session display format**: By default, the list of [^Sessions] in the [Campaign Directory] shows just the number of the session.  This setting lets you display either the session date or the session name instead.
 
 ## Sub-Menus

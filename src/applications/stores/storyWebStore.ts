@@ -10,6 +10,7 @@ import { useMainStore, useRelationshipStore, useNavigationStore } from '@/applic
 import { nodeTypeToTopic, } from '@/utils/misc';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
+import { ModuleSettings, SettingKey } from '@/settings';
 
 // library componentns
 import ContextMenu from '@imengyu/vue3-context-menu';
@@ -350,7 +351,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       const options = {
         configure: false,  // change to 'physics' to get a physics config panel
         // @ts-ignore
-        physics: window.fcbStoryWebPhysics,
+        physics: ModuleSettings.get(SettingKey.storyWebAutoArrange) ? window.fcbStoryWebPhysics : false,
         edges: {
           smooth: {
             enabled: true,
@@ -375,6 +376,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       currentNetwork.value.on('doubleClick', onNetworkDoubleClick);
       currentNetwork.value.on('oncontext', onNetworkContentMenu);
       currentNetwork.value.on('stabilized', capturePositions);
+      currentNetwork.value.on('dragStart', onDragStart);
       currentNetwork.value.on('dragging', onDragging);
       currentNetwork.value.on('dragEnd', onDragEnd);
     } catch (error) {
@@ -875,6 +877,21 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     }
   }
 
+  const onDragStart = (eventInfo: NetworkClickEventInfo) => {
+    const network = toRaw(currentNetwork.value);
+    if (!network)
+      return;
+
+    const { pointer } = eventInfo;
+
+    const node = network.getNodeAt(pointer.DOM);
+    const edge = network.getEdgeAt(pointer.DOM);
+
+    if (!node && !edge) {
+      network.unselectAll();
+    }
+  };
+
   /** The basic flow here is:
    *    1. When dragging, check if we brought a node to an edge of the canvas
    *    2. If so, start auto-panning mode - that starts a sequence of panning and location checks to see if we need to pan
@@ -1053,7 +1070,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       
       // Move nodes opposite to viewport pan to keep them stationary in DOM space
       for (const node in positions) {
-        network.moveNode(node, positions[node].x - panOffset.x, positions[node].y - panOffset.y);
+        network.moveNode(node, positions[node].x + panOffset.x, positions[node].y + panOffset.y);
       }
       
       // Log before network.moveTo
@@ -1185,7 +1202,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
     // Re-enable physics and node dragging
     toRaw(currentNetwork.value).setOptions({
-      physics: { enabled: true },
+      physics: { enabled: ModuleSettings.get(SettingKey.storyWebAutoArrange) },
       interaction: { dragNodes: true }
     });
 
