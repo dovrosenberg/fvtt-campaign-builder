@@ -144,24 +144,32 @@ function registerForJournalHooks() {
   if (!isClientGM())
     return;
 
-  Hooks.on('deleteJournalEntry', async (_journal, _options, _userId) => {
+  Hooks.on('deleteJournalEntry', async (journal: JournalEntry, _options, _userId) => {
     const mainStore = useMainStore();
 
     const settings = await mainStore.getAllSettings();
     for (let setting of settings) {
-      await setting.deleteJournalEntryFromSetting(_journal.uuid);
+      await setting.deleteJournalEntryFromSetting(journal.uuid);
     }
 
     // refresh the content window in case it's showing in a table
     await mainStore.refreshCurrentContent();
   });
 
-  Hooks.on('deleteJournalEntryPage', async (_journal, _options, _userId) => {
+  Hooks.on('deleteJournalEntryPage', async (journalPage: JournalEntryPage, _options, _userId) => {
     const mainStore = useMainStore();
 
     const settings = await mainStore.getAllSettings();
+
+    const journal = journalPage.parent!;
+
     for (let setting of settings) {
-      await setting.deleteJournalEntryPageFromSetting(_journal.uuid);
+      // just delete the parent altogether if it's in a setting compendium
+      if (journal.pack === setting.compendiumId)
+        await journal.delete();
+      else
+        // it's a normal one, but we need to remove from any links
+        await setting.deleteJournalEntryPageFromSetting(journalPage.uuid);
     }
 
     // refresh the content window in case it's showing in a table

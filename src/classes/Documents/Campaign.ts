@@ -30,6 +30,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     },
     frontIds: [],
     storyWebIds: [],
+    storyWebs: [],
   } as unknown as CampaignDocClass['system'];
   
   public static override async fromUuid<
@@ -102,6 +103,14 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
   public get storyWebIds(): readonly string[] {
     return this._clone.system.storyWebIds;
+  }
+
+  public get storyWebs(): readonly string[] {
+    return this._clone.system.storyWebs || [];
+  }
+
+  public set storyWebs(value: string[] | readonly string[]) {
+    this._clone.system.storyWebs = value.slice();
   }
 
   /** connect the session to the end of the campaign; need to add to setting separately */
@@ -283,6 +292,28 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
   public async deleteStoryWeb(storyWeb: StoryWeb): Promise<void> {
     this._clone.system.storyWebIds = this._clone.system.storyWebIds.filter(s=> s!==storyWeb.uuid);
+
+    this._clone.system.storyWebs = (this._clone.system.storyWebs || []).filter(s => s !== storyWeb.uuid);
+
+    // also remove the reference from any arcs and sessions in this campaign
+    for (const arcIndex of this._clone.system.arcIndex) {
+      const arc = await Arc.fromUuid(arcIndex.uuid);
+      if (!arc)
+        continue;
+
+      if (arc.storyWebs.includes(storyWeb.uuid)) {
+        arc.storyWebs = arc.storyWebs.filter(id => id !== storyWeb.uuid);
+        await arc.save();
+      }
+    }
+
+    const sessions = await this.allSessions();
+    for (const session of sessions) {
+      if (session.storyWebs.includes(storyWeb.uuid)) {
+        session.storyWebs = session.storyWebs.filter(id => id !== storyWeb.uuid);
+        await session.save();
+      }
+    }
     
     await this.save();
   }

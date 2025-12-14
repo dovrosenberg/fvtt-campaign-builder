@@ -26,6 +26,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     lore: [],  
     img: '',   
     tags: [],
+    storyWebs: [],
   } as unknown as SessionDocClass['system'];
 
   public campaign: Campaign | null;  // the campaign the session is in (if we don't setup up front, we can load it later)
@@ -124,6 +125,14 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
   set tags(value: string[]) {
     // @ts-ignore
     this._clone.system.tags = value;
+  }
+
+  get storyWebs(): string[] {
+    return (this._clone.system as any).storyWebs || [];
+  }
+
+  set storyWebs(value: string[] | readonly string[]) {
+    (this._clone.system as any).storyWebs = value.slice();
   }
 
   get notes(): string {

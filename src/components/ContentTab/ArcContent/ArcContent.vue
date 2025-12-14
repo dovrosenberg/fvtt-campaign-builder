@@ -83,6 +83,11 @@
             />
           </div>  
         </div>
+        <div v-if="showStoryWebTab" class="tab flexcol" data-group="primary" data-tab="storyWebs">
+          <div class="tab-inner">
+            <StoryWebsTab mode="arc" />
+          </div>
+        </div>
       </ContentTabStrip>
     </div>
   </form>	 
@@ -115,6 +120,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
+  import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
 
   // types
   import { ContentTabDescriptor, WindowTabType } from '@/types';
@@ -140,13 +146,18 @@
 
   ////////////////////////////////
   // computed data
+  const showStoryWebTab = computed(() => {
+    return ModuleSettings.get(SettingKey.useWebs);
+  });
+
   const tabs = computed(() => [
     { id: 'description', label: localize('labels.tabs.arc.description')},
     { id: 'lore', label: localize('labels.tabs.arc.lore')},
     { id: 'locations', label: localize('labels.tabs.arc.locations')},
     { id: 'participants', label: localize('labels.tabs.arc.participants')},
     { id: 'monsters', label: localize('labels.tabs.arc.monsters')},
-    { id: 'ideas', label: localize('labels.tabs.arc.ideas')}
+    { id: 'ideas', label: localize('labels.tabs.arc.ideas')},
+    ...(showStoryWebTab.value ? [{ id: 'storyWebs', label: localize('contentFolders.storyWebs') }] : []),
   ] as ContentTabDescriptor[]);
 
   ////////////////////////////////
