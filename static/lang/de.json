@@ -73,7 +73,9 @@
       "imagesLabel": "Inhaltsbilder",
       "imagesHelp": "Konfigurieren Sie die Sichtbarkeitseinstellungen für Bilder für verschiedene Inhaltstypen",
       "subTabsSavePosition": "Unterregisterkarten speichern Position",
-      "subTabsSavePositionHelp": "Wenn aktiviert, merkt sich jede Registerkarte, welcher innere Unterregisterkarte geöffnet war, und kehrt zu dieser zurück, wenn Sie die Registerkarte erneut öffnen. Wenn deaktiviert, kehren die Registerkarten immer zur ersten zurück (normalerweise Beschreibung)."
+      "subTabsSavePositionHelp": "Wenn aktiviert, merkt sich jede Registerkarte, welcher innere Unterregisterkarte geöffnet war, und kehrt zu dieser zurück, wenn Sie die Registerkarte erneut öffnen. Wenn deaktiviert, kehren die Registerkarten immer zur ersten zurück (normalerweise Beschreibung).",
+      "storyWebAutoArrange": "Automatisches Anordnen von Story-Webs",
+      "storyWebAutoArrangeHelp": "Wenn aktiviert, werden Story-Webs neu angeordnet, um ein sauberes Bild zu erhalten. Wenn deaktiviert, können Sie alles genau so positionieren, wie Sie es möchten."
     },
     "applications": {
       "sessionNotes": {
@@ -428,7 +430,8 @@
         "createConnectionPrompt": "Sie haben einen Eintrag auf einen bestehenden Knoten gezogen. Möchten Sie eine Verbindung zwischen ihnen erstellen?",
         "zoomIn": "Vergrößern",
         "zoomOut": "Verkleinern",
-        "fitToWindow": "An Fenster anpassen"
+        "fitToWindow": "An Fenster anpassen",
+        "addStoryWebDrag": "(oder ein Story-Web ziehen/ablegen)"
       }
     },
     "placeholders": {
@@ -770,7 +773,8 @@
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert",
-      "nameRequired": "Name darf nicht leer sein"
+      "nameRequired": "Name darf nicht leer sein",
+      "failedToRepairIndexes": "Fehler beim Reparieren der Indizes. Überprüfen Sie die Konsole für Details."
     },
     "notifications": {
       "backend": {
@@ -790,7 +794,8 @@
       },
       "participantCopiedToNextSession": "Teilnehmer in die nächste Sitzung kopiert",
       "locationCopiedToNextSession": "Ort in die nächste Sitzung kopiert",
-      "monsterCopiedToNextSession": "Monster in die nächste Sitzung kopiert"
+      "monsterCopiedToNextSession": "Monster in die nächste Sitzung kopiert",
+      "documentIndexesRepaired": "Alle Dokumentindizes wurden erfolgreich repariert!"
     }
   }
 }
