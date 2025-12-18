@@ -6,8 +6,11 @@
     :showFilter="false"
     :allow-drop-row="false"
     :add-button-label="localize('labels.add')"
+    :extra-add-text="localize('labels.storyWeb.addStoryWebDrag')"
     :actions="actions"
     @add-item="onAddItem"
+    @dragoverNew="onDragoverNew"
+    @drop-new="onDropNew"
   />
 </template>
 
@@ -18,10 +21,12 @@
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { FCBDialog } from '@/dialogs';
+  import { getValidatedData } from '@/utils/dragdrop';
 
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   import { Arc, Campaign, Session, StoryWeb } from '@/classes';
+  import { StoryWebNodeDragData } from '@/types';
   
   interface StoryWebRow {
     uuid: string;
@@ -122,6 +127,44 @@
     next.add(selectedItemId);
     e.storyWebs = Array.from(next);
     await e.save();
+
+    await mainStore.refreshCurrentContent();
+    await refreshRows();
+  };
+
+  const onDragoverNew = (event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  };
+
+  const onDropNew = async (event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!campaign.value || !entity.value)
+      return;
+
+    const data = getValidatedData(event) as StoryWebNodeDragData | undefined;
+    if (!data || data.type !== 'fcb-storyWeb' || !data.storyWebId)
+      return;
+
+    const selectedItemId = data.storyWebId;
+
+    // Only allow story webs that are part of this campaign
+    const matches = await campaign.value.filterStoryWebs((s) => s.uuid === selectedItemId);
+    if (matches.length === 0)
+      return;
+
+    const next = new Set<string>(((entity.value.storyWebs || []) as string[]));
+    if (next.has(selectedItemId))
+      return;
+
+    next.add(selectedItemId);
+    entity.value.storyWebs = Array.from(next);
+    await entity.value.save();
 
     await mainStore.refreshCurrentContent();
     await refreshRows();

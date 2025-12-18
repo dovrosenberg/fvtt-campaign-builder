@@ -363,6 +363,7 @@
         "newConnectionLabel": "New relationship label (can be blank)",
         "createConnection": "Create Connection",
         "createConnectionPrompt": "You dropped an entry on top of an existing node. Do you want to create a connection between them?",
+        "addStoryWebDrag": "(or drag/drop a story web)",
         "zoomIn": "Zoom In",
         "zoomOut": "Zoom Out",
         "fitToWindow": "Fit to Window"

@@ -22,6 +22,9 @@ Click "Add Story Web" to associate a Story Web with this Campaign.  You will be 
 
 You can also drag/drop a Story Web from the Campaign Directory.
 
+> [!INFO]
+> A single Story Web can be associated with any number of Arcs and/or Sessions, as well as the Campaign.
+
 ## The Story Web list
 This list contains the selected Story Webs.  
 
