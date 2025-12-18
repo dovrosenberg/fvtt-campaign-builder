@@ -652,6 +652,9 @@ export const useCampaignStore = defineStore('campaign', () => {
   ///////////////////////////////
   // watchers
   watch(()=> currentCampaign.value, async () => {
+    if (currentContentTab.value !== 'todo')
+      await _refreshToDoRows();
+
     await _refreshRowsForTab();
   });
 
