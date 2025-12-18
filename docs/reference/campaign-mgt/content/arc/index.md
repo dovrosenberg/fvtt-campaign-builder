@@ -36,4 +36,4 @@ Arcs have the following tabs where you can manage their details:
 * [Participants](./participants) – important [^Characters] and [^Organizations] that matter for this Arc
 * [Monsters](./monsters) – notable monsters or enemies that show up in the Arc
 * [Ideas](./ideas) – free-form ideas you might want to use somewhere in this Arc
-
+* [Story Webs](./storywebs) - list of story webs that you have associated with this Arc
