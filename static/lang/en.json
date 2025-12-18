@@ -363,6 +363,7 @@
         "newConnectionLabel": "New relationship label (can be blank)",
         "createConnection": "Create Connection",
         "createConnectionPrompt": "You dropped an entry on top of an existing node. Do you want to create a connection between them?",
+        "addStoryWebDrag": "(or drag/drop a story web)",
         "zoomIn": "Zoom In",
         "zoomOut": "Zoom Out",
         "fitToWindow": "Fit to Window"
@@ -480,7 +481,8 @@
       "migration": {
         "minimumVersionRequired": "Campign Builder cannot migrate from version {0}. You must first upgrade to version {1} or higher before upgrading to {2}.",
         "cannotOpen": "Campaign Builder cannot be opened because migration failed. Please check the console for details and resolve the migration issue."
-      }
+      },
+      "documentIndexesRepaired": "All document indexes have been successfully repaired!"
     },
     "dialogs": {
       "generateNameDialog": {
@@ -792,7 +794,8 @@
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark",
-      "nameRequired": "Name cannot be blank"
+      "nameRequired": "Name cannot be blank",
+      "failedToRepairIndexes": "Failed to repair indexes. Check console for details."
     }
   }
 }

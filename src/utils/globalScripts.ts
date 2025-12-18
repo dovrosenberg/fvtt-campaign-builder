@@ -5,6 +5,7 @@ import { EntryBasicIndex, CampaignBasicIndex, SessionBasicIndex, ArcBasicIndex, 
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { closeCampaignBuilderApp, isCampaignBuilderAppOpen } from '@/utils/appWindow';
 import { toRaw } from 'vue';
+import { localize } from './game';
 
 
 /**
@@ -101,12 +102,12 @@ const repairAllIndexes = async (settingId?: string): Promise<void> => {
     if (totalErrors > 0) {
       ui.notifications?.warn(`Index repair completed with ${totalErrors} errors. Check console for details.`);
     } else {
-      ui.notifications?.info('All document indexes have been successfully repaired!');
+      ui.notifications?.info(localize('notifications.documentIndexesRepaired'));
     }
     
   } catch (error) {
     console.error('Fatal error during index repair:', error);
-    ui.notifications?.error('Failed to repair indexes. Check console for details.');
+    ui.notifications?.error(localize('errors.failedToRepairIndexes'));
     throw error;
   }
 };
@@ -248,7 +249,7 @@ async function repairCampaignIndexes(
     }
   }
   
-  const newArcIndex: ArcBasicIndex[] = [];
+  let newArcIndex: ArcBasicIndex[] = [];
   for (const arcId of arcIds) {
     const arc = await Arc.fromUuid(arcId);
     if (arc && arc.campaignId === campaign.uuid) {
@@ -261,6 +262,8 @@ async function repairCampaignIndexes(
       });
     }
   }
+
+  newArcIndex = newArcIndex.sort((a, b) => (a.sortOrder - b.sortOrder));
   
   // there's no setter, so we use the add method
   for (const frontId of frontIds) {

@@ -421,6 +421,7 @@
         if (speciesName.value === '') {
           randomSpecies = speciesList[Math.floor(Math.random() * speciesList.length)];
           speciesName.value = randomSpecies.name;
+          speciesId.value = randomSpecies.id;
         }
         
         const speciesToUse = speciesList.find(s => s.id === speciesId.value);
@@ -540,6 +541,16 @@
     if (props.topic === Topics.Character) {
       // see if speciesId was made up or is an existing one
       const validSpecies = ModuleSettings.get(SettingKey.speciesList).map((s) => s.id);
+
+      // If the user typed a species name (or generation populated it) but speciesId isn't valid,
+      // try to map it to an existing species by name.
+      if (speciesName.value && !validSpecies.includes(speciesId.value)) {
+        const match = ModuleSettings.get(SettingKey.speciesList)
+          .find((s) => (s.name || '').toLowerCase() === speciesName.value.toLowerCase());
+        if (match) {
+          speciesId.value = match.id;
+        }
+      }
 
       details = {
         name: generateComplete.value ? generatedName.value : name.value,

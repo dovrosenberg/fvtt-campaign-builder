@@ -33,8 +33,14 @@ export const CampaignSchema = {
     { required: true, nullable: false, initial: [] as string[] }
   ),
 
-  /** all the storyWebIds */
+  /** all the storyWebIds; these are all the master ones */
   storyWebIds: new fields.ArrayField(
+    new fields.DocumentUUIDField({ required: true, nullable: false }),
+    { required: true, nullable: false, initial: [] as string[] }
+  ),
+
+  /** these are the ones attached to the campaign directly */
+  storyWebs: new fields.ArrayField(
     new fields.DocumentUUIDField({ required: true, nullable: false }),
     { required: true, nullable: false, initial: [] as string[] }
   ),
@@ -112,6 +118,8 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
     sessionIndex: SessionBasicIndex[];
     arcIndex: ArcBasicIndex[];
     frontIds: string[];
+    storyWebIds: string[];
+    storyWebs: string[];
     lore: CampaignLore[];  
     img: string;   
     todoItems: ToDoItem[];   

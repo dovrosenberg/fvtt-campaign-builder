@@ -27,6 +27,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     lore: [],  
     img: '',   
     tags: [],
+    storyWebs: [],
   } as unknown as ArcDocClass['system'];
 
   public campaign: Campaign | null;  // the campaign the front is in (if we don't setup up front, we can load it later)
@@ -208,6 +209,14 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
   set tags(value: string[]) {
     // @ts-ignore
     this._clone.system.tags = value;
+  }
+
+  get storyWebs(): string[] {
+    return (this._clone.system as any).storyWebs || [];
+  }
+
+  set storyWebs(value: string[] | readonly string[]) {
+    (this._clone.system as any).storyWebs = value.slice();
   }
 
   get description(): string {

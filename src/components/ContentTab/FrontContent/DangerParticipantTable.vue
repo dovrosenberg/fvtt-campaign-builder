@@ -39,13 +39,14 @@
   import { localize } from '@/utils/game';
   import { useFrontStore, useMainStore } from '@/applications/stores';
   import { getValidatedData } from '@/utils/dragdrop';
+  import { mapEntryToOption } from '@/utils/misc';
   
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, RelatedEntryDialogModes, Topics, } from '@/types';
+  import { CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////

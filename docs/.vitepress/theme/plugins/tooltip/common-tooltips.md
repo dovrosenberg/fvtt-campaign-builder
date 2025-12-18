@@ -49,3 +49,5 @@
 [^Grim Portent]: A step in the timeline of a Danger that moves it toward its Impending Doom
 [^Grim Portents]: Steps in the timeline of a Danger that move it toward its Impending Doom
 [^Impending Doom]: The end-state or worst-case outcome of a Danger
+[^Story Web]: A visual depiction of a group of related Characters, Locations, Organizations, Fronts, etc.
+[^Story Webs]: Visual depictions of a group of related Characters, Locations, Organizations, Fronts, etc.

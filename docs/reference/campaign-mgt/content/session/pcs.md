@@ -4,8 +4,8 @@ prev:
   text: 'Session Magic Items Tab'
   link: '/reference/campaign-mgt/content/session/magic-items'
 next: 
-  text: 'To-do List'
-  link: '/reference/campaign-mgt/content/campaign/todos'
+  text: 'Session Story Webs Tab'
+  link: '/reference/campaign-mgt/content/session/storywebs'
 ---
 # Session PCs Tab
 ![Session PCs Tab](/assets/images/session-pc-tab.webp)

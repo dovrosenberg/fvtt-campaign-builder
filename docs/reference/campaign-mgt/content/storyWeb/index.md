@@ -10,7 +10,7 @@ next:
 
 # Story Webs - Relationship Graphs
 
-[____INSERT PIC______]()
+![Storyweb content](/assets/images/story-web-content.webp)
 
 > [!INFO]
 > Story Webs are an optional feature and can be disabled in the [Module Settings].
@@ -71,7 +71,7 @@ You can add three types of content to your Story Web:
   * Dangers (from [Fronts])
   * Custom text
 
-#### Adding Entries (Characters, Locations, Organizations, PCs)
+### Adding Entries (Characters, Locations, Organizations, PCs)
 
 **Method 1: Drag and drop**
 - Drag Entries from the [^Setting Directory] directly onto the graph
@@ -92,7 +92,7 @@ You can add three types of content to your Story Web:
 - "Add with relations" brings in the entry plus all its 1st degree connections
 - If any connected entries are already on the graph, those connections will be shown (and entries won't be added multiple times)
 
-#### Custom text
+### Custom text
 
 Custom text can be added to a Story Web directly to represent concepts, groups, ideas, or notes that aren't otherwise defined in your Setting/Campaign:
 
@@ -121,9 +121,9 @@ By type of content:
 - **Dangers** - Dark red
 - **Custom text** - White boxes with dark green border
 
-### Working with connections
+## Working with connections
 
-#### Creating relationships
+### Creating relationships
 
 **Method 1: Drag and drop**
 - Drag one Entry node from the diretory and drop it onto an Entry, Danger, or custom Text in the graph and you will be prompted to create a new relationship between them.  Other than for customer text, this will also add the relationship to the Content items in your Setting/Campaign.
@@ -132,7 +132,7 @@ By type of content:
 - Right click on any node and select "Add Connection".  You will be switched to connection mode where you can move the mouse to point at any other node and click to connect them.  
 - Press escape to cancel the connection activity.
 
-#### Connection labels
+### Connection labels
 
 - The text on connections shows the "relationship" or "role" field from the actual relationship
 - You can edit connection text directly on the graph by double-clicking the connection or right clicking and choosing "Edit Connection".  Other than for custom text, these changes will also update the decription of the relationship in your Setting/Campaign.

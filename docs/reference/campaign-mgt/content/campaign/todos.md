@@ -4,8 +4,8 @@ prev:
   text: 'Campaign Ideas Tab'
   link: '/reference/campaign-mgt/content/campaign/ideas'
 next: 
-  text: 'Arcs'
-  link: '/reference/campaign-mgt/content/arc'
+  text: 'Campaign Story Web Tab'
+  link: '/reference/campaign-mgt/content/campaign/storywebs'
 ---
 # Campaign To-Do Tab
 
