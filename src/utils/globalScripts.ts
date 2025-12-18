@@ -192,6 +192,9 @@ async function repairSettingIndexes(
     };
     newHierarchies[key] = newHierarchy;
   }
+  setting.hierarchies = newHierarchies;
+  await setting.save();
+  
 
   // Update topic data and identify top-level entries (those without parents)
   [Topics.Character, Topics.Location, Topics.Organization, Topics.PC].forEach(topicKey => {
@@ -268,16 +271,20 @@ async function repairCampaignIndexes(
   // there's no setter, so we use the add method
   for (const frontId of frontIds) {
     const front = await Front.fromUuid(frontId);
-    if (front && front.campaignId === campaign.uuid) {
-      await campaign.addFront(front);
+    if (front && front.campaignId === campaign.uuid && !campaign.frontIds.includes(front.uuid)) {
+      await campaign.addFront(frontId);
+    } else if (!front || front.campaignId !== campaign.uuid) {
+      await campaign.deleteFront(frontId);
     }
   }
 
   // there's no setter, so we use the add method
   for (const storyWebId of storyWebIds) {
     const storyWeb = await StoryWeb.fromUuid(storyWebId);
-    if (storyWeb && storyWeb.campaignId === campaign.uuid) {
-      await campaign.addStoryWeb(storyWeb);
+    if (storyWeb && storyWeb.campaignId === campaign.uuid && !campaign.storyWebIds.includes(storyWeb.uuid)) {
+      await campaign.addStoryWeb(storyWebId);
+    } else if (!storyWeb || storyWeb.campaignId !== campaign.uuid) {
+      await campaign.deleteStoryWeb(storyWebId);
     }
   }
     

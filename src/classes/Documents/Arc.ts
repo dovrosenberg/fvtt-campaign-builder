@@ -462,7 +462,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     if (!campaign)
       throw new Error('Campaign not found in Arc.delete()');
     
-    await campaign.deleteArc(this);  // removes from setting, too
+    await campaign.deleteArc(id);  // removes from setting, too
     
     await super._delete();
 

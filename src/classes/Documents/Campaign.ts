@@ -266,34 +266,34 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
 
-  public async addFront(front: Front): Promise<void> {
-    this._clone.system.frontIds.push(front.uuid);    
+  public async addFront(frontId: string): Promise<void> {
+    this._clone.system.frontIds.push(frontId);    
     await this.save();
   }
 
-  public async addStoryWeb(storyWeb: StoryWeb): Promise<void> {
-    this._clone.system.storyWebIds.push(storyWeb.uuid);    
+  public async addStoryWeb(storyWebId: string): Promise<void> {
+    this._clone.system.storyWebIds.push(storyWebId);    
     await this.save();
   }
 
-  public async deleteArc(arc: Arc): Promise<void> {    
+  public async deleteArc(arcId: string): Promise<void> {    
     // Remove from index
-    this._clone.system.arcIndex = this._clone.system.arcIndex.filter(a => a.uuid !== arc.uuid);
+    this._clone.system.arcIndex = this._clone.system.arcIndex.filter(a => a.uuid !== arcId);
     
     // Save campaign once - this will sync to setting automatically
     await this.save();
   }
  
-  public async deleteFront(front: Front): Promise<void> {
-    this._clone.system.frontIds = this._clone.system.frontIds.filter(s=> s!==front.uuid);
+  public async deleteFront(frontId: string): Promise<void> {
+    this._clone.system.frontIds = this._clone.system.frontIds.filter(s=> s!==frontId);
     
     await this.save();
   }
 
-  public async deleteStoryWeb(storyWeb: StoryWeb): Promise<void> {
-    this._clone.system.storyWebIds = this._clone.system.storyWebIds.filter(s=> s!==storyWeb.uuid);
+  public async deleteStoryWeb(storyWebId: string): Promise<void> {
+    this._clone.system.storyWebIds = this._clone.system.storyWebIds.filter(s=> s!==storyWebId);
 
-    this._clone.system.storyWebs = (this._clone.system.storyWebs || []).filter(s => s !== storyWeb.uuid);
+    this._clone.system.storyWebs = (this._clone.system.storyWebs || []).filter(s => s !== storyWebId);
 
     // also remove the reference from any arcs and sessions in this campaign
     for (const arcIndex of this._clone.system.arcIndex) {
@@ -301,16 +301,16 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       if (!arc)
         continue;
 
-      if (arc.storyWebs.includes(storyWeb.uuid)) {
-        arc.storyWebs = arc.storyWebs.filter(id => id !== storyWeb.uuid);
+      if (arc.storyWebs.includes(storyWebId)) {
+        arc.storyWebs = arc.storyWebs.filter(id => id !== storyWebId);
         await arc.save();
       }
     }
 
     const sessions = await this.allSessions();
     for (const session of sessions) {
-      if (session.storyWebs.includes(storyWeb.uuid)) {
-        session.storyWebs = session.storyWebs.filter(id => id !== storyWeb.uuid);
+      if (session.storyWebs.includes(storyWebId)) {
+        session.storyWebs = session.storyWebs.filter(id => id !== storyWebId);
         await session.save();
       }
     }

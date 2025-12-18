@@ -91,7 +91,7 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     await front.save();
 
     // add to campaign
-    await campaign.addFront(front);
+    await campaign.addFront(front.uuid);
     
     // Add to search index
     try {
@@ -202,7 +202,7 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     if (!campaign)
       throw new Error('Campaign not found in Front.delete()');
     
-    await campaign.deleteFront(this);
+    await campaign.deleteFront(id);
     
     await super._delete();
 

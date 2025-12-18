@@ -29,9 +29,18 @@ export const renderCampaignBuilderApp = (): CampaignBuilderApplication | null =>
     notifyError(localize('notifications.migration.cannotOpen'));
     return null;
   }
+
+  let newWindow: CampaignBuilderApplication | null = null;
+
+  // @ts-ignore
+  if (game.modules.get(moduleId)!.activeWindow) {
+    // @ts-ignore
+    newWindow = game.modules.get(moduleId)!.activeWindow;
+  } else {
+    newWindow = new CampaignBuilderApplication();
+  }
   
-  const newWindow = new CampaignBuilderApplication();
-  newWindow.render(true);
+  newWindow?.render(true);
 
   // @ts-ignore
   game.modules.get(moduleId)!.activeWindow = newWindow;

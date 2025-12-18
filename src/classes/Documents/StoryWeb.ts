@@ -72,7 +72,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     if (!storyWeb)
       return null;
 
-    await campaign.addStoryWeb(storyWeb);
+    await campaign.addStoryWeb(storyWeb.uuid);
 
     return storyWeb;
   }
@@ -292,7 +292,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     if (!campaign)
       throw new Error('Campaign not found in StoryWeb.delete()');
 
-    await campaign.deleteStoryWeb(this);
+    await campaign.deleteStoryWeb(this.uuid);
 
     await super._delete();
   }
