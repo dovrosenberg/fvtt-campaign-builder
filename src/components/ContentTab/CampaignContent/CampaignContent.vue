@@ -76,6 +76,11 @@
             <CampaignIdeasTab />
           </div>
         </div>
+        <div v-if="showStoryWebTab" class="tab flexcol" data-group="primary" data-tab="storyWebs">
+          <div class="tab-inner">
+            <StoryWebsTab mode="campaign" />
+          </div>
+        </div>
         <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="todo">
           <div class="tab-inner">
             <CampaignToDoTab />
@@ -95,7 +100,7 @@
   // local imports
   import { getTabTypeIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useCampaignStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyWarn } from '@/utils/notifications';
   
@@ -112,6 +117,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import CampaignToDoTab from '@/components/ContentTab/CampaignContent/CampaignToDoTab.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
+  import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
   
   // types
   import { RelatedJournal, WindowTabType, } from '@/types';
@@ -127,7 +133,9 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
+  const campaignStore = useCampaignStore();
   const { currentCampaign, } = storeToRefs(mainStore);
+  const { toDoRows } = storeToRefs(campaignStore);
 
   ////////////////////////////////
   // data
@@ -144,6 +152,12 @@
     return ModuleSettings.get(SettingKey.enableToDoList);
   });
 
+  const showStoryWebTab = computed(() => {
+    return ModuleSettings.get(SettingKey.useWebs);
+  });
+
+  const openToDoCount = computed(() => toDoRows.value.length);
+
   const tabs = computed(() => {
     let baseTabs = [
       { id: 'description', label: localize('labels.tabs.campaign.description') },
@@ -154,7 +168,14 @@
     ];
 
     if (showToDoTab.value) {
-      baseTabs.push({ id: 'todo', label: localize('labels.tabs.campaign.toDo') });
+      const baseLabel = localize('labels.tabs.campaign.toDo');
+      const label = openToDoCount.value ? `${baseLabel} (${openToDoCount.value})` : baseLabel;
+      baseTabs.push({ id: 'todo', label });
+    }
+
+
+    if (showStoryWebTab.value) {
+      baseTabs.push({ id: 'storyWebs', label: localize('contentFolders.storyWebs') });
     }
 
     return baseTabs;

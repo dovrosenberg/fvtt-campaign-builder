@@ -31,6 +31,7 @@ export enum SettingKey {
   useFronts = 'useFronts', // allow creation and viewing of fronts
   useWebs = 'useWebs', // allow creation and viewing of story webs
   subTabsSavePosition = 'subTabsSavePosition', // whether sub-tabs remember their last position
+  storyWebAutoArrange = 'storyWebAutoArrange', // whether to enable physics in story webs
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
@@ -82,6 +83,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.useFronts ? boolean :
     K extends SettingKey.useWebs ? boolean :
     K extends SettingKey.subTabsSavePosition ? boolean :
+    K extends SettingKey.storyWebAutoArrange ? boolean :
     K extends SettingKey.rpgStyle ? boolean :
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
@@ -263,6 +265,14 @@ export class ModuleSettings {
       name: 'settings.subTabsSavePosition',
       hint: 'settings.subTabsSavePositionHelp',
       default: true,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.storyWebAutoArrange,
+      name: 'settings.storyWebAutoArrange',
+      hint: 'settings.storyWebAutoArrangeHelp',
+      default: true,
+      requiresReload: true,
       type: Boolean,
     },
     {

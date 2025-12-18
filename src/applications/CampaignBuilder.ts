@@ -16,28 +16,30 @@ import { localize } from '@/utils/game';
 import { Entry, WindowTab } from '@/classes';
 import { UserFlagKey, UserFlags } from '@/settings';
 import { WindowTabType } from '@/types';
+import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
 
 // setup pinia
-
-// the global instance - needed for keybindings, among other things
-export let wbApp: CampaignBuilderApplication | null = null;
 
 // a (hopefully) never used name to indicate opening window without a doc
 const FCB_OPEN_WINDOW_NAME = 'FCB-Open-Window!!!@#';
 
-
-export const renderCampaignBuilderApp = async () => {
+export const renderCampaignBuilderApp = (): CampaignBuilderApplication | null => {
   // Check if migration failed - prevent opening if it did
   if (MigrationManager.migrationFailed) {
     notifyError(localize('notifications.migration.cannotOpen'));
     return null;
   }
   
-  // wbApp is managed inside _canRender, which gets called both by this as well
-  //    as any Foundry attempts to render
   const newWindow = new CampaignBuilderApplication();
   newWindow.render(true);
+
+  // @ts-ignore
+  game.modules.get(moduleId)!.activeWindow = newWindow;
+  
+
+  return newWindow;    
 };
+
 
 export class CampaignBuilderApplication extends VueApplicationMixin(DocumentSheetV2<JournalEntry | JournalEntryPage>) {
 
@@ -118,22 +120,12 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
         return false;
       }
 
-      if (!wbApp) {
-        wbApp = this;
-
-        // we hold it here... there's an issue where we can't import this file
-        //    into other places that need access to wbApp because it triggers
-        //    an issue with pinia reference instantiation order
-        // but we need it to be able to close it programatically
-        // @ts-ignore
-        game.modules.get(moduleId).activeWindow = wbApp;    
-      }
-
+    
       // if we already have a wbApp, don't render another CampaignBuilder
       // we will return false to prevent Foundry from opening another window
       //    but we need to handle the document we're trying to open here otherwise
       //    we can never open a specific document after the first time
-      let preventRender = wbApp.rendered;
+      let preventRender = isCampaignBuilderAppOpen();
 
       const doc = this.document;
 

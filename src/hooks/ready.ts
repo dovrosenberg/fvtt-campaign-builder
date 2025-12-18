@@ -96,6 +96,6 @@ async function addMainButton(): Promise<void> {
 
   button.on('click', null, async (): Promise<void> => {
     // create the instance and render 
-    await renderCampaignBuilderApp(true);
+    renderCampaignBuilderApp();
   });
 }

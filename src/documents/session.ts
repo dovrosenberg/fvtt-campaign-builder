@@ -85,6 +85,11 @@ export const SessionSchema = {
 
   /** array of tags */
   tags: schemas.Tags(),
+
+  storyWebs: new fields.ArrayField(
+    new fields.DocumentUUIDField({ required: true, nullable: false }),
+    { required: true, nullable: false, initial: [] as string[] }
+  ),
 };
 
 type SessionSchemaType = typeof SessionSchema;
@@ -117,5 +122,6 @@ export interface SessionDoc extends JournalEntryPage {
     lore: SessionLore[];
     img: string;
     tags: string[];
+    storyWebs: string[];
   };
 }

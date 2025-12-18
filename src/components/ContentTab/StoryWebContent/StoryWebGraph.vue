@@ -148,6 +148,7 @@
 
     // we can drop entries
     if (data.type === 'fcb-entry') {
+      const withRelationships = event.ctrlKey;
       const domPosition = { x: event.offsetX, y: event.offsetY };
       const convertedPosition = toRaw(currentNetwork.value).DOMtoCanvas(domPosition);
 
@@ -156,10 +157,10 @@
       
       if (nodeUnderCursor) {
         // Handle the drop on node using the store method
-        await storyWebStore.handleDropOnNode(data.childId as string, nodeUnderCursor, convertedPosition);
+        await storyWebStore.handleDropOnNode(data.childId as string, nodeUnderCursor, convertedPosition, withRelationships);
       } else {
         // Normal drop - just add the entry
-        await storyWebStore.addEntry(data.childId as string, convertedPosition, false);      
+        await storyWebStore.addEntry(data.childId as string, convertedPosition, withRelationships);      
       }
     }
   };

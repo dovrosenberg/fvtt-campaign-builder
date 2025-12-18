@@ -157,6 +157,11 @@
             <SessionItemTab />
           </div>  
         </div>
+        <div v-if="showStoryWebTab" class="tab flexcol" data-group="primary" data-tab="storyWebs">
+          <div class="tab-inner">
+            <StoryWebsTab mode="session" />
+          </div>
+        </div>
       </ContentTabStrip>
     </div>
   </form>	 
@@ -192,6 +197,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
+  import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
   
   // types
   import { ContentTabDescriptor, WindowTabType } from '@/types';
@@ -230,6 +236,10 @@
     return campaignLastSessionNumber == null || !currentSession.value || currentSession.value.number === campaignLastSessionNumber; 
   });
 
+  const showStoryWebTab = computed(() => {
+    return ModuleSettings.get(SettingKey.useWebs);
+  });
+
   const tabs = computed(() => [
     { id: 'notes', label: localize('labels.tabs.session.notes')},
     { id: 'lore', label: localize('labels.tabs.session.lore')},
@@ -239,6 +249,7 @@
     { id: 'monsters', label: localize('labels.tabs.session.monsters')},
     { id: 'magic', label: localize('labels.tabs.session.magic')},
     { id: 'pcs', label: localize('labels.tabs.session.pcs')},
+    ...(showStoryWebTab.value ? [{ id: 'storyWebs', label: localize('contentFolders.storyWebs') }] : []),
   ] as ContentTabDescriptor[]);
 
   ////////////////////////////////

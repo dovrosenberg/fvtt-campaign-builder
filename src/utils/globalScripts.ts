@@ -3,8 +3,9 @@ import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/set
 import { FCBSetting, Campaign, Entry, Session, Arc, Front, StoryWeb } from '@/classes';
 import { EntryBasicIndex, CampaignBasicIndex, SessionBasicIndex, ArcBasicIndex, Topics, Hierarchy } from '@/types';
 import { DOCUMENT_TYPES } from '@/documents/types';
-import { wbApp } from '@/applications/CampaignBuilder';
+import { closeCampaignBuilderApp, isCampaignBuilderAppOpen } from '@/utils/appWindow';
 import { toRaw } from 'vue';
+import { localize } from './game';
 
 
 /**
@@ -22,8 +23,8 @@ const repairAllIndexes = async (settingId?: string): Promise<void> => {
   console.log('Starting repair of all document indexes...');
 
   // Check if FCB window is open and exit if so
-  if (wbApp) {
-    await wbApp.close();
+  if (isCampaignBuilderAppOpen()) {
+    await closeCampaignBuilderApp();
     console.warn('Cannot repair indexes while Campaign Builder window is open. Closing window.');
   }
   
@@ -101,12 +102,12 @@ const repairAllIndexes = async (settingId?: string): Promise<void> => {
     if (totalErrors > 0) {
       ui.notifications?.warn(`Index repair completed with ${totalErrors} errors. Check console for details.`);
     } else {
-      ui.notifications?.info('All document indexes have been successfully repaired!');
+      ui.notifications?.info(localize('notifications.documentIndexesRepaired'));
     }
     
   } catch (error) {
     console.error('Fatal error during index repair:', error);
-    ui.notifications?.error('Failed to repair indexes. Check console for details.');
+    ui.notifications?.error(localize('errors.failedToRepairIndexes'));
     throw error;
   }
 };
@@ -248,7 +249,7 @@ async function repairCampaignIndexes(
     }
   }
   
-  const newArcIndex: ArcBasicIndex[] = [];
+  let newArcIndex: ArcBasicIndex[] = [];
   for (const arcId of arcIds) {
     const arc = await Arc.fromUuid(arcId);
     if (arc && arc.campaignId === campaign.uuid) {
@@ -261,6 +262,8 @@ async function repairCampaignIndexes(
       });
     }
   }
+
+  newArcIndex = newArcIndex.sort((a, b) => (a.sortOrder - b.sortOrder));
   
   // there's no setter, so we use the add method
   for (const frontId of frontIds) {

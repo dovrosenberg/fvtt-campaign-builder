@@ -29,3 +29,4 @@ Session have the following tabs where you can manage their details:
 * [Monsters](./monsters) - relevant monsters players are likely to encounter
 * [Magic Items](./magic-items) - the magic items you're ready to hand out for victory
 * [PCs](./pcs) - the PCs you're playing
+* [Story Webs](./storywebs) - list of story webs that you have associated with this Session

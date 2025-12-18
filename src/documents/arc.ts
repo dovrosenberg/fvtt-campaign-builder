@@ -41,6 +41,11 @@ export const ArcSchema = {
   /** tags */
   tags: schemas.Tags(),
 
+  storyWebs: new fields.ArrayField(
+    new fields.DocumentUUIDField({ required: true, nullable: false }),
+    { required: true, nullable: false, initial: [] as string[] }
+  ),
+
   /** array of locations */
   locations: new fields.ArrayField(
     schemas.ArcLocation(),
@@ -101,6 +106,7 @@ export interface ArcDoc extends JournalEntryPage {
 
     // session-like
     campaignId: string;
+    storyWebs: string[];
     locations: ArcLocation[];
     participants: ArcParticipant[];
     monsters: ArcMonster[];

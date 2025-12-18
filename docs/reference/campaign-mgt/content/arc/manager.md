@@ -1,10 +1,10 @@
 ---
 title: Arc Manager
 prev:
-  text: 'Arc Ideas Tab'
-  link: '/reference/campaign-mgt/content/arc/ideas'
+  text: 'Arc Story Webs Tab'
+  link: '/reference/campaign-mgt/content/arc/storywebs'
 next:
-  text: 'Session Manager'
+  text: 'Sessions'
   link: '/reference/campaign-mgt/content/session/'
 ---
 
