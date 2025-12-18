@@ -44,6 +44,7 @@ The Story Web interface provides an interactive canvas where you can manipulate 
 ### Node positioning
 
 - Drag nodes to arrange them however you like
+- Nodes will automatically move around to try to keep your picture clean and readable.  This can be disabled in the [Module Settings](/reference/configuration), where turning off "Auto-arrange Story Webs" will let you (and force you to) position each node exactly where you want it. 
 - Dragging a node to an edge will cause the graph to pan
 - Positions are automatically saved so your layout persists when you reopen the Story Web
 
