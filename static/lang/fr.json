@@ -50,7 +50,7 @@
       "enableToDoList": "Activer la liste de tâches",
       "enableToDoListHelp": "Si désactivé, la fonctionnalité de liste de tâches sera désactivée.",
       "autoRelationships": "Suggérer automatiquement des relations",
-      "autoRelationshipsHelp": "Si activé, l'éditeur suggérera automatiquement des modifications aux relations entre les entrées en fonction des changements apportés à la description.",
+      "autoRelationshipsHelp": "Si activé, le système suggérera automatiquement des modifications aux relations entre les entrées en fonction des modifications apportées à la description.",
       "keybindings": {
         "closeTab": "Fermer l'onglet",
         "closeTabHelp": "Fermer l'onglet actuel",
@@ -68,7 +68,12 @@
       "useFronts": "Utiliser les fronts",
       "useFrontsHelp": "Activer la fonctionnalité de \"front\" de campagne.",
       "useWebs": "Utiliser les toiles d'histoires",
-      "useWebsHelp": "Activer la fonctionnalité de \"toile d'histoire\" de la campagne."
+      "useWebsHelp": "Activer la fonctionnalité de \"toile d'histoire\" de la campagne.",
+      "images": "Configurer les images de contenu",
+      "imagesLabel": "Images de contenu",
+      "imagesHelp": "Configurer les paramètres de visibilité des images pour différents types de contenu",
+      "subTabsSavePosition": "Enregistrer la position des sous-onglets",
+      "subTabsSavePositionHelp": "Lorsqu'il est activé, chaque onglet se souviendra du sous-onglet intérieur qui était ouvert et y retournera lorsque vous rouvrirez cet onglet. Lorsqu'il est désactivé, les onglets reviendront toujours au premier (généralement la description)."
     },
     "applications": {
       "sessionNotes": {
@@ -587,6 +592,16 @@
       "createStoryWeb": {
         "title": "Créer une toile d'histoire",
         "webName": "Nom de la toile d'histoire"
+      },
+      "imageSettings": {
+        "title": "Paramètres de visibilité des images",
+        "description": "Choisissez quels types de contenu doivent afficher des images sur leurs pages de description.",
+        "settings": "Paramètres",
+        "entries": "Entrées",
+        "campaigns": "Campagnes",
+        "arcs": "Arcs",
+        "sessions": "Sessions",
+        "fronts": "Fronts"
       }
     },
     "contextMenus": {
