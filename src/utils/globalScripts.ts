@@ -248,7 +248,7 @@ async function repairCampaignIndexes(
     }
   }
   
-  const newArcIndex: ArcBasicIndex[] = [];
+  let newArcIndex: ArcBasicIndex[] = [];
   for (const arcId of arcIds) {
     const arc = await Arc.fromUuid(arcId);
     if (arc && arc.campaignId === campaign.uuid) {
@@ -261,6 +261,8 @@ async function repairCampaignIndexes(
       });
     }
   }
+
+  newArcIndex = newArcIndex.sort((a, b) => (a.sortOrder - b.sortOrder));
   
   // there's no setter, so we use the add method
   for (const frontId of frontIds) {
