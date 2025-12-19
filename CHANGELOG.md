@@ -1,4 +1,10 @@
 # Change Log
+## 1.8.0 - [_____________________]
+![](https://img.shields.io/badge/release%20date-December%20__%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.0/module.zip)
+
+- [_____________________]
+
 ## 1.7.1 - Story Web bug fix
 ![](https://img.shields.io/badge/release%20date-December%2019%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.7.1/module.zip)
