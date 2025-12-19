@@ -322,6 +322,15 @@
     }
   }
 
+  .fcb-window {
+    @include style-base-components;
+
+    .window-content {
+      background-color: var(--fcb-surface);
+      color: var(--fcb-text);
+    }
+  }
+
   .fcb-main-window {  
     min-width: 640px;
 

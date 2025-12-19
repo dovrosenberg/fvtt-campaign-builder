@@ -14,7 +14,7 @@ export class RollTableSettingsApplication extends VueApplicationMixin(Applicatio
 
   static DEFAULT_OPTIONS = {
     id: `app-fcb-roll-table-settings`,
-    classes: ['fcb-roll-table-settings'],
+    classes: ['fcb-roll-table-settings', 'fcb-window'],
     window: {
       title: 'fcb.settings.rollTableSettings',
       icon: 'fa-solid fa-dice',

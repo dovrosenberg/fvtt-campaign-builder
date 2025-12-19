@@ -31,7 +31,7 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
   static get DEFAULT_OPTIONS() {
     return {
       id: `app-fcb-session-notes`,
-      classes: ['fcb-session-notes'], 
+      classes: ['fcb-session-notes', 'fcb-window'], 
       window: {
         title: `${localize('applications.sessionNotes.title')} - ${SessionNotesApplication.title}`,
         icon: 'fa-solid fa-pen-to-square',

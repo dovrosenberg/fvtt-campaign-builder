@@ -14,7 +14,7 @@ export class ImageSettingsApplication extends VueApplicationMixin(ApplicationV2)
 
   static DEFAULT_OPTIONS = {
     id: `app-fcb-image-settings`,
-    classes: ['fcb-image-settings'],
+    classes: ['fcb-image-settings', 'fcb-window'],
     window: {
       title: 'fcb.settings.images',
       icon: 'fa-solid fa-image',

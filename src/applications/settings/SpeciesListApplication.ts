@@ -14,7 +14,7 @@ export class SpeciesListApplication extends VueApplicationMixin(ApplicationV2) {
 
   static DEFAULT_OPTIONS = {
     id: `app-fcb-species-list`,
-    classes: ['fcb-species-list'], 
+    classes: ['fcb-species-list', 'fcb-window'], 
     window: {
       title: 'fcb.applications.speciesList.title',
       icon: 'fa-solid fa-person-half-dress',

@@ -14,7 +14,7 @@ export class CustomFieldsApplication extends VueApplicationMixin(ApplicationV2) 
 
   static DEFAULT_OPTIONS = {
     id: `app-fcb-custom-fields`,
-    classes: ['fcb-custom-fields'],
+    classes: ['fcb-custom-fields', 'fcb-window'],
     window: {
       title: 'fcb.settings.customFields',
       icon: 'fa-solid fa-list',

@@ -14,7 +14,7 @@ export class AdvancedSettingsApplication extends VueApplicationMixin(Application
 
   static DEFAULT_OPTIONS = {
     id: `app-fcb-advanced-settings`,
-    classes: ['fcb-advanced-settings'], 
+    classes: ['fcb-advanced-settings', 'fcb-window'], 
     window: {
       title: 'fcb.applications.advancedSettings.title',
       icon: 'fa-solid fa-gear',
