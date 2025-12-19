@@ -76,6 +76,10 @@
       "subTabsSavePositionHelp": "When enabled, every tab will remember which interior sub-tab was open and return to it when you re-open that tab. When disabled, tabs will always revert to the first one (usually description).",
       "storyWebAutoArrange": "Auto-arrange story webs",
       "storyWebAutoArrangeHelp": "When enabled, story webs will rearrange to try to keep a clean picture.  When disabled, you can position everything exactly how you want."
+      ,
+      "customFields": "Custom Fields",
+      "customFieldsLabel": "Custom Fields",
+      "customFieldsHelp": "Configure additional fields for each content type"
     },
     "applications": {
       "sessionNotes": {
@@ -159,6 +163,44 @@
           "models": "AI Models",
           "content": "AI Content",
           "email": "Email"
+        }
+      },
+      "customFields": {
+        "title": "Configure Custom Fields",
+        "notifications": {
+          "missingLabel": "Each custom field must have a label"
+        },
+        "labels": {
+          "contentType": "Content type",
+          "contentTypeHint": "Select a content type, then add, delete, and reorder fields.",
+          "selectType": "Select a type...",
+          "selectTypePrompt": "Select a content type to begin.",
+          "selectOptionsPlaceholder": "a;b;c",
+          "delete": "Delete"
+        },
+        "columns": {
+          "label": "Label",
+          "fieldKey": "Key",
+          "selectOptions": "Select options"
+          ,
+          "help": "Help"
+        },
+        "fieldTypes": {
+          "text": "Text",
+          "select": "Select",
+          "editor": "Editor",
+          "boolean": "Boolean"
+        },
+        "contentTypes": {
+          "arc": "Arc",
+          "campaign": "Campaign",
+          "front": "Front",
+          "session": "Session",
+          "character": "Character",
+          "location": "Location",
+          "organization": "Organization",
+          "pc": "PC",
+          "setting": "Setting"
         }
       },
       "rollTableSettings": {

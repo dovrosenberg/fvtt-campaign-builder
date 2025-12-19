@@ -57,6 +57,8 @@ const i18nInit = () => {
 
   defaultCustomFields[CustomFieldContentType.Front] = [];
 
+  defaultCustomFields[CustomFieldContentType.Arc] = [];
+
   defaultCustomFields[CustomFieldContentType.Campaign] = [{
       name: 'house_rules',
       label: localize('labels.fields.houseRules'),

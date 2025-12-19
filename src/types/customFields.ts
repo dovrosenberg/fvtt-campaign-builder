@@ -1,7 +1,8 @@
 export enum FieldType {
   Text,
   Select,
-  Editor
+  Editor,
+  Boolean
 }
 
 /** what it applies to */
@@ -10,6 +11,8 @@ export enum CustomFieldContentType {
   Character,
   Location,
   Organization,
+  Arc,
+  Front,
   PC,
   Session,
   Campaign,
@@ -17,7 +20,7 @@ export enum CustomFieldContentType {
 
 // types and functions used to manage topic hierarchies
 export interface CustomFieldDescription {
-  name: string;  // lowercase version of description with spaces converted to _
+  name: string;  // lowercase version of label with spaces converted to _
   label: string;
   fieldType: FieldType;
   options?: string[];  // for select fields
@@ -35,4 +38,6 @@ export let defaultCustomFields: Record<CustomFieldContentType, CustomFieldDescri
   [CustomFieldContentType.PC]: [],
   [CustomFieldContentType.Session]: [],
   [CustomFieldContentType.Campaign]: [],
+  [CustomFieldContentType.Arc]: [],
+  [CustomFieldContentType.Front]: [],
 };
