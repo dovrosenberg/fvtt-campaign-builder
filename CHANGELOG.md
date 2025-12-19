@@ -1,4 +1,10 @@
 # Change Log
+## 1.7.1 - Story Web bug fix
+![](https://img.shields.io/badge/release%20date-December%2019%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.7.1/module.zip)
+
+- Story Web layouts now properly save when auto-arrange is off.
+
 ## 1.7.0 - Relationship graphs and better tab history!
 ![](https://img.shields.io/badge/release%20date-December%2018%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.7.0/module.zip)

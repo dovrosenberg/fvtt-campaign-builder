@@ -946,8 +946,13 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       startAutoPan();
   };
 
-  const onDragEnd = () => {
+  const onDragEnd = async () => {
     stopAutoPan();
+    
+    // if we're not using physics, we need to save (otherwise we save when
+    //   it stablizes)
+    if (!ModuleSettings.get(SettingKey.storyWebAutoArrange))
+      await capturePositions();
   };
 
   // returns null for no, or the direction to scroll 0/-1
