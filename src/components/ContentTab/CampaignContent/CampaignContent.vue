@@ -55,6 +55,12 @@
               @editor-saved="onHouseRulesEditorSaved"
             />
           </div>
+
+          <CustomFieldsBlocks
+            v-if="currentCampaign"
+            :content-type="CustomFieldContentType.Campaign"
+            :content="currentCampaign"
+          />
         </DescriptionTab>
         <JournalTab
           v-if="currentCampaign"
@@ -118,9 +124,10 @@
   import CampaignToDoTab from '@/components/ContentTab/CampaignContent/CampaignToDoTab.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
-  
+  import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
+
   // types
-  import { RelatedJournal, WindowTabType, } from '@/types';
+  import { CustomFieldContentType, RelatedJournal, WindowTabType, } from '@/types';
   
   ////////////////////////////////
   // props

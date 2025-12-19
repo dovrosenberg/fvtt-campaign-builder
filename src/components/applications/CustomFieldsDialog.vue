@@ -58,15 +58,21 @@
 
           <Column :rowReorder="true" headerStyle="width: 3rem" :reorderableColumn="false" />
 
-          <Column field="label" :header="localize('applications.customFields.columns.label')" style="width: 18%">
+          <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="width: 4rem">
             <template #body="{ data }">
-              <InputText v-model="data.label" unstyled style="width: 100%" />
+              <a
+                class="fcb-action-icon"
+                :data-tooltip="localize('applications.customFields.labels.delete')"
+                @click.stop="onDeleteField(data.uuid)"
+              >
+                <i class="fas fa-trash"></i>
+              </a>
             </template>
           </Column>
 
-          <Column field="name" :header="localize('applications.customFields.columns.fieldKey')" style="width: 16%">
+          <Column field="label" :header="localize('applications.customFields.columns.label')" style="width: 18%">
             <template #body="{ data }">
-              <InputText v-model="data.name" unstyled style="width: 100%" />
+              <InputText v-model="data.label" unstyled style="width: 100%" />
             </template>
           </Column>
 
@@ -88,26 +94,14 @@
                 unstyled
                 style="width: 100%"
                 :disabled="data.fieldType !== FieldType.Select"
-                :placeholder="localize('applications.customFields.labels.selectOptionsPlaceholder')"
+                :placeholder="data.fieldType === FieldType.Select ? localize('applications.customFields.labels.selectOptionsPlaceholder') : ''"
               />
             </template>
           </Column>
 
-          <Column field="help" :header="localize('applications.customFields.columns.help')" style="width: 18%">
+          <Column field="help" :header="localize('applications.customFields.columns.helpText')" style="width: 18%">
             <template #body="{ data }">
               <InputText v-model="data.help" unstyled style="width: 100%" />
-            </template>
-          </Column>
-
-          <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="width: 4rem">
-            <template #body="{ data }">
-              <a
-                class="fcb-action-icon"
-                :data-tooltip="localize('applications.customFields.labels.delete')"
-                @click.stop="onDeleteField(data.uuid)"
-              >
-                <i class="fas fa-trash"></i>
-              </a>
             </template>
           </Column>
         </DataTable>
@@ -149,6 +143,15 @@
   // types
   import { CustomFieldContentType, CustomFieldDescription, FieldType } from '@/types';
 
+  ////////////////////////////////
+  // props
+
+  ////////////////////////////////
+  // emits
+
+  ////////////////////////////////
+  // store
+
   type Row = {
     uuid: string;
     name: string;
@@ -159,18 +162,21 @@
     sortOrder: number;
   };
 
+  ////////////////////////////////
+  // data
+
   const selectedType = ref<CustomFieldContentType | null>(CustomFieldContentType.Arc);
 
   const typeOptions = [
-    { value: CustomFieldContentType.Arc, label: localize('applications.customFields.contentTypes.arc') },
-    { value: CustomFieldContentType.Campaign, label: localize('applications.customFields.contentTypes.campaign') },
-    { value: CustomFieldContentType.Front, label: localize('applications.customFields.contentTypes.front') },
-    { value: CustomFieldContentType.Session, label: localize('applications.customFields.contentTypes.session') },
-    { value: CustomFieldContentType.Character, label: localize('applications.customFields.contentTypes.character') },
-    { value: CustomFieldContentType.Location, label: localize('applications.customFields.contentTypes.location') },
-    { value: CustomFieldContentType.Organization, label: localize('applications.customFields.contentTypes.organization') },
-    { value: CustomFieldContentType.PC, label: localize('applications.customFields.contentTypes.pc') },
-    { value: CustomFieldContentType.Setting, label: localize('applications.customFields.contentTypes.setting') },
+    { value: CustomFieldContentType.Arc, label: localize('labels.arc.arc') },
+    { value: CustomFieldContentType.Campaign, label: localize('labels.campaign.campaign') },
+    { value: CustomFieldContentType.Front, label: localize('labels.front.front') },
+    { value: CustomFieldContentType.Session, label: localize('labels.session.session') },
+    { value: CustomFieldContentType.Character, label: localize('labels.character.character') },
+    { value: CustomFieldContentType.Location, label: localize('labels.location.location') },
+    { value: CustomFieldContentType.Organization, label: localize('labels.organization.organization') },
+    { value: CustomFieldContentType.PC, label: localize('labels.pc.pc') },
+    { value: CustomFieldContentType.Setting, label: localize('labels.setting.setting') },
   ];
 
   const fieldTypeOptions = [
@@ -183,25 +189,43 @@
   const allCustomFields = ref<Record<CustomFieldContentType, CustomFieldDescription[]>>({} as any);
   const rows = ref<Row[]>([]);
 
-  const toFieldKey = (text: string): string => {
-    return text
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '_')
-      .replace(/[^a-z0-9_]/g, '')
-      .replace(/_+/g, '_')
-      .replace(/^_+|_+$/g, '');
-  };
+  ////////////////////////////////
+  // computed data
 
-  const ensureUniqueKey = (baseKey: string, used: Set<string>): string => {
-    let key = baseKey;
-    let i = 2;
-    while (!key || used.has(key)) {
-      key = `${baseKey}_${i}`;
-      i += 1;
+  const asDescriptions = computed<CustomFieldDescription[]>(() => {
+    return rows.value
+      .slice()
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .map((r) => {
+        const options = r.fieldType === FieldType.Select
+          ? r.optionsText.split(';').map(s => s.trim()).filter(Boolean)
+          : undefined;
+
+        return {
+          name: r.name.trim(),
+          label: r.label.trim(),
+          fieldType: r.fieldType,
+          options,
+          help: r.help?.trim() || undefined,
+          sortOrder: r.sortOrder,
+        } as CustomFieldDescription;
+      });
+  });
+
+  ////////////////////////////////
+  // methods
+
+  const toFieldKey = (text: string): string => {
+    const input = (text || '').toLowerCase();
+
+    // FNV-1a 32-bit hash
+    let hash = 2166136261;
+    for (let i = 0; i < input.length; i += 1) {
+      hash ^= input.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
     }
-    used.add(key);
-    return key;
+
+    return `cf_${(hash >>> 0).toString(16).padStart(8, '0')}`;
   };
 
   const loadRowsForType = (type: CustomFieldContentType) => {
@@ -211,7 +235,7 @@
       .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
       .map((f, index) => ({
         uuid: foundry.utils.randomID(),
-        name: f.name || '',
+        name: f.name || toFieldKey(f.label || ''),
         label: f.label || '',
         fieldType: f.fieldType,
         optionsText: (f.options || []).join(';'),
@@ -234,15 +258,20 @@
 
     for (const r of rows.value) {
       r.label = (r.label || '').trim();
-      r.name = (r.name || '').trim();
 
       if (!r.label) {
         ui.notifications?.error(localize('applications.customFields.notifications.missingLabel'));
         return false;
       }
 
-      const baseKey = toFieldKey(r.name || r.label);
-      r.name = ensureUniqueKey(baseKey, used);
+      const key = toFieldKey(r.label);
+      if (used.has(key)) {
+        ui.notifications?.error(localize('applications.customFields.notifications.duplicateKey'));
+        return false;
+      }
+
+      used.add(key);
+      r.name = key;
 
       if (r.fieldType !== FieldType.Select) {
         r.optionsText = '';
@@ -252,25 +281,9 @@
     return true;
   };
 
-  const asDescriptions = computed<CustomFieldDescription[]>(() => {
-    return rows.value
-      .slice()
-      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
-      .map((r) => {
-        const options = r.fieldType === FieldType.Select
-          ? r.optionsText.split(';').map(s => s.trim()).filter(Boolean)
-          : undefined;
 
-        return {
-          name: r.name.trim(),
-          label: r.label.trim(),
-          fieldType: r.fieldType,
-          options,
-          help: r.help?.trim() || undefined,
-          sortOrder: r.sortOrder,
-        } as CustomFieldDescription;
-      });
-  });
+  ////////////////////////////////
+  // event handlers
 
   const onAddField = () => {
     rows.value.push({
@@ -320,10 +333,16 @@
     ui.notifications?.info(localize('notifications.changesSaved'));
   };
 
+  ////////////////////////////////
+  // watchers
+
   watch(() => selectedType.value, (newType) => {
     if (newType === null) return;
     loadRowsForType(newType);
   });
+
+  ////////////////////////////////
+  // lifecycle events
 
   onMounted(() => {
     const raw = ModuleSettings.getClone(SettingKey.customFields);

@@ -108,6 +108,13 @@
                         @editor-saved="onMagicItemsSaved"
                       />
                     </div>
+
+                    <CustomFieldsBlocks
+                      v-if="currentEntry"
+                      :content-type="CustomFieldContentType.PC"
+                      :content="currentEntry"
+                    />
+
                   </div>
                 </div>
               </div>
@@ -166,10 +173,11 @@
   import JournalTab from '@/components/ContentTab/JournalTab.vue';
   import RelatedEntryTable from '@/components/tables/RelatedEntryTable.vue';
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
-  
+    import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
+
   // types
   import { Entry } from '@/classes';
-  import { Topics, RelatedJournal } from '@/types';
+  import { Topics, RelatedJournal, ValidTopic, CustomFieldContentType } from '@/types';
   import { DOCUMENT_TYPES } from '@/documents';
 
   ////////////////////////////////
@@ -197,7 +205,7 @@
     { tab: 'characters', label: 'labels.tabs.entry.characters', topic: Topics.Character },
     { tab: 'locations', label: 'labels.tabs.entry.locations', topic: Topics.Location },
     { tab: 'organizations', label: 'labels.tabs.entry.organizations', topic: Topics.Organization },
-  ] as { tab: string; label: string; topic: Topics }[];
+  ] as { tab: string; label: string; topic: ValidTopic }[];
 
   const showRelatedEntriesDialog = ref<boolean>(false);
   const pendingAddedUUIDs = ref<string[]>([]);
@@ -211,11 +219,10 @@
   ////////////////////////////////
   // methods
   const refreshEntry = async () => {
-    if (!currentEntry.value)
+    if (!currentEntry.value || currentEntry.value.topic!==Topics.PC)
       return;
     
     // load starting data values
-    name.value = currentEntry.value.name || '';
     playerName.value = currentEntry.value.playerName || '';
     await currentEntry.value.getActor();
   };
@@ -436,7 +443,7 @@
   onMounted(async () => {
     await mountTabs();
 
-    if (currentEntry.value) {
+    if (currentEntry.value && currentEntry.value.topic===Topics.PC) {
       // load starting data values
       playerName.value = currentEntry.value.playerName || '';
 

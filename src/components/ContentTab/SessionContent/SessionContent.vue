@@ -120,6 +120,12 @@
             </div>
           </template>
 
+
+          <CustomFieldsBlocks
+            v-if="currentSession"
+            :content-type="CustomFieldContentType.Session"
+            :content="currentSession"
+          />
         </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner">
@@ -198,9 +204,10 @@
   import Tags from '@/components/Tags.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
-  
+  import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
+
   // types
-  import { ContentTabDescriptor, WindowTabType } from '@/types';
+  import { ContentTabDescriptor, CustomFieldContentType, WindowTabType } from '@/types';
   import { Session } from '@/classes';
   
   ////////////////////////////////

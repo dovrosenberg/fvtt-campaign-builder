@@ -51,6 +51,22 @@ export class FCBJournalEntryPage<
     return this._doc;
   }
 
+  public getCustomField(key: string): string | boolean {
+    // @ts-ignore - not sure how to specify customFields exists on all of these
+    return this._clone.system?.customFields?.[key];
+  }
+
+  public setCustomField(key: string, value: string | boolean): void {
+    // @ts-ignore - not sure how to specify customFields exists on all of these
+    if (!this._clone.system.customFields || typeof this._clone.system.customFields !== 'object') {
+    // @ts-ignore - not sure how to specify customFields exists on all of these
+      this._clone.system.customFields = {};
+    }
+
+    // @ts-ignore - not sure how to specify customFields exists on all of these
+    this._clone.system.customFields[key] = value;
+  }
+
   /** Note that we always refer to the uuid of the wrapping JournalEntry  */
   public get uuid(): string {
     return this._doc.parent!.uuid;
@@ -287,7 +303,7 @@ async function makeFolder(folderName: string, compendiumId: string, parentFolder
    * Sanitizes HTML content in custom fields that are of type Editor.
    * This must be called before saving to ensure HTML is cleaned before being sent to the server.
    */
-  function sanitizeCustomFields(customFields: Record<string, string>): void {
+  function sanitizeCustomFields(customFields: Record<string, unknown>): void {
     // we just sanitize every field because we don't yet have the custom field infrastructure 
     // TODO: could make this more efficient once we have that 
 
@@ -299,6 +315,9 @@ async function makeFolder(folderName: string, compendiumId: string, parentFolder
       // if (field.fieldType !== FieldType.Editor) 
       //   continue;
 
-      customFields[fieldName] = sanitizeHTML(customFields[fieldName]);
+      const value = customFields[fieldName] as unknown;
+      if (typeof value !== 'string') continue;
+
+      customFields[fieldName] = sanitizeHTML(value) as any;
     }
   }
