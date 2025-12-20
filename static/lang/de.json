@@ -75,7 +75,10 @@
       "subTabsSavePosition": "Unterregisterkarten speichern Position",
       "subTabsSavePositionHelp": "Wenn aktiviert, merkt sich jede Registerkarte, welcher innere Unterregisterkarte geöffnet war, und kehrt zu dieser zurück, wenn Sie die Registerkarte erneut öffnen. Wenn deaktiviert, kehren die Registerkarten immer zur ersten zurück (normalerweise Beschreibung).",
       "storyWebAutoArrange": "Automatisches Anordnen von Story-Webs",
-      "storyWebAutoArrangeHelp": "Wenn aktiviert, werden Story-Webs neu angeordnet, um ein sauberes Bild zu erhalten. Wenn deaktiviert, können Sie alles genau so positionieren, wie Sie es möchten."
+      "storyWebAutoArrangeHelp": "Wenn aktiviert, werden Story-Webs neu angeordnet, um ein sauberes Bild zu erhalten. Wenn deaktiviert, können Sie alles genau so positionieren, wie Sie es möchten.",
+      "customFields": "Benutzerdefinierte Felder",
+      "customFieldsLabel": "Benutzerdefinierte Felder",
+      "customFieldsHelp": "Zusätzliche Felder für jeden Inhaltstyp konfigurieren"
     },
     "applications": {
       "sessionNotes": {
@@ -196,6 +199,38 @@
           "generatedName": "Generierter Name",
           "generatedDescription": "Generierte Beschreibung"
         }
+      },
+      "customFields": {
+        "title": "Benutzerdefinierte Felder konfigurieren",
+        "notifications": {
+          "missingLabel": "Jedes benutzerdefinierte Feld muss eine Bezeichnung haben",
+          "duplicateKey": "Zwei benutzerdefinierte Felder haben denselben Namen. Bitte benennen Sie eines um, damit die Schlüssel eindeutig sind."
+        },
+        "labels": {
+          "contentType": "Inhaltstyp",
+          "contentTypeHint": "Wählen Sie einen Inhaltstyp aus, dann fügen Sie Felder hinzu, löschen und ordnen Sie sie neu.",
+          "selectType": "Typ auswählen...",
+          "selectTypePrompt": "Wählen Sie einen Inhaltstyp, um zu beginnen.",
+          "selectOptionsPlaceholder": "a;b;c",
+          "delete": "Löschen"
+        },
+        "columns": {
+          "label": "Bezeichnung",
+          "fieldKey": "Schlüssel",
+          "selectOptions": "Optionen auswählen",
+          "helpText": "Hilfetext"
+        },
+        "fieldTypes": {
+          "text": "Text",
+          "select": "Auswählen",
+          "editor": "Editor",
+          "boolean": "Boolesch"
+        }
+      },
+      "customFieldsBlocks": {
+        "notifications": {
+          "saveFailed": "Speichern der benutzerdefinierten Felder fehlgeschlagen"
+        }
       }
     },
     "help": {
@@ -229,14 +264,12 @@
         "name": "Name",
         "longDescriptions": "Lange Beschreibungen generieren",
         "generateImage": "Bild generieren",
-        "description": "Beschreibung",
         "campaign": "Kampagne",
         "houseRules": "Hausregeln",
         "addToCurrentSession": "Zur aktuellen Sitzung hinzufügen",
         "topic": "Thema",
         "settingFeeling": "Einstellung Gefühl",
         "startingDescription": "Anfangsbeschreibung",
-        "entryDescription": "Beschreibung",
         "entryRolePlayingNotes": "Rollenspielnotizen",
         "settingDescription": "Einstellung Beschreibung",
         "generateText": "Was generieren",
@@ -297,14 +330,14 @@
       "campaign": {
         "addPC": "PC hinzufügen",
         "addPCDrag": "(oder PC ziehen/ablegen)",
-        "description": "Beschreibung",
         "pcs": "SCs",
         "lore": "Überlieferung",
         "todo": "Zu erledigen",
         "addToDo": "Neues 'Zu erledigen' erstellen",
         "loreHelpText": "Verfolgen Sie große kampagnenweite Geheimnisse und kleinere, die Sie noch nicht preisgeben möchten. Klicken Sie, um mehr von Lazy DM zu lesen.",
         "ideas": "Ideen",
-        "addIdea": "Idee hinzufügen"
+        "addIdea": "Idee hinzufügen",
+        "campaign": "Kampagne"
       },
       "pc": {
         "linkToNewActor": "Mit neuem Schauspieler verknüpfen",
@@ -313,14 +346,12 @@
       "groupTree": "Baum nach Typ gruppieren",
       "tabs": {
         "entry": {
-          "description": "Beschreibung",
           "characters": "Charaktere",
           "locations": "Orte",
           "organizations": "Organisationen",
           "pcs": "PCs"
         },
         "campaign": {
-          "description": "Beschreibung",
           "pcs": "PCs",
           "lore": "Überlieferung",
           "toDo": "Zu erledigen",
@@ -339,16 +370,10 @@
           "todo": "Zu erledigen",
           "noteBox": "Notizbox"
         },
-        "setting": {
-          "description": "Beschreibung"
-        },
         "front": {
-          "description": "Beschreibung",
           "createNewDanger": "Neue Gefahr erstellen"
         },
         "arc": {
-          "arc": "Bogen",
-          "description": "Beschreibung",
           "pcs": "SCs",
           "lore": "Überlieferung",
           "locations": "Orte",
@@ -432,6 +457,18 @@
         "zoomOut": "Verkleinern",
         "fitToWindow": "An Fenster anpassen",
         "addStoryWebDrag": "(oder ein Story-Web ziehen/ablegen)"
+      },
+      "character": {
+        "character": "Charakter"
+      },
+      "organization": {
+        "organization": "Organisation"
+      },
+      "location": {
+        "location": "Ort"
+      },
+      "setting": {
+        "setting": "Einstellung"
       }
     },
     "placeholders": {

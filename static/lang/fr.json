@@ -75,7 +75,10 @@
       "subTabsSavePosition": "Enregistrer la position des sous-onglets",
       "subTabsSavePositionHelp": "Lorsqu'il est activé, chaque onglet se souviendra du sous-onglet intérieur qui était ouvert et y retournera lorsque vous rouvrirez cet onglet. Lorsqu'il est désactivé, les onglets reviendront toujours au premier (généralement la description).",
       "storyWebAutoArrange": "Réorganisation automatique des réseaux d'histoires",
-      "storyWebAutoArrangeHelp": "Lorsqu'elle est activée, les réseaux d'histoires se réorganiseront pour essayer de garder une image propre. Lorsqu'elle est désactivée, vous pouvez positionner tout exactement comme vous le souhaitez."
+      "storyWebAutoArrangeHelp": "Lorsqu'elle est activée, les réseaux d'histoires se réorganiseront pour essayer de garder une image propre. Lorsqu'elle est désactivée, vous pouvez positionner tout exactement comme vous le souhaitez.",
+      "customFields": "Champs personnalisés",
+      "customFieldsLabel": "Champs personnalisés",
+      "customFieldsHelp": "Configurer des champs supplémentaires pour chaque type de contenu"
     },
     "applications": {
       "sessionNotes": {
@@ -196,6 +199,38 @@
           "generatedName": "Nom généré",
           "generatedDescription": "Description générée"
         }
+      },
+      "customFields": {
+        "title": "Configurer les champs personnalisés",
+        "notifications": {
+          "missingLabel": "Chaque champ personnalisé doit avoir une étiquette",
+          "duplicateKey": "Deux champs personnalisés ont le même nom. Veuillez renommer l'un d'eux pour que les clés soient uniques."
+        },
+        "labels": {
+          "contentType": "Type de contenu",
+          "contentTypeHint": "Sélectionnez un type de contenu, puis ajoutez, supprimez et réorganisez les champs.",
+          "selectType": "Sélectionnez un type...",
+          "selectTypePrompt": "Sélectionnez un type de contenu pour commencer.",
+          "selectOptionsPlaceholder": "a;b;c",
+          "delete": "Supprimer"
+        },
+        "columns": {
+          "label": "Étiquette",
+          "fieldKey": "Clé",
+          "selectOptions": "Options de sélection",
+          "helpText": "Texte d'aide"
+        },
+        "fieldTypes": {
+          "text": "Texte",
+          "select": "Sélectionner",
+          "editor": "Éditeur",
+          "boolean": "Booléen"
+        }
+      },
+      "customFieldsBlocks": {
+        "notifications": {
+          "saveFailed": "Échec de l'enregistrement des champs personnalisés"
+        }
       }
     },
     "help": {
@@ -229,14 +264,12 @@
         "name": "Nom",
         "longDescriptions": "Générer des descriptions longues",
         "generateImage": "Générer une image",
-        "description": "Description",
         "campaign": "Campagne",
         "houseRules": "Règles de maison",
         "addToCurrentSession": "Ajouter à la session en cours",
         "topic": "Sujet",
         "settingFeeling": "Ambiance du cadre",
         "startingDescription": "Description de départ",
-        "entryDescription": "Description",
         "entryRolePlayingNotes": "Notes de jeu de rôle",
         "settingDescription": "Description du paramètre",
         "generateText": "Que générer",
@@ -297,14 +330,14 @@
       "campaign": {
         "addPC": "Ajouter un PJ",
         "addPCDrag": "(ou glisser/déposer un PC)",
-        "description": "Description",
         "pcs": "PJ",
         "lore": "Tradition",
         "todo": "À faire",
         "addToDo": "Créer un nouveau 'À faire'",
         "loreHelpText": "Suivez les grands secrets au niveau de la campagne et les plus petits que vous n'êtes pas prêt à révéler. Cliquez pour en savoir plus de Lazy DM.",
         "ideas": "Idées",
-        "addIdea": "Ajouter une idée"
+        "addIdea": "Ajouter une idée",
+        "campaign": "Campagne"
       },
       "pc": {
         "linkToNewActor": "Lier à un nouvel acteur",
@@ -313,14 +346,12 @@
       "groupTree": "Grouper par type",
       "tabs": {
         "entry": {
-          "description": "Description",
           "characters": "Personnages",
           "locations": "Lieux",
           "organizations": "Organisations",
           "pcs": "PCs"
         },
         "campaign": {
-          "description": "Description",
           "pcs": "PJs",
           "lore": "Savoir",
           "toDo": "À faire",
@@ -339,16 +370,10 @@
           "todo": "À faire",
           "noteBox": "Boîte à notes"
         },
-        "setting": {
-          "description": "Description"
-        },
         "front": {
-          "description": "Description",
           "createNewDanger": "Créer un nouveau danger"
         },
         "arc": {
-          "arc": "Arc",
-          "description": "Description",
           "pcs": "PJ",
           "lore": "Lore",
           "locations": "Lieux",
@@ -432,6 +457,18 @@
         "zoomOut": "Dézoomer",
         "fitToWindow": "Ajuster à la fenêtre",
         "addStoryWebDrag": "(ou glisser/déposer un réseau d'histoires)"
+      },
+      "character": {
+        "character": "Personnage"
+      },
+      "organization": {
+        "organization": "Organisation"
+      },
+      "location": {
+        "location": "Lieu"
+      },
+      "setting": {
+        "setting": "Paramètre"
       }
     },
     "placeholders": {

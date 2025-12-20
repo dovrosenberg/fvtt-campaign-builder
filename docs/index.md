@@ -32,7 +32,8 @@ features:
     'Prep sessions in "Lazy DM" style (or however you choose)',
     'Use Fronts to track \'off-camera\' action by the bad guys',
     'Story arcs let you track your plot and store ideas for the future', 
-    'AI generation of text and images (optional)'
+    'AI generation of text and images (optional)',
+    'Relationship graphs let you see connections between elements'
   ];
   const screenshots = Array.from({ length: labels.length }, (_, i) =>
     `${baseUrl}screenshots/screenshot${i + 1}.webp`
