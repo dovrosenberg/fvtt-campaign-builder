@@ -202,8 +202,9 @@ class SearchService {
     if (entry.topic===Topics.PC) {
       snippets.push(entry.playerName ?? '');
       snippets.push(entry.background ?? '');
-      snippets.push(entry.plotPoints ?? '');
-      snippets.push(entry.magicItems ?? '');
+      throw new Error('todo-make sure plotpoints and magic items indexed');
+      // snippets.push(entry.plotPoints ?? '');
+      // snippets.push(entry.magicItems ?? '');
     }
 
     // Add relationship snippets
@@ -298,7 +299,7 @@ class SearchService {
     const snippets: string[] = [];
     let description = '';
 
-    description = session.notes + '|' + session.strongStart;
+    description = session.notes;  // + '|' + session.strongStart;
 
     await addSessionEntrySnippet(snippets, session.locations, (uuid) => Entry.fromUuid(uuid));
     await addSessionEntrySnippet(snippets, session.npcs, (uuid) => Entry.fromUuid(uuid));

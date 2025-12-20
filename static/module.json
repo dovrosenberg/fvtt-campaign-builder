@@ -42,9 +42,7 @@
    "documentTypes": {
     "JournalEntryPage": {
       "entry2": {},
-      "session2": {
-        "htmlFields": [ "strongStart" ]
-      },
+      "session2": {},
       "setting2": {},
       "campaign2": {},
       "front2": {},

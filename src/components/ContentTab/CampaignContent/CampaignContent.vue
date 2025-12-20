@@ -41,20 +41,6 @@
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>
-          <div class="flexrow form-group">
-            <LabelWithHelp
-              label-text="labels.fields.houseRules"
-              top-label
-            />
-          </div>
-          <div class="flexrow form-group">
-            <Editor 
-              :initial-content="currentCampaign?.houseRules || ''"
-              fixed-height="240px"
-              :current-entity-uuid="currentCampaign?.uuid"
-              @editor-saved="onHouseRulesEditorSaved"
-            />
-          </div>
 
           <CustomFieldsBlocks
             v-if="currentCampaign"
@@ -228,14 +214,6 @@
       return;
 
     currentCampaign.value.description = newContent;
-    await currentCampaign.value.save();
-  };
-
-  const onHouseRulesEditorSaved = async (newContent: string) => {
-    if (!currentCampaign.value)
-      return;
-
-    currentCampaign.value.houseRules = newContent;
     await currentCampaign.value.save();
   };
 

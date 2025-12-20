@@ -54,24 +54,6 @@ To add a new migration for a future version:
    export { MigrationV1_3 } from './versions/MigrationV1_3';
    ```
 
-## Current Migrations
-
-### Version 1.2.0 - PC Data Migration
-
-**Purpose**: Migrate PC journal entries from the old PCDataModel to the new EntryDataModel with topic=PC.
-
-**Changes**:
-- Old structure: PC journal entries with simple fields (playerName, actorId, background, plotPoints, magicItems)
-- New structure: Entry journal entries with topic=PC and extended fields (tags, relationships, scenes, etc.)
-
-**Triggers**: When upgrading from version <1.2 to >=1.2
-
-**Process**:
-1. Detect old PC journal entries
-2. Create new Entry journal entries with topic=PC
-3. Copy relevant data to new structure
-4. Optionally cleanup old entries
-
 ## Migration Context
 
 The migration context provides information to migrations:

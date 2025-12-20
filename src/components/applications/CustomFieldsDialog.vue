@@ -101,7 +101,7 @@
 
           <Column field="help" :header="localize('applications.customFields.columns.helpText')" style="width: 18%">
             <template #body="{ data }">
-              <InputText v-model="data.help" unstyled style="width: 100%" />
+              <InputText v-model="data.helpText" unstyled style="width: 100%" />
             </template>
           </Column>
         </DataTable>
@@ -142,6 +142,7 @@
 
   // types
   import { CustomFieldContentType, CustomFieldDescription, FieldType } from '@/types';
+  import { toCustomFieldKey } from '@/utils/customFields';
 
   ////////////////////////////////
   // props
@@ -158,7 +159,7 @@
     label: string;
     fieldType: FieldType;
     optionsText: string;
-    help?: string;
+    helpText?: string;
     sortOrder: number;
   };
 
@@ -206,7 +207,7 @@
           label: r.label.trim(),
           fieldType: r.fieldType,
           options,
-          help: r.help?.trim() || undefined,
+          helpText: r.helpText?.trim() || undefined,
           sortOrder: r.sortOrder,
         } as CustomFieldDescription;
       });
@@ -215,19 +216,6 @@
   ////////////////////////////////
   // methods
 
-  const toFieldKey = (text: string): string => {
-    const input = (text || '').toLowerCase();
-
-    // FNV-1a 32-bit hash
-    let hash = 2166136261;
-    for (let i = 0; i < input.length; i += 1) {
-      hash ^= input.charCodeAt(i);
-      hash = Math.imul(hash, 16777619);
-    }
-
-    return `cf_${(hash >>> 0).toString(16).padStart(8, '0')}`;
-  };
-
   const loadRowsForType = (type: CustomFieldContentType) => {
     const list = allCustomFields.value?.[type] || [];
     rows.value = list
@@ -235,11 +223,11 @@
       .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
       .map((f, index) => ({
         uuid: foundry.utils.randomID(),
-        name: f.name || toFieldKey(f.label || ''),
+        name: f.name || toCustomFieldKey(f.label || ''),
         label: f.label || '',
         fieldType: f.fieldType,
         optionsText: (f.options || []).join(';'),
-        help: f.help || '',
+        helpText: f.helpText || '',
         sortOrder: index,
       }));
   };
@@ -264,7 +252,7 @@
         return false;
       }
 
-      const key = toFieldKey(r.label);
+      const key = toCustomFieldKey(r.label);
       if (used.has(key)) {
         ui.notifications?.error(localize('applications.customFields.notifications.duplicateKey'));
         return false;
@@ -292,7 +280,7 @@
       label: '',
       fieldType: FieldType.Text,
       optionsText: '',
-      help: '',
+      helpText: '',
       sortOrder: rows.value.length,
     });
   };

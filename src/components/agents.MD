@@ -143,6 +143,7 @@ Dependencies
   ////////////////////////////////
   // methods
   // **general methods**
+  // **these should each have full jsdoc comments preceeding them**
 
   ////////////////////////////////
   // event handlers

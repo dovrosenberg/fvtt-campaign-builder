@@ -6,9 +6,9 @@
           <label>
             {{ field.label }}
             <i
-              v-if="field.help"
+              v-if="field.helpText"
               class="fas fa-info-circle tooltip-icon"
-              :data-tooltip="field.help"
+              :data-tooltip="field.helpText"
             ></i>
           </label>
         </div>
@@ -29,9 +29,9 @@
           <label class="side-label">
             {{ field.label }}
             <i
-              v-if="field.help"
+              v-if="field.helpText"
               class="fas fa-info-circle tooltip-icon"
-              :data-tooltip="field.help"
+              :data-tooltip="field.helpText"
             ></i>
           </label>
           <div class="form-fields">

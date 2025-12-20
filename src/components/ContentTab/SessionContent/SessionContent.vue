@@ -64,27 +64,6 @@
           <!-- spacer -->
           <div style="height: 1rem"></div>
 
-          <!-- we put strong start at the top until the session has been played -->
-          <template v-if="strongStartAtTop">
-            <div class="flexrow form-group">
-              <LabelWithHelp
-                label-text="labels.session.strongStart"
-                help-text="labels.session.strongStartHelpText"
-                @click="onStartHelpClick"
-              />
-            </div>
-            <div class="flexrow form-group">
-              <!-- Use a key so it doesn't try to reuse; that was causing issues when it moved around -->
-              <Editor 
-                :key="`strong-start-${currentSession?.uuid}-top`"
-                :initial-content="strongStartContent"
-                fixed-height="180px"
-                :current-entity-uuid="currentSession?.uuid"
-                @editor-saved="onStartEditorSaved"
-              />
-            </div>
-          </template>
-
           <div class="flexrow form-group">
             <LabelWithHelp
               label-text="labels.tabs.session.notes"
@@ -98,28 +77,6 @@
               @editor-saved="onNotesEditorSaved"
             />
           </div>
-
-          <!-- we put strong start at the top until the session has been played -->
-          <template v-if="!strongStartAtTop">
-            <div class="flexrow form-group">
-              <LabelWithHelp
-                label-text="labels.session.strongStart"
-                help-text="labels.session.strongStartHelpText"
-                @click="onStartHelpClick"
-              />
-            </div>
-            <div class="flexrow form-group">
-              <!-- Use a key so it doesn't try to reuse; that was causing issues when it moved around -->
-              <Editor 
-                :key="`strong-start-${currentSession?.uuid}-bottom`"
-                :initial-content="strongStartContent"
-                fixed-height="180px"
-                :current-entity-uuid="currentSession?.uuid"
-                @editor-saved="onStartEditorSaved"
-              />
-            </div>
-          </template>
-
 
           <CustomFieldsBlocks
             v-if="currentSession"
@@ -222,7 +179,7 @@
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const playingStore = usePlayingStore();
-  const { currentSession, currentContentTab, isInPlayMode } = storeToRefs(mainStore);
+  const { currentSession, isInPlayMode } = storeToRefs(mainStore);
   const { currentPlayedSessionId, currentPlayedSessionNotes } = storeToRefs(playingStore);
   
   ////////////////////////////////
@@ -231,18 +188,9 @@
   const sessionNumber = ref<string>('');
   const sessionDate = ref<Date | undefined>(undefined);
   const sessionNotesContent = ref<string>('');
-  const strongStartContent = ref<string>('');
 
   ////////////////////////////////
   // computed data
-  const strongStartAtTop = computed(() => {
-    // we put it at the top if this is the last session for its campaign
-    const campaign = currentSession.value?.campaign;
-    const campaignLastSessionNumber = campaign?.currentSessionNumber;
-
-    return campaignLastSessionNumber == null || !currentSession.value || currentSession.value.number === campaignLastSessionNumber; 
-  });
-
   const showStoryWebTab = computed(() => {
     return ModuleSettings.get(SettingKey.useWebs);
   });
@@ -322,10 +270,6 @@
     }, debounceTime);
   };
 
-  const onStartHelpClick = () => {
-    window.open('https://slyflourish.com/starting_strong.html', '_blank');
-  }
-
   const onNotesEditorSaved = async (newContent: string) => {
     if (!currentSession.value)
       return;
@@ -339,16 +283,6 @@
     if (currentPlayedSessionId.value===currentSession.value.uuid) {
       currentPlayedSessionNotes.value = newContent;
     }
-  };
-
-  const onStartEditorSaved = async (newContent: string) => {
-    if (!currentSession.value)
-      return;
-
-    currentSession.value.strongStart = newContent;
-    await currentSession.value.save();
-
-    mainStore.refreshSession();
   };
 
   const onImageChange = async (imageUrl: string) => {
@@ -390,7 +324,6 @@
       sessionNumber.value = newSession.number?.toString() || '';
       sessionDate.value = newSession.date || undefined;
       sessionNotesContent.value = newSession.notes || '';
-      strongStartContent.value = newSession.strongStart || '';
     }
   });
   

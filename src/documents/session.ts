@@ -38,9 +38,6 @@ export const SessionSchema = {
   /** date of the session */
   date: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: false, }),
 
-  /** the strong start text */
-  strongStart: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
@@ -112,7 +109,6 @@ export interface SessionDoc extends JournalEntryPage {
     campaignId: string;
     number: number;
     date: string | null;
-    strongStart: string;
     customFields: Record<string, string>;
     locations: SessionLocation[];
     items: SessionItem[];

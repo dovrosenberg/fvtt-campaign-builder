@@ -80,34 +80,6 @@
                         @related-entries-changed="onRelatedEntriesChanged"
                         />
                     </div>
-                    <div class="flexrow form-group">
-                      <LabelWithHelp
-                        label-text="labels.fields.otherPlotPoints"
-                      />
-                    </div>
-                    <div class="flexrow form-group">
-                      <Editor 
-                        :initial-content="currentEntry?.plotPoints || ''"
-                        :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
-                        :current-entity-uuid="currentEntry?.uuid"
-                        fixed-height="240px"
-                        @editor-saved="onPlotPointsSaved"
-                        @related-entries-changed="onRelatedEntriesChanged"
-                        />
-                    </div>
-                    <div class="flexrow form-group">
-                      <LabelWithHelp
-                        label-text="labels.fields.desiredMagicItems"
-                      />
-                    </div>
-                    <div class="flexrow form-group">
-                      <Editor 
-                        :initial-content="currentEntry?.magicItems || ''"
-                        :current-entity-uuid="currentEntry?.uuid"
-                        fixed-height="240px"
-                        @editor-saved="onMagicItemsSaved"
-                      />
-                    </div>
 
                     <CustomFieldsBlocks
                       v-if="currentEntry"
@@ -380,22 +352,6 @@
       return;
 
     currentEntry.value.background = content;
-    await currentEntry.value.save();
-  }
-
-  const onPlotPointsSaved = async (content: string) => {
-    if (!currentEntry.value)
-      return;
-
-    currentEntry.value.plotPoints = content;
-    await currentEntry.value.save();
-  }
-
-  const onMagicItemsSaved = async (content: string) => {
-    if (!currentEntry.value)
-      return;
-
-    currentEntry.value.magicItems = content;
     await currentEntry.value.save();
   }
 
