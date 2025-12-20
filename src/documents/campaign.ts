@@ -5,9 +5,6 @@ import { schemas } from './fields';
 
 const fields = foundry.data.fields;
 export const CampaignSchema = {
-  /** campaign description */
-  description: new fields.StringField({ required: true, nullable: false, initial: '' }),  
-
   /** the session number of latest session */
   currentSessionNumber: new fields.NumberField({ required: true, nullable: true, integer: true, initial: null }),
 
@@ -113,7 +110,6 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
   system: {
     currentSessionNumber: number;
     currentSessionId: string;
-    description: string;
     customFields: Record<string, string>;
     sessionIndex: SessionBasicIndex[];
     arcIndex: ArcBasicIndex[];

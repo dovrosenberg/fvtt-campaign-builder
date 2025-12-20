@@ -17,7 +17,6 @@ type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
 export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign> {
   static override _documentType = DOCUMENT_TYPES.Campaign;
   static override _defaultSystem = { 
-    description: '',  
     sessions: [],
     lore: [],  
     img: '',   
@@ -351,11 +350,14 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   public get description(): string {
-    return this._clone.system.description;
+    return this._clone.text?.content || '';
   }
 
   public set description(value: string) {
-    this._clone.system.description = value;
+    this._clone.text = {
+      ...this._clone.text,
+      content: value
+    };
   }
 
   public get currentSessionNumber(): number | null {
