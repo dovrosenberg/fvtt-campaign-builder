@@ -125,7 +125,7 @@
 
           <div class="flexrow form-group">
             <LabelWithHelp
-              label-text="labels.fields.entryDescription"
+              label-text="labels.description"
               top-label
             />
           </div>
@@ -344,7 +344,7 @@
 
   const tabs = computed(() => {
     let tabs = [
-      { id: 'description', label: localize('labels.tabs.entry.description') },
+      { id: 'description', label: localize('labels.description') },
       { id: 'journals', label: localize('labels.journals') },
     ] as ContentTabDescriptor[];
 

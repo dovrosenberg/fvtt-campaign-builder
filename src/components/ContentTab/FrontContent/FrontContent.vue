@@ -40,6 +40,11 @@
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.description"
+            />
+          </div>
+          <div class="flexrow form-group">
             <Editor 
               :initial-content="currentFront?.description || ''"
               fixed-height="380px"
@@ -87,6 +92,7 @@
   import Editor from '@/components/Editor.vue';
   import FrontDangerTab from './FrontDangerTab.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
+  import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
   // types
   import { WindowTabType } from '@/types';
@@ -114,7 +120,7 @@
 
   const tabs = computed(() => {
     let retval = [
-      { id: 'description', label: localize('labels.tabs.front.description')},
+      { id: 'description', label: localize('labels.description')},
     ];
 
     // danger tabs are keyed by index with 'danger' prefix

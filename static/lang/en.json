@@ -301,7 +301,6 @@
         "name": "Name",
         "topic": "Topic",
         "species": "Species",
-        "entryDescription": "Description",
         "entryRolePlayingNotes": "Roleplaying Notes",
         "settingGenre": "Genre",
         "settingFeeling": "Setting Feeling",
@@ -310,7 +309,6 @@
         "role": "Role",
         "settingDescription": "Setting description",
         "startingDescription": "Starting description",
-        "description": "Description",
         "longDescriptions": "Generate long descriptions",
         "generateText": "What to generate",
         "generateChoice": {
@@ -408,7 +406,6 @@
         "campaign": "Campaign",
         "addPC": "Add PC",
         "addPCDrag": "(or drag/drop a PC)",
-        "description": "Description",
         "pcs": "PCs",
         "lore": "Lore",
         "loreHelpText": "Track big campaign-level secrets and smaller ones that you aren't ready to deliver. Click to read more from Lazy DM.",
@@ -436,28 +433,21 @@
       "groupTree": "Group tree by type",
       "tabs": {
         "entry": {
-          "description": "Description",
           "characters": "Characters",
           "locations": "Locations",
           "pcs": "PCs",
           "organizations": "Organizations"
         },
         "campaign": {
-          "description": "Description",
           "pcs": "PCs",
           "lore": "Lore",
           "toDo": "To-Do",
           "ideas": "Ideas"
         },
-        "setting": {
-          "description": "Description"
-        },
         "front": {
-          "description": "Description",
           "createNewDanger": "Create new Danger"
         },
         "arc": {
-          "description": "Description",
           "pcs": "PCs",
           "lore": "Lore",
           "locations": "Locations",

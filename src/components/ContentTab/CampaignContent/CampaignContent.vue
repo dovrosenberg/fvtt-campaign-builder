@@ -167,7 +167,7 @@
 
   const tabs = computed(() => {
     let baseTabs = [
-      { id: 'description', label: localize('labels.tabs.campaign.description') },
+      { id: 'description', label: localize('labels.description') },
       { id: 'journals', label: localize('labels.journals') },
       { id: 'pcs', label: localize('labels.tabs.campaign.pcs') },
       { id: 'lore', label: localize('labels.tabs.campaign.lore') },

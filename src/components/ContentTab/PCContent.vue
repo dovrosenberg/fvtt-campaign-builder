@@ -17,7 +17,7 @@
       <div class="fcb-sheet-subtab-container flexrow">
         <div class="fcb-subtab-wrapper">
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
-            <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
+            <a class="item" data-tab="description">{{ localize('labels.description') }}</a>
             <a class="item" data-tab="journals">{{ localize('labels.journals') }}</a>
             <a 
               v-for="relationship in relationships"
@@ -39,7 +39,7 @@
                     @click="onActorImageClick"
                     @contextmenu.prevent="onImageContextMenu"
                   >
-                    <div v-if="currentEntry?.actorId">
+                    <div v-if="isPC && actorId">
                       <img 
                         class="profile"
                         :src="currentImage"
@@ -214,7 +214,9 @@
   ////////////////////////////////
   // computed data
   const name = computed(() => (currentEntry.value?.name || ''));
-  const currentImage = computed(() => (currentEntry.value?.actor?.img || ''));
+  const isPC = computed(() => currentEntry.value?.topic === Topics.PC);
+  const actorId = computed(() => (isPC.value ? (currentEntry.value?.actorId || '') : ''));
+  const currentImage = computed(() => (isPC.value ? (currentEntry.value?.actor?.img || '') : ''));
 
   ////////////////////////////////
   // methods
@@ -266,7 +268,7 @@
     event.preventDefault();
     event.stopPropagation();
 
-    if (!currentEntry.value)
+    if (!currentEntry.value || currentEntry.value.topic !== Topics.PC)
       return;
 
     // parse the data
@@ -365,6 +367,9 @@
   };
 
   const onActorImageClick = async () => {
+    if (!currentEntry.value || currentEntry.value.topic !== Topics.PC)
+      return;
+
     const actor = await currentEntry.value?.getActor();
     if (actor)
       await toRaw(actor)?.sheet?.render(true);

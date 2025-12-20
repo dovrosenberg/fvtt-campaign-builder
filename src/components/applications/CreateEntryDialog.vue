@@ -91,7 +91,7 @@
         </div>
 
         <div class="field-label">
-          {{ generateMode ? localize('labels.fields.startingDescription') : localize('labels.fields.description') }}
+          {{ generateMode ? localize('labels.fields.startingDescription') : localize('labels.description') }}
           <i
             v-if="generateMode" 
             class="fas fa-info-circle tooltip-icon" 

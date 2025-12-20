@@ -38,7 +38,7 @@
         >
           <div class="flexrow form-group">
             <LabelWithHelp
-              label-text="labels.tabs.arc.description"
+              label-text="labels.description"
             />
           </div>
           <div class="flexrow form-group">
@@ -158,7 +158,7 @@
   });
 
   const tabs = computed(() => [
-    { id: 'description', label: localize('labels.tabs.arc.description')},
+    { id: 'description', label: localize('labels.description')},
     { id: 'lore', label: localize('labels.tabs.arc.lore')},
     { id: 'locations', label: localize('labels.tabs.arc.locations')},
     { id: 'participants', label: localize('labels.tabs.arc.participants')},

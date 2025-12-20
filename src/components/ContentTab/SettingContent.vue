@@ -159,7 +159,7 @@
   const generateDisabled = computed(() => !available.value);
   
   const tabs = computed(() => [
-    { id: 'description', label: localize('labels.tabs.setting.description') },
+    { id: 'description', label: localize('labels.description') },
     { id: 'journals', label: localize('labels.journals') },
   ]);
 
