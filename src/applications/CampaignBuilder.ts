@@ -8,7 +8,7 @@ const { DocumentSheetV2 } = foundry.applications.api;
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import '@yaireo/tagify/dist/tagify.css';
 import { theme } from '@/components/styles/primeVue';
-import { JournalEntryFlagKey, moduleId } from '@/settings';
+import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { DOCUMENT_TYPES } from '@/documents';
 import { MigrationManager } from '@/utils/migration';
 import { notifyError } from '@/utils/notifications';
@@ -92,6 +92,10 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
   }
 
   private _inMiddleOfRender = false;  // because otherwise we can get stuck in strange loops
+
+  // for tracking size/position of window
+  private _boundsSaveTimeout: number | null = null;
+  private _suppressBoundsSave = true;
 
   // there are a few general scenarios here:
   // 1. this is just a general rerender call - we disallow it
@@ -212,7 +216,62 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
       //  3. we opened it with a FCB journal entry - we handle that in _canRender
     }
 
+    // load the last window size/position from settings
+    const savedBounds = game.settings
+      ? ModuleSettings.get(SettingKey.mainWindowBounds)
+      : null;
+
+
+    if (savedBounds) {
+      finalOptions = {
+        ...finalOptions,
+        position: {
+          ...(finalOptions?.position ?? {}),
+          left: savedBounds.left,
+          top: savedBounds.top,
+          width: savedBounds.width,
+          height: savedBounds.height,
+        },
+      };
+    }
+
     super(finalOptions);
+
+    setTimeout(() => {
+      this._suppressBoundsSave = false;
+    }, 0);
+  }
+
+  // capture the window position (after debouncing)
+  override setPosition(position: any = {}): any {
+    const result = super.setPosition(position);
+
+    if (!this._suppressBoundsSave) {
+      if (this._boundsSaveTimeout != null) {
+        window.clearTimeout(this._boundsSaveTimeout);
+      }
+
+      this._boundsSaveTimeout = window.setTimeout(() => {
+        const pos: any = this.position ?? this.options?.position ?? {};
+        const left = pos.left;
+        const top = pos.top;
+        const width = pos.width;
+        const height = pos.height;
+
+        if (
+          Number.isFinite(left) &&
+          Number.isFinite(top) &&
+          Number.isFinite(width) &&
+          Number.isFinite(height) &&
+          width > 0 &&
+          height > 0
+        ) {
+          void ModuleSettings.set(SettingKey.mainWindowBounds, { left, top, width, height });
+        }
+      }, 250);
+    }
+
+    return result;
   }
 
   // called when we first open the window
