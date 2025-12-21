@@ -335,7 +335,7 @@
    * Responsibilities:
    * - Rejects non-deleted rows without a label.
    * - Generates a unique `name` (key) when missing.
-   * - Removes invalid "new + deleted" rows.
+   * - Removes rows that were added and deleted in this same session
    * - Coerces boolean fields like `indexed`.
    */
   const validateAndNormalizeBeforeSave = (targetRows: Row[]): boolean => {
