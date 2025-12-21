@@ -42,8 +42,6 @@
             />
           </div>
 
-          {{ currentCampaign?.uuid }}
-          {{ JSON.stringify(currentCampaign?.customFields) }}
           <CustomFieldsBlocks
             v-if="currentCampaign"
             :content-type="CustomFieldContentType.Campaign"

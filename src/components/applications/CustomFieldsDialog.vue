@@ -106,7 +106,7 @@
                 unstyled
                 fluid
                 :min="1"
-                :max="10"
+                :max="MAX_EDITOR_SIZE"
                 :max-fraction-digits="1"
                 :disabled="data.fieldType !== FieldType.Editor"
               />
@@ -183,6 +183,9 @@
   ////////////////////////////////
   // data
 
+  const DEFAULT_EDITOR_SIZE = 10;
+  const MAX_EDITOR_SIZE = 50;
+
   const selectedType = ref<CustomFieldContentType | null>(CustomFieldContentType.Arc);
 
   const typeOptions = [
@@ -224,7 +227,7 @@
           : undefined;
 
         const editorHeight = r.fieldType === FieldType.Editor
-          ? (r.editorHeight != null && Number.isFinite(r.editorHeight) && r.editorHeight > 0 ? r.editorHeight : 4)
+          ? (r.editorHeight != null && Number.isFinite(r.editorHeight) && r.editorHeight > 0 ? r.editorHeight : DEFAULT_EDITOR_SIZE)
           : undefined;
 
         return {
@@ -254,7 +257,7 @@
         label: f.label || '',
         fieldType: f.fieldType,
         optionsText: (f.options || []).join(';'),
-        editorHeight: f.fieldType === FieldType.Editor ? (f.editorHeight ?? 4) : null,
+        editorHeight: f.fieldType === FieldType.Editor ? (f.editorHeight ?? DEFAULT_EDITOR_SIZE) : null,
         helpText: f.helpText || '',
         deleted: f.deleted || false,
         sortOrder: index,
@@ -272,7 +275,7 @@
       if (r.fieldType !== FieldType.Editor) {
         r.editorHeight = null;
       } else if (r.editorHeight == null || !Number.isFinite(r.editorHeight) || r.editorHeight <= 0) {
-        r.editorHeight = 4;
+        r.editorHeight = DEFAULT_EDITOR_SIZE;
       }
     });
   };
@@ -314,7 +317,7 @@
       } else {
         const height = r.editorHeight;
         if (height == null || !Number.isFinite(height) || height <= 0) {
-          r.editorHeight = 4;
+          r.editorHeight = DEFAULT_EDITOR_SIZE;
         }
       }
     }
