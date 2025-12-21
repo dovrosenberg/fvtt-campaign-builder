@@ -16,7 +16,7 @@
           <Editor
             :key="`${props.content.uuid}-${field.name}`"
             :initial-content="String(values[field.name] ?? '')"
-            fixed-height="240px"
+            :fixed-height="`${field.editorHeight ?? 4}rem`"
             :current-entity-uuid="props.content.uuid"
             :enable-related-entries-tracking="props.enableRelatedEntriesTracking"
             @editor-saved="(newContent: string) => onFieldValueChanged(field, newContent)"

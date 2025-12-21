@@ -99,6 +99,20 @@
             </template>
           </Column>
 
+          <Column field="editorHeight" header="Height" style="width: 8%">
+            <template #body="{ data }">
+              <InputNumber
+                v-model="data.editorHeight"
+                unstyled
+                fluid
+                :min="1"
+                :max="10"
+                :max-fraction-digits="1"
+                :disabled="data.fieldType !== FieldType.Editor"
+              />
+            </template>
+          </Column>
+
           <Column field="help" :header="localize('applications.customFields.columns.helpText')" style="width: 18%">
             <template #body="{ data }">
               <InputText v-model="data.helpText" unstyled style="width: 100%" />
@@ -139,6 +153,7 @@
   import Button from 'primevue/button';
   import Select from 'primevue/select';
   import InputText from 'primevue/inputtext';
+  import InputNumber from 'primevue/inputnumber';
 
   // types
   import { CustomFieldContentType, CustomFieldDescription, FieldType } from '@/types';
@@ -159,6 +174,7 @@
     label: string;
     fieldType: FieldType;
     optionsText: string;
+    editorHeight: number | null;
     helpText?: string;
     deleted?: boolean;
     sortOrder: number;
@@ -207,11 +223,16 @@
           ? r.optionsText.split(';').map(s => s.trim()).filter(Boolean)
           : undefined;
 
+        const editorHeight = r.fieldType === FieldType.Editor
+          ? (r.editorHeight != null && Number.isFinite(r.editorHeight) && r.editorHeight > 0 ? r.editorHeight : 4)
+          : undefined;
+
         return {
           name: r.name.trim(),
           label: r.label.trim(),
           fieldType: r.fieldType,
           options,
+          editorHeight,
           helpText: r.helpText?.trim() || undefined,
           deleted: r.deleted ? true : undefined,
           sortOrder: r.sortOrder,
@@ -233,6 +254,7 @@
         label: f.label || '',
         fieldType: f.fieldType,
         optionsText: (f.options || []).join(';'),
+        editorHeight: f.fieldType === FieldType.Editor ? (f.editorHeight ?? 4) : null,
         helpText: f.helpText || '',
         deleted: f.deleted || false,
         sortOrder: index,
@@ -240,30 +262,31 @@
   };
 
   const normalizeRows = () => {
-    const visible = visibleRows.value;
-    const deleted = rows.value.filter((r) => r.deleted);
-
-    visible.forEach((r, index) => {
+    // note deleted rows get intermingled on sortorder, but it doesn't matter
+    rows.value.forEach((r, index) => {
       r.sortOrder = index;
       if (r.fieldType !== FieldType.Select) {
         r.optionsText = '';
       }
-    });
 
-    deleted.forEach((r, index) => {
-      r.sortOrder = visible.length + index;
-      if (r.fieldType !== FieldType.Select) {
-        r.optionsText = '';
+      if (r.fieldType !== FieldType.Editor) {
+        r.editorHeight = null;
+      } else if (r.editorHeight == null || !Number.isFinite(r.editorHeight) || r.editorHeight <= 0) {
+        r.editorHeight = 4;
       }
     });
   };
 
   const validateAndNormalizeBeforeSave = (): boolean => {
-    const used = new Set<string>(
+    // Reserve existing names so auto-generated keys won't collide.
+    const reservedNames = new Set<string>(
       rows.value
-        .map((r) => r.name?.trim() || '')
+        .map((r) => (r.name || '').trim())
         .filter((n) => n.length > 0)
     );
+
+    // shouldn't happen, but a new row (no name) that's already marked deleted should get removed
+    rows.value = rows.value.filter((r) => !r.deleted || r.name?.trim());
 
     for (const r of rows.value) {
       r.label = (r.label || '').trim();
@@ -274,22 +297,25 @@
       }
 
       r.name = (r.name || '').trim();
+
       if (!r.name) {
         const base = toCustomFieldKey(r.label);
-        const unique = makeCustomFieldKeyUnique(base, used);
+        const unique = makeCustomFieldKeyUnique(base, reservedNames);
         r.name = unique;
+        reservedNames.add(unique);
       }
-
-      if (used.has(r.name)) {
-        ui.notifications?.error(localize('applications.customFields.notifications.duplicateKey'));
-        return false;
-      }
-
-      used.add(r.name);
-
 
       if (r.fieldType !== FieldType.Select) {
         r.optionsText = '';
+      }
+
+      if (r.fieldType !== FieldType.Editor) {
+        r.editorHeight = null;
+      } else {
+        const height = r.editorHeight;
+        if (height == null || !Number.isFinite(height) || height <= 0) {
+          r.editorHeight = 4;
+        }
       }
     }
 
@@ -307,15 +333,22 @@
       label: '',
       fieldType: FieldType.Text,
       optionsText: '',
+      editorHeight: null,
       helpText: '',
+      deleted: false,
       sortOrder: rows.value.length,
     });
   };
 
+  // rows preivously saved get soft-deleted; rows just added get deleted
   const onDeleteField = (uuid: string) => {
     const row = rows.value.find((r) => r.uuid === uuid);
     if (row) {
-      row.deleted = true;
+      if (!row.name.trim()) {
+        rows.value = rows.value.filter((r) => r.uuid !== uuid);
+      } else {
+        row.deleted = true;
+      }
     }
     normalizeRows();
   };
@@ -343,11 +376,21 @@
     normalizeRows();
     if (!validateAndNormalizeBeforeSave()) return;
 
-    const next = foundry.utils.deepClone(allCustomFields.value);
-    next[selectedType.value] = asDescriptions.value;
+    const savedNames = new Set<string>(
+      (allCustomFields.value?.[selectedType.value] || []).map((f) => (f.name || '').trim()).filter(Boolean)
+    );
 
-    await ModuleSettings.set(SettingKey.customFields, next);
-    allCustomFields.value = next;
+    rows.value = rows.value.filter((r) => {
+      if (!r.deleted) return true;
+      const name = (r.name || '').trim();
+      return name.length > 0 && savedNames.has(name);
+    });
+
+    normalizeRows();
+
+    allCustomFields.value[selectedType.value] = asDescriptions.value;
+
+    await ModuleSettings.set(SettingKey.customFields, allCustomFields.value);
 
     ui.notifications?.info(localize('notifications.changesSaved'));
   };
@@ -364,8 +407,7 @@
   // lifecycle events
 
   onMounted(() => {
-    const raw = ModuleSettings.getClone(SettingKey.customFields);
-    allCustomFields.value = raw;
+    allCustomFields.value = ModuleSettings.get(SettingKey.customFields);
 
     if (selectedType.value !== null) {
       loadRowsForType(selectedType.value);

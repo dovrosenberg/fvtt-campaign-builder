@@ -24,6 +24,7 @@ export interface CustomFieldDescription {
   label: string;
   fieldType: FieldType;
   options?: string[];  // for select fields
+  editorHeight?: number;  // for editor fields
   helpText?: string;  // displayed in a tooltip
   deleted?: boolean;
   sortOrder: number;   // order of display on description tab

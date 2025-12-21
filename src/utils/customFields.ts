@@ -51,6 +51,7 @@ export const resetDefaultCustomFields = async () => {
         label: entryRoleplayingNotesLabel,
         fieldType: FieldType.Editor,
         sortOrder: 0,
+        editorHeight: 4,
       }
     ],
     [CustomFieldContentType.Location]: [
@@ -59,6 +60,7 @@ export const resetDefaultCustomFields = async () => {
         label: entryRoleplayingNotesLabel,
         fieldType: FieldType.Editor,
         sortOrder: 0,
+        editorHeight: 4,
       }
     ],
     [CustomFieldContentType.Organization]: [
@@ -67,6 +69,7 @@ export const resetDefaultCustomFields = async () => {
         label: entryRoleplayingNotesLabel,
         fieldType: FieldType.Editor,
         sortOrder: 0,
+        editorHeight: 4,
       }
     ],
     [CustomFieldContentType.PC]: [
@@ -75,16 +78,19 @@ export const resetDefaultCustomFields = async () => {
         label: entryRoleplayingNotesLabel,
         fieldType: FieldType.Editor,
         sortOrder: 0,
+        editorHeight: 4,
       },{
         name: otherPlotPointsKey,
         label: otherPlotPointsLabel,
         fieldType: FieldType.Editor,
         sortOrder: 1,
+        editorHeight: 4,
       },{
         name: desiredMagicItemsKey,
         label: desiredMagicItemsLabel,
         fieldType: FieldType.Editor,
         sortOrder: 2,
+        editorHeight: 4,
       }
     ],
     [CustomFieldContentType.Front]: [
@@ -96,6 +102,7 @@ export const resetDefaultCustomFields = async () => {
         label: houseRulesLabel,
         fieldType: FieldType.Editor,
         sortOrder: 0,
+        editorHeight: 4,
       }
     ],
     [CustomFieldContentType.Arc]: [
@@ -107,6 +114,7 @@ export const resetDefaultCustomFields = async () => {
         label: strongStartLabel,
         fieldType: FieldType.Editor,
         sortOrder: 0,
+        editorHeight: 4,
         helpText: localize('labels.fields.strongStartHelpText'),
       }
     ],

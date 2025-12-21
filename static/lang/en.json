@@ -298,6 +298,8 @@
         "background": "Background",
         "otherPlotPoints": "Other Plot Points",
         "desiredMagicItems": "Desired Magic Items",
+        "strongStart": "Strong Start",
+        "strongStartHelpText": "A strong start is a short, impactful event that sets the tone for the session. Click to read more from Lazy DM.",
         "name": "Name",
         "topic": "Topic",
         "species": "Species",
@@ -369,9 +371,7 @@
         "npcHelpText": "NPCs likely to be encountered in the session.",
         "monsterHelpText": "Monsters that fit the situation and location. Click to read more from Lazy DM.",
         "vignetteHelpText": "Scenes that bring resolution, open new paths, shift the story.  1 per 45 minutes. Click to read more from Lazy DM.",
-        "locationHelpText": "Detailed, memorable, fantastic locations the characters can explore. Click to read more from Lazy DM.",
-        "strongStart": "Strong Start",
-        "strongStartHelpText": "A strong start is a short, impactful event that sets the tone for the session. Click to read more from Lazy DM."
+        "locationHelpText": "Detailed, memorable, fantastic locations the characters can explore. Click to read more from Lazy DM."
       },
       "front": {
         "front": "Front",

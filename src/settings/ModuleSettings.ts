@@ -116,7 +116,7 @@ export type SettingKeyType<K extends SettingKey> =
     never;  
 
 export class ModuleSettings {
-  // note that this returns the object directly, so if it's an object or array, if a reference
+  // note that this returns the object directly, so if it's an object or array, it's a reference
   public static get<T extends SettingKey>(setting: T): SettingKeyType<T> {
     return game.settings.get(moduleId, setting) as SettingKeyType<T>;
   }
