@@ -2,7 +2,6 @@
 export interface CharacterDetails {
   name: string;
   description: string;
-  roleplayingNotes: string;
   type: string;
   speciesId: string;
   generateImage: boolean;
@@ -11,7 +10,6 @@ export interface CharacterDetails {
 export interface LocationDetails {
   name: string;
   description: string;
-  roleplayingNotes: string;
   type: string;
   parentId: string;
   generateImage: boolean;

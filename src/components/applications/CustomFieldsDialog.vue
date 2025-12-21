@@ -142,7 +142,7 @@
 
   // types
   import { CustomFieldContentType, CustomFieldDescription, FieldType } from '@/types';
-  import { toCustomFieldKey } from '@/utils/customFields';
+  import { makeCustomFieldKeyUnique, toCustomFieldKey } from '@/utils/customFields';
 
   ////////////////////////////////
   // props
@@ -160,6 +160,7 @@
     fieldType: FieldType;
     optionsText: string;
     helpText?: string;
+    deleted?: boolean;
     sortOrder: number;
   };
 
@@ -190,6 +191,10 @@
   const allCustomFields = ref<Record<CustomFieldContentType, CustomFieldDescription[]>>({} as any);
   const rows = ref<Row[]>([]);
 
+  const visibleRows = computed<Row[]>(() => {
+    return rows.value.filter((r) => !r.deleted);
+  });
+
   ////////////////////////////////
   // computed data
 
@@ -208,6 +213,7 @@
           fieldType: r.fieldType,
           options,
           helpText: r.helpText?.trim() || undefined,
+          deleted: r.deleted ? true : undefined,
           sortOrder: r.sortOrder,
         } as CustomFieldDescription;
       });
@@ -223,18 +229,29 @@
       .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
       .map((f, index) => ({
         uuid: foundry.utils.randomID(),
-        name: f.name || toCustomFieldKey(f.label || ''),
+        name: f.name || '',
         label: f.label || '',
         fieldType: f.fieldType,
         optionsText: (f.options || []).join(';'),
         helpText: f.helpText || '',
+        deleted: f.deleted || false,
         sortOrder: index,
       }));
   };
 
   const normalizeRows = () => {
-    rows.value.forEach((r, index) => {
+    const visible = visibleRows.value;
+    const deleted = rows.value.filter((r) => r.deleted);
+
+    visible.forEach((r, index) => {
       r.sortOrder = index;
+      if (r.fieldType !== FieldType.Select) {
+        r.optionsText = '';
+      }
+    });
+
+    deleted.forEach((r, index) => {
+      r.sortOrder = visible.length + index;
       if (r.fieldType !== FieldType.Select) {
         r.optionsText = '';
       }
@@ -242,24 +259,34 @@
   };
 
   const validateAndNormalizeBeforeSave = (): boolean => {
-    const used = new Set<string>();
+    const used = new Set<string>(
+      rows.value
+        .map((r) => r.name?.trim() || '')
+        .filter((n) => n.length > 0)
+    );
 
     for (const r of rows.value) {
       r.label = (r.label || '').trim();
 
-      if (!r.label) {
+      if (!r.deleted && !r.label) {
         ui.notifications?.error(localize('applications.customFields.notifications.missingLabel'));
         return false;
       }
 
-      const key = toCustomFieldKey(r.label);
-      if (used.has(key)) {
+      r.name = (r.name || '').trim();
+      if (!r.name) {
+        const base = toCustomFieldKey(r.label);
+        const unique = makeCustomFieldKeyUnique(base, used);
+        r.name = unique;
+      }
+
+      if (used.has(r.name)) {
         ui.notifications?.error(localize('applications.customFields.notifications.duplicateKey'));
         return false;
       }
 
-      used.add(key);
-      r.name = key;
+      used.add(r.name);
+
 
       if (r.fieldType !== FieldType.Select) {
         r.optionsText = '';
@@ -286,19 +313,23 @@
   };
 
   const onDeleteField = (uuid: string) => {
-    rows.value = rows.value.filter(r => r.uuid !== uuid);
+    const row = rows.value.find((r) => r.uuid === uuid);
+    if (row) {
+      row.deleted = true;
+    }
     normalizeRows();
   };
 
   const onRowReorder = (event: any) => {
     const { dragIndex, dropIndex } = event;
-    const reorderedRows = [...rows.value];
-    const movedItem = reorderedRows.splice(dragIndex, 1)[0];
-    reorderedRows.splice(dropIndex, 0, movedItem);
-    reorderedRows.forEach((row, index) => {
-      row.sortOrder = index;
-    });
-    rows.value = reorderedRows;
+    const visible = [...visibleRows.value];
+    const deleted = rows.value.filter((r) => r.deleted);
+
+    const movedItem = visible.splice(dragIndex, 1)[0];
+    visible.splice(dropIndex, 0, movedItem);
+    rows.value = [...visible, ...deleted];
+
+    normalizeRows();
   };
 
   const onResetClick = () => {

@@ -7,6 +7,7 @@ import { useBackendStore } from '@/applications/stores';
 import { ExternalAPI } from '@/classes';
 import { MigrationManager } from '@/utils/migration';
 import { attachGlobalScripts } from '@/utils/globalScripts';
+import { resetDefaultCustomFields } from '@/utils/customFields';
 
 export function registerForReadyHook() {
   Hooks.once('ready', ready);
@@ -47,6 +48,12 @@ async function ready(): Promise<void> {
   // check the backend
   await useBackendStore().configure();
   
+  // set the custom fields if needed (note: must be done after migration or things
+  //    might get confused)
+  if (Object.keys(ModuleSettings.get(SettingKey.customFields)).length === 0) {
+    await resetDefaultCustomFields();
+  }
+
   // If auto-refresh is enabled, populate tables in background
   const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
   if (autoRefresh && useBackendStore().available) {

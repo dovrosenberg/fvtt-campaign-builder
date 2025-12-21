@@ -19,7 +19,7 @@ export class MigrationManager {
    * Minimum version required to perform migrations.
    * If the last known version is below this, the user must upgrade to this version first.
    */
-  private static readonly MINIMUM_VERSION = '1.3.1';
+  private static readonly MINIMUM_VERSION = '1.5.1';
   /**
    * Tracks whether migration has failed. If true, the Campaign Builder should not be opened.
    */

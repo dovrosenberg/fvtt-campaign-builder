@@ -25,19 +25,7 @@ export interface CustomFieldDescription {
   fieldType: FieldType;
   options?: string[];  // for select fields
   helpText?: string;  // displayed in a tooltip
+  deleted?: boolean;
   sortOrder: number;   // order of display on description tab
 }
 
-// this is the default custom field description for each type
-// this will be populated after i18n initialized
-export let defaultCustomFields: Record<CustomFieldContentType, CustomFieldDescription[]> = {
-  [CustomFieldContentType.Setting]: [],
-  [CustomFieldContentType.Character]: [],
-  [CustomFieldContentType.Location]: [],
-  [CustomFieldContentType.Organization]: [],
-  [CustomFieldContentType.PC]: [],
-  [CustomFieldContentType.Session]: [],
-  [CustomFieldContentType.Campaign]: [],
-  [CustomFieldContentType.Arc]: [],
-  [CustomFieldContentType.Front]: [],
-};

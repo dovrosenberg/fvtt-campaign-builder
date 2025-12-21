@@ -101,28 +101,6 @@
             />
           </div>
 
-          <!-- Above description if we're in play mode -->
-          <div 
-            v-if="roleplayAboveDescription"
-            class="flexrow form-group"
-          >
-            <LabelWithHelp
-              label-text="labels.fields.entryRolePlayingNotes"
-              top-label
-            />
-          </div>
-          <div 
-            v-if="roleplayAboveDescription"
-            class="flexrow form-group"
-          >
-            <Editor
-                :initial-content="currentEntry?.roleplayingNotes || ''"
-                :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
-                :current-entity-uuid="currentEntry?.uuid"
-                @editor-saved="onRolePlayingNotesSaved"
-              />
-          </div>
-
           <div class="flexrow form-group">
             <LabelWithHelp
               label-text="labels.description"
@@ -140,34 +118,12 @@
             />
           </div>
 
-          <!-- Below description if we're in prep mode -->
-          <div 
-            v-if="roleplayBelowDescription"
-            class="flexrow form-group"
-          >
-            <LabelWithHelp
-              label-text="labels.fields.entryRolePlayingNotes"
-              top-label
-            />
-          </div>
-          <div 
-            v-if="roleplayBelowDescription"
-            class="flexrow form-group"
-          >
-            <Editor
-                :initial-content="currentEntry?.roleplayingNotes || ''"
-                fixed-height="180px"
-                :current-entity-uuid="currentEntry?.uuid"
-                :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
-                @editor-saved="onRolePlayingNotesSaved"
-                @related-entries-changed="onRelatedEntriesChanged"
-              />
-          </div>
-
           <CustomFieldsBlocks
             v-if="customFieldContentType !== null && currentEntry"
             :content-type="customFieldContentType"
             :content="currentEntry"
+            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+            @related-entries-changed="onRelatedEntriesChanged"
           />
 
         </DescriptionTab>
@@ -286,7 +242,6 @@
   const backendStore = useBackendStore();
   const { currentEntry, currentSetting, refreshCurrentEntry, } = storeToRefs(mainStore);
   const { currentPlayedCampaign } = storeToRefs(playingStore);
-  const { isInPlayMode } = storeToRefs(mainStore);
   const { isGeneratingImage, available } = storeToRefs(backendStore); 
 
   ////////////////////////////////
@@ -324,8 +279,6 @@
   const canGenerate = computed(() => topic.value && [Topics.Character, Topics.Location, Topics.Organization].includes(topic.value));
   const generateDisabled = computed(() => !available.value);
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
-  const roleplayAboveDescription = computed(() => ModuleSettings.get(SettingKey.showRolePlayingNotes) && isInPlayMode.value);
-  const roleplayBelowDescription = computed(() => ModuleSettings.get(SettingKey.showRolePlayingNotes) && !isInPlayMode.value);
 
   const customFieldContentType = computed<CustomFieldContentType | null>(() => {
     switch (topic.value) {
@@ -674,15 +627,6 @@
       return;
 
     currentEntry.value.description = newContent;
-    await currentEntry.value.save();
-  };
-
-
-  const onRolePlayingNotesSaved = async (newContent: string) => {
-    if (!currentEntry.value)
-      return;
-
-    currentEntry.value.roleplayingNotes = newContent;
     await currentEntry.value.save();
   };
 

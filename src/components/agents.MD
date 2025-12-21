@@ -35,6 +35,7 @@ Windwurf is not allowed to:
 
 - Avoid `any`. Use `unknown` and narrow whenever possible, unless it is a one-time use and narrowing would require significantly more code/complexity.
 - Prefer inline logic in templates over `computed` unless it requires more than 60 characters
+- Any method in the script that is called elsewhere in the script (i.e. not pure event handlers, watchers, etc.) should have full jsdoc comments preceeding it.
  
 ### Component structure
 - One component per file.

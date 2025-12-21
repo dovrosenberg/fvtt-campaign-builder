@@ -389,63 +389,12 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   }
 
   /**
-   * Given a filter function, returns all the matching Sessions
-   * inside this setting
-   * 
-   * @param {(e: SessionFilterIndex) => boolean} filterFn - The filter function
-   * @returns {Session[]} The sessions that pass the filter 
-   */
-  public async filterSessions(filterFn: (s: SessionFilterIndex) => boolean): Promise<Session[]> { 
-    // get all the journal entries
-    const indexSessions = await toRaw(this.compendium).getIndex(sessionIndexFields());
-
-    // find the sessions 
-    const sessions = indexSessions
-      // first find the relevant ones
-      .filter((e)=> (
-        e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
-        !!e.pages && e.pages!.length > 0
-      ))
-      .map((e) => ({ 
-        name: e.name, 
-        id: foundry.utils.parseUuid(e.uuid).id,
-        uuid: e.uuid,
-        number: e.pages![0].system.number,
-        date: e.pages![0].system.date,
-      } as SessionFilterIndex))
-
-      // now filter by the function passed in 
-      .filter((s: SessionFilterIndex)=> filterFn(s)) || [];
-
-    if (sessions.length===0)
-      return [];
-
-    let retval = [] as Session[];
-    for (let i=0; i<sessions.length; i++) {
-      const session = await Session.fromUuid(sessions[i].uuid);
-      if (session)
-        retval.push(session);
-    }
-
-    return retval;
-  }
-
-  /**
    * Returns all the entries inside the setting
    * 
    * @returns {Entry[]} The entries
    */
   public async allEntries(): Promise<Entry[]> { 
     return await this.filterEntries(() => true);
-  }
-
-  /**
-   * Returns all the sessions inside the setting
-   * 
-   * @returns {Session[]} The entries
-   */
-  public async allSessions(): Promise<Session[]> { 
-    return await this.filterSessions(() => true);
   }
 
   public async collapseAll() {

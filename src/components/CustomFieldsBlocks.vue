@@ -18,8 +18,9 @@
             :initial-content="String(values[field.name] ?? '')"
             fixed-height="240px"
             :current-entity-uuid="props.content.uuid"
-            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+            :enable-related-entries-tracking="props.enableRelatedEntriesTracking"
             @editor-saved="(newContent: string) => onFieldValueChanged(field, newContent)"
+            @related-entries-changed="onRelatedEntriesChanged"
           />
         </div>
       </template>
@@ -95,6 +96,11 @@
       type: Number as PropType<CustomFieldContentType>,
       required: true
     },
+    enableRelatedEntriesTracking: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     content: {
       type: Object as PropType<FCBJournalEntryPage<any, any> | null>,
       required: false,
@@ -104,6 +110,9 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+  }>();
 
   ////////////////////////////////
   // store
@@ -120,7 +129,10 @@
 
   const customFields = computed<CustomFieldDescription[]>(() => {
     const customFieldsByType = ModuleSettings.get(SettingKey.customFields);
-    return (customFieldsByType?.[props.contentType] || []).slice().sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+    return (customFieldsByType?.[props.contentType] || [])
+      .filter((f) => !f.deleted)
+      .slice()
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
   });
 
   ////////////////////////////////
@@ -171,6 +183,16 @@
     queueSave();
   };
 
+  const onRelatedEntriesChanged = (added: string[], removed: string[]) => {
+    if (!props.enableRelatedEntriesTracking) 
+      return;
+
+    if (!props.content) 
+      return;
+
+    emit('relatedEntriesChanged', added, removed);
+  };
+  
   ////////////////////////////////
   // watchers
 

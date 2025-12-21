@@ -5,7 +5,7 @@ import { CustomFieldsApplication } from '@/applications/settings/CustomFieldsApp
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { ImageSettingsApplication } from '@/applications/settings/ImageSettingsApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
-import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, defaultCustomFields, } from '@/types';
+import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, } from '@/types';
 import type { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from '@/apiClient';
 
 export interface ImageVisibility {
@@ -361,7 +361,7 @@ export class ModuleSettings {
     },
     {
       settingID: SettingKey.customFields,
-      default: defaultCustomFields,
+      default: {},  // note: this is important to default to this so that ready hook can know to reset it
       type: Object,
     },
     {

@@ -7,7 +7,6 @@ import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore, useSettingDirectoryStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
-import { toCustomFieldKey } from '@/utils/customFields';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { cleanTopicKeysOnSave } from '@/utils/cleanKeys';
 
@@ -269,17 +268,6 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
 
   set description(value: string) {
     this._clone.text.content = value;
-  }
-
-  get roleplayingNotes(): string {
-    const key = toCustomFieldKey(localize('labels.fields.entryRolePlayingNotes'));
-    const value = this.getCustomField(key);
-    return typeof value === 'string' ? value : '';
-  }
-
-  set roleplayingNotes(value: string) {
-    const key = toCustomFieldKey(localize('labels.fields.entryRolePlayingNotes'));
-    this.setCustomField(key, value);
   }
 
   get img(): string | undefined {

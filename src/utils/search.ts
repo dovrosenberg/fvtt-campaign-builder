@@ -202,7 +202,6 @@ class SearchService {
     if (entry.topic===Topics.PC) {
       snippets.push(entry.playerName ?? '');
       snippets.push(entry.background ?? '');
-      throw new Error('todo-make sure plotpoints and magic items indexed');
       // snippets.push(entry.plotPoints ?? '');
       // snippets.push(entry.magicItems ?? '');
     }
