@@ -26,6 +26,10 @@ export interface CustomFieldDescription {
   options?: string[];  // for select fields
   editorHeight?: number;  // for editor fields
   helpText?: string;  // displayed in a tooltip
+  aiEnabled?: boolean;
+  /** preset key used to build a prompt (ex. 'custom'); when not set, treat as 'custom' */
+  aiPromptPreset?: string;
+  aiPromptTemplate?: string;
   deleted?: boolean;
   indexed?: boolean;
   sortOrder: number;   // order of display on description tab

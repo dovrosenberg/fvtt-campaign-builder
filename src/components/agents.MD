@@ -77,6 +77,8 @@ Windsurf is not allowed to:
 
 All new or significantly modified Vue component files **must follow** the following template structure.  Comments with **xx** are for your understanding and are not part of the template.
 
+DO NOT insert new sections into the template.  Put everything where it belongs in this structure.
+
 > Windsurf: Do not invent missing details. Sections can be left blank if unused, but still include the section headers.  
 
 ### Required file template

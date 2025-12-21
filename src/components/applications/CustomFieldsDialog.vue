@@ -61,6 +61,14 @@
           <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="width: 4rem">
             <template #body="{ data }">
               <a
+                v-if="backendAvailable"
+                class="fcb-action-icon"
+                :data-tooltip="localize('applications.customFields.labels.aiTemplate')"
+                @click.stop="onOpenAiTemplateDialog(data)"
+              >
+                <i class="fas fa-head-side-virus"></i>
+              </a>
+              <a
                 class="fcb-action-icon"
                 :data-tooltip="localize('applications.customFields.labels.delete')"
                 @click.stop="onDeleteField(data.uuid)"
@@ -143,17 +151,85 @@
       </footer>
     </div>
   </section>
+
+  <Dialog
+    v-if="backendAvailable"
+    v-model="showAiTemplateDialog"
+    :title="localize('applications.customFields.aiDialog.title')"
+    :width="720"
+    :buttons="aiDialogButtons"
+    @cancel="onAiTemplateDialogCancel"
+  >
+    <div class="standard-form">
+      <div class="form-group">
+        <label>{{ localize('applications.customFields.aiDialog.labels.enabled') }}</label>
+        <div class="form-fields">
+          <Checkbox v-model="aiDialogEnabled" binary />
+        </div>
+        <p class="hint">{{ localize('applications.customFields.aiDialog.labels.enabledHint') }}</p>
+      </div>
+
+      <div class="form-group">
+        <label>{{ localize('applications.customFields.aiDialog.labels.promptType') }}</label>
+        <div class="form-fields">
+          <Select
+            v-model="aiDialogPromptPreset"
+            :options="aiPresetOptions"
+            optionLabel="label"
+            optionValue="value"
+            :disabled="!aiDialogEnabled"
+          />
+        </div>
+        <p class="hint">{{ localize('applications.customFields.aiDialog.labels.promptTypeHint') }}</p>
+      </div>
+
+      <div v-if="showCustomPromptEditor" class="form-group">
+        <label>{{ localize('applications.customFields.aiDialog.labels.fieldToken') }}</label>
+        <div class="form-fields" style="display: flex; gap: 0.5rem; align-items: center;">
+          <Select
+            v-model="selectedAiTokenKey"
+            :options="aiTokenOptions"
+            optionLabel="label"
+            optionValue="value"
+            :placeholder="localize('applications.customFields.aiDialog.labels.selectField')"
+            style="flex: 1; min-width: 0;"
+          />
+          <button type="button" @click="onInsertAiTokenClick" :disabled="!selectedAiTokenKey">
+            <i class="fas fa-plus"></i>
+            <label>{{ localize('applications.customFields.aiDialog.labels.insert') }}</label>
+          </button>
+        </div>
+        <p class="hint">{{ localize('applications.customFields.aiDialog.labels.fieldTokenHint') }}</p>
+      </div>
+
+      <div v-if="showCustomPromptEditor" class="form-group stacked">
+        <label>{{ localize('applications.customFields.aiDialog.labels.promptTemplate') }}</label>
+        <div class="form-fields">
+          <textarea
+            ref="aiPromptTextareaRef"
+            v-model="aiDialogPromptTemplate"
+            rows="10"
+            style="width: 100%;"
+          />
+        </div>
+        <p v-if="aiTemplateValidationError" class="hint" style="color: red; margin-top: 0.25rem;">
+          {{ aiTemplateValidationError }}
+        </p>
+      </div>
+    </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { computed, onMounted, ref, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { useMainStore } from '@/applications/stores';
+  import { useBackendStore } from '@/applications/stores';
   import { searchService } from '@/utils/search';
   import { makeCustomFieldKeyUnique, toCustomFieldKey } from '@/utils/customFields';
 
@@ -167,9 +243,22 @@
   import Checkbox from 'primevue/checkbox';
 
   // local components
+  import Dialog from '@/components/Dialog.vue';
+
+  // local components
 
   // types
   import { CustomFieldContentType, CustomFieldDescription, FieldType } from '@/types';
+
+  type AiTokenOption = {
+    label: string;
+    value: string;
+  };
+
+  type AiPresetOption = {
+    label: string;
+    value: string;
+  };
 
   type Row = {
     uuid: string;
@@ -180,6 +269,9 @@
     indexed: boolean;
     editorHeight: number | null;
     helpText?: string;
+    aiEnabled: boolean;
+    aiPromptPreset: string;
+    aiPromptTemplate: string;
     deleted?: boolean;
     sortOrder: number;
   };
@@ -195,6 +287,9 @@
 
   const mainStore = useMainStore();
   const { currentSetting } = storeToRefs(mainStore);
+
+  const backendStore = useBackendStore();
+  const { available: backendAvailable } = storeToRefs(backendStore);
 
   ////////////////////////////////
   // data
@@ -230,6 +325,16 @@
   // Track whether any "Search?" checkbox was toggled; used to force a rebuild on save.
   const indexedToggled = ref<boolean>(false);
 
+  // AI dialog
+  const showAiTemplateDialog = ref<boolean>(false);
+  const aiDialogTargetRow = ref<Row | null>(null);
+  const aiDialogEnabled = ref<boolean>(false);
+  const aiDialogPromptPreset = ref<string>('custom');
+  const aiDialogPromptTemplate = ref<string>('');
+  const selectedAiTokenKey = ref<string | null>(null);
+  const aiPromptTextareaRef = ref<HTMLTextAreaElement | null>(null);
+
+
   ////////////////////////////////
   // computed data
 
@@ -263,9 +368,162 @@
       || t === CustomFieldContentType.PC;
   });
 
+  type BuiltInAiToken = {
+    key: string;
+    labelKey: string;
+  };
+
+  const builtInAiTokensByType: Partial<Record<CustomFieldContentType, BuiltInAiToken[]>> = {
+    [CustomFieldContentType.Session]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'notes', labelKey: 'labels.session.notes' },
+    ],
+    [CustomFieldContentType.Character]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+      { key: 'species', labelKey: 'labels.fields.species' },
+    ],
+    [CustomFieldContentType.PC]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+      { key: 'species', labelKey: 'labels.fields.species' },
+    ],
+    [CustomFieldContentType.Setting]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+    ],
+    [CustomFieldContentType.Location]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+    ],
+    [CustomFieldContentType.Organization]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+    ],
+    [CustomFieldContentType.Campaign]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+    ],
+    [CustomFieldContentType.Arc]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+    ],
+    [CustomFieldContentType.Front]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+    ],
+  };
+
+  const excludedAiTokenKey = computed<string | null>(() => {
+    const row = aiDialogTargetRow.value;
+    if (!row) return null;
+    return (row.name || '').trim() || toCustomFieldKey(row.label || '');
+  });
+
+  const aiTokenOptions = computed<AiTokenOption[]>(() => {
+    if (selectedType.value == null) return [];
+
+    const type = selectedType.value;
+    const excludedKey = excludedAiTokenKey.value;
+
+    const rows = (workingRowsByType.value[type] || []).filter(r => !r.deleted);
+    const seen = new Set<string>();
+
+    const result: AiTokenOption[] = [];
+
+    const builtIns = builtInAiTokensByType[type] || [];
+    for (const t of builtIns) {
+      const key = (t.key || '').trim();
+      if (!key) continue;
+      if (excludedKey && key === excludedKey) continue;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const label = `${localize(t.labelKey)} (${key})`;
+      result.push({ label, value: key });
+    }
+
+    for (const r of rows) {
+      const key = (r.name || '').trim() || toCustomFieldKey(r.label || '');
+      if (!key) continue;
+      if (excludedKey && key === excludedKey) continue;
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      const label = (r.label || '').trim() ? `${r.label.trim()} (${key})` : key;
+      result.push({ label, value: key });
+    }
+
+    return result;
+  });
+
+  const aiTemplateValidationError = computed<string>(() => {
+    if (!showCustomPromptEditor.value) return '';
+    if (selectedType.value == null) return '';
+
+    const template = aiDialogPromptTemplate.value || '';
+    if (!template.trim()) return '';
+
+    const validKeys = new Set<string>(aiTokenOptions.value.map((o) => o.value));
+    const tokenKeyPattern = /^[a-z0-9_+]+$/;
+
+    const invalid: string[] = [];
+    const seen = new Set<string>();
+    const tokenRegex = /\{([^{}]*)\}/g;
+    for (const match of template.matchAll(tokenRegex)) {
+      const inner = (match?.[1] ?? '').trim();
+      const raw = match?.[0] ?? '';
+
+      if (!inner) {
+        if (!seen.has(raw)) {
+          invalid.push(raw);
+          seen.add(raw);
+        }
+        continue;
+      }
+
+      if (!tokenKeyPattern.test(inner) || !validKeys.has(inner)) {
+        if (!seen.has(raw)) {
+          invalid.push(raw);
+          seen.add(raw);
+        }
+      }
+    }
+
+    if (!invalid.length) return '';
+    return `${localize('applications.customFields.aiDialog.errors.invalidTokens')} ${invalid.join(', ')}`;
+  });
+
+  const aiDialogButtons = computed(() => [
+    {
+      label: localize('labels.cancel'),
+      close: true,
+      callback: () => onAiTemplateDialogCancel(),
+    },
+    {
+      label: localize('labels.saveChanges'),
+      disable: !!aiTemplateValidationError.value,
+      close: true,
+      default: true,
+      callback: () => onAiTemplateDialogSave(),
+    },
+  ]);
+
+  const aiPresetOptions = computed<AiPresetOption[]>(() => [
+    { value: 'custom', label: localize('applications.customFields.aiDialog.presets.custom') },
+    { value: 'short', label: localize('applications.customFields.aiDialog.presets.short') },
+    { value: 'detailed', label: localize('applications.customFields.aiDialog.presets.detailed') },
+    { value: 'bullet', label: localize('applications.customFields.aiDialog.presets.bullets') },
+  ]);
+
+  const showCustomPromptEditor = computed<boolean>(() => {
+    return !!aiDialogEnabled.value && (aiDialogPromptPreset.value || 'custom') === 'custom';
+  });
+
 
   ////////////////////////////////
   // methods
+
+  const aiTokenForKey = (key: string) => `{${key}}`;
 
   /**
    * Convert persisted custom field definitions into a working list for the table.
@@ -285,6 +543,9 @@
         indexed: f.indexed ?? false,
         editorHeight: f.fieldType === FieldType.Editor ? (f.editorHeight ?? DEFAULT_EDITOR_SIZE) : null,
         helpText: f.helpText || '',
+        aiEnabled: f.aiEnabled ?? false,
+        aiPromptPreset: f.aiPromptPreset || 'custom',
+        aiPromptTemplate: f.aiPromptTemplate || '',
         deleted: f.deleted || false,
         sortOrder: index,
       }));
@@ -372,6 +633,9 @@
       }
 
       r.indexed = !!r.indexed;
+      r.aiEnabled = !!r.aiEnabled;
+      r.aiPromptPreset = (r.aiPromptPreset || 'custom').trim() || 'custom';
+      r.aiPromptTemplate = r.aiPromptTemplate ?? '';
 
       if (r.fieldType !== FieldType.Select) {
         r.optionsText = '';
@@ -420,11 +684,33 @@
           helpText: r.helpText?.trim() || undefined,
           deleted: r.deleted ? true : undefined,
           indexed: r.indexed ?? false,
+          aiEnabled: r.aiEnabled ? true : undefined,
+          aiPromptPreset: (r.aiPromptPreset || 'custom') === 'custom' ? undefined : (r.aiPromptPreset || 'custom'),
+          aiPromptTemplate: r.aiPromptTemplate?.trim() || undefined,
           sortOrder: r.sortOrder,
         } as CustomFieldDescription;
       });
   };
 
+
+
+  const insertIntoAiTemplate = async (text: string) => {
+    const el = aiPromptTextareaRef.value;
+    if (!el) {
+      aiDialogPromptTemplate.value = (aiDialogPromptTemplate.value || '') + text;
+      return;
+    }
+
+    const current = aiDialogPromptTemplate.value || '';
+    const start = el.selectionStart ?? current.length;
+    const end = el.selectionEnd ?? current.length;
+    aiDialogPromptTemplate.value = current.slice(0, start) + text + current.slice(end);
+
+    await nextTick();
+    const nextPos = start + text.length;
+    el.focus();
+    el.setSelectionRange(nextPos, nextPos);
+  };
 
   ////////////////////////////////
   // event handlers
@@ -432,6 +718,45 @@
   const onIndexedCheckboxChange = () => {
     // Any toggle is enough to require a rebuild; we don't attempt to diff the before/after state.
     indexedToggled.value = true;
+  };
+  const onOpenAiTemplateDialog = async (row: Row) => {
+    if (!backendAvailable.value) return;
+
+    aiDialogTargetRow.value = row;
+    aiDialogEnabled.value = row.aiEnabled ?? false;
+    aiDialogPromptPreset.value = row.aiPromptPreset || 'custom';
+    aiDialogPromptTemplate.value = row.aiPromptTemplate ?? '';
+    selectedAiTokenKey.value = null;
+    showAiTemplateDialog.value = true;
+
+    await nextTick();
+    if (showCustomPromptEditor.value) {
+      aiPromptTextareaRef.value?.focus();
+    }
+  };
+
+  const onAiTemplateDialogSave = () => {
+    if (aiTemplateValidationError.value) return;
+    if (!aiDialogTargetRow.value) {
+      showAiTemplateDialog.value = false;
+      return;
+    }
+
+    aiDialogTargetRow.value.aiEnabled = !!aiDialogEnabled.value;
+    aiDialogTargetRow.value.aiPromptPreset = (aiDialogPromptPreset.value || 'custom').trim() || 'custom';
+    aiDialogTargetRow.value.aiPromptTemplate = aiDialogPromptTemplate.value ?? '';
+    aiDialogTargetRow.value = null;
+    showAiTemplateDialog.value = false;
+  };
+
+  const onAiTemplateDialogCancel = () => {
+    aiDialogTargetRow.value = null;
+    showAiTemplateDialog.value = false;
+  };
+
+  const onInsertAiTokenClick = async () => {
+    if (!selectedAiTokenKey.value) return;
+    await insertIntoAiTemplate(aiTokenForKey(selectedAiTokenKey.value));
   };
 
   const onAddField = () => {
@@ -448,6 +773,9 @@
       indexed: false,
       editorHeight: null,
       helpText: '',
+      aiEnabled: false,
+      aiPromptPreset: 'custom',
+      aiPromptTemplate: '',
       deleted: false,
       sortOrder: targetRows.length,
     });
