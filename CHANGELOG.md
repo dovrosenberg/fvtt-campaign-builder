@@ -8,6 +8,12 @@
 - Every field that used to be present on these tabs (other than the base descriptions/notes) has now been converted to a custom field, so you can delete/hide them if you want. 
 - Fixed styling on the various module settings submenu windows.
 
+## 1.7.2 - Just a version bump
+![](https://img.shields.io/badge/release%20date-December%2021%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.7.2/module.zip)
+
+- Version 1.7.1 was improperly reporting as version 1.7.0; bumping version to clean this up to ensure it doesn't cause migration issues at some point
+
 ## 1.7.1 - Story Web bug fix
 ![](https://img.shields.io/badge/release%20date-December%2019%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.7.1/module.zip)
