@@ -50,7 +50,7 @@ export class FCBJournalEntryPage<
   public get raw(): DocClass {
     return this._doc;
   }
-
+  
   public getCustomField(key: string): string | boolean {
     // @ts-ignore - not sure how to specify customFields exists on all of these
     return this._clone.system?.customFields?.[key];

@@ -186,7 +186,7 @@
           "helpText": "Help Text"
         },
         "fieldTypes": {
-          "text": "Text",
+          "input": "Input",
           "select": "Select",
           "editor": "Editor",
           "boolean": "Boolean"

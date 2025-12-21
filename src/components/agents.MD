@@ -1,16 +1,16 @@
-# agents.MD (Windwurf)
+# agents.MD (Windsurf)
 
-This repository uses **Windwurf** to work **directly in Vue SFCs**. Treat every `.vue` file as both UI and API surface.
+This repository uses **Windsurf** to work **directly in Vue SFCs**. Treat every `.vue` file as both UI and API surface.
 
 ## Scope
 
-Windwurf is allowed to:
+Windsurf is allowed to:
 - Create and modify Vue Single File Components (`.vue`)
 - Create and modify co-located component files (types, composables, tests) when needed
 - Refactor for readability, consistency, and performance without changing behavior (unless explicitly requested)
 - Introduce new dependencies without asking
 
-Windwurf is not allowed to:
+Windsurf is not allowed to:
 - Change public behavior, UX flows, or data contracts without an explicit request
 - Do broad drive-by formatting across unrelated files
 
@@ -43,6 +43,11 @@ Windwurf is not allowed to:
   - Avoid deeply nested inline ternaries.
   - Extract repeated UI into smaller components.
 - Prefer small, named helper functions in the script for complex template logic.
+- All code should go in the appropriate section of the file as defined in the template below
+
+### Comments
+- Include one-line comments for all non-trivial logic in the script and for particularly complex parts of templates.
+- Every method in the 'methods' section (so not event handlers, watchers, etc.) should have full jsdoc comments preceeding it.
 
 ### Props, emits, and v-model
 - Props:
@@ -72,7 +77,7 @@ Windwurf is not allowed to:
 
 All new or significantly modified Vue component files **must follow** the following template structure.  Comments with **xx** are for your understanding and are not part of the template.
 
-> Windwurf: Do not invent missing details. Sections can be left blank if unused, but still include the section headers.  
+> Windsurf: Do not invent missing details. Sections can be left blank if unused, but still include the section headers.  
 
 ### Required file template
 
@@ -138,7 +143,7 @@ Dependencies
   // **definitions of consts, variables, and refs**
 
   ////////////////////////////////
-  // computed
+  // computed data
   // **definitions of computed properties**
 
   ////////////////////////////////

@@ -27,6 +27,7 @@ export interface CustomFieldDescription {
   editorHeight?: number;  // for editor fields
   helpText?: string;  // displayed in a tooltip
   deleted?: boolean;
+  indexed?: boolean;
   sortOrder: number;   // order of display on description tab
 }
 

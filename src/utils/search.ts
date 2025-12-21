@@ -1,8 +1,9 @@
 import MiniSearch from 'minisearch';
 import { Entry, Session, FCBSetting, Arc, Front } from '@/classes';
-import { Topics, ValidTopic, } from '@/types';
+import { CustomFieldContentType, Topics, ValidTopic, } from '@/types';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { ArcLore, SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
+import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
 
 /**
  * Represents a searchable item in the index, containing all relevant search fields.
@@ -198,12 +199,21 @@ class SearchService {
     type = entry.type;
     topic = Topics[entry.topic];
 
-    // pcs have some extra fields - we put them in snippets
+    // pcs have extra field - we put it in snippets
     if (entry.topic===Topics.PC) {
       snippets.push(entry.playerName ?? '');
-      // snippets.push(entry.background ?? '');
-      // snippets.push(entry.plotPoints ?? '');
-      // snippets.push(entry.magicItems ?? '');
+    }
+
+    // custom fields get added to description so they get a higher priority than snippets
+    const customFieldType = 
+      entry.topic === Topics.PC ? CustomFieldContentType.PC :
+      entry.topic === Topics.Character ? CustomFieldContentType.Character :
+      entry.topic === Topics.Location ? CustomFieldContentType.Location :
+      entry.topic === Topics.Organization ? CustomFieldContentType.Organization :
+      null;
+
+    if (customFieldType) {
+      description = addCustomFieldsToDescription(description, customFieldType, entry);
     }
 
     // Add relationship snippets
@@ -298,7 +308,7 @@ class SearchService {
     const snippets: string[] = [];
     let description = '';
 
-    description = session.notes;  // + '|' + session.strongStart;
+    description = session.notes;
 
     await addSessionEntrySnippet(snippets, session.locations, (uuid) => Entry.fromUuid(uuid));
     await addSessionEntrySnippet(snippets, session.npcs, (uuid) => Entry.fromUuid(uuid));
@@ -307,6 +317,9 @@ class SearchService {
 
     addSessionShortSnippet(snippets, session.lore);
     addSessionShortSnippet(snippets, session.vignettes);
+
+    // custom fields get added to description so they get a higher priority than snippets
+    description = addCustomFieldsToDescription(description, CustomFieldContentType.Session, session);
 
     return {
       uuid: session.uuid,
@@ -350,6 +363,9 @@ class SearchService {
       }
     }
 
+    // custom fields get added to description so they get a higher priority than snippets
+    description = addCustomFieldsToDescription(description, CustomFieldContentType.Front, front);
+
     return {
       uuid: front.uuid,
       name: front.name,
@@ -381,6 +397,9 @@ class SearchService {
     await addArcEntrySnippet(snippets, arc.monsters, fromUuid);
 
     addArcShortSnippet(snippets, arc.lore);
+
+    // custom fields get added to description so they get a higher priority than snippets
+    description = addCustomFieldsToDescription(description, CustomFieldContentType.Arc, arc);
 
     return {
       uuid: arc.uuid,
@@ -652,6 +671,21 @@ function addArcShortSnippet(snippets: string[], relatedItems: readonly ArcLore[]
   }
 };
 
+function addCustomFieldsToDescription(description: string, contentType: CustomFieldContentType, item: FCBJournalEntryPage<any>): string {
+  // custom fields get added to description so they get a higher priority than snippets
+  const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields)[contentType];
+
+  if (customFieldDefinitions == null)
+    throw new Error('Tried bad contentType in search.addCustomFieldsToDescrtipion()');
+
+  for (let i=0; i<customFieldDefinitions.length; i++) {
+    if (!customFieldDefinitions[i].deleted && customFieldDefinitions[i].indexed) {
+      description += `|${item.getCustomField(customFieldDefinitions[i].name)}`;
+    }
+  }
+
+  return description;
+}
 
 /**
  * Singleton instance of the search service for use throughout the application.

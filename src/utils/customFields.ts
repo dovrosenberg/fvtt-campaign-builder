@@ -81,18 +81,21 @@ export const resetDefaultCustomFields = async () => {
         label: backgroundLabel,
         fieldType: FieldType.Editor,
         sortOrder: 0,
+        indexed: true,
         editorHeight: 15,
       },{
         name: otherPlotPointsKey,
         label: otherPlotPointsLabel,
         fieldType: FieldType.Editor,
         sortOrder: 1,
+        indexed: true,
         editorHeight: 10,
       },{
         name: desiredMagicItemsKey,
         label: desiredMagicItemsLabel,
         fieldType: FieldType.Editor,
         sortOrder: 2,
+        indexed: true,
         editorHeight: 10,
       }
     ],
@@ -118,6 +121,7 @@ export const resetDefaultCustomFields = async () => {
         fieldType: FieldType.Editor,
         sortOrder: 0,
         editorHeight: 10,
+        indexed: true,
         helpText: localize('labels.fields.strongStartHelpText'),
       }
     ],
