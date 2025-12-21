@@ -65,21 +65,6 @@
                         }" 
                       />
                     </div>
-                    <div class="flexrow form-group">
-                      <LabelWithHelp
-                        label-text="labels.fields.background"
-                      />
-                    </div>
-                    <div class="flexrow form-group">
-                      <Editor 
-                        :initial-content="currentEntry?.background || ''"
-                        :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
-                        fixed-height="240px"
-                        :current-entity-uuid="currentEntry?.uuid"
-                        @editor-saved="onBackgroundSaved"
-                        @related-entries-changed="onRelatedEntriesChanged"
-                        />
-                    </div>
 
                     <CustomFieldsBlocks
                       v-if="currentEntry"
@@ -142,12 +127,11 @@
   import InputText from 'primevue/inputtext';
 
   // local components
-  import Editor from '@/components/Editor.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import JournalTab from '@/components/ContentTab/JournalTab.vue';
   import RelatedEntryTable from '@/components/tables/RelatedEntryTable.vue';
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
-    import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
+  import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
 
   // types
   import { Entry } from '@/classes';
@@ -347,14 +331,6 @@
     const actor = await currentEntry.value?.getActor();
     if (actor)
       await toRaw(actor)?.sheet?.render(true);
-  }
-
-  const onBackgroundSaved = async (content: string) => {
-    if (!currentEntry.value)
-      return;
-
-    currentEntry.value.background = content;
-    await currentEntry.value.save();
   }
 
   const onRelatedEntriesDialogUpdate = async (addedEntries: Entry[], removedEntries: Entry[]) => {

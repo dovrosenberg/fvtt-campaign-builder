@@ -6,6 +6,7 @@ import { DOCUMENT_TYPES } from '@/documents/types';
 import { CustomFieldContentType, } from '@/types';
 import { localize } from '@/utils/game';
 import { resetDefaultCustomFields, toCustomFieldKey } from '@/utils/customFields';
+import { Campaign, Entry, Session } from '@/classes';
 
 let processed = 0;
 let totalEntries= 0;
@@ -55,7 +56,6 @@ export class MigrationV1_8 implements Migration {
       await resetDefaultCustomFields();
       const customFields = ModuleSettings.get(SettingKey.customFields);
       customFields[CustomFieldContentType.Campaign][0].name = KEY_HOUSE_RULES;
-      customFields[CustomFieldContentType.PC][0].name = KEY_ROLEPLAYING_NOTES;
       customFields[CustomFieldContentType.PC][1].name = KEY_OTHER_PLOT_POINTS;
       customFields[CustomFieldContentType.PC][2].name = KEY_DESIRED_MAGIC_ITEMS;
       customFields[CustomFieldContentType.Character][0].name = KEY_ROLEPLAYING_NOTES;
@@ -64,8 +64,9 @@ export class MigrationV1_8 implements Migration {
 
       await ModuleSettings.set(SettingKey.customFields, customFields);
 
-      // session.strong_start is being moved from a hardcoded field into a custom field
+      // session.strong_start and pc.background are being moved from a hardcoded field into a custom field
       const KEY_STRONG_START = toCustomFieldKey(localize('labels.fields.strongStart'));
+      const KEY_BACKGROUND = toCustomFieldKey(localize('labels.fields.background'));
 
       for (const setting of settings) {
         const allDocumentsIndex = await setting.compendium.getIndex({
@@ -80,7 +81,8 @@ export class MigrationV1_8 implements Migration {
 
         totalEntries += allDocumentsIndex.filter((d: any) => (
           d.flags?.[moduleId]?.campaignBuilderType === DOCUMENT_TYPES.Campaign ||
-          d.flags?.[moduleId]?.campaignBuilderType === DOCUMENT_TYPES.Session
+          d.flags?.[moduleId]?.campaignBuilderType === DOCUMENT_TYPES.Session ||
+          d.flags?.[moduleId]?.campaignBuilderType === DOCUMENT_TYPES.Entry
         )).length;
       }
 
@@ -100,7 +102,8 @@ export class MigrationV1_8 implements Migration {
 
         const relevantDocs = allDocumentsIndex.filter((d: any) => (
           d.flags?.[moduleId]?.campaignBuilderType === DOCUMENT_TYPES.Campaign ||
-          d.flags?.[moduleId]?.campaignBuilderType === DOCUMENT_TYPES.Session 
+          d.flags?.[moduleId]?.campaignBuilderType === DOCUMENT_TYPES.Session ||
+          d.flags?.[moduleId]?.campaignBuilderType === DOCUMENT_TYPES.Entry
         ));
 
         for (const doc of relevantDocs) {
@@ -110,46 +113,39 @@ export class MigrationV1_8 implements Migration {
               continue;
             }
 
-            const page = journalEntry.pages.contents[0];
+            switch (doc.flags?.[moduleId]?.campaignBuilderType) {
+              case DOCUMENT_TYPES.Campaign:
+                const campaign = new Campaign(journalEntry);
 
-            if (page.type === DOCUMENT_TYPES.Campaign) {
-              // description is being moved from system.description to text.content
-              const oldSystemDescription = (page.system as any)?.description as string | undefined;
+                // description is being moved from system.description to text.content
+                campaign.description = campaign.raw.system?.description || '';
+                await campaign.save();
 
-              const oldHasValue = !!oldSystemDescription && oldSystemDescription.trim() !== '';
+                result.migratedCount++;
+                break;
 
-              if (oldHasValue) {
-                const newText = {
-                  ...(page.text || {}),
-                  content: oldSystemDescription
-                };
+              case DOCUMENT_TYPES.Session:
+                const session = new Session(journalEntry);
 
-                const newSystem = {
-                  ...(page.system as any),
-                  description: ''
-                };
+                // strong start is being moved from system.strongStart to a customfield
+                session.setCustomField(KEY_STRONG_START, session.raw.system?.strongStart || '');
+                await session.save();
 
-                await page.update({ text: newText, system: newSystem }, { recursive: false, render: false });
-              }
+                result.migratedCount++;
+                break;
 
-              result.migratedCount++;
-            }
+              case DOCUMENT_TYPES.Entry: 
+                const entry = new Entry(journalEntry);
 
-            if (page.type === DOCUMENT_TYPES.Session) {
-              // strong start is being moved from system.strongStart to a customfield
-              // remove old from system
-              const { strongStart, ...restSystem } = page.system;
+                // background is being moved from system.background to a customfield
+                entry.setCustomField(KEY_BACKGROUND, entry.raw.system?.background || '');
+                await entry.save();
 
-              const newSystem = {
-                ...restSystem,
-                customFields: {
-                  [KEY_STRONG_START]: strongStart || '',
-                },
-              };
-
-              await page.update({ system: newSystem }, { recursive: false, render: false });
-
-              result.migratedCount++;
+                result.migratedCount++;
+                break;
+              
+              default:
+                break;
             }
 
           } catch (inner) {

@@ -14,6 +14,9 @@ export const CampaignSchema = {
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
+  // we have to leave this until 1.8 migration is gone because otherwise the migration doesn't have access to it
+  description: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
+
   /** high-level info for every contained session */
   sessionIndex: new fields.ArrayField(schemas.SessionBasicIndex(), 
     { required: true, nullable: false, initial: [] as SessionBasicIndex[] } 

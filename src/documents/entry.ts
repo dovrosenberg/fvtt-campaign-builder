@@ -25,6 +25,8 @@ export const EntrySchema = {
   // used only for pcs
   playerName: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
   actorId: new fields.DocumentUUIDField({ required: true, nullable: true, initial: null }),
+
+  // we have to leave this until 1.8 migration is gone because otherwise the migration doesn't have access to it
   background: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
 
   // Image for the entry

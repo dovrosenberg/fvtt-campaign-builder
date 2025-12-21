@@ -29,6 +29,9 @@ export const resetDefaultCustomFields = async () => {
   const entryRoleplayingNotesLabel = localize('labels.fields.entryRolePlayingNotes');
   const entryRoleplayingNotesKey = toCustomFieldKey(entryRoleplayingNotesLabel);
 
+  const backgroundLabel = localize('labels.fields.background');
+  const backgroundKey = toCustomFieldKey(backgroundLabel);
+
   const otherPlotPointsLabel = localize('labels.fields.otherPlotPoints');
   const otherPlotPointsKey = toCustomFieldKey(otherPlotPointsLabel);
 
@@ -73,12 +76,12 @@ export const resetDefaultCustomFields = async () => {
       }
     ],
     [CustomFieldContentType.PC]: [
-      {
-        name: entryRoleplayingNotesKey,
-        label: entryRoleplayingNotesLabel,
+     {
+        name: backgroundKey,
+        label: backgroundLabel,
         fieldType: FieldType.Editor,
         sortOrder: 0,
-        editorHeight: 10,
+        editorHeight: 15,
       },{
         name: otherPlotPointsKey,
         label: otherPlotPointsLabel,

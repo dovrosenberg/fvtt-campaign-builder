@@ -37,7 +37,6 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     speciesId: undefined,
     playerName: '',
     actorId: null,
-    background: '',
     img: '',
     customFields: {},
   } as unknown as EntryDocClass['system'];
@@ -208,14 +207,6 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
 
   set playerName(value: string | null) {
     this._clone.system.playerName = value;
-  }
-
-  get background(): string {
-    return this._clone.system.background || '';
-  }
-
-  set background(value: string | null) {
-    this._clone.system.background = value;
   }
 
   get speciesId(): string | undefined {

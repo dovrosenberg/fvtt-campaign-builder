@@ -41,7 +41,7 @@ export const SessionSchema = {
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
-  // we have to leave this for now because otherwise the migration doesn't have access to it
+  // we have to leave this until 1.8 migration is gone because otherwise the migration doesn't have access to it
   strongStart: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
 
   /** array of locations */

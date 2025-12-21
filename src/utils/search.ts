@@ -201,7 +201,7 @@ class SearchService {
     // pcs have some extra fields - we put them in snippets
     if (entry.topic===Topics.PC) {
       snippets.push(entry.playerName ?? '');
-      snippets.push(entry.background ?? '');
+      // snippets.push(entry.background ?? '');
       // snippets.push(entry.plotPoints ?? '');
       // snippets.push(entry.magicItems ?? '');
     }
