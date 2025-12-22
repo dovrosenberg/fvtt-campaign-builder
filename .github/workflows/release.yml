@@ -25,8 +25,23 @@ jobs:
         id: read_version
         run: |
           VERSION=$(jq -r '.version' package.json)
-          echo "version=$VERSION" >> $GITHUB_ENV
-          echo "$GITHUB_ENV"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Warn if release name doesn't match package.json version
+        if: ${{ github.event.release.target_commitish == 'main' }}
+        run: |
+          EXPECTED="v${{ steps.read_version.outputs.version }}"
+          ACTUAL="${{ github.event.release.name }}"
+
+          if [ -z "$ACTUAL" ]; then
+            echo "::warning title=Release name missing::Expected release name '$EXPECTED' but release name is empty."
+            exit 0
+          fi
+
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::warning title=Release name/version mismatch::Expected release name '$EXPECTED' (from package.json) but got '$ACTUAL'."
+            exit 0
+          fi
 
       - name: Update module.json version and download link
         id: update_module_version
@@ -35,7 +50,7 @@ jobs:
           files: './static/module.json'
         env:
           DOWNLOAD: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip
-          VERSION: ${{ env.version }}
+          VERSION: ${{ steps.read_version.outputs.version }}
 
       # install dependencies and build
       - run: npm ci
