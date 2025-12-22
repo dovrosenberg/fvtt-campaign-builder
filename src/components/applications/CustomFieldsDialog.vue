@@ -169,21 +169,7 @@
         <p class="hint">{{ localize('applications.customFields.aiDialog.labels.enabledHint') }}</p>
       </div>
 
-      <div class="form-group">
-        <label>{{ localize('applications.customFields.aiDialog.labels.promptType') }}</label>
-        <div class="form-fields">
-          <Select
-            v-model="aiDialogPromptPreset"
-            :options="aiPresetOptions"
-            optionLabel="label"
-            optionValue="value"
-            :disabled="!aiDialogEnabled"
-          />
-        </div>
-        <p class="hint">{{ localize('applications.customFields.aiDialog.labels.promptTypeHint') }}</p>
-      </div>
-
-      <div v-if="showCustomPromptEditor" class="form-group">
+      <div v-if="!!aiDialogEnabled" class="form-group">
         <label>{{ localize('applications.customFields.aiDialog.labels.fieldToken') }}</label>
         <div class="form-fields" style="display: flex; gap: 0.5rem; align-items: center;">
           <Select
@@ -202,7 +188,7 @@
         <p class="hint">{{ localize('applications.customFields.aiDialog.labels.fieldTokenHint') }}</p>
       </div>
 
-      <div v-if="showCustomPromptEditor" class="form-group stacked">
+      <div v-if="!!aiDialogEnabled" class="form-group stacked">
         <label>{{ localize('applications.customFields.aiDialog.labels.promptTemplate') }}</label>
         <div class="form-fields">
           <textarea
@@ -230,6 +216,7 @@
   import { ModuleSettings, SettingKey } from '@/settings';
   import { useMainStore } from '@/applications/stores';
   import { useBackendStore } from '@/applications/stores';
+  import { customFieldsApp } from '@/applications/settings/CustomFieldsApplication';
   import { searchService } from '@/utils/search';
   import { makeCustomFieldKeyUnique, toCustomFieldKey } from '@/utils/customFields';
 
@@ -251,11 +238,6 @@
   import { CustomFieldContentType, CustomFieldDescription, FieldType } from '@/types';
 
   type AiTokenOption = {
-    label: string;
-    value: string;
-  };
-
-  type AiPresetOption = {
     label: string;
     value: string;
   };
@@ -377,7 +359,7 @@
   const builtInAiTokensByType: Partial<Record<CustomFieldContentType, BuiltInAiToken[]>> = {
     [CustomFieldContentType.Session]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'notes', labelKey: 'labels.session.notes' },
+      { key: 'notes', labelKey: 'labels.fields.notes' },
     ],
     [CustomFieldContentType.Character]: [
       { key: 'name', labelKey: 'labels.fields.name' },
@@ -462,7 +444,6 @@
   });
 
   const aiTemplateValidationError = computed<string>(() => {
-    if (!showCustomPromptEditor.value) return '';
     if (selectedType.value == null) return '';
 
     const template = aiDialogPromptTemplate.value || '';
@@ -513,16 +494,6 @@
     },
   ]);
 
-  const aiPresetOptions = computed<AiPresetOption[]>(() => [
-    { value: 'custom', label: localize('applications.customFields.aiDialog.presets.custom') },
-    { value: 'short', label: localize('applications.customFields.aiDialog.presets.short') },
-    { value: 'detailed', label: localize('applications.customFields.aiDialog.presets.detailed') },
-    { value: 'bullet', label: localize('applications.customFields.aiDialog.presets.bullets') },
-  ]);
-
-  const showCustomPromptEditor = computed<boolean>(() => {
-    return !!aiDialogEnabled.value && (aiDialogPromptPreset.value || 'custom') === 'custom';
-  });
 
 
   ////////////////////////////////
@@ -738,9 +709,7 @@
     showAiTemplateDialog.value = true;
 
     await nextTick();
-    if (showCustomPromptEditor.value) {
-      aiPromptTextareaRef.value?.focus();
-    }
+    aiPromptTextareaRef.value?.focus();
   };
 
   const onAiTemplateDialogSave = () => {
@@ -902,6 +871,8 @@
       void searchService.buildIndex(currentSetting.value)
         .catch((e) => console.error('Failed to rebuild search index after custom field indexed changes', e));
     }
+
+    await customFieldsApp?.close();
   };
 
   ////////////////////////////////

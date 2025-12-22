@@ -134,6 +134,7 @@ export const ApiCustomGeneratePostRequestContentTypeEnum = {
     Setting: 'Setting',
     Character: 'Character',
     Location: 'Location',
+    Pc: 'PC',
     Organization: 'Organization',
     Campaign: 'Campaign',
     Arc: 'Arc',
