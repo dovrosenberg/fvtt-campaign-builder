@@ -3,6 +3,8 @@ export * from './api-character-generate-image-post-request';
 export * from './api-character-generate-post200-response';
 export * from './api-character-generate-post200-response-description';
 export * from './api-character-generate-post-request';
+export * from './api-custom-generate-post200-response';
+export * from './api-custom-generate-post-request';
 export * from './api-location-generate-image-post-request';
 export * from './api-location-generate-post200-response';
 export * from './api-location-generate-post200-response-description';

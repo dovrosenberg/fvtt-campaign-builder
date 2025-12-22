@@ -17,14 +17,14 @@
 /**
  * 
  * @export
- * @interface ApiNameCharactersPost200Response
+ * @interface ApiCustomGeneratePost200Response
  */
-export interface ApiNameCharactersPost200Response {
+export interface ApiCustomGeneratePost200Response {
     /**
-     * Array of generated character names
-     * @type {Array<string>}
-     * @memberof ApiNameCharactersPost200Response
+     * The generated response
+     * @type {string}
+     * @memberof ApiCustomGeneratePost200Response
      */
-    'names': Array<string>;
+    'response': string;
 }
 

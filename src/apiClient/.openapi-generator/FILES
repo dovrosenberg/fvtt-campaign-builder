@@ -13,6 +13,8 @@ types/api-character-generate-image-post200-response.ts
 types/api-character-generate-post-request.ts
 types/api-character-generate-post200-response-description.ts
 types/api-character-generate-post200-response.ts
+types/api-custom-generate-post-request.ts
+types/api-custom-generate-post200-response.ts
 types/api-location-generate-image-post-request.ts
 types/api-location-generate-post-request.ts
 types/api-location-generate-post200-response-description.ts
