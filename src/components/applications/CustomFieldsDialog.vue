@@ -61,7 +61,7 @@
           <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="width: 4rem">
             <template #body="{ data }">
               <a
-                v-if="backendAvailable"
+                v-if="backendAvailable && data.fieldType === FieldType.Editor"
                 class="fcb-action-icon"
                 :data-tooltip="localize('applications.customFields.labels.aiTemplate')"
                 @click.stop="onOpenAiTemplateDialog(data)"
@@ -269,6 +269,7 @@
     indexed: boolean;
     editorHeight: number | null;
     helpText?: string;
+    helpLink?: string;
     aiEnabled: boolean;
     aiPromptPreset: string;
     aiPromptTemplate: string;
@@ -380,37 +381,41 @@
     ],
     [CustomFieldContentType.Character]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+      { key: 'description', labelKey: 'labels.fields.description' },
       { key: 'species', labelKey: 'labels.fields.species' },
-    ],
-    [CustomFieldContentType.PC]: [
-      { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
-      { key: 'species', labelKey: 'labels.fields.species' },
-    ],
-    [CustomFieldContentType.Setting]: [
-      { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+      { key: 'type', labelKey: 'labels.fields.type' },
     ],
     [CustomFieldContentType.Location]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+      { key: 'description', labelKey: 'labels.fields.description' },
+      { key: 'type', labelKey: 'labels.fields.type' },
+      { key: 'parent', labelKey: 'labels.fields.parent' },
     ],
     [CustomFieldContentType.Organization]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+      { key: 'description', labelKey: 'labels.fields.description' },
+      { key: 'type', labelKey: 'labels.fields.type' },
+      { key: 'parent', labelKey: 'labels.fields.parent' },
+    ],
+    [CustomFieldContentType.PC]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'description', labelKey: 'labels.fields.description' },
+    ],
+    [CustomFieldContentType.Setting]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'description', labelKey: 'labels.fields.description' },
     ],
     [CustomFieldContentType.Campaign]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+      { key: 'description', labelKey: 'labels.fields.description' },
     ],
     [CustomFieldContentType.Arc]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+      { key: 'description', labelKey: 'labels.fields.description' },
     ],
     [CustomFieldContentType.Front]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.generateChoice.description' },
+      { key: 'description', labelKey: 'labels.fields.description' },
     ],
   };
 
@@ -543,6 +548,7 @@
         indexed: f.indexed ?? false,
         editorHeight: f.fieldType === FieldType.Editor ? (f.editorHeight ?? DEFAULT_EDITOR_SIZE) : null,
         helpText: f.helpText || '',
+        helpLink: f.helpLink || undefined,
         aiEnabled: f.aiEnabled ?? false,
         aiPromptPreset: f.aiPromptPreset || 'custom',
         aiPromptTemplate: f.aiPromptTemplate || '',
@@ -682,6 +688,7 @@
           options,
           editorHeight,
           helpText: r.helpText?.trim() || undefined,
+          helpLink: r.helpLink || undefined,
           deleted: r.deleted ? true : undefined,
           indexed: r.indexed ?? false,
           aiEnabled: r.aiEnabled ? true : undefined,
@@ -721,6 +728,7 @@
   };
   const onOpenAiTemplateDialog = async (row: Row) => {
     if (!backendAvailable.value) return;
+    if (row.fieldType !== FieldType.Editor) return;
 
     aiDialogTargetRow.value = row;
     aiDialogEnabled.value = row.aiEnabled ?? false;
@@ -773,6 +781,7 @@
       indexed: false,
       editorHeight: null,
       helpText: '',
+      helpLink: undefined,
       aiEnabled: false,
       aiPromptPreset: 'custom',
       aiPromptTemplate: '',

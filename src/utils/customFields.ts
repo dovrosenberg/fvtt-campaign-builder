@@ -123,6 +123,7 @@ export const resetDefaultCustomFields = async () => {
         editorHeight: 10,
         indexed: true,
         helpText: localize('labels.fields.strongStartHelpText'),
+        helpLink: 'https://slyflourish.com/starting_strong.html',
       }
     ],
   };

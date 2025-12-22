@@ -8,7 +8,8 @@ import { Entry } from '@/classes';
  */
 const allowedTags = [
   'a', 'b', 'br', 'strong', 'i', 'em', 'mark', 'small', 'del', 'ins', 'sub', 'sup',
-  'ul', 'ol', 'li', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code', 'br', 'img',
+  'ul', 'ol', 'li', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 
+  'code', 'br', 'img', 'span', 's',
 ];
 
 /**

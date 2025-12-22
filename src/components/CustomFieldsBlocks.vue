@@ -9,6 +9,8 @@
               v-if="field.helpText"
               class="fas fa-info-circle tooltip-icon"
               :data-tooltip="field.helpText"
+              :style="field.helpLink ? 'cursor: pointer;' : ''"
+              @click.stop="onHelpIconClick(field)"
             ></i>
           </label>
         </div>
@@ -33,6 +35,8 @@
               v-if="field.helpText"
               class="fas fa-info-circle tooltip-icon"
               :data-tooltip="field.helpText"
+              :style="field.helpLink ? 'cursor: pointer;' : ''"
+              @click.stop="onHelpIconClick(field)"
             ></i>
           </label>
           <div class="form-fields">
@@ -174,6 +178,12 @@
 
   ////////////////////////////////
   // event handlers
+
+  const onHelpIconClick = (field: CustomFieldDescription) => {
+    if (field.helpLink) {
+      window.open(field.helpLink, '_blank');
+    }
+  };
 
   const onFieldValueChanged = (field: CustomFieldDescription, value: string | boolean) => {
     if (!props.content) return;
