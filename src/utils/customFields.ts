@@ -29,6 +29,12 @@ export const resetDefaultCustomFields = async () => {
   const entryRoleplayingNotesLabel = localize('labels.fields.entryRolePlayingNotes');
   const entryRoleplayingNotesKey = toCustomFieldKey(entryRoleplayingNotesLabel);
 
+  const boxedTextLabel = localize('labels.fields.boxedText');
+  const boxedTextKey = toCustomFieldKey(boxedTextLabel);
+
+  const gmNotesLabel = localize('labels.fields.gmNotes');
+  const gmNotesKey = toCustomFieldKey(gmNotesLabel);
+
   const backgroundLabel = localize('labels.fields.background');
   const backgroundKey = toCustomFieldKey(backgroundLabel);
 
@@ -71,6 +77,31 @@ export const resetDefaultCustomFields = async () => {
     <br><b>Role-play hooks:</b> 2 ideas for how characters might interact with or feel about the organization
   `;
 
+  const characterBoxedTextPrompt = `
+    Write read-aloud boxed text describing the character for players.
+    Focus on immediate sensory impressions only: appearance, posture, expression, mannerisms, and vibe.
+    Avoid backstory, stats, secret motives, or mechanical detail — keep it to what the PCs can see/hear/sense right now.
+    Write in present tense, 3–6 sentences.
+  `;
+  const characterGMNotesPrompt = `
+    Write GM-only notes for running this character.
+    Use concise bullet points. Include secrets, goals, leverage, useful rumors, and 2 role-play cues.
+    Avoid repeating the boxed text; focus on what the GM needs.
+  `;
+
+  const locationBoxedTextPrompt = `
+    Write read-aloud boxed text describing the location for players.
+    Focus on sensory details (sight, sound, smell, mood) and immediate, obvious features.
+    Avoid backstory, mechanics, secret motives, or hidden details — keep it to what the PCs can perceive right now.
+    Write in present tense, 3–6 sentences.
+  `;
+  
+  const locationGMNotesPrompt = `
+    Write GM-only notes for running this location.
+    Use concise bullet points. Include hidden details, dangers, secrets, and 2 interaction hooks.
+    Avoid repeating the boxed text; focus on what the GM needs.
+  `;
+
   const rpgNotesConfig = (topicPrompt: string) => ({
     name: entryRoleplayingNotesKey,
     label: entryRoleplayingNotesLabel,
@@ -91,13 +122,63 @@ export const resetDefaultCustomFields = async () => {
       avoidListsLongerThan: 3,
     }
   });
+
+  const boxedTextConfig = (topicPrompt: string) => ({
+    name: boxedTextKey,
+    label: boxedTextLabel,
+    fieldType: FieldType.Editor,
+    sortOrder: 0,
+    editorHeight: 10,
+    deleted: false,
+    indexed: true,
+    aiEnabled: true,
+    aiPromptTemplate: topicPrompt,
+    configuration: {
+      minWords: 60,
+      maxWords: 120,
+      tone: 'evocative, table-ready',
+      tense: 'present',
+      pov: 'third',
+      includeBullets: false,
+      avoidListsLongerThan: 0,
+    }
+  });
+
+  const gmNotesConfig = (topicPrompt: string) => ({
+    name: gmNotesKey,
+    label: gmNotesLabel,
+    fieldType: FieldType.Editor,
+    sortOrder: 1,
+    editorHeight: 12,
+    deleted: false,
+    indexed: true,
+    aiEnabled: true,
+    aiPromptTemplate: topicPrompt,
+    configuration: {
+      minWords: 80,
+      maxWords: 160,
+      tone: 'practical, game-master facing',
+      tense: 'present',
+      pov: 'third',
+      includeBullets: true,
+      avoidListsLongerThan: 8,
+    }
+  });
     
   const defaultCustomFields = {
     [CustomFieldContentType.Setting]: [
 
     ],
-    [CustomFieldContentType.Character]: [ rpgNotesConfig(characterPrompt) ],
-    [CustomFieldContentType.Location]: [ rpgNotesConfig(locationPrompt) ],
+    [CustomFieldContentType.Character]: [
+      boxedTextConfig(characterBoxedTextPrompt),
+      gmNotesConfig(characterGMNotesPrompt),
+      { ...rpgNotesConfig(characterPrompt), sortOrder: 2 },
+    ],
+    [CustomFieldContentType.Location]: [
+      boxedTextConfig(locationBoxedTextPrompt),
+      gmNotesConfig(locationGMNotesPrompt),
+      { ...rpgNotesConfig(locationPrompt), sortOrder: 2 },
+    ],
     [CustomFieldContentType.Organization]: [rpgNotesConfig(organizationPrompt) ],
     [CustomFieldContentType.PC]: [
      {

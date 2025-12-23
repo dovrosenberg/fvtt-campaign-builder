@@ -77,6 +77,8 @@ export class MigrationV1_8 implements Migration {
       const KEY_ROLEPLAYING_NOTES = 'roleplaying_notes';
       const LABEL_AI_DESCRIPTION = localize('labels.fields.aiDescription');
       const KEY_AI_DESCRIPTION = toCustomFieldKey(LABEL_AI_DESCRIPTION);
+      const KEY_BOXED_TEXT = 'boxed_text';
+      const KEY_GM_NOTES = 'gm_notes';
 
       await resetDefaultCustomFields();
       const customFields = ModuleSettings.get(SettingKey.customFields);
@@ -123,41 +125,19 @@ export class MigrationV1_8 implements Migration {
               avoidListsLongerThan: 0,
             }
           }
+
+          // add the field to all the entries (at the top)
+          customFields[CustomFieldContentType.Location].unshift({...AIDescriptionFieldDescription, aiPromptTemplate: locationPreamble + AIDescriptionFieldDescription.aiPromptTemplate });
+          customFields[CustomFieldContentType.Organization].unshift({...AIDescriptionFieldDescription, aiPromptTemplate: organizationPreamble + AIDescriptionFieldDescription.aiPromptTemplate});
+          customFields[CustomFieldContentType.Character].unshift({...AIDescriptionFieldDescription, aiPromptTemplate: characterPreamble + AIDescriptionFieldDescription.aiPromptTemplate});
+
+          // remove the default boxed text and gm notes fields
+          customFields[CustomFieldContentType.Location] = customFields[CustomFieldContentType.Location].filter((f: any) => f.name !== KEY_BOXED_TEXT);
+          customFields[CustomFieldContentType.Organization] = customFields[CustomFieldContentType.Organization].filter((f: any) => f.name !== KEY_BOXED_TEXT);
+          customFields[CustomFieldContentType.Character] = customFields[CustomFieldContentType.Character].filter((f: any) => f.name !== KEY_BOXED_TEXT);
         } else {
-          AIDescriptionFieldDescription = {
-            name: KEY_AI_DESCRIPTION,
-            label: LABEL_AI_DESCRIPTION,
-            fieldType: FieldType.Editor,
-            editorHeight: 15,
-            aiEnabled: true,
-            aiPromptTemplate: `
-              The description should have two, distinct sections.  Avoid filler, keep both sections practical and immediately game-ready. The sections are:
-              1. Boxed Text (for players): A short, vivid description that a GM can read aloud. Focus on immediate sensory impressions: Appearance (what characters see at first glance: clothing, expression, scenery). Behavior / presence of characters, the “vibe” of characters or locations). Mood / emotional impression (how the situation makes the PCs feel).  Avoid backstory, stats, secret motives, or mechanical detail — keep it to what the PCs see, hear, and sense right now, before interacting with them. DO NOT describe anything about the location - just the character. Write in the present tense and keep it tight (3–6 sentences).
-              2. GM Notes (for the DM only): Clear, concise bullet points or short paragraphs with: Hidden details, history, or lore.
-
-              Follow this structure (SEPARATING SECTIONS AND ANY LISTS WITH \\n and MAKING SURE to include the field labels and asterisks):
-              <h3>Boxed Text:</h3> ..Boxed Text..
-              <h3>GM Notes:</h3> ..GM Notes..
-            `,
-            deleted: false,
-            indexed: true,
-            sortOrder: 0,
-            configuration: {
-              minWords: 150,
-              maxWords: 180,
-              tone: 'neutral',
-              tense: 'present',
-              pov: 'third',
-              includeBullets: false,
-              avoidListsLongerThan: 0,
-            }
-          }
+          // the default custom fields include boxed text replacements
         }
-
-        // add the field to all the entries (at the top)
-        customFields[CustomFieldContentType.Location].unshift({...AIDescriptionFieldDescription, aiPromptTemplate: locationPreamble + AIDescriptionFieldDescription.aiPromptTemplate });
-        customFields[CustomFieldContentType.Organization].unshift({...AIDescriptionFieldDescription, aiPromptTemplate: organizationPreamble + AIDescriptionFieldDescription.aiPromptTemplate});
-        customFields[CustomFieldContentType.Character].unshift({...AIDescriptionFieldDescription, aiPromptTemplate: characterPreamble + AIDescriptionFieldDescription.aiPromptTemplate});
 
         // set RPG Notes sortOrder
         customFields[CustomFieldContentType.Character][1].sortOrder = 1;
