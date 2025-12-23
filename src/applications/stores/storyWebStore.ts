@@ -913,30 +913,14 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       const nodeBoundingBox = network.getBoundingBox(nodeId);
       const viewport = network.getViewPosition();
       
-      console.log('🔄 onDragging - Selected Node:', nodeId);
-      console.log('  Node position (canvas units):', nodePosition);
-      console.log('  Node bounding box (canvas units):', nodeBoundingBox);
-      
       // Convert to DOM units
       const domTopLeft = network.canvasToDOM({ x: nodeBoundingBox.left, y: nodeBoundingBox.top });
       const domBottomRight = network.canvasToDOM({ x: nodeBoundingBox.right, y: nodeBoundingBox.bottom });
-      console.log('  Node bounding box (DOM units):', {
-        left: domTopLeft.x,
-        top: domTopLeft.y,
-        right: domBottomRight.x,
-        bottom: domBottomRight.y
-      });
-      
-      console.log('  Viewport coordinates:', viewport);
-      console.log('  Auto-pan active:', !!autoPanAnimationId);
       
       // Track movement direction
       if (previousNodePosition) {
         const deltaX = nodePosition.x - previousNodePosition.x;
         const deltaY = nodePosition.y - previousNodePosition.y;
-        console.log('  Node movement delta (canvas):', { x: deltaX, y: deltaY });
-        console.log('  User dragging', deltaX < 0 ? 'left' : deltaX > 0 ? 'right' : 'none', 
-                    deltaY < 0 ? 'up' : deltaY > 0 ? 'down' : 'none');
       }
       previousNodePosition = { x: nodePosition.x, y: nodePosition.y };
     }
@@ -984,8 +968,6 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     const stopThreshold = edgeThreshold + 10; // 65px to stop
     const threshold = autoPanAnimationId ? stopThreshold : startThreshold;
     
-    console.log('🎯 Using threshold:', threshold, 'autoPanAnimationId:', !!autoPanAnimationId);
-
     // get the bounding box for the selected nodes
     const nodePositions = selectedNodes.map(node => {
       const canvasBB = network.getBoundingBox(node);
@@ -1021,23 +1003,17 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       needsAutoPan = true;
     }
     
-    console.log('🎯 inPanZone called - minX:', minX, 'threshold:', threshold, 'canvas width:', canvasDOMRect.width);
-    
     return needsAutoPan ? newPanDirection : null;
   };
 
   const startAutoPan = () => {
-    console.log('🚀 startAutoPan called');
     const network = toRaw(currentNetwork.value);
-    if (!network) {
-      console.log('❌ No network, exiting startAutoPan');
+    if (!network) 
       return;
-    }
 
     const normalPanSpeed = 10; // pixels per frame
 
     const animate = () => {
-      console.log('🎬 animate function called');
       if (!network) {
         stopAutoPan();
         return;
@@ -1045,10 +1021,8 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
       // Continue checking edge detection even if dragging event stops firing
       const panDirection = inPanZone();
-      console.log('🎬 Animation frame - panDirection:', panDirection);
       
       if (!panDirection) {
-        console.log('🚫 Auto-pan paused - panDirection:', panDirection);
         // Continue checking but don't pan 
         autoPanAnimationId = requestAnimationFrame(animate);
         return;
@@ -1081,7 +1055,6 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       
       // Log before network.moveTo
       const viewportBefore = network.getViewPosition();
-      console.log('🎯 Before network.moveTo - Viewport:', viewportBefore);
       
       // Pan the viewport to keep nodes in view
       network.moveTo({
@@ -1094,15 +1067,10 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       
       // Log after network.moveTo
       const viewportAfter = network.getViewPosition();
-      console.log('🎯 After network.moveTo - Viewport:', viewportAfter);
 
       // if we're still in pan mode, keep going
-      console.log('🔄 About to call requestAnimationFrame - autoPanAnimationId:', autoPanAnimationId);
       if (autoPanAnimationId) {
         autoPanAnimationId = requestAnimationFrame(animate);
-        console.log('✅ requestAnimationFrame scheduled - new autoPanAnimationId:', autoPanAnimationId);
-      } else {
-        console.log('❌ autoPanAnimationId is null, not scheduling next frame');
       }
     };
 
@@ -1111,7 +1079,6 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   };
 
   const stopAutoPan = () => {
-    console.trace();
     if (autoPanAnimationId) {
       cancelAnimationFrame(autoPanAnimationId);
       autoPanAnimationId = null;

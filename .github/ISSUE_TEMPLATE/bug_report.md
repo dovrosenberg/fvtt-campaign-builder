@@ -27,7 +27,7 @@ If applicable, add screenshots to help explain your problem.
 
 **System info (please complete the following information):**
  - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari] or Foundry desktop?
+ - Browser [e.g. chrome, safari] or Foundry desktop?  Also note: Firefox is not well-supported by Foundry and a number of modules.  Highly recommending testing in something else before reporting a bug.
  - Foundry version
  - Foundry game system (i.e. DND5e, PF2e, etc.)
  - Logging in as GM or player?

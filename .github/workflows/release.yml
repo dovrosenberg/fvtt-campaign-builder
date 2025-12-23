@@ -54,7 +54,13 @@ jobs:
 
       # install dependencies and build
       - run: npm ci
-      - run: npm run build
+      - name: Build (debug for prerelease branches)
+        run: |
+          if [ "${{ github.event.release.target_commitish }}" != "main" ]; then
+            npm run debug
+          else
+            npm run build
+          fi
 
       # save the output folder for release job
       - name: Archive dist folder

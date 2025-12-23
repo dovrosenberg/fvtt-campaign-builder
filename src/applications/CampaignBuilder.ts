@@ -29,6 +29,15 @@ export const renderCampaignBuilderApp = (): CampaignBuilderApplication | null =>
     notifyError(localize('notifications.migration.cannotOpen'));
     return null;
   }
+
+  // @ts-ignore
+  const existingWindow = game.modules.get(moduleId)?.activeWindow;
+  if (existingWindow) {
+    // ensure it's rendered and maximized
+    existingWindow.render(true);
+
+    return existingWindow as CampaignBuilderApplication;
+  }
   
   const newWindow = new CampaignBuilderApplication();
   newWindow.render(true);
@@ -129,7 +138,9 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
       // we will return false to prevent Foundry from opening another window
       //    but we need to handle the document we're trying to open here otherwise
       //    we can never open a specific document after the first time
-      let preventRender = isCampaignBuilderAppOpen();
+      // @ts-ignore
+      const existingApp = game.modules.get(moduleId)?.activeWindow;
+      let preventRender = isCampaignBuilderAppOpen() && existingApp && existingApp !== this;
 
       const doc = this.document;
 
@@ -181,6 +192,23 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
       // handle opening any other document
       // this is async, but should be OK
       CampaignBuilderApplication.handleDocument(docToCheck);
+
+      // Always route journal-entry opens through the singleton main window.
+      // Foundry can be inconsistent about rendering the document-backed sheet instance,
+      // so we explicitly open/focus the singleton and prevent this sheet from rendering.
+      if (!existingApp) {
+        renderCampaignBuilderApp();
+        this._inMiddleOfRender = false;
+        return false;
+      }
+
+      // If we're preventing a new window from rendering because one is already open,
+      //    it's still possible the existing one is minimized - make sure it opens
+      if (preventRender) {
+        // @ts-ignore
+        const appWindow = game.modules.get(moduleId)?.activeWindow;
+        appWindow?.render(true);
+      }
 
       this._inMiddleOfRender = false;
       if (preventRender)
@@ -240,6 +268,14 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     setTimeout(() => {
       this._suppressBoundsSave = false;
     }, 0);
+  }
+
+  override async close(options: any = {}): Promise<void> {
+    if (game.modules.get(moduleId))
+      // @ts-ignore
+      game.modules.get(moduleId).activeWindow = null;
+
+    await super.close(options);
   }
 
   // capture the window position (after debouncing)
