@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/release%20date-December%2023%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.7.4/module.zip)
 
-- You should be able to open journal entries directly from the Campaign Builder compendium for your setting or from a journal entry that you import (ex. to put as a map note).  This wasn't properly working in some systems.  It should be fixed now.
+- You should be able to open journal entries directly from the Campaign Builder compendium for your setting or from a journal entry that you import (ex. to put as a map note).  This as breaking sometimes if you opened/closed the Campaign Builder window in a particular order.  It should be fixed now.
 
 ## 1.7.3 - Stop moving your window around
 ![](https://img.shields.io/badge/release%20date-December%2021%2C%202025-blue)
