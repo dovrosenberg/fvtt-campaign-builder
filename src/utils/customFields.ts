@@ -82,13 +82,13 @@ export const resetDefaultCustomFields = async () => {
     aiEnabled: true,
     aiPromptTemplate: topicPrompt,
     configuration: {
-      minWords: 150,
-      maxWords: 220,
+      minWords: 60,
+      maxWords: 100,
       tone: 'neutral',
       tense: 'present',
       pov: 'third',
-      includeBullets: false,
-      avoidListsLongerThan: 0,
+      includeBullets: true,
+      avoidListsLongerThan: 3,
     }
   });
     

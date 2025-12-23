@@ -37,10 +37,6 @@ This is where you configure your backend if you are using Advanced Features.
 **AI Models Tab** - For selecting the AI models you want to use
 ![AI Models Tab](/assets/images/advanced-settings-aimodels.webp)
 
-**AI Content** - Settings for how AI generation should be done
-![AI Content Tab](/assets/images/advanced-settings-aicontent.webp)
-  - **RPG-style descriptions**: If checked, generated descriptions will be in the format of an RPG adventure - boxed text plus DM notes.  If unchecked, they will instead be longer, narrative descriptions.
-  - **Long description paragraphs**: When using long descriptions (see above), this setting determines the number of paragraphs to generate.
 
 **Email** - Settings for the [Email to Ideas List](/reference/backend/email).  Note that this feature does not use AI and can be used independently of the others (i.e. without providing AI API Keys).
 ![Email Tab](/assets/images/advanced-settings-email.webp)

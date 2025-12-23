@@ -132,7 +132,7 @@ export class MigrationV1_8 implements Migration {
             aiEnabled: true,
             aiPromptTemplate: `
               The description should have two, distinct sections.  Avoid filler, keep both sections practical and immediately game-ready. The sections are:
-              1. Boxed Text (for players): A short, vivid description that a GM can read aloud. Focus on immediate sensory impressions: Appearance (what they look like at first glance: clothing, posture, expression). Behavior / presence (mannerisms, how they carry themselves, the “vibe” they give off). Mood / emotional impression (how the characters make the PCs feel on meeting them).  Avoid backstory, stats, secret motives, or mechanical detail — keep it to what the PCs see, hear, and sense right now, before interacting with them. DO NOT describe anything about the location - just the character. Write in the present tense and keep it tight (3–6 sentences).
+              1. Boxed Text (for players): A short, vivid description that a GM can read aloud. Focus on immediate sensory impressions: Appearance (what characters see at first glance: clothing, expression, scenery). Behavior / presence of characters, the “vibe” of characters or locations). Mood / emotional impression (how the situation makes the PCs feel).  Avoid backstory, stats, secret motives, or mechanical detail — keep it to what the PCs see, hear, and sense right now, before interacting with them. DO NOT describe anything about the location - just the character. Write in the present tense and keep it tight (3–6 sentences).
               2. GM Notes (for the DM only): Clear, concise bullet points or short paragraphs with: Hidden details, history, or lore.
 
               Follow this structure (SEPARATING SECTIONS AND ANY LISTS WITH \\n and MAKING SURE to include the field labels and asterisks):
@@ -144,7 +144,7 @@ export class MigrationV1_8 implements Migration {
             sortOrder: 0,
             configuration: {
               minWords: 150,
-              maxWords: 220,
+              maxWords: 180,
               tone: 'neutral',
               tense: 'present',
               pov: 'third',
