@@ -34,5 +34,13 @@ export interface CustomFieldDescription {
   deleted?: boolean;
   indexed?: boolean;
   sortOrder: number;   // order of display on description tab
+  configuration: {
+    minWords: number;
+    maxWords: number;
+    tone: string;
+    tense: string;
+    pov: string;
+    avoidListsLongerThan: number;
+  }
 }
 

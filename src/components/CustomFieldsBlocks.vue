@@ -272,7 +272,19 @@
         }
       }
       break;
-  }
+    }
+
+    const configuration = {
+      minWords: field.configuration.minWords,
+      maxWords: field.configuration.maxWords,
+      tone: field.configuration.tone,
+      tense: field.configuration.tense,
+      pov: field.configuration.pov,
+      contentRating: 'PG-13',
+      includeHeadings: false,
+      includeBullets: true,
+      avoidListsLongerThan: field.configuration.avoidListsLongerThan
+    }
 
     const request = {
       contentType: ApiContentTypeMap[props.contentType],
@@ -282,9 +294,9 @@
       genre: currentSetting.value.genre ?? '',
       settingFeeling: currentSetting.value.settingFeeling ?? '',
 
-      type: type,
-      species: species,
-      speciesDescription: speciesDescription,
+      type,
+      species,
+      speciesDescription,
       parentName: parent?.name || '',
       parentType: parent?.type || '',
       parentDescription: parent?.description || '',
@@ -294,6 +306,7 @@
       description: baseDescriptionForContent(),
       nameStyles: selectedNameStyles(currentSetting.value.genre ?? '', (setting as any).nameStyles || []),
       textModel: ModuleSettings.get(SettingKey.selectedTextModel),
+      configuration,
     };
     return request;
   };

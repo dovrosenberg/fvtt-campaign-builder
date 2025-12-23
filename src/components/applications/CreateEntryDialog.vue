@@ -496,17 +496,13 @@
     // the idea is that - especially when we're dealing with a RollTable name - user can use this form as a sort of quick create
     let details: CharacterDetails | LocationDetails | OrganizationDetails | null = null;
     let descriptionToUse = '';
-    let roleplayToUse = '';
 
     if (choice === 'description') {
       descriptionToUse = generatedTextToHTML(generateComplete.value ? generatedDescription.value : startingDescription.value);
-      roleplayToUse = '';
     } else if (choice === 'roleplay') {
       descriptionToUse = generatedTextToHTML(startingDescription.value);
-      roleplayToUse = generateComplete.value ? generatedTextToHTML(generatedRoleplayNotes.value) : '';
     } else if (choice === 'both') {
       descriptionToUse = generatedTextToHTML(generateComplete.value ? generatedDescription.value : startingDescription.value);
-      roleplayToUse = generateComplete.value ? generatedTextToHTML(generatedRoleplayNotes.value) : '';
     }
 
     if (props.topic === Topics.Character) {
