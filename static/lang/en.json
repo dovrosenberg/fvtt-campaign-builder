@@ -66,8 +66,6 @@
       "imagesHelp": "Configure image visibility settings for different content types",
       "showTypesInTree": "Show types in Setting tree",
       "showTypesInTreeHelp": "When true, if the Setting directory is not grouped by type, it will show the type of each Entry in the tree.",
-      "showRolePlayingNotes": "Show role playing notes on entries",
-      "showRolePlayingNotesHelp": "When true, a separate field for role playing notes will be shown separately from the Entry description.",
       "useFronts": "Use Fronts",
       "useFrontsHelp": "Turn on campaign \"front\" functionality.",
       "useWebs": "Use Story Webs",

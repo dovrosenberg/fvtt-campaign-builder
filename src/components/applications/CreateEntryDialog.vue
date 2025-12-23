@@ -117,21 +117,6 @@
           class="generation-option"
         >
           <div 
-            v-if="!useRoleplayNotes"
-            class="generation-option-wrapper"
-          >
-            <!-- <Checkbox 
-              v-model="longDescriptions" 
-              :binary="true"
-              inputId="long-description-checkbox"
-            />
-            <label for="long-description-checkbox" class="generation-label">
-              {{ localize('labels.fields.longDescriptions') }}
-              <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.createEntry.longDescriptions')"></i>
-            </label> -->
-          </div>
-          <div 
-            v-else
             class="generation-option-wrapper"
           >
             <label for="generate-choices-select" class="generation-label" style="margin-right: 8px">
@@ -363,10 +348,6 @@
     return props.generateMode && available.value;
   });
 
-  const useRoleplayNotes = computed((): boolean => {
-    return ModuleSettings.get(SettingKey.showRolePlayingNotes);
-  });
-
   ////////////////////////////////
   // methods
 
@@ -494,11 +475,6 @@
       } else {
         generatedDescription.value = '';
       }
-      if (useRoleplayNotes.value && ['roleplay', 'both'].includes(choice)) {        
-        generatedRoleplayNotes.value = result!.data.description.roleplayNotes;
-      } else {
-        generatedRoleplayNotes.value = '';
-      }
     } catch (error) {
       generateError.value = (error as Error).message;
     } finally {
@@ -522,20 +498,15 @@
     let descriptionToUse = '';
     let roleplayToUse = '';
 
-    if (!useRoleplayNotes.value) {
-      descriptionToUse = generatedTextToHTML(generatedDescription.value);
-      roleplayToUse = ''      
-    } else {
-      if (choice === 'description') {
-        descriptionToUse = generatedTextToHTML(generateComplete.value ? generatedDescription.value : startingDescription.value);
-        roleplayToUse = '';
-      } else if (choice === 'roleplay') {
-        descriptionToUse = generatedTextToHTML(startingDescription.value);
-        roleplayToUse = generateComplete.value ? generatedTextToHTML(generatedRoleplayNotes.value) : '';
-      } else if (choice === 'both') {
-        descriptionToUse = generatedTextToHTML(generateComplete.value ? generatedDescription.value : startingDescription.value);
-        roleplayToUse = generateComplete.value ? generatedTextToHTML(generatedRoleplayNotes.value) : '';
-      }
+    if (choice === 'description') {
+      descriptionToUse = generatedTextToHTML(generateComplete.value ? generatedDescription.value : startingDescription.value);
+      roleplayToUse = '';
+    } else if (choice === 'roleplay') {
+      descriptionToUse = generatedTextToHTML(startingDescription.value);
+      roleplayToUse = generateComplete.value ? generatedTextToHTML(generatedRoleplayNotes.value) : '';
+    } else if (choice === 'both') {
+      descriptionToUse = generatedTextToHTML(generateComplete.value ? generatedDescription.value : startingDescription.value);
+      roleplayToUse = generateComplete.value ? generatedTextToHTML(generatedRoleplayNotes.value) : '';
     }
 
     if (props.topic === Topics.Character) {

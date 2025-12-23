@@ -35,7 +35,6 @@ export enum SettingKey {
   enableToDoList = 'enableToDoList', // whether the to-do list feature is enabled
   autoRelationships = 'autoRelationships', // whether to automatically suggest relationship changes based on editor
   showTypesInTree = 'showTypesInTree', // show the type of the entry in the hierarchy tree
-  showRolePlayingNotes = 'showRolePlayingNotes',  // whether to show role playing notes on entries
   useFronts = 'useFronts', // allow creation and viewing of fronts
   useWebs = 'useWebs', // allow creation and viewing of story webs
   subTabsSavePosition = 'subTabsSavePosition', // whether sub-tabs remember their last position
@@ -89,7 +88,6 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.isInPlayMode ? boolean :
     K extends SettingKey.autoRelationships ? boolean :
     K extends SettingKey.showTypesInTree ? boolean :
-    K extends SettingKey.showRolePlayingNotes ? boolean :
     K extends SettingKey.useFronts ? boolean :
     K extends SettingKey.useWebs ? boolean :
     K extends SettingKey.subTabsSavePosition ? boolean :
@@ -237,13 +235,6 @@ export class ModuleSettings {
       name: 'settings.showTypesInTree',
       hint: 'settings.showTypesInTreeHelp',
       default: false,
-      type: Boolean,
-    },
-    {
-      settingID: SettingKey.showRolePlayingNotes,
-      name: 'settings.showRolePlayingNotes',
-      hint: 'settings.showRolePlayingNotesHelp',
-      default: true,
       type: Boolean,
     },
     {

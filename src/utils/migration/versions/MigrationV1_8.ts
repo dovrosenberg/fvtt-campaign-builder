@@ -42,6 +42,15 @@ export class MigrationV1_8 implements Migration {
       throw new Error('Dry run not supported in 1.8');
 
     try {
+      // we have to temporarily register this setting because we need to know the old value
+      // @ts-ignore
+      game.settings.register(moduleId, 'showRolePlayingNotes', {
+        default: true,
+        type: Boolean,
+        scope: 'client',
+        config: false,
+      });
+       
       const settings = await useMainStore().getAllSettings();
 
       // some values were housed in system.customFields already and we don't want to 
@@ -62,6 +71,14 @@ export class MigrationV1_8 implements Migration {
       customFields[CustomFieldContentType.Location][0].name = KEY_ROLEPLAYING_NOTES;
       customFields[CustomFieldContentType.Organization][0].name = KEY_ROLEPLAYING_NOTES;
 
+      // if we weren't using roleplaynotes, remove that field from the default
+      // @ts-ignore
+      if (!game.settings.get(moduleId, 'showRolePlayingNotes')) {
+        customFields[CustomFieldContentType.Character] = customFields[CustomFieldContentType.Character].filter((f: any) => f.name !== KEY_ROLEPLAYING_NOTES);
+        customFields[CustomFieldContentType.Location] = customFields[CustomFieldContentType.Location].filter((f: any) => f.name !== KEY_ROLEPLAYING_NOTES);
+        customFields[CustomFieldContentType.Organization] = customFields[CustomFieldContentType.Organization].filter((f: any) => f.name !== KEY_ROLEPLAYING_NOTES);
+      }
+      
       await ModuleSettings.set(SettingKey.customFields, customFields);
 
       // session.strong_start and pc.background are being moved from a hardcoded field into a custom field

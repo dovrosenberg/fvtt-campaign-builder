@@ -126,7 +126,12 @@
                     {{ localize('applications.advancedSettings.labels.longDescriptionParagraphsHint') }}
                   </p>
                 </div>
+              </div>
+            </div>
 
+            <!-- Email Settings Tab -->
+            <div class="tab flexcol" data-group="primary" data-tab="email">
+              <div class="standard-form scrollable">
                 <div class="form-group">
                   <label>{{ localize('applications.advancedSettings.labels.useGmailIdeas') }}</label>
                   <div class="form-fields">
@@ -140,12 +145,7 @@
                     {{ localize('applications.advancedSettings.labels.useGmailIdeasHint') }}
                   </p>
                 </div>
-              </div>
-            </div>
-
-            <!-- Email Settings Tab -->
-            <div class="tab flexcol" data-group="primary" data-tab="email">
-              <div class="standard-form scrollable">
+                
                 <div class="form-group">
                   <label>{{ localize('applications.advancedSettings.labels.emailDefaultSetting') }}</label>
                   <div class="form-fields">
