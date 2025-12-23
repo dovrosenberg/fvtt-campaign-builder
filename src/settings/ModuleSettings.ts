@@ -60,8 +60,6 @@ export enum SettingKey {
   APIToken = 'APIToken',
   selectedTextModel = 'selectedTextModel', // selected text generation model
   selectedImageModel = 'selectedImageModel', // selected image generation model
-  rpgStyle = 'rpgStyle', // whether to generate RPG-Style long descriptions
-  longDescriptionParagraphs = 'longDescriptionParagraphs', // number of paragraphs for long descriptions (1-4)
   useGmailToDos = 'useGmailToDos', // whether to use Gmail for todos
   emailDefaultSetting = 'emailDefaultWorld', // default setting for email features
   emailDefaultCampaign = 'emailDefaultCampaign', // default campaign for email features
@@ -92,14 +90,12 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.useWebs ? boolean :
     K extends SettingKey.subTabsSavePosition ? boolean :
     K extends SettingKey.storyWebAutoArrange ? boolean :
-    K extends SettingKey.rpgStyle ? boolean :
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.customFieldsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
     K extends SettingKey.selectedTextModel ? ApiLocationGenerateImagePostRequestTextModelEnum :
     K extends SettingKey.selectedImageModel ? ApiLocationGenerateImagePostRequestImageModelEnum :
-    K extends SettingKey.longDescriptionParagraphs ? number :
     K extends SettingKey.defaultAddToSession ? boolean :
     K extends SettingKey.rollTableSettingsMenu ? never :
     K extends SettingKey.autoRefreshRollTables ? boolean :
@@ -400,16 +396,6 @@ export class ModuleSettings {
       settingID: SettingKey.emailDefaultCampaign,
       default: '',
       type: String,
-    },
-    {
-      settingID: SettingKey.rpgStyle,
-      default: true,
-      type: Boolean,
-    },
-    {
-      settingID: SettingKey.longDescriptionParagraphs,
-      default: 1,
-      type: Number,
     },
     {
       settingID: SettingKey.showImages,

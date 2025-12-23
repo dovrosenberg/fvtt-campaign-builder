@@ -91,6 +91,7 @@
                 :options="fieldTypeOptions"
                 optionLabel="label"
                 optionValue="value"
+                @update:model-value="() => onFieldTypeChanged(data)"
               />
             </template>
           </Column>
@@ -109,7 +110,12 @@
 
           <Column v-if="showIndexedColumn" field="indexed" header="Search?" style="width: 7%">
             <template #body="{ data }">
-              <Checkbox v-model="data.indexed" binary @update:model-value="onIndexedCheckboxChange" />
+              <Checkbox
+                v-model="data.indexed"
+                binary
+                :disabled="data.fieldType === FieldType.Boolean"
+                @update:model-value="onIndexedCheckboxChange"
+              />
             </template>
           </Column>
 
@@ -202,6 +208,46 @@
           {{ aiTemplateValidationError }}
         </p>
       </div>
+
+      <div v-if="!!aiDialogEnabled" class="form-group stacked">
+        <label>Configuration</label>
+        <div class="form-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items: center;">
+          <div style="display: contents;">
+            <label style="grid-column: 1;">Min words</label>
+            <InputNumber v-model="aiDialogMinWords" :min="0" unstyled fluid style="grid-column: 2;" />
+          </div>
+
+          <div style="display: contents;">
+            <label style="grid-column: 1;">Max words</label>
+            <InputNumber v-model="aiDialogMaxWords" :min="0" unstyled fluid style="grid-column: 2;" />
+          </div>
+
+          <div style="display: contents;">
+            <label style="grid-column: 1;">Tone</label>
+            <InputText v-model="aiDialogTone" unstyled style="grid-column: 2; width: 100%;" />
+          </div>
+
+          <div style="display: contents;">
+            <label style="grid-column: 1;">Tense</label>
+            <InputText v-model="aiDialogTense" unstyled style="grid-column: 2; width: 100%;" />
+          </div>
+
+          <div style="display: contents;">
+            <label style="grid-column: 1;">Point of view</label>
+            <InputText v-model="aiDialogPov" unstyled style="grid-column: 2; width: 100%;" />
+          </div>
+
+          <div style="display: contents;">
+            <label style="grid-column: 1;">Allow lists</label>
+            <InputNumber v-model="aiDialogIncludeBullets" :min="0" unstyled fluid style="grid-column: 2;" />
+          </div>
+
+          <div style="display: contents;">
+            <label style="grid-column: 1;">Avoid lists longer than</label>
+            <InputNumber v-model="aiDialogAvoidListsLongerThan" :min="0" unstyled fluid style="grid-column: 2;" />
+          </div>
+        </div>
+      </div>
     </div>
   </Dialog>
 </template>
@@ -242,6 +288,32 @@
     value: string;
   };
 
+  const onFieldTypeChanged = (row: Row) => {
+    if (!row) return;
+    if (row.fieldType === FieldType.Boolean) {
+      row.indexed = false;
+    }
+
+    if (row.fieldType !== FieldType.Editor) {
+      row.editorHeight = null;
+      return;
+    }
+
+    if (row.editorHeight == null || !Number.isFinite(row.editorHeight) || row.editorHeight <= 0) {
+      row.editorHeight = DEFAULT_EDITOR_SIZE;
+    }
+  };
+
+  type AiConfiguration = {
+    minWords: number;
+    maxWords: number;
+    tone: string;
+    tense: string;
+    pov: string;
+    includeBullets: boolean;
+    avoidListsLongerThan: number;
+  };
+
   type Row = {
     uuid: string;
     name: string;
@@ -253,8 +325,8 @@
     helpText?: string;
     helpLink?: string;
     aiEnabled: boolean;
-    aiPromptPreset: string;
     aiPromptTemplate: string;
+    configuration: AiConfiguration | null;
     deleted?: boolean;
     sortOrder: number;
   };
@@ -279,6 +351,16 @@
 
   const DEFAULT_EDITOR_SIZE = 10;
   const MAX_EDITOR_SIZE = 50;
+
+  const DEFAULT_AI_CONFIGURATION = {
+    minWords: 120,
+    maxWords: 250,
+    tone: 'evocative, practical, table-ready',
+    tense: 'present',
+    pov: 'third person',
+    includeBullets: true,
+    avoidListsLongerThan: 5,
+  } as const;
 
   const selectedType = ref<CustomFieldContentType | null>(CustomFieldContentType.Arc);
 
@@ -312,8 +394,14 @@
   const showAiTemplateDialog = ref<boolean>(false);
   const aiDialogTargetRow = ref<Row | null>(null);
   const aiDialogEnabled = ref<boolean>(false);
-  const aiDialogPromptPreset = ref<string>('custom');
   const aiDialogPromptTemplate = ref<string>('');
+  const aiDialogMinWords = ref<number>(DEFAULT_AI_CONFIGURATION.minWords);
+  const aiDialogMaxWords = ref<number>(DEFAULT_AI_CONFIGURATION.maxWords);
+  const aiDialogTone = ref<string>(DEFAULT_AI_CONFIGURATION.tone);
+  const aiDialogTense = ref<string>(DEFAULT_AI_CONFIGURATION.tense);
+  const aiDialogPov = ref<string>(DEFAULT_AI_CONFIGURATION.pov);
+  const aiDialogIncludeBullets = ref<boolean>(DEFAULT_AI_CONFIGURATION.includeBullets);
+  const aiDialogAvoidListsLongerThan = ref<number>(DEFAULT_AI_CONFIGURATION.avoidListsLongerThan);
   const selectedAiTokenKey = ref<string | null>(null);
   const aiPromptTextareaRef = ref<HTMLTextAreaElement | null>(null);
 
@@ -363,41 +451,41 @@
     ],
     [CustomFieldContentType.Character]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.description' },
+      { key: 'description', labelKey: 'labels.description' },
       { key: 'species', labelKey: 'labels.fields.species' },
       { key: 'type', labelKey: 'labels.fields.type' },
     ],
     [CustomFieldContentType.Location]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.description' },
+      { key: 'description', labelKey: 'labels.labels.description' },
       { key: 'type', labelKey: 'labels.fields.type' },
       { key: 'parent', labelKey: 'labels.fields.parent' },
     ],
     [CustomFieldContentType.Organization]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.description' },
+      { key: 'description', labelKey: 'labels.labels.description' },
       { key: 'type', labelKey: 'labels.fields.type' },
       { key: 'parent', labelKey: 'labels.fields.parent' },
     ],
     [CustomFieldContentType.PC]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.description' },
+      { key: 'description', labelKey: 'labels.description' },
     ],
     [CustomFieldContentType.Setting]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.description' },
+      { key: 'description', labelKey: 'labels.description' },
     ],
     [CustomFieldContentType.Campaign]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.description' },
+      { key: 'description', labelKey: 'labels.description' },
     ],
     [CustomFieldContentType.Arc]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.description' },
+      { key: 'description', labelKey: 'labels.description' },
     ],
     [CustomFieldContentType.Front]: [
       { key: 'name', labelKey: 'labels.fields.name' },
-      { key: 'description', labelKey: 'labels.fields.description' },
+      { key: 'description', labelKey: 'labels.description' },
     ],
   };
 
@@ -521,8 +609,8 @@
         helpText: f.helpText || '',
         helpLink: f.helpLink || undefined,
         aiEnabled: f.aiEnabled ?? false,
-        aiPromptPreset: f.aiPromptPreset || 'custom',
         aiPromptTemplate: f.aiPromptTemplate || '',
+        configuration: (f as any).configuration ?? null,
         deleted: f.deleted || false,
         sortOrder: index,
       }));
@@ -557,6 +645,10 @@
       r.sortOrder = index;
       if (r.fieldType !== FieldType.Select) {
         r.optionsText = '';
+      }
+
+      if (r.fieldType === FieldType.Boolean) {
+        r.indexed = false;
       }
 
       if (r.fieldType !== FieldType.Editor) {
@@ -611,8 +703,11 @@
 
       r.indexed = !!r.indexed;
       r.aiEnabled = !!r.aiEnabled;
-      r.aiPromptPreset = (r.aiPromptPreset || 'custom').trim() || 'custom';
       r.aiPromptTemplate = r.aiPromptTemplate ?? '';
+
+      if (r.fieldType === FieldType.Boolean) {
+        r.indexed = false;
+      }
 
       if (r.fieldType !== FieldType.Select) {
         r.optionsText = '';
@@ -663,8 +758,8 @@
           deleted: r.deleted ? true : undefined,
           indexed: r.indexed ?? false,
           aiEnabled: r.aiEnabled ? true : undefined,
-          aiPromptPreset: (r.aiPromptPreset || 'custom') === 'custom' ? undefined : (r.aiPromptPreset || 'custom'),
           aiPromptTemplate: r.aiPromptTemplate?.trim() || undefined,
+          configuration: r.configuration ?? undefined,
           sortOrder: r.sortOrder,
         } as CustomFieldDescription;
       });
@@ -703,8 +798,29 @@
 
     aiDialogTargetRow.value = row;
     aiDialogEnabled.value = row.aiEnabled ?? false;
-    aiDialogPromptPreset.value = row.aiPromptPreset || 'custom';
     aiDialogPromptTemplate.value = row.aiPromptTemplate ?? '';
+
+    const rawCfg = (row as any).configuration || {};
+    const mergedCfg = {
+      ...DEFAULT_AI_CONFIGURATION,
+      ...rawCfg,
+    } as any;
+
+    const minWords = Number.isFinite(Number(mergedCfg.minWords)) ? Number(mergedCfg.minWords) : DEFAULT_AI_CONFIGURATION.minWords;
+    const maxWords = Number.isFinite(Number(mergedCfg.maxWords)) ? Number(mergedCfg.maxWords) : DEFAULT_AI_CONFIGURATION.maxWords;
+    const includeBullets = Boolean(mergedCfg.includeBullets ?? DEFAULT_AI_CONFIGURATION.includeBullets);
+    const avoidListsLongerThan = Number.isFinite(Number(mergedCfg.avoidListsLongerThan))
+      ? Number(mergedCfg.avoidListsLongerThan)
+      : DEFAULT_AI_CONFIGURATION.avoidListsLongerThan;
+
+    aiDialogMinWords.value = minWords;
+    aiDialogMaxWords.value = maxWords;
+    aiDialogTone.value = String(mergedCfg.tone ?? DEFAULT_AI_CONFIGURATION.tone);
+    aiDialogTense.value = String(mergedCfg.tense ?? DEFAULT_AI_CONFIGURATION.tense);
+    aiDialogPov.value = String(mergedCfg.pov ?? DEFAULT_AI_CONFIGURATION.pov);
+    aiDialogIncludeBullets.value = includeBullets;
+    aiDialogAvoidListsLongerThan.value = avoidListsLongerThan;
+
     selectedAiTokenKey.value = null;
     showAiTemplateDialog.value = true;
 
@@ -720,8 +836,25 @@
     }
 
     aiDialogTargetRow.value.aiEnabled = !!aiDialogEnabled.value;
-    aiDialogTargetRow.value.aiPromptPreset = (aiDialogPromptPreset.value || 'custom').trim() || 'custom';
     aiDialogTargetRow.value.aiPromptTemplate = aiDialogPromptTemplate.value ?? '';
+
+    const minWords = Number.isFinite(aiDialogMinWords.value) ? Math.max(0, Math.floor(aiDialogMinWords.value)) : DEFAULT_AI_CONFIGURATION.minWords;
+    let maxWords = Number.isFinite(aiDialogMaxWords.value) ? Math.max(0, Math.floor(aiDialogMaxWords.value)) : DEFAULT_AI_CONFIGURATION.maxWords;
+    if (maxWords < minWords) maxWords = minWords;
+    const includeBullets = Boolean(aiDialogIncludeBullets.value ?? DEFAULT_AI_CONFIGURATION.includeBullets);
+    const avoidListsLongerThan = Number.isFinite(aiDialogAvoidListsLongerThan.value)
+      ? Math.max(0, Math.floor(aiDialogAvoidListsLongerThan.value))
+      : DEFAULT_AI_CONFIGURATION.avoidListsLongerThan;
+
+    aiDialogTargetRow.value.configuration = {
+      minWords,
+      maxWords,
+      tone: String(aiDialogTone.value ?? DEFAULT_AI_CONFIGURATION.tone),
+      tense: String(aiDialogTense.value ?? DEFAULT_AI_CONFIGURATION.tense),
+      pov: String(aiDialogPov.value ?? DEFAULT_AI_CONFIGURATION.pov),
+      includeBullets,
+      avoidListsLongerThan,
+    };
     aiDialogTargetRow.value = null;
     showAiTemplateDialog.value = false;
   };
@@ -752,8 +885,8 @@
       helpText: '',
       helpLink: undefined,
       aiEnabled: false,
-      aiPromptPreset: 'custom',
       aiPromptTemplate: '',
+      configuration: { ...DEFAULT_AI_CONFIGURATION },
       deleted: false,
       sortOrder: targetRows.length,
     });
@@ -902,5 +1035,18 @@
   .fcb-action-icon {
     cursor: pointer;
     margin-right: 3px;
+  }
+
+  .fcb-sheet-container {
+    :deep(input:disabled),
+    :deep(textarea:disabled),
+    :deep(select:disabled),
+    :deep(.p-disabled) {
+      background: rgba(0, 0, 0, 0.18) !important;
+    }
+
+    :deep(.p-checkbox.p-disabled .p-checkbox-box) {
+      background: rgba(0, 0, 0, 0.18) !important;
+    }
   }
 </style>

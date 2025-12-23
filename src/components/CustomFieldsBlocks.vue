@@ -282,7 +282,7 @@
       pov: field.configuration.pov,
       contentRating: 'PG-13',
       includeHeadings: false,
-      includeBullets: true,
+      includeBullets: field.configuration.includeBullets,
       avoidListsLongerThan: field.configuration.avoidListsLongerThan
     }
 

@@ -28,18 +28,17 @@ export interface CustomFieldDescription {
   helpText?: string;  // displayed in a tooltip
   helpLink?: string; // optional link opened when clicking help icon
   aiEnabled?: boolean;
-  /** preset key used to build a prompt (ex. 'custom'); when not set, treat as 'custom' */
-  aiPromptPreset?: string;
   aiPromptTemplate?: string;
   deleted?: boolean;
   indexed?: boolean;
   sortOrder: number;   // order of display on description tab
-  configuration: {
+  configuration?: {
     minWords: number;
     maxWords: number;
     tone: string;
     tense: string;
     pov: string;
+    includeBullets: boolean;
     avoidListsLongerThan: number;
   }
 }

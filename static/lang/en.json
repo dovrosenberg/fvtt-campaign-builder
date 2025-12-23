@@ -139,10 +139,6 @@
           "backendURLHint": "Output from script to deploy the backend.",
           "APIToken": "API Token",
           "APITokenHint": "Output from script to deploy the backend.",
-          "rpgStyle": "RPG-style descriptions",
-          "rpgStyleHint": "When enabled, long descriptions with be RPG-style (boxed text + notes) vs. a more narrative, multi-paragraph description.",
-          "longDescriptionParagraphs": "Long description paragraphs",
-          "longDescriptionParagraphsHint": "Number of paragraphs to generate for long descriptions (for non-RPG style (1-4).",
           "useGmailIdeas": "Use Gmail for Ideas",
           "useGmailIdeasHint": "When enabled, idea items will be created from the Gmail inbox",
           "emailDefaultSetting": "Default Setting for email",
@@ -332,7 +328,6 @@
         "role": "Role",
         "settingDescription": "Setting description",
         "startingDescription": "Starting description",
-        "longDescriptions": "Generate long descriptions",
         "generateText": "What to generate",
         "generateChoice": {
           "description": "Description",

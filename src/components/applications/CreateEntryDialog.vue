@@ -410,7 +410,6 @@
 
         result = await backendStore.generateCharacter({
           genre: currentSetting.value.genre,
-          rpgStyle: ModuleSettings.get(SettingKey.rpgStyle),
           settingFeeling: currentSetting.value.settingFeeling,
           type: type.value,
           species: speciesName.value,
@@ -439,7 +438,6 @@
         // pull the other things we need  
         const options = {
           genre: currentSetting.value.genre,
-          rpgStyle: ModuleSettings.get(SettingKey.rpgStyle),
           settingFeeling: currentSetting.value.settingFeeling,
           type: type.value,
           parentName: parent?.name || '',
