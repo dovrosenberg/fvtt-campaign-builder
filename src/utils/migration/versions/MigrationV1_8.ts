@@ -142,11 +142,6 @@ export class MigrationV1_8 implements Migration {
         } else {
           // the default custom fields include boxed text replacements
         }
-
-        // set RPG Notes sortOrder
-        customFields[CustomFieldContentType.Character].find((f: any) => f.name === KEY_ROLEPLAYING_NOTES)!.sortOrder = 1;
-        customFields[CustomFieldContentType.Location].find((f: any) => f.name === KEY_ROLEPLAYING_NOTES)!.sortOrder = 1;
-        customFields[CustomFieldContentType.Organization].find((f: any) => f.name === KEY_ROLEPLAYING_NOTES)!.sortOrder = 1;
       }
 
       // if we weren't using roleplaynotes, remove that field from the default
@@ -156,6 +151,8 @@ export class MigrationV1_8 implements Migration {
         customFields[CustomFieldContentType.Location] = customFields[CustomFieldContentType.Location].filter((f: any) => f.name !== KEY_ROLEPLAYING_NOTES);
         customFields[CustomFieldContentType.Organization] = customFields[CustomFieldContentType.Organization].filter((f: any) => f.name !== KEY_ROLEPLAYING_NOTES);
       }
+
+      normalizeSortOrders(customFields);
       
       await ModuleSettings.set(SettingKey.customFields, customFields);
 
@@ -283,4 +280,15 @@ function renameFieldKey(customFields: Record<CustomFieldContentType, CustomField
   else
     throw new Error(`Bad custom field migration: ${contentType} ${defaultKey}`);
 };
+
+function normalizeSortOrders(customFields: Record<CustomFieldContentType, CustomFieldDescription[]>) {
+  for (const fields of Object.values(customFields)) {
+    if (!Array.isArray(fields))
+      continue;
+
+    fields.forEach((field, index) => {
+      field.sortOrder = index;
+    });
+  }
+}
 
