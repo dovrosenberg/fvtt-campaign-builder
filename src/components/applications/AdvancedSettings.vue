@@ -177,9 +177,11 @@
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
   import { useBackendStore } from '@/applications/stores';
+  import { useMainStore } from '@/applications/stores';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
   import { getGlobalSetting } from '@/utils/globalSettings';
+  import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -289,6 +291,10 @@
 
     // reset the backend
     await useBackendStore().configure(true);
+
+    if (isCampaignBuilderAppOpen()) {
+      await useMainStore().refreshCurrentContent();
+    }
 
     // close
     advancedSettingsApp?.close();

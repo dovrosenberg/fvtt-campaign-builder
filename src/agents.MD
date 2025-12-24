@@ -24,3 +24,6 @@ Windsurf is not allowed to:
 ### Comments
 - Include one-line comments for all non-trivial logic
 - Any method in a .ts file should have full jsdoc comments preceeding it.
+
+### function definitions
+- Only define functions inside other functions if it needs to modify the variables in the outer function 

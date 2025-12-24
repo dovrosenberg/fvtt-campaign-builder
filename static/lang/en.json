@@ -329,7 +329,8 @@
         "role": "Role",
         "settingDescription": "Setting description",
         "startingDescription": "Starting description",
-        "generateText": "What to generate",
+        "boxedText": "Boxed Text",
+        "gmNotes": "GM Notes",
         "generateChoice": {
           "description": "Description",
           "roleplay": "Roleplaying Notes",
@@ -569,7 +570,6 @@
       "createEntry": {
         "generatedName": "Generated name",
         "generatedDescription": "Generated description",
-        "generatedRoleplayNotes": "Generated roleplaying notes",
         "generatePrompt": "Press generate for results",
         "generatePrompt2": "Otherwise, \"Brief Description\" will be used as the new Entry description."
       },
@@ -840,7 +840,7 @@
         "addToCurrentSession": "Add to current session",
         "name": "If left blank, a name will be generated automatically",
         "type": "If you create a new type, it will be added to the master list",
-        "description": "Optional. Use to specify physical features or personality traits you want included",
+        "description": "Optional. Use to specify physical features or personality traits you want included. Can be very brief.",
         "parent": "May influence generated text in some cases",
         "species": "If blank, a random species from your Setting will be used for AI generation. Custom entries will be passed to the AI but not added to your species list",
         "longDescriptions": "Generate detailed description or a short summary?",

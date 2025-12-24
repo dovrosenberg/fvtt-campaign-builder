@@ -85,7 +85,7 @@ export const resetDefaultCustomFields = async () => {
   `;
   const characterGMNotesPrompt = `
     Write GM-only notes for running this character.
-    Use concise bullet points. Include secrets, goals, leverage, useful rumors, and 2 role-play cues.
+    Use concise bullet points. Include secrets, goals, leverage the players can use against the character, useful rumors, and 2 role-play cues.
     Avoid repeating the boxed text; focus on what the GM needs.
   `;
 
@@ -111,11 +111,11 @@ export const resetDefaultCustomFields = async () => {
     deleted: false,
     indexed: true,
     aiEnabled: true,
-    aiPromptTemplate: topicPrompt,
+    aiPromptTemplate: topicPrompt.trim(),
     configuration: {
       minWords: 60,
       maxWords: 100,
-      tone: 'neutral',
+      tone: 'evocative, table-ready',
       tense: 'present',
       pov: 'third',
       includeBullets: true,
@@ -132,7 +132,7 @@ export const resetDefaultCustomFields = async () => {
     deleted: false,
     indexed: true,
     aiEnabled: true,
-    aiPromptTemplate: topicPrompt,
+    aiPromptTemplate: topicPrompt.trim(),
     configuration: {
       minWords: 60,
       maxWords: 120,
@@ -153,7 +153,7 @@ export const resetDefaultCustomFields = async () => {
     deleted: false,
     indexed: true,
     aiEnabled: true,
-    aiPromptTemplate: topicPrompt,
+    aiPromptTemplate: topicPrompt.trim(),
     configuration: {
       minWords: 80,
       maxWords: 160,

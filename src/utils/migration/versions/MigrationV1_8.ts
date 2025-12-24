@@ -77,17 +77,21 @@ export class MigrationV1_8 implements Migration {
       const KEY_ROLEPLAYING_NOTES = 'roleplaying_notes';
       const LABEL_AI_DESCRIPTION = localize('labels.fields.aiDescription');
       const KEY_AI_DESCRIPTION = toCustomFieldKey(LABEL_AI_DESCRIPTION);
-      const KEY_BOXED_TEXT = 'boxed_text';
-      const KEY_GM_NOTES = 'gm_notes';
+      const KEY_BOXED_TEXT = toCustomFieldKey(localize('labels.fields.boxedText'));
+      const KEY_GM_NOTES = toCustomFieldKey(localize('labels.fields.gmNotes'));
 
       await resetDefaultCustomFields();
       const customFields = ModuleSettings.get(SettingKey.customFields);
-      customFields[CustomFieldContentType.Campaign][0].name = KEY_HOUSE_RULES;
-      customFields[CustomFieldContentType.PC][1].name = KEY_OTHER_PLOT_POINTS;
-      customFields[CustomFieldContentType.PC][2].name = KEY_DESIRED_MAGIC_ITEMS;
-      customFields[CustomFieldContentType.Character][0].name = KEY_ROLEPLAYING_NOTES;
-      customFields[CustomFieldContentType.Location][0].name = KEY_ROLEPLAYING_NOTES;
-      customFields[CustomFieldContentType.Organization][0].name = KEY_ROLEPLAYING_NOTES;
+
+      // these are fields that might have data under the old key name - so preserve those
+      renameFieldKey(customFields, CustomFieldContentType.Campaign, toCustomFieldKey(localize('labels.fields.houseRules')), KEY_HOUSE_RULES);
+      renameFieldKey(customFields, CustomFieldContentType.PC, toCustomFieldKey(localize('labels.fields.otherPlotPoints')), KEY_OTHER_PLOT_POINTS);
+      renameFieldKey(customFields, CustomFieldContentType.PC, toCustomFieldKey(localize('labels.fields.desiredMagicItems')), KEY_DESIRED_MAGIC_ITEMS);
+
+      const roleplayingNotesDefaultKey = toCustomFieldKey(localize('labels.fields.entryRolePlayingNotes'));
+      renameFieldKey(customFields, CustomFieldContentType.Character, roleplayingNotesDefaultKey, KEY_ROLEPLAYING_NOTES);
+      renameFieldKey(customFields, CustomFieldContentType.Location, roleplayingNotesDefaultKey, KEY_ROLEPLAYING_NOTES);
+      renameFieldKey(customFields, CustomFieldContentType.Organization, roleplayingNotesDefaultKey, KEY_ROLEPLAYING_NOTES);
 
       // if we were using AI, add an AI-generated description field to the entries
       if (ModuleSettings.get(SettingKey.APIURL) && ModuleSettings.get(SettingKey.APIToken)) {
@@ -132,17 +136,17 @@ export class MigrationV1_8 implements Migration {
           customFields[CustomFieldContentType.Character].unshift({...AIDescriptionFieldDescription, aiPromptTemplate: characterPreamble + AIDescriptionFieldDescription.aiPromptTemplate});
 
           // remove the default boxed text and gm notes fields
-          customFields[CustomFieldContentType.Location] = customFields[CustomFieldContentType.Location].filter((f: any) => f.name !== KEY_BOXED_TEXT);
-          customFields[CustomFieldContentType.Organization] = customFields[CustomFieldContentType.Organization].filter((f: any) => f.name !== KEY_BOXED_TEXT);
-          customFields[CustomFieldContentType.Character] = customFields[CustomFieldContentType.Character].filter((f: any) => f.name !== KEY_BOXED_TEXT);
+          customFields[CustomFieldContentType.Location] = customFields[CustomFieldContentType.Location].filter((f: any) => f.name !== KEY_BOXED_TEXT && f.name !== KEY_GM_NOTES);
+          customFields[CustomFieldContentType.Organization] = customFields[CustomFieldContentType.Organization].filter((f: any) => f.name !== KEY_BOXED_TEXT && f.name !== KEY_GM_NOTES);
+          customFields[CustomFieldContentType.Character] = customFields[CustomFieldContentType.Character].filter((f: any) => f.name !== KEY_BOXED_TEXT && f.name !== KEY_GM_NOTES);
         } else {
           // the default custom fields include boxed text replacements
         }
 
         // set RPG Notes sortOrder
-        customFields[CustomFieldContentType.Character][1].sortOrder = 1;
-        customFields[CustomFieldContentType.Location][1].sortOrder = 1;
-        customFields[CustomFieldContentType.Organization][1].sortOrder = 1;
+        customFields[CustomFieldContentType.Character].find((f: any) => f.name === KEY_ROLEPLAYING_NOTES)!.sortOrder = 1;
+        customFields[CustomFieldContentType.Location].find((f: any) => f.name === KEY_ROLEPLAYING_NOTES)!.sortOrder = 1;
+        customFields[CustomFieldContentType.Organization].find((f: any) => f.name === KEY_ROLEPLAYING_NOTES)!.sortOrder = 1;
       }
 
       // if we weren't using roleplaynotes, remove that field from the default
@@ -259,3 +263,24 @@ export class MigrationV1_8 implements Migration {
     return result;
   }
 }
+
+// find the field by default key and change it to the new key
+function renameFieldKey(customFields: Record<CustomFieldContentType, CustomFieldDescription[]>, contentType: CustomFieldContentType, defaultKey: string, newKey: string) {
+  if (newKey === defaultKey)
+    return;
+
+  const fields = customFields[contentType];
+  if (!Array.isArray(fields) || fields.length === 0) 
+    throw new Error(`Bad custom field migration: ${contentType}`);
+
+  if (fields.find((f: any) => f?.name === newKey))
+    throw new Error(`Duplicate key in custom field migration: ${contentType} ${newKey}`);
+
+  const field = fields.find((f: any) => f?.name === defaultKey);
+
+  if (field) 
+    field.name = newKey;
+  else
+    throw new Error(`Bad custom field migration: ${contentType} ${defaultKey}`);
+};
+

@@ -264,6 +264,7 @@
   import { useBackendStore } from '@/applications/stores';
   import { customFieldsApp } from '@/applications/settings/CustomFieldsApplication';
   import { searchService } from '@/utils/search';
+  import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
   import { makeCustomFieldKeyUnique, toCustomFieldKey } from '@/utils/customFields';
 
   // library components
@@ -996,6 +997,10 @@
 
     // Persist all custom field definitions for all content types.
     await ModuleSettings.set(SettingKey.customFields, allCustomFields.value);
+
+    if (isCampaignBuilderAppOpen()) {
+      await mainStore.refreshCurrentContent();
+    }
 
     ui.notifications?.info(localize('notifications.changesSaved'));
 

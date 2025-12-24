@@ -112,26 +112,15 @@
             }
           }}"
         />
-        <div 
+        <!-- <div 
           v-if="generateMode"
           class="generation-option"
         >
           <div 
             class="generation-option-wrapper"
           >
-            <label for="generate-choices-select" class="generation-label" style="margin-right: 8px">
-                {{ localize('labels.fields.generateText') }}:
-            </label>
-            <Select 
-              id="generate-choices-select"
-              v-model="generateChoice"
-              :options="generateChoiceOptions"
-              optionLabel="label"
-              optionValue="value"
-              :pt="{ root: { style: { width: '200px' }}}"
-            />
           </div>
-        </div>
+        </div> -->
         
         <template v-if="generateMode">
           <hr 
@@ -144,19 +133,13 @@
               <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ generateError }}
             </div>
             <template v-else-if="generateComplete">
-              <div v-if="!name && (generatedDescription || generatedRoleplayNotes)" class="generated-content" style="background: var(--fcb-surface-shaded)">
+              <div v-if="!name && generatedDescription" class="generated-content" style="background: var(--fcb-surface-shaded)">
                 <div><span class="label">{{ localize('dialogs.createEntry.generatedName')}}:</span> {{ generatedName }}</div>
               </div>
               <div v-if="generatedDescription" class="generated-content" style="background: var(--fcb-surface-shaded)">
                 <div class="fcb-description">
                   <p><span class="label">{{ localize('dialogs.createEntry.generatedDescription')}}:</span></p>
                   {{ generatedDescription }}
-                </div>
-              </div>
-              <div v-if="generatedRoleplayNotes" class="generated-content" style="background: var(--fcb-surface-shaded)">
-                <div class="fcb-description">
-                  <p><span class="label">{{ localize('dialogs.createEntry.generatedRoleplayNotes')}}</span></p>
-                  {{ generatedRoleplayNotes }}
                 </div>
               </div>
             </template>
@@ -307,7 +290,6 @@
   const startingDescription = ref<string>('');
   const generatedName = ref<string>('');
   const generatedDescription = ref<string>('');
-  const generatedRoleplayNotes = ref<string>('');
   const generateComplete = ref<boolean>(false);
   const loading = ref<boolean>(false);
   const generateError = ref<string>('');
@@ -379,7 +361,6 @@
     loading.value = true;
     generateComplete.value = false;
     generateError.value = '';
-    generatedRoleplayNotes.value = '';
 
     const choice = generateChoice.value || 'both';
 
@@ -410,13 +391,14 @@
 
         result = await backendStore.generateCharacter({
           genre: currentSetting.value.genre,
+          rpgStyle: false,
           settingFeeling: currentSetting.value.settingFeeling,
           type: type.value,
           species: speciesName.value,
           speciesDescription: speciesDescription,
           name: name.value,
           briefDescription: startingDescription.value,
-          longDescriptionParagraphs: ModuleSettings.get(SettingKey.longDescriptionParagraphs),
+          longDescriptionParagraphs: 1,
           nameStyles: selectedNameStyles.value,
           textModel: ModuleSettings.get(SettingKey.selectedTextModel),
         });
@@ -438,6 +420,7 @@
         // pull the other things we need  
         const options = {
           genre: currentSetting.value.genre,
+          rpgStyle: false,
           settingFeeling: currentSetting.value.settingFeeling,
           type: type.value,
           parentName: parent?.name || '',
@@ -448,9 +431,9 @@
           grandparentDescription: grandparent?.description || '',
           name: name.value,
           briefDescription: startingDescription.value,
-          longDescriptionParagraphs: ModuleSettings.get(SettingKey.longDescriptionParagraphs),
+          longDescriptionParagraphs: 1,
           nameStyles: selectedNameStyles.value,
-          textModel: ModuleSettings.get(SettingKey.selectedTextModel) as any,
+          textModel: ModuleSettings.get(SettingKey.selectedTextModel),
         };
 
         if (props.topic === Topics.Location) {
@@ -493,15 +476,8 @@
     // if we haven't generated a description, use whatever's in brief description
     // the idea is that - especially when we're dealing with a RollTable name - user can use this form as a sort of quick create
     let details: CharacterDetails | LocationDetails | OrganizationDetails | null = null;
-    let descriptionToUse = '';
 
-    if (choice === 'description') {
-      descriptionToUse = generatedTextToHTML(generateComplete.value ? generatedDescription.value : startingDescription.value);
-    } else if (choice === 'roleplay') {
-      descriptionToUse = generatedTextToHTML(startingDescription.value);
-    } else if (choice === 'both') {
-      descriptionToUse = generatedTextToHTML(generateComplete.value ? generatedDescription.value : startingDescription.value);
-    }
+    let descriptionToUse = generatedTextToHTML(generateComplete.value ? generatedDescription.value : startingDescription.value);
 
     if (props.topic === Topics.Character) {
       // see if speciesId was made up or is an existing one

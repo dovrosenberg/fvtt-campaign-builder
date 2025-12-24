@@ -45,6 +45,7 @@
   import { speciesListApp } from '@/applications/settings/SpeciesListApplication';
   import { localize } from '@/utils/game';
   import { useMainStore } from '@/applications/stores';
+  import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
 
   // library components
 
@@ -129,9 +130,8 @@
     // Emit a custom event to notify all SpeciesSelect components to refresh
     document.dispatchEvent(new CustomEvent('fcb-species-list-updated'));
 
-    // refresh the content in case something with a species dropdown is open
-    if (useMainStore().currentEntry) {
-      await useMainStore().refreshEntry();
+    if (isCampaignBuilderAppOpen()) {
+      await useMainStore().refreshCurrentContent();
     }
 
     // close

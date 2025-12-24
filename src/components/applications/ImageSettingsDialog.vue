@@ -37,6 +37,8 @@
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings/ModuleSettings';
   import { imageSettingsApp } from '@/applications/settings/ImageSettingsApplication';
+  import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
+  import { useMainStore } from '@/applications/stores';
 
   // types
   interface ImageSetting {
@@ -68,6 +70,10 @@
     
     // Save the settings
     await ModuleSettings.set(SettingKey.showImages, showImages);
+
+    if (isCampaignBuilderAppOpen()) {
+      await useMainStore().refreshCurrentContent();
+    }
     
     // Close the application using the global reference
     imageSettingsApp?.close();
