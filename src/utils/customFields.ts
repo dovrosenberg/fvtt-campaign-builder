@@ -111,7 +111,7 @@ export const resetDefaultCustomFields = async () => {
     deleted: false,
     indexed: true,
     aiEnabled: true,
-    aiPromptTemplate: topicPrompt.trim(),
+    aiPromptTemplate: topicPrompt.replace(/^\s*/gm, ''),
     configuration: {
       minWords: 60,
       maxWords: 100,
@@ -132,7 +132,7 @@ export const resetDefaultCustomFields = async () => {
     deleted: false,
     indexed: true,
     aiEnabled: true,
-    aiPromptTemplate: topicPrompt.trim(),
+    aiPromptTemplate: topicPrompt.replace(/^\s*/gm, ''),
     configuration: {
       minWords: 60,
       maxWords: 120,
@@ -153,7 +153,7 @@ export const resetDefaultCustomFields = async () => {
     deleted: false,
     indexed: true,
     aiEnabled: true,
-    aiPromptTemplate: topicPrompt.trim(),
+    aiPromptTemplate: topicPrompt.replace(/^\s*/gm, ''),
     configuration: {
       minWords: 80,
       maxWords: 160,

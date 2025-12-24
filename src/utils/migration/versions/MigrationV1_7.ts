@@ -2,6 +2,7 @@ import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { useMainStore } from '@/applications/stores';
 import { moduleId } from '@/settings';
+import { localize } from '@/utils/game';
 
 let processed = 0;
 let totalEntries= 0;
@@ -70,7 +71,7 @@ export class MigrationV1_7 implements Migration {
         await game.modules.get(moduleId)?.repairAllIndexes(setting.uuid);
 
         processed++;
-        updateProgress(`Processed setting: ${setting.name}`);  
+        updateProgress(localize('dialogs.migrationProgress.status.processedSetting', { name: setting.name }));
       }
     } catch (outer) {
       result.success = false;

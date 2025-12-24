@@ -100,7 +100,7 @@ export class MigrationManager {
         success: true,
         migratedCount: 0,
         failedCount: 0,
-        warnings: ['No migrations needed']
+        warnings: [localize('dialogs.migrationProgress.warnings.noMigrationsNeeded')]
       };
     }
 
@@ -113,7 +113,7 @@ export class MigrationManager {
         success: true,
         migratedCount: 0,
         failedCount: 0,
-        warnings: ['No migrations needed']
+        warnings: [localize('dialogs.migrationProgress.warnings.noMigrationsNeeded')]
       };
     }
 
@@ -144,7 +144,7 @@ export class MigrationManager {
         success: true,
         migratedCount: 0,
         failedCount: 0,
-        warnings: ['No migrations needed']
+        warnings: [localize('dialogs.migrationProgress.warnings.noMigrationsNeeded')]
       };
     }
 
@@ -152,8 +152,8 @@ export class MigrationManager {
     const migrationContext = await this.createMigrationContext(lastVersion);
     
     return await MigrationProgressDialog.withProgress(
-      'Migrating Campaign Builder to new version',
-      'Migrating your campaign data to the latest version...',
+      localize('dialogs.migrationProgress.title'),
+      localize('dialogs.migrationProgress.message'),
       async (progress) => {
         const overallResult: MigrationResult = {
           success: true,
@@ -180,7 +180,7 @@ export class MigrationManager {
             try {
               const migration = new migrationClass(migrationContext);
               currentVersion = migration.targetVersion;
-              progress.updateStatus(`Running migration for version ${currentVersion}...`);
+              progress.updateStatus(localize('dialogs.migrationProgress.status.runningMigrationForVersion', { version: currentVersion }));
               
               const result = await migration.migrate();
               
@@ -189,14 +189,14 @@ export class MigrationManager {
                 if (result.warnings) {
                   overallResult.warnings?.push(...result.warnings);
                 }
-                progress.updateStatus(`Completed migration for version ${currentVersion}`);
+                progress.updateStatus(localize('dialogs.migrationProgress.status.completedMigrationForVersion', { version: currentVersion }));
               } else {
                 overallResult.success = false;
                 overallResult.failedCount += result.failedCount;
                 if (result.errors) {
                   overallResult.errors?.push(...result.errors);
                 }
-                progress.updateStatus(`Migration failed for version ${currentVersion}`);
+                progress.updateStatus(localize('dialogs.migrationProgress.status.failedMigrationForVersion', { version: currentVersion }));
               }
               // If migration failed, stop processing further migrations
               if (!overallResult.success) {
@@ -204,10 +204,10 @@ export class MigrationManager {
               }
             } catch (error) { 
               overallResult.success = false;
-              const errorMsg = `Migration failed for version ${currentVersion}: ${error}`;
+              const errorMsg = localize('dialogs.migrationProgress.errors.migrationFailedForVersion', { version: currentVersion, error: String(error) });
               overallResult.errors?.push(errorMsg);
               console.error(errorMsg);
-              progress.updateStatus(`Migration failed for version ${currentVersion}`);
+              progress.updateStatus(localize('dialogs.migrationProgress.status.failedMigrationForVersion', { version: currentVersion }));
               
               // break out of loop
               break;
@@ -215,7 +215,7 @@ export class MigrationManager {
 
             completedMigrations++;
             progress.updateProgress(completedMigrations, totalMigrations, 
-              `Completed ${completedMigrations}/${totalMigrations} migrations`);
+              localize('dialogs.migrationProgress.status.completedMigrationsProgress', { completed: completedMigrations, total: totalMigrations }));
           }
         } finally {
           document.removeEventListener('migration-progress', progressListener as EventListener);

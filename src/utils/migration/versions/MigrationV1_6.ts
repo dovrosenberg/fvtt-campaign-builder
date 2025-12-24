@@ -183,7 +183,7 @@ export class MigrationV1_6 implements Migration {
         }
 
         processed++;
-        updateProgress(`Processed setting: ${setting.name}`);  
+        updateProgress(localize('dialogs.migrationProgress.status.processedSetting', { name: setting.name }));
       }
     } catch (outer) {
       result.success = false;

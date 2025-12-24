@@ -3,6 +3,7 @@
  */
 
 import { MigrationResult } from './types';
+import { localize } from '@/utils/game';
 
 export interface MigrationProgressOptions {
   title?: string;
@@ -20,8 +21,8 @@ export class MigrationProgressDialog {
    * Show the migration progress dialog
    */
   public async show(options: MigrationProgressOptions = {}): Promise<void> {
-    const title = options.title || 'Migrating Campaign Builder to new version';
-    const message = options.message || 'Migrating data to new format...';
+    const title = options.title || localize('dialogs.migrationProgress.title');
+    const message = options.message || localize('dialogs.migrationProgress.message');
     const showProgress = options.showProgress !== false;
 
     const content = this.createDialogContent(message, showProgress);
@@ -62,7 +63,7 @@ export class MigrationProgressDialog {
         progressBar.style.width = `${percentage}%`;
       }
       if (progressText) {
-        progressText.textContent = `${percentage}%`;
+        progressText.textContent = localize('dialogs.migrationProgress.progress.percent', { percent: percentage });
       }
     }
 
@@ -92,18 +93,18 @@ export class MigrationProgressDialog {
     let title = '';
 
     if (result.success) {
-      title = 'Migration Complete';
+      title = localize('dialogs.migrationProgress.completion.completeTitle');
       if (result.migratedCount > 0) {
-        content = `<p>Successfully migrated ${result.migratedCount} items.</p>`;
+        content = `<p>${localize('dialogs.migrationProgress.completion.successMigratedItems', { count: result.migratedCount })}</p>`;
       } else {
-        content = '<p>No migration was needed.</p>';
+        content = `<p>${localize('dialogs.migrationProgress.completion.noMigrationNeeded')}</p>`;
       }
     } else {
-      title = 'Migration Failed';
-      content = `<p>Migration failed. ${result.migratedCount} items migrated, ${result.failedCount} failed.</p>`;
+      title = localize('dialogs.migrationProgress.completion.failedTitle');
+      content = `<p>${localize('dialogs.migrationProgress.completion.failureSummary', { migrated: result.migratedCount, failed: result.failedCount })}</p>`;
       
       if (result.errors && result.errors.length > 0) {
-        content += '<details><summary>Error Details</summary><ul>';
+        content += `<details><summary>${localize('dialogs.migrationProgress.completion.errorDetails')}</summary><ul>`;
         result.errors.forEach(error => {
           content += `<li>${error}</li>`;
         });
@@ -112,7 +113,7 @@ export class MigrationProgressDialog {
     }
 
     if (result.warnings && result.warnings.length > 0) {
-      content += '<details><summary>Warnings</summary><ul>';
+      content += `<details><summary>${localize('dialogs.migrationProgress.completion.warnings')}</summary><ul>`;
       result.warnings.forEach(warning => {
         content += `<li>${warning}</li>`;
       });
@@ -125,7 +126,7 @@ export class MigrationProgressDialog {
         content,
         buttons: {
           ok: {
-            label: 'OK',
+            label: localize('labels.ok'),
             callback: () => resolve()
           }
         },
@@ -152,12 +153,12 @@ export class MigrationProgressDialog {
 
     if (showProgress) {
       content += `
-        <div class="migration-status">Initializing...</div>
+        <div class="migration-status">${localize('dialogs.migrationProgress.status.initializing')}</div>
         <div class="migration-progress-bar">
           <div class="progress-bar-container">
             <div class="progress-bar-fill" style="width: 0%"></div>
           </div>
-          <div class="progress-text">0/0 (0%)</div>
+          <div class="progress-text">${localize('dialogs.migrationProgress.progress.percent', { percent: 0 })}</div>
         </div>`;
     }
 

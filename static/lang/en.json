@@ -331,11 +331,6 @@
         "startingDescription": "Starting description",
         "boxedText": "Boxed Text",
         "gmNotes": "GM Notes",
-        "generateChoice": {
-          "description": "Description",
-          "roleplay": "Roleplaying Notes",
-          "both": "Both"
-        },
         "generateImage": "Generate Image",
         "addToCurrentSession": "Add to current session"
       },
@@ -666,6 +661,37 @@
         "save": "Save Changes",
         "discard": "Discard Changes",
         "cancel": "Cancel"
+      },
+      "migrationProgress": {
+        "title": "Migrating Campaign Builder to new version",
+        "message": "Migrating your campaign data to the latest version...",
+        "warnings": {
+          "noMigrationsNeeded": "No migrations needed"
+        },
+        "status": {
+          "initializing": "Initializing...",
+          "runningMigrationForVersion": "Running migration for version {version}...",
+          "completedMigrationForVersion": "Completed migration for version {version}",
+          "failedMigrationForVersion": "Migration failed for version {version}",
+          "completedMigrationsProgress": "Completed {completed}/{total} migrations",
+          "processedSetting": "Processed setting: {name}",
+          "migratedDocumentsProgress": "Migrated documents ({migrated}/{total})"
+        },
+        "progress": {
+          "percent": "{percent}%"
+        },
+        "errors": {
+          "migrationFailedForVersion": "Migration failed for version {version}: {error}"
+        },
+        "completion": {
+          "completeTitle": "Migration Complete",
+          "failedTitle": "Migration Failed",
+          "successMigratedItems": "Successfully migrated {count} items.",
+          "noMigrationNeeded": "No migration was needed.",
+          "failureSummary": "Migration failed. {migrated} items migrated, {failed} failed.",
+          "errorDetails": "Error Details",
+          "warnings": "Warnings"
+        }
       },
       "imageSettings": {
         "title": "Image Visibility Settings",

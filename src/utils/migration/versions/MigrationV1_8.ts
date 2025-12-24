@@ -246,7 +246,7 @@ export class MigrationV1_8 implements Migration {
           }
 
           processed++;
-          updateProgress(`Migrated documents (${processed}/${totalEntries})`);
+          updateProgress(localize('dialogs.migrationProgress.status.migratedDocumentsProgress', { migrated: processed, total: totalEntries }));
         }
       }
     } catch (outer) {

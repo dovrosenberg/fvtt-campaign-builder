@@ -69,6 +69,10 @@ Windsurf is not allowed to:
 - Buttons and interactive elements must be keyboard accessible.
 - Ensure sensible focus states and tab order.
 
+### Localization
+- Localize any string presented to the user (but not strings just logged to the console).
+- Use localize function in @/utils/game rather than the default Foundry i18n
+
 ### Performance
 - Avoid unnecessary watchers.
 - Use `watchEffect` only when it improves clarity and you truly want implicit dependencies.

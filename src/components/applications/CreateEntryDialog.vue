@@ -197,7 +197,6 @@
   import ProgressSpinner from 'primevue/progressspinner';
   import Textarea from 'primevue/textarea';
   import Checkbox from 'primevue/checkbox';
-  import Select from 'primevue/select';
   
   // local components
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
@@ -286,14 +285,7 @@
   const generateError = ref<string>('');
   const generateImageAfterAccept = ref<boolean>(false);
   const show = ref<boolean>(true);
-  const generateChoice = ref<string>('both');
 
-  const generateChoiceOptions = ref<{label: string; value: string}[]>([
-    {label: localize('labels.fields.generateChoice.description'), value: 'description'},
-    {label: localize('labels.fields.generateChoice.roleplay'), value: 'roleplay'},
-    {label: localize('labels.fields.generateChoice.both'), value: 'both'},
-  ]);
-  
   // for characters
   const speciesId = ref<string>(props.initialSpeciesId);
   const speciesName = ref<string>('');
@@ -352,8 +344,6 @@
     loading.value = true;
     generateComplete.value = false;
     generateError.value = '';
-
-    const choice = generateChoice.value || 'both';
 
     try {
       if (!currentSetting.value) 
@@ -442,11 +432,7 @@
         name.value = result!.data.name;
       }
 
-      if (['description', 'both'].includes(choice)) {        
-        generatedDescription.value = result!.data.description.long;
-      } else {
-        generatedDescription.value = '';
-      }
+      generatedDescription.value = result!.data.description.long;
     } catch (error) {
       generateError.value = (error as Error).message;
     } finally {
@@ -459,7 +445,6 @@
     if (!currentSetting.value)
       return;
 
-    const choice = generateChoice.value || 'both';
     if (!currentSetting.value)
       return;
 
