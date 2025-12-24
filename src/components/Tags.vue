@@ -214,7 +214,8 @@
         tagify.value = input.__tagify;
         isInitialized.value = true;
         return;
-      }
+      } else if (!input)
+        return;
 
       tagify.value = new Tagify(input, {
         whitelist: getWhitelist(),
