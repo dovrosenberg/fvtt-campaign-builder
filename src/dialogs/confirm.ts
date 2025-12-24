@@ -1,42 +1,61 @@
-import { createApp } from 'vue';
+import { vueHost } from '@/libraries/fvtt-vue/VueHost';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 
 // creates a simple confirm dialog with the given title
 // returns true if confirmed, false if canceled
 export async function confirmDialog(title: string, prompt: string): Promise<boolean> {
-  return new Promise<boolean>((resolve) => {
+  return new Promise<boolean>(async (resolve) => {
     // Create a container for the dialog
     const container = document.createElement('div');
     document.body.appendChild(container);
 
-    // Create the Vue app
-    const app = createApp(ConfirmDialog, {
-      modelValue: true,
-      title,
-      message: prompt,
-      'onUpdate:modelValue': (value: boolean) => {
-        if (!value) {
-          // Dialog was closed without a definitive answer
-          cleanup();
-        }
-      },
-      onConfirm: () => {
-        resolve(true);
-        cleanup();
-      },
-      onCancel: () => {
-        resolve(false);
-        cleanup();
-      },
-    });
+    let portalId: string | null = null;
 
-    // Mount the app
-    app.mount(container);
+    const onConfirm = () => {
+      resolve(true);
+      cleanup();
+    };
+
+    const onCancel = () => {
+      resolve(false);
+      cleanup();
+    };
+
+    const onUpdateModelValue = (value: boolean) => {
+      if (!value) {
+        // Dialog was closed without a definitive answer
+        cleanup();
+      }
+    };
+
+    const refCallback = () => {
+      // Optionally store instance if needed
+    };
+
+    // Register dialog with VueHost singleton
+    portalId = await vueHost.registerPortal(
+      ConfirmDialog,
+      {
+        modelValue: true,
+        title,
+        message: prompt,
+        'onUpdate:modelValue': onUpdateModelValue,
+        onConfirm,
+        onCancel,
+      },
+      container,
+      refCallback
+    );
 
     // Cleanup function
     function cleanup() {
-      app.unmount();
-      document.body.removeChild(container);
+      if (portalId) {
+        vueHost.unregisterPortal(portalId);
+        portalId = null;
+      }
+      if (document.body.contains(container)) {
+        document.body.removeChild(container);
+      }
     }
   });
 }

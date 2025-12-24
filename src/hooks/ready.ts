@@ -8,6 +8,7 @@ import { ExternalAPI } from '@/classes';
 import { MigrationManager } from '@/utils/migration';
 import { attachGlobalScripts } from '@/utils/globalScripts';
 import { resetDefaultCustomFields } from '@/utils/customFields';
+import { vueHost } from '@/libraries/fvtt-vue/VueHost';
 
 export function registerForReadyHook() {
   Hooks.once('ready', ready);
@@ -16,6 +17,10 @@ export function registerForReadyHook() {
 async function ready(): Promise<void> {
   if (!isClientGM())
     return;
+  
+  // Initialize VueHost early to ensure it's ready before any windows open
+  // This prevents circular dependency issues and ensures Vue DevTools works
+  await vueHost.ensureMounted();
   
   // Mount the external API
   const module = game.modules.get(moduleId);

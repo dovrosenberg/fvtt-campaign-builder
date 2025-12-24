@@ -9,6 +9,7 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs';
 import { defineConfig, Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import vueDevTools from 'vite-plugin-vue-devtools';
 // import Components from 'unplugin-vue-components/vite';
 // import { PrimeVueResolver } from '@primevue/auto-import-resolver';
 
@@ -60,6 +61,8 @@ export default defineConfig(({ mode }) => {
         hook: 'writeBundle',
       }),
       vue(),
+      // Add Vue DevTools in development mode
+      vueDevTools(),
       // Components({
       //   resolvers: [
       //     PrimeVueResolver()

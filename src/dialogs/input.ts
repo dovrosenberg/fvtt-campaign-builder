@@ -1,39 +1,48 @@
-import { createApp } from 'vue';
+import { vueHost } from '@/libraries/fvtt-vue/VueHost';
 import InputDialogComponent from '@/components/InputDialog.vue';
 
 // creates a simple input dialog with the given title
 // returns the entered value or null if canceled
 export async function inputDialog(title: string, prompt: string, initialValue?: string): Promise<string | null> {
-  return new Promise<string | null>((resolve) => {
+  return new Promise<string | null>(async (resolve) => {
     // Create a container for the dialog
     const container = document.createElement('div');
     document.body.appendChild(container);
 
-    // Create the Vue app
-    const app = createApp(InputDialogComponent, {
-      modelValue: true,
-      title,
-      message: prompt,
-      initialValue: initialValue || '',
-      'onUpdate:modelValue': (value: boolean) => {
-        if (!value) {
-          // Dialog was closed without a definitive answer
-          cleanup();
-        }
-      },
-      onResult: (result: string | null) => {
-        resolve(result);
-        cleanup();
-      },
-    });
+    let portalId: string | null = null;
 
-    // Mount the app
-    app.mount(container);
+    // Register the input dialog with VueHost singleton
+    portalId = await vueHost.registerPortal(
+      InputDialogComponent,
+      {
+        modelValue: true,
+        title,
+        message: prompt,
+        initialValue: initialValue || '',
+        'onUpdate:modelValue': (value: boolean) => {
+          if (!value) {
+            // Dialog was closed without a definitive answer
+            cleanup();
+          }
+        },
+        onResult: (result: string | null) => {
+          resolve(result);
+          cleanup();
+        },
+      },
+      container,
+      () => {} // No ref callback needed
+    );
 
     // Cleanup function
     function cleanup() {
-      app.unmount();
-      document.body.removeChild(container);
+      if (portalId) {
+        vueHost.unregisterPortal(portalId);
+        portalId = null;
+      }
+      if (document.body.contains(container)) {
+        document.body.removeChild(container);
+      }
     }
   });
 }

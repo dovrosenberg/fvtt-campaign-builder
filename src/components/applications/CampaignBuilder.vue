@@ -204,17 +204,19 @@
       headerElement.appendChild(toggleContainer);
     }
 
-    // Create and mount the Vue component
-    const app = createApp({
-      render() {
-        return h(TitleBarComponents, {});
-      }
-    });
+    // Import VueHost to use the singleton app
+    const { vueHost } = await import('@/libraries/fvtt-vue/VueHost');
 
-    
-    // Use the same plugins as the main app
-    app.use(PrimeVue, { theme: theme });
-    app.use(pinia);
+    // Register the title bar component as a portal with VueHost
+    const portalId = await vueHost.registerPortal(
+      TitleBarComponents,
+      {},
+      toggleContainer,
+      () => {} // No ref callback needed for title bar
+    );
+
+    // Store portal ID for cleanup if needed
+    toggleContainer.dataset.portalId = portalId;
 
     // this fixes a vue dev tools bug
     // @ts-ignore
@@ -231,9 +233,6 @@
       useCampaignStore()._customProperties = new Set();
       useSessionStore()._customProperties = new Set();
     }
-
-    // Mount the component to the container
-    app.mount(toggleContainer);
   };
 
   ////////////////////////////////
