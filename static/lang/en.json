@@ -769,7 +769,7 @@
         "create": "Create new"
       },
       "generate":  {
-        "description": "Generate description",
+        "nameAndDescription": "Generate name or description",
         "image": "Generate image",
         "inProgress": "in progress",
         "configureNames": "Configure names"
@@ -818,6 +818,7 @@
       "addToCampaign": "Add to campaign",
       "addToASession": "Add to a session",
       "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",
+      "generateContent": "Generate content",
       "settingGenerateContent": "Manage Setting generation configuration",
       "backendNotAvailable": "Backend not available",
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",

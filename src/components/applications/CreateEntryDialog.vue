@@ -112,15 +112,6 @@
             }
           }}"
         />
-        <!-- <div 
-          v-if="generateMode"
-          class="generation-option"
-        >
-          <div 
-            class="generation-option-wrapper"
-          >
-          </div>
-        </div> -->
         
         <template v-if="generateMode">
           <hr 

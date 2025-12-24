@@ -28,6 +28,16 @@
         >
           <i class="fas fa-share"></i>
         </button>
+        <button
+          v-if="canGenerate"
+          class="fcb-generate-button"
+          data-testid="entry-generate-button"
+          @click="onGenerateButtonClick"
+          :disabled="generateDisabled"
+          :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"
+        >
+          <i class="fas fa-head-side-virus"></i>
+        </button>
       </header>
       <div class="flexrow tags-container">
         <Tags
@@ -184,8 +194,10 @@
   import { localize } from '@/utils/game';
   import { useSettingDirectoryStore, useBackendStore, useMainStore, useNavigationStore, useRelationshipStore, usePlayingStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
+  import { generateImage } from '@/utils/generation';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyInfo, notifyWarn } from '@/utils/notifications';  
+  import { updateEntryDialog } from '@/dialogs/createEntry';
   import { getRelatedEntries } from '@/utils/uuidExtraction';
 
   // library components
@@ -264,6 +276,8 @@
     
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
+  const canGenerate = computed(() => topic.value && [Topics.Character, Topics.Location, Topics.Organization].includes(topic.value));
+  const generateDisabled = computed(() => !available.value);
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
 
   const customFieldContentType = computed<CustomFieldContentType | null>(() => {
@@ -521,6 +535,53 @@
     notifyInfo(`${currentEntry.value.name} ${localize('notifications.addedToSession')}`);
     await updatePushButton();// # of available changed
   };
+
+  const onGenerateButtonClick = (event: MouseEvent): void => {
+    // Prevent default behavior
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (topic.value != null && ![Topics.Character, Topics.Location, Topics.Organization, Topics.PC].includes(topic.value)) {
+      return;
+    }
+
+    // Show context menu
+    const menuItems = [
+      {
+        icon: 'fa-file-lines',
+        iconFontClass: 'fas',
+        label: localize('contextMenus.generate.nameAndDescription'),        
+        onClick: async () => {
+          if (currentEntry.value)
+            await updateEntryDialog(currentEntry.value);
+        }
+      },
+    ];
+
+    // PC images always tie to actor
+    if (topic.value!==Topics.PC) {
+      menuItems.push({
+        icon: 'fa-image',
+        iconFontClass: 'fas',
+        label: `${localize('contextMenus.generate.image')} ${isGeneratingImage.value[currentEntry.value?.uuid as string] ? ` - ${localize('contextMenus.generate.inProgress')}` : ''}`,
+        disabled: isGeneratingImage.value[currentEntry.value?.uuid as string],
+        onClick: async () => {
+          if (currentSetting.value && currentEntry.value) {
+            await generateImage(currentSetting.value, currentEntry.value);
+          }
+        }
+      });
+    }
+
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: menuItems,
+    });
+  };
+
   
   const onImageChange = async (imageUrl: string) => {
     if (currentEntry.value) {
