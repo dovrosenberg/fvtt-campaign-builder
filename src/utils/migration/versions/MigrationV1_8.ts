@@ -68,13 +68,17 @@ export class MigrationV1_8 implements Migration {
       const settings = await useMainStore().getAllSettings();
 
       // some values were housed in system.customFields already and we don't want to 
-      //    lose whatever values are in them.  so for those fields we are going to 
-      //    use the old keys instead of the new, localized ones.  This applies to campaign.house_rules,
-      //    PC.other_plot_points, PC.desired_magic_items, and entry.roleplaying_notes.
-      const KEY_HOUSE_RULES = 'house_rules';
-      const KEY_OTHER_PLOT_POINTS = 'other_plot_points';
-      const KEY_DESIRED_MAGIC_ITEMS = 'desired_magic_items';
-      const KEY_ROLEPLAYING_NOTES = 'roleplaying_notes';
+      //    lose whatever values are in them. We preserve them by migrating stored customFields
+      //    keys on existing documents from legacy keys -> localized keys.
+      const KEY_HOUSE_RULES_OLD = 'house_rules';
+      const KEY_OTHER_PLOT_POINTS_OLD = 'other_plot_points';
+      const KEY_DESIRED_MAGIC_ITEMS_OLD = 'desired_magic_items';
+      const KEY_ROLEPLAYING_NOTES_OLD = 'roleplaying_notes';
+      const KEY_HOUSE_RULES_NEW = toCustomFieldKey(localize('labels.fields.houseRules'));
+      const KEY_OTHER_PLOT_POINTS_NEW = toCustomFieldKey(localize('labels.fields.otherPlotPoints'));
+      const KEY_DESIRED_MAGIC_ITEMS_NEW = toCustomFieldKey(localize('labels.fields.desiredMagicItems'));
+      const KEY_ROLEPLAYING_NOTES_NEW = toCustomFieldKey(localize('labels.fields.entryRolePlayingNotes'));
+
       const LABEL_AI_DESCRIPTION = localize('labels.fields.aiDescription');
       const KEY_AI_DESCRIPTION = toCustomFieldKey(LABEL_AI_DESCRIPTION);
       const KEY_BOXED_TEXT = toCustomFieldKey(localize('labels.fields.boxedText'));
@@ -82,16 +86,6 @@ export class MigrationV1_8 implements Migration {
 
       await resetDefaultCustomFields();
       const customFields = ModuleSettings.get(SettingKey.customFields);
-
-      // these are fields that might have data under the old key name - so preserve those
-      renameFieldKey(customFields, CustomFieldContentType.Campaign, toCustomFieldKey(localize('labels.fields.houseRules')), KEY_HOUSE_RULES);
-      renameFieldKey(customFields, CustomFieldContentType.PC, toCustomFieldKey(localize('labels.fields.otherPlotPoints')), KEY_OTHER_PLOT_POINTS);
-      renameFieldKey(customFields, CustomFieldContentType.PC, toCustomFieldKey(localize('labels.fields.desiredMagicItems')), KEY_DESIRED_MAGIC_ITEMS);
-
-      const roleplayingNotesDefaultKey = toCustomFieldKey(localize('labels.fields.entryRolePlayingNotes'));
-      renameFieldKey(customFields, CustomFieldContentType.Character, roleplayingNotesDefaultKey, KEY_ROLEPLAYING_NOTES);
-      renameFieldKey(customFields, CustomFieldContentType.Location, roleplayingNotesDefaultKey, KEY_ROLEPLAYING_NOTES);
-      renameFieldKey(customFields, CustomFieldContentType.Organization, roleplayingNotesDefaultKey, KEY_ROLEPLAYING_NOTES);
 
       // if we were using AI, add an AI-generated description field to the entries
       if (ModuleSettings.get(SettingKey.APIURL) && ModuleSettings.get(SettingKey.APIToken)) {
@@ -147,9 +141,9 @@ export class MigrationV1_8 implements Migration {
       // if we weren't using roleplaynotes, remove that field from the default
       // @ts-ignore
       if (!game.settings.get(moduleId, 'showRolePlayingNotes')) {
-        customFields[CustomFieldContentType.Character] = customFields[CustomFieldContentType.Character].filter((f: any) => f.name !== KEY_ROLEPLAYING_NOTES);
-        customFields[CustomFieldContentType.Location] = customFields[CustomFieldContentType.Location].filter((f: any) => f.name !== KEY_ROLEPLAYING_NOTES);
-        customFields[CustomFieldContentType.Organization] = customFields[CustomFieldContentType.Organization].filter((f: any) => f.name !== KEY_ROLEPLAYING_NOTES);
+        customFields[CustomFieldContentType.Character] = customFields[CustomFieldContentType.Character].filter((f: any) => f.name !== KEY_ROLEPLAYING_NOTES_NEW);
+        customFields[CustomFieldContentType.Location] = customFields[CustomFieldContentType.Location].filter((f: any) => f.name !== KEY_ROLEPLAYING_NOTES_NEW);
+        customFields[CustomFieldContentType.Organization] = customFields[CustomFieldContentType.Organization].filter((f: any) => f.name !== KEY_ROLEPLAYING_NOTES_NEW);
       }
 
       normalizeSortOrders(customFields);
@@ -209,6 +203,8 @@ export class MigrationV1_8 implements Migration {
               case DOCUMENT_TYPES.Campaign:
                 const campaign = new Campaign(journalEntry);
 
+                migrateStoredCustomFieldKey(campaign, KEY_HOUSE_RULES_OLD, KEY_HOUSE_RULES_NEW);
+
                 // description is being moved from system.description to text.content
                 campaign.description = campaign.raw.system?.description || '';
                 await campaign.save();
@@ -228,6 +224,10 @@ export class MigrationV1_8 implements Migration {
 
               case DOCUMENT_TYPES.Entry: 
                 const entry = new Entry(journalEntry);
+
+                migrateStoredCustomFieldKey(entry, KEY_ROLEPLAYING_NOTES_OLD, KEY_ROLEPLAYING_NOTES_NEW);
+                migrateStoredCustomFieldKey(entry, KEY_OTHER_PLOT_POINTS_OLD, KEY_OTHER_PLOT_POINTS_NEW);
+                migrateStoredCustomFieldKey(entry, KEY_DESIRED_MAGIC_ITEMS_OLD, KEY_DESIRED_MAGIC_ITEMS_NEW);
 
                 // background is being moved from system.background to a customfield
                 entry.setCustomField(KEY_BACKGROUND, entry.raw.system?.background || '');
@@ -261,25 +261,20 @@ export class MigrationV1_8 implements Migration {
   }
 }
 
-// find the field by default key and change it to the new key
-function renameFieldKey(customFields: Record<CustomFieldContentType, CustomFieldDescription[]>, contentType: CustomFieldContentType, defaultKey: string, newKey: string) {
-  if (newKey === defaultKey)
+function migrateStoredCustomFieldKey(content: Campaign | Entry, oldKey: string, newKey: string): void {
+  if (oldKey === newKey)
     return;
 
-  const fields = customFields[contentType];
-  if (!Array.isArray(fields) || fields.length === 0) 
-    throw new Error(`Bad custom field migration: ${contentType}`);
+  const customFields = (content as any)?._clone?.system?.customFields as Record<string, unknown> | undefined;
+  if (!customFields || typeof customFields !== 'object')
+    return;
 
-  if (fields.find((f: any) => f?.name === newKey))
-    throw new Error(`Duplicate key in custom field migration: ${contentType} ${newKey}`);
+  if (!Object.keys(customFields).includes(oldKey))
+    return;
 
-  const field = fields.find((f: any) => f?.name === defaultKey);
-
-  if (field) 
-    field.name = newKey;
-  else
-    throw new Error(`Bad custom field migration: ${contentType} ${defaultKey}`);
-};
+  customFields[newKey] = customFields[oldKey];
+  delete customFields[oldKey];
+}
 
 function normalizeSortOrders(customFields: Record<CustomFieldContentType, CustomFieldDescription[]>) {
   for (const fields of Object.values(customFields)) {
