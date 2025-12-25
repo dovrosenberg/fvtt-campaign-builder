@@ -53,8 +53,8 @@ export interface ApiNameCharactersPostRequest {
 }
 
 export const ApiNameCharactersPostRequestTextModelEnum = {
-    Gpt4oMini: 'GPT_4o_mini',
     Gpt5Mini: 'GPT_5_mini',
+    Gpt4oMini: 'GPT_4o_mini',
     Claude3Haiku: 'Claude_3_haiku'
 } as const;
 

@@ -30,6 +30,8 @@ import type { ApiCharacterGeneratePost200Response } from '../types';
 // @ts-ignore
 import type { ApiCharacterGeneratePostRequest } from '../types';
 // @ts-ignore
+import type { ApiCustomGenerateImagePostRequest } from '../types';
+// @ts-ignore
 import type { ApiCustomGeneratePost200Response } from '../types';
 // @ts-ignore
 import type { ApiCustomGeneratePostRequest } from '../types';
@@ -151,6 +153,45 @@ export const FCBApiAxiosParamCreator = function (configuration?: Configuration) 
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(apiCharacterGeneratePostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Generate custom image
+         * @param {ApiCustomGenerateImagePostRequest} apiCustomGenerateImagePostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCustomGenerateImagePost: async (apiCustomGenerateImagePostRequest: ApiCustomGenerateImagePostRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'apiCustomGenerateImagePostRequest' is not null or undefined
+            assertParamExists('apiCustomGenerateImagePost', 'apiCustomGenerateImagePostRequest', apiCustomGenerateImagePostRequest)
+            const localVarPath = `/api/custom/generate-image`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(apiCustomGenerateImagePostRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -714,6 +755,18 @@ export const FCBApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Generate custom image
+         * @param {ApiCustomGenerateImagePostRequest} apiCustomGenerateImagePostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiCustomGenerateImagePost(apiCustomGenerateImagePostRequest: ApiCustomGenerateImagePostRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiCharacterGenerateImagePost200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiCustomGenerateImagePost(apiCustomGenerateImagePostRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FCBApi.apiCustomGenerateImagePost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Generate custom text
          * @param {ApiCustomGeneratePostRequest} apiCustomGeneratePostRequest 
          * @param {*} [options] Override http request option.
@@ -906,6 +959,15 @@ export const FCBApiFactory = function (configuration?: Configuration, basePath?:
             return localVarFp.apiCharacterGeneratePost(apiCharacterGeneratePostRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * Generate custom image
+         * @param {ApiCustomGenerateImagePostRequest} apiCustomGenerateImagePostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCustomGenerateImagePost(apiCustomGenerateImagePostRequest: ApiCustomGenerateImagePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiCharacterGenerateImagePost200Response> {
+            return localVarFp.apiCustomGenerateImagePost(apiCustomGenerateImagePostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Generate custom text
          * @param {ApiCustomGeneratePostRequest} apiCustomGeneratePostRequest 
          * @param {*} [options] Override http request option.
@@ -1053,6 +1115,15 @@ export interface FCBApiInterface {
      * @memberof FCBApiInterface
      */
     apiCharacterGeneratePost(apiCharacterGeneratePostRequest: ApiCharacterGeneratePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiCharacterGeneratePost200Response>;
+
+    /**
+     * Generate custom image
+     * @param {ApiCustomGenerateImagePostRequest} apiCustomGenerateImagePostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApiInterface
+     */
+    apiCustomGenerateImagePost(apiCustomGenerateImagePostRequest: ApiCustomGenerateImagePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiCharacterGenerateImagePost200Response>;
 
     /**
      * Generate custom text
@@ -1205,6 +1276,17 @@ export class FCBApi extends BaseAPI implements FCBApiInterface {
      */
     public apiCharacterGeneratePost(apiCharacterGeneratePostRequest: ApiCharacterGeneratePostRequest, options?: RawAxiosRequestConfig) {
         return FCBApiFp(this.configuration).apiCharacterGeneratePost(apiCharacterGeneratePostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Generate custom image
+     * @param {ApiCustomGenerateImagePostRequest} apiCustomGenerateImagePostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApi
+     */
+    public apiCustomGenerateImagePost(apiCustomGenerateImagePostRequest: ApiCustomGenerateImagePostRequest, options?: RawAxiosRequestConfig) {
+        return FCBApiFp(this.configuration).apiCustomGenerateImagePost(apiCustomGenerateImagePostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -15,131 +15,125 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ApiCustomGeneratePostRequestConfiguration } from './api-custom-generate-post-request-configuration';
+import type { ApiCustomGenerateImagePostRequestImageConfiguration } from './api-custom-generate-image-post-request-image-configuration';
 
 /**
  * 
  * @export
- * @interface ApiCustomGeneratePostRequest
+ * @interface ApiCustomGenerateImagePostRequest
  */
-export interface ApiCustomGeneratePostRequest {
+export interface ApiCustomGenerateImagePostRequest {
     /**
      * The type of content that we are generating text for (location, setting, etc.)
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
-    'contentType': ApiCustomGeneratePostRequestContentTypeEnum;
+    'contentType': ApiCustomGenerateImagePostRequestContentTypeEnum;
     /**
      * The entity\'s name.
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'name': string;
     /**
-     * The label of the field being populated
-     * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
-     */
-    'fieldLabel': string;
-    /**
      * The user\'s custom prompt to use for generation
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'prompt': string;
     /**
      * Genre of the world (ex. \"fantasy\" or \"science fiction\")
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'genre': string;
     /**
      * The feeling of the setting (ex. \"humorous\" or \"apocalyptic\")
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'settingFeeling'?: string;
     /**
      * The type of the entity
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'type'?: string;
     /**
      * The species of the entity
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'species'?: string;
     /**
      * A brief description of the species
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'speciesDescription'?: string;
     /**
      * The name of the parent entity
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'parentName'?: string;
     /**
      * The type of parent entity
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'parentType'?: string;
     /**
      * The current description of the entity\'s parent
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'parentDescription'?: string;
     /**
      * The name of the grandparent entity
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'grandparentName'?: string;
     /**
      * The type of grandparent entity
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'grandparentType'?: string;
     /**
      * The current description of the entity\'s grandparent
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'grandparentDescription'?: string;
     /**
      * A brief description of the entity to factor into the produced text
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
     'description'?: string;
     /**
-     * The styles of names to use
-     * @type {Array<string>}
-     * @memberof ApiCustomGeneratePostRequest
-     */
-    'nameStyles'?: Array<string>;
-    /**
      * The text generation model to use
      * @type {string}
-     * @memberof ApiCustomGeneratePostRequest
+     * @memberof ApiCustomGenerateImagePostRequest
      */
-    'textModel'?: ApiCustomGeneratePostRequestTextModelEnum;
+    'textModel'?: ApiCustomGenerateImagePostRequestTextModelEnum;
+    /**
+     * The image generation model to use
+     * @type {string}
+     * @memberof ApiCustomGenerateImagePostRequest
+     */
+    'imageModel'?: ApiCustomGenerateImagePostRequestImageModelEnum;
     /**
      * 
-     * @type {ApiCustomGeneratePostRequestConfiguration}
-     * @memberof ApiCustomGeneratePostRequest
+     * @type {ApiCustomGenerateImagePostRequestImageConfiguration}
+     * @memberof ApiCustomGenerateImagePostRequest
      */
-    'configuration'?: ApiCustomGeneratePostRequestConfiguration;
+    'imageConfiguration'?: ApiCustomGenerateImagePostRequestImageConfiguration;
 }
 
-export const ApiCustomGeneratePostRequestContentTypeEnum = {
+export const ApiCustomGenerateImagePostRequestContentTypeEnum = {
     Setting: 'Setting',
     Character: 'Character',
     Location: 'Location',
@@ -151,13 +145,21 @@ export const ApiCustomGeneratePostRequestContentTypeEnum = {
     Front: 'Front'
 } as const;
 
-export type ApiCustomGeneratePostRequestContentTypeEnum = typeof ApiCustomGeneratePostRequestContentTypeEnum[keyof typeof ApiCustomGeneratePostRequestContentTypeEnum];
-export const ApiCustomGeneratePostRequestTextModelEnum = {
+export type ApiCustomGenerateImagePostRequestContentTypeEnum = typeof ApiCustomGenerateImagePostRequestContentTypeEnum[keyof typeof ApiCustomGenerateImagePostRequestContentTypeEnum];
+export const ApiCustomGenerateImagePostRequestTextModelEnum = {
     Gpt5Mini: 'GPT_5_mini',
     Gpt4oMini: 'GPT_4o_mini',
     Claude3Haiku: 'Claude_3_haiku'
 } as const;
 
-export type ApiCustomGeneratePostRequestTextModelEnum = typeof ApiCustomGeneratePostRequestTextModelEnum[keyof typeof ApiCustomGeneratePostRequestTextModelEnum];
+export type ApiCustomGenerateImagePostRequestTextModelEnum = typeof ApiCustomGenerateImagePostRequestTextModelEnum[keyof typeof ApiCustomGenerateImagePostRequestTextModelEnum];
+export const ApiCustomGenerateImagePostRequestImageModelEnum = {
+    MinimaxImage: 'Minimax_Image',
+    Flux11Pro: 'Flux_1_1_Pro',
+    FluxPro: 'Flux_Pro',
+    FluxSchnellLora: 'Flux_Schnell_Lora'
+} as const;
+
+export type ApiCustomGenerateImagePostRequestImageModelEnum = typeof ApiCustomGenerateImagePostRequestImageModelEnum[keyof typeof ApiCustomGenerateImagePostRequestImageModelEnum];
 
 
