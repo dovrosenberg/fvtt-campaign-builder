@@ -157,7 +157,7 @@
         },
       ];
 
-      if (available.value && [Topics.Character, Topics.Location, Topics.Organization, Topics.PC].includes(props.topic)) {
+      if (available.value && props.topic !== Topics.PC) {
         items.push({
           icon: 'fa-head-side-virus',
           iconFontClass: 'fas',

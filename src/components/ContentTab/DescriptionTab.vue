@@ -37,7 +37,7 @@
   // types
   import { Topics, ValidTopic, WindowTabType } from '@/types';
   import { generateImage } from '@/utils/generation';
-import { Arc, Campaign, Entry, FCBSetting, Front, Session } from 'src/classes';
+  import { Arc, Campaign, Entry, FCBSetting, Front, Session } from '@/classes';
   
   ////////////////////////////////
   // props

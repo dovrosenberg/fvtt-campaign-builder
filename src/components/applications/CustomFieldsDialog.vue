@@ -763,7 +763,7 @@
 
     // Always include description/notes
     if (selectedType.value === CustomFieldContentType.Session) {
-      result.push({ value: 'notes', label: localize('labels.notes') });
+      result.push({ value: 'description', label: localize('labels.fields.notes') });
     } else {
       result.push({ value: 'description', label: localize('labels.description') });
     }

@@ -50,6 +50,11 @@ export class FCBJournalEntryPage<
   public get raw(): DocClass {
     return this._doc;
   }
+
+  public get customFields(): Readonly<Record<string, string | boolean>> {
+    // @ts-ignore - not sure how to specify customFields exists on all of these
+    return foundry.utils.deepClone(this._clone.system?.customFields) || {};
+  }
   
   public getCustomField(key: string): string | boolean {
     // @ts-ignore - not sure how to specify customFields exists on all of these

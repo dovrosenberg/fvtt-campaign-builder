@@ -92,6 +92,7 @@
   import { notifyError, notifyInfo } from '@/utils/notifications';
   import { useBackendStore, useMainStore } from '@/applications/stores';
   import { nameStyles } from '@/utils/nameStyles';
+  import { promptReplace } from '@/utils/generation';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -211,24 +212,15 @@
       return `Write ${field.label} for ${baseName}.`;
     }
 
-    const tokenValues: Record<string, string> = {
-      name: baseName,
-      description: baseDescriptionForContent(),
-      type: String((props.content as any).type ?? ''),
-      species: String((props.content as any).species ?? ''),
-      parent: String((props.content as any).parentName ?? ''),
-    };
-
-    for (const key of Object.keys(values)) {
-      const v = values[key];
-      tokenValues[key] = typeof v === 'string' ? v : String(v ?? '');
-    }
-
-    return template.replace(/\{([^{}]*)\}/g, (_match, inner) => {
-      const k = String(inner ?? '').trim();
-      if (!k) return '';
-      return tokenValues[k] ?? '';
-    });
+    return promptReplace(
+      template, 
+      baseName, 
+      baseDescriptionForContent(),
+      String((props.content as any).type ?? ''),
+      String((props.content as any).species ?? ''),
+      String((props.content as any).parentName ?? ''),
+      values as Record<string, boolean>
+    );
   };
 
   const buildCustomGenerateRequest = async (field: CustomFieldDescription): Promise<ApiCustomGeneratePostRequest> => {
@@ -275,15 +267,15 @@
     }
 
     const configuration = {
-      minWords: field.configuration.minWords,
-      maxWords: field.configuration.maxWords,
-      tone: field.configuration.tone,
-      tense: field.configuration.tense,
-      pov: field.configuration.pov,
+      minWords: field.configuration?.minWords,
+      maxWords: field.configuration?.maxWords,
+      tone: field.configuration?.tone,
+      tense: field.configuration?.tense,
+      pov: field.configuration?.pov,
       contentRating: 'PG-13',
       includeHeadings: false,
-      includeBullets: field.configuration.includeBullets,
-      avoidListsLongerThan: field.configuration.avoidListsLongerThan
+      includeBullets: field.configuration?.includeBullets,
+      avoidListsLongerThan: field.configuration?.avoidListsLongerThan
     }
 
     const request = {

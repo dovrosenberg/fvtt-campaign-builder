@@ -270,7 +270,7 @@ export const initializeDefaultImageConfigurations = async (boxedTextKey: string)
     [CustomFieldContentType.Arc]: 'Cover art for a chapter of a TTRPG campaign book.',
     [CustomFieldContentType.Front]: 'Art of a dramatic or threatening scene for a section of a TTRPG campaign book to to be used to describe the {name} front.',
     [CustomFieldContentType.PC]: '',
-    [CustomFieldContentType.Session]: 'Art of the most exciting or dramatic moment for a section of a TTRPG campaign book to to be used to describe a particular section of an adventure',
+    [CustomFieldContentType.Session]: 'Art of the most exciting or dramatic moment for a section of a TTRPG campaign book to to be used to describe a particular section of an adventure.  Here is how it starts:\n{strong_start}',
     [CustomFieldContentType.Campaign]: 'Cover art for a TTRPG campaign book.'
   };
   

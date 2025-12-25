@@ -25,6 +25,7 @@ import {
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyError, notifyInfo } from './notifications';
 import { windowTabToCustomContentType } from './customFields';
+import { ApiCustomGenerateImagePostRequestContentTypeEnum } from '@/apiClient';
 
 /**
  * Union type representing all possible generated content details.
@@ -122,7 +123,22 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
     const aiImageConfigurations = ModuleSettings.get(SettingKey.aiImageConfigurations) || {};
     
     // Determine content type based on the document type
-    let contentType = windowTabToCustomContentType(windowTabType, entry);   
+    let contentType = windowTabToCustomContentType(windowTabType, entry);
+    
+    // Map the numeric CustomFieldContentType to the string values expected by the API
+    const contentTypeMap: Record<CustomFieldContentType, ApiCustomGenerateImagePostRequestContentTypeEnum> = {
+      [CustomFieldContentType.Setting]: ApiCustomGenerateImagePostRequestContentTypeEnum.Setting,
+      [CustomFieldContentType.Character]: ApiCustomGenerateImagePostRequestContentTypeEnum.Character,
+      [CustomFieldContentType.Location]: ApiCustomGenerateImagePostRequestContentTypeEnum.Location,
+      [CustomFieldContentType.Organization]: ApiCustomGenerateImagePostRequestContentTypeEnum.Organization,
+      [CustomFieldContentType.Arc]: ApiCustomGenerateImagePostRequestContentTypeEnum.Arc,
+      [CustomFieldContentType.Front]: ApiCustomGenerateImagePostRequestContentTypeEnum.Front,
+      [CustomFieldContentType.PC]: ApiCustomGenerateImagePostRequestContentTypeEnum.PC,
+      [CustomFieldContentType.Session]: ApiCustomGenerateImagePostRequestContentTypeEnum.Session,
+      [CustomFieldContentType.Campaign]: ApiCustomGenerateImagePostRequestContentTypeEnum.Campaign,
+    };
+    
+    const apiContentType = contentTypeMap[contentType];   
     
     const baseConfig = aiImageConfigurations[contentType] || {};
     
@@ -130,25 +146,18 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
     let description: string;
     if (baseConfig.descriptionField === 'description' && contentType !== CustomFieldContentType.Session) {
       description = (entry as any).description || '';
-    } else if (baseConfig.descriptionField === 'notes' && contentType === CustomFieldContentType.Session) {
+    } else if (baseConfig.descriptionField === 'description' && contentType === CustomFieldContentType.Session) {
       // For sessions, use the notes field directly
       description = (entry as Session).notes || '';
     } else {
       description = (entry as any).getCustomField(baseConfig.descriptionField);
-    }  
-        
-    // Get setting info from the setting
-    const settingInfo: { genre: string; settingFeeling?: string } = {
-      genre: forSetting.genre,
-      settingFeeling: forSetting.settingFeeling,
-    };
-    
+    }      
     // get parent/grandparent for context (only for entries)
     let parent: Entry | null = null;
     let grandparent: Entry | null = null;
 
     if ([CustomFieldContentType.Location, CustomFieldContentType.Organization].includes(contentType)) {
-      let parentId = await entry.getParentId();
+      let parentId = await (entry as Entry).getParentId();
       if (parentId) {
         parent = await Entry.fromUuid(parentId);
 
@@ -171,27 +180,23 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
     }
         
     // Build the prompt by replacing tokens
-    let finalPrompt = aiImagePrompts[contentType] || '';
-    const tokenMap: Record<string, string> = {
-      name: entry.name || '',
-      type: (entry as any).type || '',
-      description: (entry as any).description || (entry as Session).notes || '',
-      species: species?.name || '',
-      parent: parent?.name || '',
-    };
-    
-    // Replace tokens in the prompt
-    for (const [token, value] of Object.entries(tokenMap)) {
-      finalPrompt = finalPrompt.replace(new RegExp(`\{${token}\}`, 'g'), value);
-    }
-    
+    let finalPrompt = promptReplace(
+      aiImagePrompts[contentType] || '', 
+      entry.name || '', 
+      (entry as any).description || (entry as Session).notes || '',
+      (entry as any).type || '',
+      species?.name || '', 
+      parent?.name || '', 
+      entry.customFields
+    );
+        
     // Call the custom image generation API
     const result = await useBackendStore().generateCustomImage({
-      contentType: contentType as any,
+      contentType: apiContentType,
       name: entry.name,
       prompt: finalPrompt,
-      genre: settingInfo.genre,
-      settingFeeling: settingInfo.settingFeeling,
+      genre: forSetting.genre,
+      settingFeeling: forSetting.settingFeeling,
       type: (entry as any).type,
       species: species?.name,
       speciesDescription: species?.description,
@@ -225,4 +230,30 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
   } finally {
     useBackendStore().isGeneratingImage[entryGenerated] = false;
   }
+};
+
+/**
+ * Swap out all the template fields in a prompt with their values
+ * @param template 
+ * @param values 
+ * @returns 
+ */
+export const promptReplace = (template: string, name: string, description: string, type: string, species: string, parent: string, customFields: Record<string, string | boolean>): string => {
+  const tokenMap: Record<string, string> = {
+    name,
+    description,
+    type,
+    species,
+    parent,
+  };
+
+  for (const key of Object.keys(customFields)) {
+    tokenMap[key] = typeof customFields[key] === 'boolean' ? (customFields[key] ? 'true' : 'false') : String(customFields[key] ?? '');
+  }
+
+  return template.replace(/\{([^{}]*)\}/g, (_match, inner) => {
+    const k = String(inner ?? '').trim();
+    if (!k) return '';
+    return tokenMap[k] ?? '';
+  });
 };
