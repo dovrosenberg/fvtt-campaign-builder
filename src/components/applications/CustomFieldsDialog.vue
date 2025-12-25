@@ -175,6 +175,18 @@
                     </div>
                   </div>
 
+                  <div class="form-group stacked">
+                    <label>{{ localize('applications.customFields.images.labels.prompt') }}</label>
+                    <div class="form-fields">
+                      <textarea
+                        ref="aiImagePromptRef"
+                        v-model="aiImagePrompt"
+                        rows="4"
+                        style="width: 100%;"
+                      />
+                    </div>
+                  </div>
+
                   <div v-if="aiImagePromptValidationError" class="form-group">
                     <p class="hint" style="color: red;">
                       {{ aiImagePromptValidationError }}
@@ -182,16 +194,18 @@
                   </div>
 
                   <div class="form-group stacked">
-                    <label>{{ localize('applications.customFields.images.labels.prompt') }}</label>
+                    <label>{{ localize('applications.customFields.images.labels.descriptionField') }}</label>
                     <div class="form-fields">
-                      <textarea
-                        ref="aiImagePromptRef"
-                        v-model="aiImagePrompt"
-                        rows="8"
+                      <Select
+                        v-model="selectedDescriptionField"
+                        :options="descriptionFieldOptions"
+                        optionLabel="label"
+                        optionValue="value"
                         style="width: 100%;"
                       />
                     </div>
                   </div>
+
 
                   <div class="form-group stacked">
                     <label>{{ localize('applications.customFields.images.labels.imageConfiguration') }}</label>
@@ -362,27 +376,6 @@
   </Dialog>
 </template>
 
-<style lang="scss">
-  // Apply scrollbar styles to ScrollPanel
-  .p-scrollpanel-wrapper {
-    scrollbar-width: thin;
-    scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb);
-  }
-  
-  .p-scrollpanel-wrapper::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  .p-scrollpanel-wrapper::-webkit-scrollbar-track {
-    background: var(--fcb-scrollbar);
-  }
-  
-  .p-scrollpanel-wrapper::-webkit-scrollbar-thumb {
-    background-color: var(--fcb-scrollbar-thumb);
-    border-radius: 4px;
-  }
-</style>
-
 <script setup lang="ts">
   // library imports
   import { computed, nextTick, onMounted, ref, watch } from 'vue';
@@ -421,23 +414,6 @@
     label: string;
     value: string;
   };
-
-  const onFieldTypeChanged = (row: Row) => {
-    if (!row) return;
-    if (row.fieldType === FieldType.Boolean) {
-      row.indexed = false;
-    }
-
-    if (row.fieldType !== FieldType.Editor) {
-      row.editorHeight = null;
-      return;
-    }
-
-    if (row.editorHeight == null || !Number.isFinite(row.editorHeight) || row.editorHeight <= 0) {
-      row.editorHeight = DEFAULT_EDITOR_SIZE;
-    }
-  };
-
   type AiConfiguration = {
     minWords: number;
     maxWords: number;
@@ -464,6 +440,8 @@
     deleted?: boolean;
     sortOrder: number;
   };
+
+
 
   ////////////////////////////////
   // props
@@ -544,6 +522,7 @@
   const aiImagePrompt = ref<string>('');
   const selectedAiImageTokenKey = ref<string | null>(null);
   const aiImagePrompts = ref<Record<CustomFieldContentType, string>>({} as any);
+  const selectedDescriptionField = ref<string>('description');
   
   // AI Image configuration
   const aiImageConfig = ref<Partial<ImageConfiguration>>({});
@@ -760,29 +739,48 @@
 
     const invalid: string[] = [];
     const seen = new Set<string>();
-    const tokenRegex = /\{([^{}]*)\}/g;
-    for (const match of template.matchAll(tokenRegex)) {
-      const inner = (match?.[1] ?? '').trim();
-      const raw = match?.[0] ?? '';
 
-      if (!inner) {
-        if (!seen.has(raw)) {
-          invalid.push(raw);
-          seen.add(raw);
-        }
-        continue;
-      }
-
-      if (!tokenKeyPattern.test(inner) || !validKeys.has(inner)) {
-        if (!seen.has(raw)) {
-          invalid.push(raw);
-          seen.add(raw);
-        }
+    // Find all tokens in the template
+    const matches = template.matchAll(/\{([^}]+)\}/g);
+    for (const match of matches) {
+      const token = match[1];
+      if (!seen.has(token) && !validKeys.has(token) && tokenKeyPattern.test(token)) {
+        invalid.push(token);
+        seen.add(token);
       }
     }
 
     if (!invalid.length) return '';
     return `${localize('applications.customFields.aiImage.errors.invalidTokens')} ${invalid.join(', ')}`;
+  });
+
+  const descriptionFieldOptions = computed<AiTokenOption[]>(() => {
+    if (selectedType.value == null) return [];
+
+    const type = selectedType.value;
+    const rows = (workingRowsByType.value[type] || []).filter(r => !r.deleted);
+    const result: AiTokenOption[] = [];
+
+    // Always include description/notes
+    if (selectedType.value === CustomFieldContentType.Session) {
+      result.push({ value: 'notes', label: localize('labels.notes') });
+    } else {
+      result.push({ value: 'description', label: localize('labels.description') });
+    }
+
+    // Add custom fields (excluding system fields)
+    for (const row of rows) {
+      const key = toCustomFieldKey(row.label || '');
+      if (!key) 
+        continue;
+      
+      result.push({
+        value: key,
+        label: row.label || key,
+      });
+    }
+
+    return result;
   });
 
   const aiDialogButtons = computed(() => [
@@ -1024,6 +1022,22 @@
   ////////////////////////////////
   // event handlers
 
+  const onFieldTypeChanged = (row: Row) => {
+    if (!row) return;
+    if (row.fieldType === FieldType.Boolean) {
+      row.indexed = false;
+    }
+
+    if (row.fieldType !== FieldType.Editor) {
+      row.editorHeight = null;
+      return;
+    }
+
+    if (row.editorHeight == null || !Number.isFinite(row.editorHeight) || row.editorHeight <= 0) {
+      row.editorHeight = DEFAULT_EDITOR_SIZE;
+    }
+  };
+
   const onIndexedCheckboxChange = () => {
     // Any toggle is enough to require a rebuild; we don't attempt to diff the before/after state.
     indexedToggled.value = true;
@@ -1210,10 +1224,17 @@
     // Save the current AI Image configuration before saving
     if (selectedType.value !== null) {
       // Remove empty values from the config
-      const cleanedConfig: ImageConfiguration = {};
-      for (const [key, value] of Object.entries(aiImageConfig.value)) {
-        if (value !== null && value !== undefined && value !== '') {
+      const cleanedConfig: ImageConfiguration = {
+        ...aiImageConfig.value,
+        descriptionField: selectedDescriptionField.value,
+      };
+      
+      // Remove empty values from all other fields
+      for (const [key, value] of Object.entries(cleanedConfig)) {
+        if (value !== null && value !== undefined && value !== '' && key !== 'descriptionField') {
           (cleanedConfig as any)[key] = value;
+        } else if (value === null || value === undefined || value === '') {
+          delete (cleanedConfig as any)[key];
         }
       }
       aiImageConfigurations.value[selectedType.value] = cleanedConfig;
@@ -1289,6 +1310,7 @@
     if (newType === null) {
       aiImagePrompt.value = '';
       aiImageConfig.value = { ...DEFAULT_IMAGE_CONFIGURATION };
+      selectedDescriptionField.value = 'description';
       return;
     }
     
@@ -1296,7 +1318,9 @@
     aiImagePrompt.value = aiImagePrompts.value[newType] || '';
     
     // Load the AI Image configuration for the new type
-    aiImageConfig.value = { ...DEFAULT_IMAGE_CONFIGURATION, ...(aiImageConfigurations.value[newType] || {}) };
+    const config = { ...DEFAULT_IMAGE_CONFIGURATION, ...(aiImageConfigurations.value[newType] || {}) };
+    aiImageConfig.value = config;
+    selectedDescriptionField.value = config.descriptionField || 'description';
     
     // Ensure the newly-selected type has a working copy initialized from the last saved settings.
     ensureWorkingRowsForType(newType);
@@ -1345,6 +1369,7 @@
   });
 </script>
 
+
 <style lang="scss" scoped>
   .fcb-action-icon {
     cursor: pointer;
@@ -1363,4 +1388,24 @@
       background: rgba(0, 0, 0, 0.18) !important;
     }
   }
+
+  // Apply scrollbar styles to ScrollPanel
+  .p-scrollpanel-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb);
+  }
+  
+  .p-scrollpanel-wrapper::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .p-scrollpanel-wrapper::-webkit-scrollbar-track {
+    background: var(--fcb-scrollbar);
+  }
+  
+  .p-scrollpanel-wrapper::-webkit-scrollbar-thumb {
+    background-color: var(--fcb-scrollbar-thumb);
+    border-radius: 4px;
+  }
+
 </style>

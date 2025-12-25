@@ -567,7 +567,7 @@
         disabled: isGeneratingImage.value[currentEntry.value?.uuid as string],
         onClick: async () => {
           if (currentSetting.value && currentEntry.value) {
-            await generateImage(currentSetting.value, currentEntry.value);
+            await generateImage(currentSetting.value, WindowTabType.Entry, currentEntry.value);
           }
         }
       });

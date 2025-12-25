@@ -6,21 +6,11 @@ import { SpeciesListApplication } from '@/applications/settings/SpeciesListAppli
 import { ImageSettingsApplication } from '@/applications/settings/ImageSettingsApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, } from '@/types';
-import { ApiCustomGenerateImagePostRequest, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
+import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
 
-export interface ImageConfiguration {
-  artStyle?: string;
-  medium?: string;
-  modelStyle?: string;
-  contentRating?: string;
-  composition?: string;
-  lighting?: string;
-  colorPalette?: string;
-  camera?: string;
-  mood?: string;
-  negativePrompt?: string;
-  providerOptions?: { [key: string]: any; };
-}
+export type ImageConfiguration = ApiCustomGenerateImagePostRequestImageConfiguration & {
+  descriptionField?: string;
+};
 
 export interface ImageVisibility {
   settings: boolean;

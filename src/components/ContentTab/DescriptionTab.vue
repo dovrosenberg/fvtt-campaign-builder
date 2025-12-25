@@ -162,7 +162,7 @@ import { Arc, Campaign, Entry, FCBSetting, Front, Session } from 'src/classes';
       return;
     }
 
-    await generateImage(currentSetting.value, entry as any);
+    await generateImage(currentSetting.value, props.windowType, entry as any);
   };  
 
   ////////////////////////////////

@@ -3,7 +3,7 @@ import PrimeVue from 'primevue/config';
 import App from '@/components/applications/CreateEntryDialog.vue';
 import { hasHierarchy, } from '@/utils/hierarchy';
 import { useMainStore, useSettingDirectoryStore, useRelationshipStore, useNavigationStore, } from '@/applications/stores'; 
-import { CharacterDetails, EntryBasicIndex, LocationDetails, OrganizationDetails, Topics, ValidTopic } from '@/types';
+import { CharacterDetails, EntryBasicIndex, LocationDetails, OrganizationDetails, Topics, ValidTopic, WindowTabType } from '@/types';
 import { Entry, TopicFolder } from '@/classes';
 import { generateImage, handleGeneratedEntry } from '@/utils/generation';
 import { localize } from '@/utils/game';
@@ -223,7 +223,7 @@ const updatedCallback = async (entry: Entry, details: AnyDetails | null): Promis
     await mainStore.refreshCurrentContent();
 
   if (details.generateImage)
-    void generateImage(await currentSetting, entry);  
+    void generateImage(currentSetting, WindowTabType.Entry, entry);  
 
   return entry || null;
 }

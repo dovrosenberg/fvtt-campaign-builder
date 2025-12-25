@@ -11,6 +11,7 @@ import {
   Species, 
   Topics,
   CustomFieldContentType,
+  WindowTabType,
 } from '@/types';
 import { 
   Entry, 
@@ -23,6 +24,7 @@ import {
 } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyError, notifyInfo } from './notifications';
+import { windowTabToCustomContentType } from './customFields';
 
 /**
  * Union type representing all possible generated content details.
@@ -78,7 +80,7 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
   await entry.save();
   
   if (details.generateImage)
-    void generateImage(topicFolder.setting, entry);
+    void generateImage(topicFolder.setting, WindowTabType.Entry, entry);
 
   return entry;
 };
@@ -89,11 +91,12 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
  * Shows user notifications during the generation process and updates the entry with the result.
  * 
  * @param forSetting - The setting containing the entry (used for genre and setting feeling)
+ * @param windowTabType - The type of window tab the entry is in
  * @param entry - The entry to generate an image for (can be Entry, Campaign, Arc, Session, Front, or Setting)
  * @returns A promise that resolves when image generation is complete
  * @throws {Error} If image generation fails or the entry type is not supported
  */
-export const generateImage = async (forSetting: FCBSetting, entry: Entry | Campaign | Arc | Session | Front | FCBSetting): Promise<void> => {
+export const generateImage = async (forSetting: FCBSetting, windowTabType: WindowTabType, entry: Entry | Campaign | Arc | Session | Front | FCBSetting): Promise<void> => {
   if (!entry || !forSetting) {
     return;
   }
@@ -114,46 +117,26 @@ export const generateImage = async (forSetting: FCBSetting, entry: Entry | Campa
     // Show a notification that we're generating an image
     notifyInfo(`Generating image for ${entry.name}. This may take a minute...`);
 
-    // Get species name if this is a character
-    let species: Species | undefined;
-    const speciesList = ModuleSettings.get(SettingKey.speciesList);
-    if (entry instanceof Entry && entry.speciesId) {
-      species = speciesList.find(s => s.id === entry.speciesId);
-    }
-    
     // Get custom image prompt and configuration for this content type
     const aiImagePrompts = ModuleSettings.get(SettingKey.aiImagePrompts) || {};
     const aiImageConfigurations = ModuleSettings.get(SettingKey.aiImageConfigurations) || {};
     
-    // Map Topics to CustomFieldContentType
-    const topicToContentType: Record<Topics, CustomFieldContentType> = {
-      [Topics.Character]: CustomFieldContentType.Character,
-      [Topics.Location]: CustomFieldContentType.Location,
-      [Topics.Organization]: CustomFieldContentType.Organization,
-      [Topics.PC]: CustomFieldContentType.PC,
-    };
-    
     // Determine content type based on the document type
-    let contentType: CustomFieldContentType;
-    if (entry instanceof Entry) {
-      contentType = topicToContentType[entry.topic];
-    } else if (entry instanceof Campaign) {
-      contentType = CustomFieldContentType.Campaign;
-    } else if (entry instanceof Arc) {
-      contentType = CustomFieldContentType.Arc;
-    } else if (entry instanceof Session) {
-      contentType = CustomFieldContentType.Session;
-    } else if (entry instanceof Front) {
-      contentType = CustomFieldContentType.Front;
-    } else if (entry instanceof FCBSetting) {
-      contentType = CustomFieldContentType.Setting;
+    let contentType = windowTabToCustomContentType(windowTabType, entry);   
+    
+    const baseConfig = aiImageConfigurations[contentType] || {};
+    
+    // Get the description based on the configuration
+    let description: string;
+    if (baseConfig.descriptionField === 'description' && contentType !== CustomFieldContentType.Session) {
+      description = (entry as any).description || '';
+    } else if (baseConfig.descriptionField === 'notes' && contentType === CustomFieldContentType.Session) {
+      // For sessions, use the notes field directly
+      description = (entry as Session).notes || '';
     } else {
-      contentType = CustomFieldContentType.Setting; // fallback
-    }
-    
-    const customPrompt = aiImagePrompts[contentType] || '';
-    const imageConfig = aiImageConfigurations[contentType] || {};
-    
+      description = (entry as any).getCustomField(baseConfig.descriptionField);
+    }  
+        
     // Get setting info from the setting
     const settingInfo: { genre: string; settingFeeling?: string } = {
       genre: forSetting.genre,
@@ -164,7 +147,7 @@ export const generateImage = async (forSetting: FCBSetting, entry: Entry | Campa
     let parent: Entry | null = null;
     let grandparent: Entry | null = null;
 
-    if (entry instanceof Entry) {
+    if ([CustomFieldContentType.Location, CustomFieldContentType.Organization].includes(contentType)) {
       let parentId = await entry.getParentId();
       if (parentId) {
         parent = await Entry.fromUuid(parentId);
@@ -177,21 +160,24 @@ export const generateImage = async (forSetting: FCBSetting, entry: Entry | Campa
         }
       }
     }
-    
+
+    // species for characters
+    let species: Species | undefined;
+    if (contentType === CustomFieldContentType.Character) {
+      if (entry instanceof Entry && entry.speciesId) {
+        const speciesList = ModuleSettings.get(SettingKey.speciesList);
+        species = speciesList.find(s => s.id === entry.speciesId);
+      }
+    }
+        
     // Build the prompt by replacing tokens
-    let finalPrompt = customPrompt;
+    let finalPrompt = aiImagePrompts[contentType] || '';
     const tokenMap: Record<string, string> = {
       name: entry.name || '',
       type: (entry as any).type || '',
-      description: (entry as any).description || '',
+      description: (entry as any).description || (entry as Session).notes || '',
       species: species?.name || '',
-      speciesDescription: species?.description || '',
-      parentName: parent?.name || '',
-      parentType: parent?.type || '',
-      parentDescription: parent?.description || '',
-      grandparentName: grandparent?.name || '',
-      grandparentType: grandparent?.type || '',
-      grandparentDescription: grandparent?.description || '',
+      parent: parent?.name || '',
     };
     
     // Replace tokens in the prompt
@@ -215,10 +201,10 @@ export const generateImage = async (forSetting: FCBSetting, entry: Entry | Campa
       grandparentName: grandparent?.name,
       grandparentType: grandparent?.type,
       grandparentDescription: grandparent?.description,
-      description: (entry as any).description,
+      description: description,
       textModel: ModuleSettings.get(SettingKey.selectedTextModel),
       imageModel: ModuleSettings.get(SettingKey.selectedImageModel),
-      imageConfiguration: imageConfig,
+      imageConfiguration: baseConfig,
     });
 
     // Update the entry with the generated image
