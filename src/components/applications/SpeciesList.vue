@@ -1,19 +1,21 @@
 <template>
   <section class="standard-form">
     <div class="fcb-sheet-container flexcol species-list">
-      <div class="species-list-table" data-application-part="content">
-        <BaseTable
-          :rows="rows"
-          :columns="columns"
-          :show-add-button="true"
-          :show-filter="false"
-          :allow-edit="true"
-          :add-button-label="localize('applications.speciesList.labels.add')"
-          :delete-item-label="localize('applications.speciesList.labels.delete')"
-          @delete-item="onDeleteItem"
-          @add-item="onAddItem"
-          @cell-edit-complete="onCellEditComplete"
-        />
+      <div class="species-list-table" data-application-part="content" style="overflow: hidden; height: calc(100vh - 325px);">
+        <ScrollPanel style="flex: 1; min-height: 0; height: 100%; width: 100%;" :pt="{ wrapper: { style: 'height: 100%; width: 100%; scrollbar-width: thin; scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb)' }, content: { style: 'width: 100%; box-sizing: border-box' } }">
+          <BaseTable
+            :rows="rows"
+            :columns="columns"
+            :show-add-button="true"
+            :show-filter="false"
+            :allow-edit="true"
+            :add-button-label="localize('applications.speciesList.labels.add')"
+            :delete-item-label="localize('applications.speciesList.labels.delete')"
+            @delete-item="onDeleteItem"
+            @add-item="onAddItem"
+            @cell-edit-complete="onCellEditComplete"
+          />
+        </ScrollPanel>
       </div>
 
       <footer class="form-footer" data-application-part="footer">
@@ -48,6 +50,7 @@
   import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
 
   // library components
+  import ScrollPanel from 'primevue/scrollpanel';
 
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
@@ -156,6 +159,25 @@
 </script>
 
 <style lang="scss">
+  // Apply scrollbar styles to ScrollPanel
+  .p-scrollpanel-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb);
+  }
+  
+  .p-scrollpanel-wrapper::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .p-scrollpanel-wrapper::-webkit-scrollbar-track {
+    background: var(--fcb-scrollbar);
+  }
+  
+  .p-scrollpanel-wrapper::-webkit-scrollbar-thumb {
+    background-color: var(--fcb-scrollbar-thumb);
+    border-radius: 4px;
+  }
+
   .fcb-species-list {
     background-color: var(--fcb-surface);
   }
@@ -164,8 +186,8 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    /* allow the body to scroll; footer will be pinned with position: sticky */
-    overflow-y: auto;
+    /* scrolling is now handled by ScrollPanel */
+    overflow: hidden;
   }
 
   .fcb-species-list .fcb-sheet-container {
@@ -173,12 +195,14 @@
     flex-direction: column;
     flex: 1 1 auto;
     min-height: 0;
+    height: 100%;
   }
 
   .fcb-species-list .species-list-table {
     flex: 1 1 auto;
     min-height: 0;
-    overflow: auto;
+    /* scrolling is now handled by ScrollPanel */
+    overflow: hidden;
   }
 
   /* keep the footer visible while content scrolls */
@@ -189,6 +213,7 @@
     bottom: 0;
     background-color: var(--fcb-surface);
     z-index: 1;
+    margin-top: auto;
   }
 </style>
 

@@ -152,7 +152,7 @@
 
             <!-- Images Tab -->
             <div v-if="backendAvailable" class="tab flexcol" data-group="primary" data-tab="images" style="overflow: hidden; height: calc(100vh - 325px);">
-              <ScrollPanel style="flex: 1; min-height: 0; height: 100%; width: 100%;" :pt="{ wrapper: { style: 'height: 100%; width: 100%' }, content: { style: 'padding: 0 1rem; width: 100%; box-sizing: border-box' } }">
+              <ScrollPanel style="flex: 1; min-height: 0; height: 100%; width: 100%;" :pt="{ wrapper: { style: 'height: 100%; width: 100%; scrollbar-width: thin; scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb)' }, content: { style: 'width: 100%; box-sizing: border-box' } }">
                 <div class="standard-form" style="padding-right: 1rem;">
                   <div class="form-group" style="padding-top: .75rem">
                     <p class="hint">{{ localize('applications.customFields.images.promptHint') }}</p>
@@ -361,6 +361,27 @@
     </div>
   </Dialog>
 </template>
+
+<style lang="scss">
+  // Apply scrollbar styles to ScrollPanel
+  .p-scrollpanel-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb);
+  }
+  
+  .p-scrollpanel-wrapper::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .p-scrollpanel-wrapper::-webkit-scrollbar-track {
+    background: var(--fcb-scrollbar);
+  }
+  
+  .p-scrollpanel-wrapper::-webkit-scrollbar-thumb {
+    background-color: var(--fcb-scrollbar-thumb);
+    border-radius: 4px;
+  }
+</style>
 
 <script setup lang="ts">
   // library imports
