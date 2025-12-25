@@ -37,6 +37,7 @@
   // types
   import { Topics, ValidTopic, WindowTabType } from '@/types';
   import { generateImage } from '@/utils/generation';
+import { Arc, Campaign, Entry, FCBSetting, Front, Session } from 'src/classes';
   
   ////////////////////////////////
   // props
@@ -83,7 +84,14 @@
   // store
   const relationshipStore = useRelationshipStore();
   const mainStore = useMainStore();
-  const { currentSetting, currentEntry } = storeToRefs(mainStore);
+  const { 
+    currentSetting, 
+    currentEntry,
+    currentCampaign,
+    currentArc,
+    currentSession,
+    currentFront,
+  } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -120,11 +128,41 @@
 
   const onGenerateImage = async () => {
     // confirm it's a legit topic
-    if (!currentSetting.value || !currentEntry.value || ![Topics.Character, Topics.Location, Topics.Organization].includes(props.topic)) {
+    if (props.topic === Topics.PC) {
+      return;
+    }
+    
+    // Determine the current entry based on window type
+    let entry: Entry | Campaign | Arc | Session | Front | FCBSetting | null = null;
+    
+    switch (props.windowType) {
+      case WindowTabType.Entry:
+        entry = currentEntry.value;
+        break;
+      case WindowTabType.Campaign:
+        entry = currentCampaign.value;
+        break;
+      case WindowTabType.Arc:
+        entry = currentArc.value;
+        break;
+      case WindowTabType.Session:
+        entry = currentSession.value;
+        break;
+      case WindowTabType.Front:
+        entry = currentFront.value;
+        break;
+      case WindowTabType.Setting:
+        entry = currentSetting.value;
+        break;
+      default:
+        return;
+    }
+    
+    if (!currentSetting.value || !entry) {
       return;
     }
 
-    await generateImage(currentSetting.value, currentEntry.value);
+    await generateImage(currentSetting.value, entry as any);
   };  
 
   ////////////////////////////////

@@ -9,9 +9,18 @@ import {
   LocationDetails, 
   OrganizationDetails, 
   Species, 
-  Topics, 
+  Topics,
+  CustomFieldContentType,
 } from '@/types';
-import { Entry, TopicFolder, FCBSetting, } from '@/classes';
+import { 
+  Entry, 
+  TopicFolder, 
+  FCBSetting, 
+  Campaign, 
+  Arc, 
+  Session, 
+  Front,
+} from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyError, notifyInfo } from './notifications';
 
@@ -76,16 +85,21 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
 
 /**
  * Generates an AI image for an entry based on its type, description, and setting context.
- * Handles different generation logic for characters, locations, and organizations.
+ * Uses the custom image generation endpoint for all content types except PCs.
  * Shows user notifications during the generation process and updates the entry with the result.
  * 
  * @param forSetting - The setting containing the entry (used for genre and setting feeling)
- * @param entry - The entry to generate an image for
+ * @param entry - The entry to generate an image for (can be Entry, Campaign, Arc, Session, Front, or Setting)
  * @returns A promise that resolves when image generation is complete
  * @throws {Error} If image generation fails or the entry type is not supported
  */
-export const generateImage = async (forSetting: FCBSetting, entry: Entry): Promise<void> => {
-  if (!entry || !forSetting || ![Topics.Character, Topics.Location, Topics.Organization].includes(entry.topic)) {
+export const generateImage = async (forSetting: FCBSetting, entry: Entry | Campaign | Arc | Session | Front | FCBSetting): Promise<void> => {
+  if (!entry || !forSetting) {
+    return;
+  }
+  
+  // Don't generate images for PCs
+  if (entry instanceof Entry && entry.topic === Topics.PC) {
     return;
   }
 
@@ -103,71 +117,112 @@ export const generateImage = async (forSetting: FCBSetting, entry: Entry): Promi
     // Get species name if this is a character
     let species: Species | undefined;
     const speciesList = ModuleSettings.get(SettingKey.speciesList);
-    if (entry.speciesId) {
+    if (entry instanceof Entry && entry.speciesId) {
       species = speciesList.find(s => s.id === entry.speciesId);
     }
+    
+    // Get custom image prompt and configuration for this content type
+    const aiImagePrompts = ModuleSettings.get(SettingKey.aiImagePrompts) || {};
+    const aiImageConfigurations = ModuleSettings.get(SettingKey.aiImageConfigurations) || {};
+    
+    // Map Topics to CustomFieldContentType
+    const topicToContentType: Record<Topics, CustomFieldContentType> = {
+      [Topics.Character]: CustomFieldContentType.Character,
+      [Topics.Location]: CustomFieldContentType.Location,
+      [Topics.Organization]: CustomFieldContentType.Organization,
+      [Topics.PC]: CustomFieldContentType.PC,
+    };
+    
+    // Determine content type based on the document type
+    let contentType: CustomFieldContentType;
+    if (entry instanceof Entry) {
+      contentType = topicToContentType[entry.topic];
+    } else if (entry instanceof Campaign) {
+      contentType = CustomFieldContentType.Campaign;
+    } else if (entry instanceof Arc) {
+      contentType = CustomFieldContentType.Arc;
+    } else if (entry instanceof Session) {
+      contentType = CustomFieldContentType.Session;
+    } else if (entry instanceof Front) {
+      contentType = CustomFieldContentType.Front;
+    } else if (entry instanceof FCBSetting) {
+      contentType = CustomFieldContentType.Setting;
+    } else {
+      contentType = CustomFieldContentType.Setting; // fallback
+    }
+    
+    const customPrompt = aiImagePrompts[contentType] || '';
+    const imageConfig = aiImageConfigurations[contentType] || {};
+    
+    // Get setting info from the setting
+    const settingInfo: { genre: string; settingFeeling?: string } = {
+      genre: forSetting.genre,
+      settingFeeling: forSetting.settingFeeling,
+    };
+    
+    // get parent/grandparent for context (only for entries)
+    let parent: Entry | null = null;
+    let grandparent: Entry | null = null;
 
-    let result;
-    switch (entry.topic) {
-      case Topics.Character:
-        // Call the API to generate an image
-         result = await useBackendStore().generateCharacterImage({
-          genre: forSetting.genre,
-          settingFeeling: forSetting.settingFeeling,
-          name: entry.name,
-          type: entry.type,
-          species: species?.name || '',
-          speciesDescription: species?.description || '',
-          briefDescription: entry.description,
-          textModel: ModuleSettings.get(SettingKey.selectedTextModel),
-          imageModel: ModuleSettings.get(SettingKey.selectedImageModel),
-        });
-        break;
-      case Topics.Location:
-      case Topics.Organization:
-        // get parent/grandparent
-        let parent: Entry | null = null;
-        let grandparent: Entry | null = null;
+    if (entry instanceof Entry) {
+      let parentId = await entry.getParentId();
+      if (parentId) {
+        parent = await Entry.fromUuid(parentId);
 
-        let parentId = await entry.getParentId();
-        if (parentId) {
-          parent = await Entry.fromUuid(parentId);
-
-          if (parent) {
-            const grandparentId = await parent.getParentId();
-            if (grandparentId) {
-              grandparent = await Entry.fromUuid(grandparentId);
-            }
+        if (parent) {
+          const grandparentId = await parent.getParentId();
+          if (grandparentId) {
+            grandparent = await Entry.fromUuid(grandparentId);
           }
         }
-
-        // Call the API to generate an image
-        const options = {
-          genre: forSetting.genre,
-          settingFeeling: forSetting.settingFeeling,
-          type: entry.type,
-          name: entry.name,
-          parentName: parent?.name,
-          parentType: parent?.type,
-          parentDescription: parent?.description,
-          grandparentName: grandparent?.name,
-          grandparentType: grandparent?.type,
-          grandparentDescription: grandparent?.description,
-          briefDescription: entry.description,
-          textModel: ModuleSettings.get(SettingKey.selectedTextModel),
-          imageModel: ModuleSettings.get(SettingKey.selectedImageModel),
-        };
-
-        if (entry.topic === Topics.Location)  {
-          result = await useBackendStore().generateLocationImage(options);
-        } else if (entry.topic === Topics.Organization) {
-          result = await useBackendStore().generateOrganizationImage(options);
-        }
-        break;
+      }
     }
+    
+    // Build the prompt by replacing tokens
+    let finalPrompt = customPrompt;
+    const tokenMap: Record<string, string> = {
+      name: entry.name || '',
+      type: (entry as any).type || '',
+      description: (entry as any).description || '',
+      species: species?.name || '',
+      speciesDescription: species?.description || '',
+      parentName: parent?.name || '',
+      parentType: parent?.type || '',
+      parentDescription: parent?.description || '',
+      grandparentName: grandparent?.name || '',
+      grandparentType: grandparent?.type || '',
+      grandparentDescription: grandparent?.description || '',
+    };
+    
+    // Replace tokens in the prompt
+    for (const [token, value] of Object.entries(tokenMap)) {
+      finalPrompt = finalPrompt.replace(new RegExp(`\{${token}\}`, 'g'), value);
+    }
+    
+    // Call the custom image generation API
+    const result = await useBackendStore().generateCustomImage({
+      contentType: contentType as any,
+      name: entry.name,
+      prompt: finalPrompt,
+      genre: settingInfo.genre,
+      settingFeeling: settingInfo.settingFeeling,
+      type: (entry as any).type,
+      species: species?.name,
+      speciesDescription: species?.description,
+      parentName: parent?.name,
+      parentType: parent?.type,
+      parentDescription: parent?.description,
+      grandparentName: grandparent?.name,
+      grandparentType: grandparent?.type,
+      grandparentDescription: grandparent?.description,
+      description: (entry as any).description,
+      textModel: ModuleSettings.get(SettingKey.selectedTextModel),
+      imageModel: ModuleSettings.get(SettingKey.selectedImageModel),
+      imageConfiguration: imageConfig,
+    });
 
     // Update the entry with the generated image
-    if (result.data.filePath) {
+    if (result?.data.filePath) {
       entry.img = result.data.filePath;
       await entry.save();
       notifyInfo(`Image completed for ${entry.name}.`);

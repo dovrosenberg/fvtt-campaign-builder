@@ -1,6 +1,7 @@
 import { CustomFieldContentType, FieldType } from '@/types';
 import { localize } from '@/utils/game';
 import { ModuleSettings, SettingKey } from '@/settings';
+import type { ImageConfiguration } from '@/settings';
 
 export function toCustomFieldKey(text: string): string {
   const lowered = (text || '').toLowerCase();
@@ -234,4 +235,92 @@ export const resetDefaultCustomFields = async () => {
   };
 
   await ModuleSettings.set(SettingKey.customFields, defaultCustomFields);
+  
+  // Also initialize default image configurations
+  await initializeDefaultImageConfigurations();
 }
+
+/** 
+ * Set the default image configurations for the first time.
+ */
+export const initializeDefaultImageConfigurations = async () => {
+  // Default image configuration for all content types
+  const defaultConfig: ImageConfiguration = {
+    artStyle: 'fantasy illustration, digital painting, professional TTRPG art style',
+    medium: 'digital art, high resolution',
+    modelStyle: 'cinematic, detailed, professional illustration',
+    contentRating: 'PG-13',
+    composition: 'dynamic composition, rule of thirds, professional layout',
+    lighting: 'dramatic lighting, rich colors, full color illustration',
+    colorPalette: 'rich vibrant colors, professional color grading, full color',
+    camera: 'eye level, dramatic angle, professional composition',
+    mood: 'epic, adventurous, immersive',
+    negativePrompt: 'blurry, low quality, amateur, sketch, monochrome, black and white, simple, cartoon, anime, manga, photo, realistic',
+    providerOptions: {},
+  };
+  
+  // Default prompts for each content type
+  const defaultPrompts: Record<CustomFieldContentType, string> = {
+    [CustomFieldContentType.Setting]: 'Cover art for a TTRPG campaign setting book.',
+    [CustomFieldContentType.Character]: 'Portrait of a character from a TTRPG campaign.',
+    [CustomFieldContentType.Location]: 'Image of a location from a TTRPG campaign.',
+    [CustomFieldContentType.Organization]: 'Image to be used alongside the description of an organization in a TTRPG campaign book.',
+    [CustomFieldContentType.Arc]: 'Cover art for a chapter of a TTRPG campaign book.',
+    [CustomFieldContentType.Front]: 'Art of a dramatic or threatening scene for a section of a TTRPG campaign book to to be used to describe the {name} front.',
+    [CustomFieldContentType.PC]: '',
+    [CustomFieldContentType.Session]: 'Art of the most exciting or dramatic moment for a section of a TTRPG campaign book to to be used to describe a particular section of an adventure',
+    [CustomFieldContentType.Campaign]: 'Cover art for a TTRPG campaign book.'
+  };
+  
+  // Create configurations for all content types
+  const configurations: Record<CustomFieldContentType, ImageConfiguration> = {
+    [CustomFieldContentType.Setting]: { 
+      ...defaultConfig,
+      composition: 'epic landscape composition, wide angle view, establishing shot, cover art layout',
+      camera: 'wide angle shot, aerial view, cinematic establishing shot',
+    },
+    [CustomFieldContentType.Character]: { 
+      ...defaultConfig,
+      composition: 'character portrait composition, centered subject, rule of thirds, dynamic pose',
+      camera: 'medium shot, character view, slightly low angle to show heroism',
+    },
+    [CustomFieldContentType.Location]: { 
+      ...defaultConfig,
+      composition: 'environmental composition, depth of field, leading lines, atmospheric perspective',
+      camera: 'establishing shot, eye level, wide view to show scale',
+    },
+    [CustomFieldContentType.Organization]: { 
+      ...defaultConfig,
+      composition: 'symbolic composition, emblematic layout, centered focal point, heraldic design',
+      camera: 'straight on view, symmetrical composition, professional presentation',
+    },
+    [CustomFieldContentType.Arc]: { 
+      ...defaultConfig,
+      composition: 'chapter cover composition, dramatic scene, narrative focus, action layout',
+      camera: 'dynamic angle, action shot, cinematic composition',
+    },
+    [CustomFieldContentType.Front]: { 
+      ...defaultConfig,
+      composition: 'tension-filled composition, dramatic lighting, foreboding atmosphere, action scene',
+      camera: 'low angle shot to emphasize threat, dramatic perspective',
+    },
+    [CustomFieldContentType.PC]: { 
+      ...defaultConfig,
+      composition: 'character portrait composition, heroic pose, player character focus',
+      camera: 'medium close shot, eye level, character-focused',
+    },
+    [CustomFieldContentType.Session]: { 
+      ...defaultConfig,
+      composition: 'action scene composition, dynamic layout, multiple focal points, dramatic moment',
+      camera: 'action shot, dynamic angle, in-the-moment perspective',
+    },
+    [CustomFieldContentType.Campaign]: { 
+      ...defaultConfig,
+      composition: 'epic cover art composition, heroic scale, multiple elements, cinematic layout',
+      camera: 'cinematic wide shot, epic perspective, cover art angle',
+    },
+  };
+  
+  await ModuleSettings.set(SettingKey.aiImagePrompts, defaultPrompts);
+  await ModuleSettings.set(SettingKey.aiImageConfigurations, configurations);
+};

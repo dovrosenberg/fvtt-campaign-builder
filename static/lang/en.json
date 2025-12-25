@@ -182,7 +182,28 @@
             "promptTemplate": "Image prompt template",
             "selectField": "Select a field...",
             "insert": "Insert",
-            "fieldToken": "Insert field token"
+            "fieldToken": "Insert field token",
+            "artStyle": "Art Style",
+            "medium": "Medium",
+            "modelStyle": "Model Style",
+            "contentRating": "Content Rating",
+            "composition": "Composition",
+            "lighting": "Lighting",
+            "colorPalette": "Color Palette",
+            "camera": "Camera",
+            "mood": "Mood",
+            "negativePrompt": "Negative Prompt",
+            "imageConfiguration": "Image Configuration",
+            "artStylePlaceholder": "e.g., watercolor, oil painting",
+            "mediumPlaceholder": "e.g., ink, pencil sketch",
+            "modelStylePlaceholder": "e.g., cinematic, anime",
+            "contentRatingPlaceholder": "e.g., PG, PG-13",
+            "compositionPlaceholder": "e.g., close-up portrait, wide shot",
+            "lightingPlaceholder": "e.g., golden hour, moody rim light",
+            "colorPalettePlaceholder": "e.g., muted earth tones",
+            "cameraPlaceholder": "e.g., 35mm, telephoto",
+            "moodPlaceholder": "e.g., ominous, whimsical",
+            "negativePromptPlaceholder": "Things to avoid"
           },
           "promptHint": "Create a template for AI image generation. Use {FIELD} to reference field values in your prompt. Available fields are shown in the drop-down.  All default fields are passed automatically, so you only need to reference them if you want to give a specific instruction related to one of them."
         },
@@ -199,7 +220,15 @@
             "selectField": "Select a field...",
             "insert": "Insert",
             "fieldTokenHint": "Use {FIELD} to reference another field when building the prompt.  Available fields are shown in the drop-down. All default fields are passed automatically, so you only need to reference them if you want to give a specific instruction related to one of them.",
-            "promptTemplate": "Prompt template"
+            "promptTemplate": "Prompt template",
+            "configuration": "Configuration",
+            "minWords": "Min words",
+            "maxWords": "Max words",
+            "writingStyle": "Writing style",
+            "tense": "Tense",
+            "pointOfView": "Point of view",
+            "allowLists": "Allow lists",
+            "avoidListsLongerThan": "Avoid lists longer than"
           },
           "errors": {
             "invalidTokens": "Invalid template token(s):"

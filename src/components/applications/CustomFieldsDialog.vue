@@ -1,6 +1,6 @@
 <template>
   <section class="standard-form">
-    <div class="fcb-sheet-container flexcol primevue-only">
+    <div class="fcb-sheet-container flexcol primevue-only" style="height: 100%;">
       <div class="standard-form" style="padding: 0.5rem 0;">
         <div class="form-group">
           <label>{{ localize('applications.customFields.labels.contentType') }}</label>
@@ -16,15 +16,15 @@
         </div>
       </div>
 
-      <div class="fcb-sheet-subtab-container flexcol">
+      <div class="fcb-sheet-subtab-container flexcol" style="height: 100%;">
         <div class="fcb-subtab-wrapper">
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
             <a class="item active" data-tab="fields">{{ localize('applications.customFields.tabs.fields') }}</a>
             <a v-if="backendAvailable" class="item" data-tab="images">{{ localize('applications.customFields.tabs.images') }}</a>
           </nav>
-          <div class="fcb-tab-body flexrow">
+          <div class="fcb-tab-body flexrow" style="height: 100%;">
             <!-- Fields Tab -->
-            <div class="tab active flexcol" data-group="primary" data-tab="fields">
+            <div class="tab active flexcol" data-group="primary" data-tab="fields" style="height: calc(100vh - 325px);">
               <div style="flex: 1; min-height: 0; padding: 0 0.75rem 0.75rem 0.75rem;">
                 <DataTable
                   v-if="selectedType !== null"
@@ -151,9 +151,9 @@
             </div>
 
             <!-- Images Tab -->
-            <div v-if="backendAvailable" class="tab flexcol" data-group="primary" data-tab="images">
-              <div style="flex: 1; min-height: 0;">
-                <div class="standard-form">
+            <div v-if="backendAvailable" class="tab flexcol" data-group="primary" data-tab="images" style="overflow: hidden; height: calc(100vh - 325px);">
+              <ScrollPanel style="flex: 1; min-height: 0; height: 100%; width: 100%;" :pt="{ wrapper: { style: 'height: 100%; width: 100%' }, content: { style: 'padding: 0 1rem; width: 100%; box-sizing: border-box' } }">
+                <div class="standard-form" style="padding-right: 1rem;">
                   <div class="form-group" style="padding-top: .75rem">
                     <p class="hint">{{ localize('applications.customFields.images.promptHint') }}</p>
                   </div>
@@ -180,20 +180,75 @@
                       {{ aiImagePromptValidationError }}
                     </p>
                   </div>
-                </div>
-              </div>
 
-              <div class="form-group stacked">
-                <label>{{ localize('applications.customFields.images.labels.prompt') }}</label>
-                <div class="form-fields">
-                  <textarea
-                    ref="aiImagePromptRef"
-                    v-model="aiImagePrompt"
-                    rows="8"
-                    style="width: 100%;"
-                  />
+                  <div class="form-group stacked">
+                    <label>{{ localize('applications.customFields.images.labels.prompt') }}</label>
+                    <div class="form-fields">
+                      <textarea
+                        ref="aiImagePromptRef"
+                        v-model="aiImagePrompt"
+                        rows="8"
+                        style="width: 100%;"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group stacked">
+                    <label>{{ localize('applications.customFields.images.labels.imageConfiguration') }}</label>
+                    <div class="form-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items: center; width: 100%; box-sizing: border-box; padding-right: 1rem;">
+                      <div style="display: contents;">
+                        <label style="grid-column: 1;">{{ localize('applications.customFields.images.labels.artStyle') }}</label>
+                        <InputText v-model="aiImageConfig.artStyle" unstyled style="grid-column: 2; width: 100%;" :placeholder="localize('applications.customFields.images.labels.artStylePlaceholder')" />
+                      </div>
+
+                      <div style="display: contents;">
+                        <label style="grid-column: 1;">{{ localize('applications.customFields.images.labels.medium') }}</label>
+                        <InputText v-model="aiImageConfig.medium" unstyled style="grid-column: 2; width: 100%;" :placeholder="localize('applications.customFields.images.labels.mediumPlaceholder')" />
+                      </div>
+
+                      <div style="display: contents;">
+                        <label style="grid-column: 1;">{{ localize('applications.customFields.images.labels.modelStyle') }}</label>
+                        <InputText v-model="aiImageConfig.modelStyle" unstyled style="grid-column: 2; width: 100%;" :placeholder="localize('applications.customFields.images.labels.modelStylePlaceholder')" />
+                      </div>
+
+                      <div style="display: contents;">
+                        <label style="grid-column: 1;">{{ localize('applications.customFields.images.labels.contentRating') }}</label>
+                        <InputText v-model="aiImageConfig.contentRating" unstyled style="grid-column: 2; width: 100%;" :placeholder="localize('applications.customFields.images.labels.contentRatingPlaceholder')" />
+                      </div>
+
+                      <div style="display: contents;">
+                        <label style="grid-column: 1;">{{ localize('applications.customFields.images.labels.composition') }}</label>
+                        <InputText v-model="aiImageConfig.composition" unstyled style="grid-column: 2; width: 100%;" :placeholder="localize('applications.customFields.images.labels.compositionPlaceholder')" />
+                      </div>
+
+                      <div style="display: contents;">
+                        <label style="grid-column: 1;">{{ localize('applications.customFields.images.labels.lighting') }}</label>
+                        <InputText v-model="aiImageConfig.lighting" unstyled style="grid-column: 2; width: 100%;" :placeholder="localize('applications.customFields.images.labels.lightingPlaceholder')" />
+                      </div>
+
+                      <div style="display: contents;">
+                        <label style="grid-column: 1;">{{ localize('applications.customFields.images.labels.colorPalette') }}</label>
+                        <InputText v-model="aiImageConfig.colorPalette" unstyled style="grid-column: 2; width: 100%;" :placeholder="localize('applications.customFields.images.labels.colorPalettePlaceholder')" />
+                      </div>
+
+                      <div style="display: contents;">
+                        <label style="grid-column: 1;">{{ localize('applications.customFields.images.labels.camera') }}</label>
+                        <InputText v-model="aiImageConfig.camera" unstyled style="grid-column: 2; width: 100%;" :placeholder="localize('applications.customFields.images.labels.cameraPlaceholder')" />
+                      </div>
+
+                      <div style="display: contents;">
+                        <label style="grid-column: 1;">{{ localize('applications.customFields.images.labels.mood') }}</label>
+                        <InputText v-model="aiImageConfig.mood" unstyled style="grid-column: 2; width: 100%;" :placeholder="localize('applications.customFields.images.labels.moodPlaceholder')" />
+                      </div>
+
+                      <div style="display: contents;">
+                        <label style="grid-column: 1;">{{ localize('applications.customFields.images.labels.negativePrompt') }}</label>
+                        <InputText v-model="aiImageConfig.negativePrompt" unstyled style="grid-column: 2; width: 100%;" :placeholder="localize('applications.customFields.images.labels.negativePromptPlaceholder')" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </ScrollPanel>
             </div>
           </div>
         </div>
@@ -228,79 +283,81 @@
         </div>
       </div>
 
-      <div v-if="!!aiDialogEnabled" class="form-group">
-        <label>{{ localize('applications.customFields.aiDialog.labels.fieldToken') }}</label>
-        <div class="form-fields" style="display: flex; gap: 0.5rem; align-items: center;">
-          <Select
-            v-model="selectedAiTokenKey"
-            :options="aiTokenOptions"
-            optionLabel="label"
-            optionValue="value"
-            :placeholder="localize('applications.customFields.aiDialog.labels.selectField')"
-            style="flex: 1; min-width: 0;"
-          />
-          <button type="button" @click="onInsertAiTokenClick" :disabled="!selectedAiTokenKey">
-            <i class="fas fa-plus"></i>
-            <label>{{ localize('applications.customFields.aiDialog.labels.insert') }}</label>
-          </button>
+      <template v-if="aiDialogEnabled">
+        <div class="form-group">
+          <label>{{ localize('applications.customFields.aiDialog.labels.fieldToken') }}</label>
+          <div class="form-fields" style="display: flex; gap: 0.5rem; align-items: center;">
+            <Select
+              v-model="selectedAiTokenKey"
+              :options="aiTokenOptions"
+              optionLabel="label"
+              optionValue="value"
+              :placeholder="localize('applications.customFields.aiDialog.labels.selectField')"
+              style="flex: 1; min-width: 0;"
+            />
+            <button type="button" @click="onInsertAiTokenClick" :disabled="!selectedAiTokenKey">
+              <i class="fas fa-plus"></i>
+              <label>{{ localize('applications.customFields.aiDialog.labels.insert') }}</label>
+            </button>
+          </div>
+          <p class="hint">{{ localize('applications.customFields.aiDialog.labels.fieldTokenHint') }}</p>
         </div>
-        <p class="hint">{{ localize('applications.customFields.aiDialog.labels.fieldTokenHint') }}</p>
-      </div>
 
-      <div v-if="!!aiDialogEnabled" class="form-group stacked">
-        <label>{{ localize('applications.customFields.aiDialog.labels.promptTemplate') }}</label>
-        <div class="form-fields">
-          <textarea
-            ref="aiPromptTextareaRef"
-            v-model="aiDialogPromptTemplate"
-            rows="8"
-            style="width: 100%;"
-          />
+        <div class="form-group stacked">
+          <label>{{ localize('applications.customFields.aiDialog.labels.promptTemplate') }}</label>
+          <div class="form-fields">
+            <textarea
+              ref="aiPromptTextareaRef"
+              v-model="aiDialogPromptTemplate"
+              rows="8"
+              style="width: 100%;"
+            />
+          </div>
+          <p v-if="aiTemplateValidationError" class="hint" style="color: red; margin-top: 0.25rem;">
+            {{ aiTemplateValidationError }}
+          </p>
         </div>
-        <p v-if="aiTemplateValidationError" class="hint" style="color: red; margin-top: 0.25rem;">
-          {{ aiTemplateValidationError }}
-        </p>
-      </div>
 
-      <div v-if="!!aiDialogEnabled" class="form-group stacked">
-        <label>Configuration</label>
-        <div class="form-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items: center;">
-          <div style="display: contents;">
-            <label style="grid-column: 1;">Min words</label>
-            <InputNumber v-model="aiDialogMinWords" :min="0" unstyled fluid style="grid-column: 2;" />
-          </div>
+        <div class="form-group stacked">
+          <label>{{ localize('applications.customFields.aiDialog.labels.configuration') }}</label>
+          <div class="form-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items: center;">
+            <div style="display: contents;">
+              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.minWords') }}</label>
+              <InputNumber v-model="aiDialogMinWords" :min="0" unstyled fluid style="grid-column: 2;" />
+            </div>
 
-          <div style="display: contents;">
-            <label style="grid-column: 1;">Max words</label>
-            <InputNumber v-model="aiDialogMaxWords" :min="0" unstyled fluid style="grid-column: 2;" />
-          </div>
+            <div style="display: contents;">
+              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.maxWords') }}</label>
+              <InputNumber v-model="aiDialogMaxWords" :min="0" unstyled fluid style="grid-column: 2;" />
+            </div>
 
-          <div style="display: contents;">
-            <label style="grid-column: 1;">Tone</label>
-            <InputText v-model="aiDialogTone" unstyled style="grid-column: 2; width: 100%;" />
-          </div>
+            <div style="display: contents;">
+              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.writingStyle') }}</label>
+              <InputText v-model="aiDialogTone" unstyled style="grid-column: 2; width: 100%;" />
+            </div>
 
-          <div style="display: contents;">
-            <label style="grid-column: 1;">Tense</label>
-            <InputText v-model="aiDialogTense" unstyled style="grid-column: 2; width: 100%;" />
-          </div>
+            <div style="display: contents;">
+              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.tense') }}</label>
+              <InputText v-model="aiDialogTense" unstyled style="grid-column: 2; width: 100%;" />
+            </div>
 
-          <div style="display: contents;">
-            <label style="grid-column: 1;">Point of view</label>
-            <InputText v-model="aiDialogPov" unstyled style="grid-column: 2; width: 100%;" />
-          </div>
+            <div style="display: contents;">
+              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.pointOfView') }}</label>
+              <InputText v-model="aiDialogPov" unstyled style="grid-column: 2; width: 100%;" />
+            </div>
 
-          <div style="display: contents;">
-            <label style="grid-column: 1;">Allow lists</label>
-            <InputNumber v-model="aiDialogIncludeBullets" :min="0" unstyled fluid style="grid-column: 2;" />
-          </div>
+            <div style="display: contents;">
+              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.allowLists') }}</label>
+              <Checkbox v-model="aiDialogIncludeBullets" binary style="grid-column: 2;" />
+            </div>
 
-          <div style="display: contents;">
-            <label style="grid-column: 1;">Avoid lists longer than</label>
-            <InputNumber v-model="aiDialogAvoidListsLongerThan" :min="0" unstyled fluid style="grid-column: 2;" />
+            <div style="display: contents;">
+              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.avoidListsLongerThan') }}</label>
+              <InputNumber v-model="aiDialogAvoidListsLongerThan" :min="0" unstyled fluid style="grid-column: 2;" />
+            </div>
           </div>
         </div>
-      </div>
+      </template>
     </div>
   </Dialog>
 </template>
@@ -326,6 +383,7 @@
   import Button from 'primevue/button';
   import Select from 'primevue/select';
   import InputText from 'primevue/inputtext';
+  import ScrollPanel from 'primevue/scrollpanel';
   import InputNumber from 'primevue/inputnumber';
   import Checkbox from 'primevue/checkbox';
 
@@ -336,6 +394,7 @@
 
   // types
   import { CustomFieldContentType, CustomFieldDescription, FieldType } from '@/types';
+  import type { ImageConfiguration } from '@/settings';
 
   type AiTokenOption = {
     label: string;
@@ -464,6 +523,15 @@
   const aiImagePrompt = ref<string>('');
   const selectedAiImageTokenKey = ref<string | null>(null);
   const aiImagePrompts = ref<Record<CustomFieldContentType, string>>({} as any);
+  
+  // AI Image configuration
+  const aiImageConfig = ref<Partial<ImageConfiguration>>({});
+  const aiImageConfigurations = ref<Record<CustomFieldContentType, ImageConfiguration>>({} as any);
+  
+  // Default image configuration
+  const DEFAULT_IMAGE_CONFIGURATION: ImageConfiguration = {
+    contentRating: 'PG-13',
+  };
 
 
   ////////////////////////////////
@@ -982,7 +1050,7 @@
       return;
     }
 
-    aiDialogTargetRow.value.aiEnabled = !!aiDialogEnabled.value;
+    aiDialogTargetRow.value.aiEnabled = aiDialogEnabled.value;
     aiDialogTargetRow.value.aiPromptTemplate = aiDialogPromptTemplate.value ?? '';
 
     const minWords = Number.isFinite(aiDialogMinWords.value) ? Math.max(0, Math.floor(aiDialogMinWords.value)) : DEFAULT_AI_CONFIGURATION.minWords;
@@ -1105,6 +1173,9 @@
     
     // Reset the AI Image prompt to the last saved value
     aiImagePrompt.value = aiImagePrompts.value[selectedType.value] || '';
+    
+    // Reset the AI Image configuration to the last saved value
+    aiImageConfig.value = { ...DEFAULT_IMAGE_CONFIGURATION, ...(aiImageConfigurations.value[selectedType.value] || {}) };
   };
 
   const onSaveClick = async () => {
@@ -1113,6 +1184,18 @@
     // Save the current AI Image prompt before saving
     if (selectedType.value !== null) {
       aiImagePrompts.value[selectedType.value] = aiImagePrompt.value;
+    }
+    
+    // Save the current AI Image configuration before saving
+    if (selectedType.value !== null) {
+      // Remove empty values from the config
+      const cleanedConfig: ImageConfiguration = {};
+      for (const [key, value] of Object.entries(aiImageConfig.value)) {
+        if (value !== null && value !== undefined && value !== '') {
+          (cleanedConfig as any)[key] = value;
+        }
+      }
+      aiImageConfigurations.value[selectedType.value] = cleanedConfig;
     }
 
     // Validate and normalize all content types so this dialog saves everything in one operation.
@@ -1159,6 +1242,9 @@
 
     // Save AI Image prompts
     await ModuleSettings.set(SettingKey.aiImagePrompts, aiImagePrompts.value);
+    
+    // Save AI Image configurations
+    await ModuleSettings.set(SettingKey.aiImageConfigurations, aiImageConfigurations.value);
 
     if (isCampaignBuilderAppOpen()) {
       await mainStore.refreshCurrentContent();
@@ -1181,11 +1267,15 @@
   watch(() => selectedType.value, (newType) => {
     if (newType === null) {
       aiImagePrompt.value = '';
+      aiImageConfig.value = { ...DEFAULT_IMAGE_CONFIGURATION };
       return;
     }
     
     // Load the AI Image prompt for the new type
     aiImagePrompt.value = aiImagePrompts.value[newType] || '';
+    
+    // Load the AI Image configuration for the new type
+    aiImageConfig.value = { ...DEFAULT_IMAGE_CONFIGURATION, ...(aiImageConfigurations.value[newType] || {}) };
     
     // Ensure the newly-selected type has a working copy initialized from the last saved settings.
     ensureWorkingRowsForType(newType);
@@ -1200,6 +1290,9 @@
 
     // Load AI Image prompts
     aiImagePrompts.value = ModuleSettings.get(SettingKey.aiImagePrompts) || {} as any;
+    
+    // Load AI Image configurations
+    aiImageConfigurations.value = ModuleSettings.get(SettingKey.aiImageConfigurations) || {} as any;
 
     // Initialize working copies for all types so switching does not lose changes.
     for (const opt of typeOptions) {
@@ -1209,6 +1302,7 @@
     // Initialize the AI Image prompt for the default selected type
     if (selectedType.value !== null) {
       aiImagePrompt.value = aiImagePrompts.value[selectedType.value] || '';
+      aiImageConfig.value = { ...DEFAULT_IMAGE_CONFIGURATION, ...(aiImageConfigurations.value[selectedType.value] || {}) };
     }
 
     // Initialize tabs
