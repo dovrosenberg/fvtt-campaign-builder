@@ -19,7 +19,7 @@
     "tsc": "vue-tsc --skipLibCheck -p ./tsconfig.json",
     "unlinkdata": "unlink ~/foundry13data/Data/modules/campaign-builder",
     "foundry": "node ~/foundry13/resources/app/main.js --dataPath=/home/dov/foundry13data",
-    "updateREST": "rm -rf src/apiClient && npx @openapitools/openapi-generator-cli generate -i http://localhost:8080/documentation/json -g typescript-axios -o src/apiClient --additional-properties=withSeparateModelsAndApi=true,disallowAdditionalPropertiesIfNotPresent=false,apiPackage=API,modelPackage=types,supportsES6=true,withInterfaces=true",
+    "updateREST": "rm -rf src/apiClient && npx @openapitools/openapi-generator-cli generate --config=openapi-config.json",
     "docs:generate-version": "node docs/.vitepress/theme/utils/generate-version.cjs",
     "docs:dev": "npm run docs:generate-version && vitepress dev docs",
     "docs:build": "npm run docs:generate-version && vitepress build docs",

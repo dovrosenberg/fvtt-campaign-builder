@@ -17,13 +17,13 @@
 /**
  * 
  * @export
- * @interface ApiCharacterGenerateImagePost200Response
+ * @interface ApiCustomGenerateImagePost200Response
  */
-export interface ApiCharacterGenerateImagePost200Response {
+export interface ApiCustomGenerateImagePost200Response {
     /**
      * The path of the new image
      * @type {string}
-     * @memberof ApiCharacterGenerateImagePost200Response
+     * @memberof ApiCustomGenerateImagePost200Response
      */
     'filePath': string;
 }

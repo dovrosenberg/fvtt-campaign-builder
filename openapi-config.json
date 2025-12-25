@@ -1,0 +1,23 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "FCB API Configuration",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "generatorName": "typescript-axios",
+  "outputDir": "src/apiClient",
+  "inputSpec": "http://localhost:8080/documentation/json",
+  "additionalProperties": {
+    "withSeparateModelsAndApi": true,
+    "disallowAdditionalPropertiesIfNotPresent": false,
+    "apiPackage": "API",
+    "modelPackage": "types",
+    "supportsES6": true,
+    "withInterfaces": true
+  }
+}
