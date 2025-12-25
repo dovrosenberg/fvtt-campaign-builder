@@ -6,7 +6,21 @@ import { SpeciesListApplication } from '@/applications/settings/SpeciesListAppli
 import { ImageSettingsApplication } from '@/applications/settings/ImageSettingsApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, } from '@/types';
-import type { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from '@/apiClient';
+import { ApiCustomGenerateImagePostRequest, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
+
+export interface ImageConfiguration {
+  artStyle?: string;
+  medium?: string;
+  modelStyle?: string;
+  contentRating?: string;
+  composition?: string;
+  lighting?: string;
+  colorPalette?: string;
+  camera?: string;
+  mood?: string;
+  negativePrompt?: string;
+  providerOptions?: { [key: string]: any; };
+}
 
 export interface ImageVisibility {
   settings: boolean;
@@ -65,6 +79,7 @@ export enum SettingKey {
   customFieldsMenu = 'customFieldsMenu',
   customFields = 'customFields',  // mapping of CustCustomFieldContentType to CustomFieldType
   aiImagePrompts = 'aiImagePrompts', // AI image generation prompts per content type
+  aiImageConfigurations = 'aiImageConfigurations', // AI image generation configurations per content type
 
   rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu
   autoRefreshRollTables = 'autoRefreshRollTables',  // should roll tables be automatically refreshed on load
@@ -96,8 +111,8 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.customFieldsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
-    K extends SettingKey.selectedTextModel ? ApiLocationGenerateImagePostRequestTextModelEnum :
-    K extends SettingKey.selectedImageModel ? ApiLocationGenerateImagePostRequestImageModelEnum :
+    K extends SettingKey.selectedTextModel ? ApiCustomGenerateImagePostRequestTextModelEnum :
+    K extends SettingKey.selectedImageModel ? ApiCustomGenerateImagePostRequestImageModelEnum :
     K extends SettingKey.defaultAddToSession ? boolean :
     K extends SettingKey.rollTableSettingsMenu ? never :
     K extends SettingKey.autoRefreshRollTables ? boolean :
@@ -106,6 +121,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.imageMenu ? never :
     K extends SettingKey.showImages ? ImageVisibility :
     K extends SettingKey.aiImagePrompts ? Record<CustomFieldContentType, string> :
+    K extends SettingKey.aiImageConfigurations ? Record<CustomFieldContentType, ImageConfiguration> :
     K extends SettingKey.entryTags ? TagList :
     K extends SettingKey.sessionTags ? TagList :
     K extends SettingKey.frontTags ? TagList :
@@ -414,6 +430,11 @@ export class ModuleSettings {
     },
     {
       settingID: SettingKey.aiImagePrompts,
+      default: {},
+      type: Object,
+    },
+    {
+      settingID: SettingKey.aiImageConfigurations,
       default: {},
       type: Object,
     },
