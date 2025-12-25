@@ -133,6 +133,14 @@ export class MigrationV1_8 implements Migration {
           customFields[CustomFieldContentType.Location] = customFields[CustomFieldContentType.Location].filter((f: any) => f.name !== KEY_BOXED_TEXT && f.name !== KEY_GM_NOTES);
           customFields[CustomFieldContentType.Organization] = customFields[CustomFieldContentType.Organization].filter((f: any) => f.name !== KEY_BOXED_TEXT && f.name !== KEY_GM_NOTES);
           customFields[CustomFieldContentType.Character] = customFields[CustomFieldContentType.Character].filter((f: any) => f.name !== KEY_BOXED_TEXT && f.name !== KEY_GM_NOTES);
+
+          // need to change the default AI image fields for these content types because they refer to boxed text
+          const aiImageConfig = ModuleSettings.get(SettingKey.aiImageConfigurations);
+          aiImageConfig[CustomFieldContentType.Location].descriptionField = KEY_AI_DESCRIPTION;
+          aiImageConfig[CustomFieldContentType.Organization].descriptionField = KEY_AI_DESCRIPTION;
+          aiImageConfig[CustomFieldContentType.Character].descriptionField = KEY_AI_DESCRIPTION;
+          await ModuleSettings.set(SettingKey.aiImageConfigurations, aiImageConfig);
+
         } else {
           // the default custom fields include boxed text replacements
         }
