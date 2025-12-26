@@ -216,8 +216,8 @@
         "fieldTypes": {
           "select": "Выбор",
           "editor": "Редактор",
-          "boolean": "Булево",
-          "input": "Ввод"
+          "input": "Ввод",
+          "checkbox": "Флажок"
         },
         "aiDialog": {
           "title": "Шаблон ИИ",
@@ -260,7 +260,7 @@
             "selectField": "Выберите поле...",
             "insert": "Вставить",
             "fieldToken": "Вставить токен поля",
-            "descriptionField": "Поле, содержащее описание, используемое для генерации изображения",
+            "descriptionField": "Поле, содержащее описание для генерации изображений",
             "negativePrompt": "Отрицательная подсказка",
             "imageConfiguration": "Конфигурация изображения",
             "artStyle": "Стиль искусства",
@@ -846,7 +846,9 @@
         "addTextPrompt": "Введите текст для добавления на диаграмму",
         "openEntryInNewTab": "Открыть запись в новой вкладке",
         "openDangerInNewTab": "Открыть опасность в новой вкладке"
-      }
+      },
+      "addToStoryWeb": "Добавить в текущую Story Web",
+      "addWithRelationships": "Добавить с отношениями"
     },
     "tooltips": {
       "mainButton": "Запустить Создатель кампаний",

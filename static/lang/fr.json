@@ -216,8 +216,8 @@
         "fieldTypes": {
           "select": "Sélectionner",
           "editor": "Éditeur",
-          "boolean": "Booléen",
-          "input": "Entrée"
+          "input": "Entrée",
+          "checkbox": "Case à cocher"
         },
         "aiDialog": {
           "title": "Modèle IA",
@@ -260,7 +260,7 @@
             "selectField": "Sélectionnez un champ...",
             "insert": "Insérer",
             "fieldToken": "Insérer un jeton de champ",
-            "descriptionField": "Champ qui contient la description utilisée pour la génération d'images",
+            "descriptionField": "Champ qui contient la description à utiliser pour la génération d'images",
             "negativePrompt": "Invite négative",
             "imageConfiguration": "Configuration de l'image",
             "artStyle": "Style artistique",
@@ -825,7 +825,9 @@
         "addTextPrompt": "Entrer le texte à ajouter au diagramme",
         "openEntryInNewTab": "Ouvrir l'entrée dans un nouvel onglet",
         "openDangerInNewTab": "Ouvrir le danger dans un nouvel onglet"
-      }
+      },
+      "addToStoryWeb": "Ajouter à l'histoire Web actuelle",
+      "addWithRelationships": "Ajouter avec les relations"
     },
     "tooltips": {
       "mainButton": "Lancer le Créateur de Campagne",
