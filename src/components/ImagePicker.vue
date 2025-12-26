@@ -221,7 +221,7 @@
         });
       }
 
-      if (available.value && [Topics.Character, Topics.Location, Topics.Organization].includes(props.topic)) {
+      if (available.value && props.topic !== Topics.PC) {
         // insert it after change image
         items.splice(items.findIndex((i)=> i.icon === 'fa-edit'), 0, {
           icon: 'fa-head-side-virus',
