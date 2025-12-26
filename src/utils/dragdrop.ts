@@ -1,6 +1,6 @@
 // Drag/drop helpers for Foundry and internal DnD
 
-import { BookmarkDragDropData, NodeDragDropData, TabDragData, FoundryDragType, KnownDragTypes, EntryNodeDragData } from 'src/types';
+import { NodeDragDropData, KnownDragTypes, } from '@/types';
 
 /**
  * Helper function to set combined drag data for FCB entries

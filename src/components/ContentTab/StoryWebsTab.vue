@@ -151,7 +151,7 @@
     if (!data || getType(data) !== 'fcb-storyWeb' || !('fcbData' in data && (data.fcbData as StoryWebNodeDragData)?.storyWebId))
       return;
 
-    const selectedItemId = data.fcbData as StoryWebNodeDragData?.storyWebId;
+    const selectedItemId = (data.fcbData as StoryWebNodeDragData)?.storyWebId;
 
     // Only allow story webs that are part of this campaign
     const matches = await campaign.value.filterStoryWebs((s) => s.uuid === selectedItemId);
