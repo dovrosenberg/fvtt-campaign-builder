@@ -28,6 +28,7 @@ export interface RelatedPCDetails {
   uuid: string;
   name: string;
   type: string;
+  playerName: string;
   actorId: string | null;
 }
 
