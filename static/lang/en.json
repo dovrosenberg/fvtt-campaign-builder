@@ -183,7 +183,7 @@
             "selectField": "Select a field...",
             "insert": "Insert",
             "fieldToken": "Insert field token",
-            "descriptionField": "Field that holds the description that used for image generation",
+            "descriptionField": "Field that holds the description to be used for image generation",
             "negativePrompt": "Negative Prompt",
             "imageConfiguration": "Image Configuration",
             "artStyle": "Art Style",
@@ -253,7 +253,7 @@
           "input": "Input",
           "select": "Select",
           "editor": "Editor",
-          "boolean": "Boolean"
+          "checkbox": "Checkbox"
         }
       },
       "customFieldsBlocks": {

@@ -297,81 +297,82 @@
         </div>
       </div>
 
-      <template v-if="aiDialogEnabled">
-        <div class="form-group">
-          <label>{{ localize('applications.customFields.aiDialog.labels.fieldToken') }}</label>
-          <div class="form-fields" style="display: flex; gap: 0.5rem; align-items: center;">
-            <Select
-              v-model="selectedAiTokenKey"
-              :options="aiTokenOptions"
-              optionLabel="label"
-              optionValue="value"
-              :placeholder="localize('applications.customFields.aiDialog.labels.selectField')"
-              style="flex: 1; min-width: 0;"
-            />
-            <button type="button" @click="onInsertAiTokenClick" :disabled="!selectedAiTokenKey">
-              <i class="fas fa-plus"></i>
-              <label>{{ localize('applications.customFields.aiDialog.labels.insert') }}</label>
-            </button>
-          </div>
-          <p class="hint">{{ localize('applications.customFields.aiDialog.labels.fieldTokenHint') }}</p>
+      <div class="form-group stacked">
+        <label>{{ localize('applications.customFields.aiDialog.labels.promptTemplate') }}</label>
+        <p class="hint">{{ localize('applications.customFields.aiDialog.labels.fieldTokenHint') }}</p>
+      </div>
+
+      <div class="form-group">
+        <label>{{ localize('applications.customFields.aiDialog.labels.fieldToken') }}</label>
+        <div class="form-fields" style="display: flex; gap: 0.5rem; align-items: center;">
+          <Select
+            v-model="selectedAiTokenKey"
+            :options="aiTokenOptions"
+            optionLabel="label"
+            optionValue="value"
+            :placeholder="localize('applications.customFields.aiDialog.labels.selectField')"
+            style="flex: 1; min-width: 0;"
+          />
+          <button type="button" @click="onInsertAiTokenClick" :disabled="!selectedAiTokenKey">
+            <i class="fas fa-plus"></i>
+            <label>{{ localize('applications.customFields.aiDialog.labels.insert') }}</label>
+          </button>
         </div>
+      </div>
 
-        <div class="form-group stacked">
-          <label>{{ localize('applications.customFields.aiDialog.labels.promptTemplate') }}</label>
-          <div class="form-fields">
-            <textarea
-              ref="aiPromptTextareaRef"
-              v-model="aiDialogPromptTemplate"
-              rows="8"
-              style="width: 100%;"
-            />
-          </div>
-          <p v-if="aiTemplateValidationError" class="hint" style="color: red; margin-top: 0.25rem;">
-            {{ aiTemplateValidationError }}
-          </p>
+      <div class="form-group stacked">
+        <div class="form-fields">
+          <textarea
+            ref="aiPromptTextareaRef"
+            v-model="aiDialogPromptTemplate"
+            rows="8"
+            style="width: 100%;"
+          />
         </div>
+        <p v-if="aiTemplateValidationError" class="hint" style="color: red; margin-top: 0.25rem;">
+          {{ aiTemplateValidationError }}
+        </p>
+      </div>
 
-        <div class="form-group stacked">
-          <label>{{ localize('applications.customFields.aiDialog.labels.configuration') }}</label>
-          <div class="form-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items: center;">
-            <div style="display: contents;">
-              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.minWords') }}</label>
-              <InputNumber v-model="aiDialogMinWords" :min="0" unstyled fluid style="grid-column: 2;" />
-            </div>
+      <div class="form-group stacked">
+        <label>{{ localize('applications.customFields.aiDialog.labels.configuration') }}</label>
+        <div class="form-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items: center;">
+          <div style="display: contents;">
+            <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.minWords') }}</label>
+            <InputNumber v-model="aiDialogMinWords" :min="0" unstyled fluid style="grid-column: 2;" />
+          </div>
 
-            <div style="display: contents;">
-              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.maxWords') }}</label>
-              <InputNumber v-model="aiDialogMaxWords" :min="0" unstyled fluid style="grid-column: 2;" />
-            </div>
+          <div style="display: contents;">
+            <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.maxWords') }}</label>
+            <InputNumber v-model="aiDialogMaxWords" :min="0" unstyled fluid style="grid-column: 2;" />
+          </div>
 
-            <div style="display: contents;">
-              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.writingStyle') }}</label>
-              <InputText v-model="aiDialogTone" unstyled style="grid-column: 2; width: 100%;" />
-            </div>
+          <div style="display: contents;">
+            <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.writingStyle') }}</label>
+            <InputText v-model="aiDialogTone" unstyled style="grid-column: 2; width: 100%;" />
+          </div>
 
-            <div style="display: contents;">
-              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.tense') }}</label>
-              <InputText v-model="aiDialogTense" unstyled style="grid-column: 2; width: 100%;" />
-            </div>
+          <div style="display: contents;">
+            <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.tense') }}</label>
+            <InputText v-model="aiDialogTense" unstyled style="grid-column: 2; width: 100%;" />
+          </div>
 
-            <div style="display: contents;">
-              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.pointOfView') }}</label>
-              <InputText v-model="aiDialogPov" unstyled style="grid-column: 2; width: 100%;" />
-            </div>
+          <div style="display: contents;">
+            <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.pointOfView') }}</label>
+            <InputText v-model="aiDialogPov" unstyled style="grid-column: 2; width: 100%;" />
+          </div>
 
-            <div style="display: contents;">
-              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.allowLists') }}</label>
-              <Checkbox v-model="aiDialogIncludeBullets" binary style="grid-column: 2;" />
-            </div>
+          <div style="display: contents;">
+            <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.allowLists') }}</label>
+            <Checkbox v-model="aiDialogIncludeBullets" binary style="grid-column: 2;" />
+          </div>
 
-            <div style="display: contents;">
-              <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.avoidListsLongerThan') }}</label>
-              <InputNumber v-model="aiDialogAvoidListsLongerThan" :min="0" unstyled fluid style="grid-column: 2;" />
-            </div>
+          <div style="display: contents;">
+            <label style="grid-column: 1;">{{ localize('applications.customFields.aiDialog.labels.avoidListsLongerThan') }}</label>
+            <InputNumber v-model="aiDialogAvoidListsLongerThan" :min="0" unstyled fluid style="grid-column: 2;" />
           </div>
         </div>
-      </template>
+      </div>
     </div>
   </Dialog>
 </template>
@@ -492,7 +493,7 @@
     { value: FieldType.Text, label: localize('applications.customFields.fieldTypes.input') },
     { value: FieldType.Select, label: localize('applications.customFields.fieldTypes.select') },
     { value: FieldType.Editor, label: localize('applications.customFields.fieldTypes.editor') },
-    { value: FieldType.Boolean, label: localize('applications.customFields.fieldTypes.boolean') },
+    { value: FieldType.Boolean, label: localize('applications.customFields.fieldTypes.checkbox') },
   ];
 
   const allCustomFields = ref<Record<CustomFieldContentType, CustomFieldDescription[]>>({} as any);

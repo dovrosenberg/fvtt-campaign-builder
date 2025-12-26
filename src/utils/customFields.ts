@@ -83,7 +83,6 @@ export const resetDefaultCustomFields = async () => {
     Write read-aloud boxed text describing the character for players.
     Focus on immediate sensory impressions only: appearance, posture, expression, mannerisms, and vibe.
     Avoid backstory, stats, secret motives, or mechanical detail — keep it to what the PCs can see/hear/sense right now.
-    Write in present tense, 3–6 sentences.
   `;
   const characterGMNotesPrompt = `
     Write GM-only notes for running this character.
@@ -95,7 +94,6 @@ export const resetDefaultCustomFields = async () => {
     Write read-aloud boxed text describing the location for players.
     Focus on sensory details (sight, sound, smell, mood) and immediate, obvious features.
     Avoid backstory, mechanics, secret motives, or hidden details — keep it to what the PCs can perceive right now.
-    Write in present tense, 3–6 sentences.
   `;
   
   const locationGMNotesPrompt = `
