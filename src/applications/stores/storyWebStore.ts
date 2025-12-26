@@ -415,6 +415,33 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     toRaw(currentNetwork.value)?.stabilize(50);
   };
 
+  /** add front to the story web - adds all dangers from the front */
+  /** @param position - position to place the first danger at - relative to canvas */
+  /** @param withRelationships - whether to also add all related nodes implicitly */
+  const addFront = async (frontId: string, position: { x: number, y: number } | null = null, withRelationships: boolean = false) => {
+    if (!currentStoryWeb.value || !currentNetwork.value)
+      return;
+
+    const front = await Front.fromUuid(frontId);
+    if (!front)
+      return;
+
+    // Add all dangers from the front
+    for (let i = 0; i < front.dangers.length; i++) {
+      const dangerId = `${front.uuid}|${i}`;
+      // Offset position for each danger to avoid overlap
+      const dangerPosition = position ? {
+        x: position.x + (i * 50),
+        y: position.y + (i * 50)
+      } : null;
+      await currentStoryWeb.value.addDanger(dangerId, dangerPosition, withRelationships);
+    }
+
+    // refresh the drawing
+    await mainStore.refreshStoryWeb();
+    toRaw(currentNetwork.value)?.stabilize(50);
+  };
+
   /** select an entry from dialog and insert at a location; will let user pick from all entries
    *    in the setting, but will exclude any that are already in the story web (explicitly)
    * @param position - position to place the node at - relative to canvas 
@@ -1596,6 +1623,8 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     isWebLoading,
     
     addEntry,
+    addDanger,
+    addFront,
     removeNode,
     removeEdge,
     handleDropOnNode,
