@@ -19,6 +19,9 @@ Anything represented as a folder can be opened/closed by clicking the folder ico
 
 ![Directory sidebar](/assets/images/directory-sidebar.webp)
 
+> [!TIP]
+> You can drag/drop anything from either the [^Setting Directory] or the [^Campaign Directory] onto a Foundry scene to create a map note that will open that piece of content directly in Campaign Builder.  This can be particularly useful for things like putting Location descriptions on the map.  Clicking the note then opens the Location entry, providing quick access to any other related content.
+
 ## The Setting Directory {#setting-directory}
 The top half of the directory sidebar is the Setting directory.  Also known as the Entry directory, this is where you can find all the entries (Character, Locations, and Organizations) of your worlds.
 
