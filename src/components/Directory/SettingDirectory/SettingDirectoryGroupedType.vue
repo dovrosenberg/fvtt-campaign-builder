@@ -134,7 +134,7 @@
     if (!data || getType(data) !== 'fcb-entry')
       return;
 
-    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+    const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;
 
     // make sure it's not already set
     if (!fcbData || !fcbData.typeName || fcbData.typeName===currentType.value.name)

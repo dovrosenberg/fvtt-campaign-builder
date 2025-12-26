@@ -160,7 +160,7 @@
       return;
     }
 
-    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+    const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;
 
     // make sure it's the right format
     if (!fcbData || ![Topics.Character, Topics.Organization].includes(fcbData.topic) || !fcbData.childId) {

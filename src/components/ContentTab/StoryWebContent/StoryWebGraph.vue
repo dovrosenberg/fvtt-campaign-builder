@@ -148,7 +148,7 @@
       return;
     }
 
-    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+    const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;
     if (!fcbData) {
       return;
     }

@@ -231,7 +231,7 @@
     if (!data || getType(data) !== 'fcb-entry')
       return;
 
-    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+    const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;
 
     // make sure it's the right format and topic matches
     if (!fcbData || fcbData.topic !== props.topic || !fcbData.childId) {

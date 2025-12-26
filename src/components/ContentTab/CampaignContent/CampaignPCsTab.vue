@@ -138,7 +138,7 @@
       return;
     }
 
-    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+    const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;
     
     // make sure it's the right format
     if (!fcbData || fcbData.topic !== Topics.PC || !fcbData.childId) {

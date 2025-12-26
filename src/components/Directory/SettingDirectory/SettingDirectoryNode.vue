@@ -150,7 +150,7 @@
     if (!data || getType(data) !== 'fcb-entry')
       return;
 
-    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+    const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;
 
     if (!fcbData) {
       return;

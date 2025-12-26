@@ -371,7 +371,7 @@
 
     // Parse the data using the utility function
     const data = getValidatedData(event);
-    if (!data) 
+    if (!data || !('fcbData' in data)) 
       return;
 
     let entryUuid: string | null = null;
