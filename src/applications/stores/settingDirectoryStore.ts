@@ -531,7 +531,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     items.push({
       icon: 'fa-diagram-project',
       iconFontClass: 'fas',
-      label: 'Add to current Story Web',
+      label: localize('contextMenus.addToStoryWeb'),
       disabled: !currentStoryWeb.value,
       onClick: async () => {
         await storyWebStore.addEntry(entryId, null, false);
@@ -540,7 +540,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     items.push({
       icon: 'fa-sitemap',
       iconFontClass: 'fas',
-      label: 'Add with Relationships',
+      label: localize('contextMenus.addWithRelationships'),
       disabled: !currentStoryWeb.value,
       onClick: async () => {
         await storyWebStore.addEntry(entryId, null, true);

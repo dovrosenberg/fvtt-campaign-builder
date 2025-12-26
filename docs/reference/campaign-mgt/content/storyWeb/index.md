@@ -68,8 +68,8 @@ The Story Web interface provides an interactive canvas where you can manipulate 
 ## Adding content to the graph
 
 You can add three types of content to your Story Web:
-  * Entries
-  * Dangers (from [Fronts])
+  * Entries (Characters, Locations, Organizations, PCs)
+  * Individual Dangers (from [Fronts])
   * Custom text
 
 ### Adding Entries (Characters, Locations, Organizations, PCs)
@@ -92,6 +92,19 @@ You can add three types of content to your Story Web:
 - You'll get a dialog asking you to select what you want to add
 - "Add with relations" brings in the entry plus all its 1st degree connections
 - If any connected entries are already on the graph, those connections will be shown (and entries won't be added multiple times)
+
+### Adding Fronts and Dangers
+
+**Method 1: Drag and drop**
+- Drag Fronts from the Campaign Directory directly onto the graph
+- All Dangers from the Front will be added to the graph
+- Holding the Control key while dropping a Front will add all Dangers plus their related participants (Characters/Organizations)
+
+**Method 2: From the directory context menu**
+- Right-click a Front in the Campaign Directory
+- Select "Add to current Story Web" to add all Dangers from the Front
+- Select "Add with Relationships" to add all Dangers plus their participants
+- If any connected entities are already on the graph, those connections will be shown (and entities won't be added multiple times)
 
 ### Custom text
 

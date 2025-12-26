@@ -758,6 +758,8 @@
       }
     },
     "contextMenus": {
+      "addToStoryWeb": "Add to current Story Web",
+      "addWithRelationships": "Add with Relationships",
       "tabs": {
         "closeAll": "Close All Tabs",
         "closeOther": "Close Other Tabs"

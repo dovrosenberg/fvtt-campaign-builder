@@ -15,6 +15,7 @@
 - Similarly, you now have complete control over AI image generation - from specifying which field has the description to use to specifying framing, image styles, and more.  
 - You can also now generate images for settings, campaigns, arcs, sessions, and fronts.
 - You can now drag Settings, Entries, Campaigns, Arcs, Sessions, Fronts and Story Webs from the directory onto a Foundry scene to create a Map Note that will then directly open the content in Campaign Builder.
+- You can now drag/drop a Front onto a Story Web and it will add all of the Front's Dangers to the Story Web.  Hold control to also get all of each Danger's participants.  Similarly, you can right click on a Front in the directory to have menu options to do that.
 - Fixed styling on the various module settings submenu windows.
 
 ## 1.7.4 - Fixed journal entry direct-open bug

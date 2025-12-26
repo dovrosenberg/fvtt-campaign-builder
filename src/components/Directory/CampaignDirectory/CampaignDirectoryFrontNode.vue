@@ -24,7 +24,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useStoryWebStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { setCombinedDragData } from '@/utils/dragdrop';
   
@@ -54,7 +54,8 @@
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const mainStore = useMainStore();
-  const { currentFront, isInPlayMode, } = storeToRefs(mainStore);
+  const storyWebStore = useStoryWebStore();
+  const { currentFront, isInPlayMode, currentStoryWeb } = storeToRefs(mainStore);
   // const { filterNodes } = storeToRefs(settingDirectoryStore);
   
   ////////////////////////////////
@@ -105,6 +106,24 @@
       y: event.y,
       zIndex: 300,
       items: [
+        { 
+          icon: 'fa-diagram-project',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.addToStoryWeb'),
+          disabled: !currentStoryWeb.value,
+          onClick: async () => {
+            await storyWebStore.addFront(props.frontNode.id, null, false);
+          }
+        },
+        { 
+          icon: 'fa-sitemap',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.addWithRelationships'),
+          disabled: !currentStoryWeb.value,
+          onClick: async () => {
+            await storyWebStore.addFront(props.frontNode.id, null, true);
+          }
+        },
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
