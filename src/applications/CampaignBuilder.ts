@@ -18,8 +18,6 @@ import { UserFlagKey, UserFlags } from '@/settings';
 import { WindowTabType } from '@/types';
 import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
 
-// setup pinia
-
 // a (hopefully) never used name to indicate opening window without a doc
 const FCB_OPEN_WINDOW_NAME = 'FCB-Open-Window!!!@#';
 

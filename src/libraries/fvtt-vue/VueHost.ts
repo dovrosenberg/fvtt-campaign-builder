@@ -98,6 +98,13 @@ class VueHost {
         const portals = ref<Array<{ key: string; portal: Portal }>>([]);
 
         const registerPortal = (portal: Portal) => {
+          // Check if this container already has a portal registered
+          const existingPortal = portals.value.find(p => p.portal.container === portal.container);
+          if (existingPortal) {
+            // Don't register the new portal - the existing one will handle the container
+            return;
+          }
+          
           portals.value.push({ key: portal.id, portal });
         };
 
@@ -181,14 +188,64 @@ class VueHost {
    * @param refCallback - Callback to receive the component instance reference
    * @returns A unique portal ID for later updates/unregistration
    */
-  async registerPortal(component: any, props: Record<string, any>, container: HTMLElement, refCallback: (instance: any) => void): Promise<string> {
+  async registerPortal(component: any, props: Record<string, any>, container: HTMLElement, refCallback: (instance: any) => void): Promise<string | undefined> {
     await this._ensureMounted();
+    
+    // Check if this container already has a portal registered
+    const existingPortal = Array.from(this._portals.values()).find(p => p.container === container);
+    if (existingPortal) {
+      return undefined;
+    }
     
     const id = `fcb-portal-${++this._portalCounter}`;
     const portal: Portal = { id, component, props, container, ref: refCallback };
     this._portals.set(id, portal);
     (window as any).__fcbVueHost?.registerPortal(portal);
     return id;
+  }
+
+  /**
+   * Get a portal by ID
+   * 
+   * @param id - The portal ID
+   * @returns The portal if found, undefined otherwise
+   */
+  getPortal(id: string): Portal | undefined {
+    return this._portals.get(id);
+  }
+
+  /**
+   * Get all portal IDs
+   * 
+   * @returns Array of all portal IDs
+   */
+  getPortalIds(): string[] {
+    return Array.from(this._portals.keys());
+  }
+
+  /**
+   * Check if a portal with the given ID exists
+   * 
+   * @param id - The portal ID to check
+   * @returns True if the portal exists, false otherwise
+   */
+  hasPortal(id: string): boolean {
+    return this._portals.has(id);
+  }
+
+  /**
+   * Check if a container already has a portal registered
+   * 
+   * @param container - The DOM element to check
+   * @returns The portal ID if found, null otherwise
+   */
+  getPortalForContainer(container: HTMLElement): string | null {
+    for (const [id, portal] of this._portals) {
+      if (portal.container === container) {
+        return id;
+      }
+    }
+    return null;
   }
 
   /**

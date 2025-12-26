@@ -7,6 +7,9 @@ import { notifyWarn } from '@/utils/notifications';
 
 export const VueApplicationMixinVersion = '0.0.6';
 
+// Use a WeakMap to store portal IDs per application instance
+const portalIdMap = new WeakMap<Application, string | null>();
+
 /**
  * Vue Application Mixin with Singleton Host Integration
  * 
@@ -137,8 +140,6 @@ export function VueApplicationMixin<TBase extends new (...args: any[]) => foundr
      */
     async _renderHTML(context, options) {
       const rendered = {};
-      if ((this.constructor as VueApplicationConstructor).DEBUG) console.log(`VueApplicationMixin | _renderHTML |`, context, options);
-
       // Loop through the parts and render them
       for (const partId of options.parts) {
         // Get the part from the PARTS object
@@ -159,7 +160,6 @@ export function VueApplicationMixin<TBase extends new (...args: any[]) => foundr
         rendered[partId] = await (part?.app ?? part?.component ?? part?.template);
       }
 
-      if ((this.constructor as VueApplicationConstructor).DEBUG) console.log(`VueApplicationMixin | _renderHTML | Vue Portals |`, this.#portalId);
       return rendered;
     }
 
@@ -174,27 +174,58 @@ export function VueApplicationMixin<TBase extends new (...args: any[]) => foundr
      * @param {Object} options - The render options.
      */
     async _replaceHTML(result, content, options) {
-      if ((this.constructor as VueApplicationConstructor).DEBUG) console.log(`VueApplicationMixin | _replaceHTML |`, result, content, options);
 
       // Register portal with the singleton host if not already done
       if (!this.#portalId) {
-        const Instance = this;
-        const firstPartId = options.parts[0];
-        const firstPart = (this.constructor as VueApplicationConstructor).PARTS[firstPartId];
-        const firstComponent = result[firstPartId];
+        // Check if we already have a portal registered for this application instance
+        // We store it in a WeakMap to persist across renders
+        const existingPortalId = portalIdMap.get(this);
+        
+        if (existingPortalId && vueHost.hasPortal(existingPortalId)) {
+          // Reuse the existing portal for this app
+          this.#portalId = existingPortalId;
+          // Update the container reference in case it changed
+          const portal = vueHost.getPortal(existingPortalId);
+          if (portal) {
+            portal.container = content;
+          }
+        } else {
+          const Instance = this;
+          const firstPartId = options.parts[0];
+          const firstPart = (this.constructor as VueApplicationConstructor).PARTS[firstPartId];
+          const firstComponent = result[firstPartId];
 
-        // Register portal with host
-        this.#portalId = await vueHost.registerPortal(
-          firstComponent,
-          this.#props[firstPartId] || {},
-          content,
-          (componentInstance) => { if (componentInstance) Instance.parts[firstPartId] = componentInstance; }
-        );
+          // Register portal with host
+          const portalId = await vueHost.registerPortal(
+            firstComponent,
+            this.#props[firstPartId] || {},
+            content,
+            (componentInstance) => { if (componentInstance) Instance.parts[firstPartId] = componentInstance; }
+          );
 
-        // Attach Part Listeners (once, on first portal creation)
-        this._attachPartListeners(content, options);
+          // registerPortal might return undefined if the container already has a portal
+          if (!portalId) {
+            // Try to find the existing portal for this container
+            const existingPortalId = vueHost.getPortalIds().find(id => {
+              const portal = vueHost.getPortal(id);
+              return portal?.container === content;
+            });
+            if (existingPortalId) {
+              this.#portalId = existingPortalId;
+              portalIdMap.set(this, existingPortalId);
+            } else {
+              console.error(`VueApplicationMixin | _replaceHTML | No existing portal found for container`);
+            }
+          } else {
+            this.#portalId = portalId;
+            // Store the portal ID in the WeakMap to persist across renders
+            portalIdMap.set(this, portalId);
+          }
 
-        if ((this.constructor as VueApplicationConstructor).DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Registered Portal |`, this.#portalId);
+          // Attach Part Listeners (once, on first portal creation)
+          this._attachPartListeners(content, options);
+
+        }
       } else {
         // Update portal props if already registered
         const firstPartId = options.parts[0];
@@ -224,6 +255,8 @@ export function VueApplicationMixin<TBase extends new (...args: any[]) => foundr
       // Unregister the portal from the singleton host
       if (this.#portalId) {
         vueHost.unregisterPortal(this.#portalId);
+        // Clear the stored portal ID from the WeakMap
+        portalIdMap.delete(this);
         this.#portalId = null;
       }
       
@@ -251,7 +284,8 @@ export function VueApplicationMixin<TBase extends new (...args: any[]) => foundr
       const part = (this.constructor as VueApplicationConstructor).PARTS[partId];
 
       // Skip if part is not found
-      if (!part?.forms) return (console.warn('VueApplicationMixin | onSubmitForm | No forms found for part', partId));
+      if (!part?.forms) 
+        return;
 
       // Loop through the forms and check if the form is found
       for (const [selector, formConfig] of Object.entries(part.forms)) {
@@ -284,7 +318,8 @@ export function VueApplicationMixin<TBase extends new (...args: any[]) => foundr
       const part = (this.constructor as VueApplicationConstructor).PARTS[partId];
 
       // Skip if part is not found
-      if (!part?.forms) return (console.warn('VueApplicationMixin | onChangeForm | No forms found for part', partId));
+      if (!part?.forms) 
+        return;
 
       // Loop through the forms and check if the form is found
       for (const [selector, formConfig] of Object.entries(part.forms)) {
