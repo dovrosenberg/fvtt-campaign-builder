@@ -54,7 +54,7 @@
   import { useSettingDirectoryStore, useMainStore, } from '@/applications/stores';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   import { toTopic } from '@/utils/misc';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData } from '@/utils/dragdrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -63,7 +63,7 @@
   import SettingDirectoryGroupedNode from './SettingDirectoryGroupedNode.vue';
 
   // types
-  import { ValidTopic, EntryNodeDragData} from '@/types';
+  import { ValidTopic, EntryNodeDragData } from '@/types';
   import { DirectoryTypeEntryNode, DirectoryTypeNode, Entry } from '@/classes';
 
   
@@ -129,13 +129,15 @@
     if (!currentSetting.value)
         return;
 
-    // parse the data 
-    let data = getValidatedData(event) as EntryNodeDragData;
-    if (!data || data.type !== 'fcb-entry')
+    // parse the data - looking for entries 
+    const data = getValidatedData(event);
+    if (!data || getType(data) !== 'fcb-entry')
       return;
 
+    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+
     // make sure it's not already set
-    if (!data.typeName || data.typeName===currentType.value.name)
+    if (!fcbData || !fcbData.typeName || fcbData.typeName===currentType.value.name)
       return;
 
     // get the pack on the new item
@@ -147,11 +149,11 @@
     const topic = toTopic(topicElement.dataset.topic);
 
     // if the topics don't match, can't drop
-    if (data.topic!==topic || topic === null)
+    if (fcbData.topic!==topic || topic === null)
       return;
 
     // set the new type
-    const entry = await Entry.fromUuid(data.childId);
+    const entry = await Entry.fromUuid(fcbData.childId);
     if (entry) {
       const oldType = entry.type;
       entry.type = currentType.value.name;

@@ -44,7 +44,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { RelatedDocumentDetails, DocumentLinkType } from '@/types';
+  import { RelatedDocumentDetails, DocumentLinkType, FoundryDragType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -269,8 +269,8 @@
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 
-    // parse the data 
-    let data = getValidatedData(event);
+    // parse the data - looking for raw Foundry data (type and uuid)
+    let data = getValidatedData(event) as FoundryDragType | undefined;
     if (!data)
       return;
 

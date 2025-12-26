@@ -32,9 +32,9 @@
 
   // local imports
   import { ArcTableTypes, useArcStore, useMainStore } from '@/applications/stores';
-  import { Topics, CellEditCompleteEvent,} from '@/types';
+  import { Topics, CellEditCompleteEvent, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData } from '@/utils/dragdrop';
   import { getTopicText } from '@/compendia';
   import { notifyInfo } from '@/utils/notifications';
   import { mapEntryToOption } from '@/utils/misc';
@@ -154,17 +154,20 @@
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 
-    // parse the data 
-    let data = getValidatedData(event);
-    if (!data)
-      return;
-
-    // make sure it's the right format
-    if (![Topics.Character, Topics.Organization].includes(data.topic as Topics) || !data.childId) {
+    // parse the data - make sure its an entry
+    const data = getValidatedData(event);
+    if (!data || getType(data) !== 'fcb-entry') {
       return;
     }
 
-    await arcStore.addParticipant(data.childId as string);      
+    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+
+    // make sure it's the right format
+    if (!fcbData || ![Topics.Character, Topics.Organization].includes(fcbData.topic) || !fcbData.childId) {
+      return;
+    }
+
+    await arcStore.addParticipant(fcbData.childId as string);      
   };
 
   const onDialogSubmitClick = async (selectedItemId: string, extraFieldValues: Record<string, string>) => {

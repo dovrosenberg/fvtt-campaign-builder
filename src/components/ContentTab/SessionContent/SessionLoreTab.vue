@@ -216,8 +216,8 @@
   const onDropNew = async (event: DragEvent) => {
     event.preventDefault();  
 
-    // parse the data 
-    let data = getValidatedData(event);
+    // parse the data - looking for raw foundry data
+    let data = getValidatedData(event) as FoundryDragType | undefined;
     if (!data)
       return;
 
@@ -235,7 +235,7 @@
   const onDropRow = async (event: DragEvent, rowUuid: string) => {
     event.preventDefault();  
 
-    // parse the data 
+    // parse the data - looking for raw foundry data
     let data = getValidatedData(event);
     if (!data)
       return;

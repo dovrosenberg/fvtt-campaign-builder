@@ -27,6 +27,7 @@
   // local imports
   import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import { setCombinedDragData } from '@/utils/dragdrop';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -75,16 +76,18 @@
   // event handlers
 
   // handle session dragging
-  const onDragStart = (event: DragEvent): void => {
+  const onDragStart = async (event: DragEvent): Promise<void> => {
     event.stopPropagation();
 
-    const dragData = {
+    // Create the FCB data
+    const fcbData = {
       type: 'fcb-session',
       sessionId: props.sessionNode.id,
       name: props.sessionNode.name
     } as SessionNodeDragData;
 
-    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+    // Set combined drag data for both canvas drops and internal operations
+    setCombinedDragData(event, props.sessionNode.id, fcbData);
   };
 
   const onSessionClick = async (event: MouseEvent) => {

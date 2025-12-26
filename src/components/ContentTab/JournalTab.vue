@@ -40,7 +40,7 @@
   // local components
 
   // types
-  import { RelatedJournal } from '@/types';
+  import { FoundryDragType, RelatedJournal } from '@/types';
   import { getValidatedData } from '@/utils/dragdrop';
 
   ////////////////////////////////
@@ -165,8 +165,8 @@
   async function onDropNew(event: DragEvent) {
     event.preventDefault();
     
-    // parse the data 
-    let data = getValidatedData(event);
+    // parse the data - we're just looking for raw Foundry data here
+    let data = getValidatedData(event) as FoundryDragType;
     if (!data)
       return;
 

@@ -14,6 +14,12 @@ export interface StoryWebNodeDragData {
   name: string;
 };
 
+export interface SettingNodeDragData {
+  type: 'fcb-setting';
+  settingId: string;
+  name: string;
+};
+
 export interface FrontNodeDragData {
   type: 'fcb-front';
   frontId: string;
@@ -23,6 +29,12 @@ export interface FrontNodeDragData {
 export interface CampaignNodeDragData {
   type: 'fcb-campaign';
   campaignId: string;
+  name: string;
+};
+
+export interface ArcNodeDragData {
+  type: 'fcb-arc';
+  arcId: string;
   name: string;
 };
 
@@ -45,6 +57,21 @@ export interface TabDragData {
 export type NodeDragDropData = 
   | EntryNodeDragData 
   | CampaignNodeDragData 
-  | SessionNodeDragData;
+  | ArcNodeDragData
+  | SessionNodeDragData 
+  | SettingNodeDragData
+  | FrontNodeDragData
+  | StoryWebNodeDragData
+  ;
 
-  
+export type FoundryDragType = {
+  type: string;
+  uuid: string;
+}
+
+export type KnownDragTypes = 
+  FoundryDragType | 
+  { type: 'JournalEntry'; fcbData: NodeDragDropData } |
+  BookmarkDragDropData |
+  TabDragData;
+

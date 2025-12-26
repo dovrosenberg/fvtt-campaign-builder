@@ -7,8 +7,10 @@
       <div
         class="noborder"
         style="margin-bottom:0px"
+        draggable="true"
         :data-tooltip="props.arcNode.completed ? localize('tooltips.arcComplete') : ''"
         @contextmenu="onArcContextMenu"
+        @dragstart="onDragStart"
       >
         <i
           class="fas fa-folder-open fa-fw"
@@ -55,6 +57,7 @@
   import { useCampaignDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { FCBDialog } from '@/dialogs';
+  import { setCombinedDragData } from '@/utils/dragdrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -64,7 +67,7 @@
   
   // types
   import { DirectoryArcNode, DirectorySessionNode } from '@/classes';
-  import { WindowTabType } from '@/types';
+  import { WindowTabType, ArcNodeDragData } from '@/types';
   
   ////////////////////////////////
   // props
@@ -105,18 +108,19 @@
   // event handlers
 
   // handle arc dragging
-  // TODO - probably need to put drag handlers back in too - see campaign
-  // const onDragStart = (event: DragEvent): void => {
-  //   event.stopPropagation();
+  const onDragStart = async (event: DragEvent): Promise<void> => {
+    event.stopPropagation();
 
-  //   const dragData = {
-  //     type: 'fcb-campaign',
-  //     campaignId: props.campaignNode.id,
-  //     name: props.campaignNode.name
-  //   } as CampaignNodeDragData;
+    // Create the FCB data
+    const fcbData = {
+      type: 'fcb-arc',
+      arcId: props.arcNode.id,
+      name: props.arcNode.name
+    } as ArcNodeDragData;
 
-  //   event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
-  // };
+    // Set combined drag data for both canvas drops and internal operations
+    setCombinedDragData(event, props.arcNode.id, fcbData);
+  };
 
   // change arc
   const onArcFolderClick = async (_event: MouseEvent) => {

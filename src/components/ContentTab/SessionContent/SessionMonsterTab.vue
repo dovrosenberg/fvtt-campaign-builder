@@ -147,7 +147,7 @@
   const onDropNew = async (event: DragEvent) => {
     event.preventDefault();  
 
-    // parse the data 
+    // parse the data - looking for raw foundry data
     let data = getValidatedData(event);
     if (!data)
       return;

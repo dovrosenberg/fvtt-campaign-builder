@@ -50,7 +50,7 @@
   // local imports
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, NO_TYPE_STRING, validParentItems } from '@/utils/hierarchy';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, setCombinedDragData } from '@/utils/dragdrop';
   import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
@@ -136,8 +136,8 @@
   };
 
   
-  // handle an entry dragging to another to nest
-  const onDragStart = (event: DragEvent, id: string, name: string): void => {
+  // handle an entry dragging to another or to canvas
+  const onDragStart = async (event: DragEvent, id: string, name: string): Promise<void> => {
     event.stopPropagation();
     
     if (!currentSetting.value) { 
@@ -145,7 +145,8 @@
       return;
     }
 
-    const dragData = { 
+    // Create the FCB data
+    const fcbData = {
       type: 'fcb-entry',
       topic: props.topic,
       name: name,
@@ -153,7 +154,8 @@
       typeName: (currentNode.value.type ?? NO_TYPE_STRING),
     } as EntryNodeDragData;
 
-    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+    // Set combined drag data for both canvas drops and internal operations
+    setCombinedDragData(event, id, fcbData);
   };
 
   const onDragover = (event: DragEvent) => {
@@ -170,23 +172,27 @@
     if (!currentSetting.value)
       return false;
 
-    // parse the data 
-    let data = getValidatedData(event) as EntryNodeDragData;
-    if (!data || data.type !== 'fcb-entry')
+    // parse the data - looking for entries
+    let data = getValidatedData(event);
+    if (!data || getType(data) !== 'fcb-entry')
       return;
 
+    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+    if (!fcbData) 
+      return;
+          
     // make sure it's not the same item
     const parentId = currentNode.value.id;
-    if (data.childId===parentId)
+    if (fcbData.childId===parentId)
       return;
 
     // if the types don't match or don't have hierarchy, can't drop
-    if (data.topic!==props.topic || !hasHierarchy(props.topic))
+    if (fcbData.topic!==props.topic || !hasHierarchy(props.topic))
       return;
 
     // is this a legal parent?
     const topicFolder = currentSetting.value.topicFolders[props.topic];
-    const childEntry = await Entry.fromUuid(data.childId); 
+    const childEntry = await Entry.fromUuid(fcbData.childId); 
     
     if (!childEntry)
       return;
@@ -195,7 +201,7 @@
       return;
 
     // add the dropped item as a child on the other (will also refresh the tree)
-    await settingDirectoryStore.setNodeParent(topicFolder as TopicFolder, data.childId, parentId);
+    await settingDirectoryStore.setNodeParent(topicFolder as TopicFolder, fcbData.childId, parentId);
   };
 
 

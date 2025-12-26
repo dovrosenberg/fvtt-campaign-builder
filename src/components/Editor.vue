@@ -48,14 +48,14 @@
   // local imports
   import { enrichFcbHTML } from './Editor/helpers';
   import { useMainStore } from '@/applications/stores';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
   import { localize } from '@/utils/game';
   import { sanitizeHTML } from '@/utils/sanitizeHtml';
   import { replaceEntityReferences } from '@/utils/entityLinking';
   import { extractUUIDs, compareUUIDs, } from '@/utils/uuidExtraction';
   import { registerEditor, unregisterEditor } from '@/utils/editorChangeDetection';
-  import { NodeDragDropData } from '@/types';
+  import { CampaignNodeDragData, EntryNodeDragData, NodeDragDropData, SessionNodeDragData } from '@/types';
 
   // library components
 
@@ -370,27 +370,27 @@
     if (!editor.value || !props.editable) return;
 
     // Parse the data using the utility function
-    const data = getValidatedData(event) as NodeDragDropData;
+    const data = getValidatedData(event);
     if (!data) 
       return;
 
     let entryUuid: string | null = null;
 
     // Handle different data structures from various drag sources
-    switch (data.type) {
+    switch (getType(data)) {
       case 'fcb-entry': 
         // From SettingDirectoryNodeWithChildren or SettingDirectoryNode
-        entryUuid = data.childId;
+        entryUuid = (data.fcbData as EntryNodeDragData)?.childId;
         break;
 
       case 'fcb-campaign': 
         // From DirectoryCampaignNode
-        entryUuid = data.campaignId;
+        entryUuid = (data.fcbData as CampaignNodeDragData)?.campaignId;
         break;
 
       case 'fcb-session': 
         // From SessionDirectoryNode
-        entryUuid = data.sessionId;
+        entryUuid = (data.fcbData as SessionNodeDragData)?.sessionId;
         break;
 
       default:

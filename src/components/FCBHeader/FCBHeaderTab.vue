@@ -154,7 +154,7 @@
     event.preventDefault();  
 
     // parse the data 
-    let data = getValidatedData(event) as TabDragData;
+    let data = getValidatedData(event) as TabDragData | undefined;
     if (!data || data.type !== 'fcb-tab')
       return;
 

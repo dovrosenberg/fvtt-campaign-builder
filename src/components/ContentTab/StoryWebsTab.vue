@@ -21,7 +21,7 @@
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { FCBDialog } from '@/dialogs';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData } from '@/utils/dragdrop';
 
   import BaseTable from '@/components/tables/BaseTable.vue';
 
@@ -147,11 +147,11 @@
     if (!campaign.value || !entity.value)
       return;
 
-    const data = getValidatedData(event) as StoryWebNodeDragData | undefined;
-    if (!data || data.type !== 'fcb-storyWeb' || !data.storyWebId)
+    const data = getValidatedData(event);
+    if (!data || getType(data) !== 'fcb-storyWeb' || !(data.fcbData as StoryWebNodeDragData)?.storyWebId)
       return;
 
-    const selectedItemId = data.storyWebId;
+    const selectedItemId = (data.fcbData as StoryWebNodeDragData)?.storyWebId;
 
     // Only allow story webs that are part of this campaign
     const matches = await campaign.value.filterStoryWebs((s) => s.uuid === selectedItemId);

@@ -32,7 +32,7 @@
   // local imports
   import { useCampaignStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData } from '@/utils/dragdrop';
 
   // library components
 
@@ -41,7 +41,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
   
   // types
-  import { RelatedPCDetails, RelatedEntryDialogModes, Topics } from '@/types';
+  import { RelatedPCDetails, RelatedEntryDialogModes, Topics, EntryNodeDragData } from '@/types';
   import { Entry } from '@/classes';
   
   ////////////////////////////////
@@ -133,21 +133,24 @@
     event.preventDefault();  
 
     // parse the data 
-    let data = getValidatedData(event);
-    if (!data)
-      return;
-
-    // make sure it's the right format
-    if (data.topic !== Topics.PC || !data.childId) {
+    const data = getValidatedData(event);
+    if (!data || getType(data) !== 'fcb-entry') {
       return;
     }
 
-    const entry = await Entry.fromUuid(data.childId);
+    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+    
+    // make sure it's the right format
+    if (!fcbData || fcbData.topic !== Topics.PC || !fcbData.childId) {
+      return;
+    }
+
+    const entry = await Entry.fromUuid(fcbData.childId);
     if (!entry)
       return;
 
     const details: RelatedPCDetails = {
-      uuid: data.childId,
+      uuid: fcbData.childId,
       name: entry.name,
       type: 'PC',
       playerName: entry.playerName,

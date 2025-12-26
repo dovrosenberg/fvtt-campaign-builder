@@ -127,8 +127,8 @@
   const onDrop = async(event: DragEvent) => {
     event.preventDefault();  
 
-    // parse the data 
-    let data = getValidatedData(event) as BookmarkDragDropData;
+    // parse the data - looking for bookmarks
+    let data = getValidatedData(event) as BookmarkDragDropData | undefined;
     if (!data || data.type !== 'fcb-bookmark')
       return;
 

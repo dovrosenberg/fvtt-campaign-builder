@@ -26,6 +26,7 @@
   // local imports
   import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import { setCombinedDragData } from '@/utils/dragdrop';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -94,15 +95,17 @@
     });
   };
 
-  const onDragStart = (event: DragEvent) => {
+  const onDragStart = async (event: DragEvent) => {
     event.stopPropagation();
 
-    const dragData: StoryWebNodeDragData = {
+    // Create the FCB data
+    const fcbData = {
       type: 'fcb-storyWeb',
       storyWebId: props.storyWebNode.id,
       name: props.storyWebNode.name,
-    };
+    } as StoryWebNodeDragData;
 
-    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+    // Set combined drag data for both canvas drops and internal operations
+    setCombinedDragData(event, props.storyWebNode.id, fcbData);
   };
 </script>

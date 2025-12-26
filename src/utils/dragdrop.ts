@@ -1,16 +1,46 @@
 // Drag/drop helpers for Foundry and internal DnD
 
+import { BookmarkDragDropData, NodeDragDropData, TabDragData, FoundryDragType, KnownDragTypes, EntryNodeDragData } from 'src/types';
+
+/**
+ * Helper function to set combined drag data for FCB entries
+ * Combines Foundry's required fields (type and uuid) with custom FCB data
+ * 
+ * @param event - The drag event
+ * @param uuid - The UUID of the JournalEntry
+ * @param fcbData - The custom FCB drag data
+ */
+export const setCombinedDragData = (event: DragEvent, uuid: string, fcbData: NodeDragDropData): void => {
+  if (!event.dataTransfer) return;
+  
+  const dragData = {
+    // Foundry-required fields
+    type: 'JournalEntry',
+    uuid: uuid,
+    
+    // Our custom FCB data
+    fcbData: fcbData
+  };
+  
+  const dataStr = JSON.stringify(dragData);
+  event.dataTransfer.setData('text/plain', dataStr);
+  event.dataTransfer.setData('application/json', dataStr);
+};
+
 /**
  * Validates that a drag event contains valid JSON data in the 'text/plain' format.
  * Checks for proper data transfer format and attempts to parse the JSON content.
  * Note: This doesn't validate the specific type of Entry/Document/etc being dropped,
  * only that the data is text and valid JSON.
  * 
+ * But generally Foundry drags have type and uuid and ours have fcbData
+ * 
  * @param event - The drag event to validate
  * @returns The parsed JSON data as an object, or undefined if validation fails
  */
-export const getValidatedData = (event: DragEvent): Record<string, unknown> | undefined => {
+export const getValidatedData = (event: DragEvent): KnownDragTypes | undefined => {
   const types = event.dataTransfer?.types ?? [];
+
   if (!types.includes('text/plain')) return undefined;
 
   let data;
@@ -22,6 +52,12 @@ export const getValidatedData = (event: DragEvent): Record<string, unknown> | un
   }
 
   return data;
+};
+
+/** Read a data pack from a drop event. Return the type from fcbData if present, otherwise from the root */
+export const getType = (data: KnownDragTypes): string => {
+  // @ts-ignore
+  return data.fcbData?.type ?? data.type;
 };
 
 /**

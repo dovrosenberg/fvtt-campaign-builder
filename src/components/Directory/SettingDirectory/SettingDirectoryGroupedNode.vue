@@ -23,6 +23,7 @@
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, useStoryWebStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { toTopic } from '@/utils/misc';
+  import { setCombinedDragData } from '@/utils/dragdrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -80,7 +81,7 @@
     await navigationStore.openEntry(props.node.id, {newTab: event.ctrlKey});
   };
 
-  const onDragStart = (event: DragEvent): void => {
+  const onDragStart = async (event: DragEvent): Promise<void> => {
     event.stopPropagation();
     
     if (!currentSetting.value) { 
@@ -95,7 +96,8 @@
       return;
     }
 
-    const dragData = { 
+    // Create the FCB data
+    const fcbData = { 
       type: 'fcb-entry',
       topic: toTopic(topicElement.dataset.topic),
       name: props.node.name,
@@ -103,7 +105,8 @@
       typeName: props.typeName,
     } as EntryNodeDragData;
 
-    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+    // Set combined drag data for both canvas drops and internal operations
+    setCombinedDragData(event, props.node.id, fcbData);
   };
 
   const onEntryContextMenu = (event: MouseEvent): void => {

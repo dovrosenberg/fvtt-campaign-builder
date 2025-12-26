@@ -32,9 +32,9 @@
 
   // local imports
   import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes } from '@/applications/stores';
-  import { Topics, RelatedEntryDialogModes, CellEditCompleteEvent, } from '@/types';
+  import { Topics, RelatedEntryDialogModes, CellEditCompleteEvent, EntryNodeDragData, } from '@/types';
   import { localize } from '@/utils/game'
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
 
   // library components
@@ -172,17 +172,19 @@
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 
-    // parse the data 
-    let data = getValidatedData(event);
-    if (!data)
+    // parse the data - looking for location entries
+    const data = getValidatedData(event);
+    if (!data || getType(data) !== 'fcb-entry')
       return;
 
+    const fcbEntry = data.fcbData as EntryNodeDragData | undefined;
+
     // make sure it's the right format
-    if (data.topic !== Topics.Location || !data.childId) {
+    if (!fcbEntry || fcbEntry.topic !== Topics.Location || !fcbEntry.childId) {
       return;
     }
 
-    await store.value.addLocation(data.childId as string);
+    await store.value.addLocation(fcbEntry.childId);
   };
 
   ////////////////////////////////

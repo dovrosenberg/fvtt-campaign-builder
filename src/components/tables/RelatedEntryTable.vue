@@ -41,7 +41,7 @@
   import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { Entry } from '@/classes';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getValidatedData, getType } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
 
   // library components
@@ -226,17 +226,19 @@
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();
 
-    // parse the data
-    let data = getValidatedData(event) as unknown as EntryNodeDragData;
-    if (!data || data.type !== 'fcb-entry')
+    // parse the data - looking for entry
+    let data = getValidatedData(event);
+    if (!data || getType(data) !== 'fcb-entry')
       return;
 
+    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+
     // make sure it's the right format and topic matches
-    if (data.topic !== props.topic || !data.childId) {
+    if (!fcbData || fcbData.topic !== props.topic || !fcbData.childId) {
       return;
     }
 
-    const fullEntry = await Entry.fromUuid(data.childId);
+    const fullEntry = await Entry.fromUuid(fcbData.childId);
     if (!fullEntry) {
       return;
     }

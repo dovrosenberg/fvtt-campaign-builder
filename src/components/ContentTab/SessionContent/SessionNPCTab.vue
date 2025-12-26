@@ -27,9 +27,9 @@
 
   // local imports
   import { useSessionStore, SessionTableTypes} from '@/applications/stores';
-  import { Topics, RelatedEntryDialogModes,} from '@/types';
+  import { Topics, RelatedEntryDialogModes, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData } from '@/utils/dragdrop';
 
   // library components
 
@@ -132,17 +132,23 @@
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 
-    // parse the data 
-    let data = getValidatedData(event);
-    if (!data)
-      return;
-
-    // make sure it's the right format
-    if (data.topic !== Topics.Character || !data.childId) {
+    // parse the data  - looking for entry node
+    const data = getValidatedData(event);
+    if (!data || getType(data) !== 'fcb-entry') {
       return;
     }
 
-    await sessionStore.addNPC(data.childId as string);      
+    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+    if (!fcbData || fcbData.topic !== Topics.Character) {
+      return;
+    }
+
+    // make sure it's the right format
+    if (fcbData.topic !== Topics.Character || !fcbData.childId) {
+      return;
+    }
+
+    await sessionStore.addNPC(fcbData.childId);      
   };
 
 

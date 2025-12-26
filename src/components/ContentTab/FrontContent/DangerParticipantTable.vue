@@ -38,7 +38,7 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useFrontStore, useMainStore } from '@/applications/stores';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData } from '@/utils/dragdrop';
   import { mapEntryToOption } from '@/utils/misc';
   
   // local components
@@ -46,7 +46,7 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, } from '@/types';
+  import { CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, EntryNodeDragData, } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -182,13 +182,15 @@
     event.preventDefault();
 
     const data = getValidatedData(event);
-    if (!data)
+    if (!data || getType(data) !== 'fcb-entry')
       return;
 
-    if (![Topics.Character, Topics.Organization].includes(data.topic as Topics) || !data.childId)
+    const fcbData = data.fcbData as EntryNodeDragData | undefined;
+
+    if (!fcbData || ![Topics.Character, Topics.Organization].includes(fcbData.topic as Topics) || !fcbData.childId)
       return;
 
-    const entry = await Entry.fromUuid(data.childId as string);
+    const entry = await Entry.fromUuid(fcbData.childId);
     if (!entry)
       return;
 

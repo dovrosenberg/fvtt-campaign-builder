@@ -135,7 +135,7 @@
 
   // types
   import { Entry } from '@/classes';
-  import { Topics, RelatedJournal, ValidTopic, CustomFieldContentType } from '@/types';
+  import { FoundryDragType, Topics, RelatedJournal, ValidTopic, CustomFieldContentType } from '@/types';
   import { DOCUMENT_TYPES } from '@/documents';
 
   ////////////////////////////////
@@ -229,8 +229,8 @@
     if (!currentEntry.value || currentEntry.value.topic !== Topics.PC)
       return;
 
-    // parse the data
-    let data = getValidatedData(event) as { type: string; uuid: string };
+    // parse the data - we're just looking for raw Foundry data here
+    let data = getValidatedData(event) as FoundryDragType;
     if (!data)
       return;
 

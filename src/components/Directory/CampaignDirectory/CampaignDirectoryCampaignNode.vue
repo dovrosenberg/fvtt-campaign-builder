@@ -73,6 +73,7 @@
   import { getTabTypeIcon } from '@/utils/misc';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { FCBDialog } from '@/dialogs';
+  import { setCombinedDragData } from '@/utils/dragdrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -167,16 +168,18 @@
   // event handlers
 
   // handle campaign dragging
-  const onDragStart = (event: DragEvent): void => {
+  const onDragStart = async (event: DragEvent): Promise<void> => {
     event.stopPropagation();
 
-    const dragData = {
+    // Create the FCB data
+    const fcbData = {
       type: 'fcb-campaign',
       campaignId: props.campaignNode.id,
       name: props.campaignNode.name
     } as CampaignNodeDragData;
 
-    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+    // Set combined drag data for both canvas drops and internal operations
+    setCombinedDragData(event, props.campaignNode.id, fcbData);
   };
 
   // change campaign
