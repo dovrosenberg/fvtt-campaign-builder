@@ -161,8 +161,8 @@
             </label>
           </div>
           <div v-else class="generation-option-wrapper">&nbsp;</div>
-          
-          <div v-if="generateMode" class="generation-option-wrapper right-align">
+  
+          <!-- <div v-if="generateMode" class="generation-option-wrapper right-align">
             <Checkbox 
               v-model="generateImageAfterAccept" 
               :binary="true"
@@ -172,7 +172,7 @@
               {{ localize('labels.fields.generateImage') }}
               <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.createEntry.generateImage')"></i>
             </label>
-          </div>
+          </div> -->
         </div>
       </div>
     </Dialog>
@@ -283,7 +283,6 @@
   const generateComplete = ref<boolean>(false);
   const loading = ref<boolean>(false);
   const generateError = ref<string>('');
-  const generateImageAfterAccept = ref<boolean>(false);
   const show = ref<boolean>(true);
 
   // for characters
@@ -448,7 +447,7 @@
     if (!currentSetting.value)
       return;
 
-    // create the entry and kick off image generation if needed
+    // create the entry 
     // if we haven't generated a description, use whatever's in brief description
     // the idea is that - especially when we're dealing with a RollTable name - user can use this form as a sort of quick create
     let details: CharacterDetails | LocationDetails | OrganizationDetails | null = null;
@@ -474,7 +473,7 @@
         type: type.value,
         description: descriptionToUse,
         speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
-        generateImage: generateImageAfterAccept.value
+        generateImage: false
       }
     } else if (props.topic === Topics.Location || props.topic === Topics.Organization) {
       details = {
@@ -482,7 +481,7 @@
         type: type.value,
         parentId: parentId.value,
         description: descriptionToUse,
-        generateImage: generateImageAfterAccept.value
+        generateImage: false
       }
     }
 
