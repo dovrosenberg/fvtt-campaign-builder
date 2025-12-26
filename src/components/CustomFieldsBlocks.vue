@@ -191,17 +191,6 @@
       .filter((style) => style !== '');
   };
 
-  const baseDescriptionForContent = (): string => {
-    if (!props.content) return '';
-
-    switch (props.contentType) {
-      case CustomFieldContentType.Session:
-        return String((props.content as any).notes ?? '');
-      default:
-        return String((props.content as any).description ?? '');
-    }
-  };
-
   const resolvePromptFromFieldTemplate = (field: CustomFieldDescription): string => {
     if (!props.content) return '';
 
@@ -215,7 +204,7 @@
     return promptReplace(
       template, 
       baseName, 
-      baseDescriptionForContent(),
+      String((props.content as any).description ?? ''),
       String((props.content as any).type ?? ''),
       String((props.content as any).species ?? ''),
       String((props.content as any).parentName ?? ''),
@@ -295,7 +284,7 @@
       grandparentName: grandparent?.name || '',
       grandparentType: grandparent?.type || '',
       grandparentDescription: grandparent?.description || '',
-      description: baseDescriptionForContent(),
+      description: String((props.content as any).description ?? ''),
       nameStyles: selectedNameStyles(currentSetting.value.genre ?? '', (setting as any).nameStyles || []),
       textModel: ModuleSettings.get(SettingKey.selectedTextModel),
       configuration,

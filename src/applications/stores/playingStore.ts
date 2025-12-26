@@ -118,7 +118,7 @@ export const usePlayingStore = defineStore('playing', () => {
 
       // check for new uuids that should become to-do items
       const oldUuids = !oldSessionStartingNotes ? [] : [...oldSessionStartingNotes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
-      const newUuids = !oldSession.notes ? [] : [...oldSession.notes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
+      const newUuids = !oldSession.description ? [] : [...oldSession.description.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
   
       const addedUuids = newUuids.filter(u => !oldUuids.includes(u)); 
       
@@ -139,8 +139,8 @@ export const usePlayingStore = defineStore('playing', () => {
 
     // if newSession exists, capture the starting notes and open window if needed
     if (newSession) {
-      initialSessionNotes.value = newSession?.notes ?? '';
-      currentPlayedSessionNotes.value = newSession?.notes ?? '';
+      initialSessionNotes.value = newSession?.description ?? '';
+      currentPlayedSessionNotes.value = newSession?.description ?? '';
 
       // close and reopen window to get the title right
       if (ModuleSettings.get(SettingKey.displaySessionNotes)) {
@@ -181,7 +181,7 @@ export const usePlayingStore = defineStore('playing', () => {
       if (currentPlayedSessionId.value!==null) {
         const session = await Session.fromUuid(currentPlayedSessionId.value);
         if (session)
-          currentPlayedSessionNotes.value = session.notes;        
+          currentPlayedSessionNotes.value = session.description;        
       }
     } else {
       // When exiting play mode, first close the session notes window (which will save if needed)

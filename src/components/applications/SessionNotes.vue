@@ -44,7 +44,7 @@
     if (!session)
       return;
 
-    session.notes = newContent;
+    session.description = newContent;
     await session.save();  // do this before the reactive update in case something reloads the session
 
     currentPlayedSessionNotes.value = newContent;

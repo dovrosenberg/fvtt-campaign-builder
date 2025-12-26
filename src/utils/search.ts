@@ -308,8 +308,9 @@ class SearchService {
     const snippets: string[] = [];
     let description = '';
 
-    description = session.notes;
+    description = session.description;
 
+  // Add snippets for related entries
     await addSessionEntrySnippet(snippets, session.locations, (uuid) => Entry.fromUuid(uuid));
     await addSessionEntrySnippet(snippets, session.npcs, (uuid) => Entry.fromUuid(uuid));
     await addSessionEntrySnippet(snippets, session.items, fromUuid);

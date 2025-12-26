@@ -110,7 +110,6 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useSettingDirectoryStore, useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
-  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -136,21 +135,18 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const mainStore = useMainStore();
   const { currentSetting, isInPlayMode } = storeToRefs(mainStore);
-  const { filterText, isSettingTreeRefreshing, isGroupedByType, } = storeToRefs(settingDirectoryStore);
+  const { filterText, isSettingTreeRefreshing, isGroupedByType, settingIndexList, } = storeToRefs(settingDirectoryStore);
   const { isCampaignTreeRefreshing } = storeToRefs(campaignDirectoryStore);
 
   ////////////////////////////////
   // data
-  const root = ref<HTMLElement>();
   const selectedSetting = ref<string | null>(currentSetting.value?.uuid || null);
   const settingSelectRef = ref<typeof Select | null>(null);
   
   ////////////////////////////////
   // computed data
   const settingOptions = computed(() => {
-    const settings = ModuleSettings.get(SettingKey.settingIndex) || [];
-    
-    return settings.map((setting) => ({
+    return settingIndexList.value.map((setting) => ({
       name: setting.name,
       uuid: setting.settingId
     }));

@@ -503,7 +503,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
         // we don't currently track organizations (because they don't fit the Lazy DM model)or PCs (because they're in basically every session)
 
         // Check if entry is referenced in notes
-        if (!isReferenced && findReferencesInNotes(session.notes, currentEntry.value.uuid)) {
+        if (!isReferenced && findReferencesInNotes(session.description, currentEntry.value.uuid)) {
           isReferenced = true;
         }
 

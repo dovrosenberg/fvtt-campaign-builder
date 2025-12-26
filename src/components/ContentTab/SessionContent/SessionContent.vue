@@ -274,7 +274,7 @@
     if (!currentSession.value)
       return;
 
-    currentSession.value.notes = newContent;
+    currentSession.value.description = newContent;
     await currentSession.value.save();
 
     mainStore.refreshSession();
@@ -323,7 +323,7 @@
       name.value = newSession.name || '';
       sessionNumber.value = newSession.number?.toString() || '';
       sessionDate.value = newSession.date || undefined;
-      sessionNotesContent.value = newSession.notes || '';
+      sessionNotesContent.value = newSession.description || '';
     }
   });
   
@@ -334,7 +334,7 @@
       // Otherwise just update the display with the new notes value
       if (newNotes === null) {
         await mainStore.refreshSession(true);  // reload from database
-        sessionNotesContent.value = currentSession.value?.notes || '';
+        sessionNotesContent.value = currentSession.value?.description || '';
       } else {
         await mainStore.refreshSession();  // update the screen
         sessionNotesContent.value = newNotes || '';

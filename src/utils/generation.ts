@@ -144,11 +144,8 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
     
     // Get the description based on the configuration
     let description: string;
-    if (baseConfig.descriptionField === 'description' && contentType !== CustomFieldContentType.Session) {
+    if (baseConfig.descriptionField === 'description') {
       description = (entry as any).description || '';
-    } else if (baseConfig.descriptionField === 'description' && contentType === CustomFieldContentType.Session) {
-      // For sessions, use the notes field directly
-      description = (entry as Session).notes || '';
     } else {
       description = (entry as any).getCustomField(baseConfig.descriptionField);
     }      
@@ -183,7 +180,7 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
     let finalPrompt = promptReplace(
       aiImagePrompts[contentType] || '', 
       entry.name || '', 
-      (entry as any).description || (entry as Session).notes || '',
+      (entry as any).description || '',
       (entry as any).type || '',
       species?.name || '', 
       parent?.name || '', 

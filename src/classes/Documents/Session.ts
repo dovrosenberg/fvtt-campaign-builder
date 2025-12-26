@@ -135,11 +135,11 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     (this._clone.system as any).storyWebs = value.slice();
   }
 
-  get notes(): string {
+  get description(): string {
     return this._clone.text?.content || '';
   }
 
-  set notes(value: string) {
+  set description(value: string) {
     this._clone.text.content = value;
   }
 

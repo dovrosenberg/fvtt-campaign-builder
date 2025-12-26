@@ -67,8 +67,8 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
         if (component.isDirty()) {
           if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
 
-            session.notes = component.getNotes();
-            if (session.notes != null)
+            session.description = component.getNotes();
+            if (session.description != null)
               await session.save();
 
             // refresh the content in case we're looking at the notes page for that session

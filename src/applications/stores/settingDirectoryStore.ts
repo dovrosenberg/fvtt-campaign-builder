@@ -42,6 +42,9 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   //    to showing more than 1 setting in the list
   const currentSettingTree = reactive<{value: DirectorySetting[]}>({value:[]});
 
+  // reactive list of all settings for the dropdown
+  const settingIndexList = ref<Array<{name: string, settingId: string, packId: string}>>([]);
+
   // topic tree currently refreshing
   const isSettingTreeRefreshing = ref<boolean>(false);
 
@@ -424,6 +427,9 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     // populate the setting names, and find the current one
     const allSettings = ModuleSettings.get(SettingKey.settingIndex) || [];
+    // Update the reactive setting list for the dropdown
+    settingIndexList.value = [...allSettings];
+    
     const currentSettingIndex = allSettings.find((s)=>s.settingId===currentSetting.value?.settingId);
 
     if (!currentSettingIndex) {
@@ -694,12 +700,15 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // lifecycle events
   onMounted(() => {
     isGroupedByType.value = ModuleSettings.get(SettingKey.groupTreeByType);
+    // Initialize the setting list
+    settingIndexList.value = ModuleSettings.get(SettingKey.settingIndex) || [];
   });
 
   ///////////////////////////////
   // return the public interface
   return {
     currentSettingTree,
+    settingIndexList,
     isSettingTreeRefreshing,
     isGroupedByType,
     filterText,
