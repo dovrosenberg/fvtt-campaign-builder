@@ -26,7 +26,7 @@ Dependencies
 -->
 
 <template>
-  <section class="config-dialog-layout">
+  <section class="standard-form config-dialog-layout">
     <header class="config-dialog-header">
       <slot name="header"></slot>
     </header>
@@ -34,7 +34,7 @@ Dependencies
     <main class="config-dialog-content">
       <slot name="scrollSection"></slot>
     </main>
-    
+
     <footer class="config-dialog-footer">
       <slot name="footer"></slot>
     </footer>
@@ -103,7 +103,6 @@ Dependencies
 
 .config-dialog-header {
   flex: 0 0 auto;
-  padding: 0.5rem 0;
 }
 
 .config-dialog-content {
@@ -118,5 +117,10 @@ Dependencies
   padding: 0.75rem 0.75rem 0.75rem 0.75rem;
   background-color: var(--fcb-surface);
   border-top: 1px solid var(--color-border-light);
+}
+
+/* Remove padding when window-content directly wraps config-dialog-layout */
+:global(.window-content:has(> .config-dialog-layout)) {
+  padding: 0;
 }
 </style>
