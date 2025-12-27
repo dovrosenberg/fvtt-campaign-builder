@@ -83,7 +83,7 @@ All new or significantly modified Vue component files **must follow** the follow
 
 DO NOT insert new sections into the template.  Put everything where it belongs in this structure.
 
-> Windsurf: Do not invent missing details. Sections can be left blank if unused, but still include the section headers.  
+> Windsurf: Do not invent missing details. Sections can be left blank if unused, but still include the section headers.  Do not put "None" or "Empty" or similar filler for missing sections - just put the header with nothing after it.
 
 ### Required file template
 

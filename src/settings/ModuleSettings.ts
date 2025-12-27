@@ -5,6 +5,7 @@ import { CustomFieldsApplication } from '@/applications/settings/CustomFieldsApp
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { ImageSettingsApplication } from '@/applications/settings/ImageSettingsApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
+import { StoryWebConnectionsApplication } from '@/applications/settings/StoryWebConnectionsApplication';
 import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, } from '@/types';
 import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
 
@@ -82,6 +83,10 @@ export enum SettingKey {
   imageMenu = 'imageMenu', // display the image visibility menu
   showImages = 'showImages', // whether to show images on settings, campaigns, etc
 
+  // story graph connections settings
+  storyWebConnectionsMenu = 'storyWebConnectionsMenu', // display the story graph connections menu
+  storyWebConnectionColors = 'storyWebConnectionColors', // predefined colors for edges
+  storyWebConnectionStyles = 'storyWebConnectionStyles', // predefined styles for edges
 }
 
 export type SettingKeyType<K extends SettingKey> =
@@ -110,6 +115,9 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.speciesList ? Species[] :
     K extends SettingKey.imageMenu ? never :
     K extends SettingKey.showImages ? ImageVisibility :
+    K extends SettingKey.storyWebConnectionsMenu ? never :
+    K extends SettingKey.storyWebConnectionColors ? { id: string; name: string; value: string }[] :
+    K extends SettingKey.storyWebConnectionStyles ? { id: string; name: string; value: string }[] :
     K extends SettingKey.aiImagePrompts ? Record<CustomFieldContentType, string> :
     K extends SettingKey.aiImageConfigurations ? Record<CustomFieldContentType, ImageConfiguration> :
     K extends SettingKey.entryTags ? TagList :
@@ -202,6 +210,15 @@ export class ModuleSettings {
       icon: 'fas fa-image',               // A Font Awesome icon used in the submenu button
       permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: ImageSettingsApplication,
+    },
+    {
+      settingID: SettingKey.storyWebConnectionsMenu,
+      name: 'settings.storyWebConnections',
+      label: 'fcb.settings.storyWebConnectionsLabel',   // localized by Foundry
+      hint: 'settings.storyWebConnectionsHelp',
+      icon: 'fa-solid fa-project-diagram',
+      permissions: ['SETTINGS_WRITE'],
+      type: StoryWebConnectionsApplication,
     }
   ];
 
@@ -427,6 +444,22 @@ export class ModuleSettings {
       settingID: SettingKey.aiImageConfigurations,
       default: {},
       type: Object,
+    },
+    {
+      settingID: SettingKey.storyWebConnectionColors,
+      default: [
+        { id: 'normal', name: 'Normal', value: '#000000' },
+      ],
+      type: Array,
+    },
+    {
+      settingID: SettingKey.storyWebConnectionStyles,
+      default: [
+        { id: 'solid', name: 'Solid', value: 'solid' },
+        { id: 'dashed', name: 'Dashed', value: 'dashed' },
+        { id: 'dotted', name: 'Dotted', value: 'dotted' },
+      ],
+      type: Array,
     },
   ];
   
