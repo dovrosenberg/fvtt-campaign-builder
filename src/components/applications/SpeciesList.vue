@@ -4,41 +4,35 @@
     </template>
 
     <template #scrollSection>
-      <div class="fcb-sheet-subtab-container">
-        <div class="fcb-subtab-wrapper">
-          <BaseTable
-            :rows="rows"
-            :columns="columns"
-            :show-add-button="true"
-            :show-filter="false"
-            :allow-edit="true"
-            :add-button-label="localize('applications.speciesList.labels.add')"
-            :delete-item-label="localize('applications.speciesList.labels.delete')"
-            @delete-item="onDeleteItem"
-            @add-item="onAddItem"
-            @cell-edit-complete="onCellEditComplete"
-          />
-        </div>
-      </div>
+      <BaseTable
+        :rows="rows"
+        :columns="columns"
+        :show-add-button="true"
+        :show-filter="false"
+        :allow-edit="true"
+        :add-button-label="localize('applications.speciesList.labels.add')"
+        :delete-item-label="localize('applications.speciesList.labels.delete')"
+        @delete-item="onDeleteItem"
+        @add-item="onAddItem"
+        @cell-edit-complete="onCellEditComplete"
+      />
     </template>
 
     <template #footer>
-      <footer class="form-footer" data-application-part="footer">
-        <button 
-          data-testid="species-list-reset-button"
-          @click="onClickReset"
-        >
-          <i class="fa-solid fa-undo"></i>
-          <label>{{ localize('labels.reset') }}</label>
-        </button>
-        <button 
-          data-testid="species-list-save-button"
-          @click="onClickSubmit"
-        >
-          <i class="fa-solid fa-save"></i>
-          <label>{{ localize('labels.saveChanges') }}</label>
-        </button>
-      </footer>
+      <button 
+        data-testid="species-list-reset-button"
+        @click="onClickReset"
+      >
+        <i class="fa-solid fa-undo"></i>
+        <label>{{ localize('labels.reset') }}</label>
+      </button>
+      <button 
+        data-testid="species-list-save-button"
+        @click="onClickSubmit"
+      >
+        <i class="fa-solid fa-save"></i>
+        <label>{{ localize('labels.saveChanges') }}</label>
+      </button>
     </template>
   </ConfigDialogLayout>
 </template> 
@@ -164,25 +158,5 @@
 </script>
 
 <style lang="scss" scoped>
-.fcb-sheet-subtab-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.fcb-subtab-wrapper {
-  display: flex;
-  flex-direction: column;
-}
-
-.fcb-tab-body {
-  display: flex;
-  height: 100%;
-}
-
-.tab {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
 </style>
 

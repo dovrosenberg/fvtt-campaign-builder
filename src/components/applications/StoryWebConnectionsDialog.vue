@@ -28,18 +28,14 @@ Dependencies
 <template>
   <ConfigDialogLayout>
     <template #header>
-      <div class="fcb-sheet-subtab-container" ref="tabsRef">
-        <div class="fcb-subtab-wrapper">
-          <nav class="fcb-sheet-navigation flexrow tabs" data-group="connections-dialog">
-            <a class="item" data-tab="colors">
-              {{ localize('applications.storyWebConnections.tabs.colors') }}
-            </a>
-            <a class="item" data-tab="styles">
-              {{ localize('applications.storyWebConnections.tabs.styles') }}
-            </a>
-          </nav>
-        </div>
-      </div>
+      <nav class="fcb-sheet-navigation flexrow tabs" data-group="connections-dialog">
+        <a class="item" data-tab="colors">
+          {{ localize('applications.storyWebConnections.tabs.colors') }}
+        </a>
+        <a class="item" data-tab="styles">
+          {{ localize('applications.storyWebConnections.tabs.styles') }}
+        </a>
+      </nav>
     </template>
 
     <template #scrollSection>
@@ -182,16 +178,14 @@ Dependencies
     </template>
 
     <template #footer>
-      <footer class="form-footer" data-application-part="footer">
-        <button @click="onResetClick">
-          <i class="fa-solid fa-undo"></i>
-          <label>{{ localize('labels.reset') }}</label>
-        </button>
-        <button class="fcb-save-button" @click="onSaveClick">
-          <i class="fa-solid fa-save"></i>
-          <label>{{ localize('labels.saveChanges') }}</label>
-        </button>
-      </footer>
+      <button @click="onResetClick">
+        <i class="fa-solid fa-undo"></i>
+        <label>{{ localize('labels.reset') }}</label>
+      </button>
+      <button class="fcb-save-button" @click="onSaveClick">
+        <i class="fa-solid fa-save"></i>
+        <label>{{ localize('labels.saveChanges') }}</label>
+      </button>
     </template>
   </ConfigDialogLayout>
 </template>
@@ -410,36 +404,27 @@ Dependencies
 </script>
 
 <style lang="scss" scoped>
-.fcb-sheet-subtab-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.fcb-subtab-wrapper {
-  display: flex;
-  flex-direction: column;
-}
-
-.fcb-tab-body {
-  display: flex;
-  height: 100%;
-}
-
-.tab {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.fcb-action-icon {
-  cursor: pointer;
-  color: var(--color-text-light-primary);
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: var(--color-bg-highlight);
+  .tab {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
-}
+
+  .fcb-tab-body {
+    display: flex;
+    height: 100%;
+  }
+  
+
+  .fcb-action-icon {
+    cursor: pointer;
+    color: var(--color-text-light-primary);
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: var(--color-bg-highlight);
+    }
+  }
 </style>
