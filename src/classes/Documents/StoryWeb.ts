@@ -122,7 +122,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
   }
 
   set edgeStyles(value: {[x:string]: { colorId: string, styleId: string }}) {
-    this._clone.system.edgeStyles = value;
+    this._clone.system.edgeStyles = { ...value };
   }
 
   /** withRelationships will also bring in all the related entries */
@@ -288,6 +288,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
   protected _prepData(data: StoryWebDocClass): void {
     // convert unsafe keys
     data.system.positions = cleanKeysOnSave(data.system.positions);
+    data.system.edgeStyles = cleanKeysOnSave(data.system.edgeStyles);
   }
 
   public async save(): Promise<void> {

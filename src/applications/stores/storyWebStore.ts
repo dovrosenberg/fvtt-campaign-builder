@@ -298,8 +298,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
                 to: participant.uuid,
                 label,
                 ...(label ? edgeWithLabelConfig : edgeConfig),
+                ...getEdgeStyling(edgeUuid)
               };
-              edges.push(applyEdgeStyles(baseEdge, edgeUuid));
+              edges.push(baseEdge);
             }
           }
         } else {
@@ -329,8 +330,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
                   to: relatedEntry.uuid,
                   label,
                   ...(label ? edgeWithLabelConfig : edgeConfig),
+                  ...getEdgeStyling(edgeUuid)
                 };
-                edges.push(applyEdgeStyles(baseEdge, edgeUuid));
+                edges.push(baseEdge);
               }
             }
           }
@@ -348,8 +350,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
             to: edge.to,
             label,
             ...(label ? edgeWithLabelConfig : edgeConfig),
+            ...getEdgeStyling(edgeUuid)
           };
-          edges.push(applyEdgeStyles(baseEdge, edgeUuid));
+          edges.push(baseEdge);
         }
       }
       
@@ -668,46 +671,41 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   };
 
   /** Apply edge styles from the story web to an edge configuration */
-  const applyEdgeStyles = (edge: Partial<Edge>, edgeUuid: string): Partial<Edge> => {
+  const getEdgeStyling = (edgeUuid: string): Partial<Edge> => {
     const edgeStyles = currentStoryWeb.value?.edgeStyles?.[edgeUuid];
+
     if (!edgeStyles) {
-      return edge;
+      return {};
     }
 
-    const styledEdge = { ...edge };
-
-    // Get colors and styles from settings
-    const colors = ModuleSettings.getClone(SettingKey.storyWebConnectionColors) as { id: string; name: string; value: string }[];
-    const styles = ModuleSettings.getClone(SettingKey.storyWebConnectionStyles) as { id: string; name: string; value: string }[];
+    const styledEdge = {} as Partial<Edge>;
 
     // Apply color if specified
     if (edgeStyles.colorId) {
+      const colors = ModuleSettings.get(SettingKey.storyWebConnectionColors) as { id: string; name: string; value: string }[];
+
       const colorOption = colors.find(c => c.id === edgeStyles.colorId);
       if (colorOption) {
-        styledEdge.color = {
-          color: colorOption.value,
-          highlight: colorOption.value,
-          hover: colorOption.value,
-          inherit: 'from',
-          opacity: 1.0,
-        };
+        styledEdge.color = colorOption.value;
       }
     }
 
     // Apply style if specified
     if (edgeStyles.styleId) {
+      const styles = ModuleSettings.get(SettingKey.storyWebConnectionStyles) as { id: string; name: string; value: string }[];
       const styleOption = styles.find(s => s.id === edgeStyles.styleId);
       if (styleOption) {
-        styledEdge.dashes = styleOption.value === 'dashed' ? [5, 5] : 
-                          styleOption.value === 'dotted' ? [2, 2] : 
-                          false;
+        styledEdge.dashes = 
+          styleOption.value === 'dashed' ? [5, 5] : 
+          styleOption.value === 'dotted' ? [1, 3, 1, 3] : 
+          false;
       }
     }
 
     return styledEdge;
   };
 
-  /** Set the color of an edge */
+  /** Record a new color for an edge */
   const setEdgeColor = async (edgeId: string, colorId: string) => {
     if (!currentStoryWeb.value) return;
     
@@ -716,17 +714,21 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     }
     
     if (!currentStoryWeb.value.edgeStyles[edgeId]) {
-      currentStoryWeb.value.edgeStyles[edgeId] = {};
+      currentStoryWeb.value.edgeStyles[edgeId] = {
+        colorId: colorId,
+        styleId: ''
+      };
+    } else {
+      currentStoryWeb.value.edgeStyles[edgeId].colorId = colorId;
     }
     
-    currentStoryWeb.value.edgeStyles[edgeId].colorId = colorId;
     await currentStoryWeb.value.save();
     
     // Refresh the graph to apply the new color
     await mainStore.refreshStoryWeb();
   };
 
-  /** Set the style of an edge */
+  /** Record a new style for an edge */
   const setEdgeStyle = async (edgeId: string, styleId: string) => {
     if (!currentStoryWeb.value) return;
     
@@ -735,44 +737,26 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     }
     
     if (!currentStoryWeb.value.edgeStyles[edgeId]) {
-      currentStoryWeb.value.edgeStyles[edgeId] = {};
+      currentStoryWeb.value.edgeStyles[edgeId] = {
+        colorId: '',
+        styleId: styleId
+      };
+    } else {
+      currentStoryWeb.value.edgeStyles[edgeId].styleId = styleId;
     }
     
-    currentStoryWeb.value.edgeStyles[edgeId].styleId = styleId;
     await currentStoryWeb.value.save();
     
     // Refresh the graph to apply the new style
     await mainStore.refreshStoryWeb();
   };
 
-  /** Remove edge styling */
-  const clearEdgeStyle = async (edgeId: string, type: 'color' | 'style' | 'both' = 'both') => {
-    if (!currentStoryWeb.value?.edgeStyles?.[edgeId]) return;
-    
-    if (type === 'both') {
-      delete currentStoryWeb.value.edgeStyles[edgeId];
-    } else if (type === 'color') {
-      delete currentStoryWeb.value.edgeStyles[edgeId].colorId;
-      if (Object.keys(currentStoryWeb.value.edgeStyles[edgeId]).length === 0) {
-        delete currentStoryWeb.value.edgeStyles[edgeId];
-      }
-    } else if (type === 'style') {
-      delete currentStoryWeb.value.edgeStyles[edgeId].styleId;
-      if (Object.keys(currentStoryWeb.value.edgeStyles[edgeId]).length === 0) {
-        delete currentStoryWeb.value.edgeStyles[edgeId];
-      }
-    }
-    
-    await currentStoryWeb.value.save();
-    await mainStore.refreshStoryWeb();
-  };
-
   /** Some colors need to be different in dark mode but we can't use css variables in canvas.
    *   Instead we call then when we generate the graph to read the variables and set the right colors
    */
-  const getEdgeConfig = (hasLabel: boolean) => {
+  const getEdgeConfig = (hasLabel: boolean): Partial<Edge> => {
     // get the base
-    const config = hasLabel ? edgeWithLabelConfig : edgeConfig;
+    const config: Partial<Edge> = hasLabel ? edgeWithLabelConfig : edgeConfig;
 
     // use some computed variables to set the right style
     config.color = getComputedStyle(document.body).getPropertyValue('--fcb-primary');
@@ -1191,9 +1175,6 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         network.moveNode(node, positions[node].x + panOffset.x, positions[node].y + panOffset.y);
       }
       
-      // Log before network.moveTo
-      const viewportBefore = network.getViewPosition();
-      
       // Pan the viewport to keep nodes in view
       network.moveTo({
         position: {
@@ -1203,9 +1184,6 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         animation: false
       });
       
-      // Log after network.moveTo
-      const viewportAfter = network.getViewPosition();
-
       // if we're still in pan mode, keep going
       if (autoPanAnimationId) {
         autoPanAnimationId = requestAnimationFrame(animate);
@@ -1682,7 +1660,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
           label: localize('contextMenus.storyWebGraph.setStyle'),
           children: styleSubmenu
         },
-        { divider: true },
+        {  },
         {
           icon: 'fa-edit',
           iconFontClass: 'fas',
@@ -1795,7 +1773,6 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     handleDropOnNode,
     setEdgeColor,
     setEdgeStyle,
-    clearEdgeStyle,
   };
 });
 

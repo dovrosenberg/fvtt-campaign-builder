@@ -78,9 +78,9 @@
       "customFields": "Custom Fields",
       "customFieldsLabel": "Configure Custom Fields",
       "customFieldsHelp": "Configure additional fields and AI instructions for each content type",
-      "storyWebConnections": "Story Graph Connections",
-      "storyWebConnectionsLabel": "Configure Story Graph Connections",
-      "storyWebConnectionsHelp": "Configure colors and line styles for story graph connections"
+      "storyWebConnections": "Story Web Connections",
+      "storyWebConnectionsLabel": "Configure Connections",
+      "storyWebConnectionsHelp": "Configure line colors and styles for story webs"
     },
     "applications": {
       "sessionNotes": {
@@ -279,7 +279,7 @@
         }
       },
       "storyWebConnections": {
-        "title": "Configure Story Graph Connections",
+        "title": "Configure Story Web Connections",
         "tabs": {
           "colors": "Colors",
           "styles": "Styles"

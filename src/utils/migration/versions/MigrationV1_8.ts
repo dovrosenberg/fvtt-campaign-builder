@@ -45,7 +45,6 @@ export class MigrationV1_8 implements Migration {
     try {
       // we have to temporarily register these settings because we need to know the old value
       // @ts-ignore
-      debugger;
       game.settings.register(moduleId, 'showRolePlayingNotes', {
         default: true,
         type: Boolean,
@@ -99,7 +98,6 @@ export class MigrationV1_8 implements Migration {
 
         // if rpgstyle was off, it was a long description; if it was on, it was boxed text
         // @ts-ignore
-        debugger;
         if (!game.settings.get(moduleId, 'rpgStyle')) {
           // @ts-ignore
           const longDescriptionParagraphs = game.settings.get(moduleId, 'longDescriptionParagraphs') as Number || 2;

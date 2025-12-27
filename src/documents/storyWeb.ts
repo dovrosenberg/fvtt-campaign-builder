@@ -44,6 +44,7 @@ export class StoryWebDataModel<Schema extends StoryWebSchemaType, ParentNode ext
 
   override prepareBaseData(): void {
     this.positions = cleanKeysOnLoad(this.positions);
+    this.edgeStyles = cleanKeysOnLoad(this.edgeStyles);
   }
 }
 

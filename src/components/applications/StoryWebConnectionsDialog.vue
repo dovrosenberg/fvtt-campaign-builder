@@ -196,8 +196,9 @@ Dependencies
 
   // local imports
   import { localize } from '@/utils/game';
-  import { generateIdFromName } from '@/utils/idGeneration';
   import { ModuleSettings, SettingKey } from '@/settings';
+  import { generateIdFromName } from '@/utils/idGeneration';
+  import { storyWebConnectionsApp } from '@/applications/settings/StoryWebConnectionsApplication';
 
   // library components
   import { Button, InputText, Select, DataTable, Column } from 'primevue';
@@ -344,6 +345,9 @@ Dependencies
     originalStyles.value = JSON.parse(JSON.stringify(workingStyles.value));
     
     ui.notifications?.info(localize('notifications.changesSaved'));
+    
+    // Close the dialog
+    await storyWebConnectionsApp?.close();
   };
 
   /**

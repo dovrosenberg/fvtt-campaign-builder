@@ -448,7 +448,8 @@ export class ModuleSettings {
     {
       settingID: SettingKey.storyWebConnectionColors,
       default: [
-        { id: 'normal', name: 'Normal', value: '#000000' },
+        // get the primary color from the theme
+        { id: 'normal', name: 'Normal', value: getComputedStyle(document.body).getPropertyValue('--fcb-primary') },
       ],
       type: Array,
     },
