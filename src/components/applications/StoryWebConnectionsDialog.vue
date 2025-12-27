@@ -199,6 +199,7 @@ Dependencies
   import { ModuleSettings, SettingKey } from '@/settings';
   import { generateIdFromName } from '@/utils/idGeneration';
   import { storyWebConnectionsApp } from '@/applications/settings/StoryWebConnectionsApplication';
+  import { useStoryWebStore } from '@/applications/stores';
 
   // library components
   import { Button, InputText, Select, DataTable, Column } from 'primevue';
@@ -262,12 +263,11 @@ Dependencies
   const originalStyles = ref<StyleOption[]>([]);
 
   // Line style options for the dropdown
-  const lineStyleOptions: LineStyleOption[] = [
-    { label: 'Solid', value: 'solid' },
-    { label: 'Dashed', value: 'dashed' },
-    { label: 'Dotted', value: 'dotted' },
-  ];
-
+  const lineStyleOptions = Object.entries(useStoryWebStore().LINE_STYLES).map(([key, value]) => ({
+    label: value.name,
+    value: key,
+  })) as LineStyleOption[];
+  
   ////////////////////////////////
   // computed data
 

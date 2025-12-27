@@ -2,7 +2,7 @@
 //
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { watch, ref, toRaw, nextTick } from 'vue';
+import { watch, ref, toRaw, nextTick, h } from 'vue';
 import type { Edge, Network, Node } from 'vis-network';
 
 // local imports
@@ -160,6 +160,14 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   ///////////////////////////////
   // external state
   const isWebLoading = ref<boolean>(false);
+  const LINE_STYLES = {
+    'solid': { name: 'Solid', pattern: false },
+    'dashed': { name: 'Dashed', pattern: [6, 6] },
+    'dotted': { name: 'Dotted', pattern: [1, 4] },
+    'dash_dot': { name: 'Dash-Dot', pattern: [6, 4, 1, 4] },
+    'long_dash': { name: 'Long Dash', pattern: [12, 6] },
+    'dense_dot': { name: 'Dense Dot', pattern: [1, 2] },
+  };
   
   ///////////////////////////////
   // actions
@@ -695,10 +703,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       const styles = ModuleSettings.get(SettingKey.storyWebConnectionStyles) as { id: string; name: string; value: string }[];
       const styleOption = styles.find(s => s.id === edgeStyles.styleId);
       if (styleOption) {
-        styledEdge.dashes = 
-          styleOption.value === 'dashed' ? [5, 5] : 
-          styleOption.value === 'dotted' ? [1, 3, 1, 3] : 
-          false;
+        styledEdge.dashes = LINE_STYLES[styleOption.value]?.pattern || false;
       }
     }
 
@@ -1632,14 +1637,71 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     // Build color submenu items
     const colorSubmenu = colors.map(color => ({
       label: color.name,
+      icon: () => h('svg', { viewBox: '0 0 20 20', style: 'width: 16px; height: 16px;' }, [
+        h('rect', { x: 2, y: 2, width: 16, height: 16, rx: 3, ry: 3, fill: color.value })
+      ]),
       onClick: async () => { await setEdgeColor(edgeUuid, color.id); }
     }));
 
     // Build style submenu items
-    const styleSubmenu = styles.map(style => ({
-      label: style.name,
-      onClick: async () => { await setEdgeStyle(edgeUuid, style.id); }
-    }));
+    const styleSubmenu = styles.map(style => {
+      // Create SVG icon based on line style pattern
+      let iconContent;
+      
+      // Use multiple lines to create visible patterns
+      switch (style.value) {
+        case 'dashed':
+          iconContent = [
+            h('line', { x1: 2, y1: 10, x2: 6, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 9, y1: 10, x2: 13, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 16, y1: 10, x2: 18, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' })
+          ];
+          break;
+        case 'dotted':
+          iconContent = [
+            h('line', { x1: 2, y1: 10, x2: 3, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 6, y1: 10, x2: 7, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 10, y1: 10, x2: 11, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 14, y1: 10, x2: 15, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 17, y1: 10, x2: 18, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' })
+          ];
+          break;
+        case 'dash_dot':
+          iconContent = [
+            h('line', { x1: 2, y1: 10, x2: 6, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 8, y1: 10, x2: 9, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 12, y1: 10, x2: 13, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 16, y1: 10, x2: 18, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' })
+          ];
+          break;
+        case 'long_dash':
+          iconContent = [
+            h('line', { x1: 2, y1: 10, x2: 9, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 13, y1: 10, x2: 18, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' })
+          ];
+          break;
+        case 'dense_dot':
+          iconContent = [
+            h('line', { x1: 2, y1: 10, x2: 3, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 5, y1: 10, x2: 6, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 8, y1: 10, x2: 9, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 11, y1: 10, x2: 12, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 14, y1: 10, x2: 15, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }),
+            h('line', { x1: 17, y1: 10, x2: 18, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' })
+          ];
+          break;
+        default:
+          iconContent = [
+            h('line', { x1: 2, y1: 10, x2: 18, y2: 10, stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' })
+          ];
+      }
+      
+      return {
+        label: style.name,
+        icon: () => h('svg', { viewBox: '0 0 20 20', style: 'width: 16px; height: 16px;' }, iconContent),
+        onClick: async () => { await setEdgeStyle(edgeUuid, style.id); }
+      };
+    });
 
     //show our menu
     ContextMenu.showContextMenu({
@@ -1658,9 +1720,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
           icon: 'fa-pen',
           iconFontClass: 'fas',
           label: localize('contextMenus.storyWebGraph.setStyle'),
-          children: styleSubmenu
+          children: styleSubmenu,
+          divided: 'down',
         },
-        {  },
         {
           icon: 'fa-edit',
           iconFontClass: 'fas',
@@ -1764,6 +1826,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     currentContainer,
     currentNetwork,
     isWebLoading,
+    LINE_STYLES,
     
     addEntry,
     addDanger,
