@@ -292,12 +292,14 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
             //   relate to each other
             if (!edges.some(e => e.to === node.uuid && e.from === participant.uuid)) {
               const label = participant.role || '';
-              edges.push({
+              const edgeUuid = getEdgeUuid(node.uuid, participant.uuid, 'danger');
+              const baseEdge = {
                 from: node.uuid,
                 to: participant.uuid,
                 label,
                 ...(label ? edgeWithLabelConfig : edgeConfig),
-              });
+              };
+              edges.push(applyEdgeStyles(baseEdge, edgeUuid));
             }
           }
         } else {
@@ -321,13 +323,14 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
               //   relate to each other
               if (!edges.some(e => e.to === node.uuid && e.from === relatedEntry.uuid)) {
                 const label = relatedEntry.extraFields.role || relatedEntry.extraFields.relationship || '';
-
-                edges.push({
+                const edgeUuid = getEdgeUuid(node.uuid, relatedEntry.uuid, 'relationship');
+                const baseEdge = {
                   from: node.uuid,
                   to: relatedEntry.uuid,
                   label,
                   ...(label ? edgeWithLabelConfig : edgeConfig),
-                });
+                };
+                edges.push(applyEdgeStyles(baseEdge, edgeUuid));
               }
             }
           }
@@ -339,12 +342,14 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         // Only add edge if both nodes exist in the graph
         if (nodes.some(n => n.id === edge.from) && nodes.some(n => n.id === edge.to)) {
           const label = edge.label || '';
-          edges.push({
+          const edgeUuid = edge.uuid || getEdgeUuid(edge.from, edge.to, 'manual');
+          const baseEdge = {
             from: edge.from,
             to: edge.to,
             label,
             ...(label ? edgeWithLabelConfig : edgeConfig),
-          });
+          };
+          edges.push(applyEdgeStyles(baseEdge, edgeUuid));
         }
       }
       
@@ -655,6 +660,112 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
   ///////////////////////////////
   // methods
+
+  /** Generate a consistent UUID for an edge */
+  const getEdgeUuid = (fromNode: string, toNode: string, edgeType: 'manual' | 'relationship' | 'danger' = 'relationship'): string => {
+    const sorted = [fromNode, toNode].sort();
+    return `${edgeType}:${sorted[0]}|${sorted[1]}`;
+  };
+
+  /** Apply edge styles from the story web to an edge configuration */
+  const applyEdgeStyles = (edge: Partial<Edge>, edgeUuid: string): Partial<Edge> => {
+    const edgeStyles = currentStoryWeb.value?.edgeStyles?.[edgeUuid];
+    if (!edgeStyles) {
+      return edge;
+    }
+
+    const styledEdge = { ...edge };
+
+    // Get colors and styles from settings
+    const colors = ModuleSettings.getClone(SettingKey.storyWebConnectionColors) as { id: string; name: string; value: string }[];
+    const styles = ModuleSettings.getClone(SettingKey.storyWebConnectionStyles) as { id: string; name: string; value: string }[];
+
+    // Apply color if specified
+    if (edgeStyles.colorId) {
+      const colorOption = colors.find(c => c.id === edgeStyles.colorId);
+      if (colorOption) {
+        styledEdge.color = {
+          color: colorOption.value,
+          highlight: colorOption.value,
+          hover: colorOption.value,
+          inherit: 'from',
+          opacity: 1.0,
+        };
+      }
+    }
+
+    // Apply style if specified
+    if (edgeStyles.styleId) {
+      const styleOption = styles.find(s => s.id === edgeStyles.styleId);
+      if (styleOption) {
+        styledEdge.dashes = styleOption.value === 'dashed' ? [5, 5] : 
+                          styleOption.value === 'dotted' ? [2, 2] : 
+                          false;
+      }
+    }
+
+    return styledEdge;
+  };
+
+  /** Set the color of an edge */
+  const setEdgeColor = async (edgeId: string, colorId: string) => {
+    if (!currentStoryWeb.value) return;
+    
+    if (!currentStoryWeb.value.edgeStyles) {
+      currentStoryWeb.value.edgeStyles = {};
+    }
+    
+    if (!currentStoryWeb.value.edgeStyles[edgeId]) {
+      currentStoryWeb.value.edgeStyles[edgeId] = {};
+    }
+    
+    currentStoryWeb.value.edgeStyles[edgeId].colorId = colorId;
+    await currentStoryWeb.value.save();
+    
+    // Refresh the graph to apply the new color
+    await mainStore.refreshStoryWeb();
+  };
+
+  /** Set the style of an edge */
+  const setEdgeStyle = async (edgeId: string, styleId: string) => {
+    if (!currentStoryWeb.value) return;
+    
+    if (!currentStoryWeb.value.edgeStyles) {
+      currentStoryWeb.value.edgeStyles = {};
+    }
+    
+    if (!currentStoryWeb.value.edgeStyles[edgeId]) {
+      currentStoryWeb.value.edgeStyles[edgeId] = {};
+    }
+    
+    currentStoryWeb.value.edgeStyles[edgeId].styleId = styleId;
+    await currentStoryWeb.value.save();
+    
+    // Refresh the graph to apply the new style
+    await mainStore.refreshStoryWeb();
+  };
+
+  /** Remove edge styling */
+  const clearEdgeStyle = async (edgeId: string, type: 'color' | 'style' | 'both' = 'both') => {
+    if (!currentStoryWeb.value?.edgeStyles?.[edgeId]) return;
+    
+    if (type === 'both') {
+      delete currentStoryWeb.value.edgeStyles[edgeId];
+    } else if (type === 'color') {
+      delete currentStoryWeb.value.edgeStyles[edgeId].colorId;
+      if (Object.keys(currentStoryWeb.value.edgeStyles[edgeId]).length === 0) {
+        delete currentStoryWeb.value.edgeStyles[edgeId];
+      }
+    } else if (type === 'style') {
+      delete currentStoryWeb.value.edgeStyles[edgeId].styleId;
+      if (Object.keys(currentStoryWeb.value.edgeStyles[edgeId]).length === 0) {
+        delete currentStoryWeb.value.edgeStyles[edgeId];
+      }
+    }
+    
+    await currentStoryWeb.value.save();
+    await mainStore.refreshStoryWeb();
+  };
 
   /** Some colors need to be different in dark mode but we can't use css variables in canvas.
    *   Instead we call then when we generate the graph to read the variables and set the right colors
@@ -1531,6 +1642,27 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     toRaw(currentNetwork.value).unselectAll();
     toRaw(currentNetwork.value).selectEdges([edgeId]);
 
+    // Get the connected nodes to determine edge type
+    const connectedNodes = toRaw(currentNetwork.value).getConnectedNodes(edgeId) as string[];
+    const [fromNode, toNode] = connectedNodes;
+    const edgeUuid = getEdgeUuid(fromNode, toNode, getEdgeType(fromNode, toNode));
+
+    // Get predefined colors and styles from settings
+    const colors = ModuleSettings.getClone(SettingKey.storyWebConnectionColors) as { id: string; name: string; value: string }[];
+    const styles = ModuleSettings.getClone(SettingKey.storyWebConnectionStyles) as { id: string; name: string; value: string }[];
+
+    // Build color submenu items
+    const colorSubmenu = colors.map(color => ({
+      label: color.name,
+      onClick: async () => { await setEdgeColor(edgeUuid, color.id); }
+    }));
+
+    // Build style submenu items
+    const styleSubmenu = styles.map(style => ({
+      label: style.name,
+      onClick: async () => { await setEdgeStyle(edgeUuid, style.id); }
+    }));
+
     //show our menu
     ContextMenu.showContextMenu({
       customClass: 'fcb',
@@ -1538,6 +1670,19 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       y: position.y,
       zIndex: 300,
       items: [
+        {
+          icon: 'fa-palette',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWebGraph.setColor'),
+          children: colorSubmenu
+        },
+        {
+          icon: 'fa-pen',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWebGraph.setStyle'),
+          children: styleSubmenu
+        },
+        { divider: true },
         {
           icon: 'fa-edit',
           iconFontClass: 'fas',
@@ -1553,6 +1698,26 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       ]
     });
   }
+
+  /** Determine the type of an edge based on its nodes */
+  const getEdgeType = (fromNode: string, toNode: string): 'manual' | 'relationship' | 'danger' => {
+    const fromNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === fromNode);
+    const toNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === toNode);
+    
+    // Check if it's a danger participant edge
+    if (fromNodeData?.type === StoryWebNodeTypes.Danger || toNodeData?.type === StoryWebNodeTypes.Danger) {
+      return 'danger';
+    }
+    
+    // Check if it's a manual edge
+    const manualEdge = getManualEdge(fromNode, toNode);
+    if (manualEdge) {
+      return 'manual';
+    }
+    
+    // Default to relationship
+    return 'relationship';
+  };
 
   /** shows the context menu for right click on empty space */
   /** @param position - position to place the node at - relative to canvas */
@@ -1628,6 +1793,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     removeNode,
     removeEdge,
     handleDropOnNode,
+    setEdgeColor,
+    setEdgeStyle,
+    clearEdgeStyle,
   };
 });
 

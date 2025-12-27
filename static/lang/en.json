@@ -77,7 +77,10 @@
       ,
       "customFields": "Custom Fields",
       "customFieldsLabel": "Configure Custom Fields",
-      "customFieldsHelp": "Configure additional fields and AI instructions for each content type"
+      "customFieldsHelp": "Configure additional fields and AI instructions for each content type",
+      "storyWebConnections": "Story Graph Connections",
+      "storyWebConnectionsLabel": "Configure Story Graph Connections",
+      "storyWebConnectionsHelp": "Configure colors and line styles for story graph connections"
     },
     "applications": {
       "sessionNotes": {
@@ -273,6 +276,22 @@
           "refreshStarted": "Generating new names for roll tables in the background",
           "refreshSuccess": "Roll tables refreshed successfully",
           "refreshError": "Failed to refresh roll tables. Check console for details."
+        }
+      },
+      "storyWebConnections": {
+        "title": "Configure Story Graph Connections",
+        "tabs": {
+          "colors": "Colors",
+          "styles": "Styles"
+        },
+        "columns": {
+          "name": "Name",
+          "color": "Color",
+          "style": "Style"
+        },
+        "notifications": {
+          "duplicateColorIds": "Duplicate color IDs found. Please ensure all color IDs are unique.",
+          "duplicateStyleIds": "Duplicate style IDs found. Please ensure all style IDs are unique."
         }
       },
       "createEntry": {
@@ -811,7 +830,9 @@
         "addDangerWithRelationships": "Add Danger with relationships",
         "addTextPrompt": "Enter text to add to the diagram",
         "openEntryInNewTab": "Open Entry in new tab",
-        "openDangerInNewTab": "Open Danger in new tab"
+        "openDangerInNewTab": "Open Danger in new tab",
+        "setColor": "Set Color",
+        "setStyle": "Set Style"
       },
       "dialogs": {
         "cannotActivateFromCompendium": "Cannot activate from compendium",

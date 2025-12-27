@@ -1,8 +1,11 @@
 <template>
-  <section class="standard-form">
-    <div class="fcb-sheet-container flexcol species-list">
-      <div class="species-list-table" data-application-part="content" style="overflow: hidden; height: calc(100vh - 325px);">
-        <ScrollPanel style="flex: 1; min-height: 0; height: 100%; width: 100%;" :pt="{ wrapper: { style: 'height: 100%; width: 100%; scrollbar-width: thin; scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb)' }, content: { style: 'width: 100%; box-sizing: border-box' } }">
+  <ConfigDialogLayout>
+    <template #header>
+    </template>
+
+    <template #scrollSection>
+      <div class="fcb-sheet-subtab-container">
+        <div class="fcb-subtab-wrapper">
           <BaseTable
             :rows="rows"
             :columns="columns"
@@ -15,27 +18,29 @@
             @add-item="onAddItem"
             @cell-edit-complete="onCellEditComplete"
           />
-        </ScrollPanel>
+        </div>
       </div>
+    </template>
 
+    <template #footer>
       <footer class="form-footer" data-application-part="footer">
-      <button 
-        data-testid="species-list-reset-button"
-        @click="onClickReset"
-      >
-        <i class="fa-solid fa-undo"></i>
-        <label>{{ localize('labels.reset') }}</label>
-      </button>
-      <button 
-        data-testid="species-list-save-button"
-        @click="onClickSubmit"
-      >
-        <i class="fa-solid fa-save"></i>
-        <label>{{ localize('labels.saveChanges') }}</label>
-      </button>
-    </footer>
-    </div>
-  </section>
+        <button 
+          data-testid="species-list-reset-button"
+          @click="onClickReset"
+        >
+          <i class="fa-solid fa-undo"></i>
+          <label>{{ localize('labels.reset') }}</label>
+        </button>
+        <button 
+          data-testid="species-list-save-button"
+          @click="onClickSubmit"
+        >
+          <i class="fa-solid fa-save"></i>
+          <label>{{ localize('labels.saveChanges') }}</label>
+        </button>
+      </footer>
+    </template>
+  </ConfigDialogLayout>
 </template> 
 
 <script setup lang="ts">
@@ -50,10 +55,10 @@
   import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
 
   // library components
-  import ScrollPanel from 'primevue/scrollpanel';
 
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
+  import ConfigDialogLayout from '@/components/layout/ConfigDialogLayout.vue';
 
   // types
   import { Species, CellEditCompleteEvent } from '@/types';
@@ -158,62 +163,26 @@
 
 </script>
 
-<style lang="scss">
-  // Apply scrollbar styles to ScrollPanel
-  .p-scrollpanel-wrapper {
-    scrollbar-width: thin;
-    scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb);
-  }
-  
-  .p-scrollpanel-wrapper::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  .p-scrollpanel-wrapper::-webkit-scrollbar-track {
-    background: var(--fcb-scrollbar);
-  }
-  
-  .p-scrollpanel-wrapper::-webkit-scrollbar-thumb {
-    background-color: var(--fcb-scrollbar-thumb);
-    border-radius: 4px;
-  }
+<style lang="scss" scoped>
+.fcb-sheet-subtab-container {
+  display: flex;
+  flex-direction: column;
+}
 
-  .fcb-species-list {
-    background-color: var(--fcb-surface);
-  }
+.fcb-subtab-wrapper {
+  display: flex;
+  flex-direction: column;
+}
 
-  .fcb-species-list .window-content {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    /* scrolling is now handled by ScrollPanel */
-    overflow: hidden;
-  }
+.fcb-tab-body {
+  display: flex;
+  height: 100%;
+}
 
-  .fcb-species-list .fcb-sheet-container {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    min-height: 0;
-    height: 100%;
-  }
-
-  .fcb-species-list .species-list-table {
-    flex: 1 1 auto;
-    min-height: 0;
-    /* scrolling is now handled by ScrollPanel */
-    overflow: hidden;
-  }
-
-  /* keep the footer visible while content scrolls */
-  .fcb-species-list .form-footer {
-    // keep footer pinned to the bottom of the scrolling area
-    position: sticky;
-    flex: 0 0 auto;
-    bottom: 0;
-    background-color: var(--fcb-surface);
-    z-index: 1;
-    margin-top: auto;
-  }
+.tab {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 </style>
 
