@@ -27,7 +27,7 @@ Dependencies
 
 <template>
   <section class="standard-form config-dialog-layout">
-    <div ref="contentRef" class="fcb-sheet-subtab-container">
+    <div ref="rootEl" class="fcb-sheet-subtab-container">
       <div class="fcb-subtab-wrapper">
         <header class="config-dialog-header">
           <slot name="header"></slot>
@@ -49,55 +49,48 @@ Dependencies
 
 <script setup lang="ts">
   // library imports
-  // none
+  import { ref } from 'vue';
 
   // local imports
-  // none
 
   // library components
-  // none
 
   // local components
-  // none
 
   // types
-  // none
 
   ////////////////////////////////
   // props
-  // none
 
   ////////////////////////////////
   // emits
-  // none
 
   ////////////////////////////////
   // store
-  // none
 
   ////////////////////////////////
   // data
-  // none
+  const rootEl = ref<HTMLElement>();
 
   ////////////////////////////////
   // computed data
-  // none
 
   ////////////////////////////////
   // methods
-  // none
 
   ////////////////////////////////
   // event handlers
-  // none
 
   ////////////////////////////////
   // watchers
-  // none
 
   ////////////////////////////////
   // lifecycle hooks
-  // none
+
+  // Expose contentRef to parent
+  defineExpose({
+    rootEl
+  });
 </script>
 
 <style lang="scss" scoped>

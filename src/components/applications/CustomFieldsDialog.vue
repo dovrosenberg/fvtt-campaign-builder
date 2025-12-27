@@ -1,5 +1,5 @@
 <template>
-  <ConfigDialogLayout>
+  <ConfigDialogLayout ref="contentRef">
     <template #header>
       <div class="standard-form" style="padding: 0.5rem 0;">
         <div class="form-group">
@@ -16,14 +16,10 @@
         </div>
       </div>
       
-      <div class="fcb-sheet-subtab-container" ref="tabsRef">
-        <div class="fcb-subtab-wrapper">
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="custom-fields-dialog">
             <a class="item" data-tab="fields">{{ localize('applications.customFields.tabs.fields') }}</a>
             <a v-if="backendAvailable" class="item" data-tab="images">{{ localize('applications.customFields.tabs.images') }}</a>
           </nav>
-        </div>
-      </div>
     </template>
 
     <template #scrollSection>
@@ -480,7 +476,7 @@
   } as const;
 
   const selectedType = ref<CustomFieldContentType | null>(CustomFieldContentType.Arc);
-  const tabsRef = ref<HTMLElement>();
+  const contentRef = ref<{ rootEl: HTMLElement | null } | null>(null);
   let tabs: foundry.applications.ux.Tabs | null = null;
 
   const typeOptions = [
@@ -1359,7 +1355,9 @@
 
     // Initialize Foundry tabs
     nextTick(() => {
-      if (tabsRef.value) {
+      const el = contentRef.value?.rootEl;
+      
+      if (el) {
         tabs = new foundry.applications.ux.Tabs({ 
           group: 'custom-fields-dialog', 
           navSelector: '.tabs', 
@@ -1369,7 +1367,7 @@
             // No callback needed for now
           }
         });
-        tabs.bind(tabsRef.value);
+        tabs.bind(el);
       }
     });
   });
@@ -1377,45 +1375,40 @@
 
 
 <style lang="scss" scoped>
-.fcb-sheet-subtab-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.fcb-subtab-wrapper {
-  display: flex;
-  flex-direction: column;
-}
-
-.fcb-tab-body {
-  display: flex;
-  height: 100%;
-}
-
-.tab {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.fcb-action-icon {
-  cursor: pointer;
-  color: var(--color-text-light-primary);
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: var(--color-bg-highlight);
+  .fcb-tab-body {
+    display: flex;
+    height: 100%;
   }
-}
 
-.fcb-sheet-container {
-  :deep(input:disabled),
-  :deep(textarea:disabled),
-  :deep(select:disabled),
-  :deep(.p-disabled) {
-    background: rgba(0, 0, 0, 0.18) !important;
+  .tab {
+    display: none;
+    height: 100%;
+    flex-direction: column;
+    min-height: 0;
   }
-}
+
+  .tab.active {
+    display: flex;
+  }
+
+  .fcb-action-icon {
+    cursor: pointer;
+    color: var(--color-text-light-primary);
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: var(--color-bg-highlight);
+    }
+  }
+
+  .fcb-sheet-container {
+    :deep(input:disabled),
+    :deep(textarea:disabled),
+    :deep(select:disabled),
+    :deep(.p-disabled) {
+      background: rgba(0, 0, 0, 0.18) !important;
+    }
+  }
 </style>

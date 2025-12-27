@@ -26,7 +26,7 @@ Dependencies
 -->
 
 <template>
-  <ConfigDialogLayout>
+  <ConfigDialogLayout ref="contentRef">
     <template #header>
       <nav class="fcb-sheet-navigation flexrow tabs" data-group="connections-dialog">
         <a class="item" data-tab="colors">
@@ -249,7 +249,7 @@ Dependencies
 
   ////////////////////////////////
   // data
-  const tabsRef = ref<HTMLElement>();
+  const contentRef = ref<{ rootEl: HTMLElement | null } | null>(null);
   let tabs: foundry.applications.ux.Tabs | null = null;
 
   // Working copies that only persist when save is clicked
@@ -387,7 +387,9 @@ Dependencies
     
     // Initialize Foundry tabs
     nextTick(() => {
-      if (tabsRef.value) {
+      const el = contentRef.value?.rootEl;
+      
+      if (el) {
         tabs = new foundry.applications.ux.Tabs({ 
           group: 'connections-dialog', 
           navSelector: '.tabs', 
@@ -397,7 +399,7 @@ Dependencies
             // No callback needed for now
           }
         });
-        tabs.bind(tabsRef.value);
+        tabs.bind(el);
       }
     });
   });
@@ -405,9 +407,14 @@ Dependencies
 
 <style lang="scss" scoped>
   .tab {
+    display: none;
     height: 100%;
-    display: flex;
     flex-direction: column;
+    min-height: 0;
+  }
+
+  .tab.active {
+    display: flex;
   }
 
   .fcb-tab-body {
