@@ -30,4 +30,5 @@ next:
 - [Species Settings](./species.md) - Manage the list of species in your worlds
 - [Roll Table Settings](./roll-table.md) - Configure RollTables for NPC name generation
 - [Content Images](./content-images.md) - Hide/show images on content pages
+- [Story Web Connections](./story-web-connections.md) - Configure colors and line styles for Story Web connections
 

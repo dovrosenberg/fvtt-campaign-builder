@@ -151,7 +151,14 @@ By type of content:
 - The text on connections shows the "relationship" or "role" field from the actual relationship
 - You can edit connection text directly on the graph by double-clicking the connection or right clicking and choosing "Edit Connection".  Other than for custom text, these changes will also update the decription of the relationship in your Setting/Campaign.
 
+### Connection styles {#connection-colors-and-styles}
 
+- You can right-click on any connection and choose to change its color and style (solid, dashed, etc.)
+- You can customize what colors/styles are available and what they are named in the [Story Web Configuration Menu](/reference/configuration/story-webs).  For example, you might choose to make red lines denote enemies, green lines denote allies, etc.  
+- These styles are independent of the labels, so they are convenient for denoting secondary relationships as well.  For example:
+  - Use the relationship text to capture relationships players know about while using the line color to show the actual relationships.  
+  - Use solid lines to show things the characters know while dashed lines show things they don't know yet. 
+  - Use a line color to mark that two characters (Max and Sally) are enemies and then mark the relationship text as 'Max thinks they're friends". 
 
 <!-- ## Tips for Using Story Web
 

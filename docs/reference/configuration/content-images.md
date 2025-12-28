@@ -4,8 +4,8 @@ prev:
   text: 'Roll Table Menu'
   link: '/reference/configuration/roll-table'
 next: 
-  text: ''
-  link: ''
+  text: 'Story Web Configuration Menu'
+  link: '/referece/configuration/story-webs'
 ---
 
 # Content Images Menu
