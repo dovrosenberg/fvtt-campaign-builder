@@ -17,7 +17,7 @@ See [Story Web Connection Styles](/reference/campaign-mgt/content/storyWeb#conne
 > [!NOTE]
 > No changes are saved in this dialog until you hit "Save Changes". You can use the "Reset" button to revert any unsaved changes.
 
-## Colors Tab
+## Connection Colors Tab
 
 ![Colors Tab](/assets/images/story-web-config-colors.webp)
 
@@ -30,7 +30,7 @@ The Colors tab allows you to manage the color palette available for story web co
 - **Color** - Click the color picker to choose a custom color
 - **Delete** - Remove a color with the trash icon
 
-## Styles Tab
+## Connection Styles Tab
 
 The Styles tab allows you to configure the line styles available for story web connections.
 
@@ -45,29 +45,18 @@ The Styles tab allows you to configure the line styles available for story web c
   - **Dashed** - Broken line with regular gaps
   - **Dotted** - Line made of dots
   - **Dash-Dot** - Alternating dashes and dots
+
 - **Delete** - Remove a style with the trash icon
 
-### Usage
 
-Line styles help distinguish different relationship characteristics in your story webs. For example:
-- Solid lines for strong, established relationships
-- Dashed lines for tentative or developing connections
-- Dotted lines for indirect or weak associations
-- Dash-dot lines for complex or multifaceted relationships
+## Fields Tab
 
-## Applying Colors and Styles
+The Fields tab allows you to configure the tooltips that appear when hovering over an entity in a Story Web.  Each content type can have its own display  settings.
 
-Once you've configured your colors and styles, you can apply them to connections in your story webs by:
+![Fields Tab](/assets/images/story-web-config-fields.webp)
 
-1. Opening a [Story Web] for a campaign
-2. Selecting a connection between two entries
-3. Choosing the desired color and style from the available options
+### Managing Fields
 
-The configured options will appear in dropdown menus when editing connection properties in the story web interface.
+To manage the fields that display, first choose the content type you want to configure, then choose the field you want to add to the list and press "Add".  
 
-## Reset and Save
-
-- **Reset** - Reverts all changes to the last saved state
-- **Save Changes** - Persists your color and style configurations for use in all story webs
-
-Your custom configurations are saved globally and will be available for all campaigns and story webs in your world.
+You can then delete fields or reorder them by dragging and dropping them to a new position.  
