@@ -56,7 +56,7 @@ export class FCBJournalEntryPage<
     return foundry.utils.deepClone(this._clone.system?.customFields) || {};
   }
   
-  public getCustomField(key: string): string | boolean {
+  public getCustomField(key: string): string | boolean | undefined {
     // @ts-ignore - not sure how to specify customFields exists on all of these
     return this._clone.system?.customFields?.[key];
   }

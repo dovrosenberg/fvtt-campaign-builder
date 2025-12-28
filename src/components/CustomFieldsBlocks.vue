@@ -90,9 +90,11 @@
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyError, notifyInfo } from '@/utils/notifications';
-  import { useBackendStore, useMainStore } from '@/applications/stores';
+  import { useBackendStore } from '@/applications/stores/backendStore';
+  import { useMainStore } from '@/applications/stores';
   import { nameStyles } from '@/utils/nameStyles';
   import { promptReplace } from '@/utils/generation';
+  import { replaceUUIDsInText } from '@/utils/sanitizeHtml';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -191,7 +193,7 @@
       .filter((style) => style !== '');
   };
 
-  const resolvePromptFromFieldTemplate = (field: CustomFieldDescription): string => {
+  const resolvePromptFromFieldTemplate = async (field: CustomFieldDescription): Promise<string> => {
     if (!props.content) return '';
 
     const baseName = String((props.content as any).name ?? '');
@@ -201,10 +203,10 @@
       return `Write ${field.label} for ${baseName}.`;
     }
 
-    return promptReplace(
+    return await promptReplace(
       template, 
       baseName, 
-      String((props.content as any).description ?? ''),
+      await replaceUUIDsInText(String((props.content as any).description ?? '')),
       String((props.content as any).type ?? ''),
       String((props.content as any).species ?? ''),
       String((props.content as any).parentName ?? ''),
@@ -271,7 +273,7 @@
       contentType: ApiContentTypeMap[props.contentType],
       name: (props.content)?.name ?? '',
       fieldLabel: field.label,
-      prompt: resolvePromptFromFieldTemplate(field),
+      prompt: await resolvePromptFromFieldTemplate(field),
       genre: currentSetting.value.genre ?? '',
       settingFeeling: currentSetting.value.settingFeeling ?? '',
 
@@ -280,11 +282,11 @@
       speciesDescription,
       parentName: parent?.name || '',
       parentType: parent?.type || '',
-      parentDescription: parent?.description || '',
+      parentDescription: await replaceUUIDsInText(parent?.description || ''),
       grandparentName: grandparent?.name || '',
       grandparentType: grandparent?.type || '',
-      grandparentDescription: grandparent?.description || '',
-      description: String((props.content as any).description ?? ''),
+      grandparentDescription: await replaceUUIDsInText(grandparent?.description || ''),
+      description: await replaceUUIDsInText(String((props.content as any).description ?? '')),
       nameStyles: selectedNameStyles(currentSetting.value.genre ?? '', (setting as any).nameStyles || []),
       textModel: ModuleSettings.get(SettingKey.selectedTextModel),
       configuration,

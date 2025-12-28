@@ -259,7 +259,9 @@
     { tab: 'pcs', label: 'labels.tabs.entry.pcs', topic: Topics.PC },
   ] as { tab: string; label: string; topic: Topics }[];
 
-  const topic = ref<Topics | null>(null);
+  const topic = computed(() =>
+    currentEntry.value?.topic || null;
+  );
   const name = ref<string>('');
 
   const parentId = ref<string | null>(null);
@@ -322,9 +324,7 @@
     // refresh this so we can capture changes to campaigns as soon as they happen
     await updatePushButton();
 
-    if (!currentEntry.value || !currentEntry.value.uuid) {
-      topic.value = null;
-    } else {
+    if (currentEntry.value && currentEntry.value.uuid) {
       let newTopicFolder: TopicFolder | null;
 
       newTopicFolder = await currentEntry.value.getTopicFolder();
@@ -332,8 +332,6 @@
         throw new Error('Invalid entry topic in EntryContent.refreshEntry');
 
       // we're going to show a content page
-      topic.value = newTopicFolder.topic;
-
       // load starting data values
       name.value = currentEntry.value.name || '';
 
@@ -551,6 +549,7 @@
         icon: 'fa-file-lines',
         iconFontClass: 'fas',
         label: localize('contextMenus.generate.nameAndDescription'),        
+        disabled: false,
         onClick: async () => {
           if (currentEntry.value)
             await updateEntryDialog(currentEntry.value);

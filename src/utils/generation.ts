@@ -25,6 +25,7 @@ import {
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyError, notifyInfo } from './notifications';
 import { windowTabToCustomContentType } from './customFields';
+import { replaceUUIDsInText } from './sanitizeHtml';
 import { ApiCustomGenerateImagePostRequestContentTypeEnum } from '@/apiClient';
 
 /**
@@ -145,9 +146,9 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
     // Get the description based on the configuration
     let description: string;
     if (baseConfig.descriptionField === 'description') {
-      description = (entry as any).description || '';
+      description = await replaceUUIDsInText((entry as any).description || '');
     } else {
-      description = (entry as any).getCustomField(baseConfig.descriptionField);
+      description = await replaceUUIDsInText((entry as any).getCustomField(baseConfig.descriptionField) || '');
     }      
     // get parent/grandparent for context (only for entries)
     let parent: Entry | null = null;
@@ -177,7 +178,7 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
     }
         
     // Build the prompt by replacing tokens
-    let finalPrompt = promptReplace(
+    let finalPrompt = await promptReplace(
       aiImagePrompts[contentType] || '', 
       entry.name || '', 
       (entry as any).description || '',
@@ -197,12 +198,12 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
       type: (entry as any).type,
       species: species?.name,
       speciesDescription: species?.description,
-      parentName: parent?.name,
-      parentType: parent?.type,
-      parentDescription: parent?.description,
-      grandparentName: grandparent?.name,
-      grandparentType: grandparent?.type,
-      grandparentDescription: grandparent?.description,
+      parentName: parent?.name || '',
+      parentType: parent?.type || '',
+      parentDescription: await replaceUUIDsInText(parent?.description || ''),
+      grandparentName: grandparent?.name || '',
+      grandparentType: grandparent?.type || '',
+      grandparentDescription: await replaceUUIDsInText(grandparent?.description || ''),
       description: description,
       textModel: ModuleSettings.get(SettingKey.selectedTextModel),
       imageModel: ModuleSettings.get(SettingKey.selectedImageModel),
@@ -235,7 +236,7 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
  * @param values 
  * @returns 
  */
-export const promptReplace = (template: string, name: string, description: string, type: string, species: string, parent: string, customFields: Record<string, string | boolean>): string => {
+export const promptReplace = async (template: string, name: string, description: string, type: string, species: string, parent: string, customFields: Record<string, string | boolean>): Promise<string> => {
   const tokenMap: Record<string, string> = {
     name,
     description,
@@ -244,8 +245,15 @@ export const promptReplace = (template: string, name: string, description: strin
     parent,
   };
 
+  // Process custom field values, running text fields through replaceUUIDsInText
   for (const key of Object.keys(customFields)) {
-    tokenMap[key] = typeof customFields[key] === 'boolean' ? (customFields[key] ? 'true' : 'false') : String(customFields[key] ?? '');
+    if (typeof customFields[key] === 'boolean') {
+      tokenMap[key] = customFields[key] ? 'true' : 'false';
+    } else {
+      // For string values, replace UUIDs with names before using in prompt
+      const stringValue = String(customFields[key] ?? '');
+      tokenMap[key] = await replaceUUIDsInText(stringValue);
+    }
   }
 
   return template.replace(/\{([^{}]*)\}/g, (_match, inner) => {
