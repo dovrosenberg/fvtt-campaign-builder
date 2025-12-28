@@ -357,7 +357,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         // Only add edge if both nodes exist in the graph
         if (nodes.some(n => n.id === edge.from) && nodes.some(n => n.id === edge.to)) {
           const label = edge.label || '';
-          const edgeUuid = edge.uuid || getEdgeUuid(edge.from, edge.to, 'manual');
+          const edgeUuid = getEdgeUuid(edge.from, edge.to, 'manual');
           const baseEdge = {
             from: edge.from,
             to: edge.to,
@@ -892,7 +892,19 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
   /** Apply edge styles from the story web to an edge configuration */
   const getEdgeStyling = (edgeUuid: string): Partial<Edge> => {
-    const edgeStyles = currentStoryWeb.value?.edgeStyles?.[edgeUuid];
+    let edgeStyles = currentStoryWeb.value?.edgeStyles?.[edgeUuid];
+
+    // Backward compatibility: check for old unprefixed format if new format not found and this is a manual edge
+    if (!edgeStyles && edgeUuid.startsWith('manual:')) {
+      const oldEdgeUuid = edgeUuid.replace('manual:', '');
+      edgeStyles = currentStoryWeb.value?.edgeStyles?.[oldEdgeUuid];
+      
+      // If found with old format, migrate it to new format
+      if (edgeStyles && currentStoryWeb.value?.edgeStyles) {
+        currentStoryWeb.value.edgeStyles[edgeUuid] = edgeStyles;
+        delete currentStoryWeb.value.edgeStyles[oldEdgeUuid];
+      }
+    }
 
     if (!edgeStyles) {
       return {};
@@ -1112,8 +1124,20 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   }
 
   const getManualEdge = (fromNode: string, toNode: string) => {
-    const edgeUuid = [fromNode, toNode].sort().join('|');
-    const manualEdge = currentStoryWeb.value?.edges.find(e => e.uuid === edgeUuid);
+    const edgeUuid = getEdgeUuid(fromNode, toNode, 'manual');
+    let manualEdge = currentStoryWeb.value?.edges.find(e => e.uuid === edgeUuid);
+    
+    // Backward compatibility: check for old unprefixed format if new format not found
+    if (!manualEdge) {
+      const oldEdgeUuid = [fromNode, toNode].sort().join('|');
+      manualEdge = currentStoryWeb.value?.edges.find(e => e.uuid === oldEdgeUuid);
+      
+      // If found with old format, update it to new format
+      if (manualEdge) {
+        manualEdge.uuid = edgeUuid;
+      }
+    }
+    
     return manualEdge;
   }
 
@@ -1624,7 +1648,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         return;
 
       // Create the edge
-      const edgeUuid = [fromNode, toNode].sort().join('|');
+      const edgeUuid = getEdgeUuid(fromNode, toNode, 'manual');
       currentStoryWeb.value.edges.push({
         uuid: edgeUuid,
         from: fromNode,
