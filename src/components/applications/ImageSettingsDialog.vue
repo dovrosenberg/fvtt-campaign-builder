@@ -1,11 +1,34 @@
-<template>
-  <div class="fcb-image-settings">
-    <div class="fcb-settings-header">
-      <h3>{{ localize('dialogs.imageSettings.title') }}</h3>
-      <p class="notes">{{ localize('dialogs.imageSettings.description') }}</p>
-    </div>
+<!--
+ImageSettingsDialog: Dialog for configuring image display settings
 
-    <form @submit.prevent="onSubmit">
+Purpose
+- Provides UI for users to configure which content types show images
+
+Responsibilities
+- Manages checkbox settings for different content types
+- Saves settings to ModuleSettings
+- Closes the dialog after saving
+
+Props
+- None
+
+Emits
+- None
+
+Slots
+- None
+
+Dependencies
+- Stores: useMainStore
+- Composables: None
+- Services/API: ModuleSettings
+
+-->
+
+<template>
+  <ConfigDialogLayout>
+    <template #scrollSection>
+      <p class="notes">{{ localize('dialogs.imageSettings.description') }}</p>
       <div class="fcb-settings-group">
         <div class="fcb-setting-item" v-for="setting in settings" :key="setting.key">
           <label class="fcb-setting-label">
@@ -19,14 +42,14 @@
           </label>
         </div>
       </div>
+    </template>
 
-      <div class="fcb-settings-actions">
-        <button type="submit" class="fcb-button fcb-button-primary">
-          <i class="fas fa-save"></i> {{ localize('labels.save') }}
-        </button>
-      </div>
-    </form>
-  </div>
+    <template #footer>
+      <button @click="onClickSubmit" class="fcb-button fcb-button-primary">
+        <i class="fa-solid fa-save"></i> {{ localize('labels.saveChanges') }}
+      </button>
+    </template>
+  </ConfigDialogLayout>
 </template>
 
 <script setup lang="ts">
@@ -40,6 +63,11 @@
   import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
   import { useMainStore } from '@/applications/stores';
 
+  // library components
+
+  // local components
+  import ConfigDialogLayout from '@/components/layout/ConfigDialogLayout.vue';
+
   // types
   interface ImageSetting {
     key: string;
@@ -47,6 +75,17 @@
     value: boolean;
   }
 
+  ////////////////////////////////
+  // props
+
+  ////////////////////////////////
+  // emits
+
+  ////////////////////////////////
+  // store
+  const mainStore = useMainStore();
+
+  ////////////////////////////////
   // data
   const settings = ref<ImageSetting[]>([
     { key: 'settings', label: localize('dialogs.imageSettings.settings'), value: true },
@@ -57,8 +96,15 @@
     { key: 'fronts', label: localize('dialogs.imageSettings.fronts'), value: true },
   ]);
 
+  ////////////////////////////////
+  // computed data
+
+  ////////////////////////////////
   // methods
-  const onSubmit = async () => {
+
+  ////////////////////////////////
+  // event handlers
+  const onClickSubmit = async () => {
     const showImages = {
       settings: settings.value[0].value,
       entries: settings.value[1].value,
@@ -72,14 +118,18 @@
     await ModuleSettings.set(SettingKey.showImages, showImages);
 
     if (isCampaignBuilderAppOpen()) {
-      await useMainStore().refreshCurrentContent();
+      await mainStore.refreshCurrentContent();
     }
     
     // Close the application using the global reference
     imageSettingsApp?.close();
   };
 
-  // lifecycle
+  ////////////////////////////////
+  // watchers
+
+  ////////////////////////////////
+  // lifecycle hooks
   onMounted(() => {
     // Load current settings
     try {
@@ -97,80 +147,76 @@
 </script>
 
 <style lang="scss" scoped>
-  .fcb-image-settings {
-    padding: 16px;
+  .fcb-settings-header {
+    padding: 0 16px;
     
-    .fcb-settings-header {
-      margin-bottom: 20px;
-      
-      h3 {
-        margin: 0 0 8px 0;
-        color: var(--fcb-text-primary);
-      }
-      
-      .notes {
-        margin: 4px 0;
-        color: var(--fcb-text-muted);
-        font-size: var(--fcb-font-size-small);
-      }
+    h3 {
+      margin: 0 0 8px 0;
+      color: var(--fcb-text-primary);
     }
     
-    .fcb-settings-group {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 20px;
-      
-      .fcb-setting-item {
-        .fcb-setting-label {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          cursor: pointer;
-          padding: 8px;
-          border-radius: 4px;
-          transition: background-color 0.2s ease;
-          
-          &:hover {
-            background-color: var(--fcb-surface-hover);
-          }
-          
-          .fcb-setting-checkbox {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--fcb-primary);
-          }
-          
-          .fcb-setting-text {
-            font-size: var(--fcb-font-size-medium);
-            color: var(--fcb-text-primary);
-          }
+    .notes {
+      margin: 4px 0;
+      color: var(--fcb-text-muted);
+      font-size: var(--fcb-font-size-small);
+    }
+  }
+  
+  .fcb-settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 16px;
+    
+    .fcb-setting-item {
+      .fcb-setting-label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+        
+        &:hover {
+          background-color: var(--fcb-surface-hover);
+        }
+        
+        .fcb-setting-checkbox {
+          width: 18px;
+          height: 18px;
+          accent-color: var(--fcb-primary);
+        }
+        
+        .fcb-setting-text {
+          font-size: var(--fcb-font-size-medium);
+          color: var(--fcb-text-primary);
         }
       }
     }
+  }
+  
+  .fcb-settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
     
-    .fcb-settings-actions {
+    .fcb-button {
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: var(--fcb-font-size-medium);
       display: flex;
-      justify-content: flex-end;
+      align-items: center;
       gap: 8px;
       
-      .fcb-button {
-        padding: 8px 16px;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-        font-size: var(--fcb-font-size-medium);
-        display: flex;
-        align-items: center;
-        gap: 8px;
+      &.fcb-button-primary {
+        background-color: var(--fcb-primary);
+        color: white;
         
-        &.fcb-button-primary {
-          background-color: var(--fcb-primary);
-          color: white;
-          
-          &:hover {
-            background-color: var(--fcb-primary-dark);
-          }
+        &:hover {
+          background-color: var(--fcb-primary-dark);
         }
       }
     }
