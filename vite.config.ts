@@ -40,6 +40,10 @@ export default defineConfig(({ mode }) => {
           find: '@test',
           replacement: path.resolve(__dirname,'test')
         },
+        {
+          find: '@unittest',
+          replacement: path.resolve(__dirname,'test/unit')
+        },
       ],
       extensions: [
         '.mjs',

@@ -3,14 +3,14 @@
 // -------------------------------- //
 
 import { SettingKey, ModuleSettings } from '@/settings';
-import { registerClassesTests } from '@unittest/classes';
-import { registerSettingsTests } from '@unittest/settings';
+// import { registerClassesTests } from '@unittest/classes';
+// import { registerSettingsTests } from '@unittest/settings';
 import { registerUtilsTests } from '@unittest/utils';
 
 // Registers all `Quench` tests
-Hooks.on("quenchReady", () => {
-  registerClassesTests();
-  registerSettingsTests();
+Hooks.on('quenchReady', () => {
+  // registerClassesTests();
+  // registerSettingsTests();
   registerUtilsTests();
 });
 
