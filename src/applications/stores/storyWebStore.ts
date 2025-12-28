@@ -48,6 +48,7 @@ window.fcbStoryWebPhysics = {
 // types
 import { Danger, RelatedEntryDetails, STORYWEB_TO_CUSTOM_FIELD_MAP, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Campaign, Entry, Front } from '@/classes';
+import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
 import { confirmDialog } from '@/dialogs/confirm';
 
 interface NetworkClickEventInfo {
@@ -701,9 +702,12 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     }
 
     // Get the entry data
-    let entryData: any = null;
-    
+    let entryData: FCBJournalEntryPage<any> | Danger | null = null;
+    let isDanger = false;
+
     if (nodeType === StoryWebNodeTypes.Danger) {
+      isDanger = true;
+
       // For dangers, we need to extract the data from the front
       const [frontId, dangerIndex] = nodeId.split('|');
       const front = await Front.fromUuid(frontId);
@@ -756,9 +760,18 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
           }
           break;
         default:
-          // Check custom fields
-          if (entryData.customFields && entryData.customFields[fieldKey]) {
-            value = entryData.customFields[fieldKey];
+          // Check custom fields (note: no support for custom fields on dangers
+          if (isDanger)
+            break;
+
+          if ((entryData as FCBJournalEntryPage<any>).customFields && (entryData as FCBJournalEntryPage<any>).getCustomField(fieldKey)) {
+            const tempValue = (entryData as FCBJournalEntryPage<any>).getCustomField(fieldKey);
+
+            // if it's a boolean, convert to yes/no
+            if (typeof tempValue === 'boolean')
+              value = localize(tempValue ? 'labels.yes' : 'labels.no');
+            else
+              value = tempValue || '';
           }
           break;
       }
