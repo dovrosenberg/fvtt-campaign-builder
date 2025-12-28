@@ -6,8 +6,8 @@ import { SpeciesListApplication } from '@/applications/settings/SpeciesListAppli
 import { ImageSettingsApplication } from '@/applications/settings/ImageSettingsApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { StoryWebSettingsApplication } from '@/applications/settings/StoryWebSettingsApplication';
-import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, } from '@/types';
 import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
+import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, } from '@/types';
 
 export type ImageConfiguration = ApiCustomGenerateImagePostRequestImageConfiguration & {
   descriptionField?: string;
@@ -28,7 +28,6 @@ export interface ImageVisibility {
    width: number;
    height: number;
  }
-
 
 export enum SettingKey {
   // displayed in main settings window
@@ -87,6 +86,7 @@ export enum SettingKey {
   storyWebSettingsMenu = 'storyWebSettingsMenu', // display the story graph connections menu
   storyWebConnectionColors = 'storyWebConnectionColors', // predefined colors for edges
   storyWebConnectionStyles = 'storyWebConnectionStyles', // predefined styles for edges
+  storyWebNodeFields = 'storyWebNodeFields', // selected fields to display in node tooltips by content type
 }
 
 export type SettingKeyType<K extends SettingKey> =
@@ -118,6 +118,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.storyWebSettingsMenu ? never :
     K extends SettingKey.storyWebConnectionColors ? { id: string; name: string; value: string }[] :
     K extends SettingKey.storyWebConnectionStyles ? { id: string; name: string; value: string }[] :
+    K extends SettingKey.storyWebNodeFields ? Partial<Record<StoryWebNodeTypes, string[]>> :
     K extends SettingKey.aiImagePrompts ? Record<CustomFieldContentType, string> :
     K extends SettingKey.aiImageConfigurations ? Record<CustomFieldContentType, ImageConfiguration> :
     K extends SettingKey.entryTags ? TagList :
@@ -464,6 +465,11 @@ export class ModuleSettings {
         { id: 'dense_dot', name: 'Dense Dot', value: 'dense_dot' },
       ],
       type: Array,
+    },
+    {
+      settingID: SettingKey.storyWebNodeFields,
+      default: {},
+      type: Object,
     },
   ];
   

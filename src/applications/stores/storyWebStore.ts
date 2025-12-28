@@ -45,7 +45,7 @@ window.fcbStoryWebPhysics = {
 };
 
 // types
-import { Danger, RelatedEntryDetails, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
+import { Danger, RelatedEntryDetails, STORYWEB_TO_CUSTOM_FIELD_MAP, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Campaign, Entry, Front } from '@/classes';
 import { confirmDialog } from '@/dialogs/confirm';
 
@@ -223,11 +223,12 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
             const positionInfo = currentStoryWeb.value?.positions?.[node.uuid] || {};            
             const format = node.source === StoryWebNodeSource.Explicit ? explicitNodeFormat : implicitNodeFormat;
+            const nodeTooltip = await getNodeTooltip(node.uuid, StoryWebNodeTypes.Danger);
             nodes.push({
               ...format,
               id: node.uuid,
               label: `${danger.name}\n(${front.name})`,
-              // title,
+              title: nodeTooltip,
               ...positionInfo,
               ...nodeConfig[StoryWebNodeTypes.Danger],
             });
@@ -243,6 +244,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
               const positionInfo = currentStoryWeb.value?.positions?.[index.uuid] || {};
               
               const format = node.source === StoryWebNodeSource.Explicit ? explicitNodeFormat : implicitNodeFormat;
+              const nodeTooltip = await getNodeTooltip(index.uuid, node.type);
 
               // titles may require additional css... not working and maybe not worth bigger package size
               // const title = getTopicText(topic) + '\n' + 
@@ -252,7 +254,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
                 ...format,
                 id: index.uuid,
                 label: `${index.name}${index.type ? `\n(${index.type})` : ''}`,
-                // title,
+                title: nodeTooltip,
                 ...positionInfo,
                 ...nodeConfig[node.type],
               });
@@ -685,6 +687,159 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   const getEdgeUuid = (fromNode: string, toNode: string, edgeType: 'manual' | 'relationship' | 'danger' = 'relationship'): string => {
     const sorted = [fromNode, toNode].sort();
     return `${edgeType}:${sorted[0]}|${sorted[1]}`;
+  };
+
+  /** Generate tooltip text for a node based on its content type and selected fields */
+  const getNodeTooltip = async (nodeId: string, nodeType: StoryWebNodeTypes): Promise<string | undefined> => {
+    // Get the selected fields for this content type
+    const nodeFields = ModuleSettings.get(SettingKey.storyWebNodeFields) as Record<StoryWebNodeTypes, string[]>;
+    const selectedFields = nodeFields[nodeType] || [];
+    
+    if (selectedFields.length === 0) {
+      return undefined;
+    }
+
+    // Get the entry data
+    let entryData: any = null;
+    
+    if (nodeType === StoryWebNodeTypes.Danger) {
+      // For dangers, we need to extract the data from the front
+      const [frontId, dangerIndex] = nodeId.split('|');
+      const front = await Front.fromUuid(frontId);
+      if (front && front.dangers[Number.parseInt(dangerIndex)]) {
+        entryData = front.dangers[Number.parseInt(dangerIndex)];
+      }
+    } else {
+      // For entries, get the entry document
+      const entry = await Entry.fromUuid(nodeId);
+      if (entry) {
+        entryData = entry;
+      }
+    }
+    
+    if (!entryData) {
+      return undefined;
+    }
+
+    // Build the tooltip from selected fields
+    const tooltipParts: string[] = [];
+    
+    for (const fieldKey of selectedFields) {
+      let value = '';
+      
+      // Handle danger-specific fields
+      switch (fieldKey) {
+        case 'name':
+        case 'description':
+        case 'type':
+        case 'impendingDoom':
+        case 'motivation':
+          value = entryData[fieldKey] || '';
+          break;
+        case 'species':
+          // need to get the species
+          const speciesId = (entryData as Entry).speciesId;
+          const allSpecies = ModuleSettings.get(SettingKey.speciesList);
+          const species = allSpecies.find(s => s.id === speciesId);
+          value = species?.name || '';
+          break;
+        case 'parent':
+          // need to get the parent
+          const entry = await Entry.fromUuid(nodeId);
+          const parentId = await entry?.getParentId();
+          if (!parentId)
+            value = '';
+          else {
+            const parent = await Entry.fromUuid(parentId);
+            value = parent?.name || '';
+          }
+          break;
+        default:
+          // Check custom fields
+          if (entryData.customFields && entryData.customFields[fieldKey]) {
+            value = entryData.customFields[fieldKey];
+          }
+          break;
+      }
+      
+      // Get the field name for display
+      const allFields = getAllFieldsForContentType(nodeType);
+      const field = allFields.find(f => f.key === fieldKey);
+      const fieldName = field ? field.name : fieldKey;
+      
+      // Add to tooltip if value exists
+      if (value && value.trim()) {
+        // Truncate long values
+        const maxLength = 200;
+        if (value.length > maxLength) {
+          value = value.substring(0, maxLength) + '...';
+        }
+        tooltipParts.push(`${fieldName}: ${value}`);
+      }
+    }
+    
+    return tooltipParts.length > 0 ? tooltipParts.join('\n') : undefined;
+  };
+
+  /** Get all available fields for a content type (hardcoded + custom) */
+  const getAllFieldsForContentType = (contentType: StoryWebNodeTypes): { key: string; name: string }[] => {
+    const fields = [] as { key: string; name: string }[];
+    
+    // Hard-coded fields for each content type
+    const hardcodedFields: Partial<Record<StoryWebNodeTypes, { key: string; name: string }[]>> = {
+      [StoryWebNodeTypes.Character]: [
+        { key: 'name', name: 'Name' },
+        { key: 'type', name: 'Type' },
+        { key: 'description', name: 'Description' },
+        { key: 'gmNotes', name: 'GM Notes' },
+      ],
+      [StoryWebNodeTypes.Location]: [
+        { key: 'name', name: 'Name' },
+        { key: 'type', name: 'Type' },
+        { key: 'description', name: 'Description' },
+        { key: 'gmNotes', name: 'GM Notes' },
+      ],
+      [StoryWebNodeTypes.Organization]: [
+        { key: 'name', name: 'Name' },
+        { key: 'type', name: 'Type' },
+        { key: 'description', name: 'Description' },
+        { key: 'gmNotes', name: 'GM Notes' },
+      ],
+      [StoryWebNodeTypes.PC]: [
+        { key: 'name', name: 'Name' },
+        { key: 'type', name: 'Type' },
+        { key: 'description', name: 'Description' },
+        { key: 'gmNotes', name: 'GM Notes' },
+      ],
+      [StoryWebNodeTypes.Danger]: [
+        { key: 'name', name: 'Name' },
+        { key: 'description', name: 'Description' },
+        { key: 'type', name: 'Type' },
+        { key: 'impulse', name: 'Impulse' },
+        { key: 'cast', name: 'Cast' },
+        { key: 'moves', name: 'Moves' },
+      ],
+      // Custom nodes don't have configurable fields
+    };
+    
+    fields.push(...(hardcodedFields[contentType] || []));
+    
+    // Add custom fields if available
+    const customFields = ModuleSettings.get(SettingKey.customFields) as Record<string, any[]>;
+    const customContentType = STORYWEB_TO_CUSTOM_FIELD_MAP[contentType];
+    
+    if (customContentType && customFields && customFields[customContentType]) {
+      customFields[customContentType].forEach((field: any) => {
+        if (!fields.find(f => f.key === field.name)) {
+          fields.push({
+            key: field.name,
+            name: field.label || field.name,
+          });
+        }
+      });
+    }
+    
+    return fields;
   };
 
   /** Generate tooltip text for an edge based on its color and style */
@@ -1672,8 +1827,8 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     const edgeUuid = getEdgeUuid(fromNode, toNode, getEdgeType(fromNode, toNode));
 
     // Get predefined colors and styles from settings
-    const colors = ModuleSettings.getClone(SettingKey.storyWebConnectionColors) as { id: string; name: string; value: string }[];
-    const styles = ModuleSettings.getClone(SettingKey.storyWebConnectionStyles) as { id: string; name: string; value: string }[];
+    const colors = ModuleSettings.get(SettingKey.storyWebConnectionColors);
+    const styles = ModuleSettings.get(SettingKey.storyWebConnectionStyles);
 
     // Build color submenu items
     const colorSubmenu = colors.map(color => ({
@@ -1877,6 +2032,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     handleDropOnNode,
     setEdgeColor,
     setEdgeStyle,
+    getNodeTooltip,
   };
 });
 

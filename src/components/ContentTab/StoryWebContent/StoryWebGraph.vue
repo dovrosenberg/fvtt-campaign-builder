@@ -280,7 +280,7 @@
     border-radius: 4px;
     padding: 8px;
     font-size: var(--font-size-12);
-    max-width: 200px;
+    max-width: 400px;
     word-wrap: break-word;
   }
 </style>

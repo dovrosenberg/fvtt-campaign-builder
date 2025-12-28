@@ -16,7 +16,7 @@ export class StoryWebSettingsApplication extends VueApplicationMixin(Application
     id: `app-fcb-story-web-settings`,
     classes: ['fcb-story-web-settings', 'fcb-window'],
     window: {
-      title: 'fcb.settings.storyWebSettings',
+      title: 'fcb.applications.storyWebSettings.title',
       icon: 'fa-solid fa-project-diagram',
       resizable: true,
     },

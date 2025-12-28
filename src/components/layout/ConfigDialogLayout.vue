@@ -115,6 +115,7 @@ Dependencies
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  padding: 10px;
 }
 
 .config-dialog-header {
@@ -125,7 +126,7 @@ Dependencies
   flex: 1 1 auto;
   min-height: 0;     /* critical for scrolling flex children */
   overflow: auto;    /* only main scrolls */
-  padding: 0 0.75rem 0.75rem 0.75rem;
+  padding-bottom: 0.75rem;
 }
 
 .config-dialog-footer {
