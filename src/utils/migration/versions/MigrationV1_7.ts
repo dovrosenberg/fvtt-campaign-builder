@@ -21,10 +21,10 @@ export class MigrationV1_7 implements Migration {
   public readonly targetVersion = '1.7.0';
   public readonly description = 'Deletes any invalid documents (ones that were deleted incorrectly previously)';
 
-  private _context: MigrationContext;
+  // private _context: MigrationContext;
 
   constructor(_context: MigrationContext) {
-    this._context = _context;
+    // this._context = _context;
   }
 
   async migrate(): Promise<MigrationResult> {

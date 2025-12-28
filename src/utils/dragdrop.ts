@@ -126,7 +126,8 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
  * @param uuid - The UUID of the item to drag
  * @returns A promise that resolves when the drag setup is complete
  */
-export const itemDragStart = async(event: DragEvent, uuid: string): Promise<void> => {
+export const 
+ragStart = async(event: DragEvent, uuid: string): Promise<void> => {
     // Remove these lines - they're preventing the drag from working
     // event.preventDefault();
     event.stopPropagation();
@@ -151,7 +152,7 @@ export const itemDragStart = async(event: DragEvent, uuid: string): Promise<void
           const existingPreview = document.getElementById("drag-preview");
           if (existingPreview) existingPreview.remove();
                    
-          const preview = foundry.applications.ux.DragDrop.implementation.createDragImage({ src: item.img }, w, h);
+          const preview = foundry.applications.ux.DragDrop.implementation.createDragImage({ src: item.img } as HTMLImageElement, w, h);
 
           event.dataTransfer.setDragImage(preview, w / 2, h / 2);
         }

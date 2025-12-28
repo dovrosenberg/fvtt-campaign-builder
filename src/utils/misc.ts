@@ -1,4 +1,5 @@
 import { EntryBasicIndex, StoryWebNodeTypes, Topics, WindowTabType } from '@/types';
+import { Entry } from '@/classes';
 
 /**
  * Safely converts a topic value to the Topics enum type.  Sometimes topic ends up a string

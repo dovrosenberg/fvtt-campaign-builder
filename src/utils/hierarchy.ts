@@ -1,4 +1,4 @@
-import { TabSummary,  Hierarchy, Topics, EntryBasicIndex, } from '@/types';
+import { Hierarchy, Topics, EntryBasicIndex, } from '@/types';
 import { TopicFolder, Entry, FCBSetting, } from '@/classes';
 
 /**
@@ -64,18 +64,6 @@ export function getParentId(FCBSetting: FCBSetting, entry: Entry): string | null
   const hierarchy = hierarchies[entry.uuid];
   return hierarchy?.parentId ?? null;
 }
-
-/**
- * Maps an Entry object to a TabSummary object for use in selection lists.
- * Extracts the essential information needed for displaying entries in dropdowns.
- * 
- * @param entry - The entry to convert to a summary
- * @returns A TabSummary object with name and uuid properties
- */
-const mapEntryToSummary = (entry: Entry): TabSummary => ({
-  name: entry.name || '',
-  uuid: entry.uuid,
-});
 
 /**
  * Cleans up hierarchy relationships after an item is deleted.
