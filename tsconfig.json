@@ -4,7 +4,7 @@
 		"outDir": ".tscout",
 		"target": "es2018",
 		"module": "esnext",
-		"lib": [ "es2021", "dom" ],
+		"lib": [ "es2024", "dom" ],
 		"typeRoots": [ "./src/types", "node", "@ethaks/fvtt-quench"],
 		"moduleResolution": "bundler",
 		"sourceMap": true,
@@ -30,8 +30,8 @@
 		"skipLibCheck": true,
 		"resolveJsonModule": true,
 
-		"baseUrl": "./",
 		"paths": {
+			"*": ["/*"],
 			"src/*": ["./src/*"],
 			"@/*": ["./src/*"],
 			"@unittest/*": ["./test/unit/*"],
