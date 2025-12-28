@@ -133,6 +133,38 @@ const replaceUUID = async (uuid: string): Promise<string> => {
   return doc?.name ?? '??';
 };
 
+  /** Replace UUIDs in text with their corresponding names */
+  export const replaceUUIDsInText = async (text: string): Promise<string> => {
+    const uuidRegex = /@UUID\[([^\]]+)\](\{([^\}]+)\})?/gi;
+    
+    let result = text;
+    const matches = [...text.matchAll(uuidRegex)];
+    
+    for (const match of matches) {
+      const uuid = match[1]; // The actual UUID string
+      const labelText = match[3]; // The label text (without braces), or undefined
+      
+      if (labelText) {
+        // If there's a label text, use that as the replacement
+        result = result.replace(match[0], labelText);
+      } else {
+        // Otherwise, look up the UUID and use the document name
+        const entry = await Entry.fromUuid(uuid);
+        if (entry) {
+          result = result.replace(match[0], entry.name || '');
+        } else {
+          // Try Foundry documents as fallback
+          const doc = await foundry.utils.fromUuid(uuid as any);
+          if (doc?.name) {
+            result = result.replace(match[0], doc.name);
+          }
+        }
+      }
+    }
+    
+    return result;
+  };
+
 /**
  * Converts AI-generated plain text (which is formatted for safe display with whitespace-pre-wrap) 
  * into proper HTML for editor storage.

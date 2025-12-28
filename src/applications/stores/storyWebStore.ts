@@ -11,6 +11,7 @@ import { nodeTypeToTopic, } from '@/utils/misc';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { ModuleSettings, SettingKey } from '@/settings';
+import { replaceUUIDsInText } from '@/utils/sanitizeHtml';
 
 // library componentns
 import ContextMenu from '@imengyu/vue3-context-menu';
@@ -769,6 +770,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       
       // Add to tooltip if value exists
       if (value && value.trim()) {
+        // Replace UUIDs in the value with their names
+        value = await replaceUUIDsInText(value);
+        
         // Strip HTML tags from the value
         value = value.replace(/<[^>]*>/g, '');
         
