@@ -126,8 +126,7 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
  * @param uuid - The UUID of the item to drag
  * @returns A promise that resolves when the drag setup is complete
  */
-export const 
-ragStart = async(event: DragEvent, uuid: string): Promise<void> => {
+export const itemDragStart = async(event: DragEvent, uuid: string): Promise<void> => {
     // Remove these lines - they're preventing the drag from working
     // event.preventDefault();
     event.stopPropagation();
