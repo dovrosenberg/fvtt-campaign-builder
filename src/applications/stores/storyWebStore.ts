@@ -769,12 +769,15 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       
       // Add to tooltip if value exists
       if (value && value.trim()) {
+        // Strip HTML tags from the value
+        value = value.replace(/<[^>]*>/g, '');
+        
         // Truncate long values
         const maxLength = 200;
         if (value.length > maxLength) {
           value = value.substring(0, maxLength) + '...';
         }
-        tooltipParts.push(`${fieldName}: ${value}`);
+        tooltipParts.push(`<strong>${fieldName}:</strong> ${value}`);
       }
     }
     

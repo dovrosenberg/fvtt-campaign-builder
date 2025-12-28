@@ -291,7 +291,7 @@
           "fieldName": "Field Name",
           "fieldKey": "Field Key"
         },
-        "fieldsHint": "The fields in this list will be displayed in the node tooltips when hovering over nodes in the story web.",
+        "fieldsHint": "The fields in this list will be displayed in the tooltip when hovering over entities in a Story Web.",
         "contentType": "Content Type",
         "selectField": "Select Field",
         "notifications": {
