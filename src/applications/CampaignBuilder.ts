@@ -268,12 +268,14 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     }, 0);
   }
 
-  override async close(options: any = {}): Promise<void> {
+  override async close(options: any = {}): Promise<this> {
     if (game.modules.get(moduleId))
       // @ts-ignore
       game.modules.get(moduleId).activeWindow = null;
 
     await super.close(options);
+
+    return this;
   }
 
   // capture the window position (after debouncing)

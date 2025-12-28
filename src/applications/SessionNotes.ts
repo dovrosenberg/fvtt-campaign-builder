@@ -52,13 +52,17 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
    * @param {ApplicationClosingOptions} [options] - Optional parameters for closing the application.
    * @returns {Promise<BaseApplication>} - A Promise which resolves to the rendered Application instance.
    */
-    async close(options = {}) {
+    async close(options = {}): Promise<this | void> {
       const component = SessionNotesApplication.component;
 
       if (!usePlayingStore().currentPlayedSessionId)
         return;
 
-      const session = await Session.fromUuid(usePlayingStore().currentPlayedSessionId);
+      const id = usePlayingStore().currentPlayedSessionId;
+      if (!id)
+        return;
+      
+      const session = await Session.fromUuid(id);
       
       if (component && session) {
         // check if the session notes window is dirty and save if needed

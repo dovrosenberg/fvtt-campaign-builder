@@ -49,10 +49,17 @@ class RelatedItemApplication extends VueApplicationMixin(ApplicationV2) {
 }
 
 /** returns the selected uuid */
-async function relatedItemDialog(title: string, mainButtonLabel: string, options: { id: string; label: string}[], 
-  useOptions2: boolean = false, options2: (id: string) => Promise<{id: string; label: string}[]> = () => [], 
-  extraFields: {field: string; header: string}[] = [], itemId: string = '', itemName: string = '', 
-  allowCreate: boolean = false, createButtonLabel: string = ''
+async function relatedItemDialog(
+  title: string, 
+  mainButtonLabel: string, 
+  options: { id: string; label: string}[], 
+  useOptions2: boolean = false, 
+  options2: (id: string) => Promise<{id: string; label: string}[]> = async () => [], 
+  extraFields: {field: string; header: string}[] = [], 
+  itemId: string = '', 
+  itemName: string = '', 
+  allowCreate: boolean = false, 
+  createButtonLabel: string = ''
 ): Promise<string | null> {
   // construct a promise that returns when the callback is called
   return new Promise<string | null>((resolve) => {
