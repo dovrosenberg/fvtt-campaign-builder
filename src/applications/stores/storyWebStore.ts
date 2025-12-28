@@ -690,7 +690,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   };
 
   /** Generate tooltip text for a node based on its content type and selected fields */
-  const getNodeTooltip = async (nodeId: string, nodeType: StoryWebNodeTypes): Promise<string | undefined> => {
+  const getNodeTooltip = async (nodeId: string, nodeType: StoryWebNodeTypes): Promise<HTMLElement | undefined> => {
     // Get the selected fields for this content type
     const nodeFields = ModuleSettings.get(SettingKey.storyWebNodeFields) as Record<StoryWebNodeTypes, string[]>;
     const selectedFields = nodeFields[nodeType] || [];
@@ -780,9 +780,18 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         tooltipParts.push(`<strong>${fieldName}:</strong> ${value}`);
       }
     }
+    if (tooltipParts.length === 0)
+      return undefined;
     
-    return tooltipParts.length > 0 ? tooltipParts.join('\n') : undefined;
+    // need to put into a tag
+    return createHTMLTooltip(tooltipParts.join('<br>'));
   };
+
+  const createHTMLTooltip = (text: string): HTMLElement => {
+    const container = document.createElement('div');
+    container.innerHTML = text;
+    return container;
+  }
 
   /** Get all available fields for a content type (hardcoded + custom) */
   const getAllFieldsForContentType = (contentType: StoryWebNodeTypes): { key: string; name: string }[] => {
@@ -846,7 +855,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   };
 
   /** Generate tooltip text for an edge based on its color and style */
-  const getEdgeTooltip = (edgeUuid: string): string | undefined => {
+  const getEdgeTooltip = (edgeUuid: string): HTMLElement | undefined => {
     const edgeStyles = currentStoryWeb.value?.edgeStyles?.[edgeUuid];
     if (!edgeStyles)
       return undefined;
@@ -858,7 +867,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       const colors = ModuleSettings.get(SettingKey.storyWebConnectionColors) as { id: string; name: string; value: string }[];
       const colorOption = colors.find(c => c.id === edgeStyles.colorId);
       if (colorOption) {
-        tooltipParts.push(`Color: ${colorOption.name}`);
+        tooltipParts.push(`<strong>Color:</strong> ${colorOption.name}`);
       }
     }
 
@@ -867,11 +876,14 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
       const styles = ModuleSettings.get(SettingKey.storyWebConnectionStyles) as { id: string; name: string; value: string }[];
       const styleOption = styles.find(s => s.id === edgeStyles.styleId);
       if (styleOption) {
-        tooltipParts.push(`Style: ${styleOption.name}`);
+        tooltipParts.push(`<strong>Style:</strong> ${styleOption.name}`);
       }
     }
 
-    return tooltipParts.length > 0 ? tooltipParts.join('\n') : '';
+    if (tooltipParts.length === 0)
+      return undefined;
+
+    return createHTMLTooltip(tooltipParts.join('<br>'));
   };
 
   /** Apply edge styles from the story web to an edge configuration */
