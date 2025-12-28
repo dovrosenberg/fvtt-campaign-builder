@@ -78,9 +78,9 @@
       "customFields": "Custom Fields",
       "customFieldsLabel": "Configure Custom Fields",
       "customFieldsHelp": "Configure additional fields and AI instructions for each content type",
-      "storyWebConnections": "Story Web Connections",
-      "storyWebConnectionsLabel": "Configure Connections",
-      "storyWebConnectionsHelp": "Configure line colors and styles for story webs"
+      "storyWebSettingss": "Story Web Settings",
+      "storyWebSettingsLabel": "Configure Settings",
+      "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs"
     },
     "applications": {
       "sessionNotes": {
@@ -278,11 +278,12 @@
           "refreshError": "Failed to refresh roll tables. Check console for details."
         }
       },
-      "storyWebConnections": {
-        "title": "Configure Story Web Connections",
+      "storyWebSettings": {
+        "title": "Configure Story Web Settings",
         "tabs": {
-          "colors": "Colors",
-          "styles": "Styles"
+          "colors": "Connection Colors",
+          "styles": "Connection Styles",
+          "tooltips": "Tooltips"
         },
         "columns": {
           "name": "Name",

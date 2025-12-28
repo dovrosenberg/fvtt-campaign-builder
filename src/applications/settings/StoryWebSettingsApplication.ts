@@ -1,22 +1,22 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin';
 import PrimeVue from 'primevue/config';
 
-import App from '@/components/applications/StoryWebConnectionsDialog.vue';
+import App from '@/components/applications/StoryWebSettingsDialog.vue';
 import { theme } from '@/components/styles/primeVue';
 
 const { ApplicationV2 } = foundry.applications.api;
 
 // the most recent one; we track this so it can close itself
-export let storyWebConnectionsApp: StoryWebConnectionsApplication | null = null;
+export let storyWebSettingsApp: StoryWebSettingsApplication | null = null;
 
-export class StoryWebConnectionsApplication extends VueApplicationMixin(ApplicationV2) {
-  constructor() { super(); storyWebConnectionsApp = this; }
+export class StoryWebSettingsApplication extends VueApplicationMixin(ApplicationV2) {
+  constructor() { super(); storyWebSettingsApp = this; }
 
   static DEFAULT_OPTIONS = {
-    id: `app-fcb-story-graph-connections`,
-    classes: ['fcb-story-graph-connections', 'fcb-window'],
+    id: `app-fcb-story-web-settings`,
+    classes: ['fcb-story-web-settings', 'fcb-window'],
     window: {
-      title: 'fcb.settings.storyWebConnections',
+      title: 'fcb.settings.storyWebSettings',
       icon: 'fa-solid fa-project-diagram',
       resizable: true,
     },
@@ -33,7 +33,7 @@ export class StoryWebConnectionsApplication extends VueApplicationMixin(Applicat
 
   static PARTS = {
     app: {
-      id: 'fcb-story-graph-connections-app',
+      id: 'fcb-story-web-settings-app',
       component: App,
       props: {},
       use: {

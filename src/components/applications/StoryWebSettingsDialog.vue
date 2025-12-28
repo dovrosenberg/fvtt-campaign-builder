@@ -1,8 +1,8 @@
 <!--
-StoryWebConnectionsDialog: Configure Story Graph Connections
+StoryWebSettingsDialog: Configure Story Graph Settings
 
 Purpose
-- Provides a dialog for configuring colors and line styles for story graph connections.
+- Provides a dialog for configuring colors and line styles for story graph connections, and element tooltip text.
 
 Responsibilities
 - Manage predefined colors and line styles for story web edges
@@ -28,12 +28,12 @@ Dependencies
 <template>
   <ConfigDialogLayout ref="contentRef">
     <template #header>
-      <nav class="fcb-sheet-navigation flexrow tabs" data-group="connections-dialog">
+      <nav class="fcb-sheet-navigation flexrow tabs" data-group="sw-config-dialog">
         <a class="item" data-tab="colors">
-          {{ localize('applications.storyWebConnections.tabs.colors') }}
+          {{ localize('applications.storyWebSettings.tabs.colors') }}
         </a>
         <a class="item" data-tab="styles">
-          {{ localize('applications.storyWebConnections.tabs.styles') }}
+          {{ localize('applications.storyWebSettings.tabs.styles') }}
         </a>
       </nav>
     </template>
@@ -41,7 +41,7 @@ Dependencies
     <template #scrollSection>
       <div class="fcb-tab-body flexrow">
         <!-- Colors Tab -->
-        <div class="tab flexcol" data-group="connections-dialog" data-tab="colors">
+        <div class="tab flexcol" data-group="sw-config-dialog" data-tab="colors">
           <DataTable
             :value="workingColors"
             data-key="uuid"
@@ -90,13 +90,13 @@ Dependencies
               </template>
             </Column>
 
-            <Column field="name" :header="localize('applications.storyWebConnections.columns.name')" style="width: 40%">
+            <Column field="name" :header="localize('applications.storyWebSettings.columns.name')" style="width: 40%">
               <template #body="{ data }">
                 <InputText v-model="data.name" unstyled style="width: 100%" />
               </template>
             </Column>
 
-            <Column field="value" :header="localize('applications.storyWebConnections.columns.color')" style="width: 40%">
+            <Column field="value" :header="localize('applications.storyWebSettings.columns.color')" style="width: 40%">
               <template #body="{ data }">
                 <FoundryColorPicker v-model="data.value" />
               </template>
@@ -105,7 +105,7 @@ Dependencies
         </div>
 
         <!-- Styles Tab -->
-        <div class="tab flexcol" data-group="connections-dialog" data-tab="styles">
+        <div class="tab flexcol" data-group="sw-config-dialog" data-tab="styles">
           <DataTable
             :value="workingStyles"
             data-key="uuid"
@@ -154,13 +154,13 @@ Dependencies
               </template>
             </Column>
 
-            <Column field="name" :header="localize('applications.storyWebConnections.columns.name')" style="width: 40%">
+            <Column field="name" :header="localize('applications.storyWebSettings.columns.name')" style="width: 40%">
               <template #body="{ data }">
                 <InputText v-model="data.name" unstyled style="width: 100%" />
               </template>
             </Column>
 
-            <Column field="value" :header="localize('applications.storyWebConnections.columns.style')" style="width: 40%">
+            <Column field="value" :header="localize('applications.storyWebSettings.columns.style')" style="width: 40%">
               <template #body="{ data }">
                 <Select
                   v-model="data.value"
@@ -198,7 +198,7 @@ Dependencies
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { generateIdFromName } from '@/utils/idGeneration';
-  import { storyWebConnectionsApp } from '@/applications/settings/StoryWebConnectionsApplication';
+  import { storyWebSettingsApp } from '@/applications/settings/StoryWebSettingsApplication';
   import { useStoryWebStore } from '@/applications/stores';
 
   // library components
@@ -315,12 +315,12 @@ Dependencies
     const styleIds = new Set(workingStyles.value.map(s => s.id));
     
     if (colorIds.size !== workingColors.value.length) {
-      ui.notifications?.error(localize('applications.storyWebConnections.notifications.duplicateColorIds'));
+      ui.notifications?.error(localize('applications.storyWebSettings.notifications.duplicateColorIds'));
       return;
     }
     
     if (styleIds.size !== workingStyles.value.length) {
-      ui.notifications?.error(localize('applications.storyWebConnections.notifications.duplicateStyleIds'));
+      ui.notifications?.error(localize('applications.storyWebSettings.notifications.duplicateStyleIds'));
       return;
     }
     
@@ -347,7 +347,7 @@ Dependencies
     ui.notifications?.info(localize('notifications.changesSaved'));
     
     // Close the dialog
-    await storyWebConnectionsApp?.close();
+    await storyWebSettingsApp?.close();
   };
 
   /**
@@ -395,7 +395,7 @@ Dependencies
       
       if (el) {
         tabs = new foundry.applications.ux.Tabs({ 
-          group: 'connections-dialog', 
+          group: 'sw-config-dialog', 
           navSelector: '.tabs', 
           contentSelector: '.fcb-tab-body', 
           initial: 'colors',

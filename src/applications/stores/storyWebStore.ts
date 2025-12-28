@@ -305,6 +305,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
                 from: node.uuid,
                 to: participant.uuid,
                 label,
+                title: getEdgeTooltip(edgeUuid),
                 ...(label ? edgeWithLabelConfig : edgeConfig),
                 ...getEdgeStyling(edgeUuid)
               };
@@ -337,6 +338,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
                   from: node.uuid,
                   to: relatedEntry.uuid,
                   label,
+                  title: getEdgeTooltip(edgeUuid),
                   ...(label ? edgeWithLabelConfig : edgeConfig),
                   ...getEdgeStyling(edgeUuid)
                 };
@@ -357,6 +359,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
             from: edge.from,
             to: edge.to,
             label,
+            title: getEdgeTooltip(edgeUuid),
             ...(label ? edgeWithLabelConfig : edgeConfig),
             ...getEdgeStyling(edgeUuid)
           };
@@ -368,6 +371,12 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         configure: false,  // change to 'physics' to get a physics config panel
         // @ts-ignore
         physics: ModuleSettings.get(SettingKey.storyWebAutoArrange) ? window.fcbStoryWebPhysics : false,
+        interaction: {
+          hover: true,
+          hoverConnectedEdges: false,
+          selectConnectedEdges: false,
+          tooltipDelay: 50,
+        },
         edges: {
           smooth: {
             enabled: true,
@@ -678,6 +687,35 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     return `${edgeType}:${sorted[0]}|${sorted[1]}`;
   };
 
+  /** Generate tooltip text for an edge based on its color and style */
+  const getEdgeTooltip = (edgeUuid: string): string | undefined => {
+    const edgeStyles = currentStoryWeb.value?.edgeStyles?.[edgeUuid];
+    if (!edgeStyles)
+      return undefined;
+
+    const tooltipParts: string[] = [];
+
+    // Add color information
+    if (edgeStyles.colorId) {
+      const colors = ModuleSettings.get(SettingKey.storyWebConnectionColors) as { id: string; name: string; value: string }[];
+      const colorOption = colors.find(c => c.id === edgeStyles.colorId);
+      if (colorOption) {
+        tooltipParts.push(`Color: ${colorOption.name}`);
+      }
+    }
+
+    // Add style information
+    if (edgeStyles.styleId) {
+      const styles = ModuleSettings.get(SettingKey.storyWebConnectionStyles) as { id: string; name: string; value: string }[];
+      const styleOption = styles.find(s => s.id === edgeStyles.styleId);
+      if (styleOption) {
+        tooltipParts.push(`Style: ${styleOption.name}`);
+      }
+    }
+
+    return tooltipParts.length > 0 ? tooltipParts.join('\n') : '';
+  };
+
   /** Apply edge styles from the story web to an edge configuration */
   const getEdgeStyling = (edgeUuid: string): Partial<Edge> => {
     const edgeStyles = currentStoryWeb.value?.edgeStyles?.[edgeUuid];
@@ -777,6 +815,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         color: 'black'
       };
     }
+
+    // Add hover highlighting
+    config.hoverWidth = (config.width || 1) * 3;
 
     return config;
   }

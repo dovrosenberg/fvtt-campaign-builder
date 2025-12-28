@@ -267,4 +267,20 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+</style>
+
+<style lang="scss">
+  /* Global styles for vis-network tooltip - not scoped */
+  .vis-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background-color: hsl(164, 48%, 95%);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: var(--font-size-12);
+    max-width: 200px;
+    word-wrap: break-word;
+  }
 </style>
