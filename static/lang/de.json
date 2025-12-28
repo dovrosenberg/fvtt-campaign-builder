@@ -216,8 +216,8 @@
         "fieldTypes": {
           "select": "Auswählen",
           "editor": "Editor",
-          "boolean": "Boolesch",
-          "input": "Eingabe"
+          "input": "Eingabe",
+          "checkbox": "Kontrollkästchen"
         },
         "aiDialog": {
           "title": "KI-Vorlage",
@@ -260,7 +260,7 @@
             "selectField": "Wählen Sie ein Feld...",
             "insert": "Einfügen",
             "fieldToken": "Feldtoken einfügen",
-            "descriptionField": "Feld, das die Beschreibung enthält, die für die Bilderzeugung verwendet wird",
+            "descriptionField": "Feld, das die Beschreibung für die Bilderzeugung enthält",
             "negativePrompt": "Negative Aufforderung",
             "imageConfiguration": "Bildeinstellungen",
             "artStyle": "Kunststil",
@@ -825,7 +825,9 @@
         "addTextPrompt": "Text eingeben, der dem Diagramm hinzugefügt werden soll",
         "openEntryInNewTab": "Eintrag in neuem Tab öffnen",
         "openDangerInNewTab": "Gefahr in neuem Tab öffnen"
-      }
+      },
+      "addToStoryWeb": "Zum aktuellen Story-Web hinzufügen",
+      "addWithRelationships": "Mit Beziehungen hinzufügen"
     },
     "tooltips": {
       "mainButton": "Kampagnen-Builder starten",
