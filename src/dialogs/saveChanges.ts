@@ -39,7 +39,7 @@ export async function saveChangesDialog(title?: string, prompt?: string): Promis
       },
       container,
       () => {} // No ref callback needed
-    );
+    ) || null;
 
     // Cleanup function
     function cleanup() {

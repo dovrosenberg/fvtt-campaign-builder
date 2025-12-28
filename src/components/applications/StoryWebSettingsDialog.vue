@@ -49,8 +49,6 @@ Dependencies
             :value="workingColors"
             data-key="uuid"
             size="small"
-            scrollable
-            scroll-height="flex"
             :pt="{
               header: { style: 'border: none' },
               table: { style: 'margin: 0px; table-layout: fixed;' },
@@ -81,7 +79,7 @@ Dependencies
               {{ localize('labels.noResults') }}
             </template>
 
-            <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="max-width: 40px">
+            <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="width: 100px">
               <template #body="{ data }">
                 <a
                   class="fcb-action-icon"
@@ -93,13 +91,13 @@ Dependencies
               </template>
             </Column>
 
-            <Column field="name" :header="localize('applications.storyWebSettings.columns.name')" style="width: 40%">
+            <Column field="name" :header="localize('applications.storyWebSettings.columns.name')" >
               <template #body="{ data }">
                 <InputText v-model="data.name" unstyled style="width: 100%" />
               </template>
             </Column>
 
-            <Column field="value" :header="localize('applications.storyWebSettings.columns.color')" style="width: 40%">
+            <Column field="value" :header="localize('applications.storyWebSettings.columns.color')" >
               <template #body="{ data }">
                 <FoundryColorPicker v-model="data.value" />
               </template>
@@ -113,8 +111,6 @@ Dependencies
             :value="workingStyles"
             data-key="uuid"
             size="small"
-            scrollable
-            scroll-height="flex"
             :pt="{
               header: { style: 'border: none' },
               table: { style: 'margin: 0px; table-layout: fixed;' },
@@ -145,7 +141,7 @@ Dependencies
               {{ localize('labels.noResults') }}
             </template>
 
-            <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="max-width: 40px">
+            <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="width: 100px">
               <template #body="{ data }">
                 <a
                   class="fcb-action-icon"
@@ -157,13 +153,13 @@ Dependencies
               </template>
             </Column>
 
-            <Column field="name" :header="localize('applications.storyWebSettings.columns.name')" style="width: 40%">
+            <Column field="name" :header="localize('applications.storyWebSettings.columns.name')" >
               <template #body="{ data }">
                 <InputText v-model="data.name" unstyled style="width: 100%" />
               </template>
             </Column>
 
-            <Column field="value" :header="localize('applications.storyWebSettings.columns.style')" style="width: 40%">
+            <Column field="value" :header="localize('applications.storyWebSettings.columns.style')" >
               <template #body="{ data }">
                 <Select
                   v-model="data.value"
@@ -200,8 +196,6 @@ Dependencies
             :value="currentWorkingFields"
             dataKey="key"
             size="small"
-            scrollable
-            scroll-height="flex"
             :rowReorder="true"
             @row-reorder="onFieldRowReorder"
             :pt="{
@@ -245,7 +239,7 @@ Dependencies
 
             <Column rowReorder style="width: 3rem" />
 
-            <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="max-width: 40px">
+            <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="width: 100px">
               <template #body="{ data }">
                 <a
                   class="fcb-action-icon"
@@ -257,7 +251,7 @@ Dependencies
               </template>
             </Column>
 
-            <Column field="name" :header="localize('applications.storyWebSettings.columns.fieldName')" style="width: 50%">
+            <Column field="name" :header="localize('applications.storyWebSettings.columns.fieldName')">
               <template #body="{ data }">
                 <span>{{ data.name }}</span>
               </template>

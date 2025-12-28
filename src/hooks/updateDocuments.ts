@@ -30,7 +30,7 @@ function registerForActorHooks() {
       const settings = await mainStore.getAllSettings();
       for (const setting of settings) {
         const folder = setting.topicFolders[Topics.PC];
-        const pcs = await folder.filterEntries((e: EntryFilterIndex) => (e.topic===Topics.PC && e.actorId===actor.uuid));
+        const pcs = await folder!.filterEntries((e: EntryFilterIndex) => (e.topic===Topics.PC && e.actorId===actor.uuid));
         for (const pc of pcs) {
           pc.name = actor.name;
           await pc.save();

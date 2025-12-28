@@ -43,6 +43,7 @@ async function init(): Promise<void> {
   );
     
   // the sheet  
+  // @ts-ignore
   foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntry, moduleId, CampaignBuilderApplication, {
     canBeDefault: false,
     canConfigure: false,
@@ -51,6 +52,7 @@ async function init(): Promise<void> {
   });
 
   // we need to add these in case someone opens one manually somehow
+  // @ts-ignore
   foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, CampaignBuilderApplication, {
     types: [DOCUMENT_TYPES.Entry, DOCUMENT_TYPES.Session, DOCUMENT_TYPES.Setting, DOCUMENT_TYPES.Campaign, DOCUMENT_TYPES.Front ],
     makeDefault: true,  // only applies to these types
