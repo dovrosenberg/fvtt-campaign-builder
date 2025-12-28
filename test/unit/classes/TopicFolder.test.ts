@@ -369,7 +369,7 @@ export const registerTopicFolderTests = () => {
         });
 
         describe('entry management', () => {
-          it('should filter entries correctly', () => {
+          it('should filter entries correctly', async () => {
             // Setup mock entries
             mockTopicDoc.pages.contents = [
               { uuid: 'entry1-uuid', name: 'Entry 1', type: DOCUMENT_TYPES.Entry },

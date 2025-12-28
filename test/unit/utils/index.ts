@@ -1,5 +1,7 @@
-import { registerHierarchyTests } from "./hierarchy.test";
+import { registerAppWindowTests } from "./appWindow.test";
+// import { registerHierarchyTests } from "./hierarchy.test";
 
 export const registerUtilsTests = () => {
-  registerHierarchyTests();
-}
+  registerAppWindowTests();
+  // registerHierarchyTests();
+};
