@@ -45,7 +45,6 @@
           <CustomFieldsBlocks
             v-if="currentCampaign"
             :content-type="CustomFieldContentType.Campaign"
-            :content="currentCampaign"
           />
         </DescriptionTab>
         <JournalTab

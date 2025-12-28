@@ -121,7 +121,6 @@
           <CustomFieldsBlocks
             v-if="customFieldContentType !== null && currentEntry"
             :content-type="customFieldContentType"
-            :content="currentEntry"
             :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
             @related-entries-changed="onRelatedEntriesChanged"
           />
@@ -259,9 +258,7 @@
     { tab: 'pcs', label: 'labels.tabs.entry.pcs', topic: Topics.PC },
   ] as { tab: string; label: string; topic: Topics }[];
 
-  const topic = computed(() =>
-    currentEntry.value?.topic || null;
-  );
+  const topic = computed(() => currentEntry.value?.topic || null);
   const name = ref<string>('');
 
   const parentId = ref<string | null>(null);

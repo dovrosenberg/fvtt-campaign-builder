@@ -69,7 +69,6 @@
                     <CustomFieldsBlocks
                       v-if="currentEntry"
                       :content-type="CustomFieldContentType.PC"
-                      :content="currentEntry"
                       :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
                       @related-entries-changed="onRelatedEntriesChanged"
                     />

@@ -81,7 +81,6 @@
           <CustomFieldsBlocks
             v-if="currentSession"
             :content-type="CustomFieldContentType.Session"
-            :content="currentSession"
           />
         </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="pcs">

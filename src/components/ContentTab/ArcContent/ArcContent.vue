@@ -53,7 +53,6 @@
           <CustomFieldsBlocks
             v-if="currentArc"
             :content-type="CustomFieldContentType.Arc"
-            :content="currentArc"
           />
         </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="participants">

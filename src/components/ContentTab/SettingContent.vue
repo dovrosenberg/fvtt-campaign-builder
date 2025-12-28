@@ -83,7 +83,6 @@
           <CustomFieldsBlocks
             v-if="currentSetting"
             :content-type="CustomFieldContentType.Setting"
-            :content="currentSetting"
           />
         </DescriptionTab>
         <JournalTab
