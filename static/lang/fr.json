@@ -385,7 +385,8 @@
       "entry": {
         "topic": "DossierSujet",
         "type": "Type",
-        "relationships": "Relations"
+        "relationships": "Relations",
+        "entry": "Entrée"
       },
       "session": {
         "session": "Session",
@@ -955,6 +956,12 @@
       "locationCopiedToNextSession": "Lieu copié à la session suivante",
       "monsterCopiedToNextSession": "Monstre copié à la session suivante",
       "documentIndexesRepaired": "Tous les index des documents ont été réparés avec succès !"
+    },
+    "tags": {
+      "tag": "Étiquette",
+      "resultsFor": "Résultats de l'étiquette pour",
+      "entryFound": "entrée trouvée",
+      "entriesFound": "entrées trouvées"
     }
   }
 }

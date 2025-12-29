@@ -385,7 +385,8 @@
       "entry": {
         "topic": "Themenordner",
         "type": "Typ",
-        "relationships": "Beziehungen"
+        "relationships": "Beziehungen",
+        "entry": "Eintrag"
       },
       "session": {
         "session": "Sitzung",
@@ -955,6 +956,12 @@
       "locationCopiedToNextSession": "Ort in die nächste Sitzung kopiert",
       "monsterCopiedToNextSession": "Monster in die nächste Sitzung kopiert",
       "documentIndexesRepaired": "Alle Dokumentindizes wurden erfolgreich repariert!"
+    },
+    "tags": {
+      "tag": "Tag",
+      "resultsFor": "Tag-Ergebnisse für",
+      "entryFound": "Eintrag gefunden",
+      "entriesFound": "Einträge gefunden"
     }
   }
 }

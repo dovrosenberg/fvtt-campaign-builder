@@ -415,7 +415,8 @@
       "entry": {
         "topic": "Папка тем",
         "type": "Тип",
-        "relationships": "Отношения"
+        "relationships": "Отношения",
+        "entry": "Запись"
       },
       "session": {
         "session": "Сессия",
@@ -955,6 +956,12 @@
       "duplicateBookmark": "Уже сохранено как закладка",
       "nameRequired": "Имя не может быть пустым",
       "failedToRepairIndexes": "Не удалось восстановить индексы. Проверьте консоль для получения подробной информации."
+    },
+    "tags": {
+      "tag": "Тег",
+      "resultsFor": "Результаты по тегу",
+      "entryFound": "запись найдена",
+      "entriesFound": "записей найдено"
     }
   }
 }
