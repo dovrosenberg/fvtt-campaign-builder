@@ -48,10 +48,7 @@ export enum SettingKey {
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
   isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
-  entryTags = 'entryTags',
-  sessionTags = 'sessionTags',
-  frontTags = 'frontTags',
-  arcTags = 'arcTags',
+  contentTags = 'contentTags',  // tags for all content types
   lastKnownVersion = 'lastKnownVersion',  // tracks the last known module version - used for tracking migrations
   settingIndex = 'settingIndex',  // array of high-level setting info (name, packId)
   mainWindowBounds = 'mainWindowBounds',
@@ -121,10 +118,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.storyWebNodeFields ? Partial<Record<StoryWebNodeTypes, string[]>> :
     K extends SettingKey.aiImagePrompts ? Record<CustomFieldContentType, string> :
     K extends SettingKey.aiImageConfigurations ? Record<CustomFieldContentType, ImageConfiguration> :
-    K extends SettingKey.entryTags ? TagList :
-    K extends SettingKey.sessionTags ? TagList :
-    K extends SettingKey.frontTags ? TagList :
-    K extends SettingKey.arcTags ? TagList :
+    K extends SettingKey.contentTags ? TagList :
     K extends SettingKey.lastKnownVersion ? string :
     K extends SettingKey.settingIndex ? SettingIndex[] :
     K extends SettingKey.customFields ? Record<CustomFieldContentType, CustomFieldDescription[]> :
@@ -353,22 +347,7 @@ export class ModuleSettings {
       type: Object,
     },
     {
-      settingID: SettingKey.entryTags,
-      default: {},
-      type: Object,
-    },
-    {
-      settingID: SettingKey.sessionTags,
-      default: {},
-      type: Object,
-    },
-    {
-      settingID: SettingKey.frontTags,
-      default: {},
-      type: Object,
-    },
-    {
-      settingID: SettingKey.arcTags,
+      settingID: SettingKey.contentTags,
       default: {},
       type: Object,
     },

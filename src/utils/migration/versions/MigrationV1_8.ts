@@ -3,7 +3,7 @@ import { notifyError } from '@/utils/notifications';
 import { useMainStore } from '@/applications/stores';
 import { moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { DOCUMENT_TYPES } from '@/documents/types';
-import { CustomFieldContentType, CustomFieldDescription, FieldType, } from '@/types';
+import { CustomFieldContentType, CustomFieldDescription, FieldType, TagList, } from '@/types';
 import { localize } from '@/utils/game';
 import { resetDefaultCustomFields } from '@/utils/customFields';
 import { Campaign, Entry, Session } from '@/classes';
@@ -65,7 +65,82 @@ export class MigrationV1_8 implements Migration {
         scope: 'world',
         config: false,
       });
+      // @ts-ignore
+      game.settings.register(moduleId, 'entryTags', {
+        default: {},
+        type: Object,
+        scope: 'world',
+        config: false,
+      });
+      // @ts-ignore
+      game.settings.register(moduleId, 'sessionTags', {
+        default: {},
+        type: Object,
+        scope: 'world',
+        config: false,
+      });
+      // @ts-ignore
+      game.settings.register(moduleId, 'frontTags', {
+        default: {},
+        type: Object,
+        scope: 'world',
+        config: false,
+      });
+      // @ts-ignore
+      game.settings.register(moduleId, 'arcTags', {
+        default: {},
+        type: Object,
+        scope: 'world',
+        config: false,
+      });
        
+
+      // consolidate all the tags into a single setting
+      const contentTags = ModuleSettings.get(SettingKey.contentTags);
+
+      // @ts-ignore
+      const entryTags = game.settings.get(moduleId, 'entryTags') as TagList;
+      // @ts-ignore
+      const sessionTags = game.settings.get(moduleId, 'sessionTags') as TagList;
+      // @ts-ignore
+      const frontTags = game.settings.get(moduleId, 'frontTags') as TagList;
+      // @ts-ignore
+      const arcTags = game.settings.get(moduleId, 'arcTags') as TagList;
+
+      for (const [key, value] of Object.entries(entryTags)) {
+        // whichever color we find first, we'll keep
+        if (contentTags[key]) {
+          contentTags[key].count += value.count;
+        } else {
+          contentTags[key] = value;
+        }
+      }
+      for (const [key, value] of Object.entries(sessionTags)) {
+        // whichever color we find first, we'll keep
+        if (contentTags[key]) {
+          contentTags[key].count += value.count;
+        } else {
+          contentTags[key] = value;
+        }
+      }
+      for (const [key, value] of Object.entries(frontTags)) {
+        // whichever color we find first, we'll keep
+        if (contentTags[key]) {
+          contentTags[key].count += value.count;
+        } else {
+          contentTags[key] = value;
+        }
+      }
+      for (const [key, value] of Object.entries(arcTags)) {
+        // whichever color we find first, we'll keep
+        if (contentTags[key]) {
+          contentTags[key].count += value.count;
+        } else {
+          contentTags[key] = value;
+        }
+      }
+
+
       const settings = await useMainStore().getAllSettings();
 
       // some values were housed in system.customFields already and we don't want to 
