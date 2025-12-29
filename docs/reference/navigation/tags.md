@@ -1,11 +1,11 @@
 ---
 title: Tags
 prev: 
-  text: ''
-  link: ''
+  text: 'Search'
+  link: './search'
 next: 
-  text: ''
-  link: ''
+  text: 'Prep/Play Toggle'
+  link: './prep-play'
 ---
 
 # Tags
@@ -26,3 +26,12 @@ To create a new tag, simply type it in and hit Enter/Tab. It will be assigned a 
 
 ## Removing tags
 When there are no more items using a tag, it will be removed from the list, so it won't be suggested again.
+
+When there are no more items using a tag, it will be removed from the list, so it won't be suggested again.
+
+## Finding tagged items {#tag-list}
+If you click on any tag, it will bring you to a list of all items tagged with that tag.
+
+![Tag List](/assets/images/tag-list-content.webp)
+
+Click the name of any entity to open it in a new window.

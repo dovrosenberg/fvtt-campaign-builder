@@ -16,5 +16,6 @@ Click the links below to learn more about each element of the UI:
 - [Tabs](./tabs)
 - [Bookmarks](./bookmarks)
 - [Search](./search)
+- [Tags](./tags)
 - [Prep/Play Toggle](./prep-play)
 - [Keybindings](./keybindings)

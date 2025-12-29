@@ -84,8 +84,8 @@ class SearchService {
       // Fields to index for searching
       fields: ['name', 'tags', 'description', 'relationships', 'topic', 'type', 'species'],
 
-      // Fields to include in search results - should match FCBSearchResult
-      storeFields: ['name', 'topic', 'type', 'description', 'resultType'],
+      // Fields to include in search results 
+      storeFields: ['name', 'topic', 'type', 'description', 'resultType', 'tags'],
 
       searchOptions: {
         boost: { 
@@ -487,9 +487,17 @@ class SearchService {
 
     // collapse the results into a map of tag to count
     const result: Record<string, number> = results.reduce((acc, result) => {
-      // separate tags by comma
-      for (const tag of result.terms) {
-        acc[tag] = (acc[tag] || 0) + 1;
+      // we only want to match tags that look like the search string - not other random tags
+      //    that happen to be on the same record
+      // separate by commas
+      const tags = result.tags.split(',');
+      for (const tag of tags) {
+        const trimmed = tag.trim();
+
+        // do a case insentive match of the search string into the tag
+        if (trimmed.toLowerCase().includes(query.toLowerCase())) {
+          acc[trimmed] = (acc[trimmed] || 0) + 1;
+        }
       }
       return acc;
     }, {}); 

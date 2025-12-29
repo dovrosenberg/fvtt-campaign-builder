@@ -106,7 +106,7 @@
 
   // types
   import { CustomFieldContentType, CustomFieldDescription, FieldType, WindowTabType } from '@/types';
-  import { Arc, Campaign, Entry, FCBSetting, Session } from '@/classes';
+  import { Arc, Campaign, Entry, FCBSetting, Front, Session } from '@/classes';
   import { ApiCustomGeneratePostRequest, ApiCustomGeneratePostRequestContentTypeEnum } from '@/apiClient';
   import { windowTabToCustomContentType } from '@/utils/customFields';
 
@@ -166,25 +166,25 @@
   const content = computed((): Entry | Campaign | Arc | Front | Session | FCBSetting | null => {
     switch (props.contentType) {
       case CustomFieldContentType.Arc:
-        return currentArc;
+        return currentArc.value;
 
       case CustomFieldContentType.Campaign:
-        return currentCampaign;
+        return currentCampaign.value;
 
       case CustomFieldContentType.Front:
-        return currentFront;
+        return currentFront.value;
 
       case CustomFieldContentType.Session:
-        return currentSession;
+        return currentSession.value;
 
       case CustomFieldContentType.Setting:
-        return currentSetting;
+        return currentSetting.value;
 
       case CustomFieldContentType.Character:
       case CustomFieldContentType.PC:
       case CustomFieldContentType.Location:
       case CustomFieldContentType.Organization:
-        return currentEntry;
+        return currentEntry.value;
 
       default:
         throw new Error(`Unsupported content type in CustomFieldsBlocks.content(): ${props.contentType}`);
@@ -318,9 +318,13 @@
   };
 
   const hydrateFromContent = () => {
-    if (!content.value) return;
+    if (!content.value) 
+      return;
 
     for (const field of customFields.value) {
+      if (!('getCustomField' in content.value)) 
+        debugger;
+
       const current = content.value.getCustomField(field.name);
 
       if (field.fieldType === FieldType.Boolean) {
@@ -405,9 +409,9 @@
   ////////////////////////////////
   // watchers
 
-  watch(
-    () => [content.value?.uuid, props.contentType, customFields.value.map((f) => f.name).join(',')],
-    () => hydrateFromContent(),
+  watch(() => [content.value?.uuid, props.contentType], () => {
+      hydrateFromContent();
+    },
     { immediate: true }
   );
 
