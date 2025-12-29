@@ -109,18 +109,30 @@ Dependencies
   });
 
   const tableRows = computed(() => 
-    results.value.map(result => ({
-      uuid: result.uuid,
-      name: result.name,
-      topic: result.topic,
-      resultType: result.resultType,
-    }))
+    results.value.map(result => {
+      let type = mapTypeToText[result.resultType];
+      if (result.resultType === 'entry') {
+        type += ` (${result.topic})`;
+      }
+      
+      return {
+        uuid: result.uuid,
+        name: result.name,
+        type: type
+      };
+    })
   );
 
   ////////////////////////////////
   // data
   const results = ref<FCBSearchResult[]>([]);
   const loading = ref<boolean>(true);
+  const mapTypeToText = {
+    entry: localize('labels.entry.entry'),
+    session: localize('labels.session.session'),
+    front: localize('labels.front.front'),
+    arc: localize('labels.arc.arc')
+  }
 
   ////////////////////////////////
   // methods

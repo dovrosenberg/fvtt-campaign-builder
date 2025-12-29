@@ -422,6 +422,7 @@
         "pc": "(or drag/drop a PC)"
       },
       "entry": {
+        "entry": "Entry",
         "topic": "TopicFolder",
         "type": "Type",
         "relationships": "Relationships"
@@ -952,6 +953,7 @@
       }
     },
     "tags": {
+      "tag": "Tag",
       "resultsFor": "Tag Results for",
       "entryFound": "entry found",
       "entriesFound": "entries found"

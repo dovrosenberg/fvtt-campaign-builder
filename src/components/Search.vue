@@ -23,23 +23,32 @@
       </div>
       
       <div 
-        v-else-if="searchResults.length === 0 && searchQuery.trim().length >= 3" 
+        v-else-if="allResults.length === 0 && searchQuery.trim().length >= 3" 
         class="fcb-search-no-results"
       >
         {{ localize('labels.noResults') }}
       </div>
       
       <div 
-        v-for="(result, index) in searchResults" 
-        :key="result.uuid"
-        :class="['fcb-search-result', { 'fcb-search-result-selected': index === selectedIndex }]"
+        v-for="(result, index) in allResults" 
+        :key="('uuid' in result ? result.uuid : result.tag)"
+        :class="['fcb-search-result', { 
+          'fcb-search-result-selected': index === selectedIndex,
+          'fcb-search-tag-result': 'isTagResult' in result 
+        }]"
         :data-testid="`search-result-${index}`"
         @click="selectResult($event, result)"
         @mouseenter="selectedIndex = index"
       >
         <div class="fcb-search-result-header">
-          <!-- If there's a type use that, otherwise, use the topic -->
-          <span class="fcb-search-result-name">
+          <!-- Tag result -->
+          <span v-if="'isTagResult' in result" class="fcb-search-result-name">
+            <i class="fas fa-tag" style="color: var(--fcb-accent); margin-right: 0.5rem;"></i>
+            {{ localize('tags.tag') }}: {{ result.tag }} 
+            <span class="fcb-search-result-topic-type">({{ result.count }})</span>
+          </span>
+          <!-- Regular result -->
+          <span v-else class="fcb-search-result-name">
             {{ result.name }} 
             <span class="fcb-search-result-topic-type">({{ getTag(result) }})</span>
           </span>
@@ -72,9 +81,6 @@
   
   ////////////////////////////////
   // emits
-  const emit = defineEmits<{
-    (e: 'resultSelected', uuid: string): void;
-  }>();
   
   ////////////////////////////////
   // store
@@ -86,6 +92,7 @@
   // data
   const searchQuery = ref('');
   const searchResults = ref<FCBSearchResult[]>([]);
+  const tagResults = ref<Array<{tag: string, count: number}>>([]);
   const isSearching = ref(false);
   const selectedIndex = ref(-1);
   const searchTimeout = ref<number | null>(null);
@@ -93,15 +100,33 @@
   /** did the user hit 'escape' to close the results */
   const manuallyHiddenResults = ref(false);
 
+  /** Maximum number of tag results to show */
+  const MAX_TAG_HITS = 5;
+
   ////////////////////////////////
   // computed data
   const showResults = computed(() => ( searchQuery.value.trim().length >= 3 && !manuallyHiddenResults.value));
+  
+  const allResults = computed(() => {
+    const totalResults = [] as Array<FCBSearchResult | {tag: string, count: number, isTagResult: boolean}>;
+    
+    // Add tag results first
+    if (tagResults.value.length > 0) {
+      totalResults.push(...tagResults.value.map(tr => ({ ...tr, isTagResult: true })));
+    }
+    
+    // Add regular search results
+    totalResults.push(...searchResults.value);
+    
+    return totalResults;
+  });
 
   ////////////////////////////////
   // methods
   const getTag = (result: FCBSearchResult): string => {
     switch (result.resultType) {
       case 'entry':
+        // if there's a type use that, otherwise topic
         return result.type ? result.type : result.topic;
       case 'session':
         return localize('labels.session.session');
@@ -122,6 +147,7 @@
     // Don't search if query is empty or less than 3 characters
     if (!trimmedQuery || trimmedQuery.length < 3) {
       searchResults.value = [];
+      tagResults.value = [];
       isSearching.value = false;
       return;
     }
@@ -129,10 +155,18 @@
     isSearching.value = true;
     
     try {
-      searchResults.value = await searchService.search(trimmedQuery, props.maxResults);
+      // Perform both regular search and tag search in parallel
+      const [regularResults, tags] = await Promise.all([
+        searchService.search(trimmedQuery, props.maxResults),
+        searchService.searchTags(trimmedQuery, MAX_TAG_HITS)
+      ]);
+      
+      searchResults.value = regularResults;
+      tagResults.value = tags;
     } catch (error) {
       console.error('Search error:', error);
       searchResults.value = [];
+      tagResults.value = [];
     } finally {
       isSearching.value = false;
     }
@@ -163,11 +197,11 @@
    * Handles Enter key press to select the current result
    */
   const onEnterPress = () => {
-    if (selectedIndex.value >= 0 && selectedIndex.value < searchResults.value.length) {
-      selectResult(null, searchResults.value[selectedIndex.value]);
-    } else if (searchResults.value.length > 0) {
+    if (selectedIndex.value >= 0 && selectedIndex.value < allResults.value.length) {
+      selectResult(null, allResults.value[selectedIndex.value]);
+    } else if (allResults.value.length > 0) {
       // Select the first result if none is selected
-      selectResult(null, searchResults.value[0]);
+      selectResult(null, allResults.value[0]);
     }
   };
   
@@ -175,9 +209,9 @@
    * Handles Down arrow key to navigate results
    */
   const onArrowDown = (event: KeyboardEvent) => {
-    if (searchResults.value.length > 0) {
+    if (allResults.value.length > 0) {
       event.preventDefault();
-      selectedIndex.value = (selectedIndex.value + 1) % searchResults.value.length;
+      selectedIndex.value = (selectedIndex.value + 1) % allResults.value.length;
     }
   };
   
@@ -185,40 +219,43 @@
    * Handles Up arrow key to navigate results
    */
   const onArrowUp = (event: KeyboardEvent) => {
-    if (searchResults.value.length > 0) {
+    if (allResults.value.length > 0) {
       event.preventDefault();
-      selectedIndex.value = (selectedIndex.value - 1 + searchResults.value.length) % searchResults.value.length;
+      selectedIndex.value = (selectedIndex.value - 1 + allResults.value.length) % allResults.value.length;
     }
   };
   
   /**
    * Selects a search result and opens it
    */
-  const selectResult = (_event: MouseEvent | null,result: FCBSearchResult) => {
+  const selectResult = (_event: MouseEvent | null, result: FCBSearchResult | {tag: string, count: number, isTagResult: boolean}) => {
     // Close the results panel
     manuallyHiddenResults.value = true;
     
     // Clear the search input
     searchQuery.value = '';
     
-    // Open the selected entry - always a new tab
-    switch (result.resultType) {
-      case 'entry':
-        navigationStore.openEntry(result.uuid, { newTab: true, activate: true });
-        break;
-      case 'session':
-        navigationStore.openSession(result.uuid, { newTab: true, activate: true });
-        break;
-      case 'front':
-        navigationStore.openFront(result.uuid, { newTab: true, activate: true });
-        break;
-      case 'arc':
-        navigationStore.openArc(result.uuid, { newTab: true, activate: true });
-        break;
+    // Check if this is a tag result
+    if ('isTagResult' in result) {
+      // Open the Tag Results tab
+      navigationStore.openTagResults(result.tag, { newTab: true, activate: true });
+    } else {
+      // Open the selected entry - always a new tab
+      switch (result.resultType) {
+        case 'entry':
+          navigationStore.openEntry(result.uuid, { newTab: true, activate: true });
+          break;
+        case 'session':
+          navigationStore.openSession(result.uuid, { newTab: true, activate: true });
+          break;
+        case 'front':
+          navigationStore.openFront(result.uuid, { newTab: true, activate: true });
+          break;
+        case 'arc':
+          navigationStore.openArc(result.uuid, { newTab: true, activate: true });
+          break;
+      }
     }
-    
-    // Emit the selected result
-    emit('resultSelected', result.uuid);
   };
   
   /**
@@ -349,6 +386,12 @@
       
       &:last-child {
         border-bottom: none;
+      }
+
+      &.fcb-search-tag-result {
+        background: var(--fcb-list-background);
+        border-left: 3px solid var(--fcb-accent);
+        padding-left: 5px;
       }
       
       .fcb-search-result-name {

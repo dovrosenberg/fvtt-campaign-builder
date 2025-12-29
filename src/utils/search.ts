@@ -84,7 +84,7 @@ class SearchService {
       // Fields to index for searching
       fields: ['name', 'tags', 'description', 'relationships', 'topic', 'type', 'species'],
 
-      // Fields to include in search results
+      // Fields to include in search results - should match FCBSearchResult
       storeFields: ['name', 'topic', 'type', 'description', 'resultType'],
 
       searchOptions: {
@@ -459,6 +459,45 @@ class SearchService {
       topic: sr.topic,
       type: sr.type,
     }));
+  }
+
+  /**
+   * Search for tags that match the query (case-insensitive)
+   * @param query - The search query
+   * @param maxResults - Maximum number of tag results to return
+   * @returns Array of matching tags with their entry counts
+   */
+  public async searchTags(query: string, maxResults: number = 5): Promise<Array<{tag: string, count: number}>> {
+    if (!this._initialized || !this._searchIndex) {
+      await this.initIndex();
+      return [];
+    }
+    
+    if (!query.trim()) {
+      return [];
+    }
+    
+    // Search across just tags field with MiniSearch
+    const results = this._searchIndex.search(query, { fields: ['tags'] });
+
+    // note: we could add tags to the result and go by that, but if an entry has 2 tags
+    //    that doesn't tell us which we matched so we end up including tags that don't 
+    //    match the search string
+    // instead, terms contains what actually matched
+
+    // collapse the results into a map of tag to count
+    const result: Record<string, number> = results.reduce((acc, result) => {
+      // separate tags by comma
+      for (const tag of result.terms) {
+        acc[tag] = (acc[tag] || 0) + 1;
+      }
+      return acc;
+    }, {}); 
+
+    return Object.keys(result)
+      .map(tag => ({ tag, count: result[tag] }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, maxResults);
   }
 
   public async search(query: string, numResults: number): Promise<FCBSearchResult[]> {

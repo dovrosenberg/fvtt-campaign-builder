@@ -69,7 +69,7 @@
       </div>
 
       <div class="search-container">
-        <Search class="fcb-global-search" @result-selected="onSearchResultSelected" />
+        <Search class="fcb-global-search" />
       </div>
 
       <div class="flexrow">
@@ -166,12 +166,6 @@
 
   ////////////////////////////////
   // event handlers
-  
-  // Handle search result selection
-  const onSearchResultSelected = (uuid: string) => {
-    // The navigation is handled in the Search component
-    // This is just a hook for any additional processing needed at the home page level
-  };
   
   const onRecentClick = async (item: TabHeader) => {
     if (item.uuid) {
