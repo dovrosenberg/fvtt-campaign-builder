@@ -29,8 +29,18 @@ jobs:
         with:
           node-version: 22.x
 
-      - name: Install OpenAI (one-off, no save)
-        run: npm install openai --no-save
+      - name: Install OpenAI only (minimal install)
+        run: |
+          # Temporarily move package files to avoid installing all dependencies
+          mv package.json package.json.backup 2>/dev/null || true
+          mv package-lock.json package-lock.json.backup 2>/dev/null || true
+          
+          # Install only OpenAI
+          npm install openai --no-save
+          
+          # Restore package files
+          mv package.json.backup package.json 2>/dev/null || true
+          mv package-lock.json.backup package-lock.json 2>/dev/null || true
 
       - name: Determine languages to process
         id: languages
