@@ -22,6 +22,7 @@
           :tag-setting="SettingKey.sessionTags"
           @tag-added="onTagChange"
           @tag-removed="onTagChange"
+          @tag-click="onTagClick"
         />
       </div>
       <ContentTabStrip 
@@ -297,6 +298,11 @@
     if (!currentSession.value)
       return;
     await currentSession.value.save();
+  }
+
+  const onTagClick = async (tagName: string): Promise<void> => {
+    // Open the tag results tab for the clicked tag
+    await navigationStore.openTagResults(tagName, { newTab: true, activate: true });
   }
 
   ////////////////////////////////

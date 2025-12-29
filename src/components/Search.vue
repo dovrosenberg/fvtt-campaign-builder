@@ -80,7 +80,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentSetting } = storeToRefs(mainStore);
+  const { currentSetting, } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data

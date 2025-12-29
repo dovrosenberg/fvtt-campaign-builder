@@ -46,6 +46,7 @@
           :tag-setting="SettingKey.entryTags"
           @tag-added="onTagChange"
           @tag-removed="onTagChange"
+          @tag-click="onTagClick"
         />
       </div>
       <ContentTabStrip 
@@ -592,6 +593,11 @@
     if (!currentEntry.value)
       return;
     await currentEntry.value.save();
+  }
+
+  const onTagClick = async (tagName: string): Promise<void> => {
+    // Open the tag results tab for the clicked tag
+    await navigationStore.openTagResults(tagName, { newTab: true, activate: true });
   }
 
   const onTypeSelectionMade = async (selection: string) => {

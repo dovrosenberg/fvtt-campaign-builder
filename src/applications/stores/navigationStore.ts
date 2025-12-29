@@ -77,6 +77,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       [WindowTabType.Session]: 'notes',
       [WindowTabType.Arc]: 'description',
       [WindowTabType.StoryWeb]: '', // no tabs
+      [WindowTabType.TagResults]: '', // no tabs
       [WindowTabType.NewTab]: '',  // no tabs
     } as Record<WindowTabType, string>;
 
@@ -156,6 +157,12 @@ export const useNavigationStore = defineStore('navigation', () => {
             name = storyWeb.name;
             icon = getTabTypeIcon(WindowTabType.StoryWeb);
           }
+          break;
+        }
+        case WindowTabType.TagResults: {
+          // For TagResults, contentId is the tag name
+          name = `Tag: ${contentId}`;
+          icon = getTabTypeIcon(WindowTabType.TagResults);
           break;
         }
         case WindowTabType.NewTab:
@@ -283,6 +290,16 @@ export const useNavigationStore = defineStore('navigation', () => {
   const openStoryWeb = async function(storyWebId = null as string | null, options?: OpenContentOptions) {
     await openContent(storyWebId, WindowTabType.StoryWeb, options);
   }; 
+
+  /** 
+   * Opens a tab showing all entries with a specific tag
+   * @param tagName - The tag to search for
+   * @param options - Options for opening the tab
+   */
+  const openTagResults = async function(tagName: string, options?: OpenContentOptions): Promise<WindowTab> {
+    // Use openContent to handle the tab creation/management
+    return await openContent(tagName, WindowTabType.TagResults, options);
+  };
 
   /**
    * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
@@ -838,6 +855,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     openContent,
     openArc,
     openStoryWeb,
+    openTagResults,
     updateContentTab,
     getActiveTab,
     loadTabs,

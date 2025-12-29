@@ -35,6 +35,7 @@ export enum WindowTabType  {
   Front,
   Arc,
   StoryWeb,
+  TagResults,
 }
 
 export interface WindowTabHistory {

@@ -31,7 +31,7 @@ Among other fields, every Entry has a [^Type], which is used to categorize it.
 
 The Type is used in [search] results, and it can be used to group Entries in the [Setting Directory](/reference/navigation/sidebar#group-by-type).  
 
-The Type field is an autocomplete, and as you start typing it will prompt you with matching Types (specific to the category of Entry you are working with). So, for example, if you are in a Location and another Location has been tagged "Region", then you will see "Region" available as an auto-complete.  If you are in an Organization, you won't see that tag available. 
+The Type field is an autocomplete, and as you start typing it will prompt you with matching Types (specific to the category of Entry you are working with). So, for example, if you are in a Location and another Location has been given type "Region", then you will see "Region" available as an auto-complete.  If you are in an Organization, you won't see that type available. 
 
 To add a new Type to the list, just type it in the box and hit Enter (or leave the box).
 

@@ -116,6 +116,10 @@
       case WindowTabType.Front:
         return WINDOW_TYPE_IMAGES[props.windowType];
 
+      // tag results don't have images
+      case WindowTabType.TagResults:
+        return '';
+
       default:
         throw new Error('Invalid window type in ImagePicker');
     }

@@ -22,6 +22,7 @@
           :tag-setting="SettingKey.frontTags"
           @tag-added="onTagChange"
           @tag-removed="onTagChange"
+          @tag-click="onTagClick"
         />
       </div>
       <ContentTabStrip 
@@ -187,6 +188,11 @@
     if (!currentFront.value)
       return;
     await currentFront.value.save();
+  }
+
+  const onTagClick = async (tagName: string): Promise<void> => {
+    // Open the tag results tab for the clicked tag
+    await navigationStore.openTagResults(tagName, { newTab: true, activate: true });
   }
 
   const onAddTab = async (): Promise<void> => {

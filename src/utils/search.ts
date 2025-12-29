@@ -4,6 +4,7 @@ import { CustomFieldContentType, Topics, ValidTopic, } from '@/types';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { ArcLore, SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
+import { useMainStore } from '@/applications/stores';
 
 /**
  * Represents a searchable item in the index, containing all relevant search fields.
@@ -174,10 +175,12 @@ class SearchService {
       }
     }
 
-    
     // Add all items to the index at once for better performance
     this._searchIndex.removeAll();      
     this._searchIndex.addAll(items);
+
+    // refresh tag results because they depend on the index
+    useMainStore().refreshTagResults();
   }
 
   /**
@@ -423,6 +426,41 @@ class SearchService {
    * @param numResults - Maximum number of results to return
    * @returns A promise that resolves to an array of search results
    */
+  /**
+   * Search for all entries that have a specific tag
+   * @param tag - The tag to search for
+   * @returns Array of search results with entries containing the tag
+   */
+  public async searchByTag(tag: string): Promise<FCBSearchResult[]> {
+    if (!this._initialized || !this._searchIndex) {
+      await this.initIndex();
+    }
+    
+    if (!this._searchIndex)
+      throw new Error('Couldn\'t create search index in search.addOrUpdateFrontIndex()');
+
+    if (!tag.trim()) {
+      return [];
+    }
+    
+    // Search for the tag in the tags field using MiniSearch
+    // We need to search for the exact tag, so we'll use a prefix search on tags:
+    const results = this._searchIndex.search(tag, { 
+      fields: ['tags'],
+      prefix: false,
+      fuzzy: false,
+    });
+        
+    // Map to FCBSearchResult format
+    return results.map(sr => ({
+      uuid: sr.id,
+      name: sr.name,
+      resultType: sr.resultType,
+      topic: sr.topic,
+      type: sr.type,
+    }));
+  }
+
   public async search(query: string, numResults: number): Promise<FCBSearchResult[]> {
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
@@ -470,6 +508,9 @@ class SearchService {
       this._searchIndex.replace(searchableItem);
     else
       this._searchIndex.add(searchableItem);
+
+    // refresh tag results because they depend on the index
+    useMainStore().refreshTagResults();
   }
 
   /**
@@ -498,6 +539,9 @@ class SearchService {
       this._searchIndex.replace(searchableItem);
     else
       this._searchIndex.add(searchableItem);
+
+    // refresh tag results because they depend on the index
+    useMainStore().refreshTagResults();
   }
 
   /**
@@ -526,6 +570,9 @@ class SearchService {
       this._searchIndex.replace(searchableItem);
     else
       this._searchIndex.add(searchableItem);
+
+    // refresh tag results because they depend on the index
+    useMainStore().refreshTagResults();
   }
 
   /**
@@ -554,6 +601,9 @@ class SearchService {
       this._searchIndex.replace(searchableItem);
     else
       this._searchIndex.add(searchableItem);
+
+    // refresh tag results because they depend on the index
+    useMainStore().refreshTagResults();
   }
 
   /**
@@ -570,6 +620,9 @@ class SearchService {
     // Remove from the index
     if (this._searchIndex.has(uuid))
       this._searchIndex.discard(uuid);
+
+    // refresh tag results because they depend on the index
+    useMainStore().refreshTagResults();
   }
 
 /**
@@ -661,14 +714,14 @@ function addSessionShortSnippet(snippets: string[], relatedItems: readonly Sessi
     if (!relatedItem.delivered) 
       continue;
 
-    snippets.push(`${relatedItem?.description}`);
+    snippets.push(`${relatedItem?.description || ''}`);
   }
 };
 
 // vignettes, lore
 function addArcShortSnippet(snippets: string[], relatedItems: readonly ArcLore[]) {
   for (const relatedItem of relatedItems) {
-    snippets.push(`${relatedItem?.description}`);
+    snippets.push(`${relatedItem?.description || ''}`);
   }
 };
 

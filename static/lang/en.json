@@ -951,6 +951,11 @@
         "generateImage": "Generate a new image in the background after creating"
       }
     },
+    "tags": {
+      "resultsFor": "Tag Results for",
+      "entryFound": "entry found",
+      "entriesFound": "entries found"
+    },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark",
       "nameRequired": "Name cannot be blank",

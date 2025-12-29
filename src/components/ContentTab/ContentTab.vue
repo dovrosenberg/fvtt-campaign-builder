@@ -46,6 +46,12 @@
       <StoryWebContent />
     </div>
     <div 
+      v-else-if="currentContentType===WindowTabType.TagResults"
+      class="fcb-content-wrapper"
+    >
+      <TagResultsTab />
+    </div>
+    <div 
       v-else-if="currentContentType===WindowTabType.NewTab"
       class="fcb-content-wrapper"
     >
@@ -75,6 +81,7 @@
   import FrontContent from '@/components/ContentTab/FrontContent/FrontContent.vue';
   import ArcContent from '@/components/ContentTab/ArcContent/ArcContent.vue';
   import StoryWebContent from '@/components/ContentTab/StoryWebContent/StoryWebContent.vue';
+  import TagResultsTab from '@/components/ContentTab/TagResultsTab.vue';
   
   // types
   import { WindowTabType } from '@/types';
@@ -88,7 +95,10 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentContentType } = storeToRefs(mainStore); 
+  const { currentContentType, } = storeToRefs(mainStore);
+
+  ////////////////////////////////
+  // data
 
   ////////////////////////////////
   // computed data

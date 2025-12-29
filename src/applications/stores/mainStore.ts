@@ -33,7 +33,8 @@ export const useMainStore = defineStore('main', () => {
   const _currentStoryWeb = ref<StoryWeb | null>(null);  // current story web (when showing a story web tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
   const _currentSetting = ref<FCBSetting | null>(null);  // the current setting
-
+  const _currentTag = ref< { value: string | null }>({ value: null });  // current tag (when showing a tag results tab); we can't use ref<string> because we can't force updates if value doesn't change
+ 
   ///////////////////////////////
   // external state
   const rootFolder = ref<RootFolder | null>(null);
@@ -69,6 +70,7 @@ export const useMainStore = defineStore('main', () => {
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
   const currentTab = computed((): WindowTab | null => _currentTab?.value);  
   const currentSetting = computed((): FCBSetting | null => (_currentSetting?.value || null) as FCBSetting | null);
+  const currentTag = computed((): { value: string | null } => { return _currentTag?.value || null; });
   
   /** the current content id -- used primarily for main tabs to know when to refresh */
   const currentContentId = computed((): string | null => {
@@ -128,6 +130,7 @@ export const useMainStore = defineStore('main', () => {
     _currentArc.value = null;
     _currentFront.value = null;
     _currentStoryWeb.value = null;
+    _currentTag.value = { value: null };
 
     switch (tab.tabType) {
       case WindowTabType.Entry:
@@ -178,6 +181,12 @@ export const useMainStore = defineStore('main', () => {
             throw new Error(`Invalid story web uuid ${tab.header.uuid} in mainStore.setNewTab()`);
         }
         break;
+      case WindowTabType.TagResults:
+        // Use the tag name from the uuid field
+        _currentTag.value.value = tab.header.uuid || null;
+        if (!_currentTag.value.value)
+          throw new Error(`Invalid/missing tag in mainStore.setNewTab()`);
+        break;
       default:  // make it a 'new entry' window
         tab.tabType = WindowTabType.NewTab;
     }
@@ -217,6 +226,14 @@ export const useMainStore = defineStore('main', () => {
 
     // just force all reactivity to update
     _currentStoryWeb.value = new StoryWeb(_currentStoryWeb.value.raw.parent as unknown as JournalEntry);
+  };
+
+  const refreshTagResults = async function (): Promise<void> {
+    if (!_currentTag.value.value)
+      return;
+
+    // just force all reactivity to update
+    _currentTag.value = { ..._currentTag.value };
   };
 
   const refreshSetting = async function (reload = false): Promise<void> {
@@ -282,6 +299,9 @@ export const useMainStore = defineStore('main', () => {
         break;
       case WindowTabType.StoryWeb:
         await refreshStoryWeb();
+        break;
+      case WindowTabType.TagResults:
+        await refreshTagResults();
         break;
       default:
     }
@@ -414,6 +434,7 @@ export const useMainStore = defineStore('main', () => {
     currentTab,
     currentContentType,
     currentContentId,
+    currentTag,
     isArcManagerOpen,
     rootFolder,
     currentSettingCompendium,
@@ -431,6 +452,7 @@ export const useMainStore = defineStore('main', () => {
     refreshFront,
     refreshStoryWeb,
     refreshCurrentContent,
+    refreshTagResults,
     getAllSettings,
     propagateSettingNameChange,
   };
