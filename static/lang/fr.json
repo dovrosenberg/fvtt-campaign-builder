@@ -76,7 +76,10 @@
       "storyWebAutoArrangeHelp": "Lorsqu'elle est activée, les réseaux d'histoires se réorganiseront pour essayer de garder une image propre. Lorsqu'elle est désactivée, vous pouvez positionner tout exactement comme vous le souhaitez.",
       "customFields": "Champs personnalisés",
       "customFieldsLabel": "Configurer les champs personnalisés",
-      "customFieldsHelp": "Configurer des champs supplémentaires et des instructions AI pour chaque type de contenu"
+      "customFieldsHelp": "Configurer des champs supplémentaires et des instructions AI pour chaque type de contenu",
+      "storyWebSettings": "Story Web Settings",
+      "storyWebSettingsLabel": "Configure Settings",
+      "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs"
     },
     "applications": {
       "sessionNotes": {
@@ -294,6 +297,29 @@
       "customFieldsBlocks": {
         "notifications": {
           "saveFailed": "Échec de l'enregistrement des champs personnalisés"
+        }
+      },
+      "storyWebSettings": {
+        "title": "Configure Story Web Settings",
+        "tabs": {
+          "colors": "Connection Colors",
+          "styles": "Connection Styles",
+          "fields": "Fields"
+        },
+        "columns": {
+          "name": "Name",
+          "color": "Color",
+          "style": "Style",
+          "fieldName": "Field Name",
+          "fieldKey": "Field Key"
+        },
+        "fieldsHint": "The fields in this list will be displayed in the tooltip when hovering over entities in a Story Web.",
+        "contentType": "Content Type",
+        "selectField": "Select Field",
+        "notifications": {
+          "noAvailableFields": "No available fields to add",
+          "duplicateColorIds": "Duplicate color IDs found. Please ensure all color IDs are unique.",
+          "duplicateStyleIds": "Duplicate style IDs found. Please ensure all style IDs are unique."
         }
       }
     },
@@ -824,7 +850,9 @@
         "addDangerWithRelationships": "Ajouter un danger avec des relations",
         "addTextPrompt": "Entrer le texte à ajouter au diagramme",
         "openEntryInNewTab": "Ouvrir l'entrée dans un nouvel onglet",
-        "openDangerInNewTab": "Ouvrir le danger dans un nouvel onglet"
+        "openDangerInNewTab": "Ouvrir le danger dans un nouvel onglet",
+        "setColor": "Set Color",
+        "setStyle": "Set Style"
       },
       "addToStoryWeb": "Ajouter à l'histoire Web actuelle",
       "addWithRelationships": "Ajouter avec les relations"

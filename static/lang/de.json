@@ -76,7 +76,10 @@
       "storyWebAutoArrangeHelp": "Wenn aktiviert, werden Story-Webs neu angeordnet, um ein sauberes Bild zu erhalten. Wenn deaktiviert, können Sie alles genau so positionieren, wie Sie es möchten.",
       "customFields": "Benutzerdefinierte Felder",
       "customFieldsLabel": "Benutzerdefinierte Felder konfigurieren",
-      "customFieldsHelp": "Zusätzliche Felder und KI-Anweisungen für jeden Inhaltstyp konfigurieren"
+      "customFieldsHelp": "Zusätzliche Felder und KI-Anweisungen für jeden Inhaltstyp konfigurieren",
+      "storyWebSettings": "Story Web Settings",
+      "storyWebSettingsLabel": "Configure Settings",
+      "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs"
     },
     "applications": {
       "sessionNotes": {
@@ -294,6 +297,29 @@
       "customFieldsBlocks": {
         "notifications": {
           "saveFailed": "Speichern der benutzerdefinierten Felder fehlgeschlagen"
+        }
+      },
+      "storyWebSettings": {
+        "title": "Configure Story Web Settings",
+        "tabs": {
+          "colors": "Connection Colors",
+          "styles": "Connection Styles",
+          "fields": "Fields"
+        },
+        "columns": {
+          "name": "Name",
+          "color": "Color",
+          "style": "Style",
+          "fieldName": "Field Name",
+          "fieldKey": "Field Key"
+        },
+        "fieldsHint": "The fields in this list will be displayed in the tooltip when hovering over entities in a Story Web.",
+        "contentType": "Content Type",
+        "selectField": "Select Field",
+        "notifications": {
+          "noAvailableFields": "No available fields to add",
+          "duplicateColorIds": "Duplicate color IDs found. Please ensure all color IDs are unique.",
+          "duplicateStyleIds": "Duplicate style IDs found. Please ensure all style IDs are unique."
         }
       }
     },
@@ -824,7 +850,9 @@
         "addDangerWithRelationships": "Gefahr mit Beziehungen hinzufügen",
         "addTextPrompt": "Text eingeben, der dem Diagramm hinzugefügt werden soll",
         "openEntryInNewTab": "Eintrag in neuem Tab öffnen",
-        "openDangerInNewTab": "Gefahr in neuem Tab öffnen"
+        "openDangerInNewTab": "Gefahr in neuem Tab öffnen",
+        "setColor": "Set Color",
+        "setStyle": "Set Style"
       },
       "addToStoryWeb": "Zum aktuellen Story-Web hinzufügen",
       "addWithRelationships": "Mit Beziehungen hinzufügen"
