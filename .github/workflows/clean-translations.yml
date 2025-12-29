@@ -46,6 +46,8 @@ jobs:
           fi
 
       - name: Clean translation files
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           # Split languages into array and process each
           IFS=' ' read -ra LANG_ARRAY <<< "${{ steps.languages.outputs.languages }}"
