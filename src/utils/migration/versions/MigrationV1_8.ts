@@ -140,6 +140,7 @@ export class MigrationV1_8 implements Migration {
         }
       }
 
+      await ModuleSettings.set(SettingKey.contentTags, contentTags);
 
       const settings = await useMainStore().getAllSettings();
 
