@@ -18,16 +18,6 @@ jobs:
   clean-translations:
     runs-on: ubuntu-latest
     steps:
-      - name: Validate branch exists
-        run: |
-          if ! git rev-parse --verify "${{ github.event.inputs.target_branch }}" >/dev/null 2>&1; then
-            echo "Error: Branch '${{ github.event.inputs.target_branch }}' does not exist"
-            echo "Available branches:"
-            git branch -r | sed 's/origin\///' | grep -v HEAD
-            exit 1
-          fi
-          echo "✅ Branch '${{ github.event.inputs.target_branch }}' exists"
-
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
