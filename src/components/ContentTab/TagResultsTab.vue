@@ -46,23 +46,7 @@ Dependencies
             :show-filter="true"
             :show-add-button="false"
             :can-reorder="false"
-          >
-            <template #name="{ data }">
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <i :class="`fas ${getResultIcon(data)}`" style="color: var(--color-text-light);"></i>
-                <div>
-                  <div>{{ data.name }}</div>
-                  <div style="font-size: var(--fcb-font-size-small); color: var(--color-text-light);">{{ data.topic || '' }}</div>
-                </div>
-              </div>
-            </template>
-            <template #type="{ data }">
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <i :class="`fas ${getTabTypeIcon(data.resultType)}`" style="color: var(--color-text-light);"></i>
-                {{ localize(`types.${data.resultType}`) }}
-              </div>
-            </template>
-          </BaseTable>
+          />
         </div>
       </div>
     </div> 
@@ -78,7 +62,6 @@ Dependencies
   import { localize } from '@/utils/game';
   import { searchService } from '@/utils/search';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
-  import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
 
   // library components
 
@@ -136,17 +119,6 @@ Dependencies
 
   ////////////////////////////////
   // methods
-  /**
-   * Get the appropriate icon for a search result
-   */
-  const getResultIcon = (result: FCBSearchResult): string => {
-    if (result.resultType === 'entry') {
-      return getTopicIcon(result.topic);
-    }
-    // For non-entry types, we don't have an icon mapping yet
-    return 'fa-file';
-  };
-
   /**
    * Load results for the current tag
    */
