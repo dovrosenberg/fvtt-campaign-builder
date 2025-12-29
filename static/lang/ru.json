@@ -76,7 +76,10 @@
       "storyWebAutoArrangeHelp": "Когда включено, сети историй будут перестраиваться, чтобы попытаться сохранить чистую картину. Когда отключено, вы можете расположить все так, как вам нужно.",
       "customFields": "Пользовательские поля",
       "customFieldsLabel": "Настроить пользовательские поля",
-      "customFieldsHelp": "Настройте дополнительные поля и инструкции ИИ для каждого типа контента"
+      "customFieldsHelp": "Настройте дополнительные поля и инструкции ИИ для каждого типа контента",
+      "storyWebSettings": "Story Web Settings",
+      "storyWebSettingsLabel": "Configure Settings",
+      "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs"
     },
     "applications": {
       "sessionNotes": {
@@ -294,6 +297,29 @@
       "customFieldsBlocks": {
         "notifications": {
           "saveFailed": "Не удалось сохранить пользовательские поля"
+        }
+      },
+      "storyWebSettings": {
+        "title": "Configure Story Web Settings",
+        "tabs": {
+          "colors": "Connection Colors",
+          "styles": "Connection Styles",
+          "fields": "Fields"
+        },
+        "columns": {
+          "name": "Name",
+          "color": "Color",
+          "style": "Style",
+          "fieldName": "Field Name",
+          "fieldKey": "Field Key"
+        },
+        "fieldsHint": "The fields in this list will be displayed in the tooltip when hovering over entities in a Story Web.",
+        "contentType": "Content Type",
+        "selectField": "Select Field",
+        "notifications": {
+          "noAvailableFields": "No available fields to add",
+          "duplicateColorIds": "Duplicate color IDs found. Please ensure all color IDs are unique.",
+          "duplicateStyleIds": "Duplicate style IDs found. Please ensure all style IDs are unique."
         }
       }
     },
@@ -845,7 +871,9 @@
         "addDangerWithRelationships": "Добавить опасность со связями",
         "addTextPrompt": "Введите текст для добавления на диаграмму",
         "openEntryInNewTab": "Открыть запись в новой вкладке",
-        "openDangerInNewTab": "Открыть опасность в новой вкладке"
+        "openDangerInNewTab": "Открыть опасность в новой вкладке",
+        "setColor": "Set Color",
+        "setStyle": "Set Style"
       },
       "addToStoryWeb": "Добавить в текущую Story Web",
       "addWithRelationships": "Добавить с отношениями"
