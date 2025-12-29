@@ -15,7 +15,7 @@ Clicking the generate button gives you the option to generate either:
 - A [description](#description) for the entry (which includes a name and species, if you don't want to specify)
 - An [image](#image) for the entry
 
-## Generate Description {#description}
+## Generate Name and Description {#description}
 Selecting to generate a description will open the [Update dialog](/reference/world-building/update-entry).
 
 ## Generate Image {#image}

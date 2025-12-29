@@ -53,7 +53,7 @@ Click the **Add** button to create a new custom field. Each field has the follow
 - **AI Template** - For Editor fields, click the brain icon to configure whether and how the field can be AI-generated [[Advanced Feature]]
 - **Delete** - Remove a field with the trash icon
 
-## AI Configuration Dialog [[Advanced Feature]]
+## AI Configuration Dialog [[Advanced Feature]] {#ai-configuration-dialog}
 
 ![AI Configuration Dialog](/assets/images/custom-fields-ai.webp)
 
