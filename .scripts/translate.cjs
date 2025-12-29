@@ -343,12 +343,100 @@ async function translateToMultipleLanguages(sourceFile, languages) {
   }
 }
 
+// Function to clean translation files by syncing structure with English source
+// This adds missing keys and removes unused ones without translating
+function cleanTranslations(sourceFile, languages) {
+  try {
+    // Read the English source file
+    const sourceData = JSON.parse(fs.readFileSync(sourceFile, 'utf8'));
+    console.log(`Cleaning translations for languages: ${languages.join(', ')}`);
+    
+    let hasChanges = false;
+    
+    // Process each language
+    for (const lang of languages) {
+      const targetFile = path.join(path.dirname(sourceFile), `${lang}.json`);
+      
+      if (fs.existsSync(targetFile)) {
+        try {
+          const targetData = JSON.parse(fs.readFileSync(targetFile, 'utf8'));
+          console.log(`Cleaning existing translation file: ${targetFile}`);
+          
+          // Create a deep clone of the target data to compare against
+          const originalTargetData = JSON.parse(JSON.stringify(targetData));
+          
+          // Sync structure with source (add missing keys, remove unused ones)
+          syncStructure(sourceData, targetData);
+          
+          // Check if there were any changes
+          if (JSON.stringify(originalTargetData) !== JSON.stringify(targetData)) {
+            hasChanges = true;
+            
+            // Write the cleaned translation file
+            fs.writeFileSync(targetFile, JSON.stringify(targetData, null, 2));
+            console.log(`File cleaned and updated: ${targetFile}`);
+            
+            // Count added and removed keys
+            const addedKeys = findDifferences(sourceData, originalTargetData);
+            const removedKeys = findDeletedKeys(sourceData, originalTargetData);
+            
+            if (Object.keys(addedKeys).length > 0) {
+              console.log(`  Added ${Object.keys(addedKeys).length} missing keys`);
+            }
+            
+            if (removedKeys.length > 0) {
+              console.log(`  Removed ${removedKeys.length} unused keys`);
+            }
+          } else {
+            console.log(`No changes needed for ${lang}. File structure already matches English.`);
+          }
+        } catch (readError) {
+          console.error(`Error reading existing target file for ${lang}: ${readError.message}`);
+          console.log(`Creating new translation file for ${lang}...`);
+          
+          // Create a new file with just the structure (no translations)
+          const newTargetData = JSON.parse(JSON.stringify(sourceData));
+          fs.writeFileSync(targetFile, JSON.stringify(newTargetData, null, 2));
+          console.log(`New translation file created: ${targetFile}`);
+          hasChanges = true;
+        }
+      } else {
+        console.log(`No existing translation file found for ${lang}. Creating new file...`);
+        
+        // Create a new file with just the structure (no translations)
+        const newTargetData = JSON.parse(JSON.stringify(sourceData));
+        fs.writeFileSync(targetFile, JSON.stringify(newTargetData, null, 2));
+        console.log(`New translation file created: ${targetFile}`);
+        hasChanges = true;
+      }
+    }
+    
+    if (!hasChanges) {
+      console.log('No changes needed for any language files.');
+    }
+    
+    return hasChanges;
+  } catch (error) {
+    console.error('Translation cleaning error:', error);
+    throw error;
+  }
+}
+
 // Main execution
 async function main() {
   // Check if specific source file and language are provided as command-line arguments
   const args = process.argv.slice(2);
   let sourceFile = 'static/lang/en.json';
   let languagesToProcess = TARGET_LANGUAGES;
+  let operation = 'translate'; // Default operation
+  
+  // Check for operation flag
+  if (args.includes('--clean')) {
+    operation = 'clean';
+    // Remove --clean from args
+    const cleanIndex = args.indexOf('--clean');
+    args.splice(cleanIndex, 1);
+  }
   
   if (args.length >= 1) {
     sourceFile = args[0];
@@ -359,14 +447,18 @@ async function main() {
     languagesToProcess = [args[1]];
     console.log(`Processing only language: ${args[1]}`);
   } else {
-    console.log(`Starting translation for languages: ${TARGET_LANGUAGES.join(', ')}`);
+    console.log(`Starting ${operation} for languages: ${TARGET_LANGUAGES.join(', ')}`);
   }
   
-  // Process all languages at once
+  // Process based on operation
   try {
-    await translateToMultipleLanguages(sourceFile, languagesToProcess);
+    if (operation === 'clean') {
+      cleanTranslations(sourceFile, languagesToProcess);
+    } else {
+      await translateToMultipleLanguages(sourceFile, languagesToProcess);
+    }
   } catch (error) {
-    console.error('Failed to translate:', error);
+    console.error(`Failed to ${operation}:`, error);
   }
 }
 

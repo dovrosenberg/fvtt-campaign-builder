@@ -1,0 +1,101 @@
+name: Clean Translation Files
+
+on:
+  # Manual trigger only
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Branch to run against and create PR for'
+        required: true
+        type: string
+      languages:
+        description: 'Languages to clean (comma-separated, e.g., "fr,de,ru" or "all" for all)'
+        required: false
+        default: 'all'
+        type: string
+
+jobs:
+  clean-translations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch exists
+        run: |
+          if ! git rev-parse --verify "${{ github.event.inputs.target_branch }}" >/dev/null 2>&1; then
+            echo "Error: Branch '${{ github.event.inputs.target_branch }}' does not exist"
+            echo "Available branches:"
+            git branch -r | sed 's/origin\///' | grep -v HEAD
+            exit 1
+          fi
+          echo "✅ Branch '${{ github.event.inputs.target_branch }}' exists"
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for all branches and tags
+          ref: ${{ github.event.inputs.target_branch }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+
+      - name: Determine languages to process
+        id: languages
+        run: |
+          if [ "${{ github.event.inputs.languages }}" = "all" ]; then
+            echo "languages=fr de ru" >> $GITHUB_OUTPUT
+            echo "Processing all languages: fr, de, ru"
+          else
+            # Remove any spaces and use as-is
+            clean_languages=$(echo "${{ github.event.inputs.languages }}" | sed 's/\s//g')
+            echo "languages=$clean_languages" >> $GITHUB_OUTPUT
+            echo "Processing specified languages: $clean_languages"
+          fi
+
+      - name: Clean translation files
+        run: |
+          # Split languages into array and process each
+          IFS=' ' read -ra LANG_ARRAY <<< "${{ steps.languages.outputs.languages }}"
+          for lang in "${LANG_ARRAY[@]}"; do
+            echo "Cleaning $lang translation file..."
+            node .scripts/translate.cjs --clean static/lang/en.json "$lang"
+          done
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in translation files."
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in translation files."
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+          commit-message: "Clean translation files"
+          title: "Clean translation files"
+          body: |
+            Clean translation files for branch `${{ github.event.inputs.target_branch }}`
+            
+            This PR:
+            - Adds missing translation keys to match the English source
+            - Removes unused keys that no longer exist in the English source
+            - Preserves existing translations without retranslating
+            
+            Languages processed: ${{ github.event.inputs.languages }}
+          branch: clean-translations-${{ github.sha }}
+          base: ${{ github.event.inputs.target_branch }}
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.changes.outputs.has_changes }}" = "true" ]; then
+            echo "✅ Translation files cleaned successfully!"
+            echo "📝 A pull request has been created to merge the changes."
+          else
+            echo "✅ No changes needed - translation files are already clean!"
+          fi
