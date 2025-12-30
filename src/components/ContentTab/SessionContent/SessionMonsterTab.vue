@@ -168,7 +168,11 @@
         }
         break;
       case 'notes':
-        await sessionStore.updateMonsterNotes(data.uuid, newValue as string);
+        if (props.arcMode) {
+          await arcStore.updateMonsterNotes(data.uuid, newValue as string);
+        } else {
+          await sessionStore.updateMonsterNotes(data.uuid, newValue as string);
+        }
         break;
 
       default:
