@@ -43,5 +43,5 @@ There are several tabs on the Entry details screen:
   - [Journals tab](./journals) - a place to track Foundry journal entries that relate to the Entry.  Good for tracking extra images or any other content that you want to keep track of and/or share with the player(s)
   - [Relationship tabs](./relationships) - show the connections between this entry and others
   - Foundry document tabs: After the Entry relationship tabs, you'll find an [Actors tab](/reference/world-building/content/character/#actors) when looking at a Character and a [Scenes tab](/reference/world-building/content/location/#scenes) when looking at a Location.
-  - [Generic Foundry Document tab](./generic-foundry) - When enabled in [Module Settings], provides a table for linking any type of Foundry document (Scenes, Actors, Items, RollTables, Playlists, etc.) to the entry. 
   - [Sessions tab](./sessions) - a quick way to find game session notes that mention this entry
+  - [Generic Foundry Document tab](./generic-foundry) - When enabled in [Module Settings], provides a table for linking any type of Foundry document (Scenes, Actors, Items, RollTables, Playlists, etc.) to the entry. 
