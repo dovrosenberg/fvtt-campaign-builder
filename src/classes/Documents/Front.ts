@@ -188,7 +188,10 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     }
   }
 
-  public async delete() {
+  /** 
+   * @param skipDelete - if true, don't delete the Foundry document itself; used when Foundry deletes something outside the app
+   */
+  public async delete(skipDelete = false) {
     const id = this.uuid;
     const setting = await getGlobalSetting(this.settingId);
 
@@ -202,7 +205,7 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     
     await campaign.deleteFront(this);
     
-    await super._delete();
+    await super._delete(skipDelete);
 
     // Remove from search index
     searchService.removeSearchEntry(id);

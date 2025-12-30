@@ -450,7 +450,10 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     }
   }
 
-  public async delete() {
+  /** 
+   * @param skipDelete - if true, don't delete the Foundry document itself; used when Foundry deletes something outside the app
+   */
+  public async delete(skipDelete = false) {
     const id = this.uuid;
     const setting = await getGlobalSetting(this.settingId);
 
@@ -464,7 +467,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     
     await campaign.deleteArc(this);  // removes from setting, too
     
-    await super._delete();
+    await super._delete(skipDelete);
 
     // Remove from search index
     searchService.removeSearchEntry(id);

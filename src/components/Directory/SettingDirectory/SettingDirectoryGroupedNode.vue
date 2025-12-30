@@ -126,7 +126,7 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await settingDirectoryStore.deleteEntry(props.topic, props.node.id);
+            await settingDirectoryStore.deleteEntry(props.node.id);
           }
         },
         {

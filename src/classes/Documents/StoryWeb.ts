@@ -296,13 +296,16 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     await super.save();
   }
 
-  public async delete(): Promise<void> {
+  /** 
+   * @param skipDelete - if true, don't delete the Foundry document itself; used when Foundry deletes something outside the app
+   */
+  public async delete(skipDelete = false): Promise<void> {
     const campaign = await this.loadCampaign();
     if (!campaign)
       throw new Error('Campaign not found in StoryWeb.delete()');
 
     await campaign.deleteStoryWeb(this);
 
-    await super._delete();
+    await super._delete(skipDelete);
   }
 }

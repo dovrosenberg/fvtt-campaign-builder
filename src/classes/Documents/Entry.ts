@@ -386,13 +386,16 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     }
   }
 
-  public async delete() {
+  /** 
+   * @param skipDelete - if true, don't delete the Foundry document itself; used when Foundry deletes something outside the app
+   */
+  public async delete(skipDelete = false) {
     const setting = await this.getSetting();
 
     const uuid = this.uuid;
     const topicFolder = await this.getTopicFolder();
     
-    await super._delete();
+    await super._delete(skipDelete);
 
     // remove from master entry index and topnodes    
     topicFolder.entryIndex = topicFolder.entryIndex.filter((e)=> e.uuid !== uuid);

@@ -1,6 +1,9 @@
-import { useNavigationStore, useMainStore, useSettingDirectoryStore } from '@/applications/stores';
+import { useNavigationStore, useMainStore, useSettingDirectoryStore, useCampaignDirectoryStore } from '@/applications/stores';
 import { Topics, EntryFilterIndex } from '@/types';
 import { isClientGM } from '@/utils/game';
+import { JournalEntryFlagKey, moduleId } from '@/settings';
+import { DOCUMENT_TYPES } from '@/documents';
+import { Arc, Campaign, Entry, Session, StoryWeb, Front } from '@/classes';
 
 export function registerForUpdateHooks() {
   // need to wait until ready so user is available
@@ -144,6 +147,79 @@ function registerForJournalHooks() {
   if (!isClientGM())
     return;
 
+  // @ts-ignore
+  Hooks.on('preDeleteJournalEntry', async (journal: JournalEntry, _options, _userId) => {
+    const mainStore = useMainStore();
+
+    const settings = await mainStore.getAllSettings();
+    for (let setting of settings) {
+      // if the entry is in the setting compendium, we also need to delete the 
+      //   content itself
+      if (journal.pack === setting.compendiumId) {
+        const settingDirectoryStore = useSettingDirectoryStore();
+        const campaignDirectoryStore = useCampaignDirectoryStore();
+        const navigationStore = useNavigationStore();
+
+        // we delete from the directory stores because they do the best cleanup job
+        switch (journal.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType)) {
+          case DOCUMENT_TYPES.Arc:
+            // arcs are a special case because they can't be deleted from 
+            //   the tree
+            const arc = await Arc.fromUuid(journal.uuid);
+            if (arc) {
+              await arc.delete(true);
+              await navigationStore.cleanupDeletedEntry(journal.uuid);
+              await campaignDirectoryStore.refreshCampaignDirectoryTree([journal.uuid]);
+              return true;
+            }
+            break;
+          case DOCUMENT_TYPES.Campaign:
+            const campaign = await Campaign.fromUuid(journal.uuid);
+            if (campaign) {
+              return (await campaignDirectoryStore.deleteCampaign(journal.uuid, true));
+            }
+            break;
+          case DOCUMENT_TYPES.Entry:
+            const entry = await Entry.fromUuid(journal.uuid);
+            if (entry) {
+              return (await settingDirectoryStore.deleteEntry(journal.uuid, true));
+            }
+            break;
+          case DOCUMENT_TYPES.Front:
+            const front = await Front.fromUuid(journal.uuid);
+            if (front) {
+              return (await campaignDirectoryStore.deleteFront(journal.uuid, true));
+            }
+            break;
+          case DOCUMENT_TYPES.Session:
+            const session = await Session.fromUuid(journal.uuid);
+            if (session) {
+              return (await campaignDirectoryStore.deleteSession(journal.uuid, true));
+            }
+            break;
+          case DOCUMENT_TYPES.Setting:
+            if (setting.uuid === journal.uuid) {
+              return (await settingDirectoryStore.deleteSetting(journal.uuid, true));
+            }
+            break;
+          case DOCUMENT_TYPES.StoryWeb:
+            const storyWeb = await StoryWeb.fromUuid(journal.uuid);
+            if (storyWeb) {
+              return (await campaignDirectoryStore.deleteStoryWeb(journal.uuid, true));
+            }
+            break;
+          default:
+            continue;
+        }
+      }
+    }
+
+    return true;
+  });
+
+  /**
+   * After the foundry doc was deleted, we just clean up references to it
+   */
   Hooks.on('deleteJournalEntry', async (journal: JournalEntry, _options, _userId) => {
     const mainStore = useMainStore();
 
@@ -156,6 +232,11 @@ function registerForJournalHooks() {
     await mainStore.refreshCurrentContent();
   });
 
+  /** 
+   * If we delete a journal entry page, it's from foundry directly... just delete the parent, too if it's one of ours
+   * 
+   * Also need to delete any references to it
+   */
   Hooks.on('deleteJournalEntryPage', async (journalPage: JournalEntryPage, _options, _userId) => {
     const mainStore = useMainStore();
 
@@ -164,12 +245,12 @@ function registerForJournalHooks() {
     const journal = journalPage.parent!;
 
     for (let setting of settings) {
+      // remove any links to it regardless of internal or external
+      await setting.deleteJournalEntryPageFromSetting(journalPage.uuid);
+
       // just delete the parent altogether if it's in a setting compendium
       if (journal.pack === setting.compendiumId)
         await journal.delete();
-      else
-        // it's a normal one, but we need to remove from any links
-        await setting.deleteJournalEntryPageFromSetting(journalPage.uuid);
     }
 
     // refresh the content window in case it's showing in a table

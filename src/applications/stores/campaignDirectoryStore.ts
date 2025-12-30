@@ -11,6 +11,7 @@ import { DirectoryCampaignNode, DirectoryArcNode, DirectoryFrontFolder, Campaign
 import { getArcForSession } from '@/utils/arcIndex';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyWarn } from '@/utils/notifications';
+import { isExternalModuleNameRelative } from 'typescript';
 
 // types
 
@@ -140,9 +141,17 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     }
   };
 
-  const deleteCampaign = async(campaignId: string): Promise<void> => {
+  /**
+   * Deletes a campaign from the setting and handles all cleanup.
+   * 
+   * @param campaignId the UUID of the campaign to delete
+   * @param external if true, the campaign is being deleted from outside the app (e.g. Foundry); does cleanup but not doc delete
+   * 
+   * @returns false if delete was cancelled, true otherwise
+   */
+  const deleteCampaign = async(campaignId: string, external = false): Promise<boolean> => {
     if (!currentSetting.value)
-      return;
+      return false;
     
     // have to delete all the sessions, too - not from the database (since deleting campaign
     //    will do that), but from the UI
@@ -154,12 +163,12 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     // don't allow when in play mode
     if (isInPlayMode.value) {
       notifyWarn('Cannot delete campaigns when in play mode');
-      return;
+      return false;
     }
     
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete campaign?', 'Are you sure you want to delete this campaign?')))
-      return;
+    if (!external && !(await FCBDialog.confirmDialog('Delete campaign?', 'Are you sure you want to delete this campaign?')))
+      return false;
   
     for (const arc of campaign.arcIndex) {
       await navigationStore.cleanupDeletedEntry(arc.uuid);
@@ -168,15 +177,25 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     for (const session of campaign.sessionIndex) {
       await navigationStore.cleanupDeletedEntry(session.uuid);
     }
-    await campaign.delete();
+    await campaign.delete(external);
 
     // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(campaignId);
 
     await refreshCampaignDirectoryTree();
+
+    return true;
   };
 
-  const deleteSession = async (sessionId: string): Promise<void> => {
+  /**
+   * Deletes a session from the campaign and handles all cleanup.
+   * 
+   * @param sessionId the UUID of the session to delete
+   * @param external if true, the session is being deleted from outside the app (e.g. Foundry); does cleanup but not doc delete
+   * 
+   * @returns false if delete was cancelled, true otherwise
+   */
+  const deleteSession = async (sessionId: string, external = false): Promise<boolean> => {
     const session = await Session.fromUuid(sessionId);
 
     if (!session) 
@@ -188,12 +207,12 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     //    reported it happening.
     if (isInPlayMode.value && session.uuid === currentPlayedSessionId.value) {
       notifyWarn('You cannot delete the current session while in Play mode.');
-      return;
+      return false;
     }
     
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete session?', 'Are you sure you want to delete this session?')))
-      return;
+    if (!external && !(await FCBDialog.confirmDialog('Delete session?', 'Are you sure you want to delete this session?')))
+      return false;
   
     // Find the affected arc before deleting
     const campaign = await Campaign.fromUuid(session.campaignId);
@@ -203,49 +222,71 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     const affectedArc = getArcForSession(campaign.arcIndex, session.number);
     const affectedArcUuid = affectedArc?.uuid || null;
     
-    await session.delete();  // this will remove from the campaign, etc.
+    await session.delete(external);  // this will remove from the campaign, etc.
 
     // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(sessionId);
 
     // Refresh tree with the specific arc that was affected
     await refreshCampaignDirectoryTree(affectedArcUuid ? [affectedArcUuid] : []);
+ 
+    return true;
   };
 
-  const deleteFront = async (frontId: string): Promise<void> => {
+  /**
+   * Deletes a front from the campaign and handles all cleanup.
+   * 
+   * @param frontId the UUID of the front to delete
+   * @param external if true, the front is being deleted from outside the app (e.g. Foundry); does cleanup but not doc delete
+   * 
+   * @returns false if delete was cancelled, true otherwise
+   */
+  const deleteFront = async (frontId: string, external = false): Promise<boolean> => {
     const front = await Front.fromUuid(frontId);
 
     if (!front) 
       throw new Error('Bad front in campaignDirectoryStore.deleteFront()');
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete front?', 'Are you sure you want to delete this front?')))
-      return;
+    if (external && !(await FCBDialog.confirmDialog('Delete front?', 'Are you sure you want to delete this front?')))
+      return false;
   
-    await front.delete();
+    await front.delete(external);
 
     // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(frontId);
 
     await refreshCampaignDirectoryTree();
+
+    return true;
   };
 
-  const deleteStoryWeb = async (storyWebId: string): Promise<void> => {
+  /**
+   * Deletes a story web from the campaign and handles all cleanup.
+   * 
+   * @param storyWebId the UUID of the story web to delete
+   * @param external if true, the story web is being deleted from outside the app (e.g. Foundry); does cleanup but not doc delete
+   * 
+   * @returns false if delete was cancelled, true otherwise
+   */
+  const deleteStoryWeb = async (storyWebId: string, external = false): Promise<boolean> => {
     const storyWeb = await StoryWeb.fromUuid(storyWebId);
 
     if (!storyWeb) 
       throw new Error('Bad story web in campaignDirectoryStore.deleteStoryWeb()');
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete story web?', 'Are you sure you want to delete this story web?')))
-      return;
+    if (!external && !(await FCBDialog.confirmDialog('Delete story web?', 'Are you sure you want to delete this story web?')))
+      return false;
   
-    await storyWeb.delete();
+    await storyWeb.delete(external);
 
     // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(storyWebId);
 
     await refreshCampaignDirectoryTree();
+
+    return true;
   };
 
   /** create a session in campaign. Puts it at the end.

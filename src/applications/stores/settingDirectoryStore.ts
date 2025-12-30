@@ -350,19 +350,21 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
    * After deletion, the directory tree is refreshed.
    * 
    * @param settingId - The UUID of the setting to be deleted.
+   * @param external if true, the entry is being deleted from outside the app (e.g. Foundry); does cleanup but not doc delete
+   * 
    * @returns A promise that resolves when the setting and its compendia are deleted.
    */
-  const deleteSetting = async (settingId: string): Promise<void> => {
+  const deleteSetting = async (settingId: string, external = false): Promise<Boolean> => {
     let setting = await getGlobalSetting(settingId);
 
     if (!setting)
-      return;
+      return false;
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete setting?', 'Are you sure you want to delete this setting?')))
-      return;
+    if (!external && !(await FCBDialog.confirmDialog('Delete setting?', 'Are you sure you want to delete this setting?')))
+      return false;
     
-    await setting.delete();
+    await setting.delete(external);
 
     // pick another setting
     setting = await getCurrentSetting();
@@ -375,31 +377,42 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     }
 
     await refreshSettingDirectoryTree();
-  };
 
+    return true;
+  };
+  /**
+   * Deletes a entry from the setting and handles all cleanup.
+   * 
+   * @param entryId the UUID of the entry to delete
+   * @param external if true, the entry is being deleted from outside the app (e.g. Foundry); does cleanup but not doc delete
+   * 
+   * @returns false if delete was cancelled, true otherwise
+   */
   // delete an entry from the setting
-  const deleteEntry = async (_topic: ValidTopic, entryId: string) => {
+  const deleteEntry = async (entryId: string, external = false): Promise<boolean> => {
     if (!currentSetting.value)
-      return;
+      return false;
 
     // confirm
-    if (!(await FCBDialog.confirmDialog(localize('dialogs.deleteEntry.title'), localize('dialogs.deleteEntry.message'))))
-      return;
+    if (!external && !(await FCBDialog.confirmDialog(localize('dialogs.deleteEntry.title'), localize('dialogs.deleteEntry.message'))))
+      return false;
 
     // save the parent
     const parentId = currentSetting.value.getEntryHierarchy(entryId)?.parentId || null;
 
     const entry = await Entry.fromUuid(entryId);
     if (!entry)
-      return;
+      return false;
 
-    await entry.delete();
+    await entry.delete(external);
 
     // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(entryId);
 
     // refresh and force its parent to update
     await refreshSettingDirectoryTree(parentId ? [parentId] : []);
+
+    return true;
   };
  
   // refreshes the directory tree 
@@ -523,7 +536,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       iconFontClass: 'fas',
       label: localize('contextMenus.directoryEntry.delete'),
       onClick: async () => {
-        await deleteEntry(topic, entryId);
+        await deleteEntry(entryId);
       }
     });
 

@@ -927,9 +927,10 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   /**
    * Deletes a campaign from the database, along with all the related sessions
    * 
+   * @param skipDelete - if true, don't delete the Foundry document itself; used when Foundry deletes something outside the app
    * @returns {Promise<void>}
    */
-  public async delete() {
+  public async delete(skipDelete = false) {
     if (!this._doc)
       return;
 
@@ -940,7 +941,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     if (!setting)
       throw new Error('Invalid setting in Campaign.delete()');
 
-    await super._delete();
+    await super._delete(skipDelete);
 
     await setting.deleteCampaignFromSetting(id);
   }

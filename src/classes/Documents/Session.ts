@@ -522,7 +522,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     }
   }
 
-  public async delete(): Promise<void> {
+  public async delete(skipDelete = false): Promise<void> {
     const id = this.uuid;
     const setting = await getGlobalSetting(this.settingId);
 
@@ -536,7 +536,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     
     await campaign.deleteSession(this);
     
-    await super._delete();
+    await super._delete(skipDelete);
 
     // Remove from search index
     searchService.removeSearchEntry(id);

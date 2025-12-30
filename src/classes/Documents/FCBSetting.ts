@@ -1,14 +1,14 @@
 import { toRaw } from 'vue';
 import { UserFlags, UserFlagKey, ModuleSettings, SettingKey, moduleId, JournalEntryFlagKey } from '@/settings'; 
 import { FCBDialog } from '@/dialogs';
-import { TopicFolder, RootFolder, Entry, Session, } from '@/classes';
+import { TopicFolder, RootFolder, Entry, Session, Arc, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
 import { useBackendStore } from '@/applications/stores';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Documents/FCBJournalEntryPage';
-import { entryIndexFields, NameStyleExamples, sessionIndexFields, } from '@/documents';
+import { entryIndexFields, NameStyleExamples, sessionIndexFields, SessionLore, } from '@/documents';
 import { cleanKeysOnSave, } from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
 import { ArcBasicIndex, CampaignBasicIndex, EntryFilterIndex, Hierarchy, RelatedJournal, TopicBasicIndex, SessionFilterIndex, SessionIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';
@@ -606,7 +606,7 @@ private async deleteRollTables() : Promise<void> {
     }
   }
 
-  /** remove from the journals tabs -- don't worry about lore for now */
+  /** remove from the journals tabs and clean up lore references */
   public async deleteJournalEntryFromSetting(journalId: string) {
     // remove from the setting
     if (this.journals.find(j => j.journalUuid === journalId)) {
@@ -631,9 +631,39 @@ private async deleteRollTables() : Promise<void> {
         }
       }
     }
+    const stripLore = async (object: Campaign | Session | Arc) => {
+      let loreUpdated = false;
+      object.lore = object.lore.map(l => {
+        if (l.journalEntryPageId === journalId) {
+          loreUpdated = true;
+          return { ...l, journalEntryPageId: null };
+        }
+        return l;
+      });
+      if (loreUpdated) {
+        await object.save();
+      }
+    };
+
+    // clean up lore references in campaigns, arcs, sessions
+    for (let campaign of Object.values(this.campaigns)) {
+      await stripLore(campaign);
+
+      // clean up lore references in sessions
+      for (let session of await campaign.allSessions()) {
+        await stripLore(session);
+      }
+
+     // clean up lore references in arcs
+      for (let arcIndex of campaign.arcIndex) {
+        const arc = await Arc.fromUuid(arcIndex.uuid);
+        if (arc)
+          await stripLore(arc);
+      }
+    }
   }
 
-  /** remove from the journals tabs -- don't worry about lore for now */
+  /** remove from the journals tabs and clean up lore references */
   public async deleteJournalEntryPageFromSetting(journalId: string) {
     // remove from the setting
     if (this.journals.find(j => j.pageUuid === journalId)) {
@@ -655,6 +685,57 @@ private async deleteRollTables() : Promise<void> {
         if (entry.journals.find(j => j.pageUuid === journalId)) {
           entry.journals = entry.journals.filter(j => j.pageUuid !== journalId);
           await entry.save();
+        }
+      }
+    }
+
+    // clean up lore references in campaigns
+    for (let campaign of Object.values(this.campaigns)) {
+      let loreUpdated = false;
+      campaign.lore = campaign.lore.map(l => {
+        if (l.journalEntryPageId === journalId) {
+          loreUpdated = true;
+          return { ...l, journalEntryPageId: null };
+        }
+        return l;
+      });
+      if (loreUpdated) {
+        await campaign.save();
+      }
+    }
+
+    // clean up lore references in sessions
+    for (let campaign of Object.values(this.campaigns)) {
+      const sessions = await campaign.allSessions();
+      for (let session of sessions) {
+        let loreUpdated = false;
+        session.lore = session.lore.map(l => {
+          if (l.journalEntryPageId === journalId) {
+            loreUpdated = true;
+            return { ...l, journalEntryPageId: null };
+          }
+          return l;
+        });
+        if (loreUpdated) {
+          await session.save();
+        }
+      }
+    }
+
+    // clean up lore references in arcs
+    for (let campaign of Object.values(this.campaigns)) {
+      const arcs = await campaign.allArcs();
+      for (let arc of arcs) {
+        let loreUpdated = false;
+        arc.lore = arc.lore.map(l => {
+          if (l.journalEntryPageId === journalId) {
+            loreUpdated = true;
+            return { ...l, journalEntryPageId: null };
+          }
+          return l;
+        });
+        if (loreUpdated) {
+          await arc.save();
         }
       }
     }

@@ -120,8 +120,17 @@ export class FCBJournalEntryPage<
     return setting;
   }
 
-  // handle deletes
-  protected async _delete(): Promise<void> {
+  /**
+   * Handles deletes.  Deletes the actual foundry document.
+   * 
+   * @param skipDelete - if true, don't delete the Foundry document itself; used when Foundry deletes something outside the app
+   *                     doesn't look like it makes sense but it prevents child classes from having to figure out 
+   *                     whether to call super.delete() or not
+   */
+  protected async _delete(skipDelete = false): Promise<void> {
+    if (skipDelete)
+      return;
+    
     // doc is the page - we need to delete the parent
     await toRaw(this._doc.parent)?.delete();
   }
