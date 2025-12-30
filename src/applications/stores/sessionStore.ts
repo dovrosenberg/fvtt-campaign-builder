@@ -54,21 +54,23 @@ export const useSessionStore = defineStore('session', () => {
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
       { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
       { field: 'parent', style: 'text-align: left', header: 'Parent', sortable: true, onClick: onParentClick},
-      { field: 'description', style: 'text-align: left', header: 'Description', sortable: false},
+      { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],
     [SessionTableTypes.Item]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onItemClick },
+      { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],  
     [SessionTableTypes.NPC]: [
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
       { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
-      { field: 'description', style: 'text-align: left', header: 'Description', sortable: false},
+      { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],
     [SessionTableTypes.Monster]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onMonsterClick },
       { field: 'number', header: 'Number', editable: true, smallEditBox: true },
+      { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ], 
     [SessionTableTypes.Vignette]: [
       { field: 'description', style: 'text-align: left', header: 'Vignette', editable: true },
@@ -146,6 +148,19 @@ export const useSessionStore = defineStore('session', () => {
       return;
 
     await currentSession.value.deleteLocation(uuid);
+    await _refreshLocationRows();
+  }
+
+  /**
+   * Updates the notes associated with a location
+   * @param uuid the UUID of the location
+   * @param notes the new notes
+   */
+  const updateLocationNotes = async (uuid: string, notes: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.updateLocationNotes()');
+
+    await currentSession.value.updateLocationNotes(uuid, notes);
     await _refreshLocationRows();
   }
 
@@ -234,6 +249,19 @@ export const useSessionStore = defineStore('session', () => {
       return;
     
     await currentSession.value.deleteNPC(uuid);
+    await _refreshNPCRows();
+  }
+
+  /**
+   * Updates the notes associated with an NPC
+   * @param uuid the UUID of the NPC
+   * @param notes the new notes
+   */
+  const updateNPCNotes = async (uuid: string, notes: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.updateNPCNotes()');
+
+    await currentSession.value.updateNPCNotes(uuid, notes);
     await _refreshNPCRows();
   }
 
@@ -598,6 +626,32 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   /**
+   * Updates the notes associated with a magic item
+   * @param uuid the UUID of the item
+   * @param notes the new notes
+   */
+  const updateItemNotes = async (uuid: string, notes: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.updateItemNotes()');
+
+    await currentSession.value.updateItemNotes(uuid, notes);
+    await _refreshItemRows();
+  }
+
+  /**
+   * Updates the notes associated with a monster
+   * @param uuid the UUID of the monster
+   * @param notes the new notes
+   */
+  const updateMonsterNotes = async (uuid: string, notes: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.updateMonsterNotes()');
+
+    await currentSession.value.updateMonsterNotes(uuid, notes);
+    await _refreshMonsterRows();
+  }
+
+  /**
    * Move a magic item to the next session in the campaign, creating it if needed.
    * @param uuid the UUID of the item to move
    */
@@ -818,7 +872,6 @@ export const useSessionStore = defineStore('session', () => {
 
       const parentId = await entry.getParentId();
       const parent = parentId ? await Entry.fromUuid(parentId) : null;
-      const cleanDescription = await htmlToPlainTextReplaceUuid(entry.description);
 
       if (entry) {
         retval.push({
@@ -828,7 +881,7 @@ export const useSessionStore = defineStore('session', () => {
           type: entry.type,
           parent: parent?.name || '',
           parentId: parent?.uuid || null,
-          description: cleanDescription.substring(0, 99) + (cleanDescription.length>100 ? '...' : ''),
+          notes: location.notes || '',
         });
       }
     }
@@ -851,14 +904,12 @@ export const useSessionStore = defineStore('session', () => {
       const entry = await topicFolder.findEntry(npc.uuid);
 
       if (entry) {
-        const cleanDescription = await htmlToPlainTextReplaceUuid(entry.description);
-
         retval.push({
           uuid: npc.uuid,
           delivered: npc.delivered,
           name: entry.name, 
           type: entry.type,
-          description: cleanDescription.substring(0, 99) + (cleanDescription.length>100 ? '...' : ''),
+          notes: npc.notes || '',
         });
       }
     }
@@ -880,6 +931,7 @@ export const useSessionStore = defineStore('session', () => {
           uuid: item.uuid,
           delivered: item.delivered,
           name: entry.name, 
+          notes: item.notes || '',
           dragTooltip: localize('tooltips.dragItemFromSession'),
         });
       } else {
@@ -905,6 +957,7 @@ export const useSessionStore = defineStore('session', () => {
           uuid: monster.uuid,
           delivered: monster.delivered,
           number: monster.number,
+          notes: monster.notes || '',
           name: entry.name, 
           dragTooltip: localize('tooltips.dragMonsterFromSession'),
         });
@@ -1021,20 +1074,24 @@ export const useSessionStore = defineStore('session', () => {
     addLocation,
     addLocationToPlayedSession,
     deleteLocation,
+    updateLocationNotes,
     markLocationDelivered,
     moveLocationToNext,
     addItem,
     deleteItem,
+    updateItemNotes,
     markItemDelivered,
     moveItemToNext,
     addNPC,
     addNPCToPlayedSession,
     deleteNPC,
+    updateNPCNotes,
     markNPCDelivered,
     moveNPCToNext,
     addMonster,
     deleteMonster,
     updateMonsterNumber,
+    updateMonsterNotes,
     markMonsterDelivered,
     moveMonsterToNext,
     addVignette,

@@ -26,15 +26,17 @@ Click "Add Monster" to create a new Monster entry.  You will be prompted to sear
 You can also drag/drop an actor from a the world, a compendium, or other modules like search tools that allow for drag and drop.
 
 ## The Monster list
-This list contains the individual Monsters.  For each Monster, you can see its name, and can specify a number of this monster type that you're planning to use for encounters.
+This list contains the individual Monsters.  For each Monster, you can see its name, and can specify a number of this monster type that you're planning to use for encounters.  There's also a notes field you can use to track things like how you intend to use them.
 
 Click the name of the Monster to open the (system-dependent) stat/character sheet for the actor.
 
 Click on a value in the number column to edit it.  Press Enter to save.
 
+Click on the notes field to edit it.  Press Enter to save. 
+
 ### Monster Actions
 The actions column lets you take several actions with the Monster entries:
   - **Delete** - Delete the Monster.  This removes it from the Session list, but DOES NOT delete the Actor from Foundry.
-  - **Edit** - Opens the number field for editing.  Press Enter to save.
+  - **Edit** - Opens the number and notes fields for editing.  Press Enter to save.
   - **Mark as delivered** - Marks the Monster as having been delivered to the players. If you mark Monster as delivered while in [^Play Mode], this will add the Monster to the Campaign [To-Do List]. 
   - **Move to next session** - This moves the Monster to the next Session.  You would typically do this after a Session for Monsters that you didn't deliver but think will likely come up next time.  If a next Session doesn't exist, it will create one.

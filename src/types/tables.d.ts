@@ -45,7 +45,7 @@ export interface SessionLocationDetails {
   type: string;
   parent: string;
   parentId: string | null;
-  description: string;
+  notes: string;
   delivered: boolean;
 }
 export interface ArcLocationDetails {
@@ -61,7 +61,7 @@ export interface SessionNPCDetails {
   uuid: string;   // the character entry
   name: string;
   type: string;
-  description: string;
+  notes: string;
   delivered: boolean;
 }
 
@@ -76,6 +76,7 @@ export interface SessionItemDetails {
   uuid: string;   // the Item document
   name: string;
   delivered: boolean;
+  notes: string;
   dragTooltip?: string;
 }
 
@@ -84,6 +85,7 @@ export interface SessionMonsterDetails {
   name: string;
   number: number;
   delivered: boolean;
+  notes: string;
   dragTooltip?: string;
 }
 

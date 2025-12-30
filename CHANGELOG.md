@@ -16,6 +16,7 @@
 - You can now click on any tag to open a list of all the entities that share that tag.  Searches will also now match against tags directly, allowing you to quickly get to this screen.
 - On a related note, tags are now shared between entries, sessions, arcs, and fronts - making it easier to use a single tag to carry a thread across all of them.
 - There is a new "Foundry" tab available on Entries.  You will need to turn it on in the module settings, as it is off by default.  This allows you to link ANY foundry document (Scenes, Actors, Items, RollTables, Playlists, etc.) to the entry.  This is particularly useful for users who want to drive their play sessions entirely from entries (typically Locations) without using the Campaigns/Sessions system.  
+- You can now add manual notes to locations, NPC, magic items, and monsters on sessions.
 - You can now generate images for settings, campaigns, arcs, sessions, and fronts.
 - You can now drag Settings, Entries, Campaigns, Arcs, Sessions, Fronts and Story Webs from the directory onto a Foundry scene to create a Map Note that will then directly open the content in Campaign Builder.
 - You can now drag/drop a Front onto a Story Web and it will add all of the Front's Dangers to the Story Web.  Hold control to also get all of each Danger's participants.  Similarly, you can right click on a Front in the directory to have menu options to do that.

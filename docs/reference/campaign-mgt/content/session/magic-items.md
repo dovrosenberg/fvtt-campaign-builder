@@ -24,12 +24,15 @@ Click "Add Magic Item" to create a new Magic Item entry.  You will be prompted t
 > Deleting from Foundry an item that is associated with a Session as a Magic Item will completely remove the Magic Item from the Session, even if it had previously been marked as delivered.
 
 ## The Magic Item list
-This list contains the individual Magic Items.  For each Magic Item, you can see its name.
+This list contains the individual Magic Items.  For each Magic Item, you can see its name and a notes field you can use to track things like how you intend to use them
 
 Click the name of the Magic Item to open the (system-dependent) item description sheet for the actor.
+
+Click on the notes field to edit it.  Press Enter to save. 
 
 ### Magic Item Actions
 The actions column lets you take several actions with the Magic Item entries:
   - **Delete** - Delete the Magic Item.  This removes it from the Session list, but DOES NOT delete the Item from Foundry.
+  - **Edit** - Opens the notes field for editing.  Press Enter to save.
   - **Mark as delivered** - Marks the Magic Item as having been delivered to the players. If you mark Magic Item as delivered while in [^Play Mode], this will add the Magic Item to the Campaign [To-Do List]. 
   - **Move to next session** - This moves the Magic Item to the next Session.  You would typically do this after a Session for Magic Items that you didn't deliver but think will likely come up next time.  If a next Session doesn't exist, it will create one.

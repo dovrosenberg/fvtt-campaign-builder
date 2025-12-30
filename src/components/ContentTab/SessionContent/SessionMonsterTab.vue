@@ -168,7 +168,7 @@
         }
         break;
       case 'notes':
-        await arcStore.updateMonsterNotes(data.uuid, newValue as string);
+        await sessionStore.updateMonsterNotes(data.uuid, newValue as string);
         break;
 
       default:

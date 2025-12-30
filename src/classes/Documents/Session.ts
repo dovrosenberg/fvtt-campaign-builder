@@ -187,7 +187,8 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
     this._clone.system.locations.push({
       uuid: uuid,
-      delivered: delivered
+      delivered: delivered,
+      notes: ''
     });
 
     await this.save();
@@ -208,6 +209,16 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     await this.save();
   }
 
+  async updateLocationNotes(uuid: string, notes: string): Promise<void> {
+    const location = this._clone.system.locations.find((l) => l.uuid===uuid);
+    if (!location)
+      return;
+    
+    location.notes = notes;
+
+    await this.save();
+  }
+
   get npcs(): SessionNPC[] {
     return this._clone.system.npcs || [];
   }
@@ -222,7 +233,8 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
     this._clone.system.npcs.push({
       uuid: uuid,
-      delivered: delivered
+      delivered: delivered,
+      notes: ''
     });
 
     await this.save();
@@ -240,6 +252,16 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       return;
     
     npc.delivered = delivered;
+
+    await this.save();
+  }
+
+  async updateNPCNotes(uuid: string, notes: string): Promise<void> {
+    const npc = this._clone.system.npcs.find((l) => l.uuid===uuid);
+    if (!npc)
+      return;
+    
+    npc.notes = notes;
 
     await this.save();
   }
@@ -381,7 +403,8 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this._clone.system.monsters.push({
       uuid: uuid,
       number: number,
-      delivered: false
+      delivered: false,
+      notes: ''
     });
 
     await this.save();
@@ -414,6 +437,16 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     await this.save();
   }
 
+  async updateMonsterNotes(uuid: string, notes: string): Promise<void> {
+    const monster = this._clone.system.monsters.find((l) => l.uuid===uuid);
+    if (!monster)
+      return;
+    
+    monster.notes = notes;
+
+    await this.save();
+  }
+
   get items(): SessionItem[] {
     return this._clone.system.items || [];
   }
@@ -428,7 +461,8 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
     this._clone.system.items.push({
       uuid: uuid,
-      delivered: false
+      delivered: false,
+      notes: ''
     });
 
     await this.save();
@@ -445,6 +479,15 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       return;
     
     item.delivered = delivered;
+    await this.save();
+  }
+
+  async updateItemNotes(uuid: string, notes: string): Promise<void> {
+    const item = this._clone.system.items.find((i) => i.uuid===uuid);
+    if (!item)
+      return;
+    
+    item.notes = notes;
     await this.save();
   }
 

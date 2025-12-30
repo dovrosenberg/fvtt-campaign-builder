@@ -7,14 +7,21 @@ export interface SessionRelatedItem {
   delivered: boolean;
 }
 
-export interface SessionLocation extends SessionRelatedItem {}
+export interface SessionLocation extends SessionRelatedItem {
+  notes: string;
+}
 
-export interface SessionItem extends SessionRelatedItem {}
+export interface SessionItem extends SessionRelatedItem {
+  notes: string;
+}
 
-export interface SessionNPC extends SessionRelatedItem {}
+export interface SessionNPC extends SessionRelatedItem {
+  notes: string;
+}
 
 export interface SessionMonster extends SessionRelatedItem {
   number: number;
+  notes: string;
 }
 
 export interface SessionVignette extends SessionRelatedItem {

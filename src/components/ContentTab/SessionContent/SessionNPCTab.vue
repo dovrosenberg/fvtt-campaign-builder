@@ -6,11 +6,12 @@
     :show-add-button="true"
     :add-button-label="localize('labels.session.addNPC')" 
     :extra-add-text="localize('labels.session.addNPCDrag')"
-    :allow-edit="false"
+    :allow-edit="true"
     :help-text="localize('labels.session.npcHelpText')"
     @add-item="showNPCPicker=true"
     @dragoverNew="onDragoverNew"
     @drop-new="onDropNew"
+    @cell-edit-complete="onCellEditComplete"
   />
   <RelatedEntryDialog
     v-model="showNPCPicker"
@@ -38,6 +39,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
+  import { CellEditCompleteEvent } from '@/types';
   
   ////////////////////////////////
   // props
@@ -76,6 +78,12 @@
       callback: (data) => onDeleteNPC(data.uuid), 
       tooltip: localize('tooltips.deleteNPC') 
     },
+    {
+      icon: 'fa-pen', 
+      isEdit: true, 
+      callback: () => {},
+      tooltip: localize('tooltips.editNotes') 
+    },
 
     // deliver/undeliver buttons
     { 
@@ -105,6 +113,19 @@
 
   ////////////////////////////////
   // event handlers
+  const onCellEditComplete = async (event: CellEditCompleteEvent) => {
+    const { data, newValue, field, } = event;
+
+    switch (field) {
+      case 'notes':
+        await sessionStore.updateNPCNotes(data.uuid, newValue as string);
+        break;
+
+      default:
+        break;
+    }  
+  }
+
   const onDeleteNPC = async (uuid: string) => {
     await sessionStore.deleteNPC(uuid);
   }

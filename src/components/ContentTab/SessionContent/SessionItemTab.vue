@@ -6,14 +6,15 @@
     :show-add-button="true"
     :add-button-label="localize('labels.session.addItem')"
     :extra-add-text="localize('labels.session.addItemDrag')"
-    :allow-edit="false"
+    :allow-edit="true"
     :draggable-rows="true"
     :help-text="localize('labels.session.itemHelpText')"
     help-link="https://slyflourish.com/lazy_magic_items.html"
     @add-item="showItemPicker=true"
+    @drop-new="onDropNew"
     @dragoverNew="onDragoverNew"
-    @dropNew="onDropNew"
     @dragstart="onDragStart"
+    @cell-edit-complete="onCellEditComplete"
   />
   <RelatedDocumentsDialog
     v-model="showItemPicker"
@@ -39,6 +40,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
+  import { CellEditCompleteEvent } from '@/types';
   
   ////////////////////////////////
   // props
@@ -57,9 +59,6 @@
 
   ////////////////////////////////
   // computed data
-
-  ////////////////////////////////
-  // methods
   const mappedItemRows = computed(() => (
     relatedEntryRows.value.map((row) => ({
       ...row,
@@ -79,6 +78,12 @@
       icon: 'fa-trash', 
       callback: (data) => onDeleteItem(data.uuid), 
       tooltip: localize('tooltips.deleteItem') 
+    },
+    {
+      icon: 'fa-pen', 
+      isEdit: true, 
+      callback: () => {},
+      tooltip: localize('tooltips.editNotes') 
     },
 
     // deliver/undeliver buttons
@@ -104,6 +109,8 @@
     }
   ]));
 
+  ////////////////////////////////
+  // methods
 
   ////////////////////////////////
   // event handlers
@@ -131,6 +138,19 @@
     if (data.type === 'Item' && data.uuid) {
       await sessionStore.addItem(data.uuid as string);  
     }
+  }
+
+  const onCellEditComplete = async (event: CellEditCompleteEvent) => {
+    const { data, newValue, field, } = event;
+
+    switch (field) {
+      case 'notes':
+        await sessionStore.updateItemNotes(data.uuid, newValue as string);
+        break;
+
+      default:
+        break;
+    }  
   }
 
   const onDeleteItem = async (uuid: string) => {

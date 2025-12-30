@@ -7,7 +7,7 @@
     :add-button-label="localize('labels.session.addLocation')" 
     :extra-add-text="localize('labels.session.addLocationDrag')"
     :allow-drop-row="false"
-    :allow-edit="props.arcMode"
+    :allow-edit="true"
     :help-text="localize('labels.session.locationHelpText')"
     help-link="https://slyflourish.com/designing_fantastic_locations.html"
     :can-reorder="false"
@@ -99,7 +99,6 @@
     {
       icon: 'fa-pen', 
       isEdit: true, 
-      display: () => props.arcMode,
       callback: () => {},
       tooltip: localize('tooltips.editNotes') 
     },
@@ -156,9 +155,15 @@
   }
 
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
-    const { data, newValue, } = event;
+    const { data, newValue, field, } = event;
 
-    await arcStore.updateLocationNotes(data.uuid, newValue as string);
+    if (field === 'notes') {
+      if (props.arcMode) {
+        await arcStore.updateLocationNotes(data.uuid, newValue as string);
+      } else {
+        await sessionStore.updateLocationNotes(data.uuid, newValue as string);
+      }
+    }
   };
 
   const onDragoverNew = (event: DragEvent) => {
