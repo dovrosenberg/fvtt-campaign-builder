@@ -16,4 +16,6 @@ When enabled in [Module Settings], this tab provides a table for linking any typ
 You can drag and drop any Foundry document (from anywhere in Foundry, but most often the sidebar) onto the box at the top instead.
 
 ## The related document list
-This list shows each of the related documents.  You can click on the name to open that document's primary view (character sheet, scene configuration, etc.)
+This list shows each of the related documents.  You can click on the name to open that document's primary view (character sheet, scene configuration, etc.)  And you can use the drag icon to drag documents from the table to anywhere else in Foundry that supports dropping.
+
+

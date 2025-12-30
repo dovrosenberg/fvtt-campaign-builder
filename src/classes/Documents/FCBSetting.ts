@@ -606,7 +606,20 @@ private async deleteRollTables() : Promise<void> {
     }
   }
 
-  /** remove from the journals tabs and clean up lore references */
+  /** remove a Foundry document from all foundryDocuments arrays */
+  public async deleteFoundryDocumentFromSetting(documentId: string) {
+    // remove from any Entries that have this document in their foundryDocuments
+    for (let topic of Object.values(this.topicFolders)) {
+      for (let entry of (await topic.allEntries())) {
+        if (entry.foundryDocuments.includes(documentId)) {
+          entry.foundryDocuments = entry.foundryDocuments.filter(id => id !== documentId);
+          await entry.save();
+        }
+      }
+    }
+  }
+
+  /** remove from the journals tabs -- don't worry about lore for now */
   public async deleteJournalEntryFromSetting(journalId: string) {
     // remove from the setting
     if (this.journals.find(j => j.journalUuid === journalId)) {

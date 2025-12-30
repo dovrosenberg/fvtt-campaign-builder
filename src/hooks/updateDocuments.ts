@@ -12,6 +12,7 @@ export function registerForUpdateHooks() {
     registerForItemHooks();
     registerForSceneHooks();
     registerForJournalHooks();
+    registerForDocumentHooks();
   });
 }
 
@@ -65,14 +66,15 @@ function registerForActorHooks() {
     }
   });
 
-  Hooks.on('deleteActor', async (_actor, _options, _userId) => {
+  Hooks.on('deleteActor', async (actor: Actor, _options, _userId) => {
     const mainStore = useMainStore();
 
     // need to remove from any PCs that are linked to it
     const settings = await mainStore.getAllSettings();
     
     for (let setting of settings) {
-      await setting.deleteActorFromSetting(_actor.uuid);
+      await setting.deleteActorFromSetting(actor.uuid);
+      await setting.deleteFoundryDocumentFromSetting(actor.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -97,12 +99,13 @@ function registerForItemHooks() {
     }
   });
 
-  Hooks.on('deleteItem', async (_item, _options, _userId) => {
+  Hooks.on('deleteItem', async (item: Item, _options, _userId) => {
     const mainStore = useMainStore();
 
     const settings = await mainStore.getAllSettings();
     for (let setting of settings) {
-      await setting.deleteItemFromSetting(_item.uuid);
+      await setting.deleteItemFromSetting(item.uuid);
+      await setting.deleteFoundryDocumentFromSetting(item.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -127,12 +130,13 @@ function registerForSceneHooks() {
     }
   });
 
-  Hooks.on('deleteScene', async (_scene, _options, _userId) => {
+  Hooks.on('deleteScene', async (scene: Scene, _options, _userId) => {
     const mainStore = useMainStore();
 
     const settings = await mainStore.getAllSettings();
     for (let setting of settings) {
-      await setting.deleteSceneFromSetting(_scene.uuid);
+      await setting.deleteSceneFromSetting(scene.uuid);
+      await setting.deleteFoundryDocumentFromSetting(scene.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -226,6 +230,7 @@ function registerForJournalHooks() {
     const settings = await mainStore.getAllSettings();
     for (let setting of settings) {
       await setting.deleteJournalEntryFromSetting(journal.uuid);
+      await setting.deleteFoundryDocumentFromSetting(journal.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -249,11 +254,70 @@ function registerForJournalHooks() {
       await setting.deleteJournalEntryPageFromSetting(journalPage.uuid);
 
       // just delete the parent altogether if it's in a setting compendium
-      if (journal.pack === setting.compendiumId)
+      if (journal.pack === setting.compendiumId) {
         await journal.delete();
+      } else {
+        // it's a normal one, but we need to remove from any links
+        await setting.deleteJournalEntryPageFromSetting(journalPage.uuid);
+        await setting.deleteFoundryDocumentFromSetting(journalPage.uuid);
+      }
     }
 
     // refresh the content window in case it's showing in a table
     await mainStore.refreshCurrentContent();
   });
+}
+
+/** 
+ * Cover everything else
+ */
+function registerForDocumentHooks() {
+  if (!isClientGM())
+    return;
+
+  const docTypesToHandle = [
+    // "Actor",
+    "Adventure",
+    "Card",
+    "Cards",
+    // "ChatMessage",
+    // "Combat",
+    // "FogExploration",
+    "Folder",
+    // "Item",
+    // "JournalEntry",
+    "Macro",
+    "Playlist",
+    "RollTable",
+    "Scene",
+    "Token",
+    // "Setting",
+    // "User",    
+  ];
+
+  for (let docType of docTypesToHandle) {
+    // @ts-ignore
+    Hooks.on(`delete${docType}`, async (document: foundry.abstract.Document<any, any>, _options, _userId) => {
+
+      const mainStore = useMainStore();
+
+      const settings = await mainStore.getAllSettings();
+      for (let setting of settings) {
+        await setting.deleteFoundryDocumentFromSetting(document.uuid);
+      }
+
+      // refresh the content window in case it's showing in a table
+      await mainStore.refreshCurrentContent();
+    });
+
+    // @ts-ignore
+    Hooks.on(`update${docType}`, async (_document, changes, _options, _userId) => {
+      const mainStore = useMainStore();
+
+      // just refresh in case it's currently shown
+      if (changes.name) {
+        await mainStore.refreshCurrentContent();
+      }
+    });
+  }
 }

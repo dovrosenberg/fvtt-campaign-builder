@@ -127,39 +127,59 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
  * @returns A promise that resolves when the drag setup is complete
  */
 export const itemDragStart = async(event: DragEvent, uuid: string): Promise<void> => {
-    // Remove these lines - they're preventing the drag from working
-    // event.preventDefault();
-    event.stopPropagation();
+  event.stopPropagation();
 
-    if (!event.dataTransfer || !canvas?.dimensions || !canvas?.stage) return;
+  if (!event.dataTransfer || !canvas?.dimensions || !canvas?.stage) return;
 
-    try {
-      // Get the Item document using fromUuid
-      const item = await fromUuid<Item>(uuid);
+  try {
+    // Get the Item document using fromUuid
+    const item = await fromUuid<Item>(uuid);
 
-      if (item) {
-        event.dataTransfer.setData("text/plain", JSON.stringify(item.toDragData()));
+    if (item) {
+      event.dataTransfer.setData("text/plain", JSON.stringify(item.toDragData()));
 
-        // Set a drag image 
-        if (item.img && canvas.ready) {
-          const size = canvas.dimensions.size;
-          const scale = canvas.stage.scale.x;
-          const w = size * scale;
-          const h = size * scale;
-          
-          // prevent image caching if foundry does  
-          const existingPreview = document.getElementById("drag-preview");
-          if (existingPreview) existingPreview.remove();
-                   
-          const preview = foundry.applications.ux.DragDrop.implementation.createDragImage({ src: item.img } as HTMLImageElement, w, h);
+      // Set a drag image 
+      if (item.img && canvas.ready) {
+        const size = canvas.dimensions.size;
+        const scale = canvas.stage.scale.x;
+        const w = size * scale;
+        const h = size * scale;
+        
+        // prevent image caching if foundry does  
+        const existingPreview = document.getElementById("drag-preview");
+        if (existingPreview) existingPreview.remove();
+                  
+        const preview = foundry.applications.ux.DragDrop.implementation.createDragImage({ src: item.img }, w, h);
 
-          event.dataTransfer.setDragImage(preview, w / 2, h / 2);
-        }
-
-        // Set the drag effect
-        event.dataTransfer.effectAllowed = 'copy';
+        event.dataTransfer.setDragImage(preview, w / 2, h / 2);
       }
-    } catch (error) {
-      console.error("Error setting up drag data:", error);
+
+      // Set the drag effect
+      event.dataTransfer.effectAllowed = 'copy';
     }
+  } catch (error) {
+    console.error("Error setting up drag data:", error);
   }
+}
+
+/**
+ * Handles the drag start event for generic foundry documents.
+ * Sets up the drag data, creates an appropriate drag image based on the item's icon,
+ * and configures the drag operation for dropping items onto the canvas or character sheets.
+ * 
+ * @param event - The drag start event
+ * @param uuid - The UUID of the item to drag
+ * @returns A promise that resolves when the drag setup is complete
+ */
+export const foundryDragStart = async (event: DragEvent, uuid: string): Promise<void> => {
+  event.stopPropagation();
+
+  // just use built in data
+  try {
+    const doc = await fromUuid(uuid);
+    const dragData = doc?.toDragData() || {};
+    event.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
+  } catch(error) {
+     console.error("Error setting up drag data:", error);
+  }
+}

@@ -33,7 +33,7 @@
   // local imports
   import { useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { getValidatedData, actorDragStart, itemDragStart } from '@/utils/dragdrop';
+  import { getValidatedData, actorDragStart, itemDragStart, foundryDragStart } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
 
   // library components
@@ -138,19 +138,19 @@
 
   const columns = computed((): any[] => {
     // for now, just action and name
-    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: localize('labels.tableHeaders.actions') };
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 60px; max-width: 60px', header: localize('labels.tableHeaders.actions') };
     const nameColumn = { field: 'name', style: 'text-align: left', header: localize('labels.tableHeaders.name'), sortable: true, onClick: onNameClick }; 
     const locationColumn = { field: 'location', style: 'text-align: left', header: localize('labels.tableHeaders.location'), sortable: true }; 
+    const dragColumn = { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' };
     
     // Add document type column for GenericFoundry mode
     if (props.documentLinkType === DocumentLinkType.GenericFoundry) {
       const documentTypeColumn = { field: 'documentType', style: 'text-align: left', header: localize('labels.tableHeaders.type'), sortable: true };
-      return [actionColumn, nameColumn, documentTypeColumn, locationColumn];
+      return [actionColumn, dragColumn,nameColumn, documentTypeColumn, locationColumn];
     }
     
     // Add drag column for actors
     else if (props.documentLinkType === DocumentLinkType.Actors) {
-      const dragColumn = { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' };
       return [actionColumn, dragColumn, nameColumn, locationColumn];
     } else 
       return [actionColumn, nameColumn, locationColumn];
@@ -182,8 +182,8 @@
     mouseEvent.preventDefault();
     mouseEvent.stopPropagation();
 
-    // no menu for actors
-    if (props.documentLinkType===DocumentLinkType.Actors) {
+    // no menu for actors or generic
+    if (props.documentLinkType!==DocumentLinkType.Scenes) {
       return false;
     }
 
@@ -315,6 +315,8 @@
         return await actorDragStart(event, uuid);
       case DocumentLinkType.Items:
         return await itemDragStart(event, uuid);
+      case DocumentLinkType.GenericFoundry:
+        return await foundryDragStart(event, uuid);
     }
 
     return;    
