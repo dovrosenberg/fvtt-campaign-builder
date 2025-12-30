@@ -7,8 +7,8 @@
     :addButtonLabel="addButtonLabel"
     :extraAddText="extraAddText"
     :filterFields="filterFields"
-    :draggable-rows="[DocumentLinkType.Actors, DocumentLinkType.Items].includes(props.documentLinkType)"
-    :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(uuid), tooltip: localize('tooltips.deleteRelationship') }]"
+    :draggable-rows="draggableRows"
+    :actions="actions"
 
     @row-context-menu="onRowContextMenu"
     @drop-new="onDropNew"
@@ -70,8 +70,16 @@
     
   ////////////////////////////////
   // computed data
-  const filterFields = computed(() => ['name']);
+  const filterFields = computed(() => ['name', 'documentType']);
 
+  const draggableRows = computed(() => [DocumentLinkType.GenericFoundry, DocumentLinkType.Actors, DocumentLinkType.Items].includes(props.documentLinkType));
+  
+  const actions = computed(() => [{ 
+    icon: 'fa-trash', 
+    callback: (data: any) => onDeleteItemClick(data.uuid), 
+    tooltip: localize('tooltips.deleteRelationship') 
+  }]);
+  
   const addButtonLabel = computed((): string => {
     if (props.documentLinkType === DocumentLinkType.Actors) {
       return localize('labels.session.addActor');
@@ -82,26 +90,37 @@
   });
 
   const extraAddText = computed((): string => {
-    if (props.documentLinkType === DocumentLinkType.Actors) {
-      return localize('labels.session.addActorDrag');
-    } else if (props.documentLinkType === DocumentLinkType.Scenes) {
-      return localize('labels.session.addSceneDrag');
+    switch (props.documentLinkType) {
+      case DocumentLinkType.Actors:
+        return localize('labels.session.addActorDrag');
+      case DocumentLinkType.Scenes:
+        return localize('labels.session.addSceneDrag');
+      case DocumentLinkType.GenericFoundry:
+        return localize('labels.session.addDocumentDrag');
     }
     return '';
   });
 
 
   interface RelatedDocumentGridRow { 
-    uuid: string; 
-    name: string 
+    uuid: string;     
+    name: string;
+    packId?: string | null;
+    dragTooltip?: string;
+    documentType?: string;
+    location?: string;
   };
 
   const rows = computed((): RelatedDocumentGridRow[] => 
     relatedDocumentRows.value.map((item: RelatedDocumentDetails) => {
+      let docType = foundry.utils.parseUuid(item.uuid)?.documentType;
+      let docLabel = docType ? game.i18n.localize(`DOCUMENT.${docType}`) : '';
+
       const base = { 
         uuid: item.uuid, 
         name: item.name, 
         packId: item.packId, 
+        documentType: docLabel,
         location: item.packId ? `${localize('labels.locations.compendium')}: ${item.packName}` : localize('labels.locations.world'),
       };
 
@@ -123,13 +142,18 @@
     const nameColumn = { field: 'name', style: 'text-align: left', header: localize('labels.tableHeaders.name'), sortable: true, onClick: onNameClick }; 
     const locationColumn = { field: 'location', style: 'text-align: left', header: localize('labels.tableHeaders.location'), sortable: true }; 
     
+    // Add document type column for GenericFoundry mode
+    if (props.documentLinkType === DocumentLinkType.GenericFoundry) {
+      const documentTypeColumn = { field: 'documentType', style: 'text-align: left', header: localize('labels.tableHeaders.type'), sortable: true };
+      return [actionColumn, nameColumn, documentTypeColumn, locationColumn];
+    }
+    
     // Add drag column for actors
-    if (props.documentLinkType === DocumentLinkType.Actors) {
+    else if (props.documentLinkType === DocumentLinkType.Actors) {
       const dragColumn = { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' };
       return [actionColumn, dragColumn, nameColumn, locationColumn];
-    }
-
-    return [actionColumn, nameColumn, locationColumn];
+    } else 
+      return [actionColumn, nameColumn, locationColumn];
   });
 
   ////////////////////////////////
@@ -146,15 +170,8 @@
   };
 
   const onNameClick = async (_event: MouseEvent, uuid: string) => { 
-    if (props.documentLinkType===DocumentLinkType.Actors) {
-      const actor = await fromUuid<Actor>(uuid);
-      await actor?.sheet?.render(true);
-    } else if (props.documentLinkType===DocumentLinkType.Scenes) {
-      const scene = await fromUuid<Scene>(uuid);
-      await scene?.sheet?.render(true);
-    }
-  
-    // Need to test open/activate for things in compendiums
+    const doc = await fromUuid(uuid);
+    await doc?.sheet?.render(true);
   };
 
   const onRowContextMenu = async (event: DataTableRowContextMenuEvent): Promise<boolean> => {
@@ -242,7 +259,7 @@
     return true;
   };
 
-  // call mutation to remove item  from relationship
+  // call mutation to remove item from relationship
   const onDeleteItemClick = async (id: string) => {
     // show the confirmation dialog 
     const confirmed = await FCBDialog.confirmDialog(
@@ -251,10 +268,17 @@
     );
     
     if (confirmed) {
-      if (props.documentLinkType===DocumentLinkType.Scenes)
-        void relationshipStore.deleteScene(id); 
-      else if (props.documentLinkType===DocumentLinkType.Actors)
-        void relationshipStore.deleteActor(id);
+      switch (props.documentLinkType) {
+        case (DocumentLinkType.GenericFoundry):
+          void relationshipStore.deleteFoundryDocument(id);
+          break;
+        case (DocumentLinkType.Scenes):
+          void relationshipStore.deleteScene(id); 
+          break;
+        case (DocumentLinkType.Actors):
+          void relationshipStore.deleteActor(id);
+          break;
+      }
     }
   };
 
@@ -275,7 +299,10 @@
       return;
 
     // make sure it's the right format
-    if (data.type==='Scene' && props.documentLinkType===DocumentLinkType.Scenes && data.uuid) {
+    if (data.uuid && props.documentLinkType===DocumentLinkType.GenericFoundry) {
+      // GenericFoundry mode - accept any document type
+      await relationshipStore.addFoundryDocument(data.uuid);
+    } else if (data.type==='Scene' && props.documentLinkType===DocumentLinkType.Scenes && data.uuid) {
       await relationshipStore.addScene(data.uuid);
     } else if (data.type==='Actor' && props.documentLinkType===DocumentLinkType.Actors && data.uuid) {
       await relationshipStore.addActor(data.uuid);
@@ -303,7 +330,6 @@
 
   ////////////////////////////////
   // watchers
-  // reload when topic changes
 
   ////////////////////////////////
   // lifecycle events

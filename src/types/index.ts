@@ -89,6 +89,7 @@ export enum DocumentLinkType {
   Actors,
   Items,
   Journals,
+  GenericFoundry,
 }
 
 // relationships

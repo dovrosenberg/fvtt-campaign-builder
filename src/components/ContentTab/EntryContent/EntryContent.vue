@@ -170,6 +170,18 @@
         <div class="tab flexcol" data-group="primary" data-tab="sessions">
           <SessionsTab />
         </div>
+        <div 
+          v-if="ModuleSettings.get(SettingKey.genericFoundryTab)"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="foundry"
+        >
+          <div class="tab-inner">
+            <RelatedDocumentTable 
+              :document-link-type="DocumentLinkType.GenericFoundry"
+            />
+          </div>
+        </div>
       </ContentTabStrip>
     </div>
 
@@ -220,6 +232,7 @@
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
+  import FoundryTab from '@/components/ContentTab/EntryContent/FoundryTab.vue';
   
   // types
   import { CustomFieldContentType, DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal, ContentTabDescriptor } from '@/types';
@@ -312,6 +325,8 @@
       tabs.push({ id: 'scenes', label: localize('labels.scenes') });
     if (topic.value!==Topics.PC)
       tabs.push({ id: 'sessions', label: localize('labels.sessions') });
+    if (ModuleSettings.get(SettingKey.genericFoundryTab))
+      tabs.push({ id: 'foundry', label: localize('labels.tabs.entry.foundry') });
 
     return tabs;
   });

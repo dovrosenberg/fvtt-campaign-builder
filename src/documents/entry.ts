@@ -15,9 +15,12 @@ export const EntrySchema = {
   relationships: schemas.Relationships(),
 
   // we store these separately, for simplicity... for now, they're only used by one topic each
-  scenes: new fields.ArrayField(new fields.DocumentUUIDField({blank: false, type: 'Scene'}), { required: true, initial: [] }),
-  actors: new fields.ArrayField(new fields.DocumentUUIDField({blank: false, type: 'Actor'}), { required: true, initial: [] }),
+  scenes: new fields.ArrayField(new fields.DocumentUUIDField({required: true, blank: false, type: 'Scene'}), { required: true, initial: [] }),
+  actors: new fields.ArrayField(new fields.DocumentUUIDField({required: true, blank: false, type: 'Actor'}), { required: true, initial: [] }),
   journals: new fields.ArrayField(schemas.RelatedJournal(), { required: true, initial: [] }),
+
+  // generic foundry doc storage
+  foundryDocuments: new fields.ArrayField(new fields.DocumentUUIDField({required: true, blank: false }), { required: true, initial: [] }),
 
   // used only for characters/pcs
   speciesId: new fields.StringField({ required: false, nullable: false, textSearch: false, }),
@@ -79,5 +82,6 @@ export interface EntryDoc extends JournalEntryPage {
     scenes: string[];
     actors: string[];
     journals: RelatedJournal[];
+    foundryDocuments: string[];
   };
 }

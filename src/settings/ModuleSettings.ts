@@ -43,6 +43,7 @@ export enum SettingKey {
   useWebs = 'useWebs', // allow creation and viewing of story webs
   subTabsSavePosition = 'subTabsSavePosition', // whether sub-tabs remember their last position
   storyWebAutoArrange = 'storyWebAutoArrange', // whether to enable physics in story webs
+  genericFoundryTab = 'genericFoundryTab', // whether to show the generic Foundry tab on entries
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
@@ -99,6 +100,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.useWebs ? boolean :
     K extends SettingKey.subTabsSavePosition ? boolean :
     K extends SettingKey.storyWebAutoArrange ? boolean :
+    K extends SettingKey.genericFoundryTab ? boolean :
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.customFieldsMenu ? never :
     K extends SettingKey.APIURL ? string :
@@ -301,6 +303,14 @@ export class ModuleSettings {
       name: 'settings.storyWebAutoArrange',
       hint: 'settings.storyWebAutoArrangeHelp',
       default: true,
+      requiresReload: true,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.genericFoundryTab,
+      name: 'settings.genericFoundryTab',
+      hint: 'settings.genericFoundryTabHelp',
+      default: false,
       requiresReload: true,
       type: Boolean,
     },

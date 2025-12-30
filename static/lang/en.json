@@ -36,6 +36,8 @@
       },
       "autoRefreshRollTables": "Automatically refresh RollTables",
       "autoRefreshRollTablesHelp": "When enabled, generator roll tables will be automatically refreshed with new values when the module loads",
+      "genericFoundryTab": "Show Foundry tab on Entries",
+      "genericFoundryTabHelp": "When enabled, Entries will have a Foundry tab that can hold any type of Foundry document (scenes, actors, items, etc.). This is useful for driving play sessions entirely from Entries without using Campaigns/Sessions.",
       "rollTableSettings": "Roll Table Settings",
       "rollTableSettingsLabel": "Roll Table Settings",
       "rollTableSettingsHelp": "Configure settings for the random generators",
@@ -440,6 +442,7 @@
         "addLocationDrag": "(or drag/drop a location)",
         "addVignette": "Add vignette",
         "addLore": "Add lore",
+        "addDocumentDrag": "(drag/drop any Foundry document)",
         "addLoreDrag": "(or drag/drop a journal entry)",
         "addNPC": "Add NPC",
         "addNPCDrag": "(or drag/drop a character)",
@@ -523,7 +526,8 @@
           "characters": "Characters",
           "locations": "Locations",
           "pcs": "PCs",
-          "organizations": "Organizations"
+          "organizations": "Organizations",
+          "foundry": "Foundry"
         },
         "campaign": {
           "pcs": "PCs",

@@ -34,6 +34,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     scenes: [],  
     actors: [],  
     journals: [],  
+    foundryDocuments: [],  
     speciesId: undefined,
     playerName: '',
     actorId: null,
@@ -283,7 +284,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     if (!this._clone.system.scenes)
       this._clone.system.scenes = [];
 
-    return this._clone.system.scenes as unknown as string[];
+    return this._clone.system.scenes;
   }  
 
   // we don't track cumulative update - save just always saves the arrays
@@ -296,7 +297,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     if (!this._clone.system.actors)
       this._clone.system.actors = [];
 
-    return this._clone.system.actors as unknown as string[];
+    return this._clone.system.actors;
   }  
 
   // we don't track cumulative update - save just always saves the arrays
@@ -310,6 +311,19 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
       this._clone.system.journals = [];
 
     return this._clone.system.journals as unknown as RelatedJournal[];
+  }
+
+  // we don't track cumulative update - save just always saves the arrays
+  public set foundryDocuments(value: string[]) {
+    this._clone.system.foundryDocuments = value;
+  }
+
+  public get foundryDocuments(): string[] {
+    // create the array if it doesn't exist
+    if (!this._clone.system.foundryDocuments)
+      this._clone.system.foundryDocuments = [];
+
+    return this._clone.system.foundryDocuments;
   }
 
   // we don't track cumulative update - save just always saves the arrays

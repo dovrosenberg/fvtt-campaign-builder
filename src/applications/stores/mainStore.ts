@@ -383,6 +383,8 @@ export const useMainStore = defineStore('main', () => {
         return DocumentLinkType.Scenes;
       case 'actors':
         return DocumentLinkType.Actors;
+      case 'foundry':
+        return DocumentLinkType.GenericFoundry;
       default:
         return DocumentLinkType.None;
     }
