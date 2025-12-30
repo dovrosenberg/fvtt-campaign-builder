@@ -8,7 +8,6 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game'; 
-import { htmlToPlainTextReplaceUuid } from '@/utils/sanitizeHtml';
 import { getArcForSession } from '@/utils/arcIndex';
 
 // types
@@ -69,7 +68,7 @@ export const useSessionStore = defineStore('session', () => {
     [SessionTableTypes.Monster]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onMonsterClick },
-      { field: 'number', header: 'Number', editable: true, smallEditBox: true },
+      { field: 'number', header: 'Number', style: 'width: 80px; max-width: 80px', editable: true, smallEditBox: true },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ], 
     [SessionTableTypes.Vignette]: [
