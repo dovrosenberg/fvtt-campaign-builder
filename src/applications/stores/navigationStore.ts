@@ -363,9 +363,10 @@ export const useNavigationStore = defineStore('navigation', () => {
         targetContentTab
       );
 
+      // set the target content tab 
+      tab.contentTab = targetContentTab;
       //add to tabs list
       tabs.value.push(tab);
-      tab.addToHistory(contentId, contentType, targetContentTab);
     } else {
       tab = getActiveTab(false);
 
