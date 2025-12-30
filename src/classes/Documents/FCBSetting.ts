@@ -8,7 +8,7 @@ import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/n
 import { useBackendStore } from '@/applications/stores';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Documents/FCBJournalEntryPage';
-import { entryIndexFields, NameStyleExamples, sessionIndexFields, SessionLore, } from '@/documents';
+import { entryIndexFields, NameStyleExamples, } from '@/documents';
 import { cleanKeysOnSave, } from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
 import { ArcBasicIndex, CampaignBasicIndex, EntryFilterIndex, Hierarchy, RelatedJournal, TopicBasicIndex, SessionFilterIndex, SessionIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';

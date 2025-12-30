@@ -11,7 +11,6 @@ import { DirectoryCampaignNode, DirectoryArcNode, DirectoryFrontFolder, Campaign
 import { getArcForSession } from '@/utils/arcIndex';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyWarn } from '@/utils/notifications';
-import { isExternalModuleNameRelative } from 'typescript';
 
 // types
 
@@ -248,7 +247,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       throw new Error('Bad front in campaignDirectoryStore.deleteFront()');
 
     // confirm
-    if (external && !(await FCBDialog.confirmDialog('Delete front?', 'Are you sure you want to delete this front?')))
+    if (!external && !(await FCBDialog.confirmDialog('Delete front?', 'Are you sure you want to delete this front?')))
       return false;
   
     await front.delete(external);
