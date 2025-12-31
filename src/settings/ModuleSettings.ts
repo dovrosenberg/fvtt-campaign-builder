@@ -27,6 +27,7 @@ export interface ImageVisibility {
    top: number;
    width: number;
    height: number;
+   maximized?: boolean;
  }
 
 export enum SettingKey {

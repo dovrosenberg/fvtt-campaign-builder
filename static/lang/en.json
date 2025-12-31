@@ -888,6 +888,8 @@
       "createSetting": "Create Setting",
       "expandDirectory": "Expand directory",
       "collapseDirectory": "Collapse directory",
+      "maximizeWindow": "Maximize window",
+      "restoreWindow": "Restore window",
       "collapseAllTopics": "Collapse all",
       "addBookmark": "Add bookmark",
       "moreBookmarks": "More bookmarks",
