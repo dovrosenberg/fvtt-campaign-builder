@@ -933,7 +933,9 @@
       "moveToArc": "Zum späteren Gebrauch in den Bogen verschieben",
       "movetoLatestArc": "Zum neuesten Bogen verschieben",
       "editSession": "Sitzung bearbeiten",
-      "generateAIContent": "KI-Inhalt generieren"
+      "generateAIContent": "KI-Inhalt generieren",
+      "maximizeWindow": "Fenster maximieren",
+      "restoreWindow": "Fenster wiederherstellen"
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert",

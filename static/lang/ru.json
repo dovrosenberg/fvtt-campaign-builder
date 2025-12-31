@@ -954,7 +954,9 @@
       "moveToArc": "Переместить в арку для последующего использования",
       "movetoLatestArc": "Переместить в последнюю арку",
       "editSession": "Редактировать сессию",
-      "generateAIContent": "Сгенерировать контент ИИ"
+      "generateAIContent": "Сгенерировать контент ИИ",
+      "maximizeWindow": "Развернуть окно",
+      "restoreWindow": "Восстановить окно"
     },
     "errors": {
       "duplicateBookmark": "Уже сохранено как закладка",

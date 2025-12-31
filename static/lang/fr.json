@@ -933,7 +933,9 @@
       "moveToArc": "Déplacer vers l'arc pour une utilisation ultérieure",
       "movetoLatestArc": "Déplacer vers le dernier arc",
       "editSession": "Modifier la session",
-      "generateAIContent": "Générer du contenu IA"
+      "generateAIContent": "Générer du contenu IA",
+      "maximizeWindow": "Agrandir la fenêtre",
+      "restoreWindow": "Restaurer la fenêtre"
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori",
