@@ -2,15 +2,20 @@
   <ConfigDialogLayout ref="contentRef">
     <template #header>
       <div class="standard-form" style="padding: 0.5rem 0;">
-        <div class="form-group">
-          <label>{{ localize('applications.customFields.labels.contentType') }}</label>
-          <div class="form-fields">
+        <div class="flexrow" style="font-size: var(--font-size-16);">
+          <label style="flex: 0 1 auto; padding-right: 20px;">{{ localize('applications.customFields.labels.contentType') }}</label>
+          <div>
             <Select
               v-model="selectedType"
               :options="typeOptions"
               optionLabel="label"
               optionValue="value"
               :placeholder="localize('applications.customFields.labels.selectType')"
+              :pt="{
+                root: {
+                  style: 'width: 200px',
+                },
+              }"
             />
           </div>
         </div>
