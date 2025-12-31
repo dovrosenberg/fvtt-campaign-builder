@@ -272,16 +272,14 @@
     </template>
 
     <template #footer>
-      <footer class="form-footer" data-application-part="footer">
-        <button @click="onResetClick">
-          <i class="fa-solid fa-undo"></i>
-          <label>{{ localize('labels.reset') }}</label>
-        </button>
-        <button class="fcb-save-button" @click="onSaveClick" :disabled="selectedType === null">
-          <i class="fa-solid fa-save"></i>
-          <label>{{ localize('labels.saveChanges') }}</label>
-        </button>
-      </footer>
+      <button @click="onResetClick">
+        <i class="fa-solid fa-undo"></i>
+        <label>{{ localize('labels.reset') }}</label>
+      </button>
+      <button class="fcb-save-button" @click="onSaveClick" :disabled="selectedType === null">
+        <i class="fa-solid fa-save"></i>
+        <label>{{ localize('labels.saveChanges') }}</label>
+      </button>
     </template>
   </ConfigDialogLayout>
 
