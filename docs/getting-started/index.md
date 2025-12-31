@@ -33,6 +33,9 @@ That's basically it - everything else is optional.  Some other things you'll lik
   * Click on the image box to assign an image
   * Add relationships to other entries on the other tabs 
 
+> [!NOTE]
+> Don't like the default fields on your Entries (or Setting, Campaigns, Sessions, or Fronts)?  You can [customize them](/reference/configuration/custom-fields) to your liking in [Module Settings].
+
 Check out the [World Building Guide](/guide/world-building/) for more information.
 
 ## Running a Campaign
