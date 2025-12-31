@@ -94,7 +94,11 @@
         {{ localize('labels.loading') }}...
       </template>
 
-      <Column v-if="props.canReorder" :rowReorder="true" headerStyle="width: 3rem" :reorderableColumn="false" />
+      <Column v-if="props.canReorder" :rowReorder="true" headerStyle="width: 10px; whitespace: nowrap;" :reorderableColumn="false">
+        <template #rowreordericon>
+          <i class="fas fa-grip-vertical"></i>
+        </template>
+      </Column>
 
       <Column 
         v-for="col of props.columns" 
@@ -102,7 +106,6 @@
         :field="col.field" 
         :header="col.header" 
         :header-style="col.style"
-        :body-style="col.style"
         :sortable="props.canReorder ? false : col.sortable"
       >
         <template #body="{ data, field }">
@@ -134,7 +137,7 @@
             </div>
           </div>
 
-          <!-- DRAG HANDLE -->
+          <!-- DRAG HANDLE (FOR DRAGGING ELSEWHERE) -->
           <div v-else-if="field === 'drag'">
             <div 
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
