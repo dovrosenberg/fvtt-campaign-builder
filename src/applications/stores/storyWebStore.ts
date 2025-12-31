@@ -1278,6 +1278,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   }
 
   const onNetworkDoubleClick = async (eventInfo: NetworkClickEventInfo) => {
+    if (isConnectionMode.value)
+      return;
+    
     // nodes is a list of nodes clicked on
     // edges is either edges clicked on or could be edges connected to nodes clicked
     const { nodes, edges, pointer } = eventInfo;
@@ -1294,6 +1297,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   }
 
   const onDragStart = (eventInfo: NetworkClickEventInfo) => {
+    if (isConnectionMode.value)
+      return;
+    
     const network = toRaw(currentNetwork.value);
     if (!network)
       return;
@@ -1495,6 +1501,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   };
 
   const onNetworkContentMenu = (eventInfo: NetworkClickEventInfo) => {
+    if (isConnectionMode.value)
+      return;
+
     // nodes is a list of nodes clicked on
     // edges is either edges clicked on or could be edges connected to nodes clicked
     const { pointer, event } = eventInfo;
@@ -1552,9 +1561,13 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     };
 
     // Disable physics and node dragging during connection mode
+    // also turn off hover mode because we handle it ourselves
     toRaw(currentNetwork.value).setOptions({
       physics: { enabled: false },
-      interaction: { dragNodes: false }
+      interaction: { 
+        dragNodes: false,
+        hover: false
+      }
     });
 
     // Get canvas element and add DOM event listeners
@@ -1584,8 +1597,12 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
 
     // Re-enable physics and node dragging
     toRaw(currentNetwork.value).setOptions({
-      physics: { enabled: ModuleSettings.get(SettingKey.storyWebAutoArrange) },
-      interaction: { dragNodes: true }
+      // @ts-ignore
+      physics: ModuleSettings.get(SettingKey.storyWebAutoArrange) ? window.fcbStoryWebPhysics : false,      
+      interaction: { 
+        dragNodes: true,
+        hover: true
+      }
     });
 
     // Remove DOM event listeners from canvas
@@ -1785,8 +1802,10 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     
     if (nodeUnderCursor && connectionStartNode.value) {
       const isValid = isValidConnection(connectionStartNode.value, nodeUnderCursor as string);
-      
-      if (isValid && highlightedNode.value !== nodeUnderCursor) {
+      if (!isValid) {
+        toRaw(currentNetwork.value).unselectAll();
+        highlightedNode.value = null;
+      } else if (highlightedNode.value !== nodeUnderCursor) {
         // Clear previous highlight
         if (highlightedNode.value) {
           toRaw(currentNetwork.value).unselectAll();
@@ -1794,13 +1813,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
         // Highlight new valid node
         toRaw(currentNetwork.value).selectNodes([nodeUnderCursor as string]);
         highlightedNode.value = nodeUnderCursor as string;
-      } else if (!isValid && highlightedNode.value) {
-        // Clear highlight if hovering over invalid node or empty space
-        toRaw(currentNetwork.value).unselectAll();
-        highlightedNode.value = null;
       }
-    } else if (highlightedNode.value) {
-      // Clear highlight if hovering over empty space
+    } else {
+      // Clear highlight if hovering over empty space or there's no start node
       toRaw(currentNetwork.value).unselectAll();
       highlightedNode.value = null;
     }
@@ -1835,8 +1850,9 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
   };
 
   const onConnectionModeKeydown = (event: KeyboardEvent) => {
-    event.stopImmediatePropagation(); // make sure foundry doesn't handle it
     if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopImmediatePropagation(); // make sure foundry doesn't handle it
       endConnectionMode();
     }
   };
