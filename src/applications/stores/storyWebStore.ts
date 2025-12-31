@@ -643,22 +643,34 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     if (!currentStoryWeb.value || !currentNetwork.value)
       return;
 
-    // confirm
     const nodes = toRaw(currentNetwork.value).getConnectedNodes(edgeId) as string[];
-
-    // show confirmation if both are entries
     const node1 = currentStoryWeb.value?.nodes.find(n => n.uuid === nodes[0]);
     const node2 = currentStoryWeb.value?.nodes.find(n => n.uuid === nodes[1]);
 
     if (!node1 || !node2) 
       throw new Error('Missing node in storyWebStore.removeEdge()');
 
+    // first handle non-custom cases
     if (node1?.source !== StoryWebNodeSource.Custom && node2?.source !== StoryWebNodeSource.Custom) {
+      // show confirmation for non-custom ones
       const result = await FCBDialog.confirmDialog(localize('labels.storyWeb.removeRelationship'), localize('labels.storyWeb.removeRelationshipConfirm'));
       if (!result)
         return;
 
-      await relationshipStore.deleteArbitraryRelationship(node1.uuid, node2.uuid);
+      const node1Danger = node1.type === StoryWebNodeTypes.Danger;
+      const node2Danger = node2.type === StoryWebNodeTypes.Danger;
+
+      // Handle danger-entry connections
+      if (node1Danger || node2Danger) {
+        // Remove the entry from the danger's participants
+        await removeDangerParticipant(
+          node1Danger ? node1.uuid : node2.uuid,
+          node1Danger ? node2.uuid : node1.uuid
+        );
+      } else {
+        // Regular entry-entry relationship
+        await relationshipStore.deleteArbitraryRelationship(node1.uuid, node2.uuid);
+      }
     } 
 
     // if either edge was implicit, remove that one too - unless it's attached to something else
@@ -680,6 +692,30 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     
     // refresh the drawing
     await mainStore.refreshStoryWeb();
+  };
+
+  /** Remove a participant from a danger */
+  const removeDangerParticipant = async (dangerId: string, participantUuid: string): Promise<void> => {
+    // dangerId is in format "frontUuid|dangerIndex"
+    const [frontId, dangerIndex] = dangerId.split('|');
+    const front = await Front.fromUuid(frontId);
+    if (!front)
+      throw new Error(`Front not found for danger ${dangerId}`);
+
+    const dangerNum = Number.parseInt(dangerIndex);
+    if (dangerNum < 0 || dangerNum >= front.dangers.length)
+      throw new Error(`Invalid danger index ${dangerIndex} for front ${frontId}`);
+
+    const danger = front.dangers[dangerNum];
+    if (!danger)
+      throw new Error(`Danger not found in storyWebStore.removeDangerParticipant() for danger ${dangerId}`);
+    
+    // Filter out the participant
+    danger.participants = danger.participants.filter(p => p.uuid !== participantUuid);
+    
+    // Update the danger
+    front.updateDanger(dangerNum, danger);
+    await front.save();
   };
 
   ///////////////////////////////

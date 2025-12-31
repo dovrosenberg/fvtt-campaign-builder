@@ -21,6 +21,7 @@
 - You can now drag Settings, Entries, Campaigns, Arcs, Sessions, Fronts and Story Webs from the directory onto a Foundry scene to create a Map Note that will then directly open the content in Campaign Builder.
 - You can now drag/drop a Front onto a Story Web and it will add all of the Front's Dangers to the Story Web.  Hold control to also get all of each Danger's participants.  Similarly, you can right click on a Front in the directory to have menu options to do that.
 - Fixed styling on the various module settings submenu windows.
+- Deleting a connection between a Danger and an Entry on a Story Web, now works properly.  
 
 ## 1.7.4 - Fixed journal entry direct-open bug
 ![](https://img.shields.io/badge/release%20date-December%2023%2C%202025-blue)
