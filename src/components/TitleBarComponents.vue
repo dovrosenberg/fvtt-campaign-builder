@@ -126,27 +126,16 @@
         top: 0,
         width: 500000,
         height: 500000
-      }, true);      
-
-      // Save maximized state to settings
-      await ModuleSettings.set(SettingKey.mainWindowBounds, {
-        ...previousBounds,
-        maximized: true
-      });
+      });      
     } else {
       const previousBounds = ModuleSettings.get(SettingKey.mainWindowBounds) || { left: 0, top: 0, width: 900, height: 600 };
+
       app.setPosition({
         left: previousBounds.left,
         top: previousBounds.top,
         width: previousBounds.width,
         height: previousBounds.height
-      }, true);
-      
-      // Save maximized state to settings
-      await ModuleSettings.set(SettingKey.mainWindowBounds, {
-        ...previousBounds,
-        maximized: false
-      });
+      });      
     }
   }
   
@@ -156,7 +145,13 @@
   }
 
   const onToggleMaximize = async () => {
-    isMaximized.value = !isMaximized.value;  }
+    isMaximized.value = !isMaximized.value; 
+ 
+    await ModuleSettings.set(SettingKey.mainWindowBounds, {
+      ...ModuleSettings.get(SettingKey.mainWindowBounds),
+      maximized: isMaximized.value
+    });
+  }
 
 
   // Watchers
@@ -166,7 +161,7 @@
   
   watch(() => isMaximized.value, () => {
     renderRightSize();
-  }, { immediate: true });
+  });
 
 
   watch(() => currentSetting.value, async (newSetting) => {
@@ -183,14 +178,10 @@
     toggleValue.value = isInPlayMode.value && playableCampaignExists.value;
     
     // Load maximized state from settings and restore if needed
-    const savedBounds = ModuleSettings.get(SettingKey.mainWindowBounds);
-    if (savedBounds?.maximized) {
+    const maximized = ModuleSettings.get(SettingKey.mainWindowBounds)?.maximized || false;
+    if (maximized) {
       isMaximized.value = true;
-
-      // Wait a bit for the app to fully render before maximizing
-      setTimeout(() => {
         renderRightSize();
-      }, 100);
     }
   });
 </script>

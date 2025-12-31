@@ -279,11 +279,12 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
   }
 
   // capture the window position (after debouncing)
-  // use skipSave for manual positioning (i.e. maximize) that you don't want to save
-  override setPosition(position: any = {}, skipSave = false): foundry.applications.api.ApplicationV2.Position {
+  override setPosition(position: any = {}): foundry.applications.api.ApplicationV2.Position {
     const result = super.setPosition(position);
 
-    if (!skipSave && !this._suppressBoundsSave) {
+    // if it's maximized, don't save the bounds
+    const maximized = ModuleSettings.get(SettingKey.mainWindowBounds)?.maximized || false;
+    if (!maximized && !this._suppressBoundsSave) {
       if (this._boundsSaveTimeout != null) {
         window.clearTimeout(this._boundsSaveTimeout);
       }
@@ -304,13 +305,12 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
           height > 0
         ) {
           // Get current bounds to preserve maximized state
-          const currentBounds = ModuleSettings.get(SettingKey.mainWindowBounds) || {};
           void ModuleSettings.set(SettingKey.mainWindowBounds, { 
             left, 
             top, 
             width, 
             height,
-            maximized: currentBounds.maximized || false
+            maximized: false
           });
         }
       }, 250);
