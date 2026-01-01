@@ -543,7 +543,7 @@
       return;
     }
 
-    notifyInfo(`${currentEntry.value.name} ${localize('notifications.addedToSession')}`);
+    notifyInfo(`${currentEntry.value.name} ${localize('notifications.addedToSession')}: ${session.name} (#${session.number})`);
     await updatePushButton();// # of available changed
   };
 
