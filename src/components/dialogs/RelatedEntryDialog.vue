@@ -196,14 +196,19 @@
   };
   
   const onCreateClick = async function() {
-    // the simplest way to do this is do the create box first and then just pretend like we added it
-    const newEntry = await FCBDialog.createEntryDialog(props.topic, { generateMode: true } );
+    try {
+      // the simplest way to do this is do the create box first and then just pretend like we added it
+      const newEntry = await FCBDialog.createEntryDialog(props.topic, { generateMode: true } );
 
-    if (newEntry) {
-      await onMainButtonClick(newEntry.uuid, {});
+      if (newEntry) {
+        await onMainButtonClick(newEntry.uuid, {});
+      }
+    } catch (error) {
+      console.error('Error in create entry dialog:', error);
+    } finally {
+      // Always reset the dialog, even if there was an error or cancellation
+      resetDialog();
     }
-
-    resetDialog();
   }
 
   const onCancelClick = function() {
@@ -225,30 +230,36 @@
       if (!currentSetting.value)
         return;
       
-      let entries = [] as {id: string; label: string}[];
-      switch (props.mode) {
-        case RelatedEntryDialogModes.ArcLocation:
-          if (!currentArc.value)
-            throw new Error('Trying to show RelatedEntryDialog in arc location mode without a current arc');
-          
-          // locations only
-          entries = (currentSetting.value.topics[Topics.Location]?.entries || []).map(mapEntryToOption);
-          break;
-        default:
-          if (!currentSession.value && !(currentEntry.value && currentEntryTopic.value))
-            throw new Error('Trying to show RelatedEntryDialog without a current entry/session/front');
+      try {
+        let entries = [] as {id: string; label: string}[];
+        switch (props.mode) {
+          case RelatedEntryDialogModes.ArcLocation:
+            if (!currentArc.value)
+              throw new Error('Trying to show RelatedEntryDialog in arc location mode without a current arc');
+            
+            // locations only
+            entries = (currentSetting.value.topics[Topics.Location]?.entries || []).map(mapEntryToOption);
+            break;
+          default:
+            if (!currentSession.value && !(currentEntry.value && currentEntryTopic.value))
+              throw new Error('Trying to show RelatedEntryDialog without a current entry/session/front');
 
-          entries = (currentSetting.value.topics[props.topic]?.entries || []).map(mapEntryToOption);
-      }
+            entries = (currentSetting.value.topics[props.topic]?.entries || []).map(mapEntryToOption);
+        }
 
-      selectItems.value = entries;
-      
-      if (currentSession.value) {
-        extraFields.value = currentSession.value ? [] : relationshipStore.extraFields[currentEntryTopic.value][props.topic];
-      } else if (currentArc.value) {
-        extraFields.value = [];
-      } else {
-        extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
+        selectItems.value = entries;
+        
+        if (currentSession.value) {
+          extraFields.value = currentSession.value ? [] : relationshipStore.extraFields[currentEntryTopic.value][props.topic];
+        } else if (currentArc.value) {
+          extraFields.value = [];
+        } else {
+          extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
+        }
+      } catch (error) {
+        console.error('Error initializing RelatedEntryDialog:', error);
+        // Reset dialog state if there's an error
+        resetDialog();
       }
     }
   });
