@@ -18,8 +18,6 @@
     </a>
     <div
       class="fcb-editor"
-      @drop="onDrop"
-      @dragover="onDragover"
     >
       <!-- this reproduces the Vue editor() Handlebars helper -->
       <!-- editorVisible used to reset the DOM by toggling-->
@@ -220,7 +218,9 @@
       const editorDom = proseMirrorView.dom;
       
       // Add our custom drop handler to the ProseMirror DOM element
-      editorDom.addEventListener('drop', onDrop);
+      editorDom.addEventListener('dragover', onDragover);
+      editorDom.addEventListener('drop', onDrop, true);  // capture=true makes it override prosemirror default handler
+
     }
 
     // we have to do this whole thing with lastSavedContent and sessionStore.lastSavedNotes because Foundry cleans the html in a different
