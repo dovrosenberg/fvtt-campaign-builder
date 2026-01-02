@@ -12,7 +12,7 @@
     help-link="https://slyflourish.com/lazy_magic_items.html"
     @add-item="showItemPicker=true"
     @drop-new="onDropNew"
-    @dragoverNew="onDragoverNew"
+    @dragoverNew="standardDragover"
     @dragstart="onDragStart"
     @cell-edit-complete="onCellEditComplete"
   />
@@ -31,7 +31,7 @@
   // local imports
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
   import { localize, } from '@/utils/game'
-  import { getValidatedData, itemDragStart } from '@/utils/dragdrop';
+  import { getValidatedData, itemDragStart, standardDragover } from '@/utils/dragdrop';
 
   // library components
 	
@@ -116,14 +116,6 @@
   // event handlers
   const onItemAdded = async (documentUuid: string) => {
     await sessionStore.addItem(documentUuid);
-  }
-
-  const onDragoverNew = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
   }
 
   const onDropNew = async (event: DragEvent) => {

@@ -13,7 +13,7 @@
 
         @cell-click="onCellClick"
         @drop-new="onDropNew"
-        @dragover="onDragover"
+        @dragover="standardDragover"
         @add-item="showPicker = true"
       />
       <RelatedDocumentsDialog
@@ -41,7 +41,7 @@
 
   // types
   import { FoundryDragType, RelatedJournal } from '@/types';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
 
   ////////////////////////////////
   // props
@@ -153,14 +153,6 @@
     const page = await fromUuid<JournalEntryPage>(row.pageUuid);
     await page?.sheet?.render(true);
   };
-
-  function onDragover(event: DragEvent) {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
 
   async function onDropNew(event: DragEvent) {
     event.preventDefault();

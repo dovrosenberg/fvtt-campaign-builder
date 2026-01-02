@@ -9,7 +9,7 @@
     :allow-edit="true"
     :help-text="localize('labels.arc.participantHelpText')"
     @add-item="onAddItem"
-    @dragoverNew="onDragoverNew"
+    @dragoverNew="standardDragover"
     @drop-new="onDropNew"
     @cell-edit-complete="onCellEditComplete"
   />
@@ -34,7 +34,7 @@
   import { ArcTableTypes, useArcStore, useMainStore } from '@/applications/stores';
   import { Topics, CellEditCompleteEvent, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
   import { getTopicText } from '@/compendia';
   import { notifyInfo } from '@/utils/notifications';
   import { mapEntryToOption } from '@/utils/misc';
@@ -144,14 +144,6 @@
     await arcStore.updateParticipantNotes(data.uuid, newValue as string);
   }
   
-  const onDragoverNew = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
-
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 

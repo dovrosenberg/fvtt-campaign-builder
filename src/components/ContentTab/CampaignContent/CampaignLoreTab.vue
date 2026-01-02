@@ -16,8 +16,8 @@
       help-link="https://slyflourish.com/sharing_secrets.html"
       @add-item="onAddLore"
       @cell-edit-complete="onCellEditComplete"
-      @dragover-new="onDragover"
-      @dragover-row="onDragover"
+      @dragover-new="standardDragover"
+      @dragover-row="standardDragover"
       @drop-row="onDropRow"
       @drop-new="onDropNew"
       @reorder="onReorderAvailable"
@@ -50,7 +50,7 @@
   // local imports
   import { useCampaignStore, CampaignTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
 
   // library components
 	
@@ -220,14 +220,6 @@
 
   const moveLoreToArc = async (uuid: string) => {
     await campaignStore.moveLoreToArc(uuid);
-  }
-
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
   }
 
   const onDropNew = async (event: DragEvent) => {

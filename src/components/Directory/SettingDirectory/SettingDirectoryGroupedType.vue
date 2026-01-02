@@ -20,7 +20,7 @@
           class="fcb-directory-type"
           @click="onTypeToggleClick"
           @drop="onDrop"
-          @dragover="onDragover"
+          @dragover="standardDragover"
           @contextmenu="onTypeContextMenu"
         >
           {{ currentType?.name }}
@@ -54,7 +54,7 @@
   import { useSettingDirectoryStore, useMainStore, } from '@/applications/stores';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   import { toTopic } from '@/utils/misc';
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -113,15 +113,6 @@
   const onTypeToggleClick = async () => {
     currentType.value = await settingDirectoryStore.toggleWithLoad(currentType.value, !currentType.value.expanded);
   };
-
-  // you can drop an item on a type and it should reassign the type
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
 
   const onDrop = async (event: DragEvent) => {
     event.preventDefault();  

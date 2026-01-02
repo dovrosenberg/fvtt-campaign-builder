@@ -11,7 +11,7 @@
     :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteRelationship') }]"
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
-    @dragover="onDragover"
+    @dragover="standardDragover"
   />
 
   <RelatedEntryDialog
@@ -32,7 +32,7 @@
   // local imports
   import { useCampaignStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
 
   // library components
 
@@ -120,14 +120,6 @@
   const onDeleteItemClick = async function(_id: string) {
     void campaignStore.deletePC(_id); 
   };
-
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
 
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  

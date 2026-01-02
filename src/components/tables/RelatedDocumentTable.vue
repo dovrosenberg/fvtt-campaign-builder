@@ -12,7 +12,7 @@
 
     @row-context-menu="onRowContextMenu"
     @drop-new="onDropNew"
-    @dragover="onDragover"
+    @dragover="standardDragover"
     @dragstart="onDragStart"
     @add-item="onAddItem"
   />
@@ -33,7 +33,7 @@
   // local imports
   import { useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { getValidatedData, actorDragStart, itemDragStart, foundryDragStart } from '@/utils/dragdrop';
+  import { getValidatedData, actorDragStart, itemDragStart, foundryDragStart, standardDragover } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
 
   // library components
@@ -281,14 +281,6 @@
       }
     }
   };
-
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
 
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  

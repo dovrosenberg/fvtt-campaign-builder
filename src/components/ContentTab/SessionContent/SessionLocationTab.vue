@@ -12,7 +12,7 @@
     help-link="https://slyflourish.com/designing_fantastic_locations.html"
     :can-reorder="false"
     @add-item="showLocationPicker=true"
-    @dragover-new="onDragoverNew"
+    @dragover-new="standardDragover"
     @dropNew="onDropNew"
     @cell-edit-complete="onCellEditComplete"
   />
@@ -34,7 +34,7 @@
   import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes } from '@/applications/stores';
   import { Topics, RelatedEntryDialogModes, CellEditCompleteEvent, EntryNodeDragData, } from '@/types';
   import { localize } from '@/utils/game'
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
 
   // library components
@@ -166,14 +166,6 @@
       }
     }
   };
-
-  const onDragoverNew = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
 
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  

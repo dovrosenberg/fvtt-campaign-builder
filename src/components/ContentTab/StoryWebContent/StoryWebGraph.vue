@@ -4,7 +4,7 @@
       ref="networkContainer" 
       class="network-container"
       @drop="onDrop"
-      @dragover="onDragover"
+      @dragover="standardDragover"
       @keydown="onKeydown"
     >
       <!-- Debug: StoryWebGraph rendered -->
@@ -53,7 +53,7 @@
 
   // local imports
   import { useStoryWebStore } from '@/applications/stores';
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
   import { localize } from '@/utils/game';
   
   // library components
@@ -129,15 +129,6 @@
       }
     });
   }
-
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    // make sure it's a legit droppable
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  };
 
   const onDrop = async (event: DragEvent) => {
     event.stopPropagation();

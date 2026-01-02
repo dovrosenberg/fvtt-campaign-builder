@@ -11,7 +11,7 @@
 
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
-    @dragover="onDragover"
+    @dragover="standardDragover"
     @cell-edit-complete="onCellEditComplete"
   />
 
@@ -41,8 +41,9 @@
   import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { Entry } from '@/classes';
-  import { getValidatedData, getType } from '@/utils/dragdrop';
+  import { getValidatedData, getType, standardDragover } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
+
 
   // library components
 
@@ -214,14 +215,6 @@
   const onAddItemClick = () => {
     addDialogShow.value = true;
   };
-
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
 
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();

@@ -9,7 +9,7 @@
     :allow-edit="true"
     :help-text="localize('labels.session.npcHelpText')"
     @add-item="showNPCPicker=true"
-    @dragoverNew="onDragoverNew"
+    @dragoverNew="standardDragover"
     @drop-new="onDropNew"
     @cell-edit-complete="onCellEditComplete"
   />
@@ -30,7 +30,7 @@
   import { useSessionStore, SessionTableTypes} from '@/applications/stores';
   import { Topics, RelatedEntryDialogModes, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
 
   // library components
 
@@ -140,14 +140,6 @@
 
   const onMoveNPCToNext = async (uuid: string) => {
     await sessionStore.moveNPCToNext(uuid);
-  }
-
-  const onDragoverNew = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
   }
 
   const onDropNew = async(event: DragEvent) => {

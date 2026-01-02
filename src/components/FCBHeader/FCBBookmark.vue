@@ -7,7 +7,7 @@
     @contextmenu="onBookmarkContextMenu"
     @dragstart="onDragStart"
     @drop="onDrop"
-    @dragover="onDragover"
+    @dragover="standardDragover"
   >
     <div>
       <i 
@@ -30,7 +30,7 @@
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
 
   // local components
 
@@ -130,14 +130,6 @@
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   }; 
-
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
 
   const onDrop = async(event: DragEvent) => {
     event.preventDefault();  

@@ -35,7 +35,7 @@
                   <div 
                     class="fcb-sheet-image"
                     @drop="onDropActor"
-                    @dragover="onDragoverActor"
+                    @dragover="standardDragover"
                     @click="onActorImageClick"
                     @contextmenu.prevent="onImageContextMenu"
                   >
@@ -118,7 +118,7 @@
   import { useMainStore, useNavigationStore, useSettingDirectoryStore, useRelationshipStore } from '@/applications/stores';
   import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
   import { getRelatedEntries } from '@/utils/uuidExtraction';
   import { ModuleSettings, SettingKey } from '@/settings';
   
@@ -213,14 +213,6 @@
 
   ////////////////////////////////
   // event handlers
-  const onDragoverActor = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
-
   const onDropActor = async (event: DragEvent) => {
     event.preventDefault();
     event.stopPropagation();

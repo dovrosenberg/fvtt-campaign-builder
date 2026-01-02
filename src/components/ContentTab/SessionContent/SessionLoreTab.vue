@@ -13,8 +13,8 @@
     :can-reorder="true"
     @add-item="onAddLore"
     @cell-edit-complete="onCellEditComplete"
-    @dragover-new="onDragover"
-    @dragover-row="onDragover"
+    @dragover-new="standardDragover"
+    @dragover-row="standardDragover"
     @drop-row="onDropRow"
     @drop-new="onDropNew"
     @reorder="onReorder"
@@ -30,7 +30,7 @@
   // local imports
   import { useSessionStore, useArcStore, useMainStore, SessionTableTypes, ArcTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
 
   // library components
@@ -203,14 +203,6 @@
       await arcStore.moveLoreToSession(uuid);
     else
       await sessionStore.moveLoreToNext(uuid);
-  }
-
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
   }
 
   const onDropNew = async (event: DragEvent) => {

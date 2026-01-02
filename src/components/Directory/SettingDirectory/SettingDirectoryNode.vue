@@ -17,7 +17,7 @@
           @click="onDirectoryItemClick"
           @dragstart="onDragStart($event, props.node.id, props.node.name)"
           @drop="onDrop"
-          @dragover="onDragover"
+          @dragover="standardDragover"
           @contextmenu="onEntryContextMenu"
         >
           {{ displayName }}
@@ -35,7 +35,7 @@
   // local imports
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, NO_TYPE_STRING, validParentItems } from '@/utils/hierarchy';
-  import { getType, getValidatedData, setCombinedDragData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, setCombinedDragData, standardDragover } from '@/utils/dragdrop';
   import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
@@ -130,14 +130,6 @@
     // Set combined drag data for both canvas drops and internal operations
     setCombinedDragData(event, id, fcbData);
   };
-
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
 
   const onDrop = async (event: DragEvent) => {
     event.preventDefault();  

@@ -13,7 +13,7 @@
     @add-item="onAddParticipant"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
-    @dragover-new="onDragoverNew"
+    @dragover-new="standardDragover"
     @dropNew="onDropNew"
   />
 
@@ -38,7 +38,7 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useFrontStore, useMainStore } from '@/applications/stores';
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
   import { mapEntryToOption } from '@/utils/misc';
   
   // local components
@@ -168,14 +168,6 @@
 
   const onReorder = (reorderedRows: DangerParticipant[]) => {
     frontStore.reorderParticipants(reorderedRows);
-  };
-
-  const onDragoverNew = (event: DragEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
   };
 
   const onDropNew = async (event: DragEvent) => {
