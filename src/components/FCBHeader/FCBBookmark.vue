@@ -72,7 +72,7 @@
     event.preventDefault();
 
     // Don't show context menu for session bookmark
-    if (props.bookmark.id === 'session-bookmark') {
+    if (props.bookmark.id.startsWith('session-')) {
       return;
     }
 
@@ -116,8 +116,8 @@
 
   // handle a bookmark or tab dragging
   const onDragStart = (event: DragEvent): void => {
-    // Don't allow dragging the session bookmark
-    if (props.bookmark.id === 'session-bookmark') {
+    // Don't allow dragging session bookmarks
+    if (props.bookmark.id.startsWith('session-')) {
       event.preventDefault();
       return;
     }
@@ -143,7 +143,7 @@
     event.preventDefault();  
 
     // Don't allow dropping on the session bookmark
-    if (props.bookmark.id === 'session-bookmark') {
+    if (props.bookmark.id.startsWith('session-')) {
       return;
     }
 

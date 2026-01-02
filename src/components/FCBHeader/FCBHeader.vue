@@ -235,7 +235,7 @@
           icon: getTabTypeIcon(WindowTabType.Session)
         },
         tabInfo: {
-          tabType: 'session' as any,
+          tabType: WindowTabType.Session,
           contentId: session.uuid,
         }
       } as Bookmark);
