@@ -39,7 +39,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
-  import { CellEditCompleteEvent } from '@/types';
+  import { FCBDragTypes, CellEditCompleteEvent } from '@/types';
   
   ////////////////////////////////
   // props
@@ -155,7 +155,7 @@
 
     // parse the data  - looking for entry node
     const data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry') {
+    if (!data || getType(data) !== FCBDragTypes.Entry) {
       return;
     }
 

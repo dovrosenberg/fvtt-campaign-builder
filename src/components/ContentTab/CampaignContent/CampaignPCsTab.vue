@@ -41,7 +41,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
   
   // types
-  import { RelatedPCDetails, RelatedEntryDialogModes, Topics, EntryNodeDragData } from '@/types';
+  import { RelatedPCDetails, RelatedEntryDialogModes, Topics, EntryNodeDragData, FCBDragTypes } from '@/types';
   import { Entry } from '@/classes';
   
   ////////////////////////////////
@@ -134,7 +134,7 @@
 
     // parse the data 
     const data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry') {
+    if (!data || getType(data) !== FCBDragTypes.Entry) {
       return;
     }
 

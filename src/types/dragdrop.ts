@@ -1,7 +1,19 @@
 import { ValidTopic } from '@/types';
 
+export enum FCBDragTypes {
+  Entry = 'fcb-entry',
+  StoryWeb = 'fcb-storyWeb',
+  Setting = 'fcb-setting',
+  Front = 'fcb-front',
+  Campaign = 'fcb-campaign',
+  Arc = 'fcb-arc',
+  Session = 'fcb-session',
+  Bookmark = 'fcb-bookmark',
+  Tab = 'fcb-tab',
+}
+
 export interface EntryNodeDragData {
-  type: 'fcb-entry';
+  type: FCBDragTypes.Entry;
   childId: string;
   name: string;
   typeName: string;
@@ -9,48 +21,48 @@ export interface EntryNodeDragData {
 };
 
 export interface StoryWebNodeDragData {
-  type: 'fcb-storyWeb';
+  type: FCBDragTypes.StoryWeb;
   storyWebId: string;
   name: string;
 };
 
 export interface SettingNodeDragData {
-  type: 'fcb-setting';
+  type: FCBDragTypes.Setting;
   settingId: string;
   name: string;
 };
 
 export interface FrontNodeDragData {
-  type: 'fcb-front';
+  type: FCBDragTypes.Front;
   frontId: string;
   name: string;
 };
 
 export interface CampaignNodeDragData {
-  type: 'fcb-campaign';
+  type: FCBDragTypes.Campaign;
   campaignId: string;
   name: string;
 };
 
 export interface ArcNodeDragData {
-  type: 'fcb-arc';
+  type: FCBDragTypes.Arc;
   arcId: string;
   name: string;
 };
 
 export interface SessionNodeDragData {
-  type: 'fcb-session';
+  type: FCBDragTypes.Session;
   sessionId: string;
   name: string;
 };
 
 export interface BookmarkDragDropData {
-  type: 'fcb-bookmark';
+  type: FCBDragTypes.Bookmark;
   bookmarkId: string;
 }
 
 export interface TabDragData {
-  type: 'fcb-tab';
+  type: FCBDragTypes.Tab;
   tabId: string;
 }
 

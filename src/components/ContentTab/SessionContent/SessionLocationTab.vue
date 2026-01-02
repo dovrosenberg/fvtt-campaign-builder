@@ -44,6 +44,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
+  import { FCBDragTypes } from '@/types';
   
   ////////////////////////////////
   // props
@@ -179,7 +180,7 @@
 
     // parse the data - looking for location entries
     const data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry')
+    if (!data || getType(data) !== FCBDragTypes.Entry)
       return;
 
     const fcbEntry = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

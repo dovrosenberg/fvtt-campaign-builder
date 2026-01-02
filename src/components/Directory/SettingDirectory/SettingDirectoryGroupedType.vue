@@ -63,7 +63,7 @@
   import SettingDirectoryGroupedNode from './SettingDirectoryGroupedNode.vue';
 
   // types
-  import { ValidTopic, EntryNodeDragData } from '@/types';
+  import { FCBDragTypes, ValidTopic, EntryNodeDragData } from '@/types';
   import { DirectoryTypeEntryNode, DirectoryTypeNode, Entry } from '@/classes';
 
   
@@ -131,7 +131,7 @@
 
     // parse the data - looking for entries 
     const data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry')
+    if (!data || getType(data) !== FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

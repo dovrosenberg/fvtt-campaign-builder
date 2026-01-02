@@ -51,7 +51,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { Topics, ValidTopic, RelatedEntryDetails, RelatedEntryDialogModes, EntryNodeDragData, ValidTopicRecord, ActionButtonDefinition, CellEditCompleteEvent } from '@/types';
+  import { FCBDragTypes, Topics, ValidTopic, RelatedEntryDetails, RelatedEntryDialogModes, EntryNodeDragData, ValidTopicRecord, ActionButtonDefinition, CellEditCompleteEvent } from '@/types';
   
   interface RelatedEntryGridRow extends Record<string, any> { 
     uuid: string; 
@@ -228,7 +228,7 @@
 
     // parse the data - looking for entry
     let data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry')
+    if (!data || getType(data) !== FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

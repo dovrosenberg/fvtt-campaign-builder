@@ -62,7 +62,7 @@
   // local components
 
   // types
-  import { EntryNodeDragData, FrontNodeDragData } from '@/types';
+  import { FCBDragTypes, EntryNodeDragData, FrontNodeDragData } from '@/types';
 
   ////////////////////////////////
   // props
@@ -167,7 +167,7 @@
     }
 
     // Handle entry drops
-    if (dataType === 'fcb-entry') {
+    if (dataType === FCBDragTypes.Entry) {
       const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;
       if (!fcbData) {
         return;

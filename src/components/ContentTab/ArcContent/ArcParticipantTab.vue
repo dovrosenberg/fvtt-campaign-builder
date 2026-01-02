@@ -47,6 +47,7 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
   
   // types
+  import { FCBDragTypes } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -156,7 +157,7 @@
 
     // parse the data - make sure its an entry
     const data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry') {
+    if (!data || getType(data) !== FCBDragTypes.Entry) {
       return;
     }
 

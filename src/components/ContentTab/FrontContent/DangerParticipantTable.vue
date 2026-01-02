@@ -46,7 +46,7 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, EntryNodeDragData, } from '@/types';
+  import { FCBDragTypes, CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, EntryNodeDragData, } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -182,7 +182,7 @@
     event.preventDefault();
 
     const data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry')
+    if (!data || getType(data) !== FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

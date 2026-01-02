@@ -60,7 +60,7 @@
   import SettingDirectoryNodeComponent from './SettingDirectoryNode.vue';
   
   // types
-  import { EntryNodeDragData, ValidTopic } from '@/types';
+  import { FCBDragTypes, EntryNodeDragData, ValidTopic } from '@/types';
   import { Entry, DirectoryEntryNode, FCBSetting, TopicFolder } from '@/classes';
 
   ////////////////////////////////
@@ -174,7 +174,7 @@
 
     // parse the data - looking for entries
     let data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry')
+    if (!data || getType(data) !== FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;
