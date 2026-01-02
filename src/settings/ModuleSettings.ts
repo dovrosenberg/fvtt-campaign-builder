@@ -37,6 +37,7 @@ export enum SettingKey {
   sessionDisplayMode = 'sessionDisplayMode',  // how to display sessions in the directory
   hideBackendWarning = 'hideBackendWarning', // don't show the warning about no backend
   defaultAddToSession = 'defaultAddToSession', // default state of "Add to current session" checkbox
+  sessionBookmark = 'sessionBookmark', // show a bookmark for the current session
   enableToDoList = 'enableToDoList', // whether the to-do list feature is enabled
   autoRelationships = 'autoRelationships', // whether to automatically suggest relationship changes based on editor
   showTypesInTree = 'showTypesInTree', // show the type of the entry in the hierarchy tree
@@ -109,6 +110,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.selectedTextModel ? ApiCustomGenerateImagePostRequestTextModelEnum :
     K extends SettingKey.selectedImageModel ? ApiCustomGenerateImagePostRequestImageModelEnum :
     K extends SettingKey.defaultAddToSession ? boolean :
+    K extends SettingKey.sessionBookmark ? boolean :
     K extends SettingKey.rollTableSettingsMenu ? never :
     K extends SettingKey.autoRefreshRollTables ? boolean :
     K extends SettingKey.generatorDefaultTypes ? Record<GeneratorType, string> :
@@ -275,6 +277,13 @@ export class ModuleSettings {
       settingID: SettingKey.defaultAddToSession,
       name: 'settings.defaultAddToSession',
       hint: 'settings.defaultAddToSessionHelp',
+      default: true,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.sessionBookmark,
+      name: 'settings.sessionBookmark',
+      hint: 'settings.sessionBookmarkHelp',
       default: true,
       type: Boolean,
     },

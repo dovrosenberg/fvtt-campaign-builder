@@ -1,7 +1,7 @@
 <template>
   <div 
     class="fcb-bookmark-button" 
-    :title="bookmark.header.name" 
+    :title="props.titleOverride ? props.titleOverride : bookmark.header.name" 
     draggable="true"
     @click.left="onBookmarkClick"
     @contextmenu="onBookmarkContextMenu"
@@ -43,7 +43,11 @@
     bookmark: {
       type: Object as PropType<Bookmark>,
       required: true,
-    } 
+    },
+    titleOverride: {
+      type: String,
+      default: '',
+    },
   });
 
   ////////////////////////////////
@@ -66,6 +70,11 @@
   const onBookmarkContextMenu = (event: MouseEvent): void => {
     //prevent the browser's default menu
     event.preventDefault();
+
+    // Don't show context menu for session bookmark
+    if (props.bookmark.id === 'session-bookmark') {
+      return;
+    }
 
     //show our menu
     ContextMenu.showContextMenu({
@@ -107,6 +116,12 @@
 
   // handle a bookmark or tab dragging
   const onDragStart = (event: DragEvent): void => {
+    // Don't allow dragging the session bookmark
+    if (props.bookmark.id === 'session-bookmark') {
+      event.preventDefault();
+      return;
+    }
+
     const dragData = { 
       //from: this.object.uuid 
       type: 'fcb-bookmark',
@@ -126,6 +141,11 @@
 
   const onDrop = async(event: DragEvent) => {
     event.preventDefault();  
+
+    // Don't allow dropping on the session bookmark
+    if (props.bookmark.id === 'session-bookmark') {
+      return;
+    }
 
     // parse the data - looking for bookmarks
     let data = getValidatedData(event) as BookmarkDragDropData | undefined;
@@ -169,6 +189,18 @@
     border: 1px solid var(--fcb-button-border);
     background: var(--fcb-button-bg);
     color: var(--fcb-button-color);
+
+    // Special styling for session bookmark
+    &.fcb-session-bookmark {
+      background: var(--fcb-primary);
+      color: var(--fcb-text-on-primary);
+      font-weight: 600;      
+
+      &:hover {
+        color: var(--fcb-primary);
+        background: var(--fcb-text-on-primary);
+      }
+    }
 
     &#fcb-add-bookmark {
       border-radius: 4px;

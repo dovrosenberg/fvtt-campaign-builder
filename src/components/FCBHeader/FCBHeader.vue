@@ -63,6 +63,7 @@
           v-for="(bookmark, index) in visibleBookmarks"
           :key="bookmark.id"
           :bookmark="bookmark"
+          :title-override="bookmark.id.startsWith('session-') ? `${bookmark.header.name} (${localize('tooltips.currentSession')})` : ''"
           :class="getBookmarkClass(index)"
         />
         
@@ -88,8 +89,10 @@
 
   // local imports
   import { localize } from '@/utils/game';
-  import { useMainStore, useNavigationStore } from '@/applications/stores';
-
+  import { useMainStore, useNavigationStore, } from '@/applications/stores';
+  import { ModuleSettings, SettingKey } from '@/settings';
+  import { getTabTypeIcon } from '@/utils/misc';
+  
   // library components
 
   // local components
@@ -98,7 +101,8 @@
   import PlayModeNavigation from './PlayModeNavigation/PlayModeNavigation.vue';
 
   // types
-  import { Bookmark, } from '@/types';
+  import { Bookmark, SessionDisplayMode, WindowTabType } from '@/types';
+  import { Session } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -120,6 +124,7 @@
   const overflowButton = ref<HTMLElement | null>(null);
   const visibleCount = ref<number>(0); // Start with none visible
   const isOverflowMenuOpen = ref<boolean>(false);
+  const sessionBookmarks = ref<Bookmark[]>([]);
   let resizeObserver: ResizeObserver | null = null;
   
   ////////////////////////////////
@@ -127,23 +132,133 @@
   const visibleBookmarks = computed(() => {
     // Always return all bookmarks initially for measurement
     // The visibility will be controlled by CSS classes
-    return bookmarks.value;
+    const allBookmarks = bookmarks.value;
+    
+    // Add session bookmarks at the front if enabled
+    if (ModuleSettings.get(SettingKey.sessionBookmark) && sessionBookmarks.value.length > 0) {
+      return [...sessionBookmarks.value, ...allBookmarks];
+    }
+    
+    return allBookmarks;
   });
 
   const overflowBookmarks = computed(() => {
-    if (visibleCount.value === 0 || visibleCount.value >= bookmarks.value.length) return [];
-    return bookmarks.value.slice(visibleCount.value);
+    const visible = visibleBookmarks.value;
+    const regularBookmarks = bookmarks.value;
+    const sessionBookmarksCount = ModuleSettings.get(SettingKey.sessionBookmark) ? sessionBookmarks.value.length : 0;
+    
+    if (visibleCount.value === 0 || visibleCount.value >= visible.length) return [];
+    
+    // If we have session bookmarks, we need to account for them in the overflow calculation
+    if (sessionBookmarksCount > 0) {
+      // If the session bookmarks themselves are in overflow, include them
+      if (visibleCount.value === 0) {
+        return visible;
+      }
+      // Otherwise, return overflow of regular bookmarks
+      const regularVisibleCount = Math.max(0, visibleCount.value - sessionBookmarksCount);
+      return regularBookmarks.slice(regularVisibleCount);
+    }
+    
+    return regularBookmarks.slice(visibleCount.value);
   });
 
+  // Watch for changes and update the session bookmarks
+  watch([currentSetting], async () => {
+    if (!ModuleSettings.get(SettingKey.sessionBookmark)) {
+      sessionBookmarks.value = [];
+      return;
+    }
+    
+    const setting = currentSetting.value;
+    if (!setting) {
+      sessionBookmarks.value = [];
+      return;
+    }
+    
+    const bookmarks: Bookmark[] = [];
+    
+    // Get all campaigns in the current setting
+    const campaigns = Object.values(setting.campaigns);
+    
+    for (const campaign of campaigns) {
+      // Skip campaigns with no sessions
+      if (campaign.sessionIndex.length === 0) {
+        continue;
+      }
+      
+      // Get the last session ID from the session index
+      const lastSessionIndex = campaign.sessionIndex[campaign.sessionIndex.length - 1];
+      if (!lastSessionIndex) {
+        continue;
+      }
+      
+      // Get the session using fromUuid
+      const session = await Session.fromUuid(lastSessionIndex.uuid);
+      if (!session) {
+        continue;
+      }
+      
+      // Get session display name based on setting
+      const displayMode = ModuleSettings.get(SettingKey.sessionDisplayMode);
+      let name = '';
+      
+      switch (displayMode) {
+        case SessionDisplayMode.Date:
+          if (session.date) {
+            name = new Date(session.date).toLocaleDateString();
+          } else {
+            name = `${localize('labels.session.session')} ${session.number}`;
+          }
+          break;
+        
+        case SessionDisplayMode.Name:
+          if (session.name && session.name.trim() !== '') {
+            name = session.name;
+          } else {
+            name = `${localize('labels.session.session')} ${session.number}`;
+          }
+          break;
+        
+        case SessionDisplayMode.Number:
+        default:
+          name = `${localize('labels.session.session')} ${session.number}`;
+          break;
+      }
+      
+      // Create bookmark with campaign name as prefix
+      bookmarks.push({
+        id: `session-${campaign.uuid}`,
+        header: {
+          uuid: session.uuid,
+          name: `${name}`,
+          icon: getTabTypeIcon(WindowTabType.Session)
+        },
+        tabInfo: {
+          tabType: 'session' as any,
+          contentId: session.uuid,
+        }
+      } as Bookmark);
+    }
+    
+    sessionBookmarks.value = bookmarks;
+  }, { immediate: true });
+
+
+  ////////////////////////////////
+  // methods
   const getBookmarkClass = (index: number): string => {
     if (index >= visibleCount.value) {
       return 'fcb-bookmark-hidden';
     }
+    // Add special class for session bookmarks
+    const sessionBookmarksCount = ModuleSettings.get(SettingKey.sessionBookmark) ? sessionBookmarks.value.length : 0;
+    if (index < sessionBookmarksCount) {
+      return 'fcb-session-bookmark';
+    }
     return '';
   };
 
-  ////////////////////////////////
-  // methods
   const calculateVisibleBookmarks = (): void => {
     if (!bookmarksContainer.value) {
       visibleCount.value = 0;
@@ -280,16 +395,21 @@
       x: x,
       y: y,
       zIndex: 300,
-      items: overflowBookmarks.value.map((bookmark, index) => ({
-        icon: bookmark.header.icon || 'fa-bookmark',
-        iconFontClass: 'fas',
-        label: bookmark.header.name,
-        customClass: `fcb-overflow-item-${index}`,
-        onClick: () => {
-          isOverflowMenuOpen.value = false;
-          void navigationStore.openContent(bookmark.header.uuid, bookmark.tabInfo.tabType, { newTab: false });
-        }
-      })),
+      items: overflowBookmarks.value.map((bookmark, index) => {
+        // Check if this is a session bookmark
+        const isSessionBookmark = bookmark.id.startsWith('session-');
+        
+        return {
+          icon: bookmark.header.icon || 'fa-bookmark',
+          iconFontClass: 'fas',
+          label: bookmark.header.name,
+          customClass: `fcb-overflow-item-${index}${isSessionBookmark ? ' fcb-session-bookmark' : ''}`,
+          onClick: () => {
+            isOverflowMenuOpen.value = false;
+            void navigationStore.openContent(bookmark.header.uuid, bookmark.tabInfo.tabType, { newTab: false });
+          }
+        };
+      }),
       onClose: () => {
         isOverflowMenuOpen.value = false;
       }
@@ -300,6 +420,10 @@
       const menuElement = document.querySelector('.fcb-bookmark-overflow-menu');
       if (menuElement) {
         overflowBookmarks.value.forEach((bookmark, index) => {
+          // Skip session bookmarks - don't add right-click handler
+          if (bookmark.id.startsWith('session-')) 
+            return;
+          
           const menuItem = menuElement.querySelector(`.fcb-overflow-item-${index}`);
           if (menuItem) {
             menuItem.addEventListener('contextmenu', (e) => {

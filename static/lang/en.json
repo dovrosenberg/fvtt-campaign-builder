@@ -17,6 +17,8 @@
       "displaySessionNotesHelp": "When enabled, a session notes window will automatically open when a play session starts",
       "defaultAddToSession": "Default 'Add to current session'",
       "defaultAddToSessionHelp": "When in play mode, should the checkbox when creating an entry default to on or off?",
+      "sessionBookmark": "Display Session bookmark",
+      "sessionBookmarkHelp": "When enabled, a bookmark for the current Session will be shown at the front of the bookmark bar",
       "sessionDisplayMode": "Session display format",
       "sessionDisplayModeHelp": "Choose how sessions are displayed in the campaign directory",
       "sessionDisplayModeOptions": {
@@ -893,6 +895,7 @@
       "collapseAllTopics": "Collapse all",
       "addBookmark": "Add bookmark",
       "moreBookmarks": "More bookmarks",
+      "currentSession": "current session",
       "campaignComplete": "Campaign complete",
       "arcComplete": "Arc complete",
       "historyBack": "Back",
