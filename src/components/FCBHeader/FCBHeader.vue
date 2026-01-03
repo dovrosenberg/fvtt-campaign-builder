@@ -89,7 +89,7 @@
 
   // local imports
   import { localize } from '@/utils/game';
-  import { useMainStore, useNavigationStore, } from '@/applications/stores';
+  import { useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { getTabTypeIcon } from '@/utils/misc';
   
@@ -114,8 +114,10 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentSetting, } = storeToRefs(mainStore);
   const { tabs, bookmarks } = storeToRefs(navigationStore);
+  const { currentCampaignTree } = campaignDirectoryStore;
 
   ////////////////////////////////
   // data
@@ -152,7 +154,8 @@
   });
 
   // Watch for changes and update the session bookmarks
-  watch([currentSetting], async () => {
+  // Watch currentCampaignTree.value to detect when campaigns/sessions are added/deleted
+  watch([currentSetting, () => currentCampaignTree.value], async () => {
     if (!ModuleSettings.get(SettingKey.sessionBookmark)) {
       sessionBookmarks.value = [];
       return;
