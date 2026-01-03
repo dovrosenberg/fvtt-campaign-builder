@@ -105,7 +105,10 @@
         }"
       >
         <div class="flexcol form-group">
-          <DangerGrimPortentTable/>
+          <DangerGrimPortentTable
+            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+            @related-entries-changed="(added, removed) => onRelatedEntriesChanged(added, removed)"
+          />
         </div>
       </Panel>
     </div>
