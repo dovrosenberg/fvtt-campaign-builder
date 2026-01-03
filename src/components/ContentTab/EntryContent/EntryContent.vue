@@ -188,6 +188,7 @@
     <!-- Related Items Management Dialog -->
     <RelatedEntriesManagementDialog
       v-model="showRelatedEntriesDialog"
+      :description="localize('dialogs.relatedEntriesManagement.entryDescription')"
       :added-ids="pendingAddedUUIDs"
       :removed-ids="pendingRemovedUUIDs"
       @update="onRelatedEntriesDialogUpdate"

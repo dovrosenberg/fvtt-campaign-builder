@@ -5,10 +5,12 @@
       :title="localize('dialogs.relatedEntriesManagement.title')"
       :buttons="buttons"
     >
-      <h6 style="padding: 10px 0 0 8px">{{ localize('dialogs.relatedEntriesManagement.addedItems') }}</h6>
       <div class="related-entries-management-content primevue-only">
+        <p class="fcb-description">{{ description }}</p>
+
         <!-- Added Items Section -->
-        <div v-if="addedEntries.length > 0" class="section" style="height: 100%">
+        <div v-if="addedEntries.length > 0" class="section">
+          <h3>{{ localize('dialogs.relatedEntriesManagement.addedItems') }}</h3>
           <DataTable
             :value="addedRows"
             v-model:selection="selectedAddedItems"
@@ -92,6 +94,10 @@
     modelValue: {
       type: Boolean,
       default: false,
+    },
+    description: {
+      type: String,
+      required: true,
     },
     addedIds: {
       type: Array as () => string[],
@@ -221,23 +227,26 @@
 
 <style lang="scss" scoped>
 .related-entries-management-content {
-  height: 250px; 
-  overflow: hidden;
+  min-height: 150px;
+  max-height: 60vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   padding: 1rem;
 
   .fcb-description {
-    margin-bottom: 1rem;
+    flex-shrink: 0;
     color: var(--fcb-text);
     font-size: var(--fcb-font-size-large);
     line-height: 1.4;
   }
 
   .section {
+    flex-shrink: 0;
+    
     h3 {
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.5rem;
       font-size: var(--fcb-font-size-header);
       font-weight: 600;
       color: var(--fcb-text);

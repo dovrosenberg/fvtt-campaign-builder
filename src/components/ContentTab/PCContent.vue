@@ -101,6 +101,7 @@
     <!-- Related Items Management Dialog -->
     <RelatedEntriesManagementDialog
       v-model="showRelatedEntriesDialog"
+      :description="localize('dialogs.relatedEntriesManagement.pcDescription')"
       :added-ids="pendingAddedUUIDs"
       :removed-ids="pendingRemovedUUIDs"
       @update="onRelatedEntriesDialogUpdate"

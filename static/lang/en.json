@@ -786,8 +786,12 @@
       },
       "relatedEntriesManagement": {
         "title": "Manage Related Entries",
-        "addedItems": "Add relationships to these?",
-        "removedItems": "Remove relationships from these?"
+        "entryDescription": "Select Entries to link or unlink to this Entry based on your changes.",
+        "sessionDescription": "Select Entries to link or unlink to the Session based on your changes.",
+        "pcDescription": "Select Entries to link or unlink to this PC based on your changes.",
+        "dangerDescription": "Select Participants to add to/remove from this Danger based on your changes.",
+        "addedItems": "New References Found",
+        "removedItems": "References Removed"
       }
     },
     "contextMenus": {
