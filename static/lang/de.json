@@ -81,7 +81,9 @@
       "storyWebSettingsLabel": "Configure Settings",
       "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs",
       "genericFoundryTab": "Zeige Foundry-Tab auf Einträgen",
-      "genericFoundryTabHelp": "Wenn aktiviert, haben Einträge einen Foundry-Tab, der jede Art von Foundry-Dokument (Szenen, Schauspieler, Gegenstände, etc.) enthalten kann. Dies ist nützlich, um Spielsitzungen vollständig von Einträgen aus zu steuern, ohne Kampagnen/Sitzungen zu verwenden."
+      "genericFoundryTabHelp": "Wenn aktiviert, haben Einträge einen Foundry-Tab, der jede Art von Foundry-Dokument (Szenen, Schauspieler, Gegenstände, etc.) enthalten kann. Dies ist nützlich, um Spielsitzungen vollständig von Einträgen aus zu steuern, ohne Kampagnen/Sitzungen zu verwenden.",
+      "sessionBookmark": "Sitzungs-Lesezeichen anzeigen",
+      "sessionBookmarkHelp": "Wenn aktiviert, wird ein Lesezeichen für die aktuelle Sitzung vorne in der Lesezeichenleiste angezeigt"
     },
     "applications": {
       "sessionNotes": {
@@ -674,8 +676,12 @@
       },
       "relatedEntriesManagement": {
         "title": "Verwandte Einträge verwalten",
-        "addedItems": "Beziehungen zu diesen hinzufügen?",
-        "removedItems": "Beziehungen von diesen entfernen?"
+        "addedItems": "Neue Verweise gefunden",
+        "removedItems": "Verweise entfernt",
+        "entryDescription": "Wählen Sie Einträge aus, die basierend auf Ihren Änderungen mit diesem Eintrag verknüpft oder von diesem Eintrag getrennt werden sollen.",
+        "sessionDescription": "Wählen Sie Einträge aus, die basierend auf Ihren Änderungen mit der Sitzung verknüpft oder von der Sitzung getrennt werden sollen.",
+        "pcDescription": "Wählen Sie Einträge aus, die basierend auf Ihren Änderungen mit diesem PC verknüpft oder von diesem PC getrennt werden sollen.",
+        "dangerDescription": "Wählen Sie Teilnehmer aus, die basierend auf Ihren Änderungen zu dieser Gefahr hinzugefügt oder von dieser Gefahr entfernt werden sollen."
       },
       "saveSessionNotes": {
         "title": "Änderungen speichern?",
@@ -690,7 +696,8 @@
         "message": "Sie haben ungespeicherte Änderungen in einem oder mehreren offenen Editoren. Was möchten Sie tun?",
         "save": "Änderungen speichern",
         "discard": "Änderungen verwerfen",
-        "cancel": "Abbrechen"
+        "cancel": "Abbrechen",
+        "uuidChangesMessage": "Sie haben Verweise auf andere Einträge hinzugefügt oder entfernt. Möchten Sie die zugehörigen Einträge aktualisieren?"
       },
       "confirmDeleteParticipant": {
         "title": "Diesen Teilnehmer entfernen?",
@@ -935,7 +942,8 @@
       "editSession": "Sitzung bearbeiten",
       "generateAIContent": "KI-Inhalt generieren",
       "maximizeWindow": "Fenster maximieren",
-      "restoreWindow": "Fenster wiederherstellen"
+      "restoreWindow": "Fenster wiederherstellen",
+      "currentSession": "aktuelle Sitzung"
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert",

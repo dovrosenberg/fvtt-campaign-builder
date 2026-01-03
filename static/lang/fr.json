@@ -81,7 +81,9 @@
       "storyWebSettingsLabel": "Configure Settings",
       "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs",
       "genericFoundryTab": "Afficher l'onglet Foundry sur les entrées",
-      "genericFoundryTabHelp": "Lorsqu'il est activé, les entrées auront un onglet Foundry qui peut contenir tout type de document Foundry (scènes, acteurs, objets, etc.). Cela est utile pour animer des sessions de jeu entièrement à partir des entrées sans utiliser de campagnes/sessions."
+      "genericFoundryTabHelp": "Lorsqu'il est activé, les entrées auront un onglet Foundry qui peut contenir tout type de document Foundry (scènes, acteurs, objets, etc.). Cela est utile pour animer des sessions de jeu entièrement à partir des entrées sans utiliser de campagnes/sessions.",
+      "sessionBookmark": "Afficher le signet de la session",
+      "sessionBookmarkHelp": "Lorsqu'il est activé, un signet pour la session en cours sera affiché en tête de la barre de signets"
     },
     "applications": {
       "sessionNotes": {
@@ -674,8 +676,12 @@
       },
       "relatedEntriesManagement": {
         "title": "Gérer les entrées liées",
-        "addedItems": "Ajouter des relations à ceux-ci ?",
-        "removedItems": "Supprimer les relations de ceux-ci ?"
+        "addedItems": "Nouvelles références trouvées",
+        "removedItems": "Références supprimées",
+        "entryDescription": "Sélectionnez les entrées à lier ou délier à cette entrée en fonction de vos modifications.",
+        "sessionDescription": "Sélectionnez les entrées à lier ou délier à la session en fonction de vos modifications.",
+        "pcDescription": "Sélectionnez les entrées à lier ou délier à ce PC en fonction de vos modifications.",
+        "dangerDescription": "Sélectionnez les participants à ajouter/retirer de ce danger en fonction de vos modifications."
       },
       "saveSessionNotes": {
         "title": "Enregistrer les modifications ?",
@@ -690,7 +696,8 @@
         "message": "Vous avez des modifications non enregistrées dans un ou plusieurs éditeurs ouverts. Que souhaitez-vous faire ?",
         "save": "Enregistrer les modifications",
         "discard": "Annuler les modifications",
-        "cancel": "Annuler"
+        "cancel": "Annuler",
+        "uuidChangesMessage": "Vous avez ajouté ou supprimé des références à d'autres entrées. Souhaitez-vous mettre à jour les entrées concernées ?"
       },
       "confirmDeleteParticipant": {
         "title": "Supprimer ce participant ?",
@@ -935,7 +942,8 @@
       "editSession": "Modifier la session",
       "generateAIContent": "Générer du contenu IA",
       "maximizeWindow": "Agrandir la fenêtre",
-      "restoreWindow": "Restaurer la fenêtre"
+      "restoreWindow": "Restaurer la fenêtre",
+      "currentSession": "session en cours"
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori",
