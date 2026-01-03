@@ -394,8 +394,8 @@
     (e: 'dropRow', event: DragEvent, uuid: string): void;
     (e: 'dropNew', event: DragEvent): void;
     (e: 'setEditingRow', uuid: string): void;
-    (e: 'uuidChanges', uuidChanges: { added: string[]; removed: string[] }): void;
     (e: 'reorder', reorderedRows: BaseTableGridRow[], dragIndex: number, dropIndex: number): void;
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
   }>();
 
   ////////////////////////////////
@@ -536,7 +536,7 @@
       uuidChanges = compareUUIDs(initialUUIDs, currentUUIDs);
 
       if (uuidChanges && (uuidChanges.added.length > 0 || uuidChanges.removed.length > 0)) {
-        emit('uuidChanges', uuidChanges);
+        emit('relatedEntriesChanged', uuidChanges.added, uuidChanges.removed);
       }
     }
 

@@ -39,7 +39,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow, SessionLoreDetails } from '@/types';
+  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow, SessionLoreDetails, FoundryDragType } from '@/types';
   import { SessionLore } from '@/documents';
   
   ////////////////////////////////

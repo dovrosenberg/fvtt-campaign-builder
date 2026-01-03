@@ -119,7 +119,7 @@
   import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import { getValidatedData, standardDragover } from '@/utils/dragdrop';
-  import { getRelatedEntries } from '@/utils/uuidExtraction';
+  import { getEntryRelatedEntries } from '@/utils/uuidExtraction';
   import { ModuleSettings, SettingKey } from '@/settings';
   
   // library components
@@ -271,7 +271,7 @@
     }
 
     // check against current relationships
-    const { added, removed } = await getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
+    const { added, removed } = await getEntryRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
 
     let invalidOnes: string[] = [];
 

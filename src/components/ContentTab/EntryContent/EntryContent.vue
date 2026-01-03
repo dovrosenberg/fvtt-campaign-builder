@@ -210,7 +210,8 @@
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyInfo, notifyWarn } from '@/utils/notifications';  
   import { updateEntryDialog } from '@/dialogs/createEntry';
-  import { getRelatedEntries } from '@/utils/uuidExtraction';
+  import { getEntryRelatedEntries } from '@/utils/uuidExtraction';
+  import { filterRelatedEntries } from '@/utils/relatedContent';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -232,7 +233,6 @@
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
-  import FoundryTab from '@/components/ContentTab/EntryContent/FoundryTab.vue';
   
   // types
   import { CustomFieldContentType, DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal, ContentTabDescriptor } from '@/types';
@@ -648,45 +648,19 @@
   };
 
   const onRelatedEntriesChanged = async (addedUUIDs: string[], removedUUIDs: string[]) => {
-    if (!currentEntry.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
+    if (!currentEntry.value || !currentSetting.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
       return;
     }
 
-    // check against current relationships
-    const { added, removed } = await getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
+    // get the entries we actually need to check
+    const { added, removed } = await getEntryRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
 
-    let invalidOnes: string[] = [];
-
-    // we can only link to things in the current setting's compendium; filter others out quickly
-    for (const uuid of added.concat(removed)) {
-      if (!uuid.startsWith(`Compendium.${currentEntry.value.compendiumId}`))
-        invalidOnes.push(uuid);
-    }
-
-    // remove those
-    let finalAdded = added.filter(uuid => !invalidOnes.includes(uuid));
-    let finalRemoved = removed.filter(uuid => !invalidOnes.includes(uuid));
-
-    // from what's left filter out settings, campaigns, and sessions
-    // we know the uuids are journalentries, so the id is the last 16
-    const ids = added.concat(removed).map(uuid => uuid.slice(-16));
-    const possibleConnections = await currentEntry.value.compendium.getDocuments({ _id__in: ids });
-
-    invalidOnes = [];
-    for (const doc of possibleConnections) {
-      // get the type - we only care about entries
-      if (!doc.pages?.contents ||doc.pages.contents[0].type!==DOCUMENT_TYPES.Entry) {
-        invalidOnes.push(doc.uuid);
-      }
-    }
-  
-    finalAdded = finalAdded.filter(uuid => !invalidOnes.includes(uuid));
-    finalRemoved = finalRemoved.filter(uuid => !invalidOnes.includes(uuid));
+    await filterRelatedEntries(currentSetting.value, added, removed);
 
     // Store the pending changes and show dialog if there are any changes
-    if (finalAdded.length > 0 || finalRemoved.length > 0) {
-      pendingAddedUUIDs.value = finalAdded;
-      pendingRemovedUUIDs.value = finalRemoved;
+    if (added.length > 0 || removed.length > 0) {
+      pendingAddedUUIDs.value = added;
+      pendingRemovedUUIDs.value = removed;
       showRelatedEntriesDialog.value = true;
     }
   };

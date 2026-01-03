@@ -75,6 +75,8 @@
               :initial-content="sessionNotesContent"
               fixed-height="400px"
               :current-entity-uuid="currentSession?.uuid"
+              :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+              @related-entries-changed="onRelatedEntriesChanged"
               @editor-saved="onNotesEditorSaved"
             />
           </div>
@@ -82,6 +84,8 @@
           <CustomFieldsBlocks
             v-if="currentSession"
             :content-type="CustomFieldContentType.Session"
+            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+            @related-entries-changed="onRelatedEntriesChanged"
           />
         </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="pcs">
@@ -128,6 +132,15 @@
       </ContentTabStrip>
     </div>
   </form>	 
+
+  <!-- Related Items Management Dialog -->
+  <RelatedEntriesManagementDialog
+    v-model="showRelatedEntriesDialog"
+    :added-ids="pendingAddedUUIDs"
+    :removed-ids="pendingRemovedUUIDs"
+    @update="onRelatedEntriesDialogUpdate"
+  />
+
 </template>
 
 <script setup lang="ts">
@@ -137,11 +150,13 @@
   import { ref, watch, onBeforeUnmount, computed, } from 'vue';
 
   // local imports
-  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
+  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, useSessionStore, } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { notifyWarn } from '@/utils/notifications';
   import { ModuleSettings, SettingKey } from '@/settings';
+  import { getSessionRelatedEntries } from '@/utils/uuidExtraction';
+  import { filterRelatedEntries } from '@/utils/relatedContent';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -162,10 +177,11 @@
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
+  import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
 
   // types
-  import { ContentTabDescriptor, CustomFieldContentType, WindowTabType } from '@/types';
-  import { Session } from '@/classes';
+  import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType } from '@/types';
+  import { Entry, Session } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -178,8 +194,9 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
+  const sessionStore = useSessionStore();
   const playingStore = usePlayingStore();
-  const { currentSession, isInPlayMode } = storeToRefs(mainStore);
+  const { currentSession, currentSetting, isInPlayMode } = storeToRefs(mainStore);
   const { currentPlayedSessionId, currentPlayedSessionNotes } = storeToRefs(playingStore);
   
   ////////////////////////////////
@@ -188,6 +205,9 @@
   const sessionNumber = ref<string>('');
   const sessionDate = ref<Date | undefined>(undefined);
   const sessionNotesContent = ref<string>('');
+  const showRelatedEntriesDialog = ref<boolean>(false);
+  const pendingAddedUUIDs = ref<string[]>([]);
+  const pendingRemovedUUIDs = ref<string[]>([]);
 
   ////////////////////////////////
   // computed data
@@ -304,6 +324,49 @@
     // Open the tag results tab for the clicked tag
     await navigationStore.openTagResults(tagName, { newTab: true, activate: true });
   }
+
+  const onRelatedEntriesChanged = async (addedUUIDs: string[], removedUUIDs: string[]) => {
+    if (!currentSession.value || !currentSetting.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
+      return;
+    }
+
+    // get the entries we actually need to check
+    const { added, removed } = await getSessionRelatedEntries(addedUUIDs, removedUUIDs, currentSession.value);
+
+    // locations and characters can be linked
+    await filterRelatedEntries(currentSetting.value, added, removed, [Topics.Location, Topics.Character]);
+
+    // Store the pending changes and show dialog if there are any changes
+    if (added.length > 0 || removed.length > 0) {
+      pendingAddedUUIDs.value = added;
+      pendingRemovedUUIDs.value = removed;
+      showRelatedEntriesDialog.value = true;
+    }
+  };
+
+  const onRelatedEntriesDialogUpdate = async (addedEntries: Entry[], removedEntries: Entry[]) => {
+    if (!currentSession.value) 
+      return;
+
+    // characters go into NPCs and locations go into locations
+    // Handle added relationships
+    for (const entry of addedEntries) {
+      if (entry.topic === Topics.Character) {
+        await sessionStore.addNPC(entry.uuid);
+      } else if (entry.topic === Topics.Location) {
+        await sessionStore.addLocation(entry.uuid);
+      }
+    }
+
+    // Handle removed relationships
+    for (const entry of removedEntries) {
+      if (entry.topic === Topics.Character) {
+        await sessionStore.deleteNPC(entry.uuid, true);
+      } else if (entry.topic === Topics.Location) {
+        await sessionStore.deleteLocation(entry.uuid, true);
+      }
+    }
+  };
 
   ////////////////////////////////
   // watchers

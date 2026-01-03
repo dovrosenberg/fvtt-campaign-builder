@@ -294,7 +294,6 @@ export class FCBJournalEntryPage<
 
     return new this(journalEntry) as InstanceType<T>;
   }
-  
 }
 
 async function makeFolder(folderName: string, compendiumId: string, parentFolderId?: string): Promise<Folder<'JournalEntry'>> {
