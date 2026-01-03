@@ -12,6 +12,8 @@
     :help-text="localize('labels.session.vignetteHelpText')"
     help-link="https://slyflourish.com/scenes_catch_all_step.html"
     :can-reorder="true"
+    :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+    @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddVignette"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
@@ -27,6 +29,8 @@
   // local imports
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
+  import { ModuleSettings, SettingKey } from '@/settings';
+
 
   // library components
 	
@@ -34,7 +38,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { BaseTableGridRow, CellEditCompleteEvent } from '@/types';
+  import { BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent } from '@/types';
   import { SessionVignette } from '@/documents';
 
   ////////////////////////////////
@@ -42,7 +46,10 @@
 
   ////////////////////////////////
   // emits
-
+  const emit = defineEmits<{
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+  }>();
+  
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
@@ -60,7 +67,7 @@
     }))
   ));
 
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = sessionStore.extraFields[SessionTableTypes.Vignette]

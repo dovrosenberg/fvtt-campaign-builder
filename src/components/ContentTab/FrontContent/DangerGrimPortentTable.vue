@@ -9,6 +9,8 @@
     :columns="columns"
     :actions="actions"
     :can-reorder="true"
+    :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+    @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddPortent"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
@@ -23,18 +25,22 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useFrontStore } from '@/applications/stores';
+  import { ModuleSettings, SettingKey } from '@/settings';
   
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { ActionButtonDefinition, GrimPortent, CellEditCompleteEvent } from '@/types';
+  import { BaseTableColumn, ActionButtonDefinition, GrimPortent, CellEditCompleteEvent } from '@/types';
 
   ////////////////////////////////
   // props
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+  }>();
 
   ////////////////////////////////
   // store
@@ -47,7 +53,7 @@
 
   ////////////////////////////////
   // computed data
-  const columns = computed(() => [
+  const columns = computed((): BaseTableColumn[] => [
     { 
       field: 'actions', 
       style: 'text-align: left; width: 60px; max-width: 60px', 
@@ -59,14 +65,12 @@
       style: 'text-align: center; width: 80px; max-width: 80px',
       editable: true,
       type: 'boolean',
-      clickable: true,
     },
     { 
       field: 'description', 
       header: localize('labels.description'),
       sortable: true,
       editable: true,
-      clickable: true,
       style: 'width: 100%',
     }
   ]);

@@ -9,7 +9,7 @@
     :extra-add-text="localize('labels.storyWeb.addStoryWebDrag')"
     :actions="actions"
     @add-item="onAddItem"
-    @dragoverNew="onDragoverNew"
+    @dragoverNew="standardDragover"
     @drop-new="onDropNew"
   />
 </template>
@@ -21,12 +21,12 @@
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { FCBDialog } from '@/dialogs';
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
 
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   import { Arc, Campaign, Session, StoryWeb } from '@/classes';
-  import { StoryWebNodeDragData } from '@/types';
+  import { BaseTableColumn, StoryWebNodeDragData } from '@/types';
   
   interface StoryWebRow {
     uuid: string;
@@ -66,7 +66,7 @@
     return (entity.value as Arc | Session | null)?.campaign || null;
   });
 
-  const columns = computed((): any[] => [
+  const columns = computed((): BaseTableColumn[] => [
     { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' },
     { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
   ]);
@@ -130,14 +130,6 @@
 
     await mainStore.refreshCurrentContent();
     await refreshRows();
-  };
-
-  const onDragoverNew = (event: DragEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
   };
 
   const onDropNew = async (event: DragEvent) => {

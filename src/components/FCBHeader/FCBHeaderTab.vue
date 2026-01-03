@@ -7,7 +7,7 @@
     @click="onTabClick"
     @dragstart="onDragStart"
     @drop="onDrop"
-    @dragover="onDragover"
+    @dragover="standardDragover"
     @contextmenu="onTabContextMenu"
   >
     <div 
@@ -37,7 +37,7 @@
   // local imports
   import { useNavigationStore } from '@/applications/stores';
   import { WindowTab } from '@/classes';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
   import { localize } from '@/utils/game';
 
   // library components
@@ -141,14 +141,6 @@
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
-
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
 
   const onDrop = async (event: DragEvent) => {
     event.preventDefault();  

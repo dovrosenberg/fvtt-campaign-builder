@@ -9,7 +9,7 @@
     :allow-edit="true"
     :help-text="localize('labels.session.npcHelpText')"
     @add-item="showNPCPicker=true"
-    @dragoverNew="onDragoverNew"
+    @dragoverNew="standardDragover"
     @drop-new="onDropNew"
     @cell-edit-complete="onCellEditComplete"
   />
@@ -30,7 +30,7 @@
   import { useSessionStore, SessionTableTypes} from '@/applications/stores';
   import { Topics, RelatedEntryDialogModes, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
 
   // library components
 
@@ -39,7 +39,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
-  import { CellEditCompleteEvent } from '@/types';
+  import { CellEditCompleteEvent, BaseTableColumn } from '@/types';
   
   ////////////////////////////////
   // props
@@ -64,7 +64,7 @@
     }))
   ));
 
-   const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = sessionStore.extraFields[SessionTableTypes.NPC]
@@ -142,20 +142,12 @@
     await sessionStore.moveNPCToNext(uuid);
   }
 
-  const onDragoverNew = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
-
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data  - looking for entry node
     const data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry') {
+    if (!data || getType(data) !== FCBDragTypes.Entry) {
       return;
     }
 

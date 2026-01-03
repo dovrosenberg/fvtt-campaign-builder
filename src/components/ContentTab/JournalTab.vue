@@ -11,9 +11,8 @@
         :can-reorder="false"
         :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteRelationship') }]"
 
-        @cell-click="onCellClick"
         @drop-new="onDropNew"
-        @dragover="onDragover"
+        @dragover="standardDragover"
         @add-item="showPicker = true"
       />
       <RelatedDocumentsDialog
@@ -40,8 +39,8 @@
   // local components
 
   // types
-  import { FoundryDragType, RelatedJournal } from '@/types';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { BaseTableColumn, FoundryDragType, RelatedJournal } from '@/types';
+  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
 
   ////////////////////////////////
   // props
@@ -65,7 +64,7 @@
 
   ////////////////////////////////
   // computed data
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', header: '', style: 'width: 40px' };
     const journalNameColumn = { field: 'journalName', header: localize('labels.tableHeaders.journalName'), sortable: true, onClick: onJournalClick };
     const pageNameColumn = { field: 'pageName', header: localize('labels.tableHeaders.pageName'), sortable: true, onClick: onPageClick };
@@ -154,14 +153,6 @@
     await page?.sheet?.render(true);
   };
 
-  function onDragover(event: DragEvent) {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
-
   async function onDropNew(event: DragEvent) {
     event.preventDefault();
     
@@ -186,16 +177,6 @@
     
     if (confirmed) {
       emit('journals-updated', props.initialJournals.filter(j => j.uuid !== id));
-    }
-  }
-
-  async function onCellClick(data: any, field: string) {
-    if (field === 'journalName' && data.journalUuid) {
-      const doc = await foundry.utils.fromUuid(data.journalUuid) as JournalEntry;
-      doc?.sheet?.render(true);
-    } else if (field === 'pageName' && data.pageUuid) {
-      const doc = await foundry.utils.fromUuid(data.pageUuid) as JournalEntryPage;
-      doc?.sheet?.render(true);
     }
   }
 

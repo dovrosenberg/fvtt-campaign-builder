@@ -12,7 +12,7 @@
     help-link="https://slyflourish.com/designing_fantastic_locations.html"
     :can-reorder="false"
     @add-item="showLocationPicker=true"
-    @dragover-new="onDragoverNew"
+    @dragover-new="standardDragover"
     @dropNew="onDropNew"
     @cell-edit-complete="onCellEditComplete"
   />
@@ -32,9 +32,8 @@
 
   // local imports
   import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes } from '@/applications/stores';
-  import { Topics, RelatedEntryDialogModes, CellEditCompleteEvent, EntryNodeDragData, } from '@/types';
   import { localize } from '@/utils/game'
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
 
   // library components
@@ -44,6 +43,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
+  import { BaseTableColumn, Topics, RelatedEntryDialogModes, CellEditCompleteEvent, EntryNodeDragData, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -80,7 +80,7 @@
     }))
   ));
 
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = props.arcMode ? 
@@ -166,20 +166,12 @@
     }
   };
 
-  const onDragoverNew = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
-
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data - looking for location entries
     const data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry')
+    if (!data || getType(data) !== FCBDragTypes.Entry)
       return;
 
     const fcbEntry = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

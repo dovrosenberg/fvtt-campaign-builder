@@ -20,7 +20,7 @@
           class="fcb-directory-type"
           @click="onTypeToggleClick"
           @drop="onDrop"
-          @dragover="onDragover"
+          @dragover="standardDragover"
           @contextmenu="onTypeContextMenu"
         >
           {{ currentType?.name }}
@@ -54,7 +54,7 @@
   import { useSettingDirectoryStore, useMainStore, } from '@/applications/stores';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   import { toTopic } from '@/utils/misc';
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -114,15 +114,6 @@
     currentType.value = await settingDirectoryStore.toggleWithLoad(currentType.value, !currentType.value.expanded);
   };
 
-  // you can drop an item on a type and it should reassign the type
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
-
   const onDrop = async (event: DragEvent) => {
     event.preventDefault();  
 
@@ -131,7 +122,7 @@
 
     // parse the data - looking for entries 
     const data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry')
+    if (!data || getType(data) !== FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

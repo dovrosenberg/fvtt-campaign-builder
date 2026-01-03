@@ -19,7 +19,7 @@
           @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"
           @dragstart="onDragStart($event, currentNode.id, currentNode.name)"
           @drop="onDrop"
-          @dragover="onDragover"
+          @dragover="standardDragover"
           @contextmenu="onEntryContextMenu"
         >
           {{ displayName }}
@@ -50,7 +50,7 @@
   // local imports
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, NO_TYPE_STRING, validParentItems } from '@/utils/hierarchy';
-  import { getType, getValidatedData, setCombinedDragData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, setCombinedDragData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
@@ -158,23 +158,15 @@
     setCombinedDragData(event, id, fcbData);
   };
 
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
-
   const onDrop = async (event: DragEvent) => {
     event.preventDefault();  
 
     if (!currentSetting.value)
-      return false;
+      return;
 
     // parse the data - looking for entries
     let data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry')
+    if (!data || getType(data) !== FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

@@ -8,7 +8,6 @@
     <!-- activation button positioned outside the scrolling area -->
     <a
       v-if="!props.editOnlyMode && props.editable"
-      ref="buttonRef"
       class="editor-edit"
       data-testid="editor-edit-button"
       :style="`display: ${ buttonDisplay }`"
@@ -23,7 +22,6 @@
       <!-- editorVisible used to reset the DOM by toggling-->
       <div
         v-if="editorVisible"
-        ref="editorRef"
         :class="'editor ' + props.class"
       >
         <div
@@ -46,14 +44,14 @@
   // local imports
   import { enrichFcbHTML } from './Editor/helpers';
   import { useMainStore } from '@/applications/stores';
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { processUuidDrop } from '@/utils/uuidHandler';
+  import { standardDragover } from '@/utils/dragdrop'; 
   import { notifyInfo } from '@/utils/notifications';
   import { localize } from '@/utils/game';
   import { sanitizeHTML } from '@/utils/sanitizeHtml';
   import { replaceEntityReferences } from '@/utils/entityLinking';
   import { extractUUIDs, compareUUIDs, } from '@/utils/uuidExtraction';
   import { registerEditor, unregisterEditor } from '@/utils/editorChangeDetection';
-  import { CampaignNodeDragData, EntryNodeDragData, NodeDragDropData, SessionNodeDragData } from '@/types';
 
   // library components
 
@@ -151,9 +149,7 @@
   const initialUUIDs = ref<string[]>([]);     // UUIDs present when editor was first loaded
 
   const coreEditorRef = ref<HTMLDivElement>();
-  const editorRef = ref<HTMLDivElement>();
   const wrapperRef = ref<HTMLDivElement>();
-  const buttonRef = ref<HTMLElement>();
   
   //
   ////////////////////////////////
@@ -197,7 +193,7 @@
       // document: props.document,
       target: coreEditorRef.value,
       height, 
-      engine: 'prosemirror', 
+      engine: 'prosemirror' as const, 
       collaborate: props.collaborate,
       plugins: undefined as { menu: any; keyMaps: any } | undefined,
     };
@@ -225,7 +221,7 @@
 
     // we have to do this whole thing with lastSavedContent and sessionStore.lastSavedNotes because Foundry cleans the html in a different
     //   way than prosemirror (see https://github.com/foundryvtt/foundryvtt/issues/11021)
-    lastSavedContent.value = ProseMirror.dom.serializeString(rawEditor.view.state.doc.content);
+    lastSavedContent.value = ProseMirror.dom.serializeString(rawEditor.view.state.doc.content as any);
     emit('editorLoaded', lastSavedContent.value);
    
     options.target.closest('.editor')?.classList.add('prosemirror');
@@ -251,7 +247,7 @@
     // get the new content
     let content;
     const rawEditorForSave = toRaw(editor.value) as ProseMirrorEditor;
-    content = ProseMirror.dom.serializeString(rawEditorForSave.view.state.doc.content);
+    content = ProseMirror.dom.serializeString(rawEditorForSave.view.state.doc.content as any);
 
     // see if dirty
     const dirty = isDirty();
@@ -259,9 +255,7 @@
     // Apply entity linking if enabled and content is dirty
     if (dirty && props.enableEntityLinking && currentSetting.value) {
       try {
-        content = await replaceEntityReferences(content, currentSetting.value, {
-          currentEntityUuid: props.currentEntityUuid
-        });
+        content = await replaceEntityReferences(content, props.currentEntityUuid || '');
       } catch (error) {
         console.error('Failed to apply entity linking:', error);
         // Continue with original content if entity linking fails
@@ -339,7 +333,7 @@
       return '';
     
     const rawEditorForGetContent = toRaw(editor.value) as ProseMirrorEditor;
-    return ProseMirror.dom.serializeString(rawEditorForGetContent.view.state.doc.content);
+    return ProseMirror.dom.serializeString(rawEditorForGetContent.view.state.doc.content as any);
   }
 
   // expose methods
@@ -348,15 +342,11 @@
   ////////////////////////////////
   // event handlers
   const onDragover = (event: DragEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
+    if (!props.editable) return;
+    standardDragover(event);
   }
 
   const onDrop = async (event: DragEvent) => {
-    event.preventDefault();
     event.stopPropagation();
 
     // If the editor is not active, activate it first
@@ -369,43 +359,14 @@
     // If editor is still not active or not editable, return
     if (!editor.value || !props.editable) return;
 
-    // Parse the data using the utility function
-    const data = getValidatedData(event);
-    if (!data || !('fcbData' in data)) 
-      return;
-
-    let entryUuid: string | null = null;
-
-    // Handle different data structures from various drag sources
-    switch (getType(data)) {
-      case 'fcb-entry': 
-        // From SettingDirectoryNodeWithChildren or SettingDirectoryNode
-        entryUuid = (data.fcbData as EntryNodeDragData)?.childId;
-        break;
-
-      case 'fcb-campaign': 
-        // From DirectoryCampaignNode
-        entryUuid = (data.fcbData as CampaignNodeDragData)?.campaignId;
-        break;
-
-      case 'fcb-session': 
-        // From SessionDirectoryNode
-        entryUuid = (data.fcbData as SessionNodeDragData)?.sessionId;
-        break;
-
-      default:
-        return;  // nothing we can handle
-    }
-
-    // If we found a valid UUID, create and insert the link
-    if (entryUuid) {
-      // Create a UUID link 
-      const linkText = `@UUID[${entryUuid}]`;
-
+    // Process the UUID drop
+    const result = await processUuidDrop(event);
+    
+    if (result.handled && result.linkText) {
       // Insert the link at the current cursor position
       const view = (toRaw(editor.value) as ProseMirrorEditor).view;
       const { state, dispatch } = view;
-      const tr = state.tr.insertText(linkText);
+      const tr = state.tr.insertText(result.linkText);
       dispatch(tr);
     }
   };
@@ -437,7 +398,7 @@
       const { state, dispatch } = view;
       
       // Do nothing if the content is already what we want it to be
-      const currentContent = ProseMirror.dom.serializeString(state.doc.content);
+      const currentContent = ProseMirror.dom.serializeString(state.doc.content as any);
       if (currentContent === content) 
         return;
       

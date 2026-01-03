@@ -55,7 +55,7 @@
   import ConfigDialogLayout from '@/components/layout/ConfigDialogLayout.vue';
 
   // types
-  import { Species, CellEditCompleteEvent } from '@/types';
+  import { BaseTableColumn, Species, CellEditCompleteEvent } from '@/types';
   
   ////////////////////////////////
   // props
@@ -81,7 +81,7 @@
     })
   )));
 
-  const columns = computed((): any[] => {
+  const columns = computed((): BaseTableColumn[] => {
     // for now, just action and name
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 75px;', header: localize('labels.tableHeaders.actions') };
     const nameColumn = { field: 'name', style: 'text-align: left; width: 20%;', header: localize('labels.tableHeaders.name'), sortable: true, editable: true, smallEditBox: true }; 

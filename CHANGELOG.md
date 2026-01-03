@@ -20,6 +20,7 @@
 - You can now generate images for settings, campaigns, arcs, sessions, and fronts.
 - You can now drag Settings, Entries, Campaigns, Arcs, Sessions, Fronts and Story Webs from the directory onto a Foundry scene to create a Map Note that will then directly open the content in Campaign Builder.
 - You can now drag/drop a Front onto a Story Web and it will add all of the Front's Dangers to the Story Web.  Hold control to also get all of each Danger's participants.  Similarly, you can right click on a Front in the directory to have menu options to do that.
+- You can now put UUID links in any long text field in a table (ex. vignettes, the new notes on monsters/NPCs, etc.).  You can also type/paste in URLs and you can use shift-Enter to insert new lines into the text.  Links will be checked for changes and you're able to have connections automatically managed to the (ex. add a link to a character in a Vignette and you'll be prompted to automatically add it to the NPC's list on the Session).
 - There is a new seting for 'Display Session bookmark'.  When enabled, there will always be a bookmark for the current Session at the front of the bookmark list.
 - When creating connections in a Story Web, entities that aren't valid connections no longer light up to show they are invalid.
 - Fixed styling on the various module settings submenu windows.

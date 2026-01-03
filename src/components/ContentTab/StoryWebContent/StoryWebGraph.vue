@@ -4,7 +4,7 @@
       ref="networkContainer" 
       class="network-container"
       @drop="onDrop"
-      @dragover="onDragover"
+      @dragover="standardDragover"
       @keydown="onKeydown"
     >
       <!-- Debug: StoryWebGraph rendered -->
@@ -53,7 +53,7 @@
 
   // local imports
   import { useStoryWebStore } from '@/applications/stores';
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { localize } from '@/utils/game';
   
   // library components
@@ -130,15 +130,6 @@
     });
   }
 
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    // make sure it's a legit droppable
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  };
-
   const onDrop = async (event: DragEvent) => {
     event.stopPropagation();
     event.preventDefault();
@@ -167,7 +158,7 @@
     }
 
     // Handle entry drops
-    if (dataType === 'fcb-entry') {
+    if (dataType === FCBDragTypes.Entry) {
       const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;
       if (!fcbData) {
         return;

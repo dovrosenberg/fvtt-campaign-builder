@@ -1,28 +1,12 @@
 import { searchService, } from '@/utils/search';
-import { FCBSetting } from '@/classes';
-
-/**
- * Interface for entity reference replacement options
- */
-export interface EntityLinkingOptions {
-  /** The UUID of the current entity being edited (to exclude from replacements) */
-  currentEntityUuid?: string;
-}
 
 /**
  * Replaces entity references in text with @UUID links
  * @param content The HTML content to process
- * @param setting The current setting for entity lookup
- * @param options Configuration options for the replacement
+ * @param currentEntityUuid The UUID of the current entity (to exclude it from the search)
  * @returns The processed content with entity references replaced
  */
-export async function replaceEntityReferences(
-  content: string, 
-  _setting: FCBSetting, 
-  options: EntityLinkingOptions = {}
-): Promise<string> {
-  const { currentEntityUuid } = options;
-
+export const replaceEntityReferences = (content: string, currentEntityUuid: string): string => {
   // Get all entities from the search index
   const allEntities = searchService.getAllEntities(true);
   
@@ -67,7 +51,6 @@ export async function replaceEntityReferences(
     return `@UUID[${entity.uuid}]`;
   });
 }
-
 
 /**
  * Checks if a position in the content is inside an HTML tag
@@ -116,6 +99,4 @@ function isInsideUuidReference(content: string, position: number): boolean {
  * @param string The string to escape
  * @returns The escaped string
  */
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-} 
+const escapeRegExp = (string: string): string => (string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')); 

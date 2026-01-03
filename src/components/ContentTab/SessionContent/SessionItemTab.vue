@@ -12,7 +12,7 @@
     help-link="https://slyflourish.com/lazy_magic_items.html"
     @add-item="showItemPicker=true"
     @drop-new="onDropNew"
-    @dragoverNew="onDragoverNew"
+    @dragoverNew="standardDragover"
     @dragstart="onDragStart"
     @cell-edit-complete="onCellEditComplete"
   />
@@ -31,7 +31,7 @@
   // local imports
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
   import { localize, } from '@/utils/game'
-  import { getValidatedData, itemDragStart } from '@/utils/dragdrop';
+  import { getValidatedData, itemDragStart, standardDragover } from '@/utils/dragdrop';
 
   // library components
 	
@@ -40,7 +40,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent } from '@/types';
+  import { CellEditCompleteEvent, BaseTableColumn } from '@/types';
   
   ////////////////////////////////
   // props
@@ -65,7 +65,7 @@
     }))
   ));
   
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = sessionStore.extraFields[SessionTableTypes.Item]
@@ -116,14 +116,6 @@
   // event handlers
   const onItemAdded = async (documentUuid: string) => {
     await sessionStore.addItem(documentUuid);
-  }
-
-  const onDragoverNew = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
   }
 
   const onDropNew = async (event: DragEvent) => {

@@ -480,8 +480,8 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     if (!currentSetting.value)
       return;
 
-    let options = Object.values(currentSetting.value.topics).reduce((acc, topic) => {
-      acc.push(...topic.entries.map(e => ({ id: e.uuid, label: e.name })));
+    let options = Object.values(currentSetting.value.topics).reduce((acc, topicIndex) => {
+      acc.push(...topicIndex.entries.map(e => ({ id: e.uuid, label: e.name })));
       return acc;
     }, [] as { id: string; label: string }[]); 
 
@@ -1331,18 +1331,7 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     if (selectedNodes.length === 1) {
       const nodeId = selectedNodes[0];
       const nodePosition = network.getPositions([nodeId])[nodeId];
-      const nodeBoundingBox = network.getBoundingBox(nodeId);
-      const viewport = network.getViewPosition();
       
-      // Convert to DOM units
-      const domTopLeft = network.canvasToDOM({ x: nodeBoundingBox.left, y: nodeBoundingBox.top });
-      const domBottomRight = network.canvasToDOM({ x: nodeBoundingBox.right, y: nodeBoundingBox.bottom });
-      
-      // Track movement direction
-      if (previousNodePosition) {
-        const deltaX = nodePosition.x - previousNodePosition.x;
-        const deltaY = nodePosition.y - previousNodePosition.y;
-      }
       previousNodePosition = { x: nodePosition.x, y: nodePosition.y };
     }
     

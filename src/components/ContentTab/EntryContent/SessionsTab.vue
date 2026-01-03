@@ -29,6 +29,11 @@ import { localize } from '@/utils/game';
 // library components
 import BaseTable from '@/components/tables/BaseTable.vue';
 
+// local components
+
+// types
+import { BaseTableColumn } from '@/types';
+
 // store
 const navigationStore = useNavigationStore();
 const relationshipStore = useRelationshipStore();
@@ -42,10 +47,10 @@ const onSessionClick = (event: MouseEvent, uuid: string) => {
 };
 
 // computed
-const columns = computed(() => {
+const columns = computed((): BaseTableColumn[] => {
   const baseColumns = [
     { field: 'number', style: 'text-align: left; width: 15%', header: localize('labels.fields.sessionNumber'), sortable: true }
-  ];
+  ] as BaseTableColumn[];
   
   if (hasMultipleCampaigns.value) {
     baseColumns.push({ 

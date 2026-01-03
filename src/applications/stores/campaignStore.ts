@@ -9,7 +9,7 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { RelatedPCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea,} from '@/types';
+import { RelatedPCDetails, BaseTableColumn, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea,} from '@/types';
 import { Arc, Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import { notifyWarn } from '@/utils/notifications';
@@ -60,7 +60,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     [CampaignTableTypes.Idea]: [
       { field: 'text', style: 'text-align: left', header: 'Idea', sortable: true, editable: true },
     ],
-  } as Record<CampaignTableTypes, FieldData[]>;
+  } as Record<CampaignTableTypes, BaseTableColumn[]>;
 
   ///////////////////////////////
   // other stores

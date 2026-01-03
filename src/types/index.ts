@@ -161,7 +161,7 @@ export interface EntryBasicIndex {
 };
 
 export interface TopicBasicIndex { 
-  topic: string; 
+  topic: ValidTopic; 
   types: string[]; 
   topNodes: string[]; 
   entries: EntryBasicIndex[];

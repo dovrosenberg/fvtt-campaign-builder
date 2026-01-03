@@ -69,6 +69,7 @@ Dependencies
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
+  import { BaseTableColumn } from '@/types';
   import { FCBSearchResult } from '@/utils/search';
 
   ////////////////////////////////
@@ -85,7 +86,7 @@ Dependencies
 
   ////////////////////////////////
   // computed data
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const nameColumn = { field: 'name', style: 'text-align: left; width: 50%;', header: localize('labels.tableHeaders.name'), sortable: true, onClick: onNameClick }; 
     const typeColumn = { field: 'type', style: 'text-align: left; width: 50%;', header: localize('labels.tableHeaders.type'), sortable: true }; 
     return [nameColumn, typeColumn];

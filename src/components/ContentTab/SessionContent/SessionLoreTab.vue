@@ -11,10 +11,12 @@
     :help-text="localize('labels.session.loreHelpText')"
     help-link="https://slyflourish.com/sharing_secrets.html"
     :can-reorder="true"
+    :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+    @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddLore"
     @cell-edit-complete="onCellEditComplete"
-    @dragover-new="onDragover"
-    @dragover-row="onDragover"
+    @dragover-new="standardDragover"
+    @dragover-row="standardDragover"
     @drop-row="onDropRow"
     @drop-new="onDropNew"
     @reorder="onReorder"
@@ -30,8 +32,9 @@
   // local imports
   import { useSessionStore, useArcStore, useMainStore, SessionTableTypes, ArcTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
 	
@@ -39,7 +42,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { CellEditCompleteEvent, BaseTableGridRow, SessionLoreDetails } from '@/types';
+  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow, SessionLoreDetails, FoundryDragType } from '@/types';
   import { SessionLore } from '@/documents';
   
   ////////////////////////////////
@@ -54,6 +57,9 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+  }>();
 
   ////////////////////////////////
   // store
@@ -80,7 +86,7 @@
     }))
   ));
 
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = props.arcMode ? 
@@ -203,14 +209,6 @@
       await arcStore.moveLoreToSession(uuid);
     else
       await sessionStore.moveLoreToNext(uuid);
-  }
-
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
   }
 
   const onDropNew = async (event: DragEvent) => {

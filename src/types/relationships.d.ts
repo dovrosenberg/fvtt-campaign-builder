@@ -1,14 +1,14 @@
 import { DocumentUUID } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/utils/module.mjs';
-import { ValidTopic, FieldData } from '@/types';
+import { ValidTopic, BaseTableColumn } from '@/types';
 
 // lay out the extra fields for each combination of topics
-export type FieldDataByTopic = ValidTopicRecord<ValidTopicRecord<FieldData[]>>;
+export type ColumnsByTopic = ValidTopicRecord<ValidTopicRecord<BaseTableColumn[]>>;
 
 export interface RelatedEntry<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic> {
   uuid: string;   // the other item
   topic: PrimaryTopic;   
   type: string;   // the type of the item  (store here because it's not currently indexed, unlike name)
-  extraFields: FieldDataByTopic[PrimaryTopic][RelatedTopic];   // optional fields depending on topics (ex. role for character/location relationship)
+  extraFields: ColumnsByTopic[PrimaryTopic][RelatedTopic];   // optional fields depending on topics (ex. role for character/location relationship)
 }
 
 // includes additional details

@@ -24,12 +24,15 @@ export interface ActionButtonDefinition {
   isEdit?: boolean;
 }
 
-export interface FieldData {
+export interface BaseTableColumn {
   field:string; 
   header: string;
   editable?: boolean;
   style?: string;
   sortable?: boolean;
+  smallEditBox?: boolean;
+  type?: string;  
+  onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;  // should a specific fn be called when the cell is clicked (also underlines the text)
 };
 
 export interface PaginationResult<T extends AnyRow> {

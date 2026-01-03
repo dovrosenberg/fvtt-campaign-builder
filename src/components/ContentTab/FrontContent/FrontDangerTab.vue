@@ -37,6 +37,8 @@
             :initial-content="currentDanger?.description || ''"
             fixed-height="120px"
             :current-entity-uuid="currentFront?.uuid"
+            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+            @related-entries-changed="onRelatedEntriesChanged"
             @editor-saved="onDescriptionEditorSaved"
           />
         </div>
@@ -85,6 +87,8 @@
             :initial-content="motivation || ''"
             fixed-height="120px"
             :current-entity-uuid="currentFront?.uuid"
+            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+            @related-entries-changed="onRelatedEntriesChanged"
             @editor-saved="onMotivationEditorSaved"
           />
         </div>
@@ -106,6 +110,15 @@
       </Panel>
     </div>
   </div>
+
+  <!-- Related Items Management Dialog -->
+  <RelatedEntriesManagementDialog
+    v-model="showRelatedEntriesDialog"
+    :added-ids="pendingAddedUUIDs"
+    :removed-ids="pendingRemovedUUIDs"
+    @update="onRelatedEntriesDialogUpdate"
+  />
+
 </template>
 
 <script setup lang="ts">
@@ -114,9 +127,12 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useFrontStore } from '@/applications/stores';
+  import { useMainStore, useFrontStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { notifyWarn } from '@/utils/notifications';
+  import { ModuleSettings, SettingKey } from '@/settings';
+  import { getDangerRelatedEntries } from '@/utils/uuidExtraction';
+  import { filterRelatedEntries } from '@/utils/relatedContent';
 
   // library components
   import TextArea from 'primevue/textarea';
@@ -128,9 +144,11 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import DangerParticipantTable from './DangerParticipantTable.vue';
   import DangerGrimPortentTable from './DangerGrimPortentTable.vue';
+  import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
 
   // types
-  import { Danger, } from '@/types';
+  import { Danger, Topics, } from '@/types';
+  import { Entry } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -142,7 +160,7 @@
   // store
   const mainStore = useMainStore();
   const frontStore = useFrontStore();
-  const { currentFront, } = storeToRefs(mainStore);
+  const { currentFront, currentSetting } = storeToRefs(mainStore);
   const { currentDangerIndex, currentDanger } = storeToRefs(frontStore);
   
   ////////////////////////////////
@@ -150,6 +168,9 @@
   const name = ref('');
   const impendingDoom = ref('');
   const motivation = ref('');
+  const showRelatedEntriesDialog = ref<boolean>(false);
+  const pendingAddedUUIDs = ref<string[]>([]);
+  const pendingRemovedUUIDs = ref<string[]>([]);
 
   ////////////////////////////////
   // computed data
@@ -200,6 +221,49 @@
         await currentFront.value.save();
       }
     }, debounceTime);
+  };
+
+  const onRelatedEntriesChanged = async (addedUUIDs: string[], removedUUIDs: string[]) => {
+    if (!currentDanger.value || !currentSetting.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
+      return;
+    }
+
+    // get the entries we actually need to check
+    const { added, removed } = await getDangerRelatedEntries(addedUUIDs, removedUUIDs, currentDanger.value);
+
+    // locations and characters can be linked
+    await filterRelatedEntries(currentSetting.value, added, removed, [Topics.Character, Topics.Organization]);
+
+    // Store the pending changes and show dialog if there are any changes
+    if (added.length > 0 || removed.length > 0) {
+      pendingAddedUUIDs.value = added;
+      pendingRemovedUUIDs.value = removed;
+      showRelatedEntriesDialog.value = true;
+    }
+  };
+
+  const onRelatedEntriesDialogUpdate = async (addedEntries: Entry[], removedEntries: Entry[]) => {
+    if (!currentDanger.value || !currentFront.value || currentDangerIndex.value == null) 
+      return;
+
+    if (addedEntries.length === 0 && removedEntries.length === 0) 
+      return;
+
+    // can only be NPC and organization and both go in participants
+    // Handle added relationships
+    const danger = currentDanger.value;
+
+    for (const entry of addedEntries) {
+      danger.participants.push({ uuid: entry.uuid, role: '' });
+    }
+
+    // Handle removed relationships
+    danger.participants = danger.participants.filter(p => !removedEntries.some(e => e.uuid === p.uuid));
+
+    currentFront.value.updateDanger(currentDangerIndex.value, danger);
+    await currentFront.value.save();
+
+    await useMainStore().refreshFront();
   };
 
   const onMotivationEditorSaved = (newMotivation: string) => {

@@ -12,7 +12,7 @@
 
     @row-context-menu="onRowContextMenu"
     @drop-new="onDropNew"
-    @dragover="onDragover"
+    @dragover="standardDragover"
     @dragstart="onDragStart"
     @add-item="onAddItem"
   />
@@ -33,7 +33,7 @@
   // local imports
   import { useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { getValidatedData, actorDragStart, itemDragStart, foundryDragStart } from '@/utils/dragdrop';
+  import { getValidatedData, actorDragStart, itemDragStart, foundryDragStart, standardDragover } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
 
   // library components
@@ -44,7 +44,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { RelatedDocumentDetails, DocumentLinkType, FoundryDragType } from '@/types';
+  import { BaseTableColumn, RelatedDocumentDetails, DocumentLinkType, FoundryDragType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -136,7 +136,7 @@
     })
   );
 
-  const columns = computed((): any[] => {
+  const columns = computed((): BaseTableColumn[] => {
     // for now, just action and name
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 60px; max-width: 60px', header: localize('labels.tableHeaders.actions') };
     const nameColumn = { field: 'name', style: 'text-align: left', header: localize('labels.tableHeaders.name'), sortable: true, onClick: onNameClick }; 
@@ -281,14 +281,6 @@
       }
     }
   };
-
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
 
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  

@@ -13,7 +13,7 @@
     help-link="https://slyflourish.com/choose_monsters_based_on_the_story.html"
     @add-item="showMonsterPicker=true"
     @drop-new="onDropNew"
-    @dragoverNew="onDragoverNew"
+    @dragoverNew="standardDragover"
     @dragstart="onDragStart"
     @cell-edit-complete="onCellEditComplete"
   />
@@ -33,7 +33,7 @@
   // local imports
   import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
-  import { getValidatedData, actorDragStart } from '@/utils/dragdrop';
+  import { getValidatedData, actorDragStart, standardDragover } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
 
   // library components
@@ -43,7 +43,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent } from '@/types';
+  import { CellEditCompleteEvent, BaseTableColumn } from '@/types';
   
   ////////////////////////////////
   // props
@@ -80,7 +80,7 @@
     }))
   ));
   
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = props.arcMode ? 
@@ -134,14 +134,6 @@
   // event handlers
   const onActorAdded = async (documentUuid: string) => {
     await store.value.addMonster(documentUuid);
-  }
-
-  const onDragoverNew = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
   }
 
   const onDropNew = async (event: DragEvent) => {

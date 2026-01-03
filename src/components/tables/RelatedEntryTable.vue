@@ -11,7 +11,7 @@
 
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
-    @dragover="onDragover"
+    @dragover="standardDragover"
     @cell-edit-complete="onCellEditComplete"
   />
 
@@ -41,8 +41,9 @@
   import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { Entry } from '@/classes';
-  import { getValidatedData, getType } from '@/utils/dragdrop';
+  import { getValidatedData, getType, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
+
 
   // library components
 
@@ -51,7 +52,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { Topics, ValidTopic, RelatedEntryDetails, RelatedEntryDialogModes, EntryNodeDragData, ValidTopicRecord, ActionButtonDefinition, CellEditCompleteEvent } from '@/types';
+  import { BaseTableColumn,Topics, ValidTopic, RelatedEntryDetails, RelatedEntryDialogModes, EntryNodeDragData, ValidTopicRecord, ActionButtonDefinition, CellEditCompleteEvent } from '@/types';
   
   interface RelatedEntryGridRow extends Record<string, any> { 
     uuid: string; 
@@ -85,7 +86,6 @@
   // data
   const addDialogShow = ref(false);   // should we pop up the add dialog?
   const editDialogShow = ref(false);   // should we pop up the edit dialog?
-  const baseTableRef = ref<typeof BaseTable | null>(null);
 
   const editItem = ref({
     itemId: '',
@@ -156,7 +156,7 @@
     }));
   });
 
-  const columns = computed((): any[] => {
+  const columns = computed((): BaseTableColumn[] => {
     // they all have some standard columns
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
     const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick }; 
@@ -184,7 +184,7 @@
         nameColumn,
         typeColumn,
       ],
-    } as ValidTopicRecord<any[]>;
+    } as ValidTopicRecord<BaseTableColumn[]>;
 
     if (extraColumns.value.length > 0) {
       // add the extra fields
@@ -215,20 +215,12 @@
     addDialogShow.value = true;
   };
 
-  const onDragover = (event: DragEvent) => {
-    event.preventDefault();  
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  }
-
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();
 
     // parse the data - looking for entry
     let data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry')
+    if (!data || getType(data) !== FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

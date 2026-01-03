@@ -2,8 +2,8 @@
  * Utility functions for extracting UUIDs from text content
  */
 
-import { Entry } from '@/classes';
-import { RelatedEntryDetails } from '@/types';
+import { Entry, Session } from '@/classes';
+import { Danger, RelatedEntryDetails } from '@/types';
 import { getParentId } from './hierarchy';
 
 /**
@@ -54,7 +54,7 @@ export function compareUUIDs(originalUUIDs: string[], newUUIDs: string[]): {
 /** for a list of added and removed UUIDs, return a list of ones that are not/are already 
  *  in the current entry's related entries
  */
-export async function getRelatedEntries(addedUUIDs: string[], removedUUIDs: string[], currentEntry: Entry): Promise<{ added: string[], removed: string[]}> {
+export async function getEntryRelatedEntries(addedUUIDs: string[], removedUUIDs: string[], currentEntry: Entry): Promise<{ added: string[], removed: string[]}> {
   // collapse the topics to a single object keyed by UUID to make easier
   const relatedEntries = Object.values(currentEntry.relationships).reduce((acc, topic) => {
     Object.values(topic).forEach(details => {
@@ -71,5 +71,32 @@ export async function getRelatedEntries(addedUUIDs: string[], removedUUIDs: stri
 
   const added = addedUUIDs.filter(uuid => !relatedEntries[uuid] && ![currentEntry.uuid, parentId].includes(uuid));
   const removed = removedUUIDs.filter(uuid => relatedEntries[uuid] && ![currentEntry.uuid, parentId].includes(uuid));
+  return { added, removed };
+}
+
+/** for a list of added and removed UUIDs, return a list of ones that are not/are already 
+ *  in the current entry's related entries
+ */
+export async function getSessionRelatedEntries(addedUUIDs: string[], removedUUIDs: string[], currentSession: Session): Promise<{ added: string[], removed: string[]}> {
+  // make a list of all the things we might want to hook up to the session
+  const possibleConnections = [
+    ...currentSession.locations.map(location => location.uuid),
+    ...currentSession.npcs.map(npc => npc.uuid),
+  ];
+
+  const added = addedUUIDs.filter(uuid => !possibleConnections.includes(uuid));
+  const removed = removedUUIDs.filter(uuid => possibleConnections.includes(uuid));
+  return { added, removed };
+}
+
+/** for a list of added and removed UUIDs, return a list of ones that are not/are already 
+ *  in the current danger's participants list
+ */
+export async function getDangerRelatedEntries(addedUUIDs: string[], removedUUIDs: string[], currentDanger: Danger): Promise<{ added: string[], removed: string[]}> {
+  // make a list of all the things we might want to hook up to the danger
+  const possibleConnections = currentDanger.participants.map(participant => participant.uuid);
+  
+  const added = addedUUIDs.filter(uuid => !possibleConnections.includes(uuid));
+  const removed = removedUUIDs.filter(uuid => possibleConnections.includes(uuid));
   return { added, removed };
 }

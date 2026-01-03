@@ -13,7 +13,7 @@
     @add-item="onAddParticipant"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
-    @dragover-new="onDragoverNew"
+    @dragover-new="standardDragover"
     @dropNew="onDropNew"
   />
 
@@ -37,8 +37,8 @@
   
   // local imports
   import { localize } from '@/utils/game';
-  import { useFrontStore, useMainStore } from '@/applications/stores';
-  import { getType, getValidatedData } from '@/utils/dragdrop';
+  import { useFrontStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { mapEntryToOption } from '@/utils/misc';
   
   // local components
@@ -46,7 +46,7 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, EntryNodeDragData, } from '@/types';
+  import { BaseTableColumn, CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, EntryNodeDragData, } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -58,6 +58,7 @@
   ////////////////////////////////
   // store
   const frontStore = useFrontStore();
+  const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
   const { participantRows } = storeToRefs(frontStore);
   const { currentSetting } = storeToRefs(mainStore);
@@ -70,7 +71,7 @@
 
   ////////////////////////////////
   // computed data
-  const columns = computed(() => [
+  const columns = computed((): BaseTableColumn[] => [
     { 
       field: 'actions', 
       style: 'text-align: left; width: 60px; max-width: 60px', 
@@ -80,7 +81,7 @@
       field: 'name', 
       header: localize('labels.tableHeaders.name'),
       sortable: true,
-      clickable: true,
+      onClick: onNameClick,
       style: 'width: 100%',
     },
     { 
@@ -96,7 +97,7 @@
       editable: true,
       style: 'width: 100%',
     }
-  ]);
+  ] as BaseTableColumn[]);
 
   const actions = computed(() => {
     const actions = [] as ActionButtonDefinition[];
@@ -144,6 +145,11 @@
     }
   };
   
+  // when we click on a name, open the entry
+  async function onNameClick (event: MouseEvent, uuid: string) {
+    return navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
+  }
+
   const onAddParticipant = () => {
     if (!currentSetting.value)
       return;
@@ -163,26 +169,18 @@
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, } = event;
 
-    await frontStore.updateParticipant(data.uuid, newValue);
+    await frontStore.updateParticipant(data.uuid, newValue as string);
   };
 
   const onReorder = (reorderedRows: DangerParticipant[]) => {
     frontStore.reorderParticipants(reorderedRows);
   };
 
-  const onDragoverNew = (event: DragEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer.types.includes('text/plain'))
-      event.dataTransfer.dropEffect = 'none';
-  };
-
   const onDropNew = async (event: DragEvent) => {
     event.preventDefault();
 
     const data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-entry')
+    if (!data || getType(data) !== FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

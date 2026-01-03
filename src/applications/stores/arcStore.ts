@@ -11,7 +11,7 @@ import { FCBDialog } from '@/dialogs';
 // types
 import { 
   ArcLocationDetails, 
-  FieldData, 
+  BaseTableColumn, 
   ArcParticipantDetails, 
   ArcMonsterDetails, 
   ArcLoreDetails,
@@ -71,7 +71,7 @@ export const useArcStore = defineStore('arc', () => {
     [ArcTableTypes.Idea]: [
       { field: 'text', style: 'text-align: left', header: 'Idea', sortable: true, editable: true },
     ],
-  } as unknown as Record<ArcTableTypes, FieldData[]>;
+  } as unknown as Record<ArcTableTypes, BaseTableColumn[]>;
 
   
   ///////////////////////////////
