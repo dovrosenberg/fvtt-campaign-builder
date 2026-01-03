@@ -8,12 +8,9 @@
  */
 
 import { getValidatedData, getType } from './dragdrop';
-import { replaceEntityReferences, EntityLinkingOptions } from './entityLinking';
 import { enrichFcbHTML } from '@/components/Editor/helpers';
-import { FCBSetting } from '@/classes';
 import { FCBDragTypes } from '@/utils/dragdrop';
 import { CampaignNodeDragData, EntryNodeDragData, SessionNodeDragData, FrontNodeDragData, ArcNodeDragData, SettingNodeDragData, StoryWebNodeDragData, FoundryDragType, FCBDragType } from '@/types';
-
 
 /**
  * Configuration for UUID handling in text components
@@ -57,42 +54,42 @@ export const processUuidDrop = async(event: DragEvent): Promise<UuidDropResult> 
   // handle the base case
   if ((data as FoundryDragType).uuid) {
     entryUuid = (data as FoundryDragType).uuid;
-  } else if ((data as FCBDragType).fcbData) {
+  } else if ((data as FCBDragType<any>).fcbData) {
     // Handle different data structures from various drag sources
     switch (getType(data)) {
       case FCBDragTypes.Setting: 
         // From SettingDirectoryNodeWithChildren or SettingDirectoryNode
-        entryUuid = (data.fcbData as SettingNodeDragData)?.settingId;
+        entryUuid = (data as FCBDragType<SettingNodeDragData>).fcbData?.settingId;
         break;
 
       case FCBDragTypes.Entry: 
         // From SettingDirectoryNodeWithChildren or SettingDirectoryNode
-        entryUuid = (data.fcbData as EntryNodeDragData)?.childId;
+        entryUuid = (data as FCBDragType<EntryNodeDragData>).fcbData?.childId;
         break;
 
       case FCBDragTypes.Campaign: 
         // From DirectoryCampaignNode
-        entryUuid = (data.fcbData as CampaignNodeDragData)?.campaignId;
+        entryUuid = (data as FCBDragType<CampaignNodeDragData>).fcbData?.campaignId;
         break;
 
       case FCBDragTypes.Session: 
         // From SessionDirectoryNode
-        entryUuid = (data.fcbData as SessionNodeDragData)?.sessionId;
+        entryUuid = (data as FCBDragType<SessionNodeDragData>).fcbData?.sessionId;
         break;
 
       case FCBDragTypes.Front: 
         // From FrontDirectoryNode
-        entryUuid = (data.fcbData as FrontNodeDragData)?.frontId;
+        entryUuid = (data as FCBDragType<FrontNodeDragData>).fcbData?.frontId;
         break;
 
       case FCBDragTypes.Arc: 
         // From ArcDirectoryNode
-        entryUuid = (data.fcbData as ArcNodeDragData)?.arcId;
+        entryUuid = (data as FCBDragType<ArcNodeDragData>).fcbData?.arcId;
         break;
 
       case FCBDragTypes.StoryWeb:
         // From StoryWebDirectoryNode
-        entryUuid = (data.fcbData as StoryWebNodeDragData)?.storyWebId;
+        entryUuid = (data as FCBDragType<StoryWebNodeDragData>).fcbData?.storyWebId;
         break;
         
       default:
@@ -151,22 +148,6 @@ export const handleUuidDropOnTextarea = async(event: DragEvent, textarea: HTMLTe
 };
 
 /**
- * Processes text content to apply entity linking (auto-convert names to UUIDs)
- * 
- * @param content - The text content to process
- * @param setting - The current setting for entity lookup
- * @param options - Configuration options
- * @returns Promise resolving to the processed content
- */
-export const processEntityLinking = async(
-  content: string,
-  setting: FCBSetting,
-  options: EntityLinkingOptions = {}
-): Promise<string> => {
-  return replaceEntityReferences(content, setting, options);
-};
-
-/**
  * Enriches HTML content by converting UUID references to clickable links
  * 
  * @param settingId - The current setting UUID
@@ -177,56 +158,3 @@ export const enrichUuidLinks = async(settingId: string | null, content: string):
   return enrichFcbHTML(settingId, content);
 };
 
-/**
- * Processes content on save - applies entity linking if enabled
- * 
- * @param content - The content to process
- * @param setting - The current setting
- * @param options - Processing options
- * @returns Promise resolving to the processed content
- */
-export const processOnSave = async(
-  content: string,
-  setting: FCBSetting | null,
-  options: UuidHandlerOptions = {}
-): Promise<string> => {
-  const { enableEntityLinking, currentEntityUuid } = options;
-  
-  // Apply entity linking if enabled and we have a setting
-  if (enableEntityLinking && setting) {
-    try {
-      return await processEntityLinking(content, setting, { currentEntityUuid });
-    } catch (error) {
-      console.error('Failed to apply entity linking:', error);
-      // Continue with original content if entity linking fails
-    }
-  }
-  
-  return content;
-};
-
-/**
- * Processes content for display - enriches UUID links
- * 
- * @param content - The content to process
- * @param options - Processing options
- * @returns Promise resolving to the processed content
- */
-export const processForDisplay = async(
-  content: string,
-  options: UuidHandlerOptions = {}
-): Promise<string> => {
-  const { settingId } = options;
-  
-  // Enrich UUID links if we have a settingId
-  if (settingId) {
-    try {
-      return await enrichUuidLinks(settingId, content);
-    } catch (error) {
-      console.error('Failed to enrich UUID links:', error);
-      // Continue with original content if enrichment fails
-    }
-  }
-  
-  return content;
-};

@@ -11,7 +11,6 @@
         :can-reorder="false"
         :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteRelationship') }]"
 
-        @cell-click="onCellClick"
         @drop-new="onDropNew"
         @dragover="standardDragover"
         @add-item="showPicker = true"
@@ -41,7 +40,7 @@
 
   // types
   import { BaseTableColumn, FoundryDragType, RelatedJournal } from '@/types';
-  import { getValidaBtedData, standardDragover } from '@/utils/dragdrop';
+  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
 
   ////////////////////////////////
   // props
@@ -178,16 +177,6 @@
     
     if (confirmed) {
       emit('journals-updated', props.initialJournals.filter(j => j.uuid !== id));
-    }
-  }
-
-  async function onCellClick(data: any, field: string) {
-    if (field === 'journalName' && data.journalUuid) {
-      const doc = await foundry.utils.fromUuid(data.journalUuid) as JournalEntry;
-      doc?.sheet?.render(true);
-    } else if (field === 'pageName' && data.pageUuid) {
-      const doc = await foundry.utils.fromUuid(data.pageUuid) as JournalEntryPage;
-      doc?.sheet?.render(true);
     }
   }
 

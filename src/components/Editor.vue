@@ -44,15 +44,12 @@
   // local imports
   import { enrichFcbHTML } from './Editor/helpers';
   import { useMainStore } from '@/applications/stores';
-  import { 
-    processUuidDrop, 
-    processOnSave,
-    UuidHandlerOptions 
-  } from '@/utils/uuidHandler';
+  import { processUuidDrop } from '@/utils/uuidHandler';
   import { standardDragover } from '@/utils/dragdrop'; 
   import { notifyInfo } from '@/utils/notifications';
   import { localize } from '@/utils/game';
   import { sanitizeHTML } from '@/utils/sanitizeHtml';
+  import { replaceEntityReferences } from '@/utils/entityLinking';
   import { extractUUIDs, compareUUIDs, } from '@/utils/uuidExtraction';
   import { registerEditor, unregisterEditor } from '@/utils/editorChangeDetection';
 
@@ -196,7 +193,7 @@
       // document: props.document,
       target: coreEditorRef.value,
       height, 
-      engine: 'prosemirror', 
+      engine: 'prosemirror' as const, 
       collaborate: props.collaborate,
       plugins: undefined as { menu: any; keyMaps: any } | undefined,
     };
@@ -258,12 +255,7 @@
     // Apply entity linking if enabled and content is dirty
     if (dirty && props.enableEntityLinking && currentSetting.value) {
       try {
-        const options: UuidHandlerOptions = {
-          settingId: currentSetting.value.uuid,
-          currentEntityUuid: props.currentEntityUuid,
-          enableEntityLinking: props.enableEntityLinking
-        };
-        content = await processOnSave(content, currentSetting.value, options);
+        content = await replaceEntityReferences(content, props.currentEntityUuid || '');
       } catch (error) {
         console.error('Failed to apply entity linking:', error);
         // Continue with original content if entity linking fails

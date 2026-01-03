@@ -103,6 +103,8 @@ export const enrichFcbHTML = async(settingId: string | null, text: string): Prom
     secrets: true,    //this.document.isOwner,
     documents: false,
     // async: true,
+
+    // @ts-ignore - we are adding this for our own use
     settingId: settingId,
   });    
 
@@ -423,7 +425,7 @@ function createLegacyContentLink (type: WORLD_DOCUMENT_TYPES | EMBEDDED_DOCUMENT
     const sound = playlist?.sounds.get(soundId);
     if ( !playlist || !sound ) broken = true;
 
-    data.name = data.name || (broken ? target : sound.name);
+    data.name = data.name || (broken ? target : sound?.name);
     data.icon = CONFIG.Playlist.sidebarIcon;
     Object.assign(data.dataset, {type, uuid: sound?.uuid});
     if ( sound?.playing ) data.cls.push('playing');

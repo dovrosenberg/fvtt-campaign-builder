@@ -299,6 +299,7 @@ export class ModuleSettings {
       name: 'settings.autoRelationships',
       hint: 'settings.autoRelationshipsHelp',
       default: true,
+      requiresReload: true, // so we don't turn it on in the middle of an edit
       type: Boolean,
     },
     {

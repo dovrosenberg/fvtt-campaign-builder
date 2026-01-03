@@ -70,15 +70,15 @@ export type FoundryDragType = {
   uuid: string;
 }
 
-export type FCBDragType = {
+export type FCBDragType<T extends NodeDragDropData> = {
   type: 'JournalEntry';
   uuid: string;
-  fcbData: NodeDragDropData;
+  fcbData: T;
 }
 
 export type KnownDragTypes = 
   FoundryDragType | 
-  FCBDragType |
+  FCBDragType<NodeDragDropData> |
   BookmarkDragDropData |
   TabDragData;
 

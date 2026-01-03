@@ -37,7 +37,7 @@
   
   // local imports
   import { localize } from '@/utils/game';
-  import { useFrontStore, useMainStore } from '@/applications/stores';
+  import { useFrontStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { mapEntryToOption } from '@/utils/misc';
   
@@ -58,6 +58,7 @@
   ////////////////////////////////
   // store
   const frontStore = useFrontStore();
+  const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
   const { participantRows } = storeToRefs(frontStore);
   const { currentSetting } = storeToRefs(mainStore);
@@ -80,7 +81,7 @@
       field: 'name', 
       header: localize('labels.tableHeaders.name'),
       sortable: true,
-      clickable: true,
+      onClick: onNameClick,
       style: 'width: 100%',
     },
     { 
@@ -144,6 +145,11 @@
     }
   };
   
+  // when we click on a name, open the entry
+  async function onNameClick (event: MouseEvent, uuid: string) {
+    return navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
+  }
+
   const onAddParticipant = () => {
     if (!currentSetting.value)
       return;

@@ -162,7 +162,7 @@
     event.preventDefault();  
 
     if (!currentSetting.value)
-      return false;
+      return;
 
     // parse the data - looking for entries
     let data = getValidatedData(event);

@@ -738,6 +738,7 @@
       "saveChanges": {
         "title": "Unsaved Changes",
         "message": "You have unsaved changes in one or more open editors. What would you like to do?",
+        "uuidChangesMessage": "You've added or removed references to other entries. Would you like to update the related entries?",
         "save": "Save Changes",
         "discard": "Discard Changes",
         "cancel": "Cancel"
