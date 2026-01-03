@@ -492,10 +492,7 @@
 
   const cancelEdit = () => {
     // Clean up UUID tracking if canceling
-    if (editingRow.value && editingRow.value in initialRowUUIDs.value) {
-      initialRowUUIDs.value = [];
-    }
-    
+    initialRowUUIDs.value = [];    
     editingRow.value = null;
     editingRowData.value = {};
   };
@@ -532,8 +529,7 @@
       let uuidChanges: { added: string[]; removed: string[] } | null = null;
       const currentUUIDs = getCurrentUUIDs();
       
-      const initialUUIDs = initialRowUUIDs.value[editingRow.value] || [];
-      uuidChanges = compareUUIDs(initialUUIDs, currentUUIDs);
+      uuidChanges = compareUUIDs(initialRowUUIDs.value, currentUUIDs);
 
       if (uuidChanges && (uuidChanges.added.length > 0 || uuidChanges.removed.length > 0)) {
         emit('relatedEntriesChanged', uuidChanges.added, uuidChanges.removed);

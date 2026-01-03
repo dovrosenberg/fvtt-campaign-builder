@@ -11,6 +11,8 @@
     :help-text="localize('labels.session.loreHelpText')"
     help-link="https://slyflourish.com/sharing_secrets.html"
     :can-reorder="true"
+    :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+    @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddLore"
     @cell-edit-complete="onCellEditComplete"
     @dragover-new="standardDragover"
@@ -32,6 +34,7 @@
   import { localize } from '@/utils/game'
   import { getValidatedData, standardDragover } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
 	
@@ -54,6 +57,9 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+  }>();
 
   ////////////////////////////////
   // store

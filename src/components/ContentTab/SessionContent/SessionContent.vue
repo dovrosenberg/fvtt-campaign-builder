@@ -106,7 +106,9 @@
 
         <div class="tab flexcol" data-group="primary" data-tab="lore">
           <div class="tab-inner">
-            <SessionLoreTab />
+            <SessionLoreTab 
+              @related-entries-changed="onRelatedEntriesChanged"
+            />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="locations">
