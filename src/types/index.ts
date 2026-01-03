@@ -207,5 +207,6 @@ export type ValidDocType =
 export interface ContentTabDescriptor {
   id: string;
   label: string;
+  deletable?: boolean;
 }
   

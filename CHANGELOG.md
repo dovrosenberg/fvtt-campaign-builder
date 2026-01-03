@@ -25,6 +25,7 @@
 - When creating connections in a Story Web, entities that aren't valid connections no longer light up to show they are invalid.
 - Fixed styling on the various module settings submenu windows.
 - Deleting a connection between a Danger and an Entry on a Story Web, now works properly.  
+- You can now properly delete a Danger from a Front (right-click on the tab).
 
 ## 1.7.4 - Fixed journal entry direct-open bug
 ![](https://img.shields.io/badge/release%20date-December%2023%2C%202025-blue)

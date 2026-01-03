@@ -161,6 +161,19 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     await this.save();
   }
 
+  /**
+   * Deletes a danger from the front at the specified index
+   * @param index - The index of the danger to delete
+   */
+  public async deleteDanger(index: number): Promise<void> {
+    if (index < 0 || index >= this._clone.system.dangers.length) {
+      throw new Error('Invalid danger index in Front.deleteDanger()');
+    }
+    
+    this._clone.system.dangers.splice(index, 1);
+    await this.save();
+  }
+
   get campaignId(): string {
     return this._clone.system.campaignId;
   }

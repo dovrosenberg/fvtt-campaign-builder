@@ -19,8 +19,15 @@ Each [^Front] is made up of one or more [^Dangers]. A Danger is a specific threa
 To add a new Danger to a Front:
 
 1. Open the Front in the main content area.
-2. Click the `+` button on the Front’s tab strip.
+2. Click the `+` button on the Front's tab strip.
 3. A new Danger is created and a tab for it appears.
+
+### Deleting a Danger
+
+To delete a Danger from a Front:
+
+1. Right-click on the Danger's tab.
+2. Select "Delete danger" from the context menu.
 
 ### Danger Name
 

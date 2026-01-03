@@ -31,6 +31,7 @@
         add-tab
         :add-tab-label="localize('labels.tabs.front.createNewDanger')"
         @add-tab="onAddTab"
+        @delete-tab="onDeleteTab"
       >
         <DescriptionTab
           :name="currentFront?.name || 'Front'"
@@ -128,7 +129,7 @@
     for (let i=0; i < (currentFront.value?.dangers?.length || 0); i++) {
       const danger = currentFront.value!.dangers[i];
       
-      retval.push({ id: `danger${i}`, label: danger.name });
+      retval.push({ id: `danger${i}`, label: danger.name, deletable: true });
     }
     
     return retval;
@@ -202,6 +203,23 @@
     await currentFront.value.createDanger();
 
     currentContentTab.value = `danger${currentFront.value.dangers.length - 1}`;
+
+    await mainStore.refreshFront();
+  }
+
+  const onDeleteTab = async (tabId: string): Promise<void> => {
+    if (!currentFront.value)
+      return;
+
+    // extract the danger index from the tab id (e.g., 'danger0' -> 0)
+    const dangerIndex = parseInt(tabId.replace('danger', ''));
+    if (isNaN(dangerIndex))
+      return;
+
+    await currentFront.value.deleteDanger(dangerIndex);
+
+    // switch to description tab after deletion
+    currentContentTab.value = 'description';
 
     await mainStore.refreshFront();
   }

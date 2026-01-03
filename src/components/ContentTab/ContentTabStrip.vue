@@ -7,6 +7,7 @@
           :key="tab.id"
           class="item"
           :data-tab="tab.id"
+          @contextmenu="(e) => onTabContextMenu(e, tab)"
         >
           {{ tab.label }}
         </a>
@@ -36,8 +37,10 @@
 
   // local imports
   import { useMainStore } from '@/applications/stores';
+  import { localize } from '@/utils/game';
   
   // library components
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
 
@@ -72,6 +75,7 @@
   // emits
   const emit = defineEmits<{
     'addTab': [];
+    'deleteTab': [tabId: string];
   }>();
 
   ////////////////////////////////
@@ -89,6 +93,35 @@
 
   ////////////////////////////////
   // methods
+
+  ////////////////////////////////
+  // event handlers
+  const onTabContextMenu = (event: MouseEvent, tab: ContentTabDescriptor): void => {
+    // only show context menu for deletable tabs
+    if (!tab.deletable) 
+      return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.danger.delete'), 
+          onClick: () => {
+            emit('deleteTab', tab.id);
+          }
+        },
+      ]
+    });
+  };
+
   const mountTabs = async (): Promise<void> => {
     // have to wait until they render
     await nextTick();

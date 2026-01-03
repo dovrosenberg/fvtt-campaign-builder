@@ -832,6 +832,9 @@
       "front": {
         "delete": "Delete front"
       },
+      "danger": {
+        "delete": "Delete danger"
+      },
       "storyWeb": {
         "delete": "Delete Story Web"
       },
