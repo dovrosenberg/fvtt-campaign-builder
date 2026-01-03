@@ -376,12 +376,15 @@ export const useNavigationStore = defineStore('navigation', () => {
 
       // otherwise, just swap out the active tab info
       tab.header = headerData;
-      tab.contentTab = targetContentTab;
 
       // add to history -- it should go immediately after the current tab and all other forward history should go away
       // this is a new thing so the contentTab should always be the default
       if (headerData.uuid && options.updateHistory) {
+        // addToHistory sets the contentTab on the NEW entry - don't set it before or we'll overwrite the old entry!
         tab.addToHistory(contentId, contentType, targetContentTab);
+      } else {
+        // Not adding to history (e.g., navigating back) - set contentTab on current entry
+        tab.contentTab = targetContentTab;
       }
 
       // force a refresh of reactivity
@@ -514,7 +517,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     
     newTab.active = true;
 
-    // reset the contenttab to the default if that's the mode we're in
+    // reset the contentTab to the default if that's the mode we're in
     if (!ModuleSettings.get(SettingKey.subTabsSavePosition) && !forceTab)
       newTab.contentTab = null;
     
