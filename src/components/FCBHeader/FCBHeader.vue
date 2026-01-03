@@ -144,23 +144,11 @@
 
   const overflowBookmarks = computed(() => {
     const visible = visibleBookmarks.value;
-    const regularBookmarks = bookmarks.value;
-    const sessionBookmarksCount = ModuleSettings.get(SettingKey.sessionBookmark) ? sessionBookmarks.value.length : 0;
     
     if (visibleCount.value === 0 || visibleCount.value >= visible.length) return [];
     
-    // If we have session bookmarks, we need to account for them in the overflow calculation
-    if (sessionBookmarksCount > 0) {
-      // If the session bookmarks themselves are in overflow, include them
-      if (visibleCount.value === 0) {
-        return visible;
-      }
-      // Otherwise, return overflow of regular bookmarks
-      const regularVisibleCount = Math.max(0, visibleCount.value - sessionBookmarksCount);
-      return regularBookmarks.slice(regularVisibleCount);
-    }
-    
-    return regularBookmarks.slice(visibleCount.value);
+    // Return all bookmarks (session + regular) that fall past visibleCount
+    return visible.slice(visibleCount.value);
   });
 
   // Watch for changes and update the session bookmarks
