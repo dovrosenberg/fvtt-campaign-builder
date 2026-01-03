@@ -370,8 +370,8 @@ export const useNavigationStore = defineStore('navigation', () => {
     } else {
       tab = getActiveTab(false);
 
-      // if same entry, nothing to do
-      if (tab.header?.uuid === contentId || null)
+      // if same entry and same content tab, nothing to do
+      if ((tab.header?.uuid === contentId || null) && tab.contentTab === targetContentTab)
         return tab;
 
       // otherwise, just swap out the active tab info

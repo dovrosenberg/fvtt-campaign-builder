@@ -2,7 +2,7 @@
 
 // library imports
 import { defineStore, } from 'pinia';
-import { computed, ref, watch, nextTick } from 'vue';
+import { computed, ref, watch, nextTick, triggerRef } from 'vue';
 
 // local imports
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings';
@@ -122,6 +122,9 @@ export const useMainStore = defineStore('main', () => {
 
     await nextTick();
     _currentTab.value = tab;
+    
+    // Force reactivity update even if same tab object (e.g., when navigating history with different contentTab)
+    triggerRef(_currentTab);
 
     // clear everything
     _currentEntry.value = null;

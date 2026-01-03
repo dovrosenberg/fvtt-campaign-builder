@@ -112,7 +112,7 @@
   </div>
 
   <!-- Related Items Management Dialog -->
-    <RelatedEntriesManagementDialog
+  <RelatedEntriesManagementDialog
     v-model="showRelatedEntriesDialog"
     :added-ids="pendingAddedUUIDs"
     :removed-ids="pendingRemovedUUIDs"
@@ -127,7 +127,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useFrontStore } from '@/applications/stores';
+  import { useMainStore, useFrontStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { notifyWarn } from '@/utils/notifications';
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -144,6 +144,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import DangerParticipantTable from './DangerParticipantTable.vue';
   import DangerGrimPortentTable from './DangerGrimPortentTable.vue';
+  import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
 
   // types
   import { Danger, Topics, } from '@/types';
@@ -231,7 +232,7 @@
     const { added, removed } = await getDangerRelatedEntries(addedUUIDs, removedUUIDs, currentDanger.value);
 
     // locations and characters can be linked
-    await filterRelatedEntries(currentSetting.value, added, removed, [Topics.Location, Topics.Organization]);
+    await filterRelatedEntries(currentSetting.value, added, removed, [Topics.Character, Topics.Organization]);
 
     // Store the pending changes and show dialog if there are any changes
     if (added.length > 0 || removed.length > 0) {
@@ -245,20 +246,24 @@
     if (!currentDanger.value || !currentFront.value || currentDangerIndex.value == null) 
       return;
 
+    if (addedEntries.length === 0 && removedEntries.length === 0) 
+      return;
+
     // can only be NPC and organization and both go in participants
     // Handle added relationships
+    const danger = currentDanger.value;
+
     for (const entry of addedEntries) {
-      currentDanger.value.participants.push({ uuid: entry.uuid, role: '' });
-      currentFront.value.updateDanger(currentDangerIndex.value, currentDanger.value);
-      await currentFront.value.save();
+      danger.participants.push({ uuid: entry.uuid, role: '' });
     }
 
     // Handle removed relationships
-    for (const entry of removedEntries) {
-      currentDanger.value.participants.filter(p => p.uuid !== entry.uuid);
-      currentFront.value.updateDanger(currentDangerIndex.value, currentDanger.value);
-      await currentFront.value.save();
-    }
+    danger.participants = danger.participants.filter(p => !removedEntries.some(e => e.uuid === p.uuid));
+
+    currentFront.value.updateDanger(currentDangerIndex.value, danger);
+    await currentFront.value.save();
+
+    await useMainStore().refreshFront();
   };
 
   const onMotivationEditorSaved = (newMotivation: string) => {
