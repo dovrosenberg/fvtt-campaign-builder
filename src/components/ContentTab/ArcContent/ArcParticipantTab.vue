@@ -48,6 +48,7 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
   
   // types
+  import { BaseTableColumn } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -86,7 +87,7 @@
     });
   });
 
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = arcStore.extraFields[ArcTableTypes.Participant]

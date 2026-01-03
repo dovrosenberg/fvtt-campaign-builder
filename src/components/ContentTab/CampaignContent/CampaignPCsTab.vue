@@ -30,7 +30,7 @@
   import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useCampaignStore, useMainStore, useNavigationStore, } from '@/applications/stores';
+  import { useCampaignStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
 
@@ -41,7 +41,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
   
   // types
-  import { RelatedPCDetails, RelatedEntryDialogModes, Topics, EntryNodeDragData } from '@/types';
+  import { BaseTableColumn, RelatedPCDetails, RelatedEntryDialogModes, Topics, EntryNodeDragData } from '@/types';
   import { Entry } from '@/classes';
   
   ////////////////////////////////
@@ -54,7 +54,6 @@
   // store
   const campaignStore = useCampaignStore();
   const navigationStore = useNavigationStore();
-  const mainStore = useMainStore();
   const { relatedPCRows, } = storeToRefs(campaignStore);
 
   ////////////////////////////////
@@ -87,7 +86,7 @@
   // these are here because they can be; this is cleaner than sticking it all in the store
   // to move the others out, though, will require some refactoring because their onClick handlers need stuff in the store
 
-  const columns = computed((): any[] => [
+  const columns = computed((): BaseTableColumn[] => [
     { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' },
     { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
     { field: 'actor', style: 'text-align: left', header: 'Character Sheet', sortable: true, onClick: onActorClick },

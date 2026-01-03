@@ -43,7 +43,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent } from '@/types';
+  import { CellEditCompleteEvent, BaseTableColumn } from '@/types';
   
   ////////////////////////////////
   // props
@@ -80,7 +80,7 @@
     }))
   ));
   
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = props.arcMode ? 

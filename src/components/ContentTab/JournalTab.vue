@@ -40,8 +40,8 @@
   // local components
 
   // types
-  import { FoundryDragType, RelatedJournal } from '@/types';
-  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import { BaseTableColumn, FoundryDragType, RelatedJournal } from '@/types';
+  import { getValidaBtedData, standardDragover } from '@/utils/dragdrop';
 
   ////////////////////////////////
   // props
@@ -65,7 +65,7 @@
 
   ////////////////////////////////
   // computed data
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', header: '', style: 'width: 40px' };
     const journalNameColumn = { field: 'journalName', header: localize('labels.tableHeaders.journalName'), sortable: true, onClick: onJournalClick };
     const pageNameColumn = { field: 'pageName', header: localize('labels.tableHeaders.pageName'), sortable: true, onClick: onPageClick };

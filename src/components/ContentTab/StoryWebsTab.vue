@@ -26,7 +26,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   import { Arc, Campaign, Session, StoryWeb } from '@/classes';
-  import { StoryWebNodeDragData } from '@/types';
+  import { BaseTableColumn, StoryWebNodeDragData } from '@/types';
   
   interface StoryWebRow {
     uuid: string;
@@ -66,7 +66,7 @@
     return (entity.value as Arc | Session | null)?.campaign || null;
   });
 
-  const columns = computed((): any[] => [
+  const columns = computed((): BaseTableColumn[] => [
     { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' },
     { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
   ]);

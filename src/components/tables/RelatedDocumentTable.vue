@@ -44,7 +44,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { RelatedDocumentDetails, DocumentLinkType, FoundryDragType } from '@/types';
+  import { BaseTableColumn, RelatedDocumentDetails, DocumentLinkType, FoundryDragType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -136,7 +136,7 @@
     })
   );
 
-  const columns = computed((): any[] => {
+  const columns = computed((): BaseTableColumn[] => {
     // for now, just action and name
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 60px; max-width: 60px', header: localize('labels.tableHeaders.actions') };
     const nameColumn = { field: 'name', style: 'text-align: left', header: localize('labels.tableHeaders.name'), sortable: true, onClick: onNameClick }; 

@@ -34,7 +34,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { BaseTableGridRow, CellEditCompleteEvent } from '@/types';
+  import { BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent } from '@/types';
   import { SessionVignette } from '@/documents';
 
   ////////////////////////////////
@@ -60,7 +60,7 @@
     }))
   ));
 
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = sessionStore.extraFields[SessionTableTypes.Vignette]

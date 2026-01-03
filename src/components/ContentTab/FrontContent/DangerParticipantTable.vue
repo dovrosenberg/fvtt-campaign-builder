@@ -46,7 +46,7 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, EntryNodeDragData, } from '@/types';
+  import { BaseTableColumn, CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, EntryNodeDragData, } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -70,7 +70,7 @@
 
   ////////////////////////////////
   // computed data
-  const columns = computed(() => [
+  const columns = computed((): BaseTableColumn[] => [
     { 
       field: 'actions', 
       style: 'text-align: left; width: 60px; max-width: 60px', 
@@ -96,7 +96,7 @@
       editable: true,
       style: 'width: 100%',
     }
-  ]);
+  ] as BaseTableColumn[]);
 
   const actions = computed(() => {
     const actions = [] as ActionButtonDefinition[];
@@ -163,7 +163,7 @@
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, } = event;
 
-    await frontStore.updateParticipant(data.uuid, newValue);
+    await frontStore.updateParticipant(data.uuid, newValue as string);
   };
 
   const onReorder = (reorderedRows: DangerParticipant[]) => {

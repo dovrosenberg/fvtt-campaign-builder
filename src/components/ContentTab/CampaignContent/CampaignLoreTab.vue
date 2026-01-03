@@ -58,7 +58,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { BaseTableGridRow, CampaignLoreDetails, CellEditCompleteEvent } from '@/types';
+  import { BaseTableColumn, BaseTableGridRow, CampaignLoreDetails, CellEditCompleteEvent } from '@/types';
   
   ////////////////////////////////
   // props
@@ -89,7 +89,7 @@
     }))
   ));
 
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = campaignStore.extraFields[CampaignTableTypes.Lore]
@@ -97,7 +97,7 @@
     return [ actionColumn, ...extraFields];
   });
 
-  const deliveredColumns = computed(() => {
+  const deliveredColumns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = campaignStore.extraFields[CampaignTableTypes.DeliveredLore]

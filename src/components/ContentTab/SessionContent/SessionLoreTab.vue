@@ -39,7 +39,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { CellEditCompleteEvent, BaseTableGridRow, SessionLoreDetails } from '@/types';
+  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow, SessionLoreDetails } from '@/types';
   import { SessionLore } from '@/documents';
   
   ////////////////////////////////
@@ -80,7 +80,7 @@
     }))
   ));
 
-  const columns = computed(() => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
     const extraFields = props.arcMode ? 

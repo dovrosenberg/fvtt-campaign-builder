@@ -63,7 +63,7 @@
   import Dialog from '@/components/Dialog.vue';
 
   // types
-  import { RowEditCompleteEvent } from '@/types';
+  import { BaseTableColumn, RowEditCompleteEvent } from '@/types';
   import { notifyWarn } from '@/utils/notifications';
   
   ////////////////////////////////
@@ -113,7 +113,7 @@
     })
   )));
 
-  const columns = computed((): any[] => {
+  const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 75px;', header: 'Actions' };
     const nameColumn = { field: 'name', style: 'text-align: left; width: 25%;', header: 'Arc Name', sortable: false, editable: true, smallEditBox: true }; 
     const startSessionColumn = { field: 'startSessionNumber', style: 'text-align: left; width: 10%;', header: 'Start #', sortable: false, editable: true, smallEditBox: true };

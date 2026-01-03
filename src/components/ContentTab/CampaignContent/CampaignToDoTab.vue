@@ -38,7 +38,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { ToDoItem, ToDoTypes, BaseTableGridRow, CellEditCompleteEvent } from '@/types';
+  import { ToDoItem, ToDoTypes, BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent } from '@/types';
 
   // store
   const campaignStore = useCampaignStore();
@@ -81,11 +81,11 @@
     }))
   ));
 
-  const columns = computed((): any[] => {
+  const columns = computed((): BaseTableColumn[] => {
     // add actions    
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
-    const columns = [ actionColumn ] as any[];
+    const columns = [ actionColumn ] as BaseTableColumn[];
     for (const col of campaignStore.extraFields[CampaignTableTypes.ToDo]) {
       columns.push(col);
     }
