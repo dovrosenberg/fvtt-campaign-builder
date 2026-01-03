@@ -30,7 +30,7 @@
   import { useSessionStore, SessionTableTypes} from '@/applications/stores';
   import { Topics, RelatedEntryDialogModes, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
-  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
 
   // library components
 
@@ -39,7 +39,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
-  import { FCBDragTypes, CellEditCompleteEvent } from '@/types';
+  import { CellEditCompleteEvent } from '@/types';
   
   ////////////////////////////////
   // props

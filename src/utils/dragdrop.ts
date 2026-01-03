@@ -2,6 +2,19 @@
 
 import { NodeDragDropData, KnownDragTypes, } from '@/types';
 
+export enum FCBDragTypes {
+  Entry = 'fcb-entry',
+  StoryWeb = 'fcb-storyWeb',
+  Setting = 'fcb-setting',
+  Front = 'fcb-front',
+  Campaign = 'fcb-campaign',
+  Arc = 'fcb-arc',
+  Session = 'fcb-session',
+  Bookmark = 'fcb-bookmark',
+  Tab = 'fcb-tab',
+}
+
+
 /**
  * Helper function to set combined drag data for FCB entries
  * Combines Foundry's required fields (type and uuid) with custom FCB data
@@ -55,9 +68,23 @@ export const getValidatedData = (event: DragEvent): KnownDragTypes | undefined =
 };
 
 /** Read a data pack from a drop event. Return the type from fcbData if present, otherwise from the root */
-export const getType = (data: KnownDragTypes): string => {
+export const getType = (data: KnownDragTypes): FCBDragTypes | string => {
   // @ts-ignore
   return data.fcbData?.type ?? data.type;
+};
+
+/**
+ * Handles dragover events for UUID drops
+ * 
+ * @param event - The dragover event
+ */
+export const standardDragover = (event: DragEvent): void => {
+  event.preventDefault();
+  event.stopPropagation();
+
+  if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain')) {
+    event.dataTransfer.dropEffect = 'none';
+  }
 };
 
 /**

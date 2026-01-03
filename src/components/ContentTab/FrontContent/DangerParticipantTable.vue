@@ -38,7 +38,7 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useFrontStore, useMainStore } from '@/applications/stores';
-  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { mapEntryToOption } from '@/utils/misc';
   
   // local components
@@ -46,7 +46,7 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
 
   // types
-  import { FCBDragTypes, CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, EntryNodeDragData, } from '@/types';
+  import { CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, EntryNodeDragData, } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////

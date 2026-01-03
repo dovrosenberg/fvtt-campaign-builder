@@ -34,7 +34,7 @@
   import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes } from '@/applications/stores';
   import { Topics, RelatedEntryDialogModes, CellEditCompleteEvent, EntryNodeDragData, } from '@/types';
   import { localize } from '@/utils/game'
-  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
 
   // library components
@@ -44,7 +44,6 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
-  import { FCBDragTypes } from '@/types';
   
   ////////////////////////////////
   // props

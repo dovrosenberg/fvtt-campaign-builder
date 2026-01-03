@@ -38,6 +38,7 @@
   import { getTopicText } from '@/compendia';
   import { notifyInfo } from '@/utils/notifications';
   import { mapEntryToOption } from '@/utils/misc';
+  import { FCBDragTypes } from '@/utils/dragdrop';
 
 
   // library components
@@ -47,7 +48,6 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
   
   // types
-  import { FCBDragTypes } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////

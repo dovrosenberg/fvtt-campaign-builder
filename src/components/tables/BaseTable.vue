@@ -170,15 +170,17 @@
                 v-if="editingRow === data.uuid" 
                 class="fcb-table-body-text"
               >                
-                <Textarea 
+                <AdvancedTextArea 
                   v-if="!col.smallEditBox"
                   v-model="editingRowData[field]"
-                  style="width: 100%; font-size: inherit;"
                   :id="`${data.uuid}-${field}`" 
                   :data-testid="`table-textarea-${field}`"
-                  rows="2"
-                  unstyled
-                  @keydown.enter="saveCurrentlyEditingRow" 
+                  :setting-id="currentSetting?.uuid"
+                  :enable-entity-linking="true"
+                  :edit-mode="true"
+                  :rows="2"
+                  class="fcb-table-textarea"
+                  @keydown.enter="onEnterKeyInTextArea" 
                   @keydown.esc.stop="cancelEdit"
                 />
                 <InputText 
@@ -190,7 +192,7 @@
                   unstyled
                   @keydown.enter.stop="saveCurrentlyEditingRow" 
                   @keydown.esc.stop="cancelEdit"
-                />
+                /> 
               </div>
               <!-- not editing this row but need to put a click event on it -->
               <div 
@@ -198,8 +200,17 @@
                 class="fcb-table-body-text"
                 @click.stop="onClickEditableCell(data.uuid)"
               >
-                <!-- we're not editing this row, but need to put a click event on columns that are editable -->
-                {{ data[field] }} &nbsp;
+                <!-- Use AdvancedTextArea in display mode for enriched content -->
+                <AdvancedTextArea 
+                  v-if="!col.smallEditBox && data[field]"
+                  :model-value="data[field]"
+                  :setting-id="currentSetting?.uuid"
+                  :edit-mode="false"
+                  class="fcb-table-display-text"
+                />
+                <span v-else>
+                  {{ data[field] }} &nbsp;
+                </span>
               </div>
             </div>
           </div>
@@ -272,6 +283,8 @@
 
   // local imports
   import { localize } from '@/utils/game';
+  import { useMainStore } from '@/applications/stores';
+  import { storeToRefs } from 'pinia';
 
   // library components
   import Button from 'primevue/button';
@@ -282,10 +295,12 @@
   } from 'primevue/datatable';
   import Column from 'primevue/column';
   import InputText from 'primevue/inputtext';
-  import Textarea from 'primevue/textarea';
   import IconField from 'primevue/iconfield';
   import InputIcon from 'primevue/inputicon';
   import Checkbox from 'primevue/checkbox';
+
+  // local components
+  import AdvancedTextArea from '@/components/AdvancedTextArea.vue';
 
   // types
   import { 
@@ -381,6 +396,8 @@
 
   ////////////////////////////////
   // store
+  const mainStore = useMainStore();
+  const { currentSetting } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -466,9 +483,19 @@
     editingRowData.value = {};
   };
 
+  const onEnterKeyInTextArea = (event: KeyboardEvent) => {
+    if (event.shiftKey) 
+      return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    saveCurrentlyEditingRow();
+  };
+
   /**
    * Saves the currently editing row by extracting values from input fields
    * and emitting cellEditComplete events for each changed field
+   * 
    */
   const saveCurrentlyEditingRow = () => {
     // If we're not editing a row, do nothing
@@ -707,8 +734,5 @@
   .fcb-table-help-icon {
     margin-left: 8px;
     margin-right: 8px;
-    // display: flex;
-    // align-items: center;
   }
-
 </style>

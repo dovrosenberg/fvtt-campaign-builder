@@ -41,7 +41,7 @@
   import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { Entry } from '@/classes';
-  import { getValidatedData, getType, standardDragover } from '@/utils/dragdrop';
+  import { getValidatedData, getType, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
 
 
@@ -52,7 +52,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { FCBDragTypes, Topics, ValidTopic, RelatedEntryDetails, RelatedEntryDialogModes, EntryNodeDragData, ValidTopicRecord, ActionButtonDefinition, CellEditCompleteEvent } from '@/types';
+  import { Topics, ValidTopic, RelatedEntryDetails, RelatedEntryDialogModes, EntryNodeDragData, ValidTopicRecord, ActionButtonDefinition, CellEditCompleteEvent } from '@/types';
   
   interface RelatedEntryGridRow extends Record<string, any> { 
     uuid: string; 

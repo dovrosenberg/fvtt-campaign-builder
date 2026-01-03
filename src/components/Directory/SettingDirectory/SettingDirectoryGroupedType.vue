@@ -54,7 +54,7 @@
   import { useSettingDirectoryStore, useMainStore, } from '@/applications/stores';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   import { toTopic } from '@/utils/misc';
-  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -63,7 +63,7 @@
   import SettingDirectoryGroupedNode from './SettingDirectoryGroupedNode.vue';
 
   // types
-  import { FCBDragTypes, ValidTopic, EntryNodeDragData } from '@/types';
+  import { ValidTopic, EntryNodeDragData } from '@/types';
   import { DirectoryTypeEntryNode, DirectoryTypeNode, Entry } from '@/classes';
 
   

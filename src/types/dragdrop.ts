@@ -1,16 +1,5 @@
 import { ValidTopic } from '@/types';
-
-export enum FCBDragTypes {
-  Entry = 'fcb-entry',
-  StoryWeb = 'fcb-storyWeb',
-  Setting = 'fcb-setting',
-  Front = 'fcb-front',
-  Campaign = 'fcb-campaign',
-  Arc = 'fcb-arc',
-  Session = 'fcb-session',
-  Bookmark = 'fcb-bookmark',
-  Tab = 'fcb-tab',
-}
+import { FCBDragTypes } from '@/utils/dragdrop'
 
 export interface EntryNodeDragData {
   type: FCBDragTypes.Entry;
@@ -81,9 +70,15 @@ export type FoundryDragType = {
   uuid: string;
 }
 
+export type FCBDragType = {
+  type: 'JournalEntry';
+  uuid: string;
+  fcbData: NodeDragDropData;
+}
+
 export type KnownDragTypes = 
   FoundryDragType | 
-  { type: 'JournalEntry'; fcbData: NodeDragDropData } |
+  FCBDragType |
   BookmarkDragDropData |
   TabDragData;
 

@@ -53,7 +53,7 @@
 
   // local imports
   import { useStoryWebStore } from '@/applications/stores';
-  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { localize } from '@/utils/game';
   
   // library components
@@ -62,7 +62,7 @@
   // local components
 
   // types
-  import { FCBDragTypes, EntryNodeDragData, FrontNodeDragData } from '@/types';
+  import { EntryNodeDragData, FrontNodeDragData } from '@/types';
 
   ////////////////////////////////
   // props

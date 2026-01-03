@@ -32,7 +32,7 @@
   // local imports
   import { useCampaignStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
 
   // library components
 
@@ -41,7 +41,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
   
   // types
-  import { RelatedPCDetails, RelatedEntryDialogModes, Topics, EntryNodeDragData, FCBDragTypes } from '@/types';
+  import { RelatedPCDetails, RelatedEntryDialogModes, Topics, EntryNodeDragData } from '@/types';
   import { Entry } from '@/classes';
   
   ////////////////////////////////

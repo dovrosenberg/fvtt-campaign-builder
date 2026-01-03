@@ -50,7 +50,7 @@
   // local imports
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, NO_TYPE_STRING, validParentItems } from '@/utils/hierarchy';
-  import { getType, getValidatedData, setCombinedDragData, standardDragover } from '@/utils/dragdrop';
+  import { getType, getValidatedData, setCombinedDragData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
@@ -60,7 +60,7 @@
   import SettingDirectoryNodeComponent from './SettingDirectoryNode.vue';
   
   // types
-  import { FCBDragTypes, EntryNodeDragData, ValidTopic } from '@/types';
+  import { EntryNodeDragData, ValidTopic } from '@/types';
   import { Entry, DirectoryEntryNode, FCBSetting, TopicFolder } from '@/classes';
 
   ////////////////////////////////
