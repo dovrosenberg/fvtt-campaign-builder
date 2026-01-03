@@ -198,7 +198,7 @@
               <div 
                 v-else
                 class="fcb-table-body-text"
-                @click.stop="onClickEditableCell(data.uuid)"
+                @click="onClickEditableCell($event, data.uuid)"
               >
                 <!-- Use AdvancedTextArea in display mode for enriched content -->
                 <AdvancedTextArea 
@@ -609,7 +609,16 @@
     emit('cellEditComplete', event);
   };
 
-  const onClickEditableCell = (uuid: string) => {
+  const onClickEditableCell = (event: MouseEvent, uuid: string) => {
+    // Check if the click was on a content link - if so, let it bubble up to the application handler
+    const target = event.target as HTMLElement;
+    if (target.closest('.fcb-content-link')) {
+      return;
+    }
+
+    // Stop propagation for non-link clicks to enter edit mode
+    event.stopPropagation();
+
     // if we were already editing a row, save it first
     saveCurrentlyEditingRow();
 
