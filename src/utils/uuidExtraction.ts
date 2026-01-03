@@ -3,7 +3,7 @@
  */
 
 import { Entry, Session } from '@/classes';
-import { RelatedEntryDetails } from '@/types';
+import { Danger, RelatedEntryDetails } from '@/types';
 import { getParentId } from './hierarchy';
 
 /**
@@ -81,12 +81,21 @@ export async function getSessionRelatedEntries(addedUUIDs: string[], removedUUID
   // make a list of all the things we might want to hook up to the session
   const possibleConnections = [
     ...currentSession.locations.map(location => location.uuid),
-    // ...currentSession.items.map(item => item.uuid),
     ...currentSession.npcs.map(npc => npc.uuid),
-    // ...currentSession.monsters.map(monster => monster.uuid),
-    // ...currentSession.vignettes.map(vignette => vignette.uuid),
   ];
 
+  const added = addedUUIDs.filter(uuid => !possibleConnections.includes(uuid));
+  const removed = removedUUIDs.filter(uuid => possibleConnections.includes(uuid));
+  return { added, removed };
+}
+
+/** for a list of added and removed UUIDs, return a list of ones that are not/are already 
+ *  in the current danger's participants list
+ */
+export async function getDangerRelatedEntries(addedUUIDs: string[], removedUUIDs: string[], currentDanger: Danger): Promise<{ added: string[], removed: string[]}> {
+  // make a list of all the things we might want to hook up to the danger
+  const possibleConnections = currentDanger.participants.map(participant => participant.uuid);
+  
   const added = addedUUIDs.filter(uuid => !possibleConnections.includes(uuid));
   const removed = removedUUIDs.filter(uuid => possibleConnections.includes(uuid));
   return { added, removed };

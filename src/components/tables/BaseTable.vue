@@ -288,6 +288,7 @@
   import { storeToRefs } from 'pinia';
   import { ModuleSettings, SettingKey } from '@/settings/ModuleSettings';
   import { extractUUIDs, compareUUIDs } from '@/utils/uuidExtraction';
+  import { replaceEntityReferences } from '@/utils/entityLinking';
 
   // library components
   import Button from 'primevue/button';
@@ -521,11 +522,38 @@
       cancelEdit();
       return;
     }
+    
+    // Emit the cellEditComplete event for each changed field
+    for (const col of props.columns) {
+      if (col.editable) {
+        const id = `${editingRow.value}-${col.field}`;
+        const input = document.getElementById(id) as HTMLInputElement;          
+        if (input && originalRowData[col.field] !== input.value) {
+          // Apply entity linking for AdvancedTextArea columns (non-smallEditBox)
+          let newValue = input.value;
+          if (!col.smallEditBox) {
+            newValue = replaceEntityReferences(newValue, '');
+
+            // save it so we can use it later to check for uuid changes
+            editingRowData.value[col.field] = newValue;
+          }
+
+          // pull the value from the input and fire an event to save it
+          emit('cellEditComplete', {
+            data: originalRowData,
+            newData: editingRowData.value,
+            value: originalRowData[col.field],
+            newValue: newValue,
+            field: col.field,
+            index: props.rows.findIndex((r) => r.uuid === editingRow.value),
+            type: 'enter',
+          } as CellEditCompleteEvent);
+        }
+      }
+    }
 
     // Check for UUID changes if autoRelationships is enabled
-    let shouldCheckUUIDs = ModuleSettings.get(SettingKey.autoRelationships);
-    
-    if (shouldCheckUUIDs) {
+    if (ModuleSettings.get(SettingKey.autoRelationships)) {
       let uuidChanges: { added: string[]; removed: string[] } | null = null;
       const currentUUIDs = getCurrentUUIDs();
       
@@ -533,27 +561,6 @@
 
       if (uuidChanges && (uuidChanges.added.length > 0 || uuidChanges.removed.length > 0)) {
         emit('relatedEntriesChanged', uuidChanges.added, uuidChanges.removed);
-      }
-    }
-
-    // Emit the cellEditComplete event for each changed field
-    for (const col of props.columns) {
-      if (col.editable) {
-        const id = `${editingRow.value}-${col.field}`;
-        const input = document.getElementById(id) as HTMLInputElement;          
-        if (input && originalRowData[col.field] !== input.value) {
-          // pull the value from the input and fire an event to save it
-          emit('cellEditComplete', {
-            data: originalRowData,
-            newData: {...editingRowData.value, [col.field]: input.value},
-            value: originalRowData[col.field],
-            newValue: input.value,
-            // newValue: editingRowData.value[col.field],
-            field: col.field,
-            index: props.rows.findIndex((r) => r.uuid === editingRow.value),
-            type: 'enter',
-          } as CellEditCompleteEvent);
-        }
       }
     }
 

@@ -9,6 +9,8 @@
     :columns="columns"
     :actions="actions"
     :can-reorder="true"
+    :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+    @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddPortent"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
@@ -23,6 +25,7 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useFrontStore } from '@/applications/stores';
+  import { ModuleSettings, SettingKey } from '@/settings';
   
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
@@ -35,6 +38,9 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+  }>();
 
   ////////////////////////////////
   // store

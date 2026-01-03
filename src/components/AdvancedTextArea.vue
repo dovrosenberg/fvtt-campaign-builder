@@ -22,7 +22,6 @@ Props
 
 Emits
 - update:modelValue: string, when the content changes
-- save: string, when content is saved (after entity linking)
 
 Slots
 - None
@@ -62,13 +61,11 @@ Dependencies
 <script setup lang="ts">
   // library imports
   import { computed, nextTick, onMounted, ref, watch } from 'vue';
-  import { storeToRefs } from 'pinia';
-
+  
   // local imports
   import { handleUuidDropOnTextarea, enrichUuidLinks } from '@/utils/uuidHandler';
   import { standardDragover } from '@/utils/dragdrop'; 
-  import { useMainStore } from '@/applications/stores';
-
+  
   // library components
 
   // local components
@@ -125,19 +122,15 @@ Dependencies
   // emits
   const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
-    (e: 'save', value: string): void;
   }>();
 
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
-  const { currentSetting } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
   const textareaRef = ref<HTMLTextAreaElement>();
   const enrichedContent = ref<string>('');
-  const lastSavedValue = ref<string>('');
 
   ////////////////////////////////
   // computed data
@@ -154,7 +147,7 @@ Dependencies
    * Updates the enriched display content
    */
   const updateDisplayContent = async(content: string): Promise<void> => {    
-    enrichedContent.value = await processForDisplay(content, props.settingId);
+    enrichedContent.value = await enrichUuidLinks(props.settingId, content);
   };
 
   /**
@@ -165,32 +158,7 @@ Dependencies
       await nextTick();
       textareaRef.value.focus();
     }
-  };
-
-  /**
-   * Processes content for display - enriches UUID links
-   * 
-   * @param content - The content to process
-   * @param options - Processing options
-   * @returns Promise resolving to the processed content
-   */
-  const processForDisplay = async(
-    content: string,
-    settingId: string | null,
-  ): Promise<string> => {
-    // Enrich UUID links if we have a settingId
-    if (settingId) {
-      try {
-        return await enrichUuidLinks(settingId, content);
-      } catch (error) {
-        console.error('Failed to enrich UUID links:', error);
-        // Continue with original content if enrichment fails
-      }
-    }
-    
-    return content;
-  };
-  
+  };  
 
   ////////////////////////////////
   // event handlers
@@ -240,9 +208,6 @@ Dependencies
     if (!props.editMode) {
       await updateDisplayContent(internalValue.value);
     }
-    
-    // Initialize last saved value
-    lastSavedValue.value = internalValue.value;
   });
 
   // Expose methods

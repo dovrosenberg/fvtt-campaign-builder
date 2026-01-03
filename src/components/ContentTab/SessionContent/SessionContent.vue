@@ -100,7 +100,9 @@
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="vignettes">
           <div class="tab-inner">
-            <SessionVignetteTab />
+            <SessionVignetteTab 
+              @related-entries-changed="onRelatedEntriesChanged"
+            />
           </div>  
         </div>
 
