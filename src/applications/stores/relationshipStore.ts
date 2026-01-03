@@ -9,7 +9,7 @@ import { useMainStore, } from './index';
 // types
 import { 
   Topics, ValidTopic,
-  RelatedEntryDetails, FieldDataByTopic,
+  RelatedEntryDetails, ColumnsByTopic,
   RelatedDocumentDetails,
   DocumentLinkType,
 } from '@/types';
@@ -61,7 +61,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       [Topics.Organization]: [{field:'role', header:'Role'}],
       [Topics.PC]: [],
     },    
-  } as FieldDataByTopic;
+  } as ColumnsByTopic;
   
   ///////////////////////////////
   // other stores

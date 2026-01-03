@@ -450,7 +450,6 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     await this.save();
   }  
 
-  
   public async deleteIdFromExpandedList(id: string) {
     delete this.expandedIds[id];
     await this.save();
@@ -737,9 +736,13 @@ private async deleteRollTables() : Promise<void> {
 
     // clean up lore references in arcs
     for (let campaign of Object.values(this.campaigns)) {
-      const arcs = await campaign.allArcs();
-      for (let arc of arcs) {
+      const arcIndexes = campaign.arcIndex;
+      for (let arcIndex of arcIndexes) {
         let loreUpdated = false;
+        let arc = await Arc.fromUuid(arcIndex.uuid);
+        if (!arc)
+          continue;
+        
         arc.lore = arc.lore.map(l => {
           if (l.journalEntryPageId === journalId) {
             loreUpdated = true;

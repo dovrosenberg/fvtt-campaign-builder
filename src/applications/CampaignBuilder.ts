@@ -279,7 +279,7 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
   }
 
   // capture the window position (after debouncing)
-  override setPosition(position: any = {}): foundry.applications.api.ApplicationV2.Position {
+  override setPosition(position: any = {}): foundry.applications.api.ApplicationV2.Position | void {
     const result = super.setPosition(position);
 
     // if it's maximized, don't save the bounds

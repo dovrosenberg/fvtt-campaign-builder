@@ -14,7 +14,7 @@ import { getArcForSession } from '@/utils/arcIndex';
 import { 
   SessionLocationDetails, 
   SessionItemDetails, 
-  FieldData, 
+  BaseTableColumn, 
   Topics, 
   SessionNPCDetails, 
   SessionMonsterDetails, 
@@ -81,7 +81,7 @@ export const useSessionStore = defineStore('session', () => {
         onClick: onJournalClick
       },
     ],  
-  } as unknown as Record<SessionTableTypes, FieldData[]>;
+  } as unknown as Record<SessionTableTypes, BaseTableColumn[]>;
 
   
   ///////////////////////////////
