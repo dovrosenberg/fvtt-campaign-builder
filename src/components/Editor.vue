@@ -114,10 +114,10 @@
       required: false,
       default: undefined,
     },
-    enableRelatedEntriesTracking: {
+    enableEntityLinking: {
       type: Boolean,
       required: false,
-      default: false,
+      default: true,
     },
   });
 
@@ -249,7 +249,7 @@
     const dirty = isDirty();
 
     // Apply entity linking if enabled and content is dirty
-    if (dirty && ModuleSettings.get(SettingKey.autoRelationships) && currentSetting.value) {
+    if (dirty && props.enableEntityLinking && currentSetting.value) {
       try {
         content = await replaceEntityReferences(content, props.currentEntityUuid || '');
       } catch (error) {
@@ -259,7 +259,7 @@
     }
 
     // Check for UUID changes if related items tracking is enabled
-    if (dirty && props.enableRelatedEntriesTracking) {
+    if (dirty && ModuleSettings.get(SettingKey.autoRelationships)) {
       const currentUUIDs = extractUUIDs(content);
       const { added, removed } = compareUUIDs(initialUUIDs.value, currentUUIDs);
       
@@ -289,7 +289,7 @@
     if (dirty) {
       lastSavedContent.value = content;
       
-      if (props.enableRelatedEntriesTracking) {
+      if (ModuleSettings.get(SettingKey.autoRelationships)) {
         initialUUIDs.value = [];
       }
       
@@ -339,7 +339,7 @@
   // event handlers
   const onDragover = (event: DragEvent) => {
     if (!props.editable) return;
-    standardDragover(event);
+      standardDragover(event);
   }
 
   const onDrop = async (event: DragEvent) => {
@@ -376,7 +376,7 @@
     const content = newContent || '';
       
     // Initialize UUIDs for tracking if enabled
-    if (props.enableRelatedEntriesTracking) {
+    if (ModuleSettings.get(SettingKey.autoRelationships)) {
       initialUUIDs.value = extractUUIDs(content);
     }
 
@@ -444,7 +444,7 @@
     enrichedInitialContent.value = !props.editOnlyMode ? await enrichFcbHTML(currentSetting.value.uuid, props.initialContent || '') : props.initialContent || '';
 
     // Initialize UUIDs for tracking if enabled
-    if (props.enableRelatedEntriesTracking) {
+    if (ModuleSettings.get(SettingKey.autoRelationships)) {
       initialUUIDs.value = extractUUIDs(props.initialContent || '');
     }
 
