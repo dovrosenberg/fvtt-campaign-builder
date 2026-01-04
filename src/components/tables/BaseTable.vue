@@ -564,8 +564,14 @@
       
       uuidChanges = compareUUIDs(initialRowUUIDs.value, currentUUIDs);
 
-      if (uuidChanges && (uuidChanges.added.length > 0 || uuidChanges.removed.length > 0)) {
-        emit('relatedEntriesChanged', uuidChanges.added, uuidChanges.removed);
+      // Filter out self-references - the row's own UUID should never trigger add/remove prompts
+      // This handles the case where notes reference the same entry the row is for
+      const rowUuid = editingRow.value;
+      const added = uuidChanges.added.filter(uuid => uuid !== rowUuid);
+      const removed = uuidChanges.removed.filter(uuid => uuid !== rowUuid);
+
+      if (uuidChanges && (added.length > 0 || removed.length > 0)) {
+        emit('relatedEntriesChanged', added, removed);
       }
     }
 
@@ -613,7 +619,8 @@
       onEditButtonClick(data, action.callback);
     } else if (action.icon === 'fa-trash' && props.enableRelatedEntriesTracking) {
       // Extract UUIDs from the row being deleted and pass to callback
-      const rowUUIDs = getRowUUIDs(data);
+      // Filter out self-references - the row's own UUID should not be included
+      const rowUUIDs = getRowUUIDs(data).filter(uuid => uuid !== data.uuid);
       action.callback(data, rowUUIDs);
     } else {
       action.callback(data);
