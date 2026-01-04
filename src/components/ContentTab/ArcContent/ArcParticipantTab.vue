@@ -8,6 +8,8 @@
     :extra-add-text="localize('labels.arc.addParticipantDrag')"
     :allow-edit="true"
     :help-text="localize('labels.arc.participantHelpText')"
+    :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+    @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddItem"
     @dragoverNew="standardDragover"
     @drop-new="onDropNew"
@@ -39,6 +41,7 @@
   import { notifyInfo } from '@/utils/notifications';
   import { mapEntryToOption } from '@/utils/misc';
   import { FCBDragTypes } from '@/utils/dragdrop';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
 
   // library components
@@ -56,6 +59,9 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+  }>();
 
   ////////////////////////////////
   // store

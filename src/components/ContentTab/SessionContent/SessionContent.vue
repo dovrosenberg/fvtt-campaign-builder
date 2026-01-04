@@ -95,7 +95,9 @@
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="npcs">
           <div class="tab-inner">
-            <SessionNPCTab />
+            <SessionNPCTab 
+              @related-entries-changed="onRelatedEntriesChanged"
+            />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="vignettes">
@@ -115,17 +117,23 @@
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="locations">
           <div class="tab-inner">
-            <SessionLocationTab />
+            <SessionLocationTab 
+              @related-entries-changed="onRelatedEntriesChanged"
+            />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="monsters">
           <div class="tab-inner">
-            <SessionMonsterTab />
+            <SessionMonsterTab 
+              @related-entries-changed="onRelatedEntriesChanged"
+            />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="magic">
           <div class="tab-inner">
-            <SessionItemTab />
+            <SessionItemTab 
+              @related-entries-changed="onRelatedEntriesChanged"
+            />
           </div>  
         </div>
         <div v-if="showStoryWebTab" class="tab flexcol" data-group="primary" data-tab="storyWebs">

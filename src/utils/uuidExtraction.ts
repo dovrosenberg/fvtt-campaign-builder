@@ -2,7 +2,7 @@
  * Utility functions for extracting UUIDs from text content
  */
 
-import { Entry, Session } from '@/classes';
+import { Arc, Entry, Session } from '@/classes';
 import { Danger, RelatedEntryDetails } from '@/types';
 import { getParentId } from './hierarchy';
 
@@ -96,6 +96,22 @@ export async function getDangerRelatedEntries(addedUUIDs: string[], removedUUIDs
   // make a list of all the things we might want to hook up to the danger
   const possibleConnections = currentDanger.participants.map(participant => participant.uuid);
   
+  const added = addedUUIDs.filter(uuid => !possibleConnections.includes(uuid));
+  const removed = removedUUIDs.filter(uuid => possibleConnections.includes(uuid));
+  return { added, removed };
+}
+
+/** for a list of added and removed UUIDs, return a list of ones that are not/are already 
+ *  in the current arc's locations and participants lists
+ */
+export async function getArcRelatedEntries(addedUUIDs: string[], removedUUIDs: string[], currentArc: Arc): Promise<{ added: string[], removed: string[]}> {
+  // make a list of all the things we might want to hook up to the arc
+  // arcs track locations and participants (characters and organizations)
+  const possibleConnections = [
+    ...currentArc.locations.map(location => location.uuid),
+    ...currentArc.participants.map(participant => participant.uuid),
+  ];
+
   const added = addedUUIDs.filter(uuid => !possibleConnections.includes(uuid));
   const removed = removedUUIDs.filter(uuid => possibleConnections.includes(uuid));
   return { added, removed };

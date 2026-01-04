@@ -11,6 +11,8 @@
     :draggable-rows="true"
     :help-text="localize('labels.session.monsterHelpText')"
     help-link="https://slyflourish.com/choose_monsters_based_on_the_story.html"
+    :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+    @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="showMonsterPicker=true"
     @drop-new="onDropNew"
     @dragoverNew="standardDragover"
@@ -35,6 +37,7 @@
   import { localize } from '@/utils/game'
   import { getValidatedData, actorDragStart, standardDragover } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
 	
@@ -57,6 +60,9 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+  }>();
 
   ////////////////////////////////
   // store

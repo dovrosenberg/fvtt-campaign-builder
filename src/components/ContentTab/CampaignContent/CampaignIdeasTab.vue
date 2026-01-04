@@ -14,6 +14,8 @@
       :draggable-rows="false"
       :can-reorder="true"
       :actions="actions"
+      :enable-related-entries-tracking="props.arcMode && ModuleSettings.get(SettingKey.autoRelationships)"
+      @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
       @add-item="onAddIdea"
       @cell-edit-complete="onCellEditComplete"
       @reorder="onReorder"
@@ -30,6 +32,7 @@
   // local imports
   import { useCampaignStore, CampaignTableTypes, useArcStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
 
@@ -50,6 +53,9 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+  }>();
 
   ////////////////////////////////
   // store

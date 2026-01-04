@@ -8,6 +8,8 @@
     :extra-add-text="localize('labels.session.addNPCDrag')"
     :allow-edit="true"
     :help-text="localize('labels.session.npcHelpText')"
+    :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+    @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="showNPCPicker=true"
     @dragoverNew="standardDragover"
     @drop-new="onDropNew"
@@ -31,6 +33,7 @@
   import { Topics, RelatedEntryDialogModes, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
   import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
 
@@ -46,6 +49,9 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+  }>();
 
   ////////////////////////////////
   // store

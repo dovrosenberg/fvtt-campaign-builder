@@ -788,6 +788,7 @@
         "title": "Manage Related Entries",
         "entryDescription": "Select Entries to link or unlink to this Entry based on your changes.",
         "sessionDescription": "Select Entries to link or unlink to the Session based on your changes.",
+        "arcDescription": "Select Entries to link or unlink to this Arc based on your changes.",
         "pcDescription": "Select Entries to link or unlink to this PC based on your changes.",
         "dangerDescription": "Select Participants to add to/remove from this Danger based on your changes.",
         "addedItems": "New References Found",

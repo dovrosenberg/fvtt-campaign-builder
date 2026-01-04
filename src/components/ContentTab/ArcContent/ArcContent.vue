@@ -47,6 +47,8 @@
               :initial-content="currentArc?.description || ''"
               fixed-height="240px"
               :current-entity-uuid="currentArc?.uuid"
+              :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+              @related-entries-changed="onRelatedEntriesChanged"
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>
@@ -54,17 +56,22 @@
           <CustomFieldsBlocks
             v-if="currentArc"
             :content-type="CustomFieldContentType.Arc"
+            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+            @related-entries-changed="onRelatedEntriesChanged"
           />
         </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="participants">
           <div class="tab-inner">
-            <ArcParticipantTab />
+            <ArcParticipantTab 
+              @related-entries-changed="onRelatedEntriesChanged"
+            />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="lore">
           <div class="tab-inner">
             <SessionLoreTab 
               :arc-mode="true"
+              @related-entries-changed="onRelatedEntriesChanged"
             />
           </div>  
         </div>
@@ -72,6 +79,7 @@
           <div class="tab-inner">
             <SessionLocationTab 
               :arc-mode="true"
+              @related-entries-changed="onRelatedEntriesChanged"
             />
           </div>  
         </div>
@@ -79,6 +87,7 @@
           <div class="tab-inner">
             <SessionMonsterTab 
               :arc-mode="true"
+              @related-entries-changed="onRelatedEntriesChanged"
             />
           </div>  
         </div>
@@ -86,6 +95,7 @@
           <div class="tab-inner">
             <CampaignIdeasTab 
               :arc-mode="true"
+              @related-entries-changed="onRelatedEntriesChanged"
             />
           </div>  
         </div>
@@ -97,6 +107,16 @@
       </ContentTabStrip>
     </div>
   </form>	 
+
+  <!-- Related Items Management Dialog -->
+  <RelatedEntriesManagementDialog
+    v-model="showRelatedEntriesDialog"
+    :description="localize('dialogs.relatedEntriesManagement.arcDescription')"
+    :added-ids="pendingAddedUUIDs"
+    :removed-ids="pendingRemovedUUIDs"
+    @update="onRelatedEntriesDialogUpdate"
+  />
+
 </template>
 
 <script setup lang="ts">
@@ -106,11 +126,13 @@
   import { ref, watch, onBeforeUnmount, computed, } from 'vue';
 
   // local imports
-  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
+  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useArcStore, } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyWarn } from '@/utils/notifications';
+  import { getArcRelatedEntries } from '@/utils/uuidExtraction';
+  import { filterRelatedEntries } from '@/utils/relatedContent';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -128,10 +150,11 @@
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
+  import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
 
   // types
-  import { ContentTabDescriptor, CustomFieldContentType, WindowTabType } from '@/types';
-  import { Arc } from '@/classes';
+  import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType } from '@/types';
+  import { Arc, Entry } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -144,12 +167,16 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentArc, } = storeToRefs(mainStore);
+  const arcStore = useArcStore();
+  const { currentArc, currentSetting, } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
   const name = ref<string>('');
   const descriptionContent = ref<string>('');
+  const showRelatedEntriesDialog = ref<boolean>(false);
+  const pendingAddedUUIDs = ref<string[]>([]);
+  const pendingRemovedUUIDs = ref<string[]>([]);
 
   ////////////////////////////////
   // computed data
@@ -229,6 +256,49 @@
     // Open the tag results tab for the clicked tag
     await navigationStore.openTagResults(tagName, { newTab: true, activate: true });
   }
+
+  const onRelatedEntriesChanged = async (addedUUIDs: string[], removedUUIDs: string[]) => {
+    if (!currentArc.value || !currentSetting.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
+      return;
+    }
+
+    // get the entries we actually need to check
+    const { added, removed } = await getArcRelatedEntries(addedUUIDs, removedUUIDs, currentArc.value);
+
+    // locations and characters/organizations can be linked
+    await filterRelatedEntries(currentSetting.value, added, removed, [Topics.Location, Topics.Character, Topics.Organization]);
+
+    // Store the pending changes and show dialog if there are any changes
+    if (added.length > 0 || removed.length > 0) {
+      pendingAddedUUIDs.value = added;
+      pendingRemovedUUIDs.value = removed;
+      showRelatedEntriesDialog.value = true;
+    }
+  };
+
+  const onRelatedEntriesDialogUpdate = async (addedEntries: Entry[], removedEntries: Entry[]) => {
+    if (!currentArc.value) 
+      return;
+
+    // locations go into locations, characters and organizations go into participants
+    // Handle added relationships
+    for (const entry of addedEntries) {
+      if (entry.topic === Topics.Location) {
+        await arcStore.addLocation(entry.uuid);
+      } else if (entry.topic === Topics.Character || entry.topic === Topics.Organization) {
+        await arcStore.addParticipant(entry.uuid);
+      }
+    }
+
+    // Handle removed relationships
+    for (const entry of removedEntries) {
+      if (entry.topic === Topics.Location) {
+        await arcStore.deleteLocation(entry.uuid);
+      } else if (entry.topic === Topics.Character || entry.topic === Topics.Organization) {
+        await arcStore.deleteParticipant(entry.uuid);
+      }
+    }
+  };
 
   ////////////////////////////////
   // watchers
