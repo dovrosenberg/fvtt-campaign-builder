@@ -34,7 +34,7 @@ You can reorder the campaign lore list by dragging the handle on the left side o
 ### Lore Actions
 The actions column lets you take several actions with the lore entries:
   - **Delete** - Delete the lore
-  - **Edit** - Opens the lore description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save.
+  - **Edit** - Opens the lore description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.
   - **Mark as delivered** - Marks the lore as having been delivered to the players.  This isn't recommended generally from the campaign tab, because it allows for better tracking if you move it to the session and deliver it there, but sometimes it happens.  This will move the entry to the "Delivered Lore" list below.
   - **Move to last arc** - This moves the lore to the last [^Arc] in the Campaign.  This is typically what you'd do in preparation for building out an Arc.  Note that the last arc might be later in the Campaign than the next Session.
   - **Move to next session** - This moves the lore to the next session.  This is typically what you'd do in preparation for the session in which you think it might come up.  

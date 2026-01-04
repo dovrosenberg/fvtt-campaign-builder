@@ -173,7 +173,7 @@ To add a monster:
 
 Alternately, drag/drop an actor from elsewhere in Foundry to the drop box to add it to the session.
 
-You can click on the number cell or the edit button to change the number of monsters you're thinking about using.  Press enter to save.
+You can click on the number cell or the edit button to change the number of monsters you're thinking about using.  Press Enter to save, Escape to cancel.
 
 You can use the drag grabber left of the name to drag the monster onto the current scene.  Simply click on it, then drag to where you want the token to go.  This works exactly like dragging an actor from the Foundry toolbar and makes it easy to add the monsters from your session prep to the Foundry scene.
 

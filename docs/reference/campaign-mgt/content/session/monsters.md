@@ -32,11 +32,14 @@ Click the name of the Monster to open the (system-dependent) stat/character shee
 
 Click on a value in the number column to edit it.  Press Enter to save.
 
-Click on the notes field to edit it.  Press Enter to save. 
+Click on the notes field to edit it.  Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.
 
 ### Monster Actions
 The actions column lets you take several actions with the Monster entries:
   - **Delete** - Delete the Monster.  This removes it from the Session list, but DOES NOT delete the Actor from Foundry.
-  - **Edit** - Opens the number and notes fields for editing.  Press Enter to save.
+  - **Edit** - Opens the number and notes fields for editing.  Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.
   - **Mark as delivered** - Marks the Monster as having been delivered to the players. If you mark Monster as delivered while in [^Play Mode], this will add the Monster to the Campaign [To-Do List]. 
   - **Move to next session** - This moves the Monster to the next Session.  You would typically do this after a Session for Monsters that you didn't deliver but think will likely come up next time.  If a next Session doesn't exist, it will create one.
+
+### Related Entry Tracking
+This table supports [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters or Locations in monster notes, you'll be prompted to update the Session's NPC and Location tables accordingly.

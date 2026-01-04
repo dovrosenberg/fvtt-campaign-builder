@@ -33,9 +33,12 @@ New lore items are added to the bottom of the list, but you can reorder the list
 ### Lore Actions
 The actions column lets you take several actions with the Lore entries:
   - **Delete** - Delete the Lore
-  - **Edit** - Opens the Lore description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save.
+  - **Edit** - Opens the Lore description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.
   - **Move to campaign** - This moves the Lore up to the [Campaign Lore](/reference/campaign-mgt/content/campaign/lore) list.  You can do this for lore that you've decided to handle in a future Arc.
   - **Move to next session** - This moves the Lore to the next Session.  You would typically do this after a Session for Lore that you didn't deliver but still want to.  If a next Session doesn't exist, it will create one.
 
   > [!NOTE]
-  > The "Move to next session" option ignores which arc the current Session is in.  It will move it to the last Session in the Campaign, regardless. 
+  > The "Move to next session" option ignores which arc the current Session is in.  It will move it to the last Session in the Campaign, regardless.
+
+### Related Entry Tracking
+This table supports [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters, Organizations, or Locations in lore descriptions, you'll be prompted to update the Arc's Participants and Locations tables accordingly. 

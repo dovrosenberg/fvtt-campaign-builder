@@ -23,6 +23,9 @@ This list contains the individual Vignettes. For each Vignette, you can see its 
 ### Vignette Actions
 The actions column lets you take several actions with the Vignette entries:
   - **Delete** - Delete the Vignette
-  - **Edit** - Opens the Vignette description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save.
+  - **Edit** - Opens the Vignette description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.
   - **Mark as delivered** - Marks the Vignette as having been delivered to the players. If you mark Vignette as delivered while in [^Play Mode], this will add the Vignette to the Campaign [To-Do List]. 
   - **Move to next session** - This moves the Vignette to the next Session.  You would typically do this after a Session for Vignettes that you didn't deliver but still want to.  If a next Session doesn't exist, it will create one.
+
+### Related Entry Tracking
+This table supports [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters or Locations in vignette descriptions, you'll be prompted to update the Session's NPC and Location tables accordingly.

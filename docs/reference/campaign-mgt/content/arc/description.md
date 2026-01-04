@@ -27,3 +27,6 @@ Use the main editor box to capture:
 - How it might end.
 
 See [Editors] for more information on the capabilities of editor boxes.
+
+### Related Entry Tracking
+The description editor supports [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters, Organizations, or Locations in the Arc description, you'll be prompted to update the Arc's Participants and Locations tables accordingly.

@@ -37,3 +37,18 @@ If you insert a reference to an [^Entry] into the description of another, you wi
 
 > [!Note]
 > It will not suggest connections to the parent of the current Entry. This is deliberate to avoid cluttering the relationship list and unnecessarily prompting about automatically creating the relationship.  The Entry's parent is easily available from the directory tree, so it didn't seem to add much value to link it in the editor.  [Submit a feature request] if you disagree.
+
+### Related Entry Tracking {#related-entry-tracking}
+
+When editing text in [^Entry], [^Arc], and [^Session] content, Campaign Builder can automatically detect references to Entries and offer to add or remove them from the appropriate lists.  References are detected in two ways:
+* You enter a UUID link (ex. by dragging from the directory bar, or by using the Autocomplete Mentions module (highly recommended))
+* You type the name of an Entry in (spelling must match, but case insensitive) - this will convert it to a link automatically and then recognize the reference.
+
+For example:
+- If you add a reference to a Character in a Session Vignette, you'll be prompted to add that Character to the Session's NPC list.
+- If you remove a Location reference from an Arc description, you'll be prompted to remove it from the Arc's Locations table.
+
+This feature can be enabled or disabled via the "Auto-suggest relationships" setting in [Module Settings].
+
+> [!TIP]
+> This feature works with both the main description editors and inline table editors (ex. notes fields).

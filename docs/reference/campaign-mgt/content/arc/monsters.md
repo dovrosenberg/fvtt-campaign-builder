@@ -32,6 +32,9 @@ You can also add notes to each Monster to track how it will be used in the Arc. 
 
 ### Monster actions
 The actions column lets you take several actions with the Monster entries:
-  - **Delete** - Delete the Monster.  This removes it from the Session list, but DOES NOT delete the Actor from Foundry.
-  - **Edit** - Opens the notes field for editing.  Press Enter to save.
-  - **Copy to next session** - This makes a copy of the Monster on the next Session.  It doesn't remove it from the Arc in case you want to use it again later.  
+  - **Delete** - Delete the Monster.  This removes it from the Arc list, but DOES NOT delete the Actor from Foundry.
+  - **Edit** - Opens the notes field for editing.  Press Enter to save or Escape to cancel. Shift-Enter within the notes text box to insert a new line.
+  - **Copy to next session** - This makes a copy of the Monster on the next Session.  It doesn't remove it from the Arc in case you want to use it again later.
+
+### Related Entry Tracking
+This table supports [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters, Organizations, or Locations in monster notes, you'll be prompted to update the Arc's Participants and Locations tables accordingly.  

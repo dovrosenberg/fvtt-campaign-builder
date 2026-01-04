@@ -24,5 +24,8 @@ The Ideas tab provides a simple way to capture and organize ideas for your campa
 The actions column lets you:
 
 - **Delete** – Delete the Idea.
-- **Edit** – Open the Idea text for inline editing. You can also click on the description text to do the same. Press Enter to save.
-- **Move to campaign** – Moves the idea to the campaign ideas list. 
+- **Edit** – Open the Idea text for inline editing. You can also click on the description text to do the same. Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.
+- **Move to campaign** – Moves the idea to the campaign ideas list.
+
+### Related Entry Tracking
+This table supports [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters, Organizations, or Locations in idea descriptions, you'll be prompted to update the Arc's Participants and Locations tables accordingly. 
