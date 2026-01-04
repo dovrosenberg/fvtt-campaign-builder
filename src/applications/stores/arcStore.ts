@@ -102,19 +102,22 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
-   * Deletes a location from the arc
-   * @param uuid the UUID of the location
+   * Deletes a location from the arc.
+   * @param uuid - The UUID of the location to delete.
+   * @param skipConfirm - If true, skip the confirmation dialog.
+   * @returns True if the location was deleted, false if the user canceled.
    */
-  const deleteLocation = async (uuid: string): Promise<void> => {
+  const deleteLocation = async (uuid: string, skipConfirm = false): Promise<boolean> => {
     if (!currentArc.value)
       throw new Error('Invalid arc in arcStore.deleteLocation()');
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete location?', 'Are you sure you want to delete this location? This will not impact the associated Setting Location')))
-      return;
+    if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete location?', 'Are you sure you want to delete this location? This will not impact the associated Setting Location')))
+      return false;
 
     await currentArc.value.deleteLocation(uuid);
     await _refreshLocationRows();
+    return true;
   }
 
   /**
@@ -146,19 +149,22 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
-   * Deletes a participant from the arc
-   * @param uuid the UUID of the character
+   * Deletes a participant from the arc.
+   * @param uuid - The UUID of the participant (character or organization) to delete.
+   * @param skipConfirm - If true, skip the confirmation dialog.
+   * @returns True if the participant was deleted, false if the user canceled.
    */
-  const deleteParticipant = async (uuid: string): Promise<void> => {
+  const deleteParticipant = async (uuid: string, skipConfirm = false): Promise<boolean> => {
     if (!currentArc.value)
       throw new Error('Invalid arc in arcStore.deleteParticipant()');
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete participant?', 'Are you sure you want to delete this participant? This will not impact the associated entry')))
-      return;
+    if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete participant?', 'Are you sure you want to delete this participant? This will not impact the associated entry')))
+      return false;
     
     await currentArc.value.deleteParticipant(uuid);
     await _refreshParticipantRows();
+    return true;
   }
 
 
@@ -247,19 +253,21 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
-   * Deletes a lore from the arc
-   * @param uuid the UUID of the l0ore
+   * Deletes a lore entry from the arc.
+   * @param uuid - The UUID of the lore entry to delete.
+   * @returns True if the lore was deleted, false if the user canceled.
    */
-  const deleteLore = async (uuid: string): Promise<void> => {
+  const deleteLore = async (uuid: string): Promise<boolean> => {
     if (!currentArc.value)
       throw new Error('Invalid arc in arcStore.deleteLore()');
 
     // confirm
     if (!(await FCBDialog.confirmDialog('Delete lore?', 'Are you sure you want to delete this lore?')))
-      return;
+      return false;
     
     await currentArc.value.deleteLore(uuid);
     await _refreshLoreRows();
+    return true;
   }
 
   /**
@@ -324,19 +332,21 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
-   * Deletes a monster from the arc
-   * @param uuid the UUID of the actor
+   * Deletes a monster from the arc.
+   * @param uuid - The UUID of the actor to delete.
+   * @returns True if the monster was deleted, false if the user canceled.
    */
-  const deleteMonster = async (uuid: string): Promise<void> => {
+  const deleteMonster = async (uuid: string): Promise<boolean> => {
     if (!currentArc.value)
       throw new Error('Invalid arc in arcStore.deleteMonster()');
 
     // confirm
     if (!(await FCBDialog.confirmDialog('Delete monster?', 'Are you sure you want to delete this monster?')))
-      return;
+      return false;
     
     await currentArc.value.deleteMonster(uuid);
     await _refreshMonsterRows();
+    return true;
   }
 
     /**
@@ -397,16 +407,22 @@ export const useArcStore = defineStore('arc', () => {
       await _refreshIdeaRows();
     }
   
-    const deleteIdea = async (uuid: string): Promise<void> => {
+    /**
+     * Deletes an idea from the arc.
+     * @param uuid - The UUID of the idea to delete.
+     * @returns True if the idea was deleted, false if the user canceled.
+     */
+    const deleteIdea = async (uuid: string): Promise<boolean> => {
       if (!currentArc.value)
-        return;
+        return false;
   
       // confirm
       if (!(await FCBDialog.confirmDialog('Delete Idea?', 'Are you sure you want to delete this idea?')))
-        return;
+        return false;
   
       await currentArc.value.deleteIdea(uuid);
       await _refreshIdeaRows();
+      return true;
     }
   
     const reorderIdeas = async (reorderedIdeas: Idea[]) => {

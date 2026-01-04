@@ -135,19 +135,22 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   /**
-   * Deletes a location from the session
-   * @param uuid the UUID of the location
+   * Deletes a location from the session.
+   * @param uuid - The UUID of the location to delete.
+   * @param skipConfirm - If true, skip the confirmation dialog.
+   * @returns True if the location was deleted, false if the user canceled.
    */
-  const deleteLocation = async (uuid: string, skipConfirm = false): Promise<void> => {
+  const deleteLocation = async (uuid: string, skipConfirm = false): Promise<boolean> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteLocation()');
 
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete location?', 'Are you sure you want to delete this location? This will not impact the associated Setting Location')))
-      return;
+      return false;
 
     await currentSession.value.deleteLocation(uuid);
     await _refreshLocationRows();
+    return true;
   }
 
   /**
@@ -236,19 +239,22 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   /**
-   * Deletes a NPC from the session
-   * @param uuid the UUID of the character
+   * Deletes an NPC from the session.
+   * @param uuid - The UUID of the character to delete.
+   * @param skipConfirm - If true, skip the confirmation dialog.
+   * @returns True if the NPC was deleted, false if the user canceled.
    */
-  const deleteNPC = async (uuid: string, skipConfirm = false): Promise<void> => {
+  const deleteNPC = async (uuid: string, skipConfirm = false): Promise<boolean> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteNPC()');
 
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete NPC?', 'Are you sure you want to delete this NPC? This will not impact the associated Character')))
-      return;
+      return false;
     
     await currentSession.value.deleteNPC(uuid);
     await _refreshNPCRows();
+    return true;
   }
 
   /**
@@ -335,19 +341,22 @@ export const useSessionStore = defineStore('session', () => {
   }
   
   /**
-   * Deletes a vignette from the session
-   * @param uuid the UUID of the vignette
+   * Deletes a vignette from the session.
+   * @param uuid - The UUID of the vignette to delete.
+   * @param skipConfirm - If true, skip the confirmation dialog.
+   * @returns True if the vignette was deleted, false if the user canceled.
    */
-  const deleteVignette = async (uuid: string, skipConfirm = false): Promise<void> => {
+  const deleteVignette = async (uuid: string, skipConfirm = false): Promise<boolean> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteVignette()');
 
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete vignette?', 'Are you sure you want to delete this vignette?')))
-      return;
+      return false;
     
     await currentSession.value.deleteVignette(uuid);
     await _refreshVignetteRows();
+    return true;
   }
 
   /**
@@ -438,19 +447,22 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   /**
-   * Deletes a lore from the session
-   * @param uuid the UUID of the l0ore
+   * Deletes a lore entry from the session.
+   * @param uuid - The UUID of the lore entry to delete.
+   * @param skipConfirm - If true, skip the confirmation dialog.
+   * @returns True if the lore was deleted, false if the user canceled.
    */
-  const deleteLore = async (uuid: string, skipConfirm = false): Promise<void> => {
+  const deleteLore = async (uuid: string, skipConfirm = false): Promise<boolean> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteLore()');
 
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete lore?', 'Are you sure you want to delete this lore?')))
-      return;
+      return false;
     
     await currentSession.value.deleteLore(uuid);
     await _refreshLoreRows();
+    return true;
   }
 
   /**
@@ -585,19 +597,22 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   /**
-   * Deletes a magic item from the session
-   * @param uuid the UUID of the item
+   * Deletes a magic item from the session.
+   * @param uuid - The UUID of the item to delete.
+   * @param skipConfirm - If true, skip the confirmation dialog.
+   * @returns True if the item was deleted, false if the user canceled.
    */
-  const deleteItem = async (uuid: string, skipConfirm = false): Promise<void> => {
+  const deleteItem = async (uuid: string, skipConfirm = false): Promise<boolean> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteItem()');
 
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete item?', 'Are you sure you want to delete this item?')))
-      return;
+      return false;
     
     await currentSession.value.deleteItem(uuid);
     await _refreshItemRows();
+    return true;
   }
 
   /**
@@ -683,19 +698,22 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   /**
-   * Deletes a monster from the session
-   * @param uuid the UUID of the actor
+   * Deletes a monster from the session.
+   * @param uuid - The UUID of the actor to delete.
+   * @param skipConfirm - If true, skip the confirmation dialog.
+   * @returns True if the monster was deleted, false if the user canceled.
    */
-  const deleteMonster = async (uuid: string, skipConfirm = false): Promise<void> => {
+  const deleteMonster = async (uuid: string, skipConfirm = false): Promise<boolean> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteMonster()');
 
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete monster?', 'Are you sure you want to delete this monster?')))
-      return;
+      return false;
     
     await currentSession.value.deleteMonster(uuid);
     await _refreshMonsterRows();
+    return true;
   }
 
   /**

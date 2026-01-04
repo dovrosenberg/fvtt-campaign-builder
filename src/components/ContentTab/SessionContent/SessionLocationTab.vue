@@ -99,8 +99,8 @@
   const actions = computed(() => ([
     {
       icon: 'fa-trash', 
-      callback: (data) => onDeleteLocation(data.uuid), 
-      tooltip: localize('tooltips.deleteLocation') 
+      callback: (data, removedUUIDs) => onDeleteLocation(data.uuid, removedUUIDs), 
+      tooltip: localize('tooltips.deleteLocation'),
     },
     {
       icon: 'fa-pen', 
@@ -137,8 +137,11 @@
 
   ////////////////////////////////
   // event handlers
-  const onDeleteLocation = async (uuid: string) => {
-    await store.value.deleteLocation(uuid);
+  const onDeleteLocation = async (uuid: string, removedUUIDs?: string[]) => {
+    const deleted = await store.value.deleteLocation(uuid);
+    if (deleted && removedUUIDs && removedUUIDs.length > 0) {
+      emit('relatedEntriesChanged', [], removedUUIDs);
+    }
   }
 
   const onMarkLocationDelivered = async (uuid: string) => {

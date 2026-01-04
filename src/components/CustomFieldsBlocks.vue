@@ -30,7 +30,6 @@
             :initial-content="String(values[field.name] ?? '')"
             :fixed-height="`${field.editorHeight ?? 4}rem`"
             :current-entity-uuid="content.uuid"
-            :enable-related-entries-tracking="props.enableRelatedEntriesTracking"
             @editor-saved="(newContent: string) => onFieldValueChanged(field, newContent)"
             @related-entries-changed="onRelatedEntriesChanged"
           />
@@ -105,10 +104,9 @@
   import Editor from '@/components/Editor.vue';
 
   // types
-  import { CustomFieldContentType, CustomFieldDescription, FieldType, WindowTabType } from '@/types';
+  import { CustomFieldContentType, CustomFieldDescription, FieldType } from '@/types';
   import { Arc, Campaign, Entry, FCBSetting, Front, Session } from '@/classes';
   import { ApiCustomGeneratePostRequest, ApiCustomGeneratePostRequestContentTypeEnum } from '@/apiClient';
-  import { windowTabToCustomContentType } from '@/utils/customFields';
 
   ////////////////////////////////
   // props
@@ -117,12 +115,7 @@
     contentType: {
       type: Number as PropType<CustomFieldContentType>,
       required: true
-    },
-    enableRelatedEntriesTracking: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
+    }
   });
 
   ////////////////////////////////
@@ -397,7 +390,7 @@
   };
 
   const onRelatedEntriesChanged = (added: string[], removed: string[]) => {
-    if (!props.enableRelatedEntriesTracking) 
+    if (!ModuleSettings.get(SettingKey.autoRelationships)) 
       return;
 
     if (!content.value) 

@@ -100,8 +100,8 @@
     return [
       {
         icon: 'fa-trash', 
-        callback: (data) => onDeleteLore(data.uuid), 
-        tooltip: localize('tooltips.deleteLore') 
+        callback: (data, removedUUIDs) => onDeleteLore(data.uuid, removedUUIDs), 
+        tooltip: localize('tooltips.deleteLore'),
       },
       {
         icon: 'fa-pen', 
@@ -183,8 +183,11 @@
     }  
   }
 
-  const onDeleteLore = async (uuid: string) => {
-    await store.value.deleteLore(uuid);
+  const onDeleteLore = async (uuid: string, removedUUIDs?: string[]) => {
+    const deleted = await store.value.deleteLore(uuid);
+    if (deleted && removedUUIDs && removedUUIDs.length > 0) {
+      emit('relatedEntriesChanged', [], removedUUIDs);
+    }
   }
 
   const onMarkLoreDelivered = async (uuid: string) => {

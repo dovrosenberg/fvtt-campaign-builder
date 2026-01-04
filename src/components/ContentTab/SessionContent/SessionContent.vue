@@ -75,7 +75,6 @@
               :initial-content="sessionNotesContent"
               fixed-height="400px"
               :current-entity-uuid="currentSession?.uuid"
-              :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
               @related-entries-changed="onRelatedEntriesChanged"
               @editor-saved="onNotesEditorSaved"
             />
@@ -84,7 +83,6 @@
           <CustomFieldsBlocks
             v-if="currentSession"
             :content-type="CustomFieldContentType.Session"
-            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
             @related-entries-changed="onRelatedEntriesChanged"
           />
         </DescriptionTab>

@@ -47,7 +47,6 @@
               :initial-content="currentArc?.description || ''"
               fixed-height="240px"
               :current-entity-uuid="currentArc?.uuid"
-              :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
               @related-entries-changed="onRelatedEntriesChanged"
               @editor-saved="onDescriptionEditorSaved"
             />
@@ -56,7 +55,6 @@
           <CustomFieldsBlocks
             v-if="currentArc"
             :content-type="CustomFieldContentType.Arc"
-            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
             @related-entries-changed="onRelatedEntriesChanged"
           />
         </DescriptionTab>
@@ -258,7 +256,7 @@
   }
 
   const onRelatedEntriesChanged = async (addedUUIDs: string[], removedUUIDs: string[]) => {
-    if (!currentArc.value || !currentSetting.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
+    if (!currentArc.value || !currentSetting.value) {
       return;
     }
 
@@ -290,12 +288,12 @@
       }
     }
 
-    // Handle removed relationships
+    // Handle removed relationships - skip confirmation since user already confirmed via the dialog
     for (const entry of removedEntries) {
       if (entry.topic === Topics.Location) {
-        await arcStore.deleteLocation(entry.uuid);
+        await arcStore.deleteLocation(entry.uuid, true);
       } else if (entry.topic === Topics.Character || entry.topic === Topics.Organization) {
-        await arcStore.deleteParticipant(entry.uuid);
+        await arcStore.deleteParticipant(entry.uuid, true);
       }
     }
   };

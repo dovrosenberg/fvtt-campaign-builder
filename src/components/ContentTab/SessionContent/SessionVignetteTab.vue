@@ -78,8 +78,8 @@
   const actions = computed(() => ([
     {
       icon: 'fa-trash', 
-      callback: (data) => onDeleteVignette(data.uuid), 
-      tooltip: localize('tooltips.deleteVignette') 
+      callback: (data, removedUUIDs) => onDeleteVignette(data.uuid, removedUUIDs), 
+      tooltip: localize('tooltips.deleteVignette'),
     },
     {
       icon: 'fa-pen', 
@@ -145,8 +145,11 @@
     }  
   }
 
-  const onDeleteVignette = async (uuid: string) => {
-    await sessionStore.deleteVignette(uuid);
+  const onDeleteVignette = async (uuid: string, removedUUIDs?: string[]) => {
+    const deleted = await sessionStore.deleteVignette(uuid);
+    if (deleted && removedUUIDs && removedUUIDs.length > 0) {
+      emit('relatedEntriesChanged', [], removedUUIDs);
+    }
   }
 
   const onMarkVignetteDelivered = async (uuid: string) => {

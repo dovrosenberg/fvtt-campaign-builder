@@ -112,7 +112,6 @@
             <Editor
               :initial-content="currentEntry?.description || ''"
               :current-entity-uuid="currentEntry?.uuid"
-              :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
               fixed-height="240px"
               @editor-saved="onDescriptionEditorSaved"
               @related-entries-changed="onRelatedEntriesChanged"
@@ -122,7 +121,6 @@
           <CustomFieldsBlocks
             v-if="customFieldContentType !== null && currentEntry"
             :content-type="customFieldContentType"
-            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
             @related-entries-changed="onRelatedEntriesChanged"
           />
 

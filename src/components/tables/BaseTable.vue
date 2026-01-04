@@ -129,7 +129,7 @@
                   class="fcb-action-icon" 
                   :data-testid="`table-action-${index}-${data.uuid}`"
                   :data-tooltip="action.tooltip"
-                  @click.stop="action.isEdit ? onEditButtonClick(data, action.callback) : action.callback(data)" 
+                  @click.stop="onActionButtonClick(data, action)" 
                 >
                   <i :class="`fas ${action.icon}`"></i>
                 </a>
@@ -375,6 +375,11 @@
       type: String,
       default: '',
     },
+    // if true, track UUIDs in editable columns and emit relatedEntriesChanged events
+    enableRelatedEntriesTracking: {
+      type: Boolean,
+      default: false,
+    },
   });
 
   ////////////////////////////////
@@ -579,10 +584,16 @@
   /** Extract UUIDs from all editable columns with editors
    * 
    */
-  const getCurrentUUIDs = () => (
+  const getCurrentUUIDs = () => (getRowUUIDs(editingRowData.value));
+
+  /**
+   * Extract UUIDs from a specific row's editable columns
+   * @param rowData The row data to extract UUIDs from
+   */
+  const getRowUUIDs = (rowData: BaseTableGridRow): string[] => (
     props.columns.reduce((acc: string[], col: BaseTableColumn) => {
-      if (col.editable && !col.smallEditBox && editingRowData.value[col.field]) {
-        const uuids = extractUUIDs(editingRowData.value[col.field]);
+      if (col.editable && !col.smallEditBox && rowData[col.field]) {
+        const uuids = extractUUIDs(rowData[col.field] as string);
         acc.push(...uuids);
       }
 
@@ -597,6 +608,18 @@
 
   ////////////////////////////////
   // event handlers
+  const onActionButtonClick = (data: BaseTableGridRow, action: ActionButtonDefinition) => {
+    if (action.isEdit) {
+      onEditButtonClick(data, action.callback);
+    } else if (action.icon === 'fa-trash' && props.enableRelatedEntriesTracking) {
+      // Extract UUIDs from the row being deleted and pass to callback
+      const rowUUIDs = getRowUUIDs(data);
+      action.callback(data, rowUUIDs);
+    } else {
+      action.callback(data);
+    }
+  };
+
   const onCheckboxChange = (rowData: any, field: string, newValue: boolean) => {
     const event = {
       data: rowData,

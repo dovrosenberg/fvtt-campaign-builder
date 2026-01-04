@@ -12,8 +12,8 @@ export interface TablePagination {
 export interface ActionButtonDefinition {
   icon: string;
 
-  /** receives the row */
-  callback: ((data: Record<string, any> & { uuid: string }) => void) | (() => void);
+  /** receives the row data and optionally removedUUIDs (for delete actions with related entries tracking) */
+  callback: ((data: Record<string, any> & { uuid: string }, removedUUIDs?: string[]) => void) | (() => void);
 
   tooltip: string;
 

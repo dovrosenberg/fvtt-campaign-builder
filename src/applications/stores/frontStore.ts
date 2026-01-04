@@ -72,10 +72,14 @@ export const useFrontStore = defineStore('front', () => {
     return uuid;
   };
 
-  /** remove participant from given danger */
-  const deleteParticipant = async (uuid: string): Promise<void> => {
+  /**
+   * Removes a participant from the current danger.
+   * @param uuid - The UUID of the participant to remove.
+   * @returns True if the participant was removed, false if no danger is selected.
+   */
+  const deleteParticipant = async (uuid: string): Promise<boolean> => {
     if (!currentDanger.value || currentDangerIndex.value == null)
-      return;
+      return false;
     
     currentFront.value?.updateDanger(currentDangerIndex.value, {
       ...currentDanger.value,
@@ -84,6 +88,7 @@ export const useFrontStore = defineStore('front', () => {
     await currentFront.value?.save();
 
     await _refreshParticipantRows();
+    return true;
   };
 
   /** update participant in given danger */
@@ -119,10 +124,14 @@ export const useFrontStore = defineStore('front', () => {
     return uuid;
   };
 
-    /** remove portent from given danger */
-  const deleteGrimPortent = async (uuid: string): Promise<void> => {
+  /**
+   * Removes a grim portent from the current danger.
+   * @param uuid - The UUID of the grim portent to remove.
+   * @returns True if the portent was removed, false if no danger is selected.
+   */
+  const deleteGrimPortent = async (uuid: string): Promise<boolean> => {
     if (!currentDanger.value || currentDangerIndex.value == null)
-      return;
+      return false;
     
     currentFront.value?.updateDanger(currentDangerIndex.value, {
       ...currentDanger.value,
@@ -131,6 +140,7 @@ export const useFrontStore = defineStore('front', () => {
     await currentFront.value?.save();
 
     await _refreshPortentRows();
+    return true;
   };
 
   /** update portent in given danger */

@@ -52,6 +52,7 @@
   import { replaceEntityReferences } from '@/utils/entityLinking';
   import { extractUUIDs, compareUUIDs, } from '@/utils/uuidExtraction';
   import { registerEditor, unregisterEditor } from '@/utils/editorChangeDetection';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
 
@@ -112,11 +113,6 @@
       type: String,
       required: false,
       default: undefined,
-    },
-    enableEntityLinking: {
-      type: Boolean,
-      required: false,
-      default: true,
     },
     enableRelatedEntriesTracking: {
       type: Boolean,
@@ -253,7 +249,7 @@
     const dirty = isDirty();
 
     // Apply entity linking if enabled and content is dirty
-    if (dirty && props.enableEntityLinking && currentSetting.value) {
+    if (dirty && ModuleSettings.get(SettingKey.autoRelationships) && currentSetting.value) {
       try {
         content = await replaceEntityReferences(content, props.currentEntityUuid || '');
       } catch (error) {

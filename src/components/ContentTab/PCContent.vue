@@ -69,7 +69,6 @@
                     <CustomFieldsBlocks
                       v-if="currentEntry"
                       :content-type="CustomFieldContentType.PC"
-                      :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
                       @related-entries-changed="onRelatedEntriesChanged"
                     />
 
@@ -121,7 +120,6 @@
   import { localize } from '@/utils/game';
   import { getValidatedData, standardDragover } from '@/utils/dragdrop';
   import { getEntryRelatedEntries } from '@/utils/uuidExtraction';
-  import { ModuleSettings, SettingKey } from '@/settings';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -267,7 +265,7 @@
 
   // referenced entries changed in an editor
   const onRelatedEntriesChanged = async (addedUUIDs: string[], removedUUIDs: string[]) => {
-    if (!currentEntry.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
+    if (!currentEntry.value) {
       return;
     }
 

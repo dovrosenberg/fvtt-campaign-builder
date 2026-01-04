@@ -82,8 +82,8 @@
   const actions = computed(() => ([
     {
       icon: 'fa-trash', 
-      callback: (data) => onDeleteItem(data.uuid), 
-      tooltip: localize('tooltips.deleteItem') 
+      callback: (data, removedUUIDs) => onDeleteItem(data.uuid, removedUUIDs), 
+      tooltip: localize('tooltips.deleteItem'),
     },
     {
       icon: 'fa-pen', 
@@ -151,8 +151,11 @@
     }  
   }
 
-  const onDeleteItem = async (uuid: string) => {
-    await sessionStore.deleteItem(uuid);
+  const onDeleteItem = async (uuid: string, removedUUIDs?: string[]) => {
+    const deleted = await sessionStore.deleteItem(uuid);
+    if (deleted && removedUUIDs && removedUUIDs.length > 0) {
+      emit('relatedEntriesChanged', [], removedUUIDs);
+    }
   }
 
   const onMarkItemDelivered = async (uuid: string) => {

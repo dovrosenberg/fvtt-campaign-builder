@@ -81,8 +81,8 @@
    const actions = computed(() => ([
     {
       icon: 'fa-trash', 
-      callback: (data) => onDeleteNPC(data.uuid), 
-      tooltip: localize('tooltips.deleteNPC') 
+      callback: (data, removedUUIDs) => onDeleteNPC(data.uuid, removedUUIDs), 
+      tooltip: localize('tooltips.deleteNPC'),
     },
     {
       icon: 'fa-pen', 
@@ -132,8 +132,11 @@
     }  
   }
 
-  const onDeleteNPC = async (uuid: string) => {
-    await sessionStore.deleteNPC(uuid);
+  const onDeleteNPC = async (uuid: string, removedUUIDs?: string[]) => {
+    const deleted = await sessionStore.deleteNPC(uuid);
+    if (deleted && removedUUIDs && removedUUIDs.length > 0) {
+      emit('relatedEntriesChanged', [], removedUUIDs);
+    }
   }
 
   const onMarkNPCDelivered = async (uuid: string) => {

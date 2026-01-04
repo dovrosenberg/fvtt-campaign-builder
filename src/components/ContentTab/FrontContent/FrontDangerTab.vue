@@ -37,7 +37,6 @@
             :initial-content="currentDanger?.description || ''"
             fixed-height="120px"
             :current-entity-uuid="currentFront?.uuid"
-            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
             @related-entries-changed="onRelatedEntriesChanged"
             @editor-saved="onDescriptionEditorSaved"
           />
@@ -87,7 +86,6 @@
             :initial-content="motivation || ''"
             fixed-height="120px"
             :current-entity-uuid="currentFront?.uuid"
-            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
             @related-entries-changed="onRelatedEntriesChanged"
             @editor-saved="onMotivationEditorSaved"
           />
@@ -106,7 +104,6 @@
       >
         <div class="flexcol form-group">
           <DangerGrimPortentTable
-            :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
             @related-entries-changed="(added, removed) => onRelatedEntriesChanged(added, removed)"
           />
         </div>
@@ -134,7 +131,6 @@
   import { useMainStore, useFrontStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { notifyWarn } from '@/utils/notifications';
-  import { ModuleSettings, SettingKey } from '@/settings';
   import { getDangerRelatedEntries } from '@/utils/uuidExtraction';
   import { filterRelatedEntries } from '@/utils/relatedContent';
 
@@ -228,7 +224,7 @@
   };
 
   const onRelatedEntriesChanged = async (addedUUIDs: string[], removedUUIDs: string[]) => {
-    if (!currentDanger.value || !currentSetting.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
+    if (!currentDanger.value || !currentSetting.value) {
       return;
     }
 

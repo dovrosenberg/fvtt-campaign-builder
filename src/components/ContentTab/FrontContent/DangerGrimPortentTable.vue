@@ -79,7 +79,12 @@
     const actions = [] as ActionButtonDefinition[];
     actions.push({ 
       icon: 'fa-trash', 
-      callback: async (data) => { await frontStore.deleteGrimPortent(data.uuid); }, 
+      callback: async (data, removedUUIDs) => { 
+        const deleted = await frontStore.deleteGrimPortent(data.uuid);
+        if (deleted && removedUUIDs && removedUUIDs.length > 0) {
+          emit('relatedEntriesChanged', [], removedUUIDs);
+        }
+      }, 
       tooltip: localize('tooltips.deletePortent')
     });
 
