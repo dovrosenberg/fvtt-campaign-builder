@@ -34,7 +34,7 @@ Dependencies
 -->
 
 <template>
-  <div class="advanced-text-area" :class="{ 'display-mode': !editMode }">
+  <div class="fcb-advanced-text-area" :class="{ 'display-mode': !editMode }">
     <!-- Edit mode: show textarea -->
     <textarea
       v-if="editMode"
@@ -215,7 +215,7 @@ Dependencies
 </script>
 
 <style lang="scss" scoped>
-  .advanced-text-area {
+  .fcb-advanced-text-area {
     width: 100%;
     
     .form-textarea {
