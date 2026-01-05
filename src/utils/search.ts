@@ -5,6 +5,7 @@ import { ModuleSettings, SettingKey } from '@/settings';
 import { ArcLore, SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
 import { useMainStore } from '@/applications/stores';
+import { getTopicText } from '@/compendia';
 
 /**
  * Represents a searchable item in the index, containing all relevant search fields.
@@ -61,6 +62,10 @@ class SearchService {
   private _searchIndex: MiniSearch<SearchableItem> | null = null;
   /** Whether the service has been initialized */
   private _initialized = false;
+  /** Active setting id for the current search index (we only support one at a time) */
+  private _activeSettingId: string | null = null;
+  /** Cached UUID→name index for the active setting */
+  private _entryUuidNameIndexCache: Record<string, string> = {};
 
   /**
    * Creates a new SearchService instance and initializes the search index.
@@ -68,6 +73,47 @@ class SearchService {
   constructor() {
     // Initialize the search index when the service is created
     this.initIndex();
+  }
+
+  /**
+   * Rebuilds the UUID→name cache for the provided setting. 
+   */
+  private async resetCacheForSetting(setting: FCBSetting): Promise<Record<string, string>> {
+    if (this._activeSettingId === setting.uuid && this._entryUuidNameIndexCache != null) {
+      return this._entryUuidNameIndexCache;
+    } else {
+      this._activeSettingId = setting.uuid;
+      this._entryUuidNameIndexCache = buildEntryUuidNameIndex(setting);
+      return this._entryUuidNameIndexCache;
+    }
+  }
+
+  /**
+   * Removes HTML tags and replaces Entry UUID references with their display names 
+   * using the cached UUID→name index.
+   *
+   * If a UUID label is present, it is used as-is; otherwise we look up the UUID in the cache.
+   */
+  private cleanDescription(text: string): string {
+    if (!text || !this._entryUuidNameIndexCache)
+      return text;
+
+    // remove all HTML tags - not entirely safe because user might use <> for something
+    //    but that seems like a very rare edge case (that you'd also be searching for
+    //    whatever is in the brackets)
+    text = text.replace(/<[^>]*>/g, '');
+
+    // swap UUIDs for names
+    return text.replace(
+      /@UUID\[([^\]]+)\](?:\{([^}]+)\})?/g,
+      (match, uuid: string, braceLabel: string | undefined) => {
+        const label = (braceLabel ?? '').trim();
+        if (label.length > 0)
+          return label;
+
+        return this._entryUuidNameIndexCache?.[uuid] ?? match;
+      }
+    );
   }
 
   /**
@@ -130,6 +176,7 @@ class SearchService {
 
     // Collect all items first
     const items = [] as SearchableItem[];
+    await this.resetCacheForSetting(setting);
 
     // add all the entries
     const entries = await setting.allEntries();
@@ -200,7 +247,7 @@ class SearchService {
     description = entry.description;
     species = entry.topic===Topics.Character && entry.speciesId ? ModuleSettings.get(SettingKey.speciesList)[entry.speciesId] : '';
     type = entry.type;
-    topic = Topics[entry.topic];
+    topic = getTopicText(entry.topic);
 
     // pcs have extra field - we put it in snippets
     if (entry.topic===Topics.PC) {
@@ -292,7 +339,7 @@ class SearchService {
       name: entry.name,
       resultType: 'entry',
       tags: !entry.tags ? '' : entry.tags.join(', '),
-      description: description,
+      description: this.cleanDescription(description),
       topic: topic,
       species: species,
       type: type,
@@ -330,7 +377,7 @@ class SearchService {
       name: session.name,
       resultType: 'session',
       tags: !session.tags ? '' : session.tags.join(', '),
-      description: description,
+      description: this.cleanDescription(description),
       topic: 'session',
       species: '',
       type: '',
@@ -375,7 +422,7 @@ class SearchService {
       name: front.name,
       resultType: 'front',
       tags: !front.tags ? '' : front.tags.join(', '),
-      description: description,
+      description: this.cleanDescription(description),
       topic: 'Front',
       species: '',
       type: '',
@@ -410,7 +457,7 @@ class SearchService {
       name: arc.name,
       resultType: 'arc',
       tags: !arc.tags ? '' : arc.tags.join(', '),
-      description: description,
+      description: this.cleanDescription(description),
       topic: 'Arc',
       species: '',
       type: '',
@@ -494,7 +541,7 @@ class SearchService {
       for (const tag of tags) {
         const trimmed = tag.trim();
 
-        // do a case insentive match of the search string into the tag
+        // do a case insensitive match of the search string into the tag
         if (trimmed.toLowerCase().includes(query.toLowerCase())) {
           acc[trimmed] = (acc[trimmed] || 0) + 1;
         }
@@ -544,9 +591,18 @@ class SearchService {
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
     }
-    
+
     if (!this._searchIndex)
       throw new Error('Couldn\'t create search index in search.addOrUpdateEntryIndex()');
+
+    // If we're indexed for a different setting, do nothing.
+    // Setting changes are handled externally by calling `buildIndex()`.
+    if (this._activeSettingId && this._activeSettingId !== setting.uuid)
+      return;
+
+    // Keep the UUID→name cache fresh for this setting as entries are created/renamed
+    await this.resetCacheForSetting(setting);
+    this._entryUuidNameIndexCache[entry.uuid] = entry.name;
 
     // Create and add the new searchable item
     // @ts-ignore - can't get item to type right, but this should always work
@@ -572,6 +628,10 @@ class SearchService {
     if (await session.isCampaignCompleted())
       return;
     
+    // If we're indexed for a different setting, do nothing.
+    if (!this._activeSettingId || this._activeSettingId !== session.settingId)
+      return;
+
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
     }
@@ -603,6 +663,10 @@ class SearchService {
     if (await front.isCampaignCompleted())
       return;
     
+    // If we're indexed for a different setting, do nothing.
+    if (!this._activeSettingId || this._activeSettingId !== front.settingId)
+      return;
+
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
     }
@@ -634,6 +698,10 @@ class SearchService {
     if (await arc.isCampaignCompleted())
       return;
     
+    // If we're indexed for a different setting, do nothing.
+    if (!this._activeSettingId || this._activeSettingId !== arc.settingId)
+      return;
+
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
     }
@@ -772,20 +840,55 @@ function addArcShortSnippet(snippets: string[], relatedItems: readonly ArcLore[]
   }
 };
 
-function addCustomFieldsToDescription(description: string, contentType: CustomFieldContentType, item: FCBJournalEntryPage<any>): string {
+/**
+ * Appends indexed custom fields to a description string.
+ * Note: UUID→name replacement is handled once at the end when building the final SearchableItem.
+ */
+function addCustomFieldsToDescription(
+  description: string,
+  contentType: CustomFieldContentType,
+  item: FCBJournalEntryPage<any>,
+): string {
   // custom fields get added to description so they get a higher priority than snippets
   const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields)[contentType];
 
   if (customFieldDefinitions == null)
-    throw new Error('Tried bad contentType in search.addCustomFieldsToDescrtipion()');
+    throw new Error('Tried bad contentType in search.addCustomFieldsToDescription()');
 
   for (let i=0; i<customFieldDefinitions.length; i++) {
     if (!customFieldDefinitions[i].deleted && customFieldDefinitions[i].indexed) {
-      description += `|${item.getCustomField(customFieldDefinitions[i].name)}`;
+      const rawValue = item.getCustomField(customFieldDefinitions[i].name);
+      const valueForIndex = typeof rawValue === 'string' ? rawValue : '';
+      if (valueForIndex) {
+        description += `|${valueForIndex}`;
+      }
     }
   }
 
   return description;
+}
+
+/**
+ * Builds an Entry UUID → Entry name index from the setting's topic folder entry indexes.
+ * This is fast and avoids document loads.
+ */
+function buildEntryUuidNameIndex(setting: FCBSetting | null): Record<string, string> {
+  const uuidToName = {};
+
+  if (!setting)
+    return uuidToName;
+
+  for (const topicFolder of Object.values(setting.topicFolders)) {
+    if (!topicFolder)
+      continue;
+
+    for (const entry of topicFolder.entryIndex) {
+      if (entry?.uuid)
+        uuidToName[entry.uuid] = entry?.name || '';
+    }
+  }
+
+  return uuidToName;
 }
 
 /**
