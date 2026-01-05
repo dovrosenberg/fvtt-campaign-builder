@@ -26,8 +26,11 @@ The module is designed to support the full cycle preparation and playing your ga
 
 4. [**Record the results.**](./record-results/) Capture the things that did (or didn't) happen - fleshing out the world for easy reference in the future and giving you a head-start on the next session prep.  
 
-## Note on Characters, Actors, and PCs
-- [^Characters] can be PCs if you'd like, but they're really intended primarily to represent all the NPCs in your [^Setting].  
+## Note on Nomenclature
+- A [^Setting] represents the world that your adventures take place in. Everything else in Campaign Builder exists within a Setting and you cannot reference anything across Settings.
+- A [^Campaign] is a series of [^Sessions] played by the same group of players within a Setting (i.e. Joe, Juan, and Mary play Friday nights).  You might have multiple Campaigns taking place within the same Setting.
+- A Session is a single play event - you sit down in Foundry for 3 hours and play.
+- [^Characters] are intended to represent all the NPCs in your [^Setting].  
   - Characters can be tied to multiple Actors (ex. if you want to represent a young version and an old version or track the human form of a werewolf separately from the wolf form, etc.) though typically it would be 1:1.
-- [^PCs] (in [^Campaigns]/[^Sessions]) represent the PCs (and to a lesser extent, the players).  They are not tied to world Characters, because I didn't see much value in doing so.  The PCs are where you track storylines, related NPCs and organizations, etc. This makes them easier to find and review when preparing and running the game.
+- [^PCs] (in Campaigns/Sessions) represent the PCs (and to a lesser extent, the players).  They are not tied to world Characters, because I didn't see much value in doing so.  The PCs are where you track storylines, related NPCs and organizations, etc. This makes them easier to find and review when preparing and running the game.
   - PCs are explicitly tied to a single Foundry actor.

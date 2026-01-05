@@ -21,10 +21,10 @@
         </div>
       </div>
       
-          <nav class="fcb-sheet-navigation flexrow tabs" data-group="custom-fields-dialog">
-            <a class="item" data-tab="fields">{{ localize('applications.customFields.tabs.fields') }}</a>
-            <a v-if="backendAvailable" class="item" data-tab="images">{{ localize('applications.customFields.tabs.images') }}</a>
-          </nav>
+      <nav class="fcb-sheet-navigation flexrow tabs" data-group="custom-fields-dialog">
+        <a class="item" data-tab="fields">{{ localize('applications.customFields.tabs.fields') }}</a>
+        <a v-if="backendAvailable" class="item" data-tab="images">{{ localize('applications.customFields.tabs.images') }}</a>
+      </nav>
     </template>
 
     <template #scrollSection>
@@ -69,7 +69,11 @@
               {{ localize('labels.noResults') }}
             </template>
 
-            <Column :rowReorder="true" headerStyle="width: 3rem" :reorderableColumn="false" />
+            <Column :rowReorder="true" headerStyle="width: 3rem" :reorderableColumn="false">
+              <template #rowreordericon>
+                <i class="fas fa-grip-vertical"></i>
+              </template>
+            </Column>
 
             <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="width: 4rem">
               <template #body="{ data }">

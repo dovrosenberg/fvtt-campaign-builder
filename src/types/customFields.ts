@@ -30,7 +30,7 @@ export interface CustomFieldDescription {
   aiEnabled?: boolean;
   aiPromptTemplate?: string;
   deleted?: boolean;
-  indexed?: boolean;
+  indexed?: boolean;   // indexed for search
   sortOrder: number;   // order of display on description tab
   configuration?: {
     minWords: number;

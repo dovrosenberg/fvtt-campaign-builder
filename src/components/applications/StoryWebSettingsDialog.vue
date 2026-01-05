@@ -237,7 +237,12 @@ Dependencies
               {{ localize('labels.noResults') }}
             </template>
 
-            <Column rowReorder style="width: 3rem" />
+            <Column :rowReorder="true" headerStyle="width: 3rem" :reorderableColumn="false">
+              <template #rowreordericon>
+                <i class="fas fa-grip-vertical"></i>
+              </template>
+            </Column>
+
 
             <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="width: 100px">
               <template #body="{ data }">
