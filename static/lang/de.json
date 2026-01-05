@@ -681,7 +681,8 @@
         "entryDescription": "Wählen Sie Einträge aus, die basierend auf Ihren Änderungen mit diesem Eintrag verknüpft oder von diesem Eintrag getrennt werden sollen.",
         "sessionDescription": "Wählen Sie Einträge aus, die basierend auf Ihren Änderungen mit der Sitzung verknüpft oder von der Sitzung getrennt werden sollen.",
         "pcDescription": "Wählen Sie Einträge aus, die basierend auf Ihren Änderungen mit diesem PC verknüpft oder von diesem PC getrennt werden sollen.",
-        "dangerDescription": "Wählen Sie Teilnehmer aus, die basierend auf Ihren Änderungen zu dieser Gefahr hinzugefügt oder von dieser Gefahr entfernt werden sollen."
+        "dangerDescription": "Wählen Sie Teilnehmer aus, die basierend auf Ihren Änderungen zu dieser Gefahr hinzugefügt oder von dieser Gefahr entfernt werden sollen.",
+        "arcDescription": "Wählen Sie Einträge aus, die basierend auf Ihren Änderungen mit diesem Bogen verknüpft oder nicht verknüpft werden sollen."
       },
       "saveSessionNotes": {
         "title": "Änderungen speichern?",
@@ -867,7 +868,10 @@
         "setStyle": "Set Style"
       },
       "addToStoryWeb": "Zum aktuellen Story-Web hinzufügen",
-      "addWithRelationships": "Mit Beziehungen hinzufügen"
+      "addWithRelationships": "Mit Beziehungen hinzufügen",
+      "danger": {
+        "delete": "Gefahr löschen"
+      }
     },
     "tooltips": {
       "mainButton": "Kampagnen-Builder starten",

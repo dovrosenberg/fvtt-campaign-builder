@@ -681,7 +681,8 @@
         "entryDescription": "Sélectionnez les entrées à lier ou délier à cette entrée en fonction de vos modifications.",
         "sessionDescription": "Sélectionnez les entrées à lier ou délier à la session en fonction de vos modifications.",
         "pcDescription": "Sélectionnez les entrées à lier ou délier à ce PC en fonction de vos modifications.",
-        "dangerDescription": "Sélectionnez les participants à ajouter/retirer de ce danger en fonction de vos modifications."
+        "dangerDescription": "Sélectionnez les participants à ajouter/retirer de ce danger en fonction de vos modifications.",
+        "arcDescription": "Sélectionnez les entrées à lier ou délier à cet arc en fonction de vos modifications."
       },
       "saveSessionNotes": {
         "title": "Enregistrer les modifications ?",
@@ -867,7 +868,10 @@
         "setStyle": "Set Style"
       },
       "addToStoryWeb": "Ajouter à l'histoire Web actuelle",
-      "addWithRelationships": "Ajouter avec les relations"
+      "addWithRelationships": "Ajouter avec les relations",
+      "danger": {
+        "delete": "Supprimer le danger"
+      }
     },
     "tooltips": {
       "mainButton": "Lancer le Créateur de Campagne",
