@@ -5,6 +5,7 @@
     ref="dialogRef"
     role="dialog"
     :style="style"
+    tabindex="-1"
   >
     <header 
       class="fcb-window-header window-header flexrow draggable"
@@ -47,7 +48,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { defineProps, computed, ref, PropType, watch, reactive } from 'vue'
+  import { defineProps, computed, ref, PropType, watch, reactive, onBeforeUnmount, nextTick } from 'vue'
 
   // local imports
   import { localize } from '@/utils/game';
@@ -123,6 +124,89 @@
 
   ////////////////////////////////
   // event handlers
+  const onDocumentKeydown = (e: KeyboardEvent) => {
+    // Only handle "plain Enter" (no modifiers) and only when the focus/target is within this dialog.
+    if (e.key !== 'Enter' || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.defaultPrevented || e.repeat)
+      return;
+
+    if (!dialogRef.value)
+      return;
+
+    // In some environments keyboard events are retargeted (e.g. `target` becomes <body>).
+    // `composedPath` is a more reliable way to see where the event originated.
+    const activeEl = document.activeElement;
+    const isInThisDialog = dialogRef.value.contains(activeEl);
+
+    // Only handle Enter when focus (or the event path) is inside this dialog.
+    if (!isInThisDialog)
+      return;
+
+    // Don't hijack Enter for multiline editing.
+    if (activeEl instanceof HTMLTextAreaElement || (activeEl instanceof HTMLElement && activeEl.isContentEditable))
+      return;
+
+    // If the user is focused on one of this dialog's buttons, explicitly click it.
+    // (In Foundry/Electron environments, Enter does not reliably translate to click.)
+    if (activeEl instanceof HTMLButtonElement && activeEl.classList.contains('fcb-dialog-button')) {
+      e.preventDefault();
+      e.stopPropagation();
+      activeEl.click();
+      return;
+    }
+
+    const defaultBtn = props.buttons.find((btn) => btn.default && !btn.disable && !btn.hidden);
+    if (!defaultBtn)
+      return;
+
+    // Prevent other handlers from also treating Enter as a submit-like action.
+    e.preventDefault();
+    e.stopPropagation();
+    onButtonClick(defaultBtn);
+  };
+
+  const focusDefaultAction = async () => {
+    // Wait until the DOM is updated so `dialogRef` and buttons/inputs exist.
+    await nextTick();
+    if (!dialogRef.value)
+      return;
+
+    // First priority: an explicit autofocus target in the dialog content.
+    const contentRoot = dialogRef.value.querySelector<HTMLElement>('#fcb-dialog-content');
+    const explicitAutofocus = contentRoot?.querySelector<HTMLElement>('[data-dialog-autofocus], [autofocus]');
+    if (explicitAutofocus && !explicitAutofocus.hasAttribute('disabled')) {
+      explicitAutofocus.focus();
+      return;
+    }
+
+    // Second priority: if there's a standard input in the content, focus it (better UX for input dialogs).
+    const firstField = contentRoot?.querySelector<HTMLElement>(
+      'input:not(:disabled):not([type="hidden"]), select:not(:disabled), textarea:not(:disabled), [contenteditable="true"]'
+    );
+    if (firstField) {
+      firstField.focus();
+      return;
+    }
+
+    // Prefer focusing the enabled default button.
+    const defaultButtonEl = dialogRef.value.querySelector<HTMLButtonElement>('.fcb-dialog-button.default:not(:disabled)');
+    if (defaultButtonEl) {
+      defaultButtonEl.focus();
+      return;
+    }
+
+    // Otherwise focus the first sensible focus target.
+    const firstFocusable = dialogRef.value.querySelector<HTMLElement>(
+      'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+    );
+    if (firstFocusable) {
+      firstFocusable.focus();
+      return;
+    }
+
+    // As a last resort, focus the dialog container itself.
+    dialogRef.value.focus();
+  };
+
   const onStartDrag = (e: MouseEvent) => {
     if (!dialogRef.value) 
       return;
@@ -168,8 +252,20 @@
       show.value = newValue; 
   });
 
+  watch(show, (newValue) => {
+    if (newValue) {
+      document.addEventListener('keydown', onDocumentKeydown, true);
+      void focusDefaultAction();
+    } else {
+      document.removeEventListener('keydown', onDocumentKeydown, true);
+    }
+  }, { immediate: true });
+
   ////////////////////////////////
   // lifecycle events
+  onBeforeUnmount(() => {
+    document.removeEventListener('keydown', onDocumentKeydown, true);
+  });
 
 </script>
 

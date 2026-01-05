@@ -12,7 +12,7 @@
         v-model="inputValue"
         type="text"
         class="fcb-input"
-        @keydown.enter="onOk"
+        data-dialog-autofocus
       />
     </div>
   </Dialog>
