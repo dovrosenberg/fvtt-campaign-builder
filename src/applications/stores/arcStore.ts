@@ -5,7 +5,7 @@ import { ref, watch, } from 'vue';
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { useMainStore, useNavigationStore, } from '@/applications/stores';
+import { useMainStore, useNavigationStore, usePlayingStore } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 
 // types
@@ -21,7 +21,7 @@ import {
 } from '@/types';
 import { ArcLore, ArcVignette, } from '@/documents';
 
-import { Entry, } from '@/classes';
+import { Entry, Session, } from '@/classes';
 import { getTopicText } from '@/compendia';
 
 export enum ArcTableTypes {
@@ -84,7 +84,9 @@ export const useArcStore = defineStore('arc', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
+  const playingStore = usePlayingStore();
   const { currentContentTab, currentArc, } = storeToRefs(mainStore);
+  const { currentPlayedSessionId } = storeToRefs(playingStore);
 
   ///////////////////////////////
   // internal state
@@ -131,15 +133,15 @@ export const useArcStore = defineStore('arc', () => {
    * @param uuid the UUID of the location to copy
    */
   const copyLocationToSession = async (uuid: string): Promise<void> => {
-    if (!currentArc.value)
+    if (!currentArc.value || !currentPlayedSessionId.value)
       return;
 
-    const lastSession = await currentArc.value.getLastSession();
+    const currentSession = await Session.fromUuid(currentPlayedSessionId.value);
 
-    if (!lastSession)
+    if (!currentSession)
       return;
 
-    await lastSession.addLocation(uuid);
+    await currentSession.addLocation(uuid);
   }
 
   /**
@@ -179,12 +181,12 @@ export const useArcStore = defineStore('arc', () => {
    * @param uuid the UUID of the participant to copy
    */
   const copyParticipantToSession = async (uuid: string): Promise<void> => {
-    if (!currentArc.value)
+    if (!currentArc.value || !currentPlayedSessionId.value)
       return;
 
-    const lastSession = await currentArc.value.getLastSession();
+    const currentSession = await Session.fromUuid(currentPlayedSessionId.value);
 
-    if (!lastSession)
+    if (!currentSession)
       return;
 
     // need to make sure it's a character
@@ -192,7 +194,7 @@ export const useArcStore = defineStore('arc', () => {
     if (!character || character.topic!=Topics.Character)
       return;
  
-    await lastSession.addNPC(uuid);
+    await currentSession.addNPC(uuid);
   }
 
   /**
@@ -325,18 +327,18 @@ export const useArcStore = defineStore('arc', () => {
    * @param uuid the UUID of the vignette to move
    */
   const moveVignetteToSession = async (uuid: string): Promise<void> => {
-    if (!currentArc.value)
+    if (!currentArc.value || !currentPlayedSessionId.value)
       return;
 
-    const lastSession = await currentArc.value.getLastSession();
-    if (!lastSession)
+    const currentSession = await Session.fromUuid(currentPlayedSessionId.value);
+    if (!currentSession)
       return;
 
     const vignette = (currentArc.value.vignettes as ArcVignette[]).find(v=> v.uuid===uuid);
     if (!vignette)
       return;
 
-    await lastSession.addVignette(vignette.description);
+    await currentSession.addVignette(vignette.description);
     await currentArc.value.deleteVignette(uuid);
     await _refreshVignetteRows();
   }
@@ -346,12 +348,12 @@ export const useArcStore = defineStore('arc', () => {
    * @param uuid the UUID of the lore to move
    */
   const moveLoreToSession = async (uuid: string): Promise<void> => {
-    if (!currentArc.value)
+    if (!currentArc.value || !currentPlayedSessionId.value)
       return;
 
-    const lastSession = await currentArc.value.getLastSession();
+    const currentSession = await Session.fromUuid(currentPlayedSessionId.value);
 
-    if (!lastSession)
+    if (!currentSession)
       return;
 
     const lore = currentArc.value.lore.find(l=> l.uuid===uuid);
@@ -359,7 +361,7 @@ export const useArcStore = defineStore('arc', () => {
     if (!lore)
       return;
 
-    await lastSession.addLore(lore.description, lore.journalEntryPageId);
+    await currentSession.addLore(lore.description, lore.journalEntryPageId);
     await currentArc.value.deleteLore(uuid);
 
     await _refreshLoreRows();
@@ -437,15 +439,15 @@ export const useArcStore = defineStore('arc', () => {
    * @param uuid the UUID of the monster to copy
    */
   const copyMonsterToSession = async (uuid: string): Promise<void> => {
-    if (!currentArc.value)
+    if (!currentArc.value || !currentPlayedSessionId.value)
       return;
 
-    const lastSession = await currentArc.value.getLastSession();
+    const currentSession = await Session.fromUuid(currentPlayedSessionId.value);
 
-    if (!lastSession)
+    if (!currentSession)
       return;
 
-    await lastSession.addMonster(uuid);
+    await currentSession.addMonster(uuid);
   }
 
   const reorderVignettes = async (reorderedVignettes: ArcVignette[]): Promise<void> => {

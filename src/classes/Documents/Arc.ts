@@ -181,19 +181,6 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     await this.save();
   }
 
-
-  public async getLastSession(): Promise<Session | null> {
-    if (this.endSessionNumber==-1)
-      return null;
-
-    await this.loadCampaign();
-    const index = this.campaign?.sessionIndex.find(s=> s.number===this.endSessionNumber);
-    if (!index)
-      return null;
-
-    return (await Session.fromUuid(index.uuid)) || null;
-  }
-
   get sortOrder(): number {
     return this._clone.system.sortOrder;
   }
