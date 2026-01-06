@@ -994,7 +994,7 @@ export const useSessionStore = defineStore('session', () => {
 
     const retval = [] as SessionVignette[];
 
-    for (const vignette of currentSession.value?.vignettes) {
+    for (const vignette of (currentSession.value?.vignettes || [])) {
       retval.push({
         uuid: vignette.uuid,
         delivered: vignette.delivered,
@@ -1022,7 +1022,6 @@ export const useSessionStore = defineStore('session', () => {
         delivered: lore.delivered,
         significant: lore.significant,
         description: lore.description,
-        sortOrder: lore.sortOrder,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
         packId: entry?.pack || null,

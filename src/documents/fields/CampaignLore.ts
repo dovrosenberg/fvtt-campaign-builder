@@ -17,9 +17,6 @@ export const CampaignLoreSchema = () => (
     /** a linked journal entry page */
     journalEntryPageId: new fields.DocumentUUIDField({ required: true, nullable: true, initial: null }),
 
-    /** the sortOrder for the lore list */
-    sortOrder: new fields.NumberField({ required: true, nullable: false, integer: true }),
-
     /** if it was delivered, in which session? */
     lockedToSessionId: new fields.DocumentUUIDField({ required: true, nullable: true }),
 

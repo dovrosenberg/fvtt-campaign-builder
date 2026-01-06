@@ -16,8 +16,5 @@ export const SessionLoreSchema = () => (
 
     /** a linked journal entry page */
     journalEntryPageId: new fields.DocumentUUIDField({ required: true, nullable: true }),
-
-    /** the sortOrder for the lore list */
-    sortOrder: new fields.NumberField({ required: true, nullable: false, integer: true }),
 }, { required: true, nullable: false} )
 );

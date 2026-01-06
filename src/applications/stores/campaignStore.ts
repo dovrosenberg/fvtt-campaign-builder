@@ -392,7 +392,6 @@ export const useCampaignStore = defineStore('campaign', () => {
       description: l.description,
       significant: l.significant,
       journalEntryPageId: l.journalEntryPageId,
-      sortOrder: l.sortOrder,
       lockedToSessionId: null,
       lockedToSessionName: null,
     }));
@@ -580,7 +579,6 @@ export const useCampaignStore = defineStore('campaign', () => {
           journalEntryPageId: lore.journalEntryPageId,
           journalEntryPageName: entry?.name || null,
           packId: entry?.pack ?? null,
-          sortOrder: lore.sortOrder,
         });
       }
     }
@@ -602,7 +600,6 @@ export const useCampaignStore = defineStore('campaign', () => {
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
         packId: entry?.pack ??null,
-        sortOrder: lore.sortOrder,
       });
     }
 

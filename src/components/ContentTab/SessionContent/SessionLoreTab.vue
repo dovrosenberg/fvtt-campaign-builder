@@ -255,8 +255,8 @@
   }
 
   const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    // Create properly ordered lore with updated sortOrder values
-    const reorderedLore = reorderedRows.map((row, index) => {
+    // Reorder using array order
+    const reorderedLore = reorderedRows.map((row) => {
       const lore = loreRows.value.find(lore => lore.uuid === row.uuid) as SessionLoreDetails;
       return { 
         uuid: lore.uuid,
@@ -264,7 +264,6 @@
         delivered: lore.delivered,
         significant: lore.significant,
         journalEntryPageId: lore.journalEntryPageId,
-        sortOrder: index 
       } as SessionLore;
     });
     await store.value.reorderLore(reorderedLore);

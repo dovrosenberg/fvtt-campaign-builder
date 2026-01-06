@@ -406,7 +406,6 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       journalEntryPageId: journalEntryPageId,
       lockedToSessionId: null,
       lockedToSessionName: null,
-      sortOrder: this._clone.system.lore.reduce((max, lore) => Math.max(max, lore.sortOrder), -1) + 1,
     });
 
     await this.save();
@@ -483,7 +482,6 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       entry = await Entry.fromUuid(linkedUuid);
     }
 
-    // give it the max sortOrder
     const item: ToDoItem = {
       uuid: foundry.utils.randomID(),
       lastTouched: manualDate?.toISOString() || new Date().toISOString(),
@@ -492,7 +490,6 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       sessionUuid: sessionUuid || null,
       linkedText: entry ? entry.name : null,
       text: text || '',
-      sortOrder: this._clone.system.todoItems.reduce((max, item) => Math.max(max, item.sortOrder), -1) + 1,
       type: type || ToDoTypes.Manual,
     };
 
@@ -598,7 +595,6 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     const item: Idea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
-      sortOrder: this._clone.system.ideas.reduce((max, item) => Math.max(max, item.sortOrder), -1) + 1,
     };
 
     this._clone.system.ideas.push(item);

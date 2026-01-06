@@ -188,11 +188,8 @@
   }
   
   const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    // Create properly ordered vignettes with updated sortOrder values
-    const reorderedVignettes = reorderedRows.map((row, index) => {
-      const vignette = vignetteRows.value.find(v => v.uuid === row.uuid) as ArcVignette | SessionVignette;
-      return { ...vignette, sortOrder: index };
-    });
+    // Reorder using array order
+    const reorderedVignettes = reorderedRows.map((row) => vignetteRows.value.find(v => v.uuid === row.uuid) as ArcVignette | SessionVignette);
     // @ts-ignore - the type will match the store.value type
     await store.value.reorderVignettes(reorderedVignettes);
   };

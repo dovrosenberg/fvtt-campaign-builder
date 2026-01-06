@@ -226,12 +226,12 @@
     event.preventDefault();  
 
     // parse the data 
-    let data = getValidatedData(event);
+    const data = getValidatedData(event);
     if (!data)
       return;
 
     // make sure it's the right format - looking for JournalEntry(Page)
-    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && data.uuid) {
+    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && ('uuid' in data) && data.uuid) {
       // Create a new lore entry and associate it with the journal entry page
       const loreId = await campaignStore.addLore('');
 
@@ -245,12 +245,12 @@
     event.preventDefault();  
 
     // parse the data 
-    let data = getValidatedData(event);
+    const data = getValidatedData(event);
     if (!data)
       return;
 
     // make sure it's the right format - looking for JournalEntry(Page)
-    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && data.uuid) {
+    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && ('uuid' in data) && data.uuid) {
       if (rowUuid) {
         await campaignStore.updateLoreJournalEntry(rowUuid, data.uuid as string);
       }
@@ -258,11 +258,8 @@
   }
 
   const onReorderAvailable = async (reorderedRows: BaseTableGridRow[]) => {
-    // Create properly ordered lore with updated sortOrder values
-    const reorderedLore = reorderedRows.map((row, index) => {
-      const lore = availableLoreRows.value.find(lore => lore.uuid === row.uuid) as CampaignLoreDetails;
-      return { ...lore, sortOrder: index };
-    });
+    // Reorder using array order 
+    const reorderedLore = reorderedRows.map((row) => availableLoreRows.value.find(lore => lore.uuid === row.uuid) as CampaignLoreDetails);
     await campaignStore.reorderAvailableLore(reorderedLore);
   };
 

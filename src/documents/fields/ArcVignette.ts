@@ -7,8 +7,5 @@ export const ArcVignetteSchema = () => (
 
     /** the vignette description */
     description: new fields.StringField({ required: true, nullable: false, initial: '' }),
-
-    /** the sortOrder for the vignette list */
-    sortOrder: new fields.NumberField({ required: true, nullable: false, integer: true }),
   }, { required: true, nullable: false} )
 );

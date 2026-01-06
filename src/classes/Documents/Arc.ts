@@ -148,7 +148,6 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     const item: Idea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
-      sortOrder: this._clone.system.ideas.reduce((max, item) => Math.max(max, item.sortOrder), -1) + 1,
     };
 
     this._clone.system.ideas.push(item);
@@ -316,7 +315,6 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     this._clone.system.vignettes.push({
       uuid,
       description: description || '',
-      sortOrder: this._clone.system.vignettes.length,
     } satisfies ArcVignette);
 
     await this.save();
@@ -344,7 +342,6 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
       uuid: uuid,
       description: description,
       journalEntryPageId: journalEntryPageId,
-      sortOrder: this._clone.system.lore.length,
     });
 
     await this.save();

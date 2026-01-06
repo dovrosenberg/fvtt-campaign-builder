@@ -106,7 +106,6 @@ export interface SessionLoreDetails {
   journalEntryPageName: string | null;  
   significant: boolean;
   packId: string | null;  // compendium of the document
-  sortOrder: number;
   onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
 }
 
@@ -116,14 +115,12 @@ export interface ArcLoreDetails {
   journalEntryPageId: string | null;  // the JournalEntryPage document
   journalEntryPageName: string | null;  
   packId: string | null;  // compendium of the document
-  sortOrder: number;
   onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
 }
 
 export interface ArcVignetteDetails {
   uuid: string;
   description: string;
-  sortOrder: number;
 }
 
 export interface CampaignLoreDetails extends SessionLoreDetails {

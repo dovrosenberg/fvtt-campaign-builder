@@ -10,6 +10,5 @@ export const ToDoItemSchema = () => (
     sessionUuid: new fields.DocumentUUIDField({ required: true, nullable: true, initial: null }),
     text: new fields.StringField({ required: true, nullable: false }),
     type: new fields.StringField({ required: true, nullable: false }),
-    sortOrder: new fields.NumberField({ required: true, nullable: false, integer: true }),
   }, { required: true, nullable: false} )
 );

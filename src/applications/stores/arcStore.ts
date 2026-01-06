@@ -21,7 +21,7 @@ import {
 } from '@/types';
 import { ArcLore, ArcVignette, } from '@/documents';
 
-import { Entry, Session, } from '@/classes';
+import { Entry, } from '@/classes';
 import { getTopicText } from '@/compendia';
 
 export enum ArcTableTypes {
@@ -704,7 +704,6 @@ export const useArcStore = defineStore('arc', () => {
       retval.push({
         uuid: lore.uuid,
         description: lore.description,
-        sortOrder: lore.sortOrder,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
         packId: entry?.pack || null,
@@ -719,12 +718,9 @@ export const useArcStore = defineStore('arc', () => {
       return;
 
     const vignettes = (currentArc.value.vignettes as ArcVignette[] | undefined) || [];
-    const sorted = vignettes.slice().sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-
-    vignetteRows.value = sorted.map((v) => ({
+    vignetteRows.value = vignettes.map((v) => ({
       uuid: v.uuid,
       description: v.description,
-      sortOrder: v.sortOrder,
     }));
   }
 

@@ -17,14 +17,12 @@ export interface ArcMonster extends ArcRelatedItem {}
 export interface ArcVignette {
   uuid: string;
   description: string;
-  sortOrder: number;
 }
 
 export interface ArcLore {
   uuid: string;
   description: string;
   journalEntryPageId: string | null;
-  sortOrder: number;
 }
 
 export const ArcSchema = {
