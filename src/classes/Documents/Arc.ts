@@ -1,6 +1,6 @@
 // represents a game session 
 
-import { ArcLocation, ArcLore, ArcMonster, ArcParticipant, DOCUMENT_TYPES, } from '@/documents';
+import { ArcLocation, ArcLore, ArcMonster, ArcParticipant, ArcVignette, DOCUMENT_TYPES, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
@@ -24,6 +24,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     participants: [],  
     monsters: [],  
     ideas: [],
+    vignettes: [],
     lore: [],  
     img: '',   
     tags: [],
@@ -307,6 +308,46 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
 
   set lore(value: ArcLore[] | readonly ArcLore[]) {
     this._clone.system.lore = value.slice();     // we clone it so it can't be edited outside
+  }
+
+  get vignettes(): ArcVignette[] {
+    return this._clone.system.vignettes || [];
+  }
+
+  set vignettes(value: ArcVignette[] | readonly ArcVignette[]) {
+    this._clone.system.vignettes = value.slice();     // we clone it so it can't be edited outside
+  }
+
+  async addVignette(description: string): Promise<string> {
+    const uuid = foundry.utils.randomID();
+
+    const vignettes = this._clone.system.vignettes;
+    if (!vignettes) {
+      this._clone.system.vignettes = [];
+    }
+
+    this._clone.system.vignettes.push({
+      uuid,
+      description: description || '',
+      sortOrder: this._clone.system.vignettes.length,
+    } satisfies ArcVignette);
+
+    await this.save();
+    return uuid;
+  }
+
+  async updateVignetteDescription(uuid: string, description: string): Promise<void> {
+    const vignette = this._clone.system.vignettes.find(v => v.uuid===uuid);
+    if (!vignette)
+      return;
+
+    vignette.description = description;
+    await this.save();
+  }
+
+  async deleteVignette(uuid: string): Promise<void> {
+    this._clone.system.vignettes = this._clone.system.vignettes.filter(v => v.uuid!==uuid);
+    await this.save();
   }
 
   async addLore(description: string, journalEntryPageId: string | null = null): Promise<string> {

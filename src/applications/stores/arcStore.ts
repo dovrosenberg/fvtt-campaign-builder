@@ -15,10 +15,11 @@ import {
   ArcParticipantDetails, 
   ArcMonsterDetails, 
   ArcLoreDetails,
+  ArcVignetteDetails,
   Idea,
   Topics,
 } from '@/types';
-import { ArcLore, } from '@/documents';
+import { ArcLore, ArcVignette, } from '@/documents';
 
 import { Entry, } from '@/classes';
 import { getTopicText } from '@/compendia';
@@ -28,6 +29,7 @@ export enum ArcTableTypes {
   Location,
   Participant,
   Monster,
+  Vignette,
   Lore,
   Idea,
 }
@@ -40,6 +42,7 @@ export const useArcStore = defineStore('arc', () => {
   const locationRows = ref<ArcLocationDetails[]>([]);
   const participantRows = ref<ArcParticipantDetails[]>([]);
   const monsterRows = ref<ArcMonsterDetails[]>([]);
+  const vignetteRows = ref<ArcVignetteDetails[]>([]);
   const loreRows = ref<ArcLoreDetails[]>([]); 
   const ideaRows = ref<Idea[]>([]);
   
@@ -62,6 +65,9 @@ export const useArcStore = defineStore('arc', () => {
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onMonsterClick },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ], 
+    [ArcTableTypes.Vignette]: [
+      { field: 'description', style: 'text-align: left', header: 'Vignette', editable: true },
+    ],
     [ArcTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
       { field: 'journalEntryPageName', style: 'text-align: left; width: 25%;max-width: 25%', header: 'Journal Page', editable: false,
@@ -271,6 +277,71 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
+   * Adds a vignette to the arc.
+   * @param description The description for the vignette
+   * @returns The UUID of the created vignette
+   */
+  const addVignette = async (description = ''): Promise<string | null> => {
+    if (!currentArc.value)
+      throw new Error('Invalid arc in arcStore.addVignette()');
+
+    const vignetteUuid = await currentArc.value.addVignette(description);
+    await _refreshVignetteRows();
+    return vignetteUuid;
+  }
+
+  /**
+   * Updates the vignette description
+   * @param uuid the UUID of the vignette
+   */
+  const updateVignetteDescription = async (uuid: string, description: string): Promise<void> => {
+    if (!currentArc.value)
+      throw new Error('Invalid arc in arcStore.updateVignetteDescription()');
+
+    await currentArc.value.updateVignetteDescription(uuid, description);
+    await _refreshVignetteRows();
+  }
+
+  /**
+   * Deletes a vignette entry from the arc.
+   * @param uuid - The UUID of the vignette entry to delete.
+   * @returns True if the vignette was deleted, false if the user canceled.
+   */
+  const deleteVignette = async (uuid: string): Promise<boolean> => {
+    if (!currentArc.value)
+      throw new Error('Invalid arc in arcStore.deleteVignette()');
+
+    // confirm
+    if (!(await FCBDialog.confirmDialog('Delete vignette?', 'Are you sure you want to delete this vignette?')))
+      return false;
+
+    await currentArc.value.deleteVignette(uuid);
+    await _refreshVignetteRows();
+    return true;
+  }
+
+  /**
+   * Move a vignette to the last session in the arc.
+   * @param uuid the UUID of the vignette to move
+   */
+  const moveVignetteToSession = async (uuid: string): Promise<void> => {
+    if (!currentArc.value)
+      return;
+
+    const lastSession = await currentArc.value.getLastSession();
+    if (!lastSession)
+      return;
+
+    const vignette = (currentArc.value.vignettes as ArcVignette[]).find(v=> v.uuid===uuid);
+    if (!vignette)
+      return;
+
+    await lastSession.addVignette(vignette.description);
+    await currentArc.value.deleteVignette(uuid);
+    await _refreshVignetteRows();
+  }
+
+  /**
    * Move a lore to the last session in the arc.
    * @param uuid the UUID of the lore to move
    */
@@ -376,6 +447,15 @@ export const useArcStore = defineStore('arc', () => {
 
     await lastSession.addMonster(uuid);
   }
+
+  const reorderVignettes = async (reorderedVignettes: ArcVignette[]): Promise<void> => {
+    if (!currentArc.value)
+      return;
+
+    currentArc.value.vignettes = reorderedVignettes;
+    await currentArc.value.save();
+    await _refreshVignetteRows();
+  };
 
   const reorderLore = async (reorderedLore: ArcLore[]) => {
     if (!currentArc.value) return;
@@ -617,6 +697,20 @@ export const useArcStore = defineStore('arc', () => {
     loreRows.value = retval;
   }
 
+  const _refreshVignetteRows = async () => {
+    if (!currentArc.value)
+      return;
+
+    const vignettes = (currentArc.value.vignettes as ArcVignette[] | undefined) || [];
+    const sorted = vignettes.slice().sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
+    vignetteRows.value = sorted.map((v) => ({
+      uuid: v.uuid,
+      description: v.description,
+      sortOrder: v.sortOrder,
+    }));
+  }
+
   const _refreshRowsForTab = async () => {
     switch (currentContentTab.value) {
       case 'description':
@@ -624,6 +718,9 @@ export const useArcStore = defineStore('arc', () => {
         break;
       case 'ideas':
         await _refreshIdeaRows();
+        break;
+      case 'vignettes':
+        await _refreshVignetteRows();
         break;
       case 'lore':
         await _refreshLoreRows();
@@ -663,6 +760,7 @@ export const useArcStore = defineStore('arc', () => {
     locationRows,
     participantRows,
     monsterRows,
+    vignetteRows,
     ideaRows,
     loreRows,
     extraFields,
@@ -683,6 +781,11 @@ export const useArcStore = defineStore('arc', () => {
     deleteMonster,
     copyMonsterToSession,
     updateMonsterNotes,
+    addVignette,
+    deleteVignette,
+    updateVignetteDescription,
+    moveVignetteToSession,
+    reorderVignettes,
     addLore,
     deleteLore,
     reorderLore,

@@ -543,6 +543,7 @@
         "arc": {
           "pcs": "PCs",
           "lore": "Lore",
+          "vignettes": "Vignettes",
           "locations": "Locations",
           "participants": "Participants",
           "monsters": "Monsters",

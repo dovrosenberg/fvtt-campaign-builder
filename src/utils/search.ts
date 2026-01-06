@@ -2,7 +2,7 @@ import MiniSearch from 'minisearch';
 import { Entry, Session, FCBSetting, Arc, Front } from '@/classes';
 import { CustomFieldContentType, Topics, ValidTopic, } from '@/types';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { ArcLore, SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
+import { ArcLore, ArcVignette, SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
 import { useMainStore } from '@/applications/stores';
 import { getTopicText } from '@/compendia';
@@ -448,6 +448,7 @@ class SearchService {
     await addArcEntrySnippet(snippets, arc.monsters, fromUuid);
 
     addArcShortSnippet(snippets, arc.lore);
+    addArcShortSnippet(snippets, arc.vignettes);
 
     // custom fields get added to description so they get a higher priority than snippets
     description = addCustomFieldsToDescription(description, CustomFieldContentType.Arc, arc);
@@ -823,7 +824,7 @@ async function addArcEntrySnippet<T extends { uuid: string }>(snippets: string[]
 };
 
 // vignettes, lore
-function addSessionShortSnippet(snippets: string[], relatedItems: readonly SessionLore[] | readonly SessionVignette[]) {
+function addSessionShortSnippet(snippets: string[], relatedItems: readonly (SessionLore | SessionVignette)[]) {
   for (const relatedItem of relatedItems) {
     // only index delivered ones
     if (!relatedItem.delivered) 
@@ -834,7 +835,7 @@ function addSessionShortSnippet(snippets: string[], relatedItems: readonly Sessi
 };
 
 // vignettes, lore
-function addArcShortSnippet(snippets: string[], relatedItems: readonly ArcLore[]) {
+function addArcShortSnippet(snippets: string[], relatedItems: readonly (ArcLore | ArcVignette)[]) {
   for (const relatedItem of relatedItems) {
     snippets.push(`${relatedItem?.description || ''}`);
   }

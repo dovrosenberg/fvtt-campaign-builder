@@ -23,6 +23,7 @@ import { ArcParticipantSchema } from './ArcParticipant';
 import { ArcLocationSchema } from './ArcLocation';
 import { ArcMonsterSchema } from './ArcMonster';
 import { ArcLoreSchema } from './ArcLore';
+import { ArcVignetteSchema } from './ArcVignette';
 import { StoryWebNodeSchema } from './StoryWebNode';
 import { StoryWebEdgeSchema } from './StoryWebEdge';
 
@@ -57,6 +58,7 @@ export const schemas = {
   ArcLocation: ArcLocationSchema,
   ArcMonster: ArcMonsterSchema,
   ArcLore: ArcLoreSchema,
+  ArcVignette: ArcVignetteSchema,
   StoryWebNode: StoryWebNodeSchema,
   StoryWebEdge: StoryWebEdgeSchema,
 }

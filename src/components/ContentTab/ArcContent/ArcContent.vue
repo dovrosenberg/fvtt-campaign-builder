@@ -73,6 +73,14 @@
             />
           </div>  
         </div>
+        <div class="tab flexcol" data-group="primary" data-tab="vignettes">
+          <div class="tab-inner">
+            <SessionVignetteTab 
+              :arc-mode="true"
+              @related-entries-changed="onRelatedEntriesChanged"
+            />
+          </div>  
+        </div>
         <div class="tab flexcol" data-group="primary" data-tab="locations">
           <div class="tab-inner">
             <SessionLocationTab 
@@ -141,6 +149,7 @@
   import ArcParticipantTab from '@/components/ContentTab/ArcContent/ArcParticipantTab.vue';
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
+  import SessionVignetteTab from '@/components/ContentTab/SessionContent/SessionVignetteTab.vue';
   import CampaignIdeasTab from '@/components/ContentTab/CampaignContent/CampaignIdeasTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
@@ -185,6 +194,7 @@
   const tabs = computed(() => [
     { id: 'description', label: localize('labels.description')},
     { id: 'lore', label: localize('labels.tabs.arc.lore')},
+    { id: 'vignettes', label: localize('labels.tabs.arc.vignettes')},
     { id: 'locations', label: localize('labels.tabs.arc.locations')},
     { id: 'participants', label: localize('labels.tabs.arc.participants')},
     { id: 'monsters', label: localize('labels.tabs.arc.monsters')},

@@ -58,6 +58,7 @@ The search box also searches across [^Arcs].  It looks across:
 * Description
 * Locations, participants, and monsters (the name of the entity)
 * Lore (text of the lore)
+* Vignettes (text of the vignette)
 
 ### Searching Sessions
 Finally, the search box also searches across Sessions - but in a subtlely different way.  It looks across:

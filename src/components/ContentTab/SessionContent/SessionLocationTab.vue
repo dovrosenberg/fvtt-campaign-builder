@@ -33,7 +33,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes } from '@/applications/stores';
+  import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes, useMainStore } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
@@ -68,8 +68,10 @@
   // store
   const sessionStore = useSessionStore();
   const arcStore = useArcStore();
+  const mainStore = useMainStore();
   const { relatedLocationRows: sessionLocationRows } = storeToRefs(sessionStore);
   const { locationRows: arcLocationRows } = storeToRefs(arcStore);
+  const { currentArc } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -79,6 +81,7 @@
   // computed data
   const locationRows = computed(() => props.arcMode ? arcLocationRows.value : sessionLocationRows.value);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
+  const arcHasSessions = computed((): boolean => (currentArc.value?.startSessionNumber != -1 ));
 
   const mappedLocationRows = computed(() => (
     locationRows.value.map((row) => ({
@@ -126,7 +129,9 @@
     // move to next session
     { 
       icon: 'fa-share', 
-      display: (data) => props.arcMode || !data.delivered, // hide arrow for things already delivered
+      // only show for arc mode if the arc has at least one session
+      display: (data) => (props.arcMode && arcHasSessions.value)
+        || (!props.arcMode && !data.delivered), // hide arrow for things already delivered
       callback: (data) => onMoveLocationToNext(data.uuid), 
       tooltip: props.arcMode ? localize('tooltips.copyToNextSession') : localize('tooltips.moveToNextSession') 
     }

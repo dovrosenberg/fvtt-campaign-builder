@@ -4,8 +4,8 @@ prev:
   text: 'Arc Description Tab'
   link: '/reference/campaign-mgt/content/arc/description'
 next: 
-  text: 'Arc Locations Tab'
-  link: '/reference/campaign-mgt/content/arc/locations'
+  text: 'Arc Vignettes Tab'
+  link: '/reference/campaign-mgt/content/arc/vignettes'
 ---
 
 # Arc Lore Tab
@@ -38,7 +38,8 @@ The actions column lets you take several actions with the Lore entries:
   - **Move to next session** - This moves the Lore to the next Session.  You would typically do this after a Session for Lore that you didn't deliver but still want to.  If a next Session doesn't exist, it will create one.
 
   > [!NOTE]
-  > The "Move to next session" option ignores which arc the current Session is in.  It will move it to the last Session in the Campaign, regardless.
+  > Move/copy to next session buttons on the various Arc tabs push to the latest Session in the Campaign - *even if it's in a different arc*
+
 
 ### Related Entry Tracking
 This table supports [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters, Organizations, or Locations in lore descriptions, you'll be prompted to update the Arc's Participants and Locations tables accordingly. 

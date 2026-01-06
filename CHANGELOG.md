@@ -3,6 +3,7 @@
 ![](https://img.shields.io/badge/release%20date-January%205%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.1/module.zip)
 
+- Added Vignettes to Arcs
 - Fixed an issue where the new "current session" bookmark wasn't refreshing when a new session is created.
 
 ## 1.8.0 - Customize all your fields, fine tune your AI, and get lists of items by tag

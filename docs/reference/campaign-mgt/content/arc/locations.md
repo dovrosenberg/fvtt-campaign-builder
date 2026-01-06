@@ -1,8 +1,8 @@
 ---
 title: Arc Locations Tab
 prev: 
-  text: 'Arc Lore Tab'
-  link: '/reference/campaign-mgt/content/arc/lore'
+  text: 'Arc Vignettes Tab'
+  link: '/reference/campaign-mgt/content/arc/vignettes'
 next: 
   text: 'Arc Participants Tab'
   link: '/reference/campaign-mgt/content/arc/participants'
@@ -32,6 +32,9 @@ The actions column lets you take several actions with the Location entries:
   - **Delete** - Delete the Location.  This removes it from the Arc list, but DOES NOT delete the Location from the [^Setting].
   - **Edit** - Allows you to edit the notes for the Location.  Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line. 
   - **Copy to next session** - This makes a copy of the Location on the next Session.  It doesn't remove it from the Arc in case you want to use it again later.
+
+  > [!NOTE]
+  > Move/copy to next session buttons on the various Arc tabs push to the latest Session in the Campaign - *even if it's in a different arc*
 
 ### Related Entry Tracking
 This table supports [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters, Organizations, or Locations in location notes, you'll be prompted to update the Arc's Participants and Locations tables accordingly.  

@@ -11,7 +11,7 @@ next:
 # Arc Details
 ![Arc Content](/assets/images/arc-content.webp)
 
-The Arc window provides tools for planning and tracking story arcs within a [^Campaign]. Each [^Arc] covers a range of [^Sessions] and gives you space to track key locations, participants, monsters, lore, and ideas for that storyline.
+The Arc window provides tools for planning and tracking story arcs within a [^Campaign]. Each [^Arc] covers a range of [^Sessions] and gives you space to track key locations, participants, monsters, lore, and ideas for that storyline.  They also are a convenient place to build out future plans for upcoming (but not the very next) Sessions.
 
 ## How Arcs relate to Sessions
 
@@ -32,6 +32,7 @@ Arcs have the following tabs where you can manage their details:
 
 * [Description](./description) – a high-level overview of what the Arc is about
 * [Lore](./lore) – Arc-specific secrets, clues, and revelations tied to this portion of the campaign
+* [Vignettes](./vignettes) – Vignettes you are preparing for the arc and can move into the next session when ready
 * [Locations](./locations) – the [^Locations] that appear in this Arc, with Arc-specific notes
 * [Participants](./participants) – important [^Characters] and [^Organizations] that matter for this Arc
 * [Monsters](./monsters) – notable monsters or enemies that show up in the Arc

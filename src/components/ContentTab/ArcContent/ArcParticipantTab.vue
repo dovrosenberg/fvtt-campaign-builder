@@ -67,7 +67,7 @@
   const arcStore = useArcStore();
   const mainStore = useMainStore();
   const { participantRows } = storeToRefs(arcStore);
-  const { currentSetting } = storeToRefs(mainStore);
+  const { currentSetting, currentArc } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -100,6 +100,8 @@
     return [ actionColumn, ...extraFields];
   });
 
+  const arcHasSessions = computed((): boolean => (currentArc.value?.startSessionNumber != -1 ));
+
   const actions = computed(() => ([
     {
       icon: 'fa-trash', 
@@ -117,7 +119,7 @@
     // copy to next session - only for characters
     { 
       icon: 'fa-share', 
-      display: (data) => (data.topic===Topics.Character),
+      display: (data) => (data.topic===Topics.Character) && arcHasSessions.value,
       callback: (data) => onCopyParticipantToSession(data.uuid), 
       tooltip: localize('tooltips.copyToNextSession') 
     }

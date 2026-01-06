@@ -120,6 +120,12 @@ export interface ArcLoreDetails {
   onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
 }
 
+export interface ArcVignetteDetails {
+  uuid: string;
+  description: string;
+  sortOrder: number;
+}
+
 export interface CampaignLoreDetails extends SessionLoreDetails {
   /** uuid of the session it came from */
   lockedToSessionId: string | null;  
