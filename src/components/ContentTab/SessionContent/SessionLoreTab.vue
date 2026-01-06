@@ -78,7 +78,7 @@
   // computed data
   const loreRows = computed(() => props.arcMode ? arcLoreRows.value : sessionLoreRows.value);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
-  const arcHasSessions = computed((): boolean => (currentArc.value?.startSessionNumber != -1 ));
+  const campaignHasSessions = computed((): boolean => ((currentArc.value?.campaign?.sessionIndex?.length || 0) > 0));
 
   const mappedLoreRows = computed(() => (
     loreRows.value.map((row) => ({
@@ -135,8 +135,8 @@
       // move to next session
       { 
         icon: 'fa-share', 
-        // we hide if already deleivered in session mode or no sessions in arc mode
-        display: (data) => (props.arcMode && arcHasSessions.value) 
+        // we hide if already deleivered in session mode or no sessions in arc's campaign
+        display: (data) => (props.arcMode && campaignHasSessions.value) 
           || (!props.arcMode && !data.delivered), // hide arrow for things already delivered
         callback: (data) => onMoveLoreToNext(data.uuid), 
         tooltip: localize('tooltips.moveToNextSession') 
@@ -218,12 +218,12 @@
     event.preventDefault();  
 
     // parse the data - looking for raw foundry data
-    let data = getValidatedData(event) as FoundryDragType | undefined;
+    const data = getValidatedData(event);
     if (!data)
       return;
 
     // make sure it's the right format - looking for JournalEntry(Page)
-    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && data.uuid) {
+    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && ('uuid' in data) && data.uuid) {
       // Create a new lore entry and associate it with the journal entry page
       const loreId = await store.value.addLore('');
 
@@ -237,12 +237,12 @@
     event.preventDefault();  
 
     // parse the data - looking for raw foundry data
-    let data = getValidatedData(event);
+    const data = getValidatedData(event);
     if (!data)
       return;
 
     // make sure it's the right format - looking for JournalEntry(Page)
-    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && data.uuid && rowUuid) {
+    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && ('uuid' in data) && data.uuid && rowUuid) {
       const lore = loreRows.value.find((l)=>l.uuid===rowUuid);
       
       if (lore?.journalEntryPageId && 

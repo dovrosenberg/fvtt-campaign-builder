@@ -280,7 +280,8 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this._clone.system.vignettes.push({
       uuid: uuid,
       description: description,
-      delivered: false
+      delivered: false,
+      sortOrder: this._clone.system.vignettes.length,
     });
 
     await this.save();

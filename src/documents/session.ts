@@ -26,6 +26,7 @@ export interface SessionMonster extends SessionRelatedItem {
 
 export interface SessionVignette extends SessionRelatedItem {
   description: string;
+  sortOrder: number;
 }
 
 export interface SessionLore extends SessionRelatedItem {

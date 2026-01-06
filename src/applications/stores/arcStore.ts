@@ -5,7 +5,7 @@ import { ref, watch, } from 'vue';
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { useMainStore, useNavigationStore, usePlayingStore } from '@/applications/stores';
+import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 
 // types
@@ -84,9 +84,7 @@ export const useArcStore = defineStore('arc', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const playingStore = usePlayingStore();
   const { currentContentTab, currentArc, } = storeToRefs(mainStore);
-  const { currentPlayedSessionId } = storeToRefs(playingStore);
 
   ///////////////////////////////
   // internal state
@@ -129,14 +127,18 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
-   * Copy a location to the last session in the arc.
+   * Copy a location to the current session in the campaign.
    * @param uuid the UUID of the location to copy
    */
   const copyLocationToSession = async (uuid: string): Promise<void> => {
-    if (!currentArc.value || !currentPlayedSessionId.value)
+    if (!currentArc.value)
       return;
 
-    const currentSession = await Session.fromUuid(currentPlayedSessionId.value);
+    const campaign = await currentArc.value.loadCampaign();
+    if (!campaign)
+      throw new Error('Invalid campaign in arcStore.copyLocationToSession()');
+
+    const currentSession = await campaign.getCurrentSession(); 
 
     if (!currentSession)
       return;
@@ -177,17 +179,20 @@ export const useArcStore = defineStore('arc', () => {
 
 
   /**
-   * Copy a participant (only a character) to the last session in the arc.
+   * Copy a participant (only a character) to the current session in the campaign.
    * @param uuid the UUID of the participant to copy
    */
   const copyParticipantToSession = async (uuid: string): Promise<void> => {
-    if (!currentArc.value || !currentPlayedSessionId.value)
+    if (!currentArc.value)
       return;
 
-    const currentSession = await Session.fromUuid(currentPlayedSessionId.value);
+    const campaign = await currentArc.value.loadCampaign();
+    if (!campaign)
+      throw new Error('Invalid campaign in arcStore.copyParticipantToSession()');
 
+    const currentSession = await campaign.getCurrentSession(); 
     if (!currentSession)
-      return;
+      throw new Error('Invalid session in arcStore.copyParticipantToSession()');
 
     // need to make sure it's a character
     const character = await Entry.fromUuid(uuid);
@@ -323,16 +328,20 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
-   * Move a vignette to the last session in the arc.
+   * Move a vignette to the current session in the campaign.
    * @param uuid the UUID of the vignette to move
    */
   const moveVignetteToSession = async (uuid: string): Promise<void> => {
-    if (!currentArc.value || !currentPlayedSessionId.value)
+    if (!currentArc.value)
       return;
 
-    const currentSession = await Session.fromUuid(currentPlayedSessionId.value);
+    const campaign = await currentArc.value.loadCampaign();
+    if (!campaign)
+      throw new Error('Invalid campaign in arcStore.moveVignetteToSession()');
+
+    const currentSession = await campaign.getCurrentSession(); 
     if (!currentSession)
-      return;
+      throw new Error('Invalid session in arcStore.moveVignetteToSession()');
 
     const vignette = (currentArc.value.vignettes as ArcVignette[]).find(v=> v.uuid===uuid);
     if (!vignette)
@@ -344,17 +353,20 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
-   * Move a lore to the last session in the arc.
+   * Move a lore to the current session in the campaign.
    * @param uuid the UUID of the lore to move
    */
   const moveLoreToSession = async (uuid: string): Promise<void> => {
-    if (!currentArc.value || !currentPlayedSessionId.value)
+    if (!currentArc.value)
       return;
 
-    const currentSession = await Session.fromUuid(currentPlayedSessionId.value);
+    const campaign = await currentArc.value.loadCampaign();
+    if (!campaign)
+      throw new Error('Invalid campaign in arcStore.moveLoreToSession()');
 
+    const currentSession = await campaign.getCurrentSession(); 
     if (!currentSession)
-      return;
+      throw new Error('Invalid session in arcStore.moveLoreToSession()');
 
     const lore = currentArc.value.lore.find(l=> l.uuid===uuid);
 
@@ -435,17 +447,20 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
-   * Copy a monster to the last session in the arc.
+   * Copy a monster to the current session in the campaign.
    * @param uuid the UUID of the monster to copy
    */
   const copyMonsterToSession = async (uuid: string): Promise<void> => {
-    if (!currentArc.value || !currentPlayedSessionId.value)
+    if (!currentArc.value)
       return;
 
-    const currentSession = await Session.fromUuid(currentPlayedSessionId.value);
+    const campaign = await currentArc.value.loadCampaign();
+    if (!campaign)
+      throw new Error('Invalid campaign in arcStore.copyMonsterToSession()');
 
+    const currentSession = await campaign.getCurrentSession(); 
     if (!currentSession)
-      return;
+      throw new Error('Invalid session in arcStore.copyMonsterToSession()');
 
     await currentSession.addMonster(uuid);
   }

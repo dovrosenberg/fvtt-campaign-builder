@@ -81,7 +81,7 @@
   // computed data
   const monsterRows = computed(() => props.arcMode ? arcMonsterRows.value : sessionMonsterRows.value);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
-  const arcHasSessions = computed((): boolean => (currentArc.value?.startSessionNumber != -1 ));
+  const campaignHasSessions = computed((): boolean => ((currentArc.value?.campaign?.sessionIndex?.length || 0) > 0));
 
   const mappedMonsterRows = computed(() => (
     monsterRows.value.map((row) => ({
@@ -129,8 +129,8 @@
     // move to next session
     { 
       icon: 'fa-share', 
-      // only show for arc mode if the arc has at least one session
-      display: (data) => (props.arcMode && arcHasSessions.value)
+      // only show for arc mode if the campaign has at least one session
+      display: (data) => (props.arcMode && campaignHasSessions.value)
         || (!props.arcMode && !data.delivered), // hide arrow for things already delivered
       callback: (data) => onMoveMonsterToNext(data.uuid), 
       tooltip: props.arcMode ? localize('tooltips.copyToNextSession') : localize('tooltips.moveToNextSession') 

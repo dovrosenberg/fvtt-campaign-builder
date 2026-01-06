@@ -73,7 +73,7 @@
   // computed data
   const vignetteRows = computed(() => props.arcMode ? arcVignetteRows.value : sessionVignetteRows.value);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
-  const arcHasSessions = computed((): boolean => (currentArc.value?.startSessionNumber != -1 ));
+  const campaignHasSessions = computed((): boolean => ((currentArc.value?.campaign?.sessionIndex?.length || 0) > 0));
 
   const mappedVignetteRows = computed(() => (
     vignetteRows.value.map((row) => ({
@@ -121,8 +121,8 @@
     // move to next session
     { 
       icon: 'fa-share', 
-      // only show for arc mode if the arc has at least one session
-      display: (data) => (props.arcMode && arcHasSessions.value)
+      // only show for arc mode if the campaign has at least one session
+      display: (data) => (props.arcMode && campaignHasSessions.value)
         || (!props.arcMode && !data.delivered), // hide arrow for things already delivered
       callback: (data) => onMoveVignetteToNext(data.uuid), 
       tooltip: localize('tooltips.moveToNextSession') 

@@ -182,7 +182,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * 
    * @param newNumber - The new session number
    */
-  public async updateArcsForNewSessionNumber(newSessionNumber: number): void {
+  public async updateArcsForNewSessionNumber(newSessionNumber: number): Promise<void> {
     // see if it's fine already
     if (getArcForSession(this.arcIndex, newSessionNumber) != null) 
       return;
@@ -372,6 +372,10 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
   public set currentSessionId(value: string | null) {
     this._clone.system.currentSessionId = value;
+  }
+
+  public async getCurrentSession(): Promise<Session | null> {
+    return this._clone.system.currentSessionId ? await Session.fromUuid(this._clone.system.currentSessionId) : null;
   }
 
   public get img(): string {

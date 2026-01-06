@@ -100,7 +100,7 @@
     return [ actionColumn, ...extraFields];
   });
 
-  const arcHasSessions = computed((): boolean => (currentArc.value?.startSessionNumber != -1 ));
+  const campaignHasSessions = computed((): boolean => ((currentArc.value?.campaign?.sessionIndex?.length || 0) > 0));
 
   const actions = computed(() => ([
     {
@@ -119,7 +119,7 @@
     // copy to next session - only for characters
     { 
       icon: 'fa-share', 
-      display: (data) => (data.topic===Topics.Character) && arcHasSessions.value,
+      display: (data) => (data.topic===Topics.Character) && campaignHasSessions.value,
       callback: (data) => onCopyParticipantToSession(data.uuid), 
       tooltip: localize('tooltips.copyToNextSession') 
     }
