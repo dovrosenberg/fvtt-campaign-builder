@@ -156,7 +156,7 @@
   };
 
   const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    // Reorder using array order (ignore sortOrder)
+    // Reorder using array order
     const reorderedIdeas = reorderedRows.map((row) => ideaRows.value.find(idea => idea.uuid === row.uuid));
     await store.value.reorderIdeas(reorderedIdeas);
   };
