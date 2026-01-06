@@ -15,6 +15,9 @@ Windsurf is not allowed to:
 
 ## Repo conventions
 
+### Build command
+- Prefer `npm run debug` as the standard build/run command for this repository (unless the user requests otherwise).
+
 ### TypeScript
 - Avoid `any`. Use `unknown` and narrow whenever possible, unless it is a one-time use and narrowing would require significantly more code/complexity.
 - Don't create const/let variables for intermediate expressions that are only used once, unless it is something particularly complex or it significantly improves readability.

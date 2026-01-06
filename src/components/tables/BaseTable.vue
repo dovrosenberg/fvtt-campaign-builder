@@ -14,7 +14,7 @@
       :first="pagination.first"
       :default-sort-order="1"
       :total-records="rows.length"
-      :global-filter-fields="props.filterFields"
+      :global-filter-fields="effectiveFilterFields"
       :filters="pagination.filters"
       :pt="{
         header: { style: 'border: none' },
@@ -419,7 +419,7 @@
     rowsPerPage: 10,
     filters: {
       global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-      ...props.filterFields.reduce((acc, field): Record<string, DataTableFilterMetaData> => {
+      ...deriveFilterFields().reduce((acc, field): Record<string, DataTableFilterMetaData> => {
         acc[field] = { value: null, matchMode: FilterMatchMode.CONTAINS };
         return acc;
       }, {} as Record<string, DataTableFilterMetaData>),
@@ -441,6 +441,8 @@
 
   ////////////////////////////////
   // computed data
+  const effectiveFilterFields = computed(() => deriveFilterFields());
+
   /** Check if any columns are editable */
   const hasEditableColumns = computed(() => {
     return props.columns.some((col) => col.editable);
@@ -606,6 +608,22 @@
       return acc;
     }, [] as string[])
   );
+
+ /**
+   * Derives the fields to use for global table filtering.
+   * - If the caller provides `filterFields`, we use those.
+   * - Otherwise, we default to the displayed column fields (excluding special UI-only columns).
+   */
+   function deriveFilterFields() {
+    const NON_FILTERABLE_FIELDS = ['actions', 'drag'];
+
+    if (props.filterFields.length > 0) 
+      return props.filterFields;
+    
+    return props.columns
+      .map((col) => col.field)
+      .filter((field) => !NON_FILTERABLE_FIELDS.includes(field));
+  };
 
   // Expose the setEditingRow method to parent components
   defineExpose({

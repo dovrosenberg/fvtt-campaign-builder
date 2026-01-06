@@ -5,6 +5,7 @@
 
 - Added Vignettes to Arcs
 - Fixed an issue where the new "current session" bookmark wasn't refreshing when a new session is created.
+- The search boxes to filter results on tables now work consistently.
 
 ## 1.8.0 - Customize all your fields, fine tune your AI, and get lists of items by tag
 ![](https://img.shields.io/badge/release%20date-January%205%2C%202026-blue)
