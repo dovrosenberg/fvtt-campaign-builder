@@ -503,7 +503,8 @@
           "locations": "Локации",
           "participants": "Участники",
           "monsters": "Монстры",
-          "ideas": "Идеи"
+          "ideas": "Идеи",
+          "vignettes": "Виньетки"
         }
       },
       "noResults": "Здесь ничего нет",

@@ -473,7 +473,8 @@
           "locations": "Orte",
           "participants": "Teilnehmer",
           "monsters": "Monster",
-          "ideas": "Ideen"
+          "ideas": "Ideen",
+          "vignettes": "Vignetten"
         }
       },
       "noResults": "Nichts hier",
