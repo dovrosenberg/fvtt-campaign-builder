@@ -10,7 +10,6 @@
     :allow-drop-row="true"
     :help-text="localize('labels.session.loreHelpText')"
     help-link="https://slyflourish.com/sharing_secrets.html"
-    :can-reorder="true"
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddLore"
@@ -27,7 +26,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch } from 'vue';
 
   // local imports
   import { useSessionStore, useArcStore, useMainStore, SessionTableTypes, ArcTableTypes, } from '@/applications/stores';
@@ -73,12 +72,12 @@
   ////////////////////////////////
   // data
   const sessionTableRef = ref<any>(null);
+  const campaignHasSessions = ref<boolean>(false);  // are any sessions in the campaign this belongs to?
 
   ////////////////////////////////
   // computed data
   const loreRows = computed(() => props.arcMode ? arcLoreRows.value : sessionLoreRows.value);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
-  const campaignHasSessions = computed((): boolean => ((currentArc.value?.campaign?.sessionIndex?.length || 0) > 0));
 
   const mappedLoreRows = computed(() => (
     loreRows.value.map((row) => ({
@@ -96,7 +95,7 @@
     return [ actionColumn, ...extraFields];
   });
 
-    const actions = computed(() => {
+  const actions = computed(() => {
     return [
       {
         icon: 'fa-trash', 
@@ -258,6 +257,8 @@
     // Reorder using array order
     const reorderedLore = reorderedRows.map((row) => {
       const lore = loreRows.value.find(lore => lore.uuid === row.uuid) as SessionLoreDetails;
+
+      // rows have extra fields we don't want
       return { 
         uuid: lore.uuid,
         description: lore.description,
@@ -271,7 +272,15 @@
 
   ////////////////////////////////
   // watchers
-  
+  watch(currentArc, async (newArc) => {
+    if (newArc) {
+      const campaign = await newArc?.loadCampaign();
+      campaignHasSessions.value = (campaign?.sessionIndex?.length || 0) > 0;
+    } else {
+      campaignHasSessions.value = true;
+    }
+  });
+
 
   ////////////////////////////////
   // lifecycle events

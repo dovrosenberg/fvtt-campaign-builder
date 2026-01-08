@@ -39,6 +39,7 @@
     "@primevue/auto-import-resolver": "^4.2.5",
     "@types/fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "@types/jquery": "^3.5.32",
+    "@types/sinon": "^21.0.0",
     "@types/yaireo__tagify": "^4.27.0",
     "@typescript-eslint/eslint-plugin": "^8.18.2",
     "@typescript-eslint/parser": "^8.18.2",

@@ -8,12 +8,12 @@
         :add-button-label="localize('labels.session.addJournal')"
         :extra-add-text="localize('labels.session.addJournalDrag')"
         :filter-fields="filterFields"
-        :can-reorder="false"
         :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteRelationship') }]"
 
         @drop-new="onDropNew"
         @dragover="standardDragover"
         @add-item="showPicker = true"
+        @reorder="onReorder"
       />
       <RelatedDocumentsDialog
         v-model="showPicker"
@@ -39,7 +39,7 @@
   // local components
 
   // types
-  import { BaseTableColumn, FoundryDragType, RelatedJournal } from '@/types';
+  import { BaseTableColumn, FoundryDragType, RelatedJournal, BaseTableGridRow } from '@/types';
   import { getValidatedData, standardDragover } from '@/utils/dragdrop';
 
   ////////////////////////////////
@@ -179,6 +179,14 @@
       emit('journals-updated', props.initialJournals.filter(j => j.uuid !== id));
     }
   }
+
+  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
+    const reordered = reorderedRows
+      .map((row) => props.initialJournals.find(j => j.uuid === row.uuid))
+      .filter((j): j is RelatedJournal => !!j);
+
+    emit('journals-updated', reordered);
+  };
 
   ////////////////////////////////
   // watchers

@@ -11,7 +11,6 @@
     :draggable-rows="false"
     :help-text="localize('labels.session.vignetteHelpText')"
     help-link="https://slyflourish.com/scenes_catch_all_step.html"
-    :can-reorder="true"
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddVignette"
@@ -23,7 +22,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -68,12 +67,12 @@
   ////////////////////////////////
   // data
   const sessionTableRef = ref<any>(null);
+  const campaignHasSessions = ref<boolean>(false);  // are any sessions in the campaign this belongs to?
 
   ////////////////////////////////
   // computed data
   const vignetteRows = computed(() => props.arcMode ? arcVignetteRows.value : sessionVignetteRows.value);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
-  const campaignHasSessions = computed((): boolean => ((currentArc.value?.campaign?.sessionIndex?.length || 0) > 0));
 
   const mappedVignetteRows = computed(() => (
     vignetteRows.value.map((row) => ({
@@ -196,7 +195,15 @@
 
   ////////////////////////////////
   // watchers
-  
+  watch(currentArc, async (newArc) => {
+    if (newArc) {
+      const campaign = await newArc?.loadCampaign();
+      campaignHasSessions.value = (campaign?.sessionIndex?.length || 0) > 0;
+    } else {
+      campaignHasSessions.value = true;
+    }
+  });
+
 
   ////////////////////////////////
   // lifecycle events

@@ -8,7 +8,7 @@ import { SettingKey, ModuleSettings } from '@/settings';
 import { registerUtilsTests } from '@unittest/utils';
 
 // Registers all `Quench` tests
-Hooks.on('quenchReady', () => {
+Hooks.on('quenchReady' as any, () => {
   // registerClassesTests();
   // registerSettingsTests();
   registerUtilsTests();

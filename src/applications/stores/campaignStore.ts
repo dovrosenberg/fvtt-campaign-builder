@@ -110,6 +110,37 @@ export const useCampaignStore = defineStore('campaign', () => {
   };
   
   /**
+   * Reorders PCs in the campaign (persisting the new array order).
+   * @param reorderedPCs the reordered PC array
+   */
+  const reorderPCs = async (reorderedPCs: RelatedPCDetails[]): Promise<void> => {
+    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
+    if (!campaign)
+      return;
+
+    campaign.pcs = reorderedPCs;
+    await campaign.save();
+
+    await _refreshPCRows();
+    await mainStore.refreshCurrentContent();
+  };
+
+  /**
+   * Reorders story webs on the campaign (persisting the new array order).
+   * @param reorderedStoryWebIds the reordered story web id array
+   */
+  const reorderStoryWebs = async (reorderedStoryWebIds: string[]): Promise<void> => {
+    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
+    if (!campaign)
+      return;
+
+    campaign.storyWebs = reorderedStoryWebIds;
+    await campaign.save();
+
+    await mainStore.refreshCurrentContent();
+  };
+
+  /**
    * Adds a lore to the campaign.
    * @param description The description for the lore entry
    * @returns The UUID of the created lore entry
@@ -680,6 +711,8 @@ export const useCampaignStore = defineStore('campaign', () => {
     
     addPC,
     deletePC,
+    reorderPCs,
+    reorderStoryWebs,
     addLore,
     deleteLore,
     reorderAvailableLore,    

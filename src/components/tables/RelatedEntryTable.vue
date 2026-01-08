@@ -4,6 +4,7 @@
     :rows="rows"
     :columns="columns"
     :showAddButton="true"
+    :can-reorder="false"
     :extra-add-text="newItemDragLabel"
     :addButtonLabel="newItemLabel"
     :filterFields="filterFields"

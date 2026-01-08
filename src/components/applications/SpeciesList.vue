@@ -10,6 +10,7 @@
         :show-add-button="true"
         :show-filter="false"
         :allow-edit="true"
+        :can-reorder="false"
         :add-button-label="localize('applications.speciesList.labels.add')"
         :delete-item-label="localize('applications.speciesList.labels.delete')"
         @delete-item="onDeleteItem"

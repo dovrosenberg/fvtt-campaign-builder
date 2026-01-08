@@ -11,6 +11,7 @@
     @add-item="onAddItem"
     @dragoverNew="standardDragover"
     @drop-new="onDropNew"
+    @reorder="onReorder"
   />
 </template>
 
@@ -18,7 +19,7 @@
   import { computed, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
-  import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useMainStore, useNavigationStore, useCampaignStore, useArcStore, useSessionStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { FCBDialog } from '@/dialogs';
   import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
@@ -26,7 +27,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   import { Arc, Campaign, Session, StoryWeb } from '@/classes';
-  import { BaseTableColumn, StoryWebNodeDragData } from '@/types';
+  import { BaseTableColumn, StoryWebNodeDragData, BaseTableGridRow } from '@/types';
   
   interface StoryWebRow {
     uuid: string;
@@ -42,9 +43,25 @@
 
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
+  const campaignStore = useCampaignStore();
+  const arcStore = useArcStore();
+  const sessionStore = useSessionStore();
   const { currentCampaign, currentArc, currentSession } = storeToRefs(mainStore);
 
   const rows = ref<StoryWebRow[]>([]);
+
+  const store = computed(() => {
+    switch (props.mode) {
+      case 'campaign':
+        return campaignStore;
+      case 'arc':
+        return arcStore;
+      case 'session':
+        return sessionStore;
+      default:
+        return null;
+    }
+  });
 
   const entity = computed(() => {
     switch (props.mode) {
@@ -98,8 +115,28 @@
       return;
     }
 
+    // we need to get them into the right order
     const storyWebs = await c.filterStoryWebs((s) => selectedIds.includes(s.uuid));
-    rows.value = storyWebs.map((s: StoryWeb) => ({ uuid: s.uuid, name: s.name }));
+    
+    // Create a map for quick lookup
+    const storyWebMap = new Map(storyWebs.map((s: StoryWeb) => [s.uuid, s]));
+    
+    // Preserve the order from selectedIds
+    rows.value = selectedIds
+      .map((id) => storyWebMap.get(id)!)
+      .map((s: StoryWeb) => ({ uuid: s.uuid, name: s.name }));
+  };
+
+  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
+    if (!entity.value)
+      return;
+
+    const reorderedWebs = reorderedRows.map((row) => row.uuid);
+    await store.value?.reorderStoryWebs(reorderedWebs);
+    await entity.value.save();
+
+    await mainStore.refreshCurrentContent();
+    await refreshRows();
   };
 
   const onAddItem = async () => {

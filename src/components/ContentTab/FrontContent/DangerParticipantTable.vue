@@ -9,7 +9,6 @@
     :rows="participantRows"
     :columns="columns"
     :actions="actions"
-    :can-reorder="true"
     @add-item="onAddParticipant"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
@@ -172,7 +171,17 @@
     await frontStore.updateParticipant(data.uuid, newValue as string);
   };
 
-  const onReorder = (reorderedRows: DangerParticipant[]) => {
+  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
+    const reorderedParticipants = reorderedRows.map((row) => {
+      const participant = participantRows.value.find(p => p.uuid === row.uuid);
+
+      // rows have extra fields we don't want
+      return {
+        uuid: row.uuid,
+        notes: participant?.notes ?? '',
+      } as ArcParticipant;
+    });
+
     frontStore.reorderParticipants(reorderedRows);
   };
 

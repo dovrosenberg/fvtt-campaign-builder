@@ -6,6 +6,7 @@
       :show-add-button="false"
       :show-filter="true"
       :filter-fields="['name', 'campaignName']"
+      :can-reorder="false"
       :allow-edit="false"
       :edit-item-label="localize('tooltips.editSession')"
       :add-button-label="''"

@@ -18,6 +18,7 @@
     @dragoverNew="standardDragover"
     @dragstart="onDragStart"
     @cell-edit-complete="onCellEditComplete"
+    @reorder="onReorder"
   />
   <RelatedDocumentsDialog
     v-model="showMonsterPicker"
@@ -29,7 +30,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { ref, computed } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -46,7 +47,8 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, BaseTableColumn } from '@/types';
+  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow } from '@/types';
+  import { ArcMonster, SessionMonster } from '@/documents';
   
   ////////////////////////////////
   // props
@@ -76,12 +78,12 @@
   ////////////////////////////////
   // data
   const showMonsterPicker = ref<boolean>(false);
+  const campaignHasSessions = ref<boolean>(false);  // are any sessions in the campaign this belongs to?
 
   ////////////////////////////////
   // computed data
   const monsterRows = computed(() => props.arcMode ? arcMonsterRows.value : sessionMonsterRows.value);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
-  const campaignHasSessions = computed((): boolean => ((currentArc.value?.campaign?.sessionIndex?.length || 0) > 0));
 
   const mappedMonsterRows = computed(() => (
     monsterRows.value.map((row) => ({
@@ -211,9 +213,30 @@
     await actorDragStart(event, uuid);
   }
 
+  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
+    const reorderedMonsters = reorderedRows.map((row) => {
+      const monster = monsterRows.value.find(m => m.uuid === row.uuid);
+
+      // rows have extra fields we don't want
+      return {
+        uuid: row.uuid,
+        notes: monster?.notes ?? '',
+      } as ArcMonster;
+    });
+
+    await store.value.reorderMonsters(reorderedMonsters);
+  };
+
   ////////////////////////////////
   // watchers
-
+  watch(currentArc, async (newArc) => {
+    if (newArc) {
+      const campaign = await newArc?.loadCampaign();
+      campaignHasSessions.value = (campaign?.sessionIndex?.length || 0) > 0;
+    } else {
+      campaignHasSessions.value = true;
+    }
+  });
 
   ////////////////////////////////
   // lifecycle events

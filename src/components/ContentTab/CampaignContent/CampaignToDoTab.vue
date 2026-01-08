@@ -12,7 +12,6 @@
       :allow-edit="true"
       :edit-item-label="localize('tooltips.editRow')"
       :draggable-rows="false"
-      :can-reorder="true"
       :actions="actions"
       @add-item="onAddToDoItem"
       @cell-edit-complete="onCellEditComplete"

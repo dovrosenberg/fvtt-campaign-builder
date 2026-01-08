@@ -12,7 +12,6 @@
       :allow-edit="true"
       :edit-item-label="localize('tooltips.editRow')"
       :draggable-rows="false"
-      :can-reorder="true"
       :actions="actions"
       :enable-related-entries-tracking="props.arcMode && ModuleSettings.get(SettingKey.autoRelationships)"
       @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"

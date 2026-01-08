@@ -69,11 +69,12 @@
               {{ localize('labels.noResults') }}
             </template>
 
-            <Column :rowReorder="true" headerStyle="width: 3rem" :reorderableColumn="false">
-              <template #rowreordericon>
-                <i class="fas fa-grip-vertical"></i>
-              </template>
-            </Column>
+            <Column
+              :rowReorder="true"
+              rowReorderIcon="fas fa-grip-vertical"
+              headerStyle="width: 3rem"
+              :reorderableColumn="false"
+            />
 
             <Column field="actions" :header="localize('labels.tableHeaders.actions')" style="width: 4rem">
               <template #body="{ data }">

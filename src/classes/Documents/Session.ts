@@ -1,5 +1,6 @@
 // represents a game session 
 
+import { toRaw } from 'vue';
 import { DOCUMENT_TYPES, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
@@ -331,6 +332,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       delivered: false,
       significant: false,
       journalEntryPageId: journalEntryPageId,
+      sortOrder: this._clone.system.lore.length,
     });
 
     await this.save();
@@ -402,7 +404,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       uuid: uuid,
       number: number,
       delivered: false,
-      notes: ''
+      notes: '',
     });
 
     await this.save();
@@ -460,7 +462,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this._clone.system.items.push({
       uuid: uuid,
       delivered: false,
-      notes: ''
+      notes: '',
     });
 
     await this.save();

@@ -14,6 +14,7 @@
     @dragoverNew="standardDragover"
     @drop-new="onDropNew"
     @cell-edit-complete="onCellEditComplete"
+    @reorder="onReorder"
   />
   <RelatedEntryDialog
     v-model="showNPCPicker"
@@ -42,7 +43,8 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, BaseTableColumn } from '@/types';
+  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow } from '@/types';
+  import { SessionNPC } from '@/documents';
   
   ////////////////////////////////
   // props
@@ -171,6 +173,21 @@
     }
 
     await sessionStore.addNPC(fcbData.childId);      
+  };
+
+  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
+    const reorderedNPCs = reorderedRows.map((row) => {
+      const npc = relatedNPCRows.value.find(n => n.uuid === row.uuid);
+
+      // rows have extra fields we don't want
+      return {
+        uuid: row.uuid,
+        delivered: npc?.delivered ?? false,
+        notes: npc?.notes ?? '',
+      } as SessionNPC;
+    });
+
+    await sessionStore.reorderNPCs(reorderedNPCs);
   };
 
 

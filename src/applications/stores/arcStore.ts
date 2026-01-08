@@ -147,6 +147,19 @@ export const useArcStore = defineStore('arc', () => {
   }
 
   /**
+   * Reorders locations on the arc (persisting the new array order).
+   * @param reorderedLocations the reordered location array
+   */
+  const reorderLocations = async (reorderedLocations: ArcLocation[]): Promise<void> => {
+    if (!currentArc.value)
+      return;
+
+    currentArc.value.locations = reorderedLocations;
+    await currentArc.value.save();
+    await _refreshLocationRows();
+  };
+
+  /**
    * Adds a participant to the arc.
    * @param uuid the UUID of the character to add.
    */
@@ -464,6 +477,45 @@ export const useArcStore = defineStore('arc', () => {
 
     await currentSession.addMonster(uuid);
   }
+
+  /**
+   * Reorders participants on the arc (persisting the new array order).
+   * @param reorderedParticipants the reordered participant array
+   */
+  const reorderParticipants = async (reorderedParticipants: ArcParticipant[]): Promise<void> => {
+    if (!currentArc.value)
+      return;
+
+    currentArc.value.participants = reorderedParticipants;
+    await currentArc.value.save();
+    await _refreshParticipantRows();
+  };
+
+  /**
+   * Reorders monsters on the arc (persisting the new array order).
+   * @param reorderedMonsters the reordered monster array
+   */
+  const reorderMonsters = async (reorderedMonsters: ArcMonster[]): Promise<void> => {
+    if (!currentArc.value)
+      return;
+
+    currentArc.value.monsters = reorderedMonsters;
+    await currentArc.value.save();
+    await _refreshMonsterRows();
+  };
+
+  /**
+   * Reorders story webs on the arc (persisting the new array order).
+   * @param reorderedStoryWebIds the reordered story web id array
+   */
+  const reorderStoryWebs = async (reorderedStoryWebIds: string[]): Promise<void> => {
+    if (!currentArc.value)
+      return;
+
+    currentArc.value.storyWebs = reorderedStoryWebIds;
+    await currentArc.value.save();
+    await mainStore.refreshCurrentContent();
+  };
 
   const reorderVignettes = async (reorderedVignettes: ArcVignette[]): Promise<void> => {
     if (!currentArc.value)
@@ -786,14 +838,18 @@ export const useArcStore = defineStore('arc', () => {
     deleteLocation,
     copyLocationToSession,
     updateLocationNotes,
+    reorderLocations,
     addParticipant,
     deleteParticipant,
     copyParticipantToSession,
     updateParticipantNotes,
+    reorderParticipants,
     addMonster,
     deleteMonster,
     copyMonsterToSession,
     updateMonsterNotes,
+    reorderMonsters,
+    reorderStoryWebs,
     addVignette,
     deleteVignette,
     updateVignetteDescription,

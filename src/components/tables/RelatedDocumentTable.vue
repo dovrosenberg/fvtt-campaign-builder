@@ -9,6 +9,7 @@
     :filterFields="filterFields"
     :draggable-rows="draggableRows"
     :actions="actions"
+    :can-reorder="false"
 
     @row-context-menu="onRowContextMenu"
     @drop-new="onDropNew"

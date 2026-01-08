@@ -4,6 +4,7 @@
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.1/module.zip)
 
 - Added Vignettes to Arcs
+- You can now manually reorder most tables, making it easier to (for example) group monster lists together by encounter
 - Fixed an issue where the new "current session" bookmark wasn't refreshing when a new session is created.
 - The search boxes to filter results on tables now work consistently.
 

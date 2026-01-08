@@ -1,5 +1,5 @@
 <template>
-  <!-- A table to display/manage related scenes and actors -->
+  <!-- A table to display/manage PCs -->
   <BaseTable
     :rows="rows"
     :columns="columns"
@@ -12,6 +12,7 @@
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
     @dragover="standardDragover"
+    @reorder="onReorder"
   />
 
   <RelatedEntryDialog
@@ -41,7 +42,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
   
   // types
-  import { BaseTableColumn, RelatedPCDetails, RelatedEntryDialogModes, Topics, EntryNodeDragData } from '@/types';
+  import { BaseTableColumn, RelatedPCDetails, RelatedEntryDialogModes, Topics, EntryNodeDragData, BaseTableGridRow } from '@/types';
   import { Entry } from '@/classes';
   
   ////////////////////////////////
@@ -148,6 +149,14 @@
       actorId: entry.actorId,
     };
     await campaignStore.addPC(details);      
+  };
+
+  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
+    const reorderedPCs = reorderedRows
+      .map((row) => relatedPCRows.value.find(pc => pc.uuid === row.uuid))
+      .filter((pc): pc is RelatedPCDetails => !!pc);
+
+    await campaignStore.reorderPCs(reorderedPCs);
   };
   
 

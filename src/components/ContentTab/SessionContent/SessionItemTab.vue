@@ -17,6 +17,7 @@
     @dragoverNew="standardDragover"
     @dragstart="onDragStart"
     @cell-edit-complete="onCellEditComplete"
+    @reorder="onReorder"
   />
   <RelatedDocumentsDialog
     v-model="showItemPicker"
@@ -43,7 +44,8 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, BaseTableColumn } from '@/types';
+  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow } from '@/types';
+  import { SessionItem } from '@/documents';
   
   ////////////////////////////////
   // props
@@ -173,6 +175,21 @@
   const onDragStart = async (event: DragEvent, uuid: string) => {
     await itemDragStart(event, uuid);
   }
+
+  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
+    const reorderedItems = reorderedRows.map((row) => {
+      const item = relatedEntryRows.value.find(i => i.uuid === row.uuid);
+
+      // rows have extra fields we don't want
+      return {
+        uuid: row.uuid,
+        delivered: item?.delivered ?? false,
+        notes: item?.notes ?? '',
+      } as SessionItem;
+    });
+
+    await sessionStore.reorderItems(reorderedItems);
+  };
 
   ////////////////////////////////
   // watchers

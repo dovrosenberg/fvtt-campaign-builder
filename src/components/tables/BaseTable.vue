@@ -2,6 +2,7 @@
   <div class="primevue-only fcb-table-wrapper" style="display: flex">
     <DataTable
       data-key="uuid"
+      v-bind="dataTableSortBindings"
       :value="rows"
       size="small"
       scrollable
@@ -9,10 +10,7 @@
       paginator-position="bottom"
       paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
       current-page-report-template="{first} to {last} of {totalRecords}"
-      :sort-field="sortField"
-      :sort-order="sortOrder"
       :first="pagination.first"
-      :default-sort-order="1"
       :total-records="rows.length"
       :global-filter-fields="effectiveFilterFields"
       :filters="pagination.filters"
@@ -94,11 +92,13 @@
         {{ localize('labels.loading') }}...
       </template>
 
-      <Column v-if="props.canReorder" :rowReorder="true" headerStyle="width: 10px; whitespace: nowrap;" :reorderableColumn="false">
-        <template #rowreordericon>
-          <i class="fas fa-grip-vertical"></i>
-        </template>
-      </Column>
+      <Column
+        v-if="props.canReorder"
+        :row-reorder="true"
+        row-reorder-icon="fas fa-grip-vertical"
+        header-style="width: 10px; whitespace: nowrap;"
+        :reorderable-column="false"
+      />
 
       <Column 
         v-for="col of props.columns" 
@@ -341,7 +341,7 @@
     },
     canReorder: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     /** list of column names you can filter on */
     filterFields: {
@@ -448,8 +448,13 @@
     return props.columns.some((col) => col.editable);
   });
 
-  const sortOrder = computed(() => props.canReorder ? 1 : pagination.sortOrder);
-  const sortField = computed(() => props.canReorder ? 'sortOrder' : pagination.sortField);
+  // PrimeVue disables row reordering when the table is sorted, so omit sort props entirely
+  // when canReorder is enabled (array order becomes the displayed order).
+  const dataTableSortBindings = computed(() => (
+    props.canReorder
+      ? {}
+      : { sortField: pagination.sortField, sortOrder: pagination.sortOrder, defaultSortOrder: 1 }
+  ));
 
   ////////////////////////////////
   // methods
@@ -741,17 +746,9 @@
   const onRowReorder = (event: any) => {
     if (!props.canReorder) return;
 
-    const { dragIndex, dropIndex } = event;
-    const reorderedRows = [...props.rows];
-    const movedItem = reorderedRows.splice(dragIndex, 1)[0];
-    reorderedRows.splice(dropIndex, 0, movedItem);
+    const { value, dragIndex, dropIndex } = event;
 
-    // Update sortOrder for all rows
-    reorderedRows.forEach((row, index) => {
-      row.sortOrder = index;
-    });
-
-    emit('reorder', reorderedRows, dragIndex, dropIndex);
+    emit('reorder', value, dragIndex, dropIndex);
   }
 
   const onEditButtonClick = (data: BaseTableGridRow, callback: (data: BaseTableGridRow) => void) => {
