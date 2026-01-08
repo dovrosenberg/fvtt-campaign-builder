@@ -202,7 +202,7 @@
     } else {
       campaignHasSessions.value = true;
     }
-  });
+  }, { immediate: true });
 
 
   ////////////////////////////////

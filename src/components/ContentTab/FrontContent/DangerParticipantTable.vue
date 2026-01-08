@@ -182,7 +182,7 @@
       } as ArcParticipant;
     });
 
-    frontStore.reorderParticipants(reorderedRows);
+    frontStore.reorderParticipants(reorderedParticipants);
   };
 
   const onDropNew = async (event: DragEvent) => {

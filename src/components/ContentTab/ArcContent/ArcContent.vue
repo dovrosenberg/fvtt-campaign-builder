@@ -316,7 +316,7 @@
       name.value = newArc.name || '';
       descriptionContent.value = newArc.description || '';
     }
-  });
+  }, { immediate: true });
   
 
   ////////////////////////////////

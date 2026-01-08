@@ -6,6 +6,7 @@
 - Added Vignettes to Arcs
 - You can now manually reorder most tables, making it easier to (for example) group monster lists together by encounter
 - Fixed an issue where the new "current session" bookmark wasn't refreshing when a new session is created.
+- "Move to last Session" for items on Arcs now moves the item to the last Session in the Campaign, even if it's on a different Arc. This way if you have leftover items on an old Arc you can easily get them into your more recent play area. 
 - The search boxes to filter results on tables now work consistently.
 
 ## 1.8.0 - Customize all your fields, fine tune your AI, and get lists of items by tag
