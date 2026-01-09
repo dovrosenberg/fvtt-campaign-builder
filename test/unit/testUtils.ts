@@ -1,4 +1,5 @@
 import { FCBSetting } from '@/classes';
+import { moduleId } from '@/settings';
 
 /**
  * Global test utilities shared across all test batches
@@ -9,6 +10,18 @@ let testSetting: FCBSetting | undefined;
 
 // Reference counting to track active test batches
 let activeBatches = 0;
+
+// Settings backup/restore queue system
+interface SettingsBackup {
+  id: string;
+  settings: Record<string, any>;
+  resolve: () => void;
+}
+
+let settingsBackupQueue: SettingsBackup[] = [];
+let isSettingsLocked = false;
+let currentBackupId: string | null = null;
+let originalSettings: Record<string, any> = {};
 
 // Mutex to prevent race conditions
 let isLocked = false;
@@ -116,4 +129,123 @@ export const forceCleanupTestSetting = async () => {
   } finally {
     releaseLock();
   }
+};
+
+/**
+ * Get all current module settings
+ */
+const getAllSettings = (): Record<string, any> => {
+  const settings: Record<string, any> = {};
+  if (!game.settings?.settings?.get(moduleId)) {
+    return settings;
+  }
+  
+  const moduleSettings = game.settings.settings.get(moduleId)!;
+  for (const [key, setting] of moduleSettings.entries()) {
+    if (key.startsWith(moduleId + '.')) {
+      const value = game.settings.get(moduleId, key.substring(moduleId.length + 1));
+      settings[key] = value;
+    }
+  }
+  
+  return settings;
+};
+
+/**
+ * Restore all module settings from a backup
+ */
+const restoreAllSettings = (settings: Record<string, any>) => {
+  for (const [key, value] of Object.entries(settings)) {
+    if (key.startsWith(moduleId + '.')) {
+      const settingKey = key.substring(moduleId.length + 1);
+      game.settings.set(moduleId, settingKey, value);
+    }
+  }
+};
+
+/**
+ * Process the next backup in the queue
+ */
+const processNextBackup = () => {
+  if (settingsBackupQueue.length === 0) {
+    isSettingsLocked = false;
+    currentBackupId = null;
+    return;
+  }
+  
+  const next = settingsBackupQueue.shift()!;
+  currentBackupId = next.id;
+  
+  // Restore the previous settings before giving control to the next test
+  if (currentBackupId !== next.id) {
+    restoreAllSettings(next.settings);
+  }
+  
+  next.resolve();
+};
+
+/**
+ * Backup module settings and wait for exclusive access
+ * This ensures tests don't interfere with each other's settings
+ */
+export const backupSettings = async (): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    const backupId = `backup-${Date.now()}-${Math.random()}`;
+    
+    // If this is the first backup, store the original settings
+    if (Object.keys(originalSettings).length === 0) {
+      originalSettings = getAllSettings();
+    }
+    
+    const backup: SettingsBackup = {
+      id: backupId,
+      settings: getAllSettings(),
+      resolve
+    };
+    
+    settingsBackupQueue.push(backup);
+    
+    if (!isSettingsLocked) {
+      isSettingsLocked = true;
+      processNextBackup();
+    }
+  });
+};
+
+/**
+ * Restore module settings and release exclusive access
+ */
+export const restoreSettings = async (): Promise<void> => {
+  if (!currentBackupId) {
+    console.warn('restoreSettings called without active backup');
+    return;
+  }
+  
+  // Wait for any pending operations to complete
+  await new Promise(resolve => setTimeout(resolve, 0));
+  
+  // Restore the settings that were backed up
+  const currentBackup = settingsBackupQueue.find(b => b.id === currentBackupId);
+  if (currentBackup) {
+    restoreAllSettings(currentBackup.settings);
+  }
+  
+  // Process the next backup in queue
+  processNextBackup();
+};
+
+/**
+ * Force restore original settings (for emergency cleanup)
+ */
+export const forceRestoreOriginalSettings = async (): Promise<void> => {
+  // Clear the queue
+  settingsBackupQueue = [];
+  
+  // Restore original settings
+  if (Object.keys(originalSettings).length > 0) {
+    restoreAllSettings(originalSettings);
+  }
+  
+  isSettingsLocked = false;
+  currentBackupId = null;
 };

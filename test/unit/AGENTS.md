@@ -122,7 +122,8 @@ export const registerSomeBatch = () => {
 
       // Register tests
       registerSomeTests(context);
-    }
+    },
+    { displayName: "/[category]/some", preSelected: false },
   );
 };
 
@@ -145,12 +146,17 @@ export const registerOtherBatch = () => {
 
       // Register tests
       registerOtherTests(context);
-    }
+    },
+    { displayName: "/[category]/other", preSelected: false },
   );
 };
 ```
 
 **Note**: Each test file gets its own batch registration function, allowing users to select which tests to run in the Quench UI.
+
+**Batch Registration Options**:
+- `displayName`: The path shown in the Quench UI for this test batch (e.g., "/utils/appWindow")
+- `preSelected`: Whether this batch is selected by default (typically `false`)
 
 #### 3. Create individual test files
 ```typescript
@@ -226,14 +232,61 @@ expect(added).to.deep.equal([testEntries.character1.uuid]);
 ```
 
 ### Avoiding Side Effects
+
+#### Settings Backup/Restore Pattern
+
+For tests that modify module settings, use the queue-based backup/restore system to prevent interference between tests:
+
+```typescript
+import { QuenchBatchContext } from '@ethaks/fvtt-quench';
+import { moduleId, SettingKey } from '@/settings';
+import { backupSettings, restoreSettings } from '@unittest/testUtils';
+
+export const registerSettingsTests = (context: QuenchBatchContext) => {
+  const { describe, it, expect } = context;
+
+  describe('settings modification', () => {
+    it('should not modify settings - no backup needed', async () => {
+      // Tests that only READ settings don't need backup
+      const value = game.settings?.get(moduleId, SettingKey.startCollapsed);
+      expect(typeof value).to.not.equal('undefined');
+    });
+
+    it('should modify settings safely', async () => {
+      // Tests that MODIFY settings must backup/restore
+      await backupSettings();
+      
+      try {
+        // Modify settings
+        await game.settings?.set(moduleId, SettingKey.startCollapsed, true);
+        
+        // Test logic
+        const value = game.settings?.get(moduleId, SettingKey.startCollapsed);
+        expect(value).to.equal(true);
+      } finally {
+        // Always restore in finally to ensure cleanup
+        await restoreSettings();
+      }
+    });
+  });
+};
+```
+
+**Key Points:**
+1. **Only tests that MODIFY settings** need to call `backupSettings()` and `restoreSettings()`
+2. Use **try/finally** to ensure settings are restored even if tests fail
+3. The queue system ensures tests run sequentially: Test 1 backup → Test 1 restore → Test 2 backup → Test 2 restore
+4. Tests that only read settings don't need any backup
+
+#### General Data Management
 ```typescript
 // Don't change user's current setting
 testSetting = (await FCBSetting.create(false, 'Test Setting'))!;
 
-// Settings backup/restore is safe and handles initialization order
-await backupSettings();
-// ... tests that modify settings ...
-await restoreSettings();
+// For non-settings data, create within test setting
+const testEntry = await Entry.create(testSetting.topicFolders[Topics.Character]!, {
+  name: 'Test Character'
+});
 ```
 
 ## What NOT to Do
@@ -275,7 +328,8 @@ export const registerMyBatch = () => {
       });
 
       registerMyTests(context);
-    }
+    },
+    { displayName: "/category/mytest", preSelected: false },
   );
 };
 ```
