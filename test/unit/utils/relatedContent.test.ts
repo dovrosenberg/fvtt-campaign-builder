@@ -47,7 +47,7 @@ export const registerRelatedContentTests = (context: QuenchBatchContext) => {
       // Clean up is handled at batch level
     });
 
-    it('should return early if both arrays are empty', async () => {
+    it('should return empty if both arrays are empty', async () => {
       added = [];
       removed = [];
 
@@ -70,16 +70,16 @@ export const registerRelatedContentTests = (context: QuenchBatchContext) => {
 
       await filterRelatedEntries(getTestSetting(), added, removed, [Topics.Character]);
 
+      // should only have characters from the current setting
       expect(added).to.deep.equal([
         testEntries.character1.uuid,
         testEntries.character2.uuid
       ]);
       expect(removed).to.deep.equal([
-        testEntries.location1.uuid
       ]);
     });
 
-        it('should filter by specific topics when provided', async () => {
+    it('should filter by specific topics when provided', async () => {
       added = [
         testEntries.character1.uuid, // Character topic
         testEntries.location1.uuid   // Location topic
@@ -100,7 +100,7 @@ export const registerRelatedContentTests = (context: QuenchBatchContext) => {
       ]);
     });
 
-        it('should allow all topics when no topic filter is provided', async () => {
+    it('should allow all topics when no topic filter is provided', async () => {
       added = [
         testEntries.character1.uuid, // Character topic
         testEntries.location1.uuid   // Location topic

@@ -2,7 +2,7 @@ import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import * as sinon from 'sinon';
 import { initializeTestSetting, cleanupTestSetting } from './testUtils';
 // import { registerAppWindowTests } from "./appWindow.test";
-// import { registerHierarchyTests } from "./hierarchy.test";
+import { registerHierarchyTests } from "./hierarchy.test";
 import { registerRelatedContentTests } from "./relatedContent.test";
 
 export const registerUtilsTests = () => {
@@ -32,9 +32,9 @@ export const registerUtilsTests = () => {
       //   registerAppWindowTests(context);
       // });
       // 
-      // describe('hierarchy', () => {
-      //   registerHierarchyTests(context);
-      // });
+      describe('hierarchy', () => {
+        registerHierarchyTests(context);
+      });
     }
   );
 };

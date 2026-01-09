@@ -8,10 +8,10 @@ import {
   NO_NAME_STRING
 } from '@/utils/hierarchy';
 import { Topics } from '@/types';
-import { FCBSetting } from '@/classes';
 import * as sinon from 'sinon';
+import { getTestSetting } from './testUtils';
 
-export const registerHierarchyTests = (context: QuenchBatchContext, testSetting: FCBSetting) => {
+export const registerHierarchyTests = (context: QuenchBatchContext) => {
   const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('hierarchy utilities', () => {
@@ -138,9 +138,7 @@ export const registerHierarchyTests = (context: QuenchBatchContext, testSetting:
             ];
 
             const mockTopicFolder = {
-              filterEntries: sinon.stub().returns([
-                { uuid: 'other-entry', name: 'Other Entry' }
-              ])
+              entryIndex: mockEntries
             };
 
             const mockSetting = {
@@ -163,10 +161,10 @@ export const registerHierarchyTests = (context: QuenchBatchContext, testSetting:
 
             const result = validParentItems(mockSetting, mockEntry);
 
-            expect(mockTopicFolder.filterEntries.called).to.equal(true);
-            expect(result).to.deep.equal([
-              { id: 'other-entry', name: 'Other Entry' }
-            ]);
+            expect(mockSetting.topicFolders[Topics.Organization].entryIndex).to.equal(mockEntries);
+            expect(result.length).to.equal(1);
+            expect(result[0].id).to.equal('other-entry');
+            expect(result[0].name).to.equal('Other Entry');
           });
         });
 
@@ -177,26 +175,31 @@ export const registerHierarchyTests = (context: QuenchBatchContext, testSetting:
               'deleted-id': {
                 parentId: 'grandparent-id',
                 children: ['child1-id', 'child2-id'],
-                ancestors: []
+                ancestors: [],
+                type: 'City'
               },
               'grandparent-id': {
                 children: ['deleted-id'],
-                ancestors: []
+                ancestors: [],
+                type: 'Country'
               },
               'child1-id': {
                 parentId: 'deleted-id',
                 children: [],
-                ancestors: ['deleted-id']
+                ancestors: ['deleted-id'],
+                type: 'Building'
               },
               'child2-id': {
                 parentId: 'deleted-id',
                 children: [],
-                ancestors: ['deleted-id']
+                ancestors: ['deleted-id'],
+                type: 'Building'
               },
               'descendant-id': {
                 parentId: 'child1-id',
                 children: [],
-                ancestors: ['deleted-id', 'child1-id']
+                ancestors: ['deleted-id', 'child1-id'],
+                type: 'Room'
               }
             };
 
@@ -248,13 +251,16 @@ export const registerHierarchyTests = (context: QuenchBatchContext, testSetting:
             // Create mock data with no parent for deleted item
             const mockHierarchies = {
               'deleted-id': {
+                parentId: null,
                 children: ['child1-id'],
-                ancestors: []
+                ancestors: [],
+                type: 'City'
               },
               'child1-id': {
                 parentId: 'deleted-id',
                 children: [],
-                ancestors: ['deleted-id']
+                ancestors: ['deleted-id'],
+                type: 'Building'
               }
             };
 
