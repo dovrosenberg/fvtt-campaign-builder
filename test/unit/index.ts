@@ -8,7 +8,12 @@ import { SettingKey, ModuleSettings } from '@/settings';
 import { 
   registerAppWindowBatch,
   registerHierarchyBatch,
-  registerRelatedContentBatch
+  registerRelatedContentBatch,
+  registerArcIndexBatch,
+  registerCleanKeysBatch,
+  registerCustomFieldsBatch,
+  registerDirectoryScrollBatch,
+  registerDragDropBatch
 } from '@unittest/utils';
 
 // Registers all `Quench` tests
@@ -20,6 +25,11 @@ Hooks.on('quenchReady' as any, () => {
   registerAppWindowBatch();
   registerHierarchyBatch();
   registerRelatedContentBatch();
+  registerArcIndexBatch();
+  registerCleanKeysBatch();
+  registerCustomFieldsBatch();
+  registerDirectoryScrollBatch();
+  registerDragDropBatch();
 });
 
 const settings = {};

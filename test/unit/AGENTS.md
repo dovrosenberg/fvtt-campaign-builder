@@ -164,11 +164,14 @@ export const registerOtherBatch = () => {
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { Entry } from '@/classes';
 import { getTestSetting } from '@unittest/testUtils';
+// Import the module being tested directly
+import { functionToTest } from '@/utils/someUtility';
 
 export const registerSomeTests = (context: QuenchBatchContext) => {
   const { describe, it, expect, beforeEach } = context;
 
-  describe('some feature', () => {
+  // No outer describe wrapper - each test file is its own batch
+  describe('functionToTest', () => {
     let testEntries: Entry[];
     
     beforeEach(async () => {
@@ -187,13 +190,19 @@ export const registerSomeTests = (context: QuenchBatchContext) => {
     it('should work correctly', async () => {
       // Use getTestSetting() in tests
       const testSetting = getTestSetting();
-      // Test implementation
+      // Call imported functions directly
+      const result = functionToTest(testEntries[0]);
+      expect(result).to.equal(expectedValue);
     });
   });
 };
 ```
 
-**Note**: Import `getTestSetting` from `@unittest/testUtils` (the global testUtils).
+**Key Points**:
+- Import `getTestSetting` from `@unittest/testUtils` (the global testUtils)
+- Import utility functions/classes directly from their modules (no dynamic imports)
+- No outer `describe` wrapper since each test file is registered as its own batch
+- Call imported functions directly, not through a dynamic import object
 
 ### Key Principles
 1. **Create with `makeCurrent=false`** - Avoid changing the user's active setting
@@ -331,6 +340,33 @@ export const registerMyBatch = () => {
     },
     { displayName: "/category/mytest", preSelected: false },
   );
+};
+```
+
+✅ **Import modules directly and use batch-level describe**
+```typescript
+// RIGHT - Import utility functions directly
+import { functionToTest, otherFunction } from '@/utils/someUtility';
+import { getTestSetting } from '@unittest/testUtils';
+
+export const registerMyTests = (context: QuenchBatchContext) => {
+  const { describe, it, expect } = context;
+
+  // No outer describe wrapper - batch registration handles grouping
+  describe('functionToTest', () => {
+    it('should work correctly', () => {
+      // Call imported functions directly
+      const result = functionToTest(testData);
+      expect(result).to.equal(expectedValue);
+    });
+  });
+
+  describe('otherFunction', () => {
+    it('should handle edge cases', () => {
+      // Direct function calls
+      expect(() => otherFunction(null)).to.not.throw();
+    });
+  });
 };
 ```
 
