@@ -15,41 +15,51 @@ Since Quench tests run inside the actual FoundryVTT environment:
 1. Back up all module settings before tests start and restore them at the end
 2. Create real objects (Settings, Entries, etc.)
 3. Test with actual data structures
-4. **Create ONE test FCBSetting at the beginning of the test batch and reuse it for ALL tests in the batch.** Delete this setting only once at the very end. Individual objects created within this setting don't need individual cleanup since deleting the parent setting will cascade delete everything.
+4. **Create ONE test FCBSetting that is shared across ALL test batches.** The setting is created when the first batch initializes and deleted when the last batch cleans up. Individual objects created within this setting don't need individual cleanup since deleting the parent setting will cascade delete everything.
 5. Avoid interfering with user's current data
 
 ## Test Structure
 
-### Shared Test Setting Pattern
+### Global Shared Test Setting Pattern
 
-For optimal performance and consistency, each test directory should use a single shared FCBSetting across all test files in that directory. **Each test directory must have its own `testUtils.ts` file** to prevent conflicts between different test categories.
+For optimal performance and consistency, ALL test batches share a single global FCBSetting managed by `test/unit/testUtils.ts`. This uses a mutex pattern with reference counting to prevent race conditions when batches run in parallel.
 
-**Important**: Do not share a single `testUtils.ts` across multiple test directories. Each directory (e.g., `utils/`, `classes/`, etc.) should have its own version with its own `testSetting` variable to avoid conflicts when tests run in parallel.
-
-#### 1. Create a testUtils.ts file
+#### 1. Global testUtils.ts (already exists)
 ```typescript
-// test/unit/[category]/testUtils.ts
+// test/unit/testUtils.ts
 import { FCBSetting } from '@/classes';
 
-/**
- * Shared test utilities for [category] tests
- */
-export let testSetting: FCBSetting | undefined;
+// Global shared test setting
+let testSetting: FCBSetting | undefined;
+
+// Reference counting to track active test batches
+let activeBatches = 0;
+
+// Mutex to prevent race conditions
+let isLocked = false;
+const lockQueue: Array<() => void> = [];
 
 /**
  * Initialize the shared test setting
+ * Increments reference count for each calling batch
  */
 export const initializeTestSetting = async () => {
-  testSetting = (await FCBSetting.create(false, '[Category] Test Setting'))!;
-};
-
-/**
- * Clean up the shared test setting
- */
-export const cleanupTestSetting = async () => {
-  if (testSetting) {
-    await testSetting.delete();
-    testSetting = undefined;
+  await acquireLock();
+  
+  try {
+    // Increment reference count
+    activeBatches++;
+    
+    // If setting already exists, just return it
+    if (testSetting) {
+      return testSetting;
+    }
+    
+    // Create new setting
+    testSetting = (await FCBSetting.create(false, 'Global Test Setting'))!;
+    return testSetting;
+  } finally {
+    releaseLock();
   }
 };
 
@@ -62,55 +72,92 @@ export const getTestSetting = (): FCBSetting => {
   }
   return testSetting;
 };
+
+/**
+ * Decrements reference count and queues cleanup if no active batches remain
+ */
+export const cleanupTestSetting = async () => {
+  await acquireLock();
+  
+  try {
+    // Decrement reference count
+    activeBatches = Math.max(0, activeBatches - 1);
+    
+    // Only cleanup if there are no active batches
+    if (activeBatches === 0 && testSetting) {
+      await testSetting.delete();
+      testSetting = undefined;
+    }
+  } finally {
+    releaseLock();
+  }
+};
 ```
 
-#### 2. Create or update the index.ts file
+#### 2. Create individual batch registration files
 ```typescript
 // test/unit/[category]/index.ts
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import * as sinon from 'sinon';
-import { initializeTestSetting, cleanupTestSetting } from './testUtils';
+import { initializeTestSetting, cleanupTestSetting } from '@unittest/testUtils';
 import { registerSomeTests } from "./some.test";
 import { registerOtherTests } from "./other.test";
 
-export const register[Category]Tests = () => {
+export const registerSomeBatch = () => {
   quench?.registerBatch(
-    'campaign-builder.[category]',
+    'campaign-builder.[category].some',
     (context: QuenchBatchContext) => {
-      const { describe, before, after } = context;
+      const { before, after } = context;
 
-      // Batch-level setup - create once for all tests
+      // Batch-level setup
       before(async () => {
         await initializeTestSetting();
       });
 
-      // Batch-level cleanup - delete once after all tests
+      // Batch-level cleanup
       after(async () => {
         await cleanupTestSetting();
         sinon.restore();
       });
 
-      // Register individual test suites with their own describe blocks
-      describe('some', () => {
-        registerSomeTests(context);
+      // Register tests
+      registerSomeTests(context);
+    }
+  );
+};
+
+export const registerOtherBatch = () => {
+  quench?.registerBatch(
+    'campaign-builder.[category].other',
+    (context: QuenchBatchContext) => {
+      const { before, after } = context;
+
+      // Batch-level setup
+      before(async () => {
+        await initializeTestSetting();
       });
-      
-      describe('other', () => {
-        registerOtherTests(context);
+
+      // Batch-level cleanup
+      after(async () => {
+        await cleanupTestSetting();
+        sinon.restore();
       });
+
+      // Register tests
+      registerOtherTests(context);
     }
   );
 };
 ```
 
-**Note**: If the `index.ts` file doesn't exist yet, create it. This file serves as the entry point for all tests in the category and must be imported in the main test runner.
+**Note**: Each test file gets its own batch registration function, allowing users to select which tests to run in the Quench UI.
 
 #### 3. Create individual test files
 ```typescript
 // test/unit/[category]/some.test.ts
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { Entry } from '@/classes';
-import { getTestSetting } from './testUtils';
+import { getTestSetting } from '@unittest/testUtils';
 
 export const registerSomeTests = (context: QuenchBatchContext) => {
   const { describe, it, expect, beforeEach } = context;
@@ -140,15 +187,15 @@ export const registerSomeTests = (context: QuenchBatchContext) => {
 };
 ```
 
-**Note**: Create test files as needed for the functionality you're testing. Each test file should export a registration function that accepts the Quench context and uses `getTestSetting()` to access the shared test setting.
+**Note**: Import `getTestSetting` from `@unittest/testUtils` (the global testUtils).
 
 ### Key Principles
 1. **Create with `makeCurrent=false`** - Avoid changing the user's active setting
 2. **Clean up properly** - Delete created objects to prevent data pollution
 3. **Use real UUIDs** - Test with actual UUIDs from created objects
 4. **Settings backup/restore is safe** - The functions handle unregistered settings gracefully
-5. **One setting per directory** - Share the testSetting across all tests in a directory
-6. **Wrap each file in describe** - Each test registration should be wrapped in its own describe block for proper grouping
+5. **One global setting** - Share the testSetting across all test batches
+6. **Separate batches** - Each test file is its own batch for selective execution
 
 ## Test Categories
 
@@ -197,55 +244,52 @@ await restoreSettings();
 sinon.stub(game.settings, 'get');
 ```
 
-❌ **Don't share testUtils across directories**
+❌ **Don't create per-directory testUtils files**
 ```typescript
-// WRONG - Using the same testUtils in multiple directories
-import { getTestSetting } from '../utils/testUtils'; // Don't do this!
+// WRONG - Don't create testUtils.ts in subdirectories
+import { getTestSetting } from './testUtils'; // Don't do this!
 ```
-Each test directory must have its own `testUtils.ts` file to avoid conflicts.
+Use the global testUtils from `@unittest/testUtils` instead.
 
 ## What TO Do
 
-✅ **Use shared test setting with testUtils pattern**
+✅ **Use global shared test setting**
 ```typescript
-// RIGHT - Create testUtils.ts for shared setting management
-// testUtils.ts
-export let testSetting: FCBSetting | undefined;
-export const initializeTestSetting = async () => { /* ... */ };
-export const cleanupTestSetting = async () => { /* ... */ };
-export const getTestSetting = (): FCBSetting => { /* ... */ };
+// RIGHT - Import from global testUtils
+import { getTestSetting } from '@unittest/testUtils';
 
-// index.ts - Batch-level setup
-before(async () => {
-  await initializeTestSetting();
-});
-after(async () => {
-  await cleanupTestSetting();
-  sinon.restore();
-});
+// Each batch registers independently
+export const registerMyBatch = () => {
+  quench?.registerBatch(
+    'campaign-builder.category.mytest',
+    (context: QuenchBatchContext) => {
+      const { before, after } = context;
 
-// Individual test files - use getTestSetting()
-beforeEach(async () => {
-  const testSetting = getTestSetting();
-  testEntry = (await Entry.create(testSetting.topicFolders[Topics.Character]!, { name: 'Test' }))!;
-});
+      before(async () => {
+        await initializeTestSetting();
+      });
 
-it('should work', async () => {
-  const testSetting = getTestSetting();
-  // Test implementation
-});
+      after(async () => {
+        await cleanupTestSetting();
+        sinon.restore();
+      });
+
+      registerMyTests(context);
+    }
+  );
+};
 ```
 
 ✅ **Test integration points**
 ```typescript
 // RIGHT - Test how components work together
-await filterRelatedEntries(testSetting, added, removed);
+await filterRelatedEntries(getTestSetting(), added, removed);
 ```
 
 ## File Organization
 - Place tests in `test/unit/utils/` for utilities
 - Place tests in `test/unit/classes/` for class tests
-- Register tests in the appropriate `index.ts` file
+- Each test file has its own batch registration function
 - Use descriptive test names that explain what is being tested
 
 ### Setting up a New Test Directory
@@ -255,26 +299,32 @@ When creating a new test directory from scratch:
 1. **Create the directory structure**:
    ```
    test/unit/[category]/
-   ├── testUtils.ts      # Shared test utilities
-   ├── index.ts          # Test registration entry point
+   ├── index.ts          # Batch registration functions
    ├── some.test.ts      # Individual test files
    └── other.test.ts
    ```
 
-2. **Create testUtils.ts** (copy from template above)
+2. **Create index.ts** with batch registration functions (see template above)
 
-3. **Create index.ts** (copy from template above, update imports)
+3. **Create test files** (follow the pattern in step 3)
 
-4. **Create test files** (follow the pattern in step 3)
-
-5. **Register in main test runner**:
+4. **Register in main test runner**:
    ```typescript
    // In test/unit/index.ts or main test file
-   import { register[Category]Tests } from './[category]/index';
+   import { registerSomeBatch, registerOtherBatch } from './[category]/index';
    
-   // Call the registration function
-   register[Category]Tests();
+   // Call the registration functions
+   registerSomeBatch();
+   registerOtherBatch();
    ```
+
+## Benefits of This Approach
+
+1. **Selective Test Execution**: Users can choose which test batches to run in the Quench UI
+2. **Shared Resources**: All tests share the same setting, reducing setup/teardown overhead
+3. **Race Condition Prevention**: Mutex pattern ensures safe concurrent execution
+4. **Automatic Cleanup**: Setting is cleaned up only when all batches are complete
+5. **Simplified Structure**: No need for per-directory testUtils files
 
 ## Remember
 Quench runs INSIDE FoundryVTT, not alongside it. This means we have access to all FoundryVTT APIs and should use them rather than mocking them.

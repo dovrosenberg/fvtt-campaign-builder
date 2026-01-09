@@ -1,9 +1,8 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { moduleId } from '@/settings';
-import { FCBSetting } from '@/classes';
 import * as sinon from 'sinon';
 
-export const registerAppWindowTests = (context: QuenchBatchContext, testSetting: FCBSetting) => {
+export const registerAppWindowTests = (context: QuenchBatchContext) => {
   const { describe, it, expect, beforeEach, afterEach } = context;
 
     describe('appWindow utilities', () => {

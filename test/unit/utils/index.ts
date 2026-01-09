@@ -1,40 +1,82 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import * as sinon from 'sinon';
-import { initializeTestSetting, cleanupTestSetting } from './testUtils';
-// import { registerAppWindowTests } from "./appWindow.test";
+import { initializeTestSetting, cleanupTestSetting } from '../testUtils';
+import { registerAppWindowTests } from "./appWindow.test";
 import { registerHierarchyTests } from "./hierarchy.test";
 import { registerRelatedContentTests } from "./relatedContent.test";
 
-export const registerUtilsTests = () => {
+export const registerAppWindowBatch = () => {
   quench?.registerBatch(
-    'campaign-builder.utils',
+    'campaign-builder.utils.appWindow',
     (context: QuenchBatchContext) => {
-      const { describe, before, after, } = context;
+      const { before, after } = context;
 
-      // Batch-level setup - create once for all tests
+      // Batch-level setup
       before(async () => {
-        // Initialize the shared test setting
         await initializeTestSetting();
       });
 
-      // Batch-level cleanup - delete once after all tests
+      // Batch-level cleanup
       after(async () => {
         await cleanupTestSetting();
         sinon.restore();
       });
 
-      // Register individual test suites with their own describe blocks
-      describe('relatedContent', () => {
-        registerRelatedContentTests(context);
-      });
-      
-      // describe('appWindow', () => {
-      //   registerAppWindowTests(context);
-      // });
-      // 
-      describe('hierarchy', () => {
-        registerHierarchyTests(context);
-      });
+      // Register tests
+      registerAppWindowTests(context);
     }
   );
+};
+
+export const registerHierarchyBatch = () => {
+  quench?.registerBatch(
+    'campaign-builder.utils.hierarchy',
+    (context: QuenchBatchContext) => {
+      const { before, after } = context;
+
+      // Batch-level setup
+      before(async () => {
+        await initializeTestSetting();
+      });
+
+      // Batch-level cleanup
+      after(async () => {
+        await cleanupTestSetting();
+        sinon.restore();
+      });
+
+      // Register tests
+      registerHierarchyTests(context);
+    }
+  );
+};
+
+export const registerRelatedContentBatch = () => {
+  quench?.registerBatch(
+    'campaign-builder.utils.relatedContent',
+    (context: QuenchBatchContext) => {
+      const { before, after } = context;
+
+      // Batch-level setup
+      before(async () => {
+        await initializeTestSetting();
+      });
+
+      // Batch-level cleanup
+      after(async () => {
+        await cleanupTestSetting();
+        sinon.restore();
+      });
+
+      // Register tests
+      registerRelatedContentTests(context);
+    }
+  );
+};
+
+// Legacy function for backward compatibility - registers all batches
+export const registerUtilsTests = () => {
+  registerAppWindowBatch();
+  registerHierarchyBatch();
+  registerRelatedContentBatch();
 };

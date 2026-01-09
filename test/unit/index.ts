@@ -5,13 +5,21 @@
 import { SettingKey, ModuleSettings } from '@/settings';
 // import { registerClassesTests } from '@unittest/classes';
 // import { registerSettingsTests } from '@unittest/settings';
-import { registerUtilsTests } from '@unittest/utils';
+import { 
+  registerAppWindowBatch,
+  registerHierarchyBatch,
+  registerRelatedContentBatch
+} from '@unittest/utils';
 
 // Registers all `Quench` tests
 Hooks.on('quenchReady' as any, () => {
   // registerClassesTests();
   // registerSettingsTests();
-  registerUtilsTests();
+  
+  // Register individual batches so users can select which to run
+  registerAppWindowBatch();
+  registerHierarchyBatch();
+  registerRelatedContentBatch();
 });
 
 const settings = {};

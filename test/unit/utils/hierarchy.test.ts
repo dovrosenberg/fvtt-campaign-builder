@@ -9,10 +9,9 @@ import {
 } from '@/utils/hierarchy';
 import { Topics } from '@/types';
 import * as sinon from 'sinon';
-import { getTestSetting } from './testUtils';
 
 export const registerHierarchyTests = (context: QuenchBatchContext) => {
-  const { describe, it, expect, beforeEach, afterEach } = context;
+  const { describe, it, expect, afterEach } = context;
 
       describe('hierarchy utilities', () => {
         afterEach(() => {

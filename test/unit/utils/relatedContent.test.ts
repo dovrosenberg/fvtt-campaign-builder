@@ -2,7 +2,7 @@ import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { Topics } from '@/types';
 import { Entry } from '@/classes';
 import { filterRelatedEntries } from '@/utils/relatedContent';
-import { getTestSetting } from './testUtils';
+import { getTestSetting } from '@unittest/testUtils';
 
 /**
  * Unit tests for the relatedContent utility functions
