@@ -3,23 +3,20 @@ import {
   hasHierarchy,
   getParentId,
   validParentItems,
-  validChildItems,
   cleanTrees,
   NO_TYPE_STRING,
   NO_NAME_STRING
 } from '@/utils/hierarchy';
 import { Topics } from '@/types';
+import { FCBSetting } from '@/classes';
 import * as sinon from 'sinon';
 
-export const registerHierarchyTests = () => {
-  quench.registerBatch(
-    'campaign-builder.utils.hierarchy',
-    (context: QuenchBatchContext) => {
-      const { describe, it, expect, beforeEach, afterEach } = context;
+export const registerHierarchyTests = (context: QuenchBatchContext, testSetting: FCBSetting) => {
+  const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('hierarchy utilities', () => {
         afterEach(() => {
-          sinon.restore();
+          // sinon.restore() is now handled at the batch level
         });
 
         describe('constants', () => {
@@ -173,46 +170,6 @@ export const registerHierarchyTests = () => {
           });
         });
 
-        describe('validChildItems', () => {
-          it('should return empty array if entry has no uuid', () => {
-            const mockSetting = {} as any;
-            const mockEntry = { uuid: '' } as any;
-
-            expect(validChildItems(mockSetting, mockEntry)).to.deep.equal([]);
-          });
-
-          it('should filter out the entry itself and its ancestors', () => {
-            const mockEntryHierarchy = {
-              ancestors: ['ancestor-uuid']
-            };
-
-            const mockTopicFolder = {
-              filterEntries: sinon.stub().returns([
-                { uuid: 'other-entry', name: 'Other Entry' }
-              ])
-            };
-
-            const mockSetting = {
-              topicFolders: {
-                [Topics.Organization]: mockTopicFolder
-              },
-              getEntryHierarchy: sinon.stub().returns(mockEntryHierarchy)
-            } as any;
-
-            const mockEntry = {
-              topic: Topics.Organization,
-              uuid: 'entry-uuid'
-            } as any;
-
-            const result = validChildItems(mockSetting, mockEntry);
-
-            expect(mockSetting.getEntryHierarchy.calledWith('entry-uuid')).to.equal(true);
-            expect(mockTopicFolder.filterEntries.called).to.equal(true);
-            expect(result.length).to.equal(1);
-            expect(result[0].uuid).to.equal('other-entry');
-          });
-        });
-
         describe('cleanTrees', () => {
           it('should update hierarchies and save changes', async () => {
             // Create mock data
@@ -328,6 +285,4 @@ export const registerHierarchyTests = () => {
           });
         });
       });
-    }
-  );
 };

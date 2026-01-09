@@ -1,10 +1,10 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { moduleId } from '@/settings';
+import { FCBSetting } from '@/classes';
 import * as sinon from 'sinon';
 
-export const registerAppWindowTests = () => {
-  quench.registerBatch('campaign-builder.utils.appWindow', (context: QuenchBatchContext) => {
-    const { describe, it, expect, beforeEach, afterEach } = context;
+export const registerAppWindowTests = (context: QuenchBatchContext, testSetting: FCBSetting) => {
+  const { describe, it, expect, beforeEach, afterEach } = context;
 
     describe('appWindow utilities', () => {
       let appWindowUtilities: typeof import('@/utils/appWindow');
@@ -23,7 +23,7 @@ export const registerAppWindowTests = () => {
       });
 
       afterEach(() => {
-        sinon.restore();
+        // sinon.restore() is handled at batch level
         delete (globalThis as any).game;
       });
 
@@ -80,5 +80,4 @@ export const registerAppWindowTests = () => {
         });
       });
     });
-  });
 };

@@ -47,7 +47,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow } from '@/types';
+  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow, ArcMonsterDetails, SessionMonsterDetails } from '@/types';
   import { ArcMonster, SessionMonster } from '@/documents';
   
   ////////////////////////////////
@@ -82,7 +82,7 @@
 
   ////////////////////////////////
   // computed data
-  const monsterRows = computed(() => props.arcMode ? arcMonsterRows.value : sessionMonsterRows.value);
+  const monsterRows = computed(() => (props.arcMode ? arcMonsterRows.value : sessionMonsterRows.value) as ArcMonsterDetails[] | SessionMonsterDetails[]);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
 
   const mappedMonsterRows = computed(() => (
@@ -218,10 +218,15 @@
       const monster = monsterRows.value.find(m => m.uuid === row.uuid);
 
       // rows have extra fields we don't want
-      return {
+      return props.arcMode ? {
         uuid: row.uuid,
-        notes: monster?.notes ?? '',
-      } as ArcMonster;
+        notes: monster!.notes ?? '',
+      } as ArcMonster : {
+        uuid: row.uuid,
+        notes: monster!.notes ?? '',
+        delivered: (monster as SessionMonsterDetails)!.delivered ?? false,
+        number: (monster as SessionMonsterDetails)!.number ?? 0,
+      } as SessionMonster;
     });
 
     await store.value.reorderMonsters(reorderedMonsters);
