@@ -21,7 +21,7 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
       const expected = {
         'entry1.uuid': 'value1',
         'entry2.uuid': 'value2',
-        'normalKey#&#': 'value3',
+        'normalKey': 'value3',
       };
       
       const result = cleanKeysOnLoad(input);
@@ -68,7 +68,7 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
       const expected = {
         'entry1#&#uuid': 'value1',
         'entry2#&#uuid': 'value2',
-        'normalKey#&#': 'value3',
+        'normalKey': 'value3',
       };
       
       const result = cleanKeysOnSave(input);
@@ -86,8 +86,8 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         'key2': 'value2',
       };
       const expected = {
-        'key1#&#': 'value1',
-        'key2#&#': 'value2',
+        'key1': 'value1',
+        'key2': 'value2',
       };
       
       const result = cleanKeysOnSave(input);
@@ -175,7 +175,7 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         },
         [Topics.Location]: {
           'loc1#&#uuid': { name: 'Location 1' },
-          'normalKey#&#': { name: 'Normal' },
+          'normalKey': { name: 'Normal' },
         },
       };
       

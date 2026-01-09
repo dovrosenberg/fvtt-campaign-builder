@@ -20,6 +20,10 @@ export const registerDirectoryScrollTests = (context: QuenchBatchContext) => {
       mainStore = useMainStore();
       settingDirectoryStore = useSettingDirectoryStore();
       campaignDirectoryStore = useCampaignDirectoryStore();
+      
+      // Reset store state
+      mainStore.currentTab = null;
+      mainStore.currentSetting = null;
     });
 
     afterEach(() => {

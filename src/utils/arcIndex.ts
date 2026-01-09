@@ -20,6 +20,11 @@ export function getLastArcWithSessions(arcIndex: ArcBasicIndex[]): ArcBasicIndex
 export function getArcForSession(arcIndex: ArcBasicIndex[], sessionNumber: number): ArcBasicIndex | null {
   let retval = null as ArcBasicIndex | null;
 
+  // negative session numbers should never match an arc
+  if (sessionNumber < 0) {
+    return null;
+  }
+
   // arcs are always sorted in order
   for (const index of arcIndex) {
     if (index.startSessionNumber <= sessionNumber && index.endSessionNumber >= sessionNumber) {

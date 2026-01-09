@@ -37,7 +37,7 @@ export const cleanTopicKeysOnLoad = (objectToClean: TopicFieldType): TopicFieldT
   const newObject = {} as TopicFieldType;
 
   for (const topic in objectToClean) {
-    newObject[topic] = cleanKeysOnLoad(objectToClean[topic]);  
+    newObject[topic] = cleanKeysOnLoad(objectToClean[topic] || {});  
   }
 
   return newObject;
