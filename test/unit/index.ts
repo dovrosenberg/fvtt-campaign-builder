@@ -17,7 +17,11 @@ import {
 } from '@unittest/utils';
 
 // Registers all `Quench` tests
-Hooks.on('quenchReady' as any, () => {
+Hooks.on('quenchReady' as any, (quench: any) => {
+  // Store the quench object globally for test automation
+  (window as any).quenchObject = quench;
+  (window as any).quenchTestsRegistered = true;
+  
   // registerClassesTests();
   // registerSettingsTests();
   
