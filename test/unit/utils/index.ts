@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import * as sinon from 'sinon';
-import { initializeTestSetting, cleanupTestSetting } from '../testUtils';
+import { initializeTestSetting, cleanupTestSetting } from '@unittest/testUtils';
 import { registerAppWindowTests } from "./appWindow.test";
 import { registerHierarchyTests } from "./hierarchy.test";
 import { registerRelatedContentTests } from "./relatedContent.test";
