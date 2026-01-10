@@ -9,7 +9,7 @@ import { localize } from '@/utils/game';
 import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
 import { useMainStore } from '@/applications/stores';
-import { scrollToActiveEntry } from '@/utils/directoryScroll';
+import DirectoryScrollService from '@/utils/directoryScroll';
 import { hasUnsavedChanges, saveAndCloseAllActiveEditors, closeAllActiveEditors } from '@/utils/editorChangeDetection';
 import { FCBDialog } from '@/dialogs';
 import { SaveChangesResult } from '@/dialogs/saveChanges';
@@ -405,7 +405,7 @@ export const navigationStore = () => {
     await mainStore.setNewTab(tab);
 
     // scroll to the entry
-    await scrollToActiveEntry();
+    await DirectoryScrollService.scrollToActiveEntry();
 
     return tab;
   };
@@ -531,7 +531,7 @@ export const navigationStore = () => {
     await mainStore.setNewTab(newTab);
 
     // Scroll to and expand the active entry in the directory tree
-    await scrollToActiveEntry();
+    await DirectoryScrollService.scrollToActiveEntry();
 
     return;
   };
@@ -690,7 +690,7 @@ export const navigationStore = () => {
         await mainStore.setNewTab(activeTab);
         
         // Scroll to and expand the active entry in the directory tree
-        await scrollToActiveEntry();
+        await DirectoryScrollService.scrollToActiveEntry();
       }
     }
 
@@ -765,7 +765,7 @@ export const navigationStore = () => {
       
       await mainStore.setNewTab(tabToActivate);
       // Scroll to and expand the active entry in the directory tree
-      await scrollToActiveEntry();
+      await DirectoryScrollService.scrollToActiveEntry();
     }
   };
  

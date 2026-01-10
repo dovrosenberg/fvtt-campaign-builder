@@ -11,7 +11,7 @@ import { useMainStore, useNavigationStore, useStoryWebStore } from '@/applicatio
 import { getCurrentSetting, getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
-import { scrollToActiveEntry } from '@/utils/directoryScroll';
+import DirectoryScrollService from '@/utils/directoryScroll';
 import GlobalSettingService from '@/utils/globalSettings';
 
 // types
@@ -701,7 +701,7 @@ export const settingDirectoryStore = () => {
     await ModuleSettings.set(SettingKey.groupTreeByType, isGroupedByType.value);
     
     // Scroll to the active entry since the tree structure has changed
-    await scrollToActiveEntry();
+    await DirectoryScrollService.scrollToActiveEntry();
   });
 
   // update the filter when text changes
