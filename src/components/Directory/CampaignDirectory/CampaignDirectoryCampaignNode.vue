@@ -73,7 +73,7 @@
   import { getTabTypeIcon } from '@/utils/misc';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { FCBDialog } from '@/dialogs';
-  import { setCombinedDragData } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -179,7 +179,7 @@
     } as CampaignNodeDragData;
 
     // Set combined drag data for both canvas drops and internal operations
-    setCombinedDragData(event, props.campaignNode.id, fcbData);
+    DragDropService.setCombinedDragData(event, props.campaignNode.id, fcbData);
   };
 
   // change campaign

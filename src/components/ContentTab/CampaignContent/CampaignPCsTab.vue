@@ -11,7 +11,7 @@
     :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteRelationship') }]"
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
-    @dragover="standardDragover"
+    @dragover="DragDropService.standardDragover"
     @reorder="onReorder"
   />
 
@@ -33,7 +33,7 @@
   // local imports
   import { useCampaignStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop'; 
 
   // library components
 
@@ -125,8 +125,8 @@
     event.preventDefault();  
 
     // parse the data 
-    const data = getValidatedData(event);
-    if (!data || getType(data) !== FCBDragTypes.Entry) {
+    const data = DragDropService.getValidatedData(event);
+    if (!data || DragDropService.getType(data) !== DragDropService.FCBDragTypes.Entry) {
       return;
     }
 

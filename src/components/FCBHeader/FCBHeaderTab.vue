@@ -7,7 +7,7 @@
     @click="onTabClick"
     @dragstart="onDragStart"
     @drop="onDrop"
-    @dragover="standardDragover"
+    @dragover="DragDropService.standardDragover"
     @contextmenu="onTabContextMenu"
   >
     <div 
@@ -37,7 +37,7 @@
   // local imports
   import { useNavigationStore } from '@/applications/stores';
   import { WindowTab } from '@/classes';
-  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
   import { localize } from '@/utils/game';
 
   // library components
@@ -146,7 +146,7 @@
     event.preventDefault();  
 
     // parse the data 
-    let data = getValidatedData(event) as TabDragData | undefined;
+    let data = DragDropService.getValidatedData(event) as TabDragData | undefined;
     if (!data || data.type !== 'fcb-tab')
       return;
 

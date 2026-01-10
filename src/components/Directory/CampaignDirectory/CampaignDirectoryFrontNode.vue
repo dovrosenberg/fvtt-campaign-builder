@@ -26,7 +26,7 @@
   // local imports
   import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useStoryWebStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { setCombinedDragData } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -84,7 +84,7 @@
     } as FrontNodeDragData;
 
     // Set combined drag data for both canvas drops and internal operations
-    setCombinedDragData(event, props.frontNode.id, fcbData);
+    DragDropService.setCombinedDragData(event, props.frontNode.id, fcbData);
   };
 
   const onFrontClick = async (event: MouseEvent) => {

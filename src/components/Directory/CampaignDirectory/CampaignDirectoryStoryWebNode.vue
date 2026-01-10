@@ -26,7 +26,7 @@
   // local imports
   import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { setCombinedDragData } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -106,6 +106,6 @@
     } as StoryWebNodeDragData;
 
     // Set combined drag data for both canvas drops and internal operations
-    setCombinedDragData(event, props.storyWebNode.id, fcbData);
+    DragDropService.setCombinedDragData(event, props.storyWebNode.id, fcbData);
   };
 </script>

@@ -17,7 +17,7 @@
           @click="onDirectoryItemClick"
           @dragstart="onDragStart($event, props.node.id, props.node.name)"
           @drop="onDrop"
-          @dragover="standardDragover"
+          @dragover="DragDropService.standardDragover"
           @contextmenu="onEntryContextMenu"
         >
           {{ displayName }}
@@ -35,7 +35,7 @@
   // local imports
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, NO_TYPE_STRING, validParentItems } from '@/utils/hierarchy';
-  import { getType, getValidatedData, setCombinedDragData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
   import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
@@ -128,7 +128,7 @@
     } as EntryNodeDragData;
 
     // Set combined drag data for both canvas drops and internal operations
-    setCombinedDragData(event, id, fcbData);
+    DragDropService.setCombinedDragData(event, id, fcbData);
   };
 
   const onDrop = async (event: DragEvent) => {
@@ -138,8 +138,8 @@
         return;
 
     // parse the data
-    const data = getValidatedData(event);
-    if (!data || getType(data) !== FCBDragTypes.Entry)
+    const data = DragDropService.getValidatedData(event);
+    if (!data || DragDropService.getType(data) !== DragDropService.FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

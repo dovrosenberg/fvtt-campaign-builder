@@ -4,7 +4,7 @@
       ref="networkContainer" 
       class="network-container"
       @drop="onDrop"
-      @dragover="standardDragover"
+      @dragover="DragDropService.standardDragover"
       @keydown="onKeydown"
     >
       <!-- Debug: StoryWebGraph rendered -->
@@ -53,7 +53,7 @@
 
   // local imports
   import { useStoryWebStore } from '@/applications/stores';
-  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
   import { localize } from '@/utils/game';
   
   // library components
@@ -134,12 +134,12 @@
     event.stopPropagation();
     event.preventDefault();
 
-    const data = getValidatedData(event);
+    const data = DragDropService.getValidatedData(event);
     if (!data || !currentNetwork.value) {
       return;
     }
 
-    const dataType = getType(data);
+    const dataType = DragDropService.getType(data);
     
     // Handle front drops
     if (dataType === 'fcb-front') {
@@ -158,7 +158,7 @@
     }
 
     // Handle entry drops
-    if (dataType === FCBDragTypes.Entry) {
+    if (dataType === DragDropService.FCBDragTypes.Entry) {
       const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;
       if (!fcbData) {
         return;

@@ -11,7 +11,7 @@
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="showNPCPicker=true"
-    @dragoverNew="standardDragover"
+    @dragoverNew="DragDropService.standardDragover"
     @drop-new="onDropNew"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
@@ -33,7 +33,7 @@
   import { useSessionStore} from '@/applications/stores';
   import { Topics, RelatedEntryDialogModes, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
-  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop'; 
   import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
@@ -157,8 +157,8 @@
     event.preventDefault();  
 
     // parse the data  - looking for entry node
-    const data = getValidatedData(event);
-    if (!data || getType(data) !== FCBDragTypes.Entry) {
+    const data = DragDropService.getValidatedData(event);
+    if (!data || DragDropService.getType(data) !== DragDropService.FCBDragTypes.Entry) {
       return;
     }
 

@@ -45,7 +45,7 @@
   import { enrichFcbHTML } from './Editor/helpers';
   import { useMainStore } from '@/applications/stores';
   import { processUuidDrop } from '@/utils/uuidHandler';
-  import { standardDragover } from '@/utils/dragdrop'; 
+  import DragDropService from '@/utils/dragDrop'; 
   import { notifyInfo } from '@/utils/notifications';
   import { localize } from '@/utils/game';
   import { sanitizeHTML } from '@/utils/sanitizeHtml';
@@ -339,7 +339,7 @@
   // event handlers
   const onDragover = (event: DragEvent) => {
     if (!props.editable) return;
-      standardDragover(event);
+      DragDropService.standardDragover(event);
   }
 
   const onDrop = async (event: DragEvent) => {

@@ -14,7 +14,7 @@
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="showItemPicker=true"
     @drop-new="onDropNew"
-    @dragoverNew="standardDragover"
+    @dragoverNew="DragDropService.standardDragover"
     @dragstart="onDragStart"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
@@ -34,7 +34,7 @@
   // local imports
   import { useSessionStore, } from '@/applications/stores';
   import { localize, } from '@/utils/game'
-  import { getValidatedData, itemDragStart, standardDragover } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop'; 
   import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
@@ -130,7 +130,7 @@
     event.preventDefault();  
 
     // parse the data  - looking for raw foundry data
-    let data = getValidatedData(event);
+    let data = DragDropService.getValidatedData(event);
     if (!data)
       return;
 
@@ -173,7 +173,7 @@
   }
 
   const onDragStart = async (event: DragEvent, uuid: string) => {
-    await itemDragStart(event, uuid);
+    await DragDropService.itemDragStart(event, uuid);
   }
 
   const onReorder = async (reorderedRows: BaseTableGridRow[]) => {

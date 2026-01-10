@@ -57,7 +57,7 @@
   import { useCampaignDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { FCBDialog } from '@/dialogs';
-  import { setCombinedDragData } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -119,7 +119,7 @@
     } as ArcNodeDragData;
 
     // Set combined drag data for both canvas drops and internal operations
-    setCombinedDragData(event, props.arcNode.id, fcbData);
+    DragDropService.setCombinedDragData(event, props.arcNode.id, fcbData);
   };
 
   // change arc

@@ -9,7 +9,7 @@
     :extra-add-text="localize('labels.storyWeb.addStoryWebDrag')"
     :actions="actions"
     @add-item="onAddItem"
-    @dragoverNew="standardDragover"
+    @dragoverNew="DragDropService.standardDragover"
     @drop-new="onDropNew"
     @reorder="onReorder"
   />
@@ -22,8 +22,8 @@
   import { useMainStore, useNavigationStore, useCampaignStore, useArcStore, useSessionStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { FCBDialog } from '@/dialogs';
-  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
-
+  import DragDropService from '@/utils/dragDrop'; 
+  
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   import { Arc, Campaign, Session, StoryWeb } from '@/classes';
@@ -176,8 +176,8 @@
     if (!campaign.value || !entity.value)
       return;
 
-    const data = getValidatedData(event);
-    if (!data || getType(data) !== 'fcb-storyWeb' || !('fcbData' in data && (data.fcbData as StoryWebNodeDragData)?.storyWebId))
+    const data = DragDropService.getValidatedData(event);
+    if (!data || DragDropService.getType(data) !== 'fcb-storyWeb' || !('fcbData' in data && (data.fcbData as StoryWebNodeDragData)?.storyWebId))
       return;
 
     const selectedItemId = (data.fcbData as StoryWebNodeDragData)?.storyWebId;

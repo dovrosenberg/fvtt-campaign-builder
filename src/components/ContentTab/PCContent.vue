@@ -35,7 +35,7 @@
                   <div 
                     class="fcb-sheet-image"
                     @drop="onDropActor"
-                    @dragover="standardDragover"
+                    @dragover="DragDropService.standardDragover"
                     @click="onActorImageClick"
                     @contextmenu.prevent="onImageContextMenu"
                   >
@@ -118,7 +118,7 @@
   import { useMainStore, useNavigationStore, useSettingDirectoryStore, useRelationshipStore } from '@/applications/stores';
   import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop'; 
   import { getEntryRelatedEntries } from '@/utils/uuidExtraction';
   
   // library components
@@ -220,7 +220,7 @@
       return;
 
     // parse the data - we're just looking for raw Foundry data here
-    let data = getValidatedData(event) as FoundryDragType;
+    let data = DragDropService.getValidatedData(event) as FoundryDragType;
     if (!data)
       return;
 

@@ -14,8 +14,8 @@
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddLore"
     @cell-edit-complete="onCellEditComplete"
-    @dragover-new="standardDragover"
-    @dragover-row="standardDragover"
+    @dragover-new="DragDropService.standardDragover"
+    @dragover-row="DragDropService.standardDragover"
     @drop-row="onDropRow"
     @drop-new="onDropNew"
     @reorder="onReorder"
@@ -31,7 +31,7 @@
   // local imports
   import { useSessionStore, useArcStore, useMainStore, } from '@/applications/stores';
   import { localize } from '@/utils/game'
-  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop'; 
   import { FCBDialog } from '@/dialogs';
   import { ModuleSettings, SettingKey } from '@/settings';
 
@@ -217,7 +217,7 @@
     event.preventDefault();  
 
     // parse the data - looking for raw foundry data
-    const data = getValidatedData(event);
+    const data = DragDropService.getValidatedData(event);
     if (!data)
       return;
 
@@ -236,7 +236,7 @@
     event.preventDefault();  
 
     // parse the data - looking for raw foundry data
-    const data = getValidatedData(event);
+    const data = DragDropService.getValidatedData(event);
     if (!data)
       return;
 
