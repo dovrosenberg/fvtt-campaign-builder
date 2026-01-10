@@ -200,7 +200,7 @@ export const registerSomeTests = (context: QuenchBatchContext) => {
 
 **Key Points**:
 - Import `getTestSetting` from `@unittest/testUtils` (the global testUtils)
-- Import utility functions/classes directly from their modules (no dynamic imports)
+- Import utility functions/classes to be tested, as well as any to be mocked directly from their modules (NO dynamic imports)
 - No outer `describe` wrapper since each test file is registered as its own batch
 - Call imported functions directly, not through a dynamic import object
 

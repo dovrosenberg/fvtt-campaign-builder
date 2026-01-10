@@ -1,36 +1,47 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import * as sinon from 'sinon';
+import { setActivePinia, createPinia } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 import { GeneratorType } from '@/types';
 import { FCBSetting } from '@/classes';
 import { RollTableFlagKey } from '@/documents';
 import NameGeneratorsService from '@/utils/nameGenerators';
 import { getTestSetting } from '@unittest/testUtils';
+import { useBackendStore } from '@/applications/stores';
+import NotificationService from '@/utils/notifications';
+import { moduleId } from '@/settings';
 
 export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
   const { describe, it, expect, beforeEach, afterEach } = context;
 
   let testSetting: FCBSetting;
-  let backendStoreStub: sinon.SinonStubbedInstance<any>;
+  let backendStore: any;
   let notifyInfoStub: sinon.SinonStub;
 
   beforeEach(async () => {
     // Get the shared test setting
     testSetting = getTestSetting();
 
-    // Stub the backend store
-    const { useBackendStore } = await import('@/applications/stores');
-    backendStoreStub = {
-      available: true,
-      generateCharacterNames: sinon.stub().resolves({ data: { names: ['Test NPC 1', 'Test NPC 2'] } }),
-      generateStoreNames: sinon.stub().resolves({ data: { names: ['Test Store 1', 'Test Store 2'] } }),
-      generateTavernNames: sinon.stub().resolves({ data: { names: ['Test Tavern 1', 'Test Tavern 2'] } }),
-      generateTownNames: sinon.stub().resolves({ data: { names: ['Test Town 1', 'Test Town 2'] } })
-    };
-    sinon.stub(useBackendStore, 'useBackendStore').returns(backendStoreStub);
+    // Create a testing pinia instance with stubbed BackendStore
+    const pinia = createTestingPinia({
+      createSpy: sinon.spy,
+      stubActions: false,
+      initialState: {
+        backend: {
+          available: true,
+          generateCharacterNames: sinon.stub().resolves({ data: { names: ['Test NPC 1', 'Test NPC 2'] } }),
+          generateStoreNames: sinon.stub().resolves({ data: { names: ['Test Store 1', 'Test Store 2'] } }),
+          generateTavernNames: sinon.stub().resolves({ data: { names: ['Test Tavern 1', 'Test Tavern 2'] } }),
+          generateTownNames: sinon.stub().resolves({ data: { names: ['Test Town 1', 'Test Town 2'] } })
+        }
+      }
+    });
+    
+    // Get the stubbed backend store
+    backendStore = useBackendStore(pinia);
 
     // Stub notifyInfo
-    const { notifyInfo } = await import('@/utils/notifications');
-    notifyInfoStub = sinon.stub(notifyInfo, 'notifyInfo');
+    notifyInfoStub = sinon.stub(NotificationService, 'info');
   });
 
   afterEach(() => {
@@ -62,7 +73,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
         
         const table = await fromUuid<RollTable>(tableUuid);
         expect(table).to.not.be.null;
-        expect(table?.getFlag(game.modules.get('fvtt-campaign-builder')?.id || '', RollTableFlagKey.type)).to.equal(type);
+        expect(table?.getFlag(moduleId, RollTableFlagKey.type)).to.equal(type);
       }
     });
 
@@ -111,7 +122,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
     });
 
     it('should throw error when backend is not available', async () => {
-      backendStoreStub.available = false;
+      backendStore.available = false;
       
       try {
         await NameGeneratorsService.refreshSettingRollTable(testTable, testSetting);
@@ -143,7 +154,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       await NameGeneratorsService.refreshSettingRollTable(testTable, testSetting);
 
       // Check that backend was called
-      expect(backendStoreStub.generateCharacterNames.calledOnce).to.be.true;
+      expect(backendStore.generateCharacterNames.calledOnce).to.be.true;
       
       // Check that drawn results were replaced
       const updatedResults = Array.from(testTable.results.values());
@@ -160,7 +171,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
 
       // Should have generated new results
       expect(testTable.results.size).to.equal(NameGeneratorsService.TABLE_SIZE);
-      expect(backendStoreStub.generateCharacterNames.calledOnce).to.be.true;
+      expect(backendStore.generateCharacterNames.calledOnce).to.be.true;
     });
   });
 
