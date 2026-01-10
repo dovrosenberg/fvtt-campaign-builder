@@ -5,7 +5,7 @@ import { moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { CustomFieldContentType, CustomFieldDescription, FieldType, TagList, } from '@/types';
 import { localize } from '@/utils/game';
-import { resetDefaultCustomFields } from '@/utils/customFields';
+import CustomFieldsService from '@/utils/customFields';
 import { Campaign, Entry, Session } from '@/classes';
 import { generateIdFromName } from '@/utils/idGeneration';
 
@@ -161,7 +161,7 @@ export class MigrationV1_8 implements Migration {
       const KEY_BOXED_TEXT = generateIdFromName(localize('labels.fields.boxedText'));
       const KEY_GM_NOTES = generateIdFromName(localize('labels.fields.gmNotes'));
 
-      await resetDefaultCustomFields();
+      await CustomFieldsService.resetDefaultCustomFields();
       const customFields = ModuleSettings.get(SettingKey.customFields);
 
       // if we were using AI, add an AI-generated description field to the entries

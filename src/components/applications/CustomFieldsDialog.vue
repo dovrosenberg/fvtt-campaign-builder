@@ -397,7 +397,7 @@
   import { customFieldsApp } from '@/applications/settings/CustomFieldsApplication';
   import { searchService } from '@/utils/search';
   import AppWindowService from '@/utils/appWindow';
-  import { makeCustomFieldKeyUnique } from '@/utils/customFields';
+  import CustomFieldsService from '@/utils/customFields';
   import { generateIdFromName } from '@/utils/idGeneration';
 
   // library components
@@ -923,7 +923,7 @@
 
       if (!r.name) {
         const base = generateIdFromName(r.label);
-        const unique = makeCustomFieldKeyUnique(base, reservedNames);
+        const unique = CustomFieldsService.makeCustomFieldKeyUnique(base, reservedNames);
         r.name = unique;
         reservedNames.add(unique);
       }

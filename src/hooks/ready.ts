@@ -7,7 +7,7 @@ import { useBackendStore } from '@/applications/stores';
 import { ExternalAPI } from '@/classes';
 import { MigrationManager } from '@/utils/migration';
 import { attachGlobalScripts } from '@/utils/globalScripts';
-import { resetDefaultCustomFields } from '@/utils/customFields';
+import CustomFieldsService from '@/utils/customFields';
 import { vueHost } from '@/libraries/fvtt-vue/VueHost';
 
 export function registerForReadyHook() {
@@ -56,7 +56,7 @@ async function ready(): Promise<void> {
   // set the custom fields if needed (note: must be done after migration or things
   //    might get confused)
   if (Object.keys(ModuleSettings.get(SettingKey.customFields)).length === 0) {
-    await resetDefaultCustomFields();
+    await CustomFieldsService.resetDefaultCustomFields();
   }
 
   // If auto-refresh is enabled, populate tables in background
