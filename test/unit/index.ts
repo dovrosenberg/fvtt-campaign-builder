@@ -15,6 +15,7 @@ import {
   registerDirectoryScrollBatch,
   registerDragDropBatch
 } from '@unittest/utils';
+import { registerMainStoreBatch } from '@unittest/applications/stores';
 
 // Registers all `Quench` tests
 Hooks.on('quenchReady' as any, (quench: any) => {
@@ -34,6 +35,7 @@ Hooks.on('quenchReady' as any, (quench: any) => {
   registerCustomFieldsBatch();
   registerDirectoryScrollBatch();
   registerDragDropBatch();
+  registerMainStoreBatch();
 });
 
 const settings = {};
