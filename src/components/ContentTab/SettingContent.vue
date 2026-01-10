@@ -110,7 +110,7 @@
   import { getTabTypeIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import { useMainStore, useNavigationStore, useSettingDirectoryStore } from '@/applications/stores';
-  import { updateWindowTitle } from '@/utils/titleUpdater';
+  import TitleUpdaterService from '@/utils/titleUpdater';
   import { useBackendStore } from '@/applications/stores';
   import { notifyWarn } from '@/utils/notifications';
   import { ModuleSettings, SettingKey } from '@/settings/ModuleSettings';
@@ -190,7 +190,7 @@
         currentSetting.value.name = newValue;
         await currentSetting.value.save();
 
-        updateWindowTitle(newName || null);
+        TitleUpdaterService.updateWindowTitle(newName || null);
         await settingDirectoryStore.refreshSettingDirectoryTree([currentSetting.value.uuid]);
         await navigationStore.propagateNameChange(currentSetting.value.uuid, newValue);
         await mainStore.propagateSettingNameChange(currentSetting.value);

@@ -5,9 +5,9 @@ import { computed, ref, watch, nextTick, triggerRef } from 'vue';
 
 // local imports
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings';
-import { updateWindowTitle } from '@/utils/titleUpdater';
+import TitleUpdaterService from '@/utils/titleUpdater';
 import { useNavigationStore } from '@/applications/stores';
-import * as nameGenerators from '@/utils/nameGenerators';
+import NameGeneratorService from '@/utils/nameGenerators';
 import GlobalSettingService from '@/utils/globalSettings';
 import AppWindowService from '@/utils/appWindow';
 
@@ -340,7 +340,7 @@ export const mainStore = () => {
     // Update roll table names if roll tables are configured
     if (setting.rollTableConfig) {
       try {
-        await nameGenerators.updateSettingRollTableNames(setting);
+        await NameGeneratorService.updateSettingRollTableNames(setting);
       } catch (error) {
         console.error('Error updating roll table names:', error);
       }
@@ -411,7 +411,7 @@ export const mainStore = () => {
       return;
     }
 
-    updateWindowTitle(newSetting?.name ?? null);
+    TitleUpdaterService.updateWindowTitle(newSetting?.name || null);
 
     // if we're really changing settings, turn play mode off
     if (oldSetting) {

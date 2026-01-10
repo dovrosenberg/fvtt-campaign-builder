@@ -94,7 +94,7 @@
 
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { refreshAllSettingRollTables } from '@/utils/nameGenerators';
+  import NameGeneratorService from '@/utils/nameGenerators';
   import { rollTableSettingsApp } from '@/applications/settings/RollTableSettingsApplication';
   import { localize } from '@/utils/game';
   import { notifyError, notifyInfo } from '@/utils/notifications';
@@ -160,7 +160,7 @@
     
     try {
       // Refresh setting-specific tables for all settings
-      await refreshAllSettingRollTables(true);
+      await NameGeneratorService.refreshAllSettingRollTables(true);
       notifyInfo(localize('applications.rollTableSettings.notifications.refreshSuccess'));
     } catch (error) {
       console.error('Error refreshing roll tables:', error);

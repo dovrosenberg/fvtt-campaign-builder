@@ -55,7 +55,7 @@
   import { SettingKey, ModuleSettings, } from '@/settings';
   import { useMainStore, useNavigationStore, useBackendStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { updateWindowTitle } from '@/utils/titleUpdater';
+  import TitleUpdaterService from '@/utils/titleUpdater';
   import { notifyWarn } from '@/utils/notifications';
   import AppWindowService from '@/utils/appWindow';
   
@@ -168,7 +168,7 @@
   // watchers
   watch(currentSetting, async (newSetting: FCBSetting | null, oldSetting: FCBSetting | null) => {
     // Update the window title when the setting changes
-    updateWindowTitle(newSetting?.name || null);
+    TitleUpdaterService.updateWindowTitle(newSetting?.name || null);
     
     if (currentSetting.value && newSetting?.uuid!==oldSetting?.uuid) {
       // make sure we have a compendium
@@ -263,7 +263,7 @@
     setTimeout(() => {
       createTitleBarComponents();
       // Initialize the window title with the current setting name
-      updateWindowTitle(currentSetting.value?.name || null);
+      TitleUpdaterService.updateWindowTitle(currentSetting.value?.name || null);
     }, 100);
 
     // Wait up to 5 seconds for the backend to finish configuring

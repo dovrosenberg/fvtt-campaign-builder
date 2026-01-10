@@ -9,76 +9,60 @@ import { registerCleanKeysTests } from "./cleanKeys.test";
 import { registerCustomFieldsTests } from "./customFields.test";
 import { registerDirectoryScrollTests } from "./directoryScroll.test";
 import { registerDragDropTests } from "./dragdrop.test";
+import { registerNameGeneratorsTests } from "./nameGenerators.test";
 
-export const registerAppWindowBatch = () => {
+/**
+ * Helper function to create and register a test batch with standard setup/teardown
+ */
+const createBatch = (
+  batchName: string,
+  displayName: string,
+  registerTests: (context: QuenchBatchContext) => void
+) => {
   quench?.registerBatch(
-    'campaign-builder.utils.appWindow',
+    batchName,
     (context: QuenchBatchContext) => {
       const { before, after } = context;
 
-      // Batch-level setup
+      // Standard batch-level setup
       before(async () => {
         await initializeTestSetting();
       });
 
-      // Batch-level cleanup
+      // Standard batch-level cleanup
       after(async () => {
         await cleanupTestSetting();
         sinon.restore();
       });
 
       // Register tests
-      registerAppWindowTests(context);
+      registerTests(context);
     },
-    { displayName: "/utils/appWindow", preSelected: false },
+    { displayName, preSelected: false },
+  );
+};
+
+export const registerAppWindowBatch = () => {
+  createBatch(
+    'campaign-builder.utils.appWindow',
+    '/utils/appWindow',
+    registerAppWindowTests
   );
 };
 
 export const registerHierarchyBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.utils.hierarchy',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      // Batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerHierarchyTests(context);
-    },
-    { displayName: "/utils/hierarchy", preSelected: false },
+    '/utils/hierarchy',
+    registerHierarchyTests
   );
 };
 
 export const registerRelatedContentBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.utils.relatedContent',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      // Batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerRelatedContentTests(context);
-    },
-    { displayName: "/utils/relatedContent", preSelected: false },
+    '/utils/relatedContent',
+    registerRelatedContentTests
   );
 };
 
@@ -92,124 +76,53 @@ export const registerUtilsTests = () => {
   registerCustomFieldsBatch();
   registerDirectoryScrollBatch();
   registerDragDropBatch();
+  registerNameGeneratorsBatch();
 };
 
 export const registerArcIndexBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.utils.arcIndex',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      // Batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerArcIndexTests(context);
-    },
-    { displayName: "/utils/arcIndex", preSelected: false },
+    '/utils/arcIndex',
+    registerArcIndexTests
   );
 };
 
 export const registerCleanKeysBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.utils.cleanKeys',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      // Batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerCleanKeysTests(context);
-    },
-    { displayName: "/utils/cleanKeys", preSelected: false },
+    '/utils/cleanKeys',
+    registerCleanKeysTests
   );
 };
 
 export const registerCustomFieldsBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.utils.customFields',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      // Batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerCustomFieldsTests(context);
-    },
-    { displayName: "/utils/customFields", preSelected: false },
+    '/utils/customFields',
+    registerCustomFieldsTests
   );
 };
 
 export const registerDirectoryScrollBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.utils.directoryScroll',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      // Batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerDirectoryScrollTests(context);
-    },
-    { displayName: "/utils/directoryScroll", preSelected: false },
+    '/utils/directoryScroll',
+    registerDirectoryScrollTests
   );
 };
 
 export const registerDragDropBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.utils.dragdrop',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
+    '/utils/dragdrop',
+    registerDragDropTests
+  );
+};
 
-      // Batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerDragDropTests(context);
-    },
-    { displayName: "/utils/dragdrop", preSelected: false },
+export const registerNameGeneratorsBatch = () => {
+  createBatch(
+    'campaign-builder.utils.nameGenerators',
+    '/utils/nameGenerators',
+    registerNameGeneratorsTests
   );
 };

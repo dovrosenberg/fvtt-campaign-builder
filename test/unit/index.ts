@@ -13,12 +13,13 @@ import {
   registerCleanKeysBatch,
   registerCustomFieldsBatch,
   registerDirectoryScrollBatch,
-  registerDragDropBatch
+  registerDragDropBatch,
+  registerNameGeneratorsBatch,
 } from '@unittest/utils';
 import { registerMainStoreBatch } from '@unittest/applications/stores';
 
 // Registers all `Quench` tests
-Hooks.on('quenchReady' as any, (quench: any) => {
+Hooks.on('quenchReady' as any, (quench: any): void => {
   // Store the quench object globally for test automation
   (window as any).quenchObject = quench;
   (window as any).quenchTestsRegistered = true;
@@ -36,6 +37,7 @@ Hooks.on('quenchReady' as any, (quench: any) => {
   registerDirectoryScrollBatch();
   registerDragDropBatch();
   registerMainStoreBatch();
+  registerNameGeneratorsBatch();
 });
 
 const settings = {};

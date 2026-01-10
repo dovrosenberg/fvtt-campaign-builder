@@ -2,7 +2,7 @@ import { setupEnricher } from '@/components/Editor/helpers';
 import { moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { renderCampaignBuilderApp } from '@/applications/CampaignBuilder';
 import { isClientGM, localize } from '@/utils/game';
-import { refreshAllSettingRollTables } from '@/utils/nameGenerators';
+import NameGeneratorService from '@/utils/nameGenerators';
 import { useBackendStore } from '@/applications/stores';
 import { ExternalAPI } from '@/classes';
 import { MigrationManager } from '@/utils/migration';
@@ -62,7 +62,7 @@ async function ready(): Promise<void> {
   // If auto-refresh is enabled, populate tables in background
   const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
   if (autoRefresh && useBackendStore().available) {
-    void refreshAllSettingRollTables();
+    void NameGeneratorService.refreshAllSettingRollTables();
   }
 }
 

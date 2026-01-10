@@ -3,17 +3,42 @@ import * as sinon from 'sinon';
 import { setActivePinia, createPinia } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useMainStore, useNavigationStore } from '@/applications/stores';
-import { WindowTabType} from '@/types';
-import { Entry, Campaign, Session, FCBSetting, WindowTab } from '@/classes';
-import { Topics } from '@/types';
-import { getTestSetting } from '../../testUtils';
+import { Entry, Campaign, Session, FCBSetting, WindowTab, Front, Arc, StoryWeb } from '@/classes';
+import { Topics, WindowTabType, DocumentLinkType } from '@/types';
+import { getTestSetting } from '@unittest/testUtils';
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey } from '@/settings';
 import AppWindowService from '@/utils/appWindow';
 import GlobalSettingService from '@/utils/globalSettings';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
+import NameGeneratorService from '@/utils/nameGenerators';
+import TitleUpdaterService from '@/utils/titleUpdater';
 
 export const registerMainStoreTests = (context: QuenchBatchContext) => {
   const { describe, it, expect, beforeEach, afterEach } = context;
+
+  // Helper function to create test window tabs
+  const createTestTab = (
+    uuid: string,
+    tabType: WindowTabType,
+    icon?: string,
+    name?: string,
+    contentTab?: string
+  ): WindowTab => {
+    return new WindowTab(
+      true, // active
+      { 
+        uuid, 
+        name: name || 'testTab', 
+        icon: icon || 'fa-question'
+      },
+      uuid, // contentId
+      tabType,
+      null, // id (will be generated)
+      contentTab || null, // contentTabId
+      [], // history (will be created in constructor)
+      -1 // historyIdx (will be set in constructor)
+    );
+  };
 
   describe('useMainStore', () => {
     let mainStore: ReturnType<typeof useMainStore>;
@@ -37,6 +62,9 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
       
       // Get the shared test setting
       testSetting = getTestSetting();
+      
+      // Configure the stub to return the test setting by default
+      getGlobalSettingsStub.withArgs(testSetting.uuid).resolves(testSetting);
     });
 
     afterEach(() => {
@@ -52,10 +80,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
         if (!testEntry)
           throw new Error('Failed to create test entry');
 
-        const tab: WindowTab = {
-          header: { uuid: testEntry.uuid, name: 'testTab', icon: 'fa-user' },
-          tabType: WindowTabType.Entry
-        };
+        const tab = createTestTab(testEntry.uuid, WindowTabType.Entry);
         
         // Set the setting first
         await mainStore.setNewSetting(testSetting.uuid);
@@ -80,10 +105,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
         if (!testEntry)
           throw new Error('Failed to create test entry');
           
-        const tab: WindowTab = {
-          header: { uuid: testEntry.uuid, name: 'testTab', icon: 'fa-user' },
-          tabType: WindowTabType.Entry
-        };
+        const tab = createTestTab(testEntry.uuid, WindowTabType.Entry);
         
         // Set the setting
         await mainStore.setNewSetting(testSetting.uuid);
@@ -103,10 +125,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
         });
         
         // Set the entry
-        const tab: WindowTab = {
-          header: { uuid: testEntry!.uuid, name: 'testTab', icon: 'fa-user' },
-          tabType: WindowTabType.Entry
-        };
+        const tab = createTestTab(testEntry!.uuid, WindowTabType.Entry);
         
         // Set the setting
         await mainStore.setNewSetting(testSetting.uuid);
@@ -151,11 +170,9 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
       });
 
       it('should set new setting when valid ID is passed', async () => {
-        getGlobalSettingsStub.resolves(testSetting);
-        
         await mainStore.setNewSetting(testSetting.uuid);
         
-        expect(mainStore.currentSetting).to.equal(testSetting);
+        expect(mainStore.currentSetting).to.deep.equal(testSetting);
         expect(userFlagsSetStub.calledWith(UserFlagKey.currentSetting, testSetting.uuid)).to.be.true;
         expect(getGlobalSettingsStub.calledWith(testSetting.uuid)).to.be.true;
       });
@@ -174,7 +191,6 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
       it('should close SessionNotesApplication if open when changing settings', async () => {
         const closeStub = sandbox.stub();
         (SessionNotesApplication.app as any) = { close: closeStub };
-        getGlobalSettingsStub.resolves(testSetting);
         
         await mainStore.setNewSetting(testSetting.uuid);
         
@@ -191,10 +207,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
         if (!testEntry)
           throw new Error('Failed to create test entry');
         
-        const tab: WindowTab = {
-          header: { uuid: testEntry.uuid, name: 'testTab', icon: 'fa-user' },
-          tabType: WindowTabType.Entry
-        };
+        const tab = createTestTab(testEntry.uuid, WindowTabType.Entry);
         
         // Set the setting
         await mainStore.setNewSetting(testSetting.uuid);
@@ -210,10 +223,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
         if (!testCampaign)
           throw new Error('Failed to create test campaign');
         
-        const tab: WindowTab = {
-          header: { uuid: testCampaign.uuid, name: 'testTab', icon: 'fa-calendar' },
-          tabType: WindowTabType.Campaign
-        };
+        const tab = createTestTab(testCampaign.uuid, WindowTabType.Campaign, 'fa-calendar', 'testTab');
         
         // Set the setting 
         await mainStore.setNewSetting(testSetting.uuid);
@@ -234,10 +244,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
         if (!testSession)
           throw new Error('Failed to create test session');
         
-        const tab: WindowTab = {
-          header: { uuid: testSession.uuid, name: 'testTab', icon: 'fa-calendar' },
-          tabType: WindowTabType.Session
-        };
+        const tab = createTestTab(testSession.uuid, WindowTabType.Session, 'fa-calendar', 'testTab');
         
         // Set the setting
         await mainStore.setNewSetting(testSetting.uuid);
@@ -249,10 +256,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
 
       it('should set tag results tab correctly', async () => {
         const tagName = 'test-tag';
-        const tab: WindowTab = {
-          header: { uuid: tagName, name: 'testTab', icon: 'fa-tag' },
-          tabType: WindowTabType.TagResults
-        };
+        const tab = createTestTab(tagName, WindowTabType.TagResults, 'fa-tag', 'testTab');
         
         // Set the setting
         await mainStore.setNewSetting(testSetting.uuid);
@@ -271,10 +275,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
           throw new Error('Failed to create test content');
         
         // First set an entry tab
-        const entryTab: WindowTab = {
-          header: { uuid: testEntry.uuid },
-          tabType: WindowTabType.Entry
-        };
+        const entryTab = createTestTab(testEntry.uuid, WindowTabType.Entry, 'fa-user', 'testTab');
         
         // Set the setting
         await mainStore.setNewSetting(testSetting.uuid);
@@ -284,10 +285,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
         expect(mainStore.currentEntry).to.not.be.null;
         
         // Now set a new tab to clear content
-        const newTab: WindowTab = {
-          header: { uuid: testSetting.uuid },
-          tabType: WindowTabType.Setting
-        };
+        const newTab = createTestTab(testSetting.uuid, WindowTabType.Setting, 'fa-gear', 'testTab');
         
         await mainStore.setNewTab(newTab);
         
@@ -303,10 +301,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
       it('should return early if no current setting', async () => {
         // Don't set the setting, it should be null from fresh store
         
-        const tab: WindowTab = {
-          header: { uuid: 'test-uuid' },
-          tabType: WindowTabType.Entry
-        };
+        const tab = createTestTab('test-uuid', WindowTabType.Entry, 'fa-user', 'testTab');
         
         await mainStore.setNewTab(tab);
         
@@ -324,10 +319,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
           throw new Error('Failed to create test entry');
         
         // Set the entry through the store's public API
-        const tab: WindowTab = {
-          header: { uuid: testEntry.uuid },
-          tabType: WindowTabType.Entry
-        };
+        const tab = createTestTab(testEntry.uuid, WindowTabType.Entry);
         
         // Set the setting
         await mainStore.setNewSetting(testSetting.uuid);
@@ -347,10 +339,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
           throw new Error('Failed to create test campaign');
         
         // Set the campaign through the store's public API
-        const tab: WindowTab = {
-          header: { uuid: testCampaign.uuid },
-          tabType: WindowTabType.Campaign
-        };
+        const tab = createTestTab(testCampaign.uuid, WindowTabType.Campaign);
         
         // Set the setting
         await mainStore.setNewSetting(testSetting.uuid);
@@ -378,10 +367,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
         
         // Set the tag through the store's public API
         const tagName = 'test-tag';
-        const tab: WindowTab = {
-          header: { uuid: tagName },
-          tabType: WindowTabType.TagResults
-        };
+        const tab = createTestTab(tagName, WindowTabType.TagResults);
         
         await mainStore.setNewTab(tab);
         
@@ -412,11 +398,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
           expect.fail('Failed to create test entry');
         }
         
-        const tab: WindowTab = {
-          header: { uuid: testEntry.uuid, name: 'Test Character', icon: 'fa-solid fa-user' },
-          tabType: WindowTabType.Entry,
-          contentTab: 'description'
-        };
+        const tab = createTestTab(testEntry.uuid, WindowTabType.Entry, 'fa-solid fa-user', 'Test Character', 'description');
         
         await mainStore.setNewTab(tab);
         
@@ -447,7 +429,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
         const settings = await mainStore.getAllSettings();
         
         expect(settings).to.have.length(1);
-        expect(settings[0]).to.equal(testSetting);
+        expect(settings[0]).to.deep.equal(testSetting);
       });
 
       it('should handle errors gracefully', async () => {
@@ -478,6 +460,280 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
         await new Promise(resolve => setTimeout(resolve, 10));
         
         expect(moduleSettingsSetStub.calledWith(SettingKey.isInPlayMode, true)).to.be.true;
+      });
+    });
+
+    describe('missing refresh methods', () => {
+      it('should refresh front correctly', async () => {
+        const testCampaign = await Campaign.create(testSetting, 'Test Campaign');
+        
+        if (!testCampaign)
+          throw new Error('Failed to create test campaign');
+        
+        const testFront = await Front.create(testCampaign, 'Test Front');
+        
+        if (!testFront)
+          throw new Error('Failed to create test front');
+        
+        const tab = createTestTab(testFront.uuid, WindowTabType.Front);
+        
+        await mainStore.setNewSetting(testSetting.uuid);
+        await mainStore.setNewTab(tab);
+        
+        await mainStore.refreshFront();
+        
+        expect(mainStore.currentFront).to.not.be.null;
+        expect(mainStore.currentFront?.uuid).to.equal(testFront.uuid);
+      });
+
+      it('should refresh story web correctly', async () => {
+        const testCampaign = await Campaign.create(testSetting, 'Test Campaign');
+        
+        if (!testCampaign)
+          throw new Error('Failed to create test campaign');
+        
+        const testStoryWeb = await StoryWeb.create(testCampaign, 'Test Story Web');
+        
+        if (!testStoryWeb)
+          throw new Error('Failed to create test story web');
+        
+        const tab = createTestTab(testStoryWeb.uuid, WindowTabType.StoryWeb);
+        
+        await mainStore.setNewSetting(testSetting.uuid);
+        await mainStore.setNewTab(tab);
+        
+        await mainStore.refreshStoryWeb();
+        
+        expect(mainStore.currentStoryWeb).to.not.be.null;
+        expect(mainStore.currentStoryWeb?.uuid).to.equal(testStoryWeb.uuid);
+      });
+
+      it('should refresh session with reload parameter', async () => {
+        const testCampaign = await Campaign.create(testSetting, 'Test Campaign');
+
+        if (!testCampaign)
+          throw new Error('Failed to create test campaign');
+        
+        const testSession = await Session.create(testCampaign, 'Test Session');
+
+        if (!testSession)
+          throw new Error('Failed to create test session');
+        
+        const tab = createTestTab(testSession.uuid, WindowTabType.Session);
+        
+        await mainStore.setNewSetting(testSetting.uuid);
+        await mainStore.setNewTab(tab);
+        
+        await mainStore.refreshSession(true);
+        
+        expect(mainStore.currentSession).to.not.be.null;
+        expect(mainStore.currentSession?.uuid).to.equal(testSession.uuid);
+      });
+
+      it('should refresh arc with reload parameter', async () => {
+        const testCampaign = await Campaign.create(testSetting, 'Test Campaign');
+
+        if (!testCampaign)
+          throw new Error('Failed to create test campaign');
+        
+        const testArc = await Arc.create(testCampaign, 'Test Arc');
+        
+        if (!testArc)
+          throw new Error('Failed to create test arc');
+        
+        const tab = createTestTab(testArc.uuid, WindowTabType.Arc);
+        
+        await mainStore.setNewSetting(testSetting.uuid);
+        await mainStore.setNewTab(tab);
+        
+        await mainStore.refreshArc(true);
+        
+        expect(mainStore.currentArc).to.not.be.null;
+        expect(mainStore.currentArc?.uuid).to.equal(testArc.uuid);
+      });
+
+      it('should refresh current content based on type', async () => {
+        const testEntry = await Entry.create(testSetting.topicFolders[Topics.Character]!, {
+          name: 'Test Character'
+        });
+        
+        if (!testEntry)
+          throw new Error('Failed to create test entry');
+        
+        const tab = createTestTab(testEntry.uuid, WindowTabType.Entry);
+        
+        await mainStore.setNewSetting(testSetting.uuid);
+        await mainStore.setNewTab(tab);
+        
+        await mainStore.refreshCurrentContent();
+        
+        expect(mainStore.currentEntry).to.not.be.null;
+        expect(mainStore.currentEntry?.uuid).to.equal(testEntry.uuid);
+      });
+
+      it('should refresh setting with reload parameter', async () => {
+        await mainStore.setNewSetting(testSetting.uuid);
+        
+        await mainStore.refreshSetting(true);
+        
+        expect(mainStore.currentSetting).to.not.be.null;
+        expect(mainStore.currentSetting?.uuid).to.equal(testSetting.uuid);
+      });
+    });
+
+    describe('missing computed properties', () => {
+      it('should return correct document type for content tab', async () => {
+        const testEntry = await Entry.create(testSetting.topicFolders[Topics.Character]!, {
+          name: 'Test Character'
+        });
+        
+        if (!testEntry)
+          throw new Error('Failed to create test entry');
+        
+        const tab = createTestTab(testEntry.uuid, WindowTabType.Entry, 'fa-user', 'testTab', 'actors');
+        
+        await mainStore.setNewSetting(testSetting.uuid);
+        await mainStore.setNewTab(tab);
+        
+        expect(mainStore.currentDocumentType).to.equal(DocumentLinkType.Actors);
+      });
+
+      it('should return correct compendium for setting', async () => {
+        await mainStore.setNewSetting(testSetting.uuid);
+        
+        const compendium = mainStore.currentSettingCompendium;
+        
+        expect(compendium).to.not.be.null;
+        expect(compendium.metadata.id).to.equal('world.' + foundry.utils.parseUuid(testSetting.compendiumId).id);
+      });
+    });
+
+    describe('missing tab types in setNewTab', () => {
+      it('should set front tab correctly', async () => {
+        const testCampaign = await Campaign.create(testSetting, 'Test Campaign');
+        
+        if (!testCampaign)
+          throw new Error('Failed to create test campaign');
+        
+        const testFront = await Front.create(testCampaign, 'Test Front');
+        
+        if (!testFront)
+          throw new Error('Failed to create test front');
+        
+        const tab = createTestTab(testFront.uuid, WindowTabType.Front);
+        
+        await mainStore.setNewSetting(testSetting.uuid);
+        await mainStore.setNewTab(tab);
+        
+        expect(mainStore.currentTab).to.deep.equal(tab);
+        expect(mainStore.currentFront?.uuid).to.equal(testFront.uuid);
+      });
+
+      it('should set arc tab correctly', async () => {
+        const testCampaign = await Campaign.create(testSetting, 'Test Campaign');
+        
+        if (!testCampaign)
+          throw new Error('Failed to create test campaign');
+        
+        const testArc = await Arc.create(testCampaign, 'Test Arc');
+        
+        if (!testArc)
+          throw new Error('Failed to create test arc');
+        
+        const tab = createTestTab(testArc.uuid, WindowTabType.Arc);
+        
+        await mainStore.setNewSetting(testSetting.uuid);
+        await mainStore.setNewTab(tab);
+        
+        expect(mainStore.currentTab).to.deep.equal(tab);
+        expect(mainStore.currentArc?.uuid).to.equal(testArc.uuid);
+      });
+
+      it('should set story web tab correctly', async () => {
+        const testCampaign = await Campaign.create(testSetting, 'Test Campaign');
+        
+        if (!testCampaign)
+          throw new Error('Failed to create test campaign');
+        
+        const testStoryWeb = await StoryWeb.create(testCampaign, 'Test Story Web');
+        
+        if (!testStoryWeb)
+          throw new Error('Failed to create test story web');
+        
+        const tab = createTestTab(testStoryWeb.uuid, WindowTabType.StoryWeb);
+        
+        await mainStore.setNewSetting(testSetting.uuid);
+        await mainStore.setNewTab(tab);
+        
+        expect(mainStore.currentTab).to.deep.equal(tab);
+        expect(mainStore.currentStoryWeb?.uuid).to.equal(testStoryWeb.uuid);
+      });
+    });
+
+    describe('propagateSettingNameChange', () => {
+      let updateSettingRollTableNamesStub: sinon.SinonStub;
+
+      beforeEach(() => {
+        updateSettingRollTableNamesStub = sandbox.stub(NameGeneratorService, 'updateSettingRollTableNames').resolves();
+      });
+
+      it('should update roll table names when setting has roll table config', async () => {
+        testSetting.rollTableConfig = {
+          rollTableId: 'test-table',
+          nameFormat: 'test-format'
+        };
+        
+        await mainStore.propagateSettingNameChange(testSetting);
+        
+        expect(updateSettingRollTableNamesStub.calledOnceWith(testSetting)).to.be.true;
+      });
+
+      it('should not update roll tables when no config exists', async () => {
+        testSetting.rollTableConfig = null;
+        
+        await mainStore.propagateSettingNameChange(testSetting);
+        
+        expect(updateSettingRollTableNamesStub.notCalled).to.be.true;
+      });
+
+      it('should handle errors gracefully', async () => {
+        updateSettingRollTableNamesStub.rejects(new Error('Test error'));
+        const consoleErrorStub = sandbox.stub(console, 'error');
+        
+        await mainStore.propagateSettingNameChange(testSetting);
+        
+        expect(consoleErrorStub.calledOnce).to.be.true;
+      });
+    });
+
+    describe('currentSetting watcher', () => {
+      let updateWindowTitleStub: sinon.SinonStub;
+
+      beforeEach(() => {
+        updateWindowTitleStub = sandbox.stub(TitleUpdaterService, 'updateWindowTitle');
+      });
+
+      it('should update window title when setting changes', async () => {
+        await mainStore.setNewSetting(testSetting.uuid);
+        
+        expect(updateWindowTitleStub.calledWith(testSetting.name)).to.be.true;
+      });
+
+      it('should turn off play mode when switching settings', async () => {
+        mainStore.isInPlayMode = true;
+        
+        await mainStore.setNewSetting(testSetting.uuid);
+        
+        expect(mainStore.isInPlayMode).to.be.false;
+      });
+
+      it('should not update title when same setting UUID', async () => {
+        await mainStore.setNewSetting(testSetting.uuid);
+        updateWindowTitleStub.resetHistory();
+        
+        await mainStore.setNewSetting(testSetting.uuid);
+        
+        expect(updateWindowTitleStub.notCalled).to.be.true;
       });
     });
   });
