@@ -2,7 +2,7 @@
 // 
 // library imports
 import { ref, watch, } from 'vue';
-import { defineStore, storeToRefs, } from 'pinia';
+import { storeToRefs, } from 'pinia';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
@@ -20,23 +20,15 @@ import {
   SessionMonsterDetails, 
   SessionLoreDetails,
   ToDoTypes,
+  SessionTableTypes
 } from '@/types';
 import { SessionLore, SessionVignette } from '@/documents';
 
 import { Arc, Entry, Session } from '@/classes';
 
-export enum SessionTableTypes {
-  None,
-  Location,
-  Item,
-  NPC,
-  Monster,
-  Vignette,
-  Lore,
-}
 
 // the store definition
-export const useSessionStore = defineStore('session', () => {
+export const sessionStore = () => {
   ///////////////////////////////
   // the state
   // used for tables
@@ -1197,4 +1189,4 @@ export const useSessionStore = defineStore('session', () => {
     moveLoreToCampaign,
     moveLoreToArc,
   };
-});
+};

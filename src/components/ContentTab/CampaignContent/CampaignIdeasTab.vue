@@ -29,7 +29,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useCampaignStore, CampaignTableTypes, useArcStore, } from '@/applications/stores';
+  import { useCampaignStore, useArcStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
 
@@ -39,7 +39,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { Idea, BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent } from '@/types';
+  import { Idea, BaseTableColumn, BaseTableGridRow, CampaignTableTypes, CellEditCompleteEvent } from '@/types';
 
   ////////////////////////////////
   // props

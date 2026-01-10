@@ -32,7 +32,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
+  import { useSessionStore, } from '@/applications/stores';
   import { localize, } from '@/utils/game'
   import { getValidatedData, itemDragStart, standardDragover } from '@/utils/dragdrop';
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -44,7 +44,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow } from '@/types';
+  import { CellEditCompleteEvent, SessionTableTypes, BaseTableColumn, BaseTableGridRow } from '@/types';
   import { SessionItem } from '@/documents';
   
   ////////////////////////////////

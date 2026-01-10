@@ -1,7 +1,7 @@
 // this store handles activities specific to campaigns
 //
 // library imports
-import { defineStore, storeToRefs, } from 'pinia';
+import { storeToRefs, } from 'pinia';
 import { watch, ref, toRaw, nextTick, h } from 'vue';
 import type { Edge, Network, Node } from 'vis-network';
 
@@ -63,7 +63,7 @@ interface NetworkClickEventInfo {
 
 
 // the store definition
-export const useStoryWebStore = defineStore('storyWeb', () => {
+export const storyWebStore = () => {
   ///////////////////////////////
   // internal state
 
@@ -2131,5 +2131,4 @@ export const useStoryWebStore = defineStore('storyWeb', () => {
     setEdgeStyle,
     getNodeTooltip,
   };
-});
-
+};

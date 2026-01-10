@@ -1,7 +1,7 @@
 import { DOCUMENT_TYPES } from '@/documents/types.js';
 
 export type * from './directory.d.ts';
-export type * from './tables.d.ts';
+export * from './tables';
 export type * from './relationships.d.ts';
 export type * from './hierarchy.d.ts';
 export type * from './global.d.ts';

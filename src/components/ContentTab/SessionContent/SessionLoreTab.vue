@@ -29,7 +29,7 @@
   import { computed, ref, watch } from 'vue';
 
   // local imports
-  import { useSessionStore, useArcStore, useMainStore, SessionTableTypes, ArcTableTypes, } from '@/applications/stores';
+  import { useSessionStore, useArcStore, useMainStore, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getValidatedData, standardDragover } from '@/utils/dragdrop';
   import { FCBDialog } from '@/dialogs';
@@ -41,7 +41,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow, SessionLoreDetails, FoundryDragType } from '@/types';
+  import { ArcTableTypes, SessionTableTypes, CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow, SessionLoreDetails, FoundryDragType } from '@/types';
   import { SessionLore } from '@/documents';
   
   ////////////////////////////////

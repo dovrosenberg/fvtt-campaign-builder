@@ -1,7 +1,6 @@
 // this store handles main navigation (tabs, bookmarks, recent)
 
 // library imports
-import { defineStore, } from 'pinia';
 import { ref, } from 'vue';
 import { storeToRefs } from 'pinia';
 
@@ -9,7 +8,7 @@ import { storeToRefs } from 'pinia';
 import { localize } from '@/utils/game';
 import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
-import { useMainStore } from './mainStore';
+import { useMainStore } from '@/applications/stores';
 import { scrollToActiveEntry } from '@/utils/directoryScroll';
 import { hasUnsavedChanges, saveAndCloseAllActiveEditors, closeAllActiveEditors } from '@/utils/editorChangeDetection';
 import { FCBDialog } from '@/dialogs';
@@ -22,7 +21,7 @@ import { Bookmark, SessionDisplayMode, TabHeader, WindowTabType, } from '@/types
 import { WindowTab, Entry, Campaign, Session, Front, Arc, StoryWeb } from '@/classes';
 
 // the store definition
-export const useNavigationStore = defineStore('navigation', () => {
+export const navigationStore = () => {
   ///////////////////////////////
   // the state
 
@@ -967,4 +966,4 @@ export const useNavigationStore = defineStore('navigation', () => {
     loadContentMetadata,
     refreshSessionBookmarks
   };
-});
+};

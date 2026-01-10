@@ -166,3 +166,33 @@ export interface CellEditCompleteEvent<T=unknown> {
    */
   type: 'edit' | 'enter',  
 }
+
+export enum ArcTableTypes {
+  None,
+  Location,
+  Participant,
+  Monster,
+  Vignette,
+  Lore,
+  Idea,
+}
+
+export enum SessionTableTypes {
+  None,
+  Location,
+  Item,
+  NPC,
+  Monster,
+  Vignette,
+  Lore,
+}
+
+export enum CampaignTableTypes {
+  None,
+  PC,
+  Lore,
+  DeliveredLore,
+  ToDo,
+  Idea,
+}
+

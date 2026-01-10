@@ -27,7 +27,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useCampaignStore, CampaignTableTypes, } from '@/applications/stores';
+  import { useCampaignStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { formatDate } from '@/utils/misc';
 
@@ -37,7 +37,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { ToDoItem, ToDoTypes, BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent } from '@/types';
+  import { ToDoItem, ToDoTypes, CampaignTableTypes, BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent } from '@/types';
 
   // store
   const campaignStore = useCampaignStore();

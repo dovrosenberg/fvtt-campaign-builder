@@ -34,7 +34,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { ArcTableTypes, useArcStore, useMainStore } from '@/applications/stores';
+  import { useArcStore, useMainStore } from '@/applications/stores';
   import { Topics, CellEditCompleteEvent, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
   import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
@@ -51,7 +51,7 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
   
   // types
-  import { BaseTableColumn, BaseTableGridRow } from '@/types';
+  import { BaseTableColumn, BaseTableGridRow, ArcTableTypes } from '@/types';
   import { Entry } from '@/classes';
   import { ArcParticipant } from '@/documents';
 

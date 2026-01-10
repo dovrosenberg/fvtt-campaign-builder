@@ -48,7 +48,7 @@
   import { computed, ref } from 'vue';
 
   // local imports
-  import { useCampaignStore, CampaignTableTypes, } from '@/applications/stores';
+  import { useCampaignStore, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getValidatedData, standardDragover } from '@/utils/dragdrop';
 
@@ -58,7 +58,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { BaseTableColumn, BaseTableGridRow, CampaignLoreDetails, CellEditCompleteEvent } from '@/types';
+  import { BaseTableColumn, CampaignTableTypes, BaseTableGridRow, CampaignLoreDetails, CellEditCompleteEvent } from '@/types';
   
   ////////////////////////////////
   // props

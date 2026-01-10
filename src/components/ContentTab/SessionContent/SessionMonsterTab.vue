@@ -34,7 +34,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes, useMainStore, } from '@/applications/stores';
+  import { useSessionStore, useArcStore,  useMainStore, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getValidatedData, actorDragStart, standardDragover } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
@@ -47,7 +47,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow, ArcMonsterDetails, SessionMonsterDetails } from '@/types';
+  import { CellEditCompleteEvent, ArcTableTypes, SessionTableTypes, BaseTableColumn, BaseTableGridRow, ArcMonsterDetails, SessionMonsterDetails } from '@/types';
   import { ArcMonster, SessionMonster } from '@/documents';
   
   ////////////////////////////////

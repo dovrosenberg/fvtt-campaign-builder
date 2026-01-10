@@ -1,7 +1,7 @@
 // this store handles the directory tree
 
 // library imports
-import { defineStore, storeToRefs, } from 'pinia';
+import { storeToRefs, } from 'pinia';
 import { reactive, ref, watch, nextTick } from 'vue';
 
 // local imports
@@ -15,7 +15,7 @@ import { notifyWarn } from '@/utils/notifications';
 // types
 
 // the store definition
-export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => {
+export const campaignDirectoryStore = () => {
   ///////////////////////////////
   // the state
 
@@ -479,4 +479,4 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     createCampaign,
     getCampaigns,
   };
-});
+};

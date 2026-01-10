@@ -1,13 +1,12 @@
 // this store handles the main state (current setting, entry, etc.)
 
 // library imports
-import { defineStore, } from 'pinia';
 import { computed, ref, watch, nextTick, triggerRef } from 'vue';
 
 // local imports
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings';
 import { updateWindowTitle } from '@/utils/titleUpdater';
-import { useNavigationStore } from '@/applications/stores/navigationStore';
+import { useNavigationStore } from '@/applications/stores';
 import { updateSettingRollTableNames } from '@/utils/nameGenerators';
 import { getGlobalSetting } from '@/utils/globalSettings';
 import { closeCampaignBuilderApp } from '@/utils/appWindow';
@@ -18,7 +17,7 @@ import { FCBSetting, WindowTab, Entry, Campaign, Session, Front, Arc, StoryWeb, 
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 // the store definition
-export const useMainStore = defineStore('main', () => {
+export const mainStore = () => {
 
   ///////////////////////////////
   // the state
@@ -461,4 +460,4 @@ export const useMainStore = defineStore('main', () => {
     getAllSettings,
     propagateSettingNameChange,
   };
-});
+};

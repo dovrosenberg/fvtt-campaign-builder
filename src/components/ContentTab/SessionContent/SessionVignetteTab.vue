@@ -26,7 +26,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, useArcStore, useMainStore, SessionTableTypes, ArcTableTypes, } from '@/applications/stores';
+  import { useSessionStore, useArcStore, useMainStore, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { ModuleSettings, SettingKey } from '@/settings';
 
@@ -37,7 +37,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent } from '@/types';
+  import { BaseTableColumn, BaseTableGridRow, SessionTableTypes, ArcTableTypes, CellEditCompleteEvent } from '@/types';
   import { ArcVignette, SessionVignette } from '@/documents';
 
   ////////////////////////////////

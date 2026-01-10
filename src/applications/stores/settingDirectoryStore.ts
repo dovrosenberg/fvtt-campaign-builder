@@ -1,7 +1,7 @@
 // this store handles the directory tree
 
 // library imports
-import { defineStore, storeToRefs, } from 'pinia';
+import { storeToRefs, } from 'pinia';
 import { reactive, onMounted, ref, watch, nextTick } from 'vue';
 
 // local imports
@@ -20,7 +20,7 @@ import { DirectorySetting, Hierarchy, Topics, ValidTopic, ValidTopicRecord, Entr
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
 // the store definition
-export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
+export const settingDirectoryStore = () => {
   ///////////////////////////////
   // the state
 
@@ -741,4 +741,4 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     getGroupedTypeNodeContextMenuItems,
     getTopicContextMenuItems,
   };
-});
+};

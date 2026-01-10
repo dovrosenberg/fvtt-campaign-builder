@@ -1,7 +1,7 @@
 import { moduleId } from '@/settings';
 import { isCampaignBuilderAppOpen, closeCampaignBuilderApp, } from '@/utils/appWindow';
 import { renderCampaignBuilderApp } from '@/applications/CampaignBuilder';
-import { useNavigationStore } from '@/applications/stores/navigationStore';
+import { useNavigationStore } from '@/applications/stores';
 
 export enum KeyBindingKeys {
   closeTab = 'closeTab',   // close the current tab
