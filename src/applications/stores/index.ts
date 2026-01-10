@@ -31,7 +31,7 @@ const pinia = createPinia();
 setActivePinia(pinia);
 
 // expose stores to dev window
-if (import.meta.env.MODE === 'development') {
+if (import.meta.env.MODE === 'development' || import.meta.env.MODE === 'test') {
   // @ts-ignore
   window.pinia = pinia;
 }
