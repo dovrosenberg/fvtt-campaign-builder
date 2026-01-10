@@ -14,6 +14,7 @@
   "scripts": {
     "build": "vite build",
     "debug": "vite build --minify=false --mode development",
+    "debug:test": "vite build --minify=false --mode test",
     "lint": "eslint --ext .ts,.vue src",
     "linkdata": "ln -s $PWD/dist ~/foundry13data/Data/modules/campaign-builder",
     "tscvue": "vue-tsc --skipLibCheck -p ./tsconfig.json",

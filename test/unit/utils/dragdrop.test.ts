@@ -1,20 +1,17 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import * as sinon from 'sinon';
-import { WindowTabType } from '@/types';
-import { Entry } from '@/classes';
+import DragDropService from '@/utils/dragDrop';
 
 export const registerDragDropTests = (context: QuenchBatchContext) => {
   const { describe, it, expect, beforeEach, afterEach } = context;
 
   describe('dragdrop utilities', () => {
-    let dragdrop: typeof import('@/utils/dragdrop');
     let sandbox: sinon.SinonSandbox;
-    let mockDataTransfer: DataTransfer;
-    let mockDragEvent: DragEvent;
+    let mockDataTransfer;
+    let mockDragEvent;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       sandbox = sinon.createSandbox();
-      dragdrop = await import('@/utils/dragdrop');
       mockDataTransfer = {
         setData: sandbox.stub(),
         getData: sandbox.stub(),
@@ -22,13 +19,13 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
         dropEffect: '',
         effectAllowed: '',
         setDragImage: sandbox.stub(),
-      } as any;
+      };
       
       mockDragEvent = {
         dataTransfer: mockDataTransfer,
         preventDefault: sandbox.stub(),
         stopPropagation: sandbox.stub(),
-      } as any;
+      };
     });
 
     afterEach(() => {
@@ -43,7 +40,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           uuid: uuid,
         };
 
-        dragdrop.setCombinedDragData(mockDragEvent, uuid, fcbData);
+        DragDropService.setCombinedDragData(mockDragEvent, uuid, fcbData);
 
         expect(mockDataTransfer.setData.calledTwice).to.be.true;
         expect(mockDataTransfer.setData.firstCall.args).to.deep.equal(['text/plain', JSON.stringify({
@@ -60,7 +57,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
 
       it('should return early if no dataTransfer', () => {
         const eventWithoutDataTransfer = { ...mockDragEvent, dataTransfer: null } as any;
-        dragdrop.setCombinedDragData(eventWithoutDataTransfer, 'test-uuid', {} as any);
+        DragDropService.setCombinedDragData(eventWithoutDataTransfer, 'test-uuid', {} as any);
         expect(mockDataTransfer.setData.called).to.be.false;
       });
     });
@@ -70,7 +67,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
         const testData = { type: 'JournalEntry', uuid: 'test-uuid' };
         mockDataTransfer.getData.returns(JSON.stringify(testData));
         
-        const result = dragdrop.getValidatedData(mockDragEvent);
+        const result = DragDropService.getValidatedData(mockDragEvent);
         
         expect(result).to.deep.equal(testData);
       });
@@ -78,7 +75,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
       it('should return undefined if text/plain not in types', () => {
         mockDataTransfer.types = [];
         
-        const result = dragdrop.getValidatedData(mockDragEvent);
+        const result = DragDropService.getValidatedData(mockDragEvent);
         
         expect(result).to.be.undefined;
       });
@@ -86,7 +83,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
       it('should return undefined for invalid JSON', () => {
         mockDataTransfer.getData.returns('invalid json');
         
-        const result = dragdrop.getValidatedData(mockDragEvent);
+        const result = DragDropService.getValidatedData(mockDragEvent);
         
         expect(result).to.be.undefined;
       });
@@ -94,7 +91,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
       it('should return undefined if getData returns null/undefined', () => {
         mockDataTransfer.getData.returns(null);
         
-        const result = dragdrop.getValidatedData(mockDragEvent);
+        const result = DragDropService.getValidatedData(mockDragEvent);
         
         expect(result).to.be.undefined;
       });
@@ -107,7 +104,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           fcbData: { type: 'Entry' }
         };
         
-        const result = dragdrop.getType(data);
+        const result = DragDropService.getType(data);
         
         expect(result).to.equal('Entry');
       });
@@ -117,7 +114,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           type: 'JournalEntry'
         };
         
-        const result = dragdrop.getType(data);
+        const result = DragDropService.getType(data);
         
         expect(result).to.equal('JournalEntry');
       });
@@ -128,7 +125,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           fcbData: {}
         };
         
-        const result = dragdrop.getType(data);
+        const result = DragDropService.getType(data);
         
         expect(result).to.equal('JournalEntry');
       });
@@ -136,7 +133,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
 
     describe('standardDragover', () => {
       it('should prevent default and stop propagation', () => {
-        dragdrop.standardDragover(mockDragEvent);
+        DragDropService.standardDragover(mockDragEvent);
         
         expect(mockDragEvent.preventDefault.calledOnce).to.be.true;
         expect(mockDragEvent.stopPropagation.calledOnce).to.be.true;
@@ -144,7 +141,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
 
       it('should set dropEffect to none if text/plain not in types', () => {
         mockDataTransfer.types = [];
-        dragdrop.standardDragover(mockDragEvent);
+        DragDropService.standardDragover(mockDragEvent);
         
         expect(mockDataTransfer.dropEffect).to.equal('none');
       });
@@ -153,7 +150,6 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
     describe('actorDragStart', () => {
       let mockActor: any;
       let mockPrototypeToken: any;
-      let mockCanvas: any;
 
       beforeEach(() => {
         mockPrototypeToken = {
@@ -171,34 +167,11 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           toDragData: sandbox.stub().returns({ type: 'Actor', uuid: 'actor-uuid' }),
         };
 
-        mockCanvas = {
-          ready: true,
-          dimensions: { size: 50 },
-          stage: { scale: { x: 2 } },
-        };
-
-        (global as any).canvas = mockCanvas;
-        (global as any).foundry = {
-          applications: {
-            ux: {
-              DragDrop: {
-                implementation: {
-                  createDragImage: sandbox.stub().returns('drag-preview'),
-                },
-              },
-            },
-          },
-        };
-        sandbox.stub(global, 'fromUuid').resolves(mockActor);
-      });
-
-      afterEach(() => {
-        delete (global as any).canvas;
-        delete (global as any).foundry;
+        sandbox.stub(window, 'fromUuid').resolves(mockActor);
       });
 
       it('should set drag data for actor', async () => {
-        await dragdrop.actorDragStart(mockDragEvent, 'actor-uuid');
+        await DragDropService.actorDragStart(mockDragEvent, 'actor-uuid');
         
         expect(mockDataTransfer.setData.calledWith('text/plain', JSON.stringify({
           type: 'Actor',
@@ -207,20 +180,24 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
       });
 
       it('should set drag image if actor has image', async () => {
-        await dragdrop.actorDragStart(mockDragEvent, 'actor-uuid');
+        await DragDropService.actorDragStart(mockDragEvent, 'actor-uuid');
         
-        expect(mockDataTransfer.setDragImage.calledWith('drag-preview', 100, 100)).to.be.true;
+        // Get the actual canvas dimensions and scale from the real instance
+        const expectedWidth = mockPrototypeToken.width * canvas.dimensions.size * Math.abs(mockPrototypeToken.texture.scaleX) * canvas.stage.scale.x;
+        const expectedHeight = mockPrototypeToken.height * canvas.dimensions.size * Math.abs(mockPrototypeToken.texture.scaleY) * canvas.stage.scale.y;
+        
+        expect(mockDataTransfer.setDragImage.calledWith(sinon.match.any, expectedWidth / 2, expectedHeight / 2)).to.be.true;
       });
 
       it('should set effectAllowed to copy', async () => {
-        await dragdrop.actorDragStart(mockDragEvent, 'actor-uuid');
+        await DragDropService.actorDragStart(mockDragEvent, 'actor-uuid');
         
         expect(mockDataTransfer.effectAllowed).to.equal('copy');
       });
 
       it('should return early if no dataTransfer or canvas', async () => {
         const eventWithoutDataTransfer = { ...mockDragEvent, dataTransfer: null } as any;
-        await dragdrop.actorDragStart(eventWithoutDataTransfer, 'actor-uuid');
+        await DragDropService.actorDragStart(eventWithoutDataTransfer, 'actor-uuid');
         
         expect(mockDataTransfer.setData.called).to.be.false;
       });
@@ -228,15 +205,17 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
       it('should handle missing texture properties', async () => {
         mockPrototypeToken.texture = null;
         
-        await dragdrop.actorDragStart(mockDragEvent, 'actor-uuid');
+        await DragDropService.actorDragStart(mockDragEvent, 'actor-uuid');
         
-        expect(mockDataTransfer.setDragImage.calledWith('drag-preview', 100, 100)).to.be.true;
+        // Get the actual canvas dimensions and scale from the real instance
+        const expectedSize = canvas.dimensions!.size * canvas.stage!.scale.x;
+        
+        expect(mockDataTransfer.setDragImage.calledWith(sinon.match.any, expectedSize / 2, expectedSize / 2)).to.be.true;
       });
     });
 
     describe('itemDragStart', () => {
       let mockItem: any;
-      let mockCanvas: any;
 
       beforeEach(() => {
         mockItem = {
@@ -244,37 +223,14 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           toDragData: sandbox.stub().returns({ type: 'Item', uuid: 'item-uuid' }),
         };
 
-        mockCanvas = {
-          ready: true,
-          dimensions: { size: 50 },
-          stage: { scale: { x: 2 } },
-        };
-
-        (global as any).canvas = mockCanvas;
-        (global as any).foundry = {
-          applications: {
-            ux: {
-              DragDrop: {
-                implementation: {
-                  createDragImage: sandbox.stub().returns('drag-preview'),
-                },
-              },
-            },
-          },
-        };
-        sandbox.stub(global, 'fromUuid').resolves(mockItem);
+        sandbox.stub(window, 'fromUuid').resolves(mockItem);
         
         // Mock existing preview removal
         document.getElementById = sandbox.stub().returns(null);
       });
 
-      afterEach(() => {
-        delete (global as any).canvas;
-        delete (global as any).foundry;
-      });
-
       it('should set drag data for item', async () => {
-        await dragdrop.itemDragStart(mockDragEvent, 'item-uuid');
+        await DragDropService.itemDragStart(mockDragEvent, 'item-uuid');
         
         expect(mockDataTransfer.setData.calledWith('text/plain', JSON.stringify({
           type: 'Item',
@@ -283,16 +239,19 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
       });
 
       it('should set drag image if item has image', async () => {
-        await dragdrop.itemDragStart(mockDragEvent, 'item-uuid');
+        await DragDropService.itemDragStart(mockDragEvent, 'item-uuid');
         
-        expect(mockDataTransfer.setDragImage.calledWith('drag-preview', 50, 50)).to.be.true;
+        // Get the actual canvas dimensions and scale from the real instance
+        const expectedSize = canvas.dimensions!.size * canvas.stage!.scale.x;
+        
+        expect(mockDataTransfer.setDragImage.calledWith(sinon.match.any, expectedSize / 2, expectedSize / 2)).to.be.true;
       });
 
       it('should remove existing preview if present', async () => {
         const mockExistingPreview = { remove: sandbox.stub() };
         document.getElementById = sandbox.stub().returns(mockExistingPreview);
         
-        await dragdrop.itemDragStart(mockDragEvent, 'item-uuid');
+        await DragDropService.itemDragStart(mockDragEvent, 'item-uuid');
         
         expect(mockExistingPreview.remove.calledOnce).to.be.true;
       });
@@ -306,11 +265,11 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           toDragData: sandbox.stub().returns({ type: 'JournalEntry', uuid: 'doc-uuid' }),
         };
         
-        sandbox.stub(global, 'fromUuid').resolves(mockDoc);
+        sandbox.stub(window, 'fromUuid').resolves(mockDoc);
       });
 
       it('should set drag data using document toDragData', async () => {
-        await dragdrop.foundryDragStart(mockDragEvent, 'test-type', { test: 'data' });
+        await DragDropService.foundryDragStart(mockDragEvent, 'actor-uuid');
         
         expect(mockDataTransfer.setData.calledWith('text/plain', JSON.stringify({
           type: 'JournalEntry',
@@ -320,9 +279,13 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
 
       it('should handle error gracefully', async () => {
         const consoleSpy = sandbox.spy(console, 'error');
-        sandbox.stub(global, 'fromUuid').rejects(new Error('Test error'));
+        // Restore any existing fromUuid stub before creating a new one
+        if ((window.fromUuid as any).restore) {
+          (window.fromUuid as any).restore();
+        }
+        sandbox.stub(window, 'fromUuid').rejects(new Error('Test error'));
         
-        await dragdrop.foundryDragStart(mockDragEvent, 'test-type', { test: 'data' });
+        await DragDropService.foundryDragStart(mockDragEvent, 'actor-uuid');
         
         expect(consoleSpy.calledWith('Error setting up drag data:')).to.be.true;
       });

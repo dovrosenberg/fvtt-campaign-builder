@@ -17,7 +17,7 @@ import vueDevTools from 'vite-plugin-vue-devtools';
 import npmPackage from './package.json';
 
 export default defineConfig(({ mode }) => {
-  const isDevelopment = mode === 'development'; 
+  const isDevelopment = (mode === 'development' || mode === 'test'); 
 
   return {
     // our dev mode is still using build so we have to overwrite like this
@@ -103,8 +103,8 @@ export default defineConfig(({ mode }) => {
       }
     },
     build: {
-      sourcemap: mode === 'development',
-      minify: mode !== 'development',
+      sourcemap: mode === 'development' || mode === 'test',
+      minify: mode !== 'development' && mode !== 'test',
       outDir: 'dist',
       rollupOptions: {
         input: 'src/main.ts',
