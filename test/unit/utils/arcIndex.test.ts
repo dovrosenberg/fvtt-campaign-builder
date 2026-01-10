@@ -1,10 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { ArcBasicIndex } from '@/types';
-import {
-  getFirstArcWithSessions,
-  getLastArcWithSessions,
-  getArcForSession
-} from '@/utils/arcIndex';
+import ArcIndexService from '@/utils/arcIndex';
 
 export const registerArcIndexTests = (context: QuenchBatchContext) => {
   const { describe, it, expect } = context;
@@ -19,7 +15,7 @@ export const registerArcIndexTests = (context: QuenchBatchContext) => {
 
   describe('getFirstArcWithSessions', () => {
     it('should return the first arc that has sessions', () => {
-      const result = getFirstArcWithSessions(testArcIndex);
+      const result = ArcIndexService.getFirstArcWithSessions(testArcIndex);
       expect(result).to.equal(testArcIndex[1]);
       expect(result?.name).to.equal('Arc 2');
     });
@@ -29,19 +25,19 @@ export const registerArcIndexTests = (context: QuenchBatchContext) => {
         { uuid: 'arc1', name: 'Arc 1', startSessionNumber: -1, endSessionNumber: -1, sortOrder: 0 },
         { uuid: 'arc2', name: 'Arc 2', startSessionNumber: -1, endSessionNumber: -1, sortOrder: 1 },
       ];
-      const result = getFirstArcWithSessions(noSessionArcs);
+      const result = ArcIndexService.getFirstArcWithSessions(noSessionArcs);
       expect(result).to.be.null;
     });
 
     it('should return null for empty array', () => {
-      const result = getFirstArcWithSessions([]);
+      const result = ArcIndexService.getFirstArcWithSessions([]);
       expect(result).to.be.null;
     });
   });
 
   describe('getLastArcWithSessions', () => {
     it('should return the last arc that has sessions', () => {
-      const result = getLastArcWithSessions(testArcIndex);
+      const result = ArcIndexService.getLastArcWithSessions(testArcIndex);
       expect(result).to.equal(testArcIndex[4]);
       expect(result?.name).to.equal('Arc 5');
     });
@@ -51,52 +47,52 @@ export const registerArcIndexTests = (context: QuenchBatchContext) => {
         { uuid: 'arc1', name: 'Arc 1', startSessionNumber: -1, endSessionNumber: -1, sortOrder: 0 },
         { uuid: 'arc2', name: 'Arc 2', startSessionNumber: -1, endSessionNumber: -1, sortOrder: 1 },
       ];
-      const result = getLastArcWithSessions(noSessionArcs);
+      const result = ArcIndexService.getLastArcWithSessions(noSessionArcs);
       expect(result).to.be.null;
     });
 
     it('should return null for empty array', () => {
-      const result = getLastArcWithSessions([]);
+      const result = ArcIndexService.getLastArcWithSessions([]);
       expect(result).to.be.null;
     });
   });
 
   describe('getArcForSession', () => {
     it('should return arc containing the session number', () => {
-      const result = getArcForSession(testArcIndex, 3);
+      const result = ArcIndexService.getArcForSession(testArcIndex, 3);
       expect(result).to.equal(testArcIndex[1]);
       expect(result?.name).to.equal('Arc 2');
     });
 
     it('should return null if session number is not in any arc', () => {
-      const result = getArcForSession(testArcIndex, 99);
+      const result = ArcIndexService.getArcForSession(testArcIndex, 99);
       expect(result).to.be.null;
     });
 
     it('should return null for empty array', () => {
-      const result = getArcForSession([], 1);
+      const result = ArcIndexService.getArcForSession([], 1);
       expect(result).to.be.null;
     });
 
     it('should handle negative session numbers', () => {
-      const result = getArcForSession(testArcIndex, -1);
+      const result = ArcIndexService.getArcForSession(testArcIndex, -1);
       expect(result).to.be.null;
     });
 
     it('should find arc for session at boundary', () => {
-      const result = getArcForSession(testArcIndex, 5);
+      const result = ArcIndexService.getArcForSession(testArcIndex, 5);
       expect(result).to.equal(testArcIndex[1]);
       expect(result?.name).to.equal('Arc 2');
     });
 
     it('should find arc for session at start boundary', () => {
-      const result = getArcForSession(testArcIndex, 6);
+      const result = ArcIndexService.getArcForSession(testArcIndex, 6);
       expect(result).to.equal(testArcIndex[2]);
       expect(result?.name).to.equal('Arc 3');
     });
 
     it('should find arc for session at end boundary', () => {
-      const result = getArcForSession(testArcIndex, 10);
+      const result = ArcIndexService.getArcForSession(testArcIndex, 10);
       expect(result).to.equal(testArcIndex[2]);
       expect(result?.name).to.equal('Arc 3');
     });

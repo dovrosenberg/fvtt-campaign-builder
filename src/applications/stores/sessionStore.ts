@@ -8,7 +8,7 @@ import { storeToRefs, } from 'pinia';
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game'; 
-import { getArcForSession } from '@/utils/arcIndex';
+import ArcIndexService from '@/utils/arcIndex';
 
 // types
 import { 
@@ -590,8 +590,8 @@ export const sessionStore = () => {
     if (!campaign) 
       return;
 
-    const arcIndex = getArcForSession(campaign.arcIndex, currentSession.value.number);
-    const arc = arcIndex ? await Arc.fromUuid(arcIndex.uuid) : null;
+    const arcIndexEntry = ArcIndexService.getArcForSession(campaign.arcIndex, currentSession.value.number);
+    const arc = arcIndexEntry ? await Arc.fromUuid(arcIndexEntry.uuid) : null;
     if (!arc)
       return;
     

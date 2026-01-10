@@ -3,7 +3,7 @@ import { useSettingDirectoryStore, useCampaignDirectoryStore, useMainStore } fro
 import { Topics, WindowTabType, } from '@/types';
 import { Entry, Session, DirectoryTopicFolderNode, DirectoryCampaignNode, Arc, Front } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
-import { getArcForSession } from './arcIndex';
+import ArcIndexService from './arcIndex';
 
 /**
  * Scrolls to and expands the path for the currently active entry in the directory tree.
@@ -236,7 +236,7 @@ async function scrollToSession(sessionId: string): Promise<void> {
     return;
 
   // also need to expand the arc
-  const arc = getArcForSession(campaign.arcIndex, session.number);
+  const arc = ArcIndexService.getArcForSession(campaign.arcIndex, session.number);
   const arcNode = Object.values(campaignNode.loadedChildren).find(c => c.id === arc?.uuid);
   if (arcNode && !arcNode.expanded) {
     // Use toggleWithLoad to expand the campaign node
