@@ -9,7 +9,7 @@ import { useBackendStore } from '@/applications/stores';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Documents/FCBJournalEntryPage';
 import { entryIndexFields, NameStyleExamples, } from '@/documents';
-import { cleanKeysOnSave, } from '@/utils/cleanKeys';
+import CleanKeysService from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
 import { ArcBasicIndex, CampaignBasicIndex, EntryFilterIndex, Hierarchy, RelatedJournal, TopicBasicIndex, SessionFilterIndex, SessionIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';
 import GlobalSettingService from '@/utils/globalSettings';
@@ -457,8 +457,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   
   protected _prepData(data: SettingDocClass): void {
     // convert unsafe keys
-    data.system.hierarchies = cleanKeysOnSave(data.system.hierarchies);
-    data.system.expandedIds = cleanKeysOnSave(data.system.expandedIds);
+    data.system.hierarchies = CleanKeysService.cleanKeysOnSave(data.system.hierarchies);
+    data.system.expandedIds = CleanKeysService.cleanKeysOnSave(data.system.expandedIds);
   }
   
   public async save() {

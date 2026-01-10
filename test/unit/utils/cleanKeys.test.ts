@@ -1,12 +1,7 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import type { ValidTopicRecord } from '@/types';
 import { Topics } from '@/types';
-import {
-  cleanKeysOnLoad,
-  cleanKeysOnSave,
-  cleanTopicKeysOnLoad,
-  cleanTopicKeysOnSave
-} from '@/utils/cleanKeys';
+import CleanKeysService from '@/utils/cleanKeys';
 
 export const registerCleanKeysTests = (context: QuenchBatchContext) => {
   const { describe, it, expect } = context;
@@ -24,7 +19,7 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         'normalKey': 'value3',
       };
       
-      const result = cleanKeysOnLoad(input);
+      const result = CleanKeysService.cleanKeysOnLoad(input);
       expect(result).to.deep.equal(expected);
     });
 
@@ -39,12 +34,12 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         'entry2.uuid': 'value2',
       };
       
-      const result = cleanKeysOnLoad(input);
+      const result = CleanKeysService.cleanKeysOnLoad(input);
       expect(result).to.deep.equal(expected);
     });
 
     it('should handle empty object', () => {
-      const result = cleanKeysOnLoad({});
+      const result = CleanKeysService.cleanKeysOnLoad({});
       expect(result).to.deep.equal({});
     });
 
@@ -53,7 +48,7 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         'key1': 'value1',
         'key2': 'value2',
       };
-      const result = cleanKeysOnLoad(input);
+      const result = CleanKeysService.cleanKeysOnLoad(input);
       expect(result).to.deep.equal(input);
     });
   });
@@ -71,12 +66,12 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         'normalKey': 'value3',
       };
       
-      const result = cleanKeysOnSave(input);
+      const result = CleanKeysService.cleanKeysOnSave(input);
       expect(result).to.deep.equal(expected);
     });
 
     it('should handle empty object', () => {
-      const result = cleanKeysOnSave({});
+      const result = CleanKeysService.cleanKeysOnSave({});
       expect(result).to.deep.equal({});
     });
 
@@ -90,7 +85,7 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         'key2': 'value2',
       };
       
-      const result = cleanKeysOnSave(input);
+      const result = CleanKeysService.cleanKeysOnSave(input);
       expect(result).to.deep.equal(expected);
     });
   });
@@ -117,7 +112,7 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         },
       };
       
-      const result = cleanTopicKeysOnLoad(input);
+      const result = CleanKeysService.cleanTopicKeysOnLoad(input);
       expect(result).to.deep.equal(expected);
     });
 
@@ -137,12 +132,12 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         [Topics.Organization]: {},
       };
       
-      const result = cleanTopicKeysOnLoad(input);
+      const result = CleanKeysService.cleanTopicKeysOnLoad(input);
       expect(result).to.deep.equal(expected);
     });
 
     it('should handle empty topics object', () => {
-      const result = cleanTopicKeysOnLoad({} as ValidTopicRecord<Record<string, unknown>>);
+      const result = CleanKeysService.cleanTopicKeysOnLoad({} as ValidTopicRecord<Record<string, unknown>>);
       expect(result).to.deep.equal({});
     });
 
@@ -151,7 +146,7 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         [Topics.Character]: {},
         [Topics.Location]: {},
       } as ValidTopicRecord<Record<string, unknown>>;
-      const result = cleanTopicKeysOnLoad(input);
+      const result = CleanKeysService.cleanTopicKeysOnLoad(input);
       expect(result).to.deep.equal(input);
     });
   });
@@ -179,12 +174,12 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         },
       };
       
-      const result = cleanTopicKeysOnSave(input);
+      const result = CleanKeysService.cleanTopicKeysOnSave(input);
       expect(result).to.deep.equal(expected);
     });
 
     it('should handle empty topics object', () => {
-      const result = cleanTopicKeysOnSave({} as ValidTopicRecord<Record<string, unknown>>);
+      const result = CleanKeysService.cleanTopicKeysOnSave({} as ValidTopicRecord<Record<string, unknown>>);
       expect(result).to.deep.equal({});
     });
 
@@ -193,7 +188,7 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         [Topics.Character]: {},
         [Topics.Location]: {},
       } as ValidTopicRecord<Record<string, unknown>>;
-      const result = cleanTopicKeysOnSave(input);
+      const result = CleanKeysService.cleanTopicKeysOnSave(input);
       expect(result).to.deep.equal(input);
     });
 
@@ -213,7 +208,7 @@ export const registerCleanKeysTests = (context: QuenchBatchContext) => {
         [Topics.Organization]: {},
       };
       
-      const result = cleanTopicKeysOnSave(input);
+      const result = CleanKeysService.cleanTopicKeysOnSave(input);
       expect(result).to.deep.equal(expected);
     });
   });

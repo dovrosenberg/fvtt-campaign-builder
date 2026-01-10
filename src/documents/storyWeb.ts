@@ -1,4 +1,4 @@
-import { cleanKeysOnLoad } from '@/utils/cleanKeys';
+import CleanKeysService from '@/utils/cleanKeys';
 import { schemas, StoryWebNode, StoryWebEdge } from './fields';
 
 const fields = foundry.data.fields;
@@ -43,8 +43,8 @@ export class StoryWebDataModel<Schema extends StoryWebSchemaType, ParentNode ext
   }
 
   override prepareBaseData(): void {
-    this.positions = cleanKeysOnLoad(this.positions);
-    this.edgeStyles = cleanKeysOnLoad(this.edgeStyles);
+    this.positions = CleanKeysService.cleanKeysOnLoad(this.positions);
+    this.edgeStyles = CleanKeysService.cleanKeysOnLoad(this.edgeStyles);
   }
 }
 

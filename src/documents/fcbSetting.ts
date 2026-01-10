@@ -1,7 +1,7 @@
 import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopicRecord, } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 import { DOCUMENT_TYPES, } from './types';
-import { cleanKeysOnLoad,  } from '@/utils/cleanKeys';
+import CleanKeysService from '@/utils/cleanKeys';
 import { schemas } from './fields';
 import { TopicBasicIndex, CampaignBasicIndex } from '@/types';
 
@@ -81,8 +81,8 @@ export class SettingDataModel<
   }
 
   override prepareBaseData(): void {
-    this.hierarchies = cleanKeysOnLoad(this.hierarchies);
-    this.expandedIds = cleanKeysOnLoad(this.expandedIds);
+    this.hierarchies = CleanKeysService.cleanKeysOnLoad(this.hierarchies);
+    this.expandedIds = CleanKeysService.cleanKeysOnLoad(this.expandedIds);
   }
 }
 
