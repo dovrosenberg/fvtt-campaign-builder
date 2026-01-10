@@ -8,8 +8,8 @@ import { Entry, Campaign, Session, FCBSetting, WindowTab } from '@/classes';
 import { Topics } from '@/types';
 import { getTestSetting } from '../../testUtils';
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey } from '@/settings';
-import * as appWindowModule from '@/utils/appWindow';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import AppWindowService from '@/utils/appWindow';
+import GlobalSettingService from '@/utils/globalSettings';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 export const registerMainStoreTests = (context: QuenchBatchContext) => {
@@ -17,14 +17,17 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
 
   describe('useMainStore', () => {
     let mainStore: ReturnType<typeof useMainStore>;
-    let sandbox = sinon.createSandbox();
+    let sandbox: sinon.SinonSandbox;
     let testSetting: FCBSetting;
-    let getGlobalSettingStub: sinon.SinonStub;
+    let getGlobalSettingsStub: sinon.SinonStub;
+    let closeCampaignBuilderAppStub: sinon.SinonStub;
 
     beforeEach(async () => {
-      
+      sandbox = sinon.createSandbox();
+
       // Set up stubs BEFORE creating the store
-      getGlobalSettingStub = sandbox.stub(getGlobalSetting);
+      getGlobalSettingsStub = sandbox.stub(GlobalSettingService, 'getGlobalSetting');
+      closeCampaignBuilderAppStub = sandbox.stub(AppWindowService, 'closeCampaignBuilderApp');
       
       // Create a fresh pinia instance for each test
       setActivePinia(createPinia());
@@ -136,7 +139,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
 
       beforeEach(() => {
         userFlagsSetStub = sandbox.stub(UserFlags, 'set').resolves();
-        getGlobalSettingStub.resetHistory();
+        getGlobalSettingsStub.resetHistory();
       });
 
       it('should clear setting when null is passed', async () => {
@@ -144,20 +147,21 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
         
         expect(mainStore.currentSetting).to.be.null;
         expect(userFlagsSetStub.calledWith(UserFlagKey.currentSetting, '')).to.be.true;
+        expect(closeCampaignBuilderAppStub.called).to.be.true;
       });
 
       it('should set new setting when valid ID is passed', async () => {
-        getGlobalSettingStub.resolves(testSetting);
+        getGlobalSettingsStub.resolves(testSetting);
         
         await mainStore.setNewSetting(testSetting.uuid);
         
         expect(mainStore.currentSetting).to.equal(testSetting);
         expect(userFlagsSetStub.calledWith(UserFlagKey.currentSetting, testSetting.uuid)).to.be.true;
-        expect(getGlobalSettingStub.calledWith(testSetting.uuid)).to.be.true;
+        expect(getGlobalSettingsStub.calledWith(testSetting.uuid)).to.be.true;
       });
 
       it('should throw error for invalid setting ID', async () => {
-        getGlobalSettingStub.resolves(null);
+        getGlobalSettingsStub.resolves(null);
         
         try {
           await mainStore.setNewSetting('invalid-id');
@@ -170,7 +174,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
       it('should close SessionNotesApplication if open when changing settings', async () => {
         const closeStub = sandbox.stub();
         (SessionNotesApplication.app as any) = { close: closeStub };
-        getGlobalSettingStub.resolves(testSetting);
+        getGlobalSettingsStub.resolves(testSetting);
         
         await mainStore.setNewSetting(testSetting.uuid);
         
@@ -428,7 +432,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
 
       beforeEach(() => {
         moduleSettingsGetStub = sandbox.stub(ModuleSettings, 'get');
-        getGlobalSettingStub.resetHistory();
+        getGlobalSettingsStub.resetHistory();
       });
 
       it('should return all valid settings', async () => {
@@ -437,8 +441,8 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
           { settingId: 'another-setting-id' }
         ];
         moduleSettingsGetStub.withArgs(SettingKey.settingIndex).returns(settingIndex);
-        getGlobalSettingStub.withArgs(testSetting.uuid).resolves(testSetting);
-        getGlobalSettingStub.withArgs('another-setting-id').resolves(null);
+        getGlobalSettingsStub.withArgs(testSetting.uuid).resolves(testSetting);
+        getGlobalSettingsStub.withArgs('another-setting-id').resolves(null);
         
         const settings = await mainStore.getAllSettings();
         
@@ -449,7 +453,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
       it('should handle errors gracefully', async () => {
         const settingIndex = [{ settingId: 'invalid-id' }];
         moduleSettingsGetStub.withArgs(SettingKey.settingIndex).returns(settingIndex);
-        getGlobalSettingStub.withArgs('invalid-id').rejects(new Error('Failed to load'));
+        getGlobalSettingsStub.withArgs('invalid-id').rejects(new Error('Failed to load'));
         
         const consoleErrorStub = sandbox.stub(console, 'error');
         

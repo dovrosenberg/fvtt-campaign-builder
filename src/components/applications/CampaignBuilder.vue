@@ -57,7 +57,7 @@
   import { localize } from '@/utils/game';
   import { updateWindowTitle } from '@/utils/titleUpdater';
   import { notifyWarn } from '@/utils/notifications';
-  import { closeCampaignBuilderApp } from '@/utils/appWindow';
+  import AppWindowService from '@/utils/appWindow';
   
   // library components
   import Splitter from 'primevue/splitter';
@@ -252,7 +252,7 @@
     const setting = await getCurrentSetting();
     if (!setting) {
       // likely asked to create new one and was canceled - just close the window
-      closeCampaignBuilderApp();
+      AppWindowService.closeCampaignBuilderApp();
       return;
     }
 

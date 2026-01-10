@@ -16,7 +16,7 @@ import { localize } from '@/utils/game';
 import { Entry, WindowTab } from '@/classes';
 import { UserFlagKey, UserFlags } from '@/settings';
 import { WindowTabType } from '@/types';
-import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
+import AppWindowService from '@/utils/appWindow';
 
 // a (hopefully) never used name to indicate opening window without a doc
 const FCB_OPEN_WINDOW_NAME = 'FCB-Open-Window!!!@#';
@@ -138,7 +138,7 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
       //    we can never open a specific document after the first time
       // @ts-ignore
       const existingApp = game.modules.get(moduleId)?.activeWindow;
-      let preventRender = isCampaignBuilderAppOpen() && existingApp && existingApp !== this;
+      let preventRender = AppWindowService.isCampaignBuilderAppOpen() && existingApp && existingApp !== this;
 
       const doc = this.document;
 

@@ -12,7 +12,7 @@ import { entryIndexFields, NameStyleExamples, } from '@/documents';
 import { cleanKeysOnSave, } from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
 import { ArcBasicIndex, CampaignBasicIndex, EntryFilterIndex, Hierarchy, RelatedJournal, TopicBasicIndex, SessionFilterIndex, SessionIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';
-import { updateGlobalSetting, removeGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 
 type SettingCompendium = CompendiumCollection<'JournalEntry'>;
 
@@ -291,7 +291,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     await ModuleSettings.set(SettingKey.settingIndex, indexes);
     
     // add to master list
-    updateGlobalSetting(newSetting);
+    GlobalSettingService.updateGlobalSetting(newSetting);
 
     await newSetting.populate(skipValidation);
 
@@ -478,7 +478,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
     // settings have long lived-cache... we need to refresh that in case we modified 
     //    something that was a copy
-    updateGlobalSetting(this);
+    GlobalSettingService.updateGlobalSetting(this);
 
     // finally, update the setting index if needed
     if (nameChanged) {
@@ -504,7 +504,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     await this.deleteRollTables();
 
     // remove from master
-    removeGlobalSetting(this.uuid);
+    GlobalSettingService.removeGlobalSetting(this.uuid);
 
     // delete the pack - this will delete everything else
     if (!this.compendium)

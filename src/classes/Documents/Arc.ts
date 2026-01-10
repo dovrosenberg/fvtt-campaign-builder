@@ -7,7 +7,7 @@ import { Campaign } from './Campaign';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Session } from './Session';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 import { Idea } from '@/types';
 
 type ArcDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Arc>;
@@ -480,7 +480,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
    */
   public async delete(skipDelete = false) {
     const id = this.uuid;
-    const setting = await getGlobalSetting(this.settingId);
+    const setting = await GlobalSettingService.getGlobalSetting(this.settingId);
 
     if (!setting)
       throw new Error('Setting not found in Arc.delete()');

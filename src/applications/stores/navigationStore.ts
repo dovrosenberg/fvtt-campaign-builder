@@ -14,7 +14,7 @@ import { hasUnsavedChanges, saveAndCloseAllActiveEditors, closeAllActiveEditors 
 import { FCBDialog } from '@/dialogs';
 import { SaveChangesResult } from '@/dialogs/saveChanges';
 import { notifyError, notifyInfo } from '@/utils/notifications';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 
 // types
 import { Bookmark, SessionDisplayMode, TabHeader, WindowTabType, } from '@/types';
@@ -101,7 +101,7 @@ export const navigationStore = () => {
           break;
         }
         case WindowTabType.Setting: {
-          const setting = await getGlobalSetting(contentId);
+          const setting = await GlobalSettingService.getGlobalSetting(contentId);
           if (!setting) {
             badId = true;
           } else {

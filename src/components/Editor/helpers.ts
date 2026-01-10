@@ -19,13 +19,13 @@
 // helper functions for the Editor component
 import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
 import { localize } from '@/utils/game';
+import GlobalSettingService from '@/utils/globalSettings';
 
 // types
 import { DOCUMENT_TYPES, } from '@/documents';
 import { Entry, Campaign, Session, Front, Arc, StoryWeb } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 import { ValidTopic, WindowTabType } from '@/types';
-import { getGlobalSetting } from '@/utils/globalSettings';
 import { InternalClientDocument } from 'node_modules/@types/fvtt-types/src/foundry/client/documents/abstract/client-document.mjs';
 
 const TextEditor = foundry.applications.ux.TextEditor;
@@ -336,7 +336,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
           }
         }; break;
         case DOCUMENT_TYPES.Setting: {
-          const setting = await getGlobalSetting(unknownItem.uuid);
+          const setting = await GlobalSettingService.getGlobalSetting(unknownItem.uuid);
 
           if (!setting)
             return brokenAnchor(data);

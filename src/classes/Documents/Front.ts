@@ -6,7 +6,7 @@ import { Campaign } from './Campaign';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Danger } from '@/types';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 
 type FrontDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Front>;
 
@@ -206,7 +206,7 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
    */
   public async delete(skipDelete = false) {
     const id = this.uuid;
-    const setting = await getGlobalSetting(this.settingId);
+    const setting = await GlobalSettingService.getGlobalSetting(this.settingId);
 
     if (!setting)
       throw new Error('Setting not found in Front.delete()');

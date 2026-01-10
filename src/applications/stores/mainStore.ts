@@ -7,9 +7,9 @@ import { computed, ref, watch, nextTick, triggerRef } from 'vue';
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings';
 import { updateWindowTitle } from '@/utils/titleUpdater';
 import { useNavigationStore } from '@/applications/stores';
-import { updateSettingRollTableNames } from '@/utils/nameGenerators';
-import { getGlobalSetting } from '@/utils/globalSettings';
-import { closeCampaignBuilderApp } from '@/utils/appWindow';
+import * as nameGenerators from '@/utils/nameGenerators';
+import GlobalSettingService from '@/utils/globalSettings';
+import AppWindowService from '@/utils/appWindow';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
@@ -91,13 +91,13 @@ export const mainStore = () => {
       CollapsibleNode.currentSetting = null;
       await UserFlags.set(UserFlagKey.currentSetting, '');
 
-      closeCampaignBuilderApp();
+      AppWindowService.closeCampaignBuilderApp();
 
       return;
     }
 
     // load the setting
-    const setting = await getGlobalSetting(settingId);
+    const setting = await GlobalSettingService.getGlobalSetting(settingId);
     
     if (!setting)
       throw new Error(`Invalid settingId in mainStore.setNewSetting(): ${settingId}`);
@@ -319,7 +319,7 @@ export const mainStore = () => {
 
     for (const settingIndex of allSettings) {
       try {
-        const setting = await getGlobalSetting(settingIndex.settingId);
+        const setting = await GlobalSettingService.getGlobalSetting(settingIndex.settingId);
         if (setting) {
           settings.push(setting);
         }
@@ -340,7 +340,7 @@ export const mainStore = () => {
     // Update roll table names if roll tables are configured
     if (setting.rollTableConfig) {
       try {
-        await updateSettingRollTableNames(setting);
+        await nameGenerators.updateSettingRollTableNames(setting);
       } catch (error) {
         console.error('Error updating roll table names:', error);
       }

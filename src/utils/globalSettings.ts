@@ -11,43 +11,46 @@ import { ModuleSettings, SettingKey } from '@/settings';
 
 let globalSettings: Record<string, FCBSetting> = {};
 
-export const getGlobalSetting = async (settingId: string): Promise<FCBSetting | null> => {
-  // see if we already have it
-  let setting: FCBSetting | undefined | null = globalSettings[settingId];
+const GlobalSettingService = {
+  getGlobalSetting: async (settingId: string): Promise<FCBSetting | null> => {
+    // see if we already have it
+    let setting: FCBSetting | undefined | null = globalSettings[settingId];
 
-  if (setting)
+    if (setting)
+      return setting;
+
+    // otherwise load it
+    try {
+      setting = await FCBSetting.fromUuid(settingId);
+    } catch (e) {
+      // do nothing
+    };
+
+    if (!setting) {
+      // the most likely cause here is that someone deleted the compendium; remove it from the index
+      // so we can just try again
+      let indexes = ModuleSettings.get(SettingKey.settingIndex);
+      indexes = indexes.filter(index => index.settingId !== settingId);
+      await ModuleSettings.set(SettingKey.settingIndex, indexes);
+
+      return null;
+    };
+    
+    if (setting)
+      globalSettings[settingId] = setting;
+    else 
+      delete globalSettings[settingId];
+    
     return setting;
+  },
 
-  // otherwise load it
-  try {
-    setting = await FCBSetting.fromUuid(settingId);
-  } catch (e) {
-    // do nothing
-  };
+  updateGlobalSetting: (setting: FCBSetting) => {
+    globalSettings[setting.uuid] = setting;
+  },
 
-  if (!setting) {
-    // the most likely cause here is that someone deleted the compendium; remove it from the index
-    // so we can just try again
-    let indexes = ModuleSettings.get(SettingKey.settingIndex);
-    indexes = indexes.filter(index => index.settingId !== settingId);
-    await ModuleSettings.set(SettingKey.settingIndex, indexes);
-
-    return null;
-  };
-  
-  if (setting)
-    globalSettings[settingId] = setting;
-  else 
+  removeGlobalSetting: (settingId: string) => {
     delete globalSettings[settingId];
-  
-  return setting;
+  }
 };
 
-export const updateGlobalSetting = (setting: FCBSetting) => {
-  globalSettings[setting.uuid] = setting;
-};
-
-export const removeGlobalSetting = (settingId: string) => {
-  delete globalSettings[settingId];
-};
-
+export default GlobalSettingService;

@@ -396,7 +396,7 @@
   import { useBackendStore } from '@/applications/stores';
   import { customFieldsApp } from '@/applications/settings/CustomFieldsApplication';
   import { searchService } from '@/utils/search';
-  import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
+  import AppWindowService from '@/utils/appWindow';
   import { makeCustomFieldKeyUnique } from '@/utils/customFields';
   import { generateIdFromName } from '@/utils/idGeneration';
 
@@ -1299,7 +1299,7 @@
     // Save AI Image configurations
     await ModuleSettings.set(SettingKey.aiImageConfigurations, aiImageConfigurations.value);
 
-    if (isCampaignBuilderAppOpen()) {
+    if (AppWindowService.isCampaignBuilderAppOpen()) {
       await mainStore.refreshCurrentContent();
     }
 

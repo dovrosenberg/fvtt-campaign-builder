@@ -7,7 +7,7 @@ import { getArcForSession, getFirstArcWithSessions, getLastArcWithSessions } fro
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
 import { JournalEntryFlagKey } from '@/settings';
 import { searchService } from '@/utils/search';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 
@@ -936,7 +936,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
     const id = this._doc.uuid;
 
-    let setting = await getGlobalSetting(this.settingId);
+    let setting = await GlobalSettingService.getGlobalSetting(this.settingId);
 
     if (!setting)
       throw new Error('Invalid setting in Campaign.delete()');

@@ -98,8 +98,9 @@
   import { rollTableSettingsApp } from '@/applications/settings/RollTableSettingsApplication';
   import { localize } from '@/utils/game';
   import { notifyError, notifyInfo } from '@/utils/notifications';
-  import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
+  import AppWindowService from '@/utils/appWindow';
   import { useMainStore } from '@/applications/stores';
+  
   // library components
   import Checkbox from 'primevue/checkbox';
   import Inputtext from 'primevue/inputtext';
@@ -146,7 +147,7 @@
       ...defaultTypes.value,
     });
 
-    if (isCampaignBuilderAppOpen()) {
+    if (AppWindowService.ilsCampaignBuilderAppOpen()) {
       await useMainStore().refreshCurrentContent();
     }
     rollTableSettingsApp?.close();

@@ -12,7 +12,7 @@ import { getCurrentSetting, getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
 import { scrollToActiveEntry } from '@/utils/directoryScroll';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 
 // types
 import { Entry, DirectoryTopicFolderNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder,  } from '@/classes';
@@ -355,7 +355,7 @@ export const settingDirectoryStore = () => {
    * @returns A promise that resolves when the setting and its compendia are deleted.
    */
   const deleteSetting = async (settingId: string, external = false): Promise<Boolean> => {
-    let setting = await getGlobalSetting(settingId);
+    let setting = await GlobalSettingService.getGlobalSetting(settingId);
 
     if (!setting)
       return false;
