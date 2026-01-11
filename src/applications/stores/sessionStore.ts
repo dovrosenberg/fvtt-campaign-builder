@@ -2,13 +2,13 @@
 // 
 // library imports
 import { ref, watch, } from 'vue';
-import { defineStore, storeToRefs, } from 'pinia';
+import { storeToRefs, } from 'pinia';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game'; 
-import { getArcForSession } from '@/utils/arcIndex';
+import ArcIndexService from '@/utils/arcIndex';
 
 // types
 import { 
@@ -20,23 +20,15 @@ import {
   SessionMonsterDetails, 
   SessionLoreDetails,
   ToDoTypes,
+  SessionTableTypes
 } from '@/types';
 import { SessionLore, SessionVignette } from '@/documents';
 
 import { Arc, Entry, Session } from '@/classes';
 
-export enum SessionTableTypes {
-  None,
-  Location,
-  Item,
-  NPC,
-  Monster,
-  Vignette,
-  Lore,
-}
 
 // the store definition
-export const useSessionStore = defineStore('session', () => {
+export const sessionStore = () => {
   ///////////////////////////////
   // the state
   // used for tables
@@ -598,8 +590,8 @@ export const useSessionStore = defineStore('session', () => {
     if (!campaign) 
       return;
 
-    const arcIndex = getArcForSession(campaign.arcIndex, currentSession.value.number);
-    const arc = arcIndex ? await Arc.fromUuid(arcIndex.uuid) : null;
+    const arcIndexEntry = ArcIndexService.getArcForSession(campaign.arcIndex, currentSession.value.number);
+    const arc = arcIndexEntry ? await Arc.fromUuid(arcIndexEntry.uuid) : null;
     if (!arc)
       return;
     
@@ -1197,4 +1189,4 @@ export const useSessionStore = defineStore('session', () => {
     moveLoreToCampaign,
     moveLoreToArc,
   };
-});
+};

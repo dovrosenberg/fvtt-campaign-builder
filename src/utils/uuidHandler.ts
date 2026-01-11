@@ -7,9 +7,8 @@
  * - Enriching UUID references to displayable links
  */
 
-import { getValidatedData, getType } from './dragdrop';
 import { enrichFcbHTML } from '@/components/Editor/helpers';
-import { FCBDragTypes } from '@/utils/dragdrop';
+import DragDropService from '@/utils/dragDrop';
 import { CampaignNodeDragData, EntryNodeDragData, SessionNodeDragData, FrontNodeDragData, ArcNodeDragData, SettingNodeDragData, StoryWebNodeDragData, FoundryDragType, FCBDragType } from '@/types';
 
 /**
@@ -44,7 +43,7 @@ export const processUuidDrop = async(event: DragEvent): Promise<UuidDropResult> 
   event.stopPropagation();
 
   // Parse the data using the utility function
-  const data = getValidatedData(event);
+  const data = DragDropService.getValidatedData(event);
   if (!data) {
     return { handled: false };
   }
@@ -56,38 +55,38 @@ export const processUuidDrop = async(event: DragEvent): Promise<UuidDropResult> 
     entryUuid = (data as FoundryDragType).uuid;
   } else if ((data as FCBDragType<any>).fcbData) {
     // Handle different data structures from various drag sources
-    switch (getType(data)) {
-      case FCBDragTypes.Setting: 
+    switch (DragDropService.getType(data)) {
+      case DragDropService.FCBDragTypes.Setting: 
         // From SettingDirectoryNodeWithChildren or SettingDirectoryNode
         entryUuid = (data as FCBDragType<SettingNodeDragData>).fcbData?.settingId;
         break;
 
-      case FCBDragTypes.Entry: 
+      case DragDropService.FCBDragTypes.Entry: 
         // From SettingDirectoryNodeWithChildren or SettingDirectoryNode
         entryUuid = (data as FCBDragType<EntryNodeDragData>).fcbData?.childId;
         break;
 
-      case FCBDragTypes.Campaign: 
+      case DragDropService.FCBDragTypes.Campaign: 
         // From DirectoryCampaignNode
         entryUuid = (data as FCBDragType<CampaignNodeDragData>).fcbData?.campaignId;
         break;
 
-      case FCBDragTypes.Session: 
+      case DragDropService.FCBDragTypes.Session: 
         // From SessionDirectoryNode
         entryUuid = (data as FCBDragType<SessionNodeDragData>).fcbData?.sessionId;
         break;
 
-      case FCBDragTypes.Front: 
+      case DragDropService.FCBDragTypes.Front: 
         // From FrontDirectoryNode
         entryUuid = (data as FCBDragType<FrontNodeDragData>).fcbData?.frontId;
         break;
 
-      case FCBDragTypes.Arc: 
+      case DragDropService.FCBDragTypes.Arc: 
         // From ArcDirectoryNode
         entryUuid = (data as FCBDragType<ArcNodeDragData>).fcbData?.arcId;
         break;
 
-      case FCBDragTypes.StoryWeb:
+      case DragDropService.FCBDragTypes.StoryWeb:
         // From StoryWebDirectoryNode
         entryUuid = (data as FCBDragType<StoryWebNodeDragData>).fcbData?.storyWebId;
         break;

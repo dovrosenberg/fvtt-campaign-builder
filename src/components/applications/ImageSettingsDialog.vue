@@ -60,7 +60,7 @@ Dependencies
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings/ModuleSettings';
   import { imageSettingsApp } from '@/applications/settings/ImageSettingsApplication';
-  import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
+  import AppWindowService from '@/utils/appWindow';
   import { useMainStore } from '@/applications/stores';
 
   // library components
@@ -117,7 +117,7 @@ Dependencies
     // Save the settings
     await ModuleSettings.set(SettingKey.showImages, showImages);
 
-    if (isCampaignBuilderAppOpen()) {
+    if (AppWindowService.isCampaignBuilderAppOpen()) {
       await mainStore.refreshCurrentContent();
     }
     

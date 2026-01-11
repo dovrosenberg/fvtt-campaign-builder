@@ -89,8 +89,7 @@
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyError, notifyInfo } from '@/utils/notifications';
-  import { useBackendStore } from '@/applications/stores/backendStore';
-  import { useMainStore } from '@/applications/stores';
+  import { useMainStore, useBackendStore } from '@/applications/stores';
   import { nameStyles } from '@/utils/nameStyles';
   import { promptReplace } from '@/utils/generation';
   import { replaceUUIDsInText } from '@/utils/sanitizeHtml';

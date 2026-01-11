@@ -7,7 +7,7 @@ import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 
 type SessionDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Session>;
 
@@ -567,7 +567,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
   public async delete(skipDelete = false): Promise<void> {
     const id = this.uuid;
-    const setting = await getGlobalSetting(this.settingId);
+    const setting = await GlobalSettingService.getGlobalSetting(this.settingId);
 
     if (!setting)
       throw new Error('Setting not found in Session.delete()');

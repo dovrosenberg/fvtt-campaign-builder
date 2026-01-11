@@ -6,7 +6,7 @@ import { localize } from '@/utils/game';
 import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, Topics, RelatedEntryDetails, Danger } from '@/types';
 import { topicToNodeType } from '@/utils/misc';
 import { Entry, Front } from '@/classes';
-import { cleanKeysOnSave, } from '@/utils/cleanKeys';
+import CleanKeysService from '@/utils/cleanKeys';
 
 type StoryWebDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb>;
 
@@ -287,8 +287,8 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
 
   protected _prepData(data: StoryWebDocClass): void {
     // convert unsafe keys
-    data.system.positions = cleanKeysOnSave(data.system.positions);
-    data.system.edgeStyles = cleanKeysOnSave(data.system.edgeStyles);
+    data.system.positions = CleanKeysService.cleanKeysOnSave(data.system.positions);
+    data.system.edgeStyles = CleanKeysService.cleanKeysOnSave(data.system.edgeStyles);
   }
 
   public async save(): Promise<void> {

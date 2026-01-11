@@ -1,7 +1,7 @@
 // this store handles the directory tree
 
 // library imports
-import { defineStore, storeToRefs, } from 'pinia';
+import { storeToRefs, } from 'pinia';
 import { reactive, onMounted, ref, watch, nextTick } from 'vue';
 
 // local imports
@@ -11,8 +11,8 @@ import { useMainStore, useNavigationStore, useStoryWebStore } from '@/applicatio
 import { getCurrentSetting, getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
-import { scrollToActiveEntry } from '@/utils/directoryScroll';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import DirectoryScrollService from '@/utils/directoryScroll';
+import GlobalSettingService from '@/utils/globalSettings';
 
 // types
 import { Entry, DirectoryTopicFolderNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder,  } from '@/classes';
@@ -20,7 +20,7 @@ import { DirectorySetting, Hierarchy, Topics, ValidTopic, ValidTopicRecord, Entr
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
 // the store definition
-export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
+export const settingDirectoryStore = () => {
   ///////////////////////////////
   // the state
 
@@ -355,7 +355,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
    * @returns A promise that resolves when the setting and its compendia are deleted.
    */
   const deleteSetting = async (settingId: string, external = false): Promise<Boolean> => {
-    let setting = await getGlobalSetting(settingId);
+    let setting = await GlobalSettingService.getGlobalSetting(settingId);
 
     if (!setting)
       return false;
@@ -701,7 +701,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     await ModuleSettings.set(SettingKey.groupTreeByType, isGroupedByType.value);
     
     // Scroll to the active entry since the tree structure has changed
-    await scrollToActiveEntry();
+    await DirectoryScrollService.scrollToActiveEntry();
   });
 
   // update the filter when text changes
@@ -741,4 +741,4 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     getGroupedTypeNodeContextMenuItems,
     getTopicContextMenuItems,
   };
-});
+};

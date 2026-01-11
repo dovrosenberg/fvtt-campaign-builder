@@ -2,7 +2,7 @@
 // 
 // library imports
 import { ref, watch, } from 'vue';
-import { defineStore, storeToRefs, } from 'pinia';
+import { storeToRefs, } from 'pinia';
 
 // local imports
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
@@ -18,24 +18,15 @@ import {
   ArcVignetteDetails,
   Idea,
   Topics,
+  ArcTableTypes,
 } from '@/types';
 import { ArcLore, ArcVignette, } from '@/documents';
 
 import { Entry, } from '@/classes';
 import { getTopicText } from '@/compendia';
 
-export enum ArcTableTypes {
-  None,
-  Location,
-  Participant,
-  Monster,
-  Vignette,
-  Lore,
-  Idea,
-}
-
 // the store definition
-export const useArcStore = defineStore('arc', () => {
+export const arcStore = () => {
   ///////////////////////////////
   // the state
   // used for tables
@@ -863,4 +854,4 @@ export const useArcStore = defineStore('arc', () => {
     moveLoreToSession,
     moveLoreToCampaign,
   };
-});
+};

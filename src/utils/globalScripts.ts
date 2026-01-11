@@ -1,9 +1,9 @@
-import { getGlobalSetting } from './globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { FCBSetting, Campaign, Entry, Session, Arc, Front, StoryWeb } from '@/classes';
 import { EntryBasicIndex, CampaignBasicIndex, SessionBasicIndex, ArcBasicIndex, Topics, Hierarchy } from '@/types';
 import { DOCUMENT_TYPES } from '@/documents/types';
-import { closeCampaignBuilderApp, isCampaignBuilderAppOpen } from '@/utils/appWindow';
+import AppWindowService from '@/utils/appWindow';
 import { toRaw } from 'vue';
 import { localize } from './game';
 
@@ -23,8 +23,8 @@ const repairAllIndexes = async (settingId?: string): Promise<void> => {
   console.log('Starting repair of all document indexes...');
 
   // Check if FCB window is open and exit if so
-  if (isCampaignBuilderAppOpen()) {
-    await closeCampaignBuilderApp();
+  if (AppWindowService.isCampaignBuilderAppOpen()) {
+    await AppWindowService.closeCampaignBuilderApp();
     console.warn('Cannot repair indexes while Campaign Builder window is open. Closing window.');
   }
   
@@ -46,7 +46,7 @@ const repairAllIndexes = async (settingId?: string): Promise<void> => {
         console.log(`Repairing indexes for setting: ${settingIndex.name} (${settingIndex.settingId})`);
         
         // Load the setting
-        const setting = toRaw(await getGlobalSetting(settingIndex.settingId));
+        const setting = toRaw(await GlobalSettingService.getGlobalSetting(settingIndex.settingId));
         if (!setting) {
           console.warn(`Could not load setting: ${settingIndex.name} (${settingIndex.settingId})`);
           totalErrors++;

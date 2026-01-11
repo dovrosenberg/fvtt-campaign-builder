@@ -1,16 +1,15 @@
 // this store handles the main state (current setting, entry, etc.)
 
 // library imports
-import { defineStore, } from 'pinia';
 import { computed, ref, watch, nextTick, triggerRef } from 'vue';
 
 // local imports
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings';
-import { updateWindowTitle } from '@/utils/titleUpdater';
-import { useNavigationStore } from '@/applications/stores/navigationStore';
-import { updateSettingRollTableNames } from '@/utils/nameGenerators';
-import { getGlobalSetting } from '@/utils/globalSettings';
-import { closeCampaignBuilderApp } from '@/utils/appWindow';
+import TitleUpdaterService from '@/utils/titleUpdater';
+import { useNavigationStore } from '@/applications/stores';
+import NameGeneratorsService from '@/utils/nameGenerators';
+import GlobalSettingService from '@/utils/globalSettings';
+import AppWindowService from '@/utils/appWindow';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
@@ -18,7 +17,7 @@ import { FCBSetting, WindowTab, Entry, Campaign, Session, Front, Arc, StoryWeb, 
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 // the store definition
-export const useMainStore = defineStore('main', () => {
+export const mainStore = () => {
 
   ///////////////////////////////
   // the state
@@ -92,13 +91,13 @@ export const useMainStore = defineStore('main', () => {
       CollapsibleNode.currentSetting = null;
       await UserFlags.set(UserFlagKey.currentSetting, '');
 
-      closeCampaignBuilderApp();
+      AppWindowService.closeCampaignBuilderApp();
 
       return;
     }
 
     // load the setting
-    const setting = await getGlobalSetting(settingId);
+    const setting = await GlobalSettingService.getGlobalSetting(settingId);
     
     if (!setting)
       throw new Error(`Invalid settingId in mainStore.setNewSetting(): ${settingId}`);
@@ -320,7 +319,7 @@ export const useMainStore = defineStore('main', () => {
 
     for (const settingIndex of allSettings) {
       try {
-        const setting = await getGlobalSetting(settingIndex.settingId);
+        const setting = await GlobalSettingService.getGlobalSetting(settingIndex.settingId);
         if (setting) {
           settings.push(setting);
         }
@@ -341,7 +340,7 @@ export const useMainStore = defineStore('main', () => {
     // Update roll table names if roll tables are configured
     if (setting.rollTableConfig) {
       try {
-        await updateSettingRollTableNames(setting);
+        await NameGeneratorsService.updateSettingRollTableNames(setting);
       } catch (error) {
         console.error('Error updating roll table names:', error);
       }
@@ -412,7 +411,7 @@ export const useMainStore = defineStore('main', () => {
       return;
     }
 
-    updateWindowTitle(newSetting?.name ?? null);
+    TitleUpdaterService.updateWindowTitle(newSetting?.name || null);
 
     // if we're really changing settings, turn play mode off
     if (oldSetting) {
@@ -461,4 +460,4 @@ export const useMainStore = defineStore('main', () => {
     getAllSettings,
     propagateSettingNameChange,
   };
-});
+};

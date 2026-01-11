@@ -47,7 +47,7 @@
   import { speciesListApp } from '@/applications/settings/SpeciesListApplication';
   import { localize } from '@/utils/game';
   import { useMainStore } from '@/applications/stores';
-  import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
+  import AppWindowService from '@/utils/appWindow';
 
   // library components
 
@@ -133,7 +133,7 @@
     // Emit a custom event to notify all SpeciesSelect components to refresh
     document.dispatchEvent(new CustomEvent('fcb-species-list-updated'));
 
-    if (isCampaignBuilderAppOpen()) {
+    if (AppWindowService.isCampaignBuilderAppOpen()) {
       await useMainStore().refreshCurrentContent();
     }
 

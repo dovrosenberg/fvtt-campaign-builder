@@ -1,7 +1,7 @@
 import { moduleId } from '@/settings';
-import { isCampaignBuilderAppOpen, closeCampaignBuilderApp, } from '@/utils/appWindow';
+import AppWindowService from '@/utils/appWindow';
 import { renderCampaignBuilderApp } from '@/applications/CampaignBuilder';
-import { useNavigationStore } from '@/applications/stores/navigationStore';
+import { useNavigationStore } from '@/applications/stores';
 
 export enum KeyBindingKeys {
   closeTab = 'closeTab',   // close the current tab
@@ -22,7 +22,7 @@ export class KeyBindings {
         hint: 'fcb.settings.keybindings.closeTabHelp',
         onDown: () => { 
           // only trap this when the window is open
-          if (isCampaignBuilderAppOpen()) {
+          if (AppWindowService.isCampaignBuilderAppOpen()) {
             const store = useNavigationStore();
             const tab = store.getActiveTab();
             if (tab) {
@@ -46,7 +46,7 @@ export class KeyBindings {
         hint: 'fcb.settings.keybindings.historyBackHelp',
         onDown: async () => { 
           // only trap this when the window is open
-          if (isCampaignBuilderAppOpen()) {
+          if (AppWindowService.isCampaignBuilderAppOpen()) {
             const store = useNavigationStore();
             await store.navigateHistory(-1);
           }
@@ -67,7 +67,7 @@ export class KeyBindings {
         hint: 'fcb.settings.keybindings.historyForwardHelp',
         onDown: async () => { 
           // only trap this when the window is open
-          if (isCampaignBuilderAppOpen()) {
+          if (AppWindowService.isCampaignBuilderAppOpen()) {
             const store = useNavigationStore();
             await store.navigateHistory(1);
           }
@@ -88,8 +88,8 @@ export class KeyBindings {
         hint: 'fcb.settings.keybindings.toggleWindowHelp',
         onDown: () => { 
           // only trap this when the window is open
-          if (isCampaignBuilderAppOpen()) {
-            closeCampaignBuilderApp();
+          if (AppWindowService.isCampaignBuilderAppOpen()) {
+            AppWindowService.closeCampaignBuilderApp();
           } else {
             renderCampaignBuilderApp();
           }

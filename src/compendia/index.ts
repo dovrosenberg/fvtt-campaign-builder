@@ -4,7 +4,7 @@ import { Topics, } from '@/types';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags,} from '@/settings';
 import { toTopic } from '@/utils/misc';
 import { FCBSetting, } from '@/classes';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 
 /**
  * Gets the current setting (will create one if there isn't one) 
@@ -17,7 +17,7 @@ export async function getCurrentSetting(): Promise<FCBSetting | null> {
   // make sure we have a default and it exists
   let setting = null as FCBSetting | null;
   if (settingId) {
-    setting = await getGlobalSetting(settingId);
+    setting = await GlobalSettingService.getGlobalSetting(settingId);
   }   
 
   if (!setting) {
@@ -27,7 +27,7 @@ export async function getCurrentSetting(): Promise<FCBSetting | null> {
       // in case any are bad - loop through them all
       do {
         settingId = settings[0].settingId;
-        setting = await getGlobalSetting(settingId);
+        setting = await GlobalSettingService.getGlobalSetting(settingId);
       } while (!setting && settings.length>0);
     }
 

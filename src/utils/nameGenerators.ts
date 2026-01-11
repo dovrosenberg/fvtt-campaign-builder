@@ -9,6 +9,252 @@ import { RollTableFlagKey } from '@/documents';
 import { notifyInfo } from './notifications';
 
 /**
+ * Service for managing name generators and roll tables
+ */
+const NameGeneratorsService = {
+  /**
+   * The number of items to generate for each roll table.
+   * This constant defines the standard size for all generator roll tables.
+   */
+  TABLE_SIZE: 100,
+
+  /**
+   * Initializes roll tables for all generator types in a specific setting.
+   * Creates the necessary folder structure and roll tables if they don't exist.
+   * 
+   * @param setting - The setting to initialize roll tables for
+   * @returns A promise that resolves when initialization is complete
+   */
+  initializeSettingRollTables: async (setting: FCBSetting): Promise<void> => {
+    // Prevent multiple concurrent initializations - don't need to queue because they all do the same things
+    if (initializationInProgress) {
+      return;
+    }
+
+    initializationInProgress = true;
+
+    // Get or create the folder for roll tables for this setting
+    const folderId = await getOrCreateSettingRollTableFolder(setting);
+    
+    // Get existing setting generator config or create a new one
+    let settingGeneratorConfig: SettingGeneratorConfig | null = setting.rollTableConfig;
+
+    // if we have a config, make sure the folderId still existed
+    if (settingGeneratorConfig) {
+      // the folderId would change if the folder got deleted and recreated
+      if (settingGeneratorConfig.folderId !== folderId) {
+        settingGeneratorConfig.folderId = folderId;
+        settingGeneratorConfig.rollTables = {} as Record<GeneratorType, string>;
+      }
+    } else {
+      // create a new config
+      settingGeneratorConfig = {
+        rollTables: {} as Record<GeneratorType, string>,
+        folderId: folderId,
+      };
+    }
+    
+    // Ensure all generator types have a roll table
+    for (const type of Object.values(GeneratorType)) {
+      // Check if we already have a table for this type
+      if (settingGeneratorConfig.rollTables[type]) {
+        // Verify the table still exists and is the right type
+        const table = await fromUuid<RollTable>(settingGeneratorConfig.rollTables[type]);
+        if (table && table.getFlag(moduleId, RollTableFlagKey.type) === type) {
+          continue; // Table exists and is valid, skip to next type
+        }
+      }
+      
+      // Create a new table
+      const table = await createSettingRollTable(type, folderId, setting);
+      
+      // Store the table ID in the mapping
+      if (table)
+        settingGeneratorConfig.rollTables[type] = table.uuid;
+    }
+    
+    // Save the setting generator config
+    setting.rollTableConfig = settingGeneratorConfig;
+    await setting.save();
+
+    initializationInProgress = false;
+  },
+
+  /**
+   * Refreshes a single roll table by removing used results and adding new ones to maintain TABLE_SIZE.
+   * Uses setting-specific settings to generate replacement content that matches the setting's style.
+   * 
+   * @param rollTable - The roll table to refresh
+   * @param setting - The setting containing style and generation settings
+   * @returns A promise that resolves when the table is refreshed
+   * @throws {Error} If the table type is missing or generation fails
+   */
+  refreshSettingRollTable: async (rollTable: RollTable, setting: FCBSetting): Promise<void> => {
+    // requires backend
+    const backendStore = useBackendStore();
+    if (!backendStore.available) {
+      throw new Error('Backend is not available. Please check your backend settings.');
+    }
+
+    // get the type
+    const type = rollTable.getFlag(moduleId, RollTableFlagKey.type);
+
+    if (!type) {
+      throw new Error(`Roll table ${rollTable.name} is missing type flag`);
+    }
+
+    // find all the drawn ones that need to be replaced
+    const drawnResults = rollTable.results.filter(r => r.drawn).map(r => r.id) as string[];
+    
+    // get remaining count - if < TABLE_SIZE, need to make up the difference
+    const neededItems = NameGeneratorsService.TABLE_SIZE - rollTable.results.size + drawnResults.length;
+
+    if (neededItems > 0) {
+      // get all the new results using setting-specific settings
+      const newResults = await generateSettingTableResults(type, neededItems, setting);
+      
+      // Decode HTML entities in all results
+      const decodedResults = newResults.map(name => decodeHtmlEntities(name));
+
+      // replace the drawn items first
+      if (drawnResults.length > 0) {
+        await rollTable.updateEmbeddedDocuments("TableResult", drawnResults.map((id: string, i: number) => ({
+          _id: id,
+          name: decodedResults[i],
+          drawn: false,
+        })));
+      }
+
+      // now add any extras
+      const numUsed = drawnResults.length;
+      if (numUsed < decodedResults.length) {
+        await rollTable.createEmbeddedDocuments("TableResult", 
+          decodedResults.slice(numUsed).map((val: string, index: number) => ({
+            type: CONST.TABLE_RESULT_TYPES.TEXT,
+            drawn: false,
+            name: val,
+            weight: 1,
+            range: [rollTable.results.size + index + 1, rollTable.results.size + index + 1],
+          }))
+        );
+      }
+    } 
+  },
+
+  /**
+   * Refreshes all roll tables for a specific setting, optionally clearing them first.
+   * Useful for updating all tables when setting settings change or for maintenance.
+   * 
+   * @param setting - The setting whose tables should be refreshed
+   * @param empty - Whether to clear all existing results before refreshing (defaults to false)
+   * @returns A promise that resolves when all tables are refreshed
+   */
+  refreshSettingRollTables: async (setting: FCBSetting, empty: boolean = false): Promise<void> => {
+    // Prevent multiple concurrent refreshes - don't need to queue because they all do the same things
+    if (refreshInProgress) {
+      return;
+    }
+
+    refreshInProgress = true;
+
+    const config = setting.rollTableConfig;
+
+    if (!config) {
+      return; // No roll tables configured for this setting
+    }
+
+    let alerted = false;
+    
+    for (const key in config.rollTables) {
+      const table = await fromUuid<RollTable>(config.rollTables[key]);
+      if (table) {
+        if (empty && table.results.size > 0) {
+          await table.deleteEmbeddedDocuments("TableResult", table.results.map(r => r.id || ''));
+        }
+
+        // see if we actually need any
+        const drawnResults = table.results.filter(r => r.drawn).map(r => r.id) as string[];
+        const neededItems = NameGeneratorsService.TABLE_SIZE - table.results.size + drawnResults.length;
+      
+
+        if (neededItems > 0) {
+          await NameGeneratorsService.refreshSettingRollTable(table, setting);
+
+          // ui alert if we have at least one
+          if (!alerted) {
+            notifyInfo(localize('applications.rollTableSettings.notifications.refreshStarted'));
+            alerted = true;
+          }
+        }
+      }
+    }
+
+    refreshInProgress = false;
+  },
+
+  /**
+   * Refreshes roll tables for all settings in the current game.
+   * Iterates through all settings and refreshes their respective roll tables.
+   * 
+   * @returns A promise that resolves when all setting tables are refreshed
+   */
+  refreshAllSettingRollTables: async (empty: boolean = false): Promise<void> => {
+    // Import the mainStore dynamically to avoid circular dependencies
+    const { useMainStore } = await import('@/applications/stores');
+    const mainStore = useMainStore();
+    
+    // Get all settings using the mainStore function
+    const settings = await mainStore.getAllSettings();
+    
+    // Refresh roll tables for each setting
+    for (const setting of settings) {
+      try {
+        await NameGeneratorsService.refreshSettingRollTables(setting, empty);
+      } catch (error) {
+        console.error(`Error refreshing roll tables for setting ${setting.name}:`, error);
+      }
+    }
+  },
+
+  /**
+   * Updates the names of all roll tables for a setting to match the current setting name.
+   * Called when a setting is renamed to keep table names synchronized.
+   * 
+   * @param setting - The setting whose table names should be updated
+   * @returns A promise that resolves when all table names are updated
+   */
+  updateSettingRollTableNames: async (setting: FCBSetting): Promise<void> => {
+    const config = setting.rollTableConfig;
+
+    if (!config || !isClientGM()) {
+      return; // No roll tables configured for this setting
+    }
+
+    // Update the folder name
+    const folder = game.folders?.get(config.folderId);
+    if (folder) {
+      await folder.update({
+        name: `${setting.name} - ${localize('applications.rollTableSettings.folderName')}`
+      });
+    }
+
+    // Update each roll table name
+    for (const [type, tableUuid] of Object.entries(config.rollTables)) {
+      const table = await fromUuid<RollTable>(tableUuid);
+      if (table) {
+        const newName = `${setting.name} - ${type.charAt(0).toUpperCase() + type.slice(1)} Generator`;
+        await table.update({
+          name: newName,
+          description: `${localize('applications.rollTableSettings.tableDescription')} ${setting.name}-${type} for ${setting.name}`
+        });
+      }
+    }
+  }
+};
+
+// Private helper functions
+
+/**
  * Decodes HTML entities in a string (e.g., &amp; -> &, &quot; -> ")
  * @param text - The text with HTML entities to decode
  * @returns The decoded text
@@ -19,74 +265,9 @@ function decodeHtmlEntities(text: string): string {
   return textarea.value;
 }
 
-/**
- * The number of items to generate for each roll table.
- * This constant defines the standard size for all generator roll tables.
- */
-export const TABLE_SIZE = 100;
-
-/**
- * Initializes roll tables for all generator types in a specific setting.
- * Creates the necessary folder structure and roll tables if they don't exist.
- * 
- * @param setting - The setting to initialize roll tables for
- * @returns A promise that resolves when initialization is complete
- */
+// Track initialization and refresh progress
 let initializationInProgress = false;
-export async function initializeSettingRollTables(setting: FCBSetting): Promise<void> {
-  // Prevent multiple concurrent initializations - don't need to queue because they all do the same things
-  if (initializationInProgress) {
-    return;
-  }
-
-  initializationInProgress = true;
-
-  // Get or create the folder for roll tables for this setting
-  const folderId = await getOrCreateSettingRollTableFolder(setting);
-  
-  // Get existing setting generator config or create a new one
-  let settingGeneratorConfig: SettingGeneratorConfig | null = setting.rollTableConfig;
-
-  // if we have a config, make sure the folderId still existed
-  if (settingGeneratorConfig) {
-    // the folderId would change if the folder got deleted and recreated
-    if (settingGeneratorConfig.folderId !== folderId) {
-      settingGeneratorConfig.folderId = folderId;
-      settingGeneratorConfig.rollTables = {} as Record<GeneratorType, string>;
-    }
-  } else {
-    // create a new config
-    settingGeneratorConfig = {
-      rollTables: {} as Record<GeneratorType, string>,
-      folderId: folderId,
-    };
-  }
-  
-  // Ensure all generator types have a roll table
-  for (const type of Object.values(GeneratorType)) {
-    // Check if we already have a table for this type
-    if (settingGeneratorConfig.rollTables[type]) {
-      // Verify the table still exists and is the right type
-      const table = await fromUuid<RollTable>(settingGeneratorConfig.rollTables[type]);
-      if (table && table.getFlag(moduleId, RollTableFlagKey.type) === type) {
-        continue; // Table exists and is valid, skip to next type
-      }
-    }
-    
-    // Create a new table
-    const table = await createSettingRollTable(type, folderId, setting);
-    
-    // Store the table ID in the mapping
-    if (table)
-      settingGeneratorConfig.rollTables[type] = table.uuid;
-  }
-  
-  // Save the setting generator config
-  setting.rollTableConfig = settingGeneratorConfig;
-  await setting.save();
-
-  initializationInProgress = false;
-}
+let refreshInProgress = false;
 
 /**
  * Gets or creates the folder for campaign builder roll tables for a specific setting.
@@ -117,7 +298,7 @@ const getOrCreateSettingRollTableFolder = async(setting: FCBSetting): Promise<st
   }
 
   return newFolder.id;
-}
+};
 
 /**
  * Populates table results for a specific generator type using the backend API.
@@ -183,7 +364,7 @@ const generateSettingTableResults = async (type: GeneratorType, count: number, s
   } catch (error) {
     throw new Error(`Error in generators.generateSettingTableResults() generating names for ${type}: ${error}`);
   }
-}
+};
 
 /**
  * Creates a Foundry RollTable for a specific generator type.
@@ -202,7 +383,7 @@ async function createSettingRollTable(type: GeneratorType, folderId: string, set
     name: tableName,
     folder: folderId,
     description: `${localize('applications.rollTableSettings.tableDescription')} ${setting.name}-${type}`,
-    formula: `1d${TABLE_SIZE}`,
+    formula: `1d${NameGeneratorsService.TABLE_SIZE}`,
     replacement: false, // Don't replace drawn results
     displayRoll: false, // Don't display the roll publicly
   });
@@ -216,174 +397,4 @@ async function createSettingRollTable(type: GeneratorType, folderId: string, set
   }
 }
 
-/**
- * Refreshes a single roll table by removing used results and adding new ones to maintain TABLE_SIZE.
- * Uses setting-specific settings to generate replacement content that matches the setting's style.
- * 
- * @param rollTable - The roll table to refresh
- * @param setting - The setting containing style and generation settings
- * @returns A promise that resolves when the table is refreshed
- * @throws {Error} If the table type is missing or generation fails
- */
-export const refreshSettingRollTable = async (rollTable: RollTable, setting: FCBSetting) : Promise<void> => {
-  // requires backend
-  const backendStore = useBackendStore();
-  if (!backendStore.available) {
-    throw new Error('Backend is not available. Please check your backend settings.');
-  }
-
-  // get the type
-  const type = rollTable.getFlag(moduleId, RollTableFlagKey.type);
-
-  if (!type) {
-    throw new Error(`Roll table ${rollTable.name} is missing type flag`);
-  }
-
-  // find all the drawn ones that need to be replaced
-  const drawnResults = rollTable.results.filter(r => r.drawn).map(r => r.id) as string[];
-  
-  // get remaining count - if < TABLE_SIZE, need to make up the difference
-  const neededItems = TABLE_SIZE - rollTable.results.size + drawnResults.length;
-
-  if (neededItems > 0) {
-    // get all the new results using setting-specific settings
-    const newResults = await generateSettingTableResults(type, neededItems, setting);
-    
-    // Decode HTML entities in all results
-    const decodedResults = newResults.map(name => decodeHtmlEntities(name));
-
-    // replace the drawn items first
-    if (drawnResults.length > 0) {
-      await rollTable.updateEmbeddedDocuments("TableResult", drawnResults.map((id: string, i: number) => ({
-        _id: id,
-        name: decodedResults[i],
-        drawn: false,
-      })));
-    }
-
-    // now add any extras
-    const numUsed = drawnResults.length;
-    if (numUsed < decodedResults.length) {
-      await rollTable.createEmbeddedDocuments("TableResult", 
-        decodedResults.slice(numUsed).map((val: string, index: number) => ({
-          type: CONST.TABLE_RESULT_TYPES.TEXT,
-          drawn: false,
-          name: val,
-          weight: 1,
-          range: [rollTable.results.size + index + 1, rollTable.results.size + index + 1],
-        }))
-      );
-    }
-  } 
-}
-
-/**
- * Refreshes all roll tables for a specific setting, optionally clearing them first.
- * Useful for updating all tables when setting settings change or for maintenance.
- * 
- * @param setting - The setting whose tables should be refreshed
- * @param empty - Whether to clear all existing results before refreshing (defaults to false)
- * @returns A promise that resolves when all tables are refreshed
- */
-let refreshInProgress = false;
-export const refreshSettingRollTables = async(setting: FCBSetting, empty: boolean = false) : Promise<void> => {
-  // Prevent multiple concurrent refreshes - don't need to queue because they all do the same things
-  if (refreshInProgress) {
-    return;
-  }
-
-  refreshInProgress = true;
-
-  const config = setting.rollTableConfig;
-
-  if (!config) {
-    return; // No roll tables configured for this setting
-  }
-
-  let alerted = false;
-  
-  for (const key in config.rollTables) {
-    const table = await fromUuid<RollTable>(config.rollTables[key]);
-    if (table) {
-      if (empty && table.results.size > 0) {
-        await table.deleteEmbeddedDocuments("TableResult", table.results.map(r => r.id || ''));
-      }
-
-      // see if we actually need any
-      const drawnResults = table.results.filter(r => r.drawn).map(r => r.id) as string[];
-      const neededItems = TABLE_SIZE - table.results.size + drawnResults.length;
-    
-
-      if (neededItems > 0) {
-        await refreshSettingRollTable(table, setting);
-
-        // ui alert if we have at least one
-        if (!alerted) {
-          notifyInfo(localize('applications.rollTableSettings.notifications.refreshStarted'));
-          alerted = true;
-        }
-      }
-    }
-  }
-
-  refreshInProgress = false;
-}
-
-/**
- * Refreshes roll tables for all settings in the current game.
- * Iterates through all settings and refreshes their respective roll tables.
- * 
- * @returns A promise that resolves when all setting tables are refreshed
- */
-export const refreshAllSettingRollTables = async(empty: boolean = false) : Promise<void> => {
-  // Import the mainStore dynamically to avoid circular dependencies
-  const { useMainStore } = await import('@/applications/stores');
-  const mainStore = useMainStore();
-  
-  // Get all settings using the mainStore function
-  const settings = await mainStore.getAllSettings();
-  
-  // Refresh roll tables for each setting
-  for (const setting of settings) {
-    try {
-      await refreshSettingRollTables(setting, empty);
-    } catch (error) {
-      console.error(`Error refreshing roll tables for setting ${setting.name}:`, error);
-    }
-  }
-}
-
-/**
- * Updates the names of all roll tables for a setting to match the current setting name.
- * Called when a setting is renamed to keep table names synchronized.
- * 
- * @param setting - The setting whose table names should be updated
- * @returns A promise that resolves when all table names are updated
- */
-export const updateSettingRollTableNames = async(setting: FCBSetting) : Promise<void> => {
-  const config = setting.rollTableConfig;
-
-  if (!config || !isClientGM()) {
-    return; // No roll tables configured for this setting
-  }
-
-  // Update the folder name
-  const folder = game.folders?.get(config.folderId);
-  if (folder) {
-    await folder.update({
-      name: `${setting.name} - ${localize('applications.rollTableSettings.folderName')}`
-    });
-  }
-
-  // Update each roll table name
-  for (const [type, tableUuid] of Object.entries(config.rollTables)) {
-    const table = await fromUuid<RollTable>(tableUuid);
-    if (table) {
-      const newName = `${setting.name} - ${type.charAt(0).toUpperCase() + type.slice(1)} Generator`;
-      await table.update({
-        name: newName,
-        description: `${localize('applications.rollTableSettings.tableDescription')} ${setting.name}-${type} for ${setting.name}`
-      });
-    }
-  }
-}
+export default NameGeneratorsService;

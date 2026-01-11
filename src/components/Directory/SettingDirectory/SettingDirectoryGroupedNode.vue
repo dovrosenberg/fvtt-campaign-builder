@@ -23,7 +23,7 @@
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, useStoryWebStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { toTopic } from '@/utils/misc';
-  import { setCombinedDragData } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -106,7 +106,7 @@
     } as EntryNodeDragData;
 
     // Set combined drag data for both canvas drops and internal operations
-    setCombinedDragData(event, props.node.id, fcbData);
+    DragDropService.setCombinedDragData(event, props.node.id, fcbData);
   };
 
   const onEntryContextMenu = (event: MouseEvent): void => {

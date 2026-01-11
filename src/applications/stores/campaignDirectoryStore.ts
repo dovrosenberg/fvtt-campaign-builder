@@ -1,21 +1,21 @@
 // this store handles the directory tree
 
 // library imports
-import { defineStore, storeToRefs, } from 'pinia';
+import { storeToRefs, } from 'pinia';
 import { reactive, ref, watch, nextTick } from 'vue';
 
 // local imports
 import { useMainStore, useNavigationStore, usePlayingStore } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import { DirectoryCampaignNode, DirectoryArcNode, DirectoryFrontFolder, Campaign, Session, Front, Arc, FCBSetting, StoryWeb } from '@/classes';
-import { getArcForSession } from '@/utils/arcIndex';
+import ArcIndexService from '@/utils/arcIndex';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyWarn } from '@/utils/notifications';
 
 // types
 
 // the store definition
-export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => {
+export const campaignDirectoryStore = () => {
   ///////////////////////////////
   // the state
 
@@ -221,7 +221,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (!campaign)
       throw new Error('Campaign not found in campaignDirectoryStore.deleteSession()');
     
-    const affectedArc = getArcForSession(campaign.arcIndex, session.number);
+    const affectedArc = ArcIndexService.getArcForSession(campaign.arcIndex, session.number);
     const affectedArcUuid = affectedArc?.uuid || null;
     
     await session.delete(external);  // this will remove from the campaign, etc.
@@ -309,7 +309,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       campaign = session.campaign!;
 
       // Find the arc that contains the new session and refresh it
-      const affectedArc = getArcForSession(campaign.arcIndex, session.number);
+      const affectedArc = ArcIndexService.getArcForSession(campaign.arcIndex, session.number);
 
       // Always refresh so reactive dependents (like session bookmarks) update reliably.
       await refreshCampaignDirectoryTree(affectedArc?.uuid ? [affectedArc.uuid] : []);
@@ -479,4 +479,4 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     createCampaign,
     getCampaigns,
   };
-});
+};

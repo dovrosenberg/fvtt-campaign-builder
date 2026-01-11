@@ -15,8 +15,8 @@
       help-link="https://slyflourish.com/sharing_secrets.html"
       @add-item="onAddLore"
       @cell-edit-complete="onCellEditComplete"
-      @dragover-new="standardDragover"
-      @dragover-row="standardDragover"
+      @dragover-new="DragDropService.standardDragover"
+      @dragover-row="DragDropService.standardDragover"
       @drop-row="onDropRow"
       @drop-new="onDropNew"
       @reorder="onReorderAvailable"
@@ -48,17 +48,17 @@
   import { computed, ref } from 'vue';
 
   // local imports
-  import { useCampaignStore, CampaignTableTypes, } from '@/applications/stores';
+  import { useCampaignStore, } from '@/applications/stores';
   import { localize } from '@/utils/game'
-  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
-
+  import DragDropService from '@/utils/dragDrop'; 
+  
   // library components
 	
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { BaseTableColumn, BaseTableGridRow, CampaignLoreDetails, CellEditCompleteEvent } from '@/types';
+  import { BaseTableColumn, CampaignTableTypes, BaseTableGridRow, CampaignLoreDetails, CellEditCompleteEvent } from '@/types';
   
   ////////////////////////////////
   // props
@@ -226,7 +226,7 @@
     event.preventDefault();  
 
     // parse the data 
-    const data = getValidatedData(event);
+    const data = DragDropService.getValidatedData(event);
     if (!data)
       return;
 
@@ -245,7 +245,7 @@
     event.preventDefault();  
 
     // parse the data 
-    const data = getValidatedData(event);
+    const data = DragDropService.getValidatedData(event);
     if (!data)
       return;
 

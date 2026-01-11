@@ -178,8 +178,8 @@
   import { useMainStore } from '@/applications/stores';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
-  import { getGlobalSetting } from '@/utils/globalSettings';
-  import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
+  import GlobalSettingService from '@/utils/globalSettings';
+  import AppWindowService from '@/utils/appWindow';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -256,7 +256,7 @@
       return;
     }
 
-    const setting = await getGlobalSetting(settingUuid);
+    const setting = await GlobalSettingService.getGlobalSetting(settingUuid);
     if (!setting) {
       campaignOptions.value = [];
       return;
@@ -290,7 +290,7 @@
     // reset the backend
     await useBackendStore().configure(true);
 
-    if (isCampaignBuilderAppOpen()) {
+    if (AppWindowService.isCampaignBuilderAppOpen()) {
       await useMainStore().refreshCurrentContent();
     }
 

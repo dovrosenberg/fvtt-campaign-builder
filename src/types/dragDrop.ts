@@ -1,8 +1,8 @@
 import { ValidTopic } from '@/types';
-import { FCBDragTypes } from '@/utils/dragdrop'
+import DragDropService from '@/utils/dragDrop'
 
 export interface EntryNodeDragData {
-  type: FCBDragTypes.Entry;
+  type: DragDropService.FCBDragTypes.Entry;
   childId: string;
   name: string;
   typeName: string;
@@ -10,48 +10,48 @@ export interface EntryNodeDragData {
 };
 
 export interface StoryWebNodeDragData {
-  type: FCBDragTypes.StoryWeb;
+  type: DragDropService.FCBDragTypes.StoryWeb;
   storyWebId: string;
   name: string;
 };
 
 export interface SettingNodeDragData {
-  type: FCBDragTypes.Setting;
+  type: DragDropService.FCBDragTypes.Setting;
   settingId: string;
   name: string;
 };
 
 export interface FrontNodeDragData {
-  type: FCBDragTypes.Front;
+  type: DragDropService.FCBDragTypes.Front;
   frontId: string;
   name: string;
 };
 
 export interface CampaignNodeDragData {
-  type: FCBDragTypes.Campaign;
+  type: DragDropService.FCBDragTypes.Campaign;
   campaignId: string;
   name: string;
 };
 
 export interface ArcNodeDragData {
-  type: FCBDragTypes.Arc;
+  type: DragDropService.FCBDragTypes.Arc;
   arcId: string;
   name: string;
 };
 
 export interface SessionNodeDragData {
-  type: FCBDragTypes.Session;
+  type: DragDropService.FCBDragTypes.Session;
   sessionId: string;
   name: string;
 };
 
 export interface BookmarkDragDropData {
-  type: FCBDragTypes.Bookmark;
+  type: DragDropService.FCBDragTypes.Bookmark;
   bookmarkId: string;
 }
 
 export interface TabDragData {
-  type: FCBDragTypes.Tab;
+  type: DragDropService.FCBDragTypes.Tab;
   tabId: string;
 }
 

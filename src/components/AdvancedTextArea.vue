@@ -64,7 +64,7 @@ Dependencies
   
   // local imports
   import { handleUuidDropOnTextarea, enrichUuidLinks } from '@/utils/uuidHandler';
-  import { standardDragover } from '@/utils/dragdrop'; 
+  import DragDropService from '@/utils/dragDrop'; 
   
   // library components
 
@@ -164,7 +164,7 @@ Dependencies
   // event handlers
   const onDragover = (event: DragEvent): void => {
     if (!props.editMode) return;
-    standardDragover(event);
+    DragDropService.standardDragover(event);
   };
 
   const onDrop = async(event: DragEvent): Promise<void> => {

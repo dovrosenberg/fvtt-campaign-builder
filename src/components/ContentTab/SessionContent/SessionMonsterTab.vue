@@ -15,7 +15,7 @@
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="showMonsterPicker=true"
     @drop-new="onDropNew"
-    @dragoverNew="standardDragover"
+    @dragoverNew="DragDropService.standardDragover"
     @dragstart="onDragStart"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
@@ -34,9 +34,9 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes, useMainStore, } from '@/applications/stores';
+  import { useSessionStore, useArcStore,  useMainStore, } from '@/applications/stores';
   import { localize } from '@/utils/game'
-  import { getValidatedData, actorDragStart, standardDragover } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop'; 
   import { notifyInfo } from '@/utils/notifications';
   import { ModuleSettings, SettingKey } from '@/settings';
 
@@ -47,7 +47,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow } from '@/types';
+  import { CellEditCompleteEvent, ArcTableTypes, SessionTableTypes, BaseTableColumn, BaseTableGridRow, ArcMonsterDetails, SessionMonsterDetails } from '@/types';
   import { ArcMonster, SessionMonster } from '@/documents';
   
   ////////////////////////////////
@@ -82,7 +82,7 @@
 
   ////////////////////////////////
   // computed data
-  const monsterRows = computed(() => props.arcMode ? arcMonsterRows.value : sessionMonsterRows.value);
+  const monsterRows = computed(() => (props.arcMode ? arcMonsterRows.value : sessionMonsterRows.value) as ArcMonsterDetails[] | SessionMonsterDetails[]);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
 
   const mappedMonsterRows = computed(() => (
@@ -153,7 +153,7 @@
     event.preventDefault();  
 
     // parse the data - looking for raw foundry data
-    let data = getValidatedData(event);
+    let data = DragDropService.getValidatedData(event);
     if (!data)
       return;
 
@@ -210,7 +210,7 @@
   }
 
   const onDragStart = async (event: DragEvent, uuid: string) => {
-    await actorDragStart(event, uuid);
+    await DragDropService.actorDragStart(event, uuid);
   }
 
   const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
@@ -218,10 +218,15 @@
       const monster = monsterRows.value.find(m => m.uuid === row.uuid);
 
       // rows have extra fields we don't want
-      return {
+      return props.arcMode ? {
         uuid: row.uuid,
-        notes: monster?.notes ?? '',
-      } as ArcMonster;
+        notes: monster!.notes ?? '',
+      } as ArcMonster : {
+        uuid: row.uuid,
+        notes: monster!.notes ?? '',
+        delivered: (monster as SessionMonsterDetails)!.delivered ?? false,
+        number: (monster as SessionMonsterDetails)!.number ?? 0,
+      } as SessionMonster;
     });
 
     await store.value.reorderMonsters(reorderedMonsters);

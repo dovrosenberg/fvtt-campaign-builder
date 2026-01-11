@@ -3,7 +3,7 @@ import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/set
 import { ValidDocType } from '@/types';
 import { FCBSetting } from './FCBSetting';
 import { sanitizeHTML } from '@/utils/sanitizeHtml';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
@@ -114,7 +114,7 @@ export class FCBJournalEntryPage<
   }
 
   public async getSetting(): Promise<FCBSetting> {
-    const setting = await getGlobalSetting(this.settingId);
+    const setting = await GlobalSettingService.getGlobalSetting(this.settingId);
     if (!setting)
       throw new Error(`Setting not found for FCBJournalEntryPage ${this.uuid}`);
     return setting;

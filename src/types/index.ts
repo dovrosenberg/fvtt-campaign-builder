@@ -1,7 +1,7 @@
 import { DOCUMENT_TYPES } from '@/documents/types.js';
 
 export type * from './directory.d.ts';
-export type * from './tables.d.ts';
+export * from './tables';
 export type * from './relationships.d.ts';
 export type * from './hierarchy.d.ts';
 export type * from './global.d.ts';
@@ -9,7 +9,7 @@ export type * from './species.d.ts';
 export type * from './dialogs.d.ts';
 export type * from './search.d.ts';
 export type * from './tags.d.ts';
-export type * from './dragdrop.ts';
+export type * from './dragDrop.ts';
 export type * from './documentIndices.ts';
 
 // @ts-ignore - need to pull enum

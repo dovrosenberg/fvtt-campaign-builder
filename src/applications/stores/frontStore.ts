@@ -1,7 +1,7 @@
 // this store handles activities specific to campaigns
 //
 // library imports
-import { defineStore, storeToRefs, } from 'pinia';
+import { storeToRefs, } from 'pinia';
 import { watch, ref, computed, } from 'vue';
 
 // local imports
@@ -12,7 +12,7 @@ import { DangerParticipant, GrimPortent} from '@/types';
 import { Entry } from '@/classes';
 
 // the store definition
-export const useFrontStore = defineStore('front', () => {
+export const frontStore = () => {
   ///////////////////////////////
   // the state
 
@@ -256,5 +256,4 @@ export const useFrontStore = defineStore('front', () => {
     reorderGrimPortents,
     reorderParticipants,  
   };
-});
-
+};

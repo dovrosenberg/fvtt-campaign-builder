@@ -20,7 +20,7 @@
           class="fcb-directory-type"
           @click="onTypeToggleClick"
           @drop="onDrop"
-          @dragover="standardDragover"
+          @dragover="DragDropService.standardDragover"
           @contextmenu="onTypeContextMenu"
         >
           {{ currentType?.name }}
@@ -54,7 +54,7 @@
   import { useSettingDirectoryStore, useMainStore, } from '@/applications/stores';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   import { toTopic } from '@/utils/misc';
-  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -121,8 +121,8 @@
         return;
 
     // parse the data - looking for entries 
-    const data = getValidatedData(event);
-    if (!data || getType(data) !== FCBDragTypes.Entry)
+    const data = DragDropService.getValidatedData(event);
+    if (!data || DragDropService.getType(data) !== DragDropService.FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

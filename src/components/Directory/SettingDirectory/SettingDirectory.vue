@@ -69,7 +69,7 @@
   import { localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
-  import { getGlobalSetting } from '@/utils/globalSettings';
+  import GlobalSettingService from '@/utils/globalSettings';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -163,7 +163,7 @@
           label: localize('contextMenus.settingFolder.createCampaign'), 
           onClick: async () => {
             if (settingId) {
-              const setting = await getGlobalSetting(settingId);
+              const setting = await GlobalSettingService.getGlobalSetting(settingId);
 
               if (setting) {
                 await campaignDirectoryStore.createCampaign(setting);

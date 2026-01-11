@@ -30,7 +30,7 @@ export class ExternalAPI {
    * Initialize the API
    */
   constructor() {
-    if (import.meta.env.MODE === 'development') {
+    if (import.meta.env.MODE === 'development' || import.meta.env.MODE === 'test') {
       this.testAPI = new TestAPI();
     }
 
@@ -141,7 +141,7 @@ class TestAPI {
    */
   public async resetAll(): Promise<void> {
     // super dangerous - only load this code in development mode
-    if (import.meta.env.MODE === 'development') {
+    if (import.meta.env.MODE === 'development' || import.meta.env.MODE === 'test') {
       for (const setting of await useMainStore().getAllSettings()) {
         await setting.delete();
       }

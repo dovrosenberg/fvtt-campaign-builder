@@ -1,14 +1,13 @@
 // this store handles activities specific to the backend
 // 
 // library imports
-import { defineStore } from 'pinia';
 
 // local imports
 import { ApiCharacterGeneratePostRequest, ApiCustomGenerateImagePostRequest, ApiCustomGeneratePostRequest, ApiLocationGeneratePostRequest, ApiNameCharactersPostRequest, ApiNameStoresPostRequest, ApiNameTavernsPostRequest, ApiNameTownsPostRequest,  ApiOrganizationGeneratePostRequest, ApiPollEmailTodoGet200Response, Configuration, FCBApi } from '@/apiClient';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyError, notifyInfo, notifyWarn } from '@/utils/notifications';
 import { isClientGM, localize } from '@/utils/game';
-import { useMainStore } from './mainStore';
+import { useMainStore } from '@/applications/stores';
 import { version } from '@module'
 
 // types
@@ -19,7 +18,7 @@ import { reactive, ref } from 'vue';
 // generally, we'll try to keep them more or less in sync, at least at the minor release level
 const REQUIRED_VERSION = '1.8';
 
-export const useBackendStore = defineStore('backend', () => {
+export const backendStore = () => {
   ///////////////////////////////
   // the state
 
@@ -239,4 +238,4 @@ export const useBackendStore = defineStore('backend', () => {
     generateCustom,
     generateCustomImage,
   }
-});
+};

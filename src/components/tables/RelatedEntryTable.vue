@@ -12,7 +12,7 @@
 
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
-    @dragover="standardDragover"
+    @dragover="DragDropService.standardDragover"
     @cell-edit-complete="onCellEditComplete"
   />
 
@@ -42,7 +42,7 @@
   import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { Entry } from '@/classes';
-  import { getValidatedData, getType, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
   import { FCBDialog } from '@/dialogs';
 
 
@@ -220,8 +220,8 @@
     event.preventDefault();
 
     // parse the data - looking for entry
-    let data = getValidatedData(event);
-    if (!data || getType(data) !== FCBDragTypes.Entry)
+    let data = DragDropService.getValidatedData(event);
+    if (!data || DragDropService.getType(data) !== DragDropService.FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

@@ -12,7 +12,7 @@
     @add-item="onAddParticipant"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
-    @dragover-new="standardDragover"
+    @dragover-new="DragDropService.standardDragover"
     @dropNew="onDropNew"
   />
 
@@ -37,7 +37,7 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useFrontStore, useMainStore, useNavigationStore } from '@/applications/stores';
-  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop'; 
   import { mapEntryToOption } from '@/utils/misc';
   
   // local components
@@ -188,8 +188,8 @@
   const onDropNew = async (event: DragEvent) => {
     event.preventDefault();
 
-    const data = getValidatedData(event);
-    if (!data || getType(data) !== FCBDragTypes.Entry)
+    const data = DragDropService.getValidatedData(event);
+    if (!data || DragDropService.getType(data) !== DragDropService.FCBDragTypes.Entry)
       return;
 
     const fcbData = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;

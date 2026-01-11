@@ -13,7 +13,7 @@
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="showLocationPicker=true"
-    @dragover-new="standardDragover"
+    @dragover-new="DragDropService.standardDragover"
     @dropNew="onDropNew"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
@@ -33,9 +33,9 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, SessionTableTypes, useArcStore, ArcTableTypes, useMainStore } from '@/applications/stores';
+  import { useSessionStore, useArcStore, useMainStore } from '@/applications/stores';
   import { localize } from '@/utils/game'
-  import { getType, getValidatedData, standardDragover, FCBDragTypes } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
   import { notifyInfo } from '@/utils/notifications';
   import { ModuleSettings, SettingKey } from '@/settings';
 
@@ -46,7 +46,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
-  import { BaseTableColumn, Topics, RelatedEntryDialogModes, CellEditCompleteEvent, EntryNodeDragData, BaseTableGridRow, } from '@/types';
+  import { BaseTableColumn, Topics, RelatedEntryDialogModes, ArcTableTypes, SessionTableTypes, CellEditCompleteEvent, EntryNodeDragData, BaseTableGridRow, } from '@/types';
   import { ArcLocation, SessionLocation } from '@/documents';
   
   ////////////////////////////////
@@ -185,8 +185,8 @@
     event.preventDefault();  
 
     // parse the data - looking for location entries
-    const data = getValidatedData(event);
-    if (!data || getType(data) !== FCBDragTypes.Entry)
+    const data = DragDropService.getValidatedData(event);
+    if (!data || DragDropService.getType(data) !== DragDropService.FCBDragTypes.Entry)
       return;
 
     const fcbEntry = 'fcbData' in data && data.fcbData as EntryNodeDragData | undefined;
@@ -204,11 +204,18 @@
       const location = locationRows.value.find(l => l.uuid === row.uuid);
 
       // rows have extra fields we don't want
-      return {
-        uuid: row.uuid,
-        delivered: location?.delivered ?? false,
-        notes: location?.notes ?? '',
-      } as ArcLocation | SessionLocation;
+      if (props.arcMode) {
+        return {
+          uuid: row.uuid,
+          notes: location?.notes ?? '',
+        } as ArcLocation;
+      } else {
+        return {
+          uuid: row.uuid,
+          delivered: location?.delivered ?? false,
+          notes: location?.notes ?? '',
+        } as SessionLocation;
+      }
     });
 
     await store.value.reorderLocations(reorderedLocations);

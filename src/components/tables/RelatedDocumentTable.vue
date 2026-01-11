@@ -13,7 +13,7 @@
 
     @row-context-menu="onRowContextMenu"
     @drop-new="onDropNew"
-    @dragover="standardDragover"
+    @dragover="DragDropService.standardDragover"
     @dragstart="onDragStart"
     @add-item="onAddItem"
   />
@@ -34,7 +34,7 @@
   // local imports
   import { useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { getValidatedData, actorDragStart, itemDragStart, foundryDragStart, standardDragover } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
   import { FCBDialog } from '@/dialogs';
 
   // library components
@@ -287,7 +287,7 @@
     event.preventDefault();  
 
     // parse the data - looking for raw Foundry data (type and uuid)
-    let data = getValidatedData(event) as FoundryDragType | undefined;
+    let data = DragDropService.getValidatedData(event) as FoundryDragType | undefined;
     if (!data)
       return;
 
@@ -305,11 +305,11 @@
   const onDragStart = async (event: DragEvent, uuid: string) => {
     switch (props.documentLinkType) {
       case DocumentLinkType.Actors:
-        return await actorDragStart(event, uuid);
+        return await DragDropService.actorDragStart(event, uuid);
       case DocumentLinkType.Items:
-        return await itemDragStart(event, uuid);
+        return await DragDropService.itemDragStart(event, uuid);
       case DocumentLinkType.GenericFoundry:
-        return await foundryDragStart(event, uuid);
+        return await DragDropService.foundryDragStart(event, uuid);
     }
 
     return;    

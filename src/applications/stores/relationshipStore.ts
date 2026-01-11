@@ -1,10 +1,10 @@
 // this store handles relationships between entries (not campaigns/sessions)
 
 // library imports
-import { defineStore, storeToRefs, } from 'pinia';
+import { storeToRefs, } from 'pinia';
 
 // local imports
-import { useMainStore, } from './index';
+import { useMainStore, } from '@/applications/stores';
 
 // types
 import { 
@@ -26,7 +26,7 @@ interface SessionReference {
 }
 
 // the store definition
-export const useRelationshipStore = defineStore('relationship', () => {
+export const relationshipStore = () => {
   ///////////////////////////////
   // the state
   const relatedEntryRows = ref<RelatedEntryDetails<any, any>[]>([]);
@@ -626,4 +626,4 @@ export const useRelationshipStore = defineStore('relationship', () => {
     addFoundryDocument,
     deleteFoundryDocument,
   };
-});
+};

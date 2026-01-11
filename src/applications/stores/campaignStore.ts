@@ -1,7 +1,7 @@
 // this store handles activities specific to campaigns
 //
 // library imports
-import { defineStore, storeToRefs, } from 'pinia';
+import { storeToRefs, } from 'pinia';
 import { watch, ref, computed } from 'vue';
 
 // local imports
@@ -9,22 +9,13 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { RelatedPCDetails, BaseTableColumn, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea,} from '@/types';
+import { RelatedPCDetails, BaseTableColumn, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea, CampaignTableTypes} from '@/types';
 import { Arc, Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import { notifyWarn } from '@/utils/notifications';
 
-export enum CampaignTableTypes {
-  None,
-  PC,
-  Lore,
-  DeliveredLore,
-  ToDo,
-  Idea,
-}
-
 // the store definition
-export const useCampaignStore = defineStore('campaign', () => {
+export const campaignStore = () => {
   ///////////////////////////////
   // the state
 
@@ -734,5 +725,4 @@ export const useCampaignStore = defineStore('campaign', () => {
     moveIdeaToToDo,
     moveToDoToIdea,
   };
-});
-
+};

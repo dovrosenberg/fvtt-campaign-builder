@@ -8,7 +8,7 @@ import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore, useSettingDirectoryStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
-import { cleanTopicKeysOnSave } from '@/utils/cleanKeys';
+import CleanKeysService from '@/utils/cleanKeys';
 
 export interface CreateEntryOptions { 
   name?: string; 
@@ -337,7 +337,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   }
 
   protected _prepData(data: EntryDocClass): void {
-    data.system.relationships = cleanTopicKeysOnSave(data.system.relationships);
+    data.system.relationships = CleanKeysService.cleanTopicKeysOnSave(data.system.relationships);
   }
 
   // used to set arbitrary properties on the entryDoc

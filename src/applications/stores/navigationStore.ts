@@ -1,7 +1,6 @@
 // this store handles main navigation (tabs, bookmarks, recent)
 
 // library imports
-import { defineStore, } from 'pinia';
 import { ref, } from 'vue';
 import { storeToRefs } from 'pinia';
 
@@ -9,20 +8,20 @@ import { storeToRefs } from 'pinia';
 import { localize } from '@/utils/game';
 import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
-import { useMainStore } from './mainStore';
-import { scrollToActiveEntry } from '@/utils/directoryScroll';
+import { useMainStore } from '@/applications/stores';
+import DirectoryScrollService from '@/utils/directoryScroll';
 import { hasUnsavedChanges, saveAndCloseAllActiveEditors, closeAllActiveEditors } from '@/utils/editorChangeDetection';
 import { FCBDialog } from '@/dialogs';
 import { SaveChangesResult } from '@/dialogs/saveChanges';
 import { notifyError, notifyInfo } from '@/utils/notifications';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 
 // types
 import { Bookmark, SessionDisplayMode, TabHeader, WindowTabType, } from '@/types';
 import { WindowTab, Entry, Campaign, Session, Front, Arc, StoryWeb } from '@/classes';
 
 // the store definition
-export const useNavigationStore = defineStore('navigation', () => {
+export const navigationStore = () => {
   ///////////////////////////////
   // the state
 
@@ -102,7 +101,7 @@ export const useNavigationStore = defineStore('navigation', () => {
           break;
         }
         case WindowTabType.Setting: {
-          const setting = await getGlobalSetting(contentId);
+          const setting = await GlobalSettingService.getGlobalSetting(contentId);
           if (!setting) {
             badId = true;
           } else {
@@ -406,7 +405,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     await mainStore.setNewTab(tab);
 
     // scroll to the entry
-    await scrollToActiveEntry();
+    await DirectoryScrollService.scrollToActiveEntry();
 
     return tab;
   };
@@ -532,7 +531,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     await mainStore.setNewTab(newTab);
 
     // Scroll to and expand the active entry in the directory tree
-    await scrollToActiveEntry();
+    await DirectoryScrollService.scrollToActiveEntry();
 
     return;
   };
@@ -691,7 +690,7 @@ export const useNavigationStore = defineStore('navigation', () => {
         await mainStore.setNewTab(activeTab);
         
         // Scroll to and expand the active entry in the directory tree
-        await scrollToActiveEntry();
+        await DirectoryScrollService.scrollToActiveEntry();
       }
     }
 
@@ -766,7 +765,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       
       await mainStore.setNewTab(tabToActivate);
       // Scroll to and expand the active entry in the directory tree
-      await scrollToActiveEntry();
+      await DirectoryScrollService.scrollToActiveEntry();
     }
   };
  
@@ -967,4 +966,4 @@ export const useNavigationStore = defineStore('navigation', () => {
     loadContentMetadata,
     refreshSessionBookmarks
   };
-});
+};

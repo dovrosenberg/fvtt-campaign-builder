@@ -11,7 +11,7 @@
         :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteRelationship') }]"
 
         @drop-new="onDropNew"
-        @dragover="standardDragover"
+        @dragover="DragDropService.standardDragover"
         @add-item="showPicker = true"
         @reorder="onReorder"
       />
@@ -40,8 +40,8 @@
 
   // types
   import { BaseTableColumn, FoundryDragType, RelatedJournal, BaseTableGridRow } from '@/types';
-  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
-
+  import DragDropService from '@/utils/dragDrop'; 
+  
   ////////////////////////////////
   // props
   const props = defineProps<{
@@ -157,7 +157,7 @@
     event.preventDefault();
     
     // parse the data - we're just looking for raw Foundry data here
-    let data = getValidatedData(event) as FoundryDragType;
+    let data = DragDropService.getValidatedData(event) as FoundryDragType;
     if (!data)
       return;
 

@@ -5,13 +5,39 @@
 import { SettingKey, ModuleSettings } from '@/settings';
 // import { registerClassesTests } from '@unittest/classes';
 // import { registerSettingsTests } from '@unittest/settings';
-import { registerUtilsTests } from '@unittest/utils';
+import { 
+  registerAppWindowBatch,
+  registerHierarchyBatch,
+  registerRelatedContentBatch,
+  registerArcIndexBatch,
+  registerCleanKeysBatch,
+  registerCustomFieldsBatch,
+  registerDirectoryScrollBatch,
+  registerDragDropBatch,
+  registerNameGeneratorsBatch,
+} from '@unittest/utils';
+import { registerMainStoreBatch } from '@unittest/applications/stores';
 
 // Registers all `Quench` tests
-Hooks.on('quenchReady' as any, () => {
+Hooks.on('quenchReady' as any, (quench: any): void => {
+  // Store the quench object globally for test automation
+  (window as any).quenchObject = quench;
+  (window as any).quenchTestsRegistered = true;
+  
   // registerClassesTests();
   // registerSettingsTests();
-  registerUtilsTests();
+  
+  // Register individual batches so users can select which to run
+  registerAppWindowBatch();
+  registerHierarchyBatch();
+  registerRelatedContentBatch();
+  registerArcIndexBatch();
+  registerCleanKeysBatch();
+  registerCustomFieldsBatch();
+  registerDirectoryScrollBatch();
+  registerDragDropBatch();
+  registerMainStoreBatch();
+  registerNameGeneratorsBatch();
 });
 
 const settings = {};

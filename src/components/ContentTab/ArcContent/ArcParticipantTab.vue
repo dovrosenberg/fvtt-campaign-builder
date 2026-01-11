@@ -11,7 +11,7 @@
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddItem"
-    @dragoverNew="standardDragover"
+    @dragoverNew="DragDropService.standardDragover"
     @drop-new="onDropNew"
     @cell-edit-complete="onCellEditComplete"
     @reorder="onReorder"
@@ -34,14 +34,13 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { ArcTableTypes, useArcStore, useMainStore } from '@/applications/stores';
+  import { useArcStore, useMainStore } from '@/applications/stores';
   import { Topics, CellEditCompleteEvent, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
-  import { getType, getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop'; 
   import { getTopicText } from '@/compendia';
   import { notifyInfo } from '@/utils/notifications';
   import { mapEntryToOption } from '@/utils/misc';
-  import { FCBDragTypes } from '@/utils/dragdrop';
   import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
@@ -51,7 +50,7 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
   
   // types
-  import { BaseTableColumn, BaseTableGridRow } from '@/types';
+  import { BaseTableColumn, BaseTableGridRow, ArcTableTypes } from '@/types';
   import { Entry } from '@/classes';
   import { ArcParticipant } from '@/documents';
 
@@ -174,8 +173,8 @@
     event.preventDefault();  
 
     // parse the data - make sure its an entry
-    const data = getValidatedData(event);
-    if (!data || getType(data) !== FCBDragTypes.Entry) {
+    const data = DragDropService.getValidatedData(event);
+    if (!data || DragDropService.getType(data) !== DragDropService.FCBDragTypes.Entry) {
       return;
     }
 

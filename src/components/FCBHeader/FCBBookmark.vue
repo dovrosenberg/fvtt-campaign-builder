@@ -7,7 +7,7 @@
     @contextmenu="onBookmarkContextMenu"
     @dragstart="onDragStart"
     @drop="onDrop"
-    @dragover="standardDragover"
+    @dragover="DragDropService.standardDragover"
   >
     <div>
       <i 
@@ -30,7 +30,7 @@
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
-  import { getValidatedData, standardDragover } from '@/utils/dragdrop';
+  import DragDropService from '@/utils/dragDrop';
 
   // local components
 
@@ -140,7 +140,7 @@
     }
 
     // parse the data - looking for bookmarks
-    let data = getValidatedData(event) as BookmarkDragDropData | undefined;
+    let data = DragDropService.getValidatedData(event) as BookmarkDragDropData | undefined;
     if (!data || data.type !== 'fcb-bookmark')
       return;
 

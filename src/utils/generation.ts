@@ -24,7 +24,7 @@ import {
 } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyError, notifyInfo } from './notifications';
-import { windowTabToCustomContentType } from './customFields';
+import CustomFieldsService from './customFields';
 import { replaceUUIDsInText } from './sanitizeHtml';
 import { ApiCustomGenerateImagePostRequestContentTypeEnum } from '@/apiClient';
 
@@ -124,7 +124,7 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
     const aiImageConfigurations = ModuleSettings.get(SettingKey.aiImageConfigurations) || {};
     
     // Determine content type based on the document type
-    let contentType = windowTabToCustomContentType(windowTabType, entry);
+    let contentType = CustomFieldsService.windowTabToCustomContentType(windowTabType, entry);
     
     // Map the numeric CustomFieldContentType to the string values expected by the API
     const contentTypeMap: Record<CustomFieldContentType, ApiCustomGenerateImagePostRequestContentTypeEnum> = {

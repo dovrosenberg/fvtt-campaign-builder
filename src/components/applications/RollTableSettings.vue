@@ -94,12 +94,13 @@
 
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { refreshAllSettingRollTables } from '@/utils/nameGenerators';
+  import NameGeneratorsService from '@/utils/nameGenerators';
   import { rollTableSettingsApp } from '@/applications/settings/RollTableSettingsApplication';
   import { localize } from '@/utils/game';
   import { notifyError, notifyInfo } from '@/utils/notifications';
-  import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
+  import AppWindowService from '@/utils/appWindow';
   import { useMainStore } from '@/applications/stores';
+  
   // library components
   import Checkbox from 'primevue/checkbox';
   import Inputtext from 'primevue/inputtext';
@@ -146,7 +147,7 @@
       ...defaultTypes.value,
     });
 
-    if (isCampaignBuilderAppOpen()) {
+    if (AppWindowService.ilsCampaignBuilderAppOpen()) {
       await useMainStore().refreshCurrentContent();
     }
     rollTableSettingsApp?.close();
@@ -159,7 +160,7 @@
     
     try {
       // Refresh setting-specific tables for all settings
-      await refreshAllSettingRollTables(true);
+      await NameGeneratorsService.refreshAllSettingRollTables(true);
       notifyInfo(localize('applications.rollTableSettings.notifications.refreshSuccess'));
     } catch (error) {
       console.error('Error refreshing roll tables:', error);

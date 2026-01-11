@@ -1,7 +1,7 @@
 // this store handles activities specific to play mode
 //
 // library imports
-import { defineStore, storeToRefs } from 'pinia';
+import { storeToRefs } from 'pinia';
 import { watch, ref, computed, } from 'vue';
 
 // local imports
@@ -14,7 +14,7 @@ import { openSessionNotes, SessionNotesApplication, } from '@/applications/Sessi
 import { ToDoTypes } from '@/types';
 
 // the store definition
-export const usePlayingStore = defineStore('playing', () => {
+export const playingStore = () => {
   ///////////////////////////////
   // the state
 
@@ -211,5 +211,4 @@ export const usePlayingStore = defineStore('playing', () => {
     currentPlayedSessionNotes,
     playableCampaigns,
   };
-});
-
+};

@@ -1,6 +1,6 @@
 import { RelatedEntryDetails, ValidTopic, RelatedJournal, ValidTopicRecord } from '@/types';
 import { schemas } from './fields';
-import { cleanTopicKeysOnLoad } from '@/utils/cleanKeys';
+import CleanKeysService from '@/utils/cleanKeys';
 
 const fields = foundry.data.fields;
 export const EntrySchema = {
@@ -47,7 +47,7 @@ export class EntryDataModel extends foundry.abstract.TypeDataModel<EntrySchemaTy
   prepareBaseData(): void {
     if (this.relationships) {
       // Decode any protected keys back to normal
-      this.relationships = cleanTopicKeysOnLoad(this.relationships);
+      this.relationships = CleanKeysService.cleanTopicKeysOnLoad(this.relationships);
     }
   }
 }

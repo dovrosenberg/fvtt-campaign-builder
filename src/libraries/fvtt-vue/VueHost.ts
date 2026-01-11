@@ -157,7 +157,7 @@ class VueHost {
 
     // Vite DevTools plugin handles DevTools registration automatically
     // But we need to ensure the app is discoverable
-    if (typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'development') {
+    if (typeof import.meta !== 'undefined' && (import.meta.env?.MODE === 'development' || import.meta.env?.MODE === 'test')) {
       // Make the app available for DevTools
       (window as any).__VUE_APP__ = this._app;
       

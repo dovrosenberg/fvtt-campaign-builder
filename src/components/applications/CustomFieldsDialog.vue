@@ -396,8 +396,8 @@
   import { useBackendStore } from '@/applications/stores';
   import { customFieldsApp } from '@/applications/settings/CustomFieldsApplication';
   import { searchService } from '@/utils/search';
-  import { isCampaignBuilderAppOpen } from '@/utils/appWindow';
-  import { makeCustomFieldKeyUnique } from '@/utils/customFields';
+  import AppWindowService from '@/utils/appWindow';
+  import CustomFieldsService from '@/utils/customFields';
   import { generateIdFromName } from '@/utils/idGeneration';
 
   // library components
@@ -923,7 +923,7 @@
 
       if (!r.name) {
         const base = generateIdFromName(r.label);
-        const unique = makeCustomFieldKeyUnique(base, reservedNames);
+        const unique = CustomFieldsService.makeCustomFieldKeyUnique(base, reservedNames);
         r.name = unique;
         reservedNames.add(unique);
       }
@@ -1299,7 +1299,7 @@
     // Save AI Image configurations
     await ModuleSettings.set(SettingKey.aiImageConfigurations, aiImageConfigurations.value);
 
-    if (isCampaignBuilderAppOpen()) {
+    if (AppWindowService.isCampaignBuilderAppOpen()) {
       await mainStore.refreshCurrentContent();
     }
 

@@ -3,11 +3,11 @@ import { moduleId, ModuleSettings, SettingKey, } from '@/settings';
 import { DOCUMENT_TYPES, CampaignLore, frontIndexFields } from '@/documents';
 import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, StoryWebFilterIndex, ToDoItem, ToDoTypes, Idea,} from '@/types';
 import { Entry, Session, FCBSetting, Front, Arc, StoryWeb } from '@/classes';
-import { getArcForSession, getFirstArcWithSessions, getLastArcWithSessions } from '@/utils/arcIndex';
+import ArcIndexService from '@/utils/arcIndex';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
 import { JournalEntryFlagKey } from '@/settings';
 import { searchService } from '@/utils/search';
-import { getGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 
@@ -142,7 +142,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       arc.sortOrder = 0;  // just in case
       await arc.save();
     } else { 
-      const lastArcWithSessions = getLastArcWithSessions(this._clone.system.arcIndex);
+      const lastArcWithSessions = ArcIndexService.getLastArcWithSessions(this._clone.system.arcIndex);
       if (lastArcWithSessions) {
         // extend the last arc that has sessions
         const arc = await Arc.fromUuid(lastArcWithSessions.uuid);
@@ -184,12 +184,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    */
   public async updateArcsForNewSessionNumber(newSessionNumber: number): Promise<void> {
     // see if it's fine already
-    if (getArcForSession(this.arcIndex, newSessionNumber) != null) 
+    if (ArcIndexService.getArcForSession(this.arcIndex, newSessionNumber) != null) 
       return;
 
     // see if it's too high and/or too low 
-    const firstArcIndex = getFirstArcWithSessions(this.arcIndex);
-    const lastArcIndex = getLastArcWithSessions(this.arcIndex);
+    const firstArcIndex = ArcIndexService.getFirstArcWithSessions(this.arcIndex);
+    const lastArcIndex = ArcIndexService.getLastArcWithSessions(this.arcIndex);
     
     if (!firstArcIndex || !lastArcIndex) {
       // no arcs - this shouldn't happen
@@ -327,18 +327,18 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     }
 
     // Adjust arc boundaries for the deleted session (directly modify arcIndex)
-    const arcIndex = getArcForSession(this.arcIndex, session.number);
-    if (arcIndex) {
+    const arcIndexEntry = ArcIndexService.getArcForSession(this.arcIndex, session.number);
+    if (arcIndexEntry) {
       // if there was only one session, empty it
-      if (arcIndex.startSessionNumber === arcIndex.endSessionNumber) {
-        arcIndex.startSessionNumber = -1;
-        arcIndex.endSessionNumber = -1;
-      } else if (arcIndex.startSessionNumber === session.number) {
+      if (arcIndexEntry.startSessionNumber === arcIndexEntry.endSessionNumber) {
+        arcIndexEntry.startSessionNumber = -1;
+        arcIndexEntry.endSessionNumber = -1;
+      } else if (arcIndexEntry.startSessionNumber === session.number) {
         // it was at the start, make the new start one higher 
-        arcIndex.startSessionNumber++;
-      } else if (arcIndex.endSessionNumber === session.number) {
+        arcIndexEntry.startSessionNumber++;
+      } else if (arcIndexEntry.endSessionNumber === session.number) {
         // it was at the end, make the new end one lower
-        arcIndex.endSessionNumber--;
+        arcIndexEntry.endSessionNumber--;
       }
       // if in the middle, no change needed
     }
@@ -936,7 +936,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
     const id = this._doc.uuid;
 
-    let setting = await getGlobalSetting(this.settingId);
+    let setting = await GlobalSettingService.getGlobalSetting(this.settingId);
 
     if (!setting)
       throw new Error('Invalid setting in Campaign.delete()');

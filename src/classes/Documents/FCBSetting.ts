@@ -4,15 +4,15 @@ import { FCBDialog } from '@/dialogs';
 import { TopicFolder, RootFolder, Entry, Session, Arc, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
-import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
+import NameGeneratorsService from '@/utils/nameGenerators';
 import { useBackendStore } from '@/applications/stores';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Documents/FCBJournalEntryPage';
 import { entryIndexFields, NameStyleExamples, } from '@/documents';
-import { cleanKeysOnSave, } from '@/utils/cleanKeys';
+import CleanKeysService from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
 import { ArcBasicIndex, CampaignBasicIndex, EntryFilterIndex, Hierarchy, RelatedJournal, TopicBasicIndex, SessionFilterIndex, SessionIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';
-import { updateGlobalSetting, removeGlobalSetting } from '@/utils/globalSettings';
+import GlobalSettingService from '@/utils/globalSettings';
 
 type SettingCompendium = CompendiumCollection<'JournalEntry'>;
 
@@ -291,7 +291,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     await ModuleSettings.set(SettingKey.settingIndex, indexes);
     
     // add to master list
-    updateGlobalSetting(newSetting);
+    GlobalSettingService.updateGlobalSetting(newSetting);
 
     await newSetting.populate(skipValidation);
 
@@ -306,7 +306,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     // If auto-refresh is enabled, populate tables in background
     const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
     if (autoRefresh && useBackendStore().available) {
-      void refreshSettingRollTables(newSetting);
+      void NameGeneratorsService.refreshSettingRollTables(newSetting);
     }
 
     return newSetting;
@@ -322,7 +322,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     
     // Initialize roll tables for this setting if they don't exist - but don't wait for the generation
     if (!skipRollTables)
-      await initializeSettingRollTables(this);      
+      await NameGeneratorsService.initializeSettingRollTables(this);      
   }
 
   private populateTopics() {
@@ -457,8 +457,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   
   protected _prepData(data: SettingDocClass): void {
     // convert unsafe keys
-    data.system.hierarchies = cleanKeysOnSave(data.system.hierarchies);
-    data.system.expandedIds = cleanKeysOnSave(data.system.expandedIds);
+    data.system.hierarchies = CleanKeysService.cleanKeysOnSave(data.system.hierarchies);
+    data.system.expandedIds = CleanKeysService.cleanKeysOnSave(data.system.expandedIds);
   }
   
   public async save() {
@@ -478,7 +478,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
     // settings have long lived-cache... we need to refresh that in case we modified 
     //    something that was a copy
-    updateGlobalSetting(this);
+    GlobalSettingService.updateGlobalSetting(this);
 
     // finally, update the setting index if needed
     if (nameChanged) {
@@ -504,7 +504,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     await this.deleteRollTables();
 
     // remove from master
-    removeGlobalSetting(this.uuid);
+    GlobalSettingService.removeGlobalSetting(this.uuid);
 
     // delete the pack - this will delete everything else
     if (!this.compendium)
