@@ -2,6 +2,8 @@
 
 import { NodeDragDropData, KnownDragTypes, } from '@/types';
 
+type FCBDragType = typeof DragDropService.FCBDragTypes[keyof typeof DragDropService.FCBDragTypes];
+
 /**
  * Service for handling drag and drop operations in the Campaign Builder.
  * Provides utilities for setting drag data, validating drops, and handling
@@ -73,7 +75,7 @@ const DragDropService = {
   },
 
   /** Read a data pack from a drop event. Return the type from fcbData if present, otherwise from the root */
-  getType: (data: KnownDragTypes): FCBDragTypes | string => {
+  getType: (data: KnownDragTypes): FCBDragType | string => {
     // @ts-ignore
     return data.fcbData?.type ?? data.type;
   },
