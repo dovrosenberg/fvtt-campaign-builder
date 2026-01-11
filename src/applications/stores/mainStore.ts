@@ -7,7 +7,7 @@ import { computed, ref, watch, nextTick, triggerRef } from 'vue';
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings';
 import TitleUpdaterService from '@/utils/titleUpdater';
 import { useNavigationStore } from '@/applications/stores';
-import NameGeneratorService from '@/utils/nameGenerators';
+import NameGeneratorsService from '@/utils/nameGenerators';
 import GlobalSettingService from '@/utils/globalSettings';
 import AppWindowService from '@/utils/appWindow';
 
@@ -340,7 +340,7 @@ export const mainStore = () => {
     // Update roll table names if roll tables are configured
     if (setting.rollTableConfig) {
       try {
-        await NameGeneratorService.updateSettingRollTableNames(setting);
+        await NameGeneratorsService.updateSettingRollTableNames(setting);
       } catch (error) {
         console.error('Error updating roll table names:', error);
       }

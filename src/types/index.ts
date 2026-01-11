@@ -9,7 +9,7 @@ export type * from './species.d.ts';
 export type * from './dialogs.d.ts';
 export type * from './search.d.ts';
 export type * from './tags.d.ts';
-export type * from './dragdrop.ts';
+export type * from './dragDrop.ts';
 export type * from './documentIndices.ts';
 
 // @ts-ignore - need to pull enum

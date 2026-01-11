@@ -1,5 +1,5 @@
 import { ValidTopic } from '@/types';
-import DragDropService from '@/utils/dragdrop'
+import DragDropService from '@/utils/dragDrop'
 
 export interface EntryNodeDragData {
   type: DragDropService.FCBDragTypes.Entry;

@@ -5,7 +5,7 @@ import DragDropService from '@/utils/dragDrop';
 export const registerDragDropTests = (context: QuenchBatchContext) => {
   const { describe, it, expect, beforeEach, afterEach } = context;
 
-  describe('dragdrop utilities', () => {
+  describe('dragDrop utilities', () => {
     let sandbox: sinon.SinonSandbox;
     let mockDataTransfer;
     let mockDragEvent;

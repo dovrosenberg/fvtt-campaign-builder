@@ -8,7 +8,7 @@ import { registerArcIndexTests } from "./arcIndex.test";
 import { registerCleanKeysTests } from "./cleanKeys.test";
 import { registerCustomFieldsTests } from "./customFields.test";
 import { registerDirectoryScrollTests } from "./directoryScroll.test";
-import { registerDragDropTests } from "./dragdrop.test";
+import { registerDragDropTests } from "./dragDrop.test";
 import { registerNameGeneratorsTests } from "./nameGenerators.test";
 
 /**
@@ -113,8 +113,8 @@ export const registerDirectoryScrollBatch = () => {
 
 export const registerDragDropBatch = () => {
   createBatch(
-    'campaign-builder.utils.dragdrop',
-    '/utils/dragdrop',
+    'campaign-builder.utils.dragDrop',
+    '/utils/dragDrop',
     registerDragDropTests
   );
 };

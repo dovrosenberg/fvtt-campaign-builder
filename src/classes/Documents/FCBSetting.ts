@@ -4,7 +4,7 @@ import { FCBDialog } from '@/dialogs';
 import { TopicFolder, RootFolder, Entry, Session, Arc, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
-import NameGeneratorService from '@/utils/nameGenerators';
+import NameGeneratorsService from '@/utils/nameGenerators';
 import { useBackendStore } from '@/applications/stores';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Documents/FCBJournalEntryPage';
@@ -306,7 +306,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     // If auto-refresh is enabled, populate tables in background
     const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
     if (autoRefresh && useBackendStore().available) {
-      void NameGeneratorService.refreshSettingRollTables(newSetting);
+      void NameGeneratorsService.refreshSettingRollTables(newSetting);
     }
 
     return newSetting;
@@ -322,7 +322,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     
     // Initialize roll tables for this setting if they don't exist - but don't wait for the generation
     if (!skipRollTables)
-      await NameGeneratorService.initializeSettingRollTables(this);      
+      await NameGeneratorsService.initializeSettingRollTables(this);      
   }
 
   private populateTopics() {

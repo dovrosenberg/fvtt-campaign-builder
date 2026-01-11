@@ -10,7 +10,7 @@ import { UserFlagKey, UserFlags, ModuleSettings, SettingKey } from '@/settings';
 import AppWindowService from '@/utils/appWindow';
 import GlobalSettingService from '@/utils/globalSettings';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
-import NameGeneratorService from '@/utils/nameGenerators';
+import NameGeneratorsService from '@/utils/nameGenerators';
 import TitleUpdaterService from '@/utils/titleUpdater';
 
 export const registerMainStoreTests = (context: QuenchBatchContext) => {
@@ -674,7 +674,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
       let updateSettingRollTableNamesStub: sinon.SinonStub;
 
       beforeEach(() => {
-        updateSettingRollTableNamesStub = sandbox.stub(NameGeneratorService, 'updateSettingRollTableNames').resolves();
+        updateSettingRollTableNamesStub = sandbox.stub(NameGeneratorsService, 'updateSettingRollTableNames').resolves();
       });
 
       it('should update roll table names when setting has roll table config', async () => {
