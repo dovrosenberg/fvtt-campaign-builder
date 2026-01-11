@@ -9,11 +9,18 @@ next:
 ---
 
 # Arc Vignettes Tab
+![Arc Vignettes Tab](/assets/images/arc-vignette-tab.webp)
 
 The Vignettes tab lets you track vignette ideas at the Arc level (equivalent to [Session Vignettes](/reference/campaign-mgt/content/session/vignettes), but for longer-term planning).  This lets you (for example) plan ahead for several sessions by adding your Vignettes to the Arc, and then push them to the next session with one click when it's time to use them.
 
 ## Adding Vignettes
 Click "Add Vignette" to create a new vignette entry. Enter the text and hit "Enter" to save.
+
+## The Vignette list
+This list contains the individual vignettes. For each vignette, you can see its text.
+
+### Moveable
+You can reorder the vignette list by dragging the handle on the left side of each row to move rows up and down.
 
 ## Vignette Actions
 The actions column supports:

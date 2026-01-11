@@ -30,6 +30,9 @@ This list contains the selected Story Webs.
 
 Click the name of a Story Web to open it (hold Control to open in a new tab).
 
+### Moveable
+You can reorder the story web list by dragging the handle on the left side of each row to move rows up and down.
+
 ### Story Web Actions
 The actions column lets you manage the Story Web entries:
   - **Delete** - Delete the Story Web.  This removes it from the Campaign list, but DOES NOT delete the Story Web itself - it remains in the Campaign Directory for future use.

@@ -34,6 +34,9 @@ Click on a value in the number column to edit it.  Press Enter to save.
 
 Click on the notes field to edit it.  Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.
 
+### Moveable
+You can reorder the monster list by dragging the handle on the left side of each row to move rows up and down.
+
 ### Monster Actions
 The actions column lets you take several actions with the Monster entries:
   - **Delete** - Delete the Monster.  This removes it from the Session list, but DOES NOT delete the Actor from Foundry.

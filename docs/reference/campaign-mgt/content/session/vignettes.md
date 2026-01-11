@@ -20,6 +20,9 @@ Click "Add Vignette" to create a new Vignette entry.  Enter the text of the Vign
 ## The Vignette list
 This list contains the individual Vignettes. For each Vignette, you can see its text.
 
+### Moveable
+You can reorder the vignette list by dragging the handle on the left side of each row to move rows up and down.
+
 ### Vignette Actions
 The actions column lets you take several actions with the Vignette entries:
   - **Delete** - Delete the Vignette

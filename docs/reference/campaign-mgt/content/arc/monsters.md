@@ -30,6 +30,9 @@ Click the name of the Monster to open the (system-dependent) stat/character shee
 
 You can also add notes to each Monster to track how it will be used in the Arc.  Double click the notes field for a row or click the "Edit" icon to open the row editor.
 
+### Moveable
+You can reorder the monster list by dragging the handle on the left side of each row to move rows up and down.
+
 ### Monster actions
 The actions column lets you take several actions with the Monster entries:
   - **Delete** - Delete the Monster.  This removes it from the Arc list, but DOES NOT delete the Actor from Foundry.

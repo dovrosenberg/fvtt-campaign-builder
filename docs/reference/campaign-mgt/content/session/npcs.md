@@ -24,6 +24,8 @@ Click the name of the NPC to open the [Character details](/reference/world-build
 
 Click on the notes field to edit it.  Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.
 
+### Moveable
+You can reorder the NPC list by dragging the handle on the left side of each row to move rows up and down.
 
 > [!TIP]
 > When your players encounter an NPC, click on it to open up the details page, where you can get information for describing it.  From there, you can then use the [Actors tab](/reference/world-building/content/character/#actors) to immediately find an associated actors and open their character sheets or drag them right onto the scene in Foundry.
