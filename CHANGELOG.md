@@ -1,6 +1,6 @@
 # Change Log
 ## 1.8.1 - Fixed session bookmark bug
-![](https://img.shields.io/badge/release%20date-January%209%2C%202026-blue)
+![](https://img.shields.io/badge/release%20date-January%2010%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.1/module.zip)
 
 - Added Vignettes to Arcs
