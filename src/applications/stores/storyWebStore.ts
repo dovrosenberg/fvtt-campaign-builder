@@ -159,6 +159,9 @@ export const storyWebStore = () => {
   // Auto-panning state
   let autoPanAnimationId: number | null = null;
 
+  // Track previous storyweb to detect switches
+  let previousStoryWebId: string | null = null;
+
   ///////////////////////////////
   // external state
   const isWebLoading = ref<boolean>(false);
@@ -173,8 +176,10 @@ export const storyWebStore = () => {
   
   ///////////////////////////////
   // actions
-  // generate the new network from the current story web
-  const generateNetwork = async () => {
+  /** generate the new network from the current story web
+   *  @param reset - if true, the viewport position and scale will be reset to default 
+   */
+  const generateNetwork = async (reset: boolean = false) => {
     if (!currentContainer.value || !currentStoryWeb.value || !currentSetting.value) {
       return;
     }
@@ -185,6 +190,23 @@ export const storyWebStore = () => {
     // Clean up connection mode if network is being regenerated
     if (isConnectionMode.value) {
       endConnectionMode();
+    }
+
+    // Store viewport state before regeneration (unless resetting)
+    let storedViewportState: { position: { x: number, y: number }, scale: number } | null = null;
+    if (currentNetwork.value && !reset) {
+      const network = toRaw(currentNetwork.value);
+      storedViewportState = {
+        position: network.getViewPosition(),
+        scale: network.getScale()
+      };
+    }
+
+    // Destroy the old network to prevent memory leaks
+    if (currentNetwork.value) {
+      // If resetting, just destroy without storing state
+      toRaw(currentNetwork.value).destroy();
+      currentNetwork.value = null;
     }
 
     isWebLoading.value = true;
@@ -400,6 +422,17 @@ export const storyWebStore = () => {
 
       // @ts-ignore - options type is bad on visnetwork
       currentNetwork.value = new Network(currentContainer.value, { nodes, edges }, options);
+
+      // Restore viewport state if we had stored it
+      if (storedViewportState) {
+        // Use nextTick to ensure the network is fully rendered before restoring state
+        await nextTick();
+        currentNetwork.value?.moveTo({
+          position: storedViewportState.position,
+          scale: storedViewportState.scale,
+          animation: false
+        });
+      }
 
       // attach the event handlers
       currentNetwork.value.on('doubleClick', onNetworkDoubleClick);
@@ -1296,7 +1329,6 @@ export const storyWebStore = () => {
       await editEdge(edges[0]);
     } else {
       await addCustomNode(pointer.canvas);
-      await mainStore.refreshStoryWeb();
     }
   }
 
@@ -2110,7 +2142,16 @@ export const storyWebStore = () => {
     if (!currentContainer.value || !currentStoryWeb.value) 
       return;
 
-    await generateNetwork();
+    // Check if this is a different storyweb or the first load
+    const currentStoryWebId = currentStoryWeb.value.uuid;
+    const isDifferentStoryWeb = !!previousStoryWebId && previousStoryWebId !== currentStoryWebId;
+    const isFirstLoad = !currentNetwork.value || !previousStoryWebId;
+    
+    // Update the tracking
+    previousStoryWebId = currentStoryWebId;
+    
+    // Reset viewport if it's the first load or a different storyweb
+    await generateNetwork(isFirstLoad || isDifferentStoryWeb);
   });
 
 
