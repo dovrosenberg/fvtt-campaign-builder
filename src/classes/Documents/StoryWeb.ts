@@ -77,6 +77,39 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     return storyWeb;
   }
 
+  /**
+   * Creates a duplicate of an existing story web
+   * @param storyWebId The UUID of the story web to duplicate
+   * @returns The new duplicated story web or null if cancelled
+   */
+  static async duplicate(storyWebId: string): Promise<StoryWeb | null> {
+    const originalStoryWeb = await StoryWeb.fromUuid(storyWebId);
+    if (!originalStoryWeb)
+      throw new Error('Story web not found in StoryWeb.duplicate()');
+
+    const campaign = await originalStoryWeb.loadCampaign();
+    if (!campaign)
+      throw new Error('Campaign not found in StoryWeb.duplicate()');
+
+    // Create the new name with localization
+    const copyName = localize('labels.copyOf', { name: originalStoryWeb.name });
+
+    // Create the new story web with copied data
+    const newStoryWeb = await StoryWeb.create(campaign, copyName);
+    if (!newStoryWeb)
+      return null;
+
+    newStoryWeb.nodes = [...originalStoryWeb.nodes];
+    newStoryWeb.edges = [...originalStoryWeb.edges];
+    newStoryWeb.positions = { ...originalStoryWeb.positions };
+    newStoryWeb.edgeStyles = { ...originalStoryWeb.edgeStyles };
+    await newStoryWeb.save();
+
+    await campaign.addStoryWeb(newStoryWeb);
+
+    return newStoryWeb;
+  }
+
   get name(): string {
     return this._clone.name;
   }

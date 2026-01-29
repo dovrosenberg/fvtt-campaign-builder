@@ -83,6 +83,8 @@ Right-clicking on items in the Campaign tree provides additional options dependi
 2. Session - Delete the Session
 3. Fronts folder - Create a front
 4. Front - Delete the Front
+5. Story Webs folder - Create a story web
+6. Story Web - Duplicate Web, Delete the Story Web
 
 "Completing" a campaign does not remove any of the data associated with it, but has the following effects:
 - Grays it out and keeps it collapsed in the tree

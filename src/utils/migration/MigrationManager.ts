@@ -215,7 +215,7 @@ export class MigrationManager {
 
             completedMigrations++;
             progress.updateProgress(completedMigrations, totalMigrations, 
-              localize('dialogs.migrationProgress.status.completedMigrationsProgress', { completed: completedMigrations, total: totalMigrations }));
+              localize('dialogs.migrationProgress.status.completedMigrationsProgress', { completed: completedMigrations.toString(), total: totalMigrations.toString() }));
           }
         } finally {
           document.removeEventListener('migration-progress', progressListener as EventListener);

@@ -344,6 +344,7 @@
       "addToSetting": "Zur Einstellung hinzufügen",
       "prep": "Vorbereiten",
       "play": "Spielen",
+      "copyOf": "Kopie von {name}",
       "fields": {
         "type": "Typ",
         "parent": "Übergeordnet",
@@ -849,6 +850,7 @@
         "delete": "Vorderseite löschen"
       },
       "storyWeb": {
+        "duplicate": "Web duplizieren",
         "delete": "Story-Netz löschen"
       },
       "storyWebGraph": {

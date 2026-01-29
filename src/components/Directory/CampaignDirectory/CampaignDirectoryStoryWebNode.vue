@@ -84,6 +84,14 @@
       zIndex: 300,
       items: [
         {
+          icon: 'fa-copy',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWeb.duplicate'),
+          onClick: async () => {
+            await campaignDirectoryStore.duplicateStoryWeb(props.storyWebNode.id);
+          },
+        },
+        {
           icon: 'fa-trash',
           iconFontClass: 'fas',
           label: localize('contextMenus.storyWeb.delete'),

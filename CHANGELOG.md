@@ -1,4 +1,11 @@
 # Change Log
+## 1.8.4 - Story web updates
+![](https://img.shields.io/badge/release%20date-January%2024%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.4/module.zip)
+
+- You can now right click on a story web to "duplicate" it - useful for complex webs where you might want to do variations or use a master one to then trim pieces out.
+- Story webs no longer keep resetting the zoom level as you make changes
+
 ## 1.8.3 - Bug fix
 ![](https://img.shields.io/badge/release%20date-January%2024%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.3/module.zip)

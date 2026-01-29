@@ -344,6 +344,7 @@
       "addToSetting": "Ajouter au Paramètre",
       "prep": "Préparer",
       "play": "Jouer",
+      "copyOf": "Copie de {name}",
       "fields": {
         "type": "Type",
         "parent": "Parent",
@@ -849,6 +850,7 @@
         "delete": "Supprimer l'avant"
       },
       "storyWeb": {
+        "duplicate": "Dupliquer la toile",
         "delete": "Supprimer la toile d'histoire"
       },
       "storyWebGraph": {

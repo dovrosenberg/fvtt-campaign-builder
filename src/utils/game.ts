@@ -3,17 +3,17 @@
 // is the current client the GM?
 const isClientGM = (): boolean => (game.user?.isGM || false);
 
-// localize a string
-const localize = (text: string, data?: Record<string, unknown>): string => {
+/** localize a string
+ * @param text the key to localize
+ * @param data optional data to replace in the string `{xyz}` will be replaced by {xyz: value} 
+ * @returns the localized string */
+const localize = (text: string, data?: Record<string, string>): string => {
   const key = `fcb.${text}`;
   if (!data) {
     return game.i18n.localize(key);
   }
 
-  const formattedData: Record<string, string> = Object.fromEntries(
-    Object.entries(data).map(([k, v]) => [k, String(v)])
-  );
-  return game.i18n.format(key, formattedData);
+  return game.i18n.format(key, data);
 };
 
 export { 

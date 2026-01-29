@@ -291,6 +291,24 @@ export const campaignDirectoryStore = () => {
     return true;
   };
 
+  /**
+   * Duplicates a story web in the same campaign
+   * 
+   * @param storyWebId the UUID of the story web to duplicate
+   * 
+   * @returns the new duplicated story web or null if cancelled
+   */
+  const duplicateStoryWeb = async (storyWebId: string): Promise<StoryWeb | null> => {
+    const newStoryWeb = await StoryWeb.duplicate(storyWebId);
+
+    if (!newStoryWeb)
+      return null;
+
+    await refreshCampaignDirectoryTree();
+
+    return newStoryWeb;
+  };
+
   /** create a session in campaign. Puts it at the end.
    *  @param campaignId the campaign to create the session 
    */
@@ -471,6 +489,7 @@ export const campaignDirectoryStore = () => {
     deleteSession,
     deleteFront,
     deleteStoryWeb,
+    duplicateStoryWeb,
     createSession,
     refreshAllCampaignArcs,
     createArc,

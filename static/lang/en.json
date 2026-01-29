@@ -359,6 +359,7 @@
       "scenes": "Scenes",
       "journals": "Journals",
       "searching": "Searching",
+      "copyOf": "Copy of {name}",
       "tableHeaders": {
         "actions": "Actions",
         "name": "Name",
@@ -838,6 +839,7 @@
         "delete": "Delete danger"
       },
       "storyWeb": {
+        "duplicate": "Duplicate Web",
         "delete": "Delete Story Web"
       },
       "storyWebGraph": {

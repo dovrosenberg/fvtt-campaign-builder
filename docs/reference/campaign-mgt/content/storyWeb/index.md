@@ -37,6 +37,10 @@ Each story web is a saved graph that you can create, name, and customize to show
 
 Right-click on the Story Web in the Campaign Directory and select "Delete" to remove it permanently.  This will not impact any of the content contained in the graph - it just deletes that particular visualization.
 
+### Duplicating a Story Web
+
+Right-click on the Story Web in the Campaign Directory and select "Duplicate Web" to create an exact copy of the Story Web. 
+
 ## Working with the Graph Interface
 
 The Story Web interface provides an interactive canvas where you can manipulate shapes representing [^Entries] and [^Dangers] and the connections between them to visualize relationships.

@@ -158,7 +158,7 @@ export class MigrationProgressDialog {
           <div class="progress-bar-container">
             <div class="progress-bar-fill" style="width: 0%"></div>
           </div>
-          <div class="progress-text">${localize('dialogs.migrationProgress.progress.percent', { percent: 0 })}</div>
+          <div class="progress-text">${localize('dialogs.migrationProgress.progress.percent', { percent: '0' })}</div>
         </div>`;
     }
 
