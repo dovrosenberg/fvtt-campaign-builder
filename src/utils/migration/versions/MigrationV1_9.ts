@@ -18,7 +18,7 @@ const updateProgress = (status: string) => {
 
 export class MigrationV1_9 implements Migration {
   public readonly targetVersion = '1.9.0';
-  public readonly description = 'Updates all related journals by adding a "|" to the end of each UUID and setting the anchor to null';
+  public readonly description = 'Updates all related journals to use the new composite UUID format (journalUuid|pageUuid|anchor-slug) by ensuring exactly two trailing pipes';
 
   private _context: MigrationContext;
 
@@ -101,13 +101,29 @@ export class MigrationV1_9 implements Migration {
 
             // Update related journals
             if (document && document.journals && document.journals.length > 0) {
-              const updatedJournals: RelatedJournal[] = document.journals.map(journal => ({
-                ...journal,
-                // Add '|' to the end of the uuid if it doesn't already end with it
-                uuid: journal.uuid.endsWith('|') ? journal.uuid : `${journal.uuid}|`,
-                // Set anchor to null if it doesn't exist
-                anchor: journal.anchor ?? null
-              }));
+              const updatedJournals: RelatedJournal[] = document.journals.map(journal => {
+                let uuid = journal.uuid;
+                
+                // Ensure UUID has exactly two trailing pipes for the new composite format
+                // Format: journalUuid|pageUuid|anchor-slug
+                if (!uuid.endsWith('||')) {
+                  if (uuid.endsWith('|')) {
+                    // Already has one pipe (entry-level links from previous versions)
+                    // Add one more to make it two pipes
+                    uuid = `${uuid}|`;
+                  } else {
+                    // No trailing pipes, add two
+                    uuid = `${uuid}||`;
+                  }
+                }
+                
+                return {
+                  ...journal,
+                  uuid: uuid,
+                  // Set anchor to null if it doesn't exist
+                  anchor: journal.anchor ?? null
+                };
+              });
 
               document.journals = updatedJournals;
               await document.save();
