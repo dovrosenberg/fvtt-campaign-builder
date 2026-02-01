@@ -16,8 +16,8 @@ const updateProgress = (status: string) => {
   document.dispatchEvent(event);
 };
 
-export class MigrationV1_9 implements Migration {
-  public readonly targetVersion = '1.9.0';
+export class MigrationV1_8_5 implements Migration {
+  public readonly targetVersion = '1.8.5';
   public readonly description = 'Updates all related journals to use the new composite UUID format (journalUuid|pageUuid|anchor-slug) by ensuring exactly two trailing pipes';
 
   private _context: MigrationContext;
