@@ -19,7 +19,7 @@ const allowedTags = [
 const allowedAttributes = [
   'title', 'class', 'style', 'href', 'src', 'alt', 'width', 'height', 'draggable', 'inert',
   'data-link-type', 'data-link', 'data-uuid', 'data-id', 'data-type', 
-  'data-pack', 'data-tooltip', 'data-tooltip-text'
+  'data-pack', 'data-tooltip', 'data-tooltip-text', 'data-hash'
 ];
 
 /**

@@ -1,4 +1,10 @@
 # Change Log
+## 1.9.0 - Voice recordings, more robust journal lists
+![](https://img.shields.io/badge/release%20date-February%20__29__%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.0/module.zip)
+
+- Links to journal entry sections (i.e. headers inside of a page) that are put into editors now properly open to the right part of the page.
+
 ## 1.8.4 - Story web updates
 ![](https://img.shields.io/badge/release%20date-January%2029%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.4/module.zip)
