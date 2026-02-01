@@ -68,6 +68,7 @@ export type NodeDragDropData =
 export type FoundryDragType = {
   type: string;
   uuid: string;
+  anchor?: { slug: string; name: string };
 }
 
 export type FCBDragType<T extends NodeDragDropData> = {

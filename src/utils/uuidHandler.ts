@@ -49,10 +49,23 @@ export const processUuidDrop = async(event: DragEvent): Promise<UuidDropResult> 
   }
 
   let entryUuid: string | null = null;
+  let showName = false;  // we only put in the name for page headers
+  let name = '';
 
   // handle the base case
   if ((data as FoundryDragType).uuid) {
     entryUuid = (data as FoundryDragType).uuid;
+    
+    // Check for anchor in Foundry drag data
+    const anchor = (data as FoundryDragType).anchor;
+    if (anchor?.slug) {
+      entryUuid = `${entryUuid}#${anchor.slug}`;
+
+      if (anchor?.name) {
+        showName = true;
+        name = anchor.name;
+      }
+    }
   } else if ((data as FCBDragType<any>).fcbData) {
     // Handle different data structures from various drag sources
     switch (DragDropService.getType(data)) {
@@ -101,7 +114,7 @@ export const processUuidDrop = async(event: DragEvent): Promise<UuidDropResult> 
     event.preventDefault();
     return {
       handled: true,
-      linkText: `@UUID[${entryUuid}]`
+      linkText: `@UUID[${entryUuid}]${showName ? `{${name}}` : ''}`
     };
   }
 

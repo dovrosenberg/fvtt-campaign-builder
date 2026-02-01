@@ -164,7 +164,7 @@
     event.preventDefault();
     
     // parse the data - we're just looking for raw Foundry data here
-    let data = DragDropService.getValidatedData(event) as FoundryDragType & { anchor?: { slug: string; name: string }};
+    let data = DragDropService.getValidatedData(event) as FoundryDragType;
     if (!data)
       return;
 
