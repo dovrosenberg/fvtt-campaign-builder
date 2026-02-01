@@ -236,7 +236,6 @@
   // types
   import { CustomFieldContentType, DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal, ContentTabDescriptor } from '@/types';
   import { FCBSetting, TopicFolder, Entry, Session, Campaign } from '@/classes';
-  import { DOCUMENT_TYPES } from '@/documents';
 
   ////////////////////////////////
   // props

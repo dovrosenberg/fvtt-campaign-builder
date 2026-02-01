@@ -85,16 +85,17 @@
       return {
         uuid: journal.uuid,
         journalName: journalDoc?.name || '?',
-        pageName: (pageDoc?.name || '') + (pageType ? ` (${pageType})` : ''),
+        pageName: `${pageDoc?.name || ''}${journal.anchor?.name ? ` - ${journal.anchor.name}` : ''}${pageType ? ` (${pageType})` : ''}`,
         journalUuid: journal.journalUuid,
         pageUuid: journal.pageUuid,
+        anchor: journal.anchor?.slug || '',
         location: journal.packId ? `${localize('labels.locations.compendium')}: ${journal.packName}` : localize('labels.locations.world'),
       };
     }));
   }
 
   /** adds a journal or page (determined by uuid) to the array and emits the change*/
-  const addJournal = async (documentUuid: string) => {
+  const addJournal = async (documentUuid: string, anchor: {slug: string; name: string} | null = null): Promise<void> => {
     const doc = await fromUuid<JournalEntry | JournalEntryPage>(documentUuid);
     if (!doc) return;
     
@@ -114,14 +115,16 @@
       throw new Error('Invalid document type in JournalTab.onDropNew');
     }
 
-    const compositeUuid = `${journal!.uuid}|${page?.uuid || ''}`;
+    const compositeUuid = `${journal!.uuid}|${page?.uuid || ''}|${anchor?.slug || ''}`;
 
     // prevent duplicates
-    if (props.initialJournals.some(j => j.uuid === compositeUuid)) return;
+    if (props.initialJournals.some(j => j.uuid === compositeUuid)) 
+      return;
 
     const newJournalLink: RelatedJournal = {
       uuid: compositeUuid,
       journalUuid: journal!.uuid,
+      anchor: anchor,
       pageUuid: page?.uuid || null,
       packId: journal.pack,
       packName: journal.pack ? game.packs?.get(journal.pack)?.title ?? null : null,
@@ -141,7 +144,8 @@
     if (!row) return;
 
     const journal = await fromUuid<JournalEntry>(row.journalUuid);
-    await journal?.sheet?.render(true);
+    // @ts-ignore - fvtt types aren't working
+    await journal?.sheet?.render({force: true});
   };
 
   const onPageClick = async (_event: MouseEvent, uuid: string) => {
@@ -150,14 +154,17 @@
     if (!row) return;
     
     const page = await fromUuid<JournalEntryPage>(row.pageUuid);
-    await page?.sheet?.render(true);
+    // we have to use the parent because the page can't handle the anchor on its own
+    // @ts-ignore - fvtt types aren't working
+    await page?.parent?.sheet?.render({force: true, pageId: page.id, anchor: row.anchor});
+    // await page?.sheet?.render({force: true, options: { anchor: row.anchor}});
   };
 
   async function onDropNew(event: DragEvent) {
     event.preventDefault();
     
     // parse the data - we're just looking for raw Foundry data here
-    let data = DragDropService.getValidatedData(event) as FoundryDragType;
+    let data = DragDropService.getValidatedData(event) as FoundryDragType & { anchor?: { slug: string; name: string }};
     if (!data)
       return;
 
@@ -165,7 +172,7 @@
       return;
     }
     
-    await addJournal(data.uuid);
+    await addJournal(data.uuid, data.anchor || null);
   }
 
   const onDeleteItemClick = async (id: string) => {

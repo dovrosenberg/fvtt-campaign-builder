@@ -35,9 +35,10 @@ export interface RelatedPCDetails {
 // ideally we'd use a getter to create the uuid, but these get serialized and it would
 //    be a pain to try to add the function back
 export interface RelatedJournal {
-  uuid: string;  // composite key journalUuid|pageUuid
+  uuid: string;  // composite key journalUuid|pageUuid|anchor-slug
   journalUuid: DocumentUUID;
   pageUuid: DocumentUUID | null;
+  anchor: { slug: string; name: string; } | null;
   packId: string | null;   // uuid of the parent compendium (null if it's a world entry)
   packName: string | null;
 };

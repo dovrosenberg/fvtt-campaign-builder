@@ -232,7 +232,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
   const data = {
     classes: ['content-link'],
     attrs: { draggable: 'true' },
-    dataset: { link: '' },
+    dataset: { link: '', hash: '' },
     name,
     icon: '',
   } as LinkData;
