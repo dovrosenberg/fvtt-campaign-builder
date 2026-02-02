@@ -1,4 +1,10 @@
 # Change Log
+## 1.x - [_________]
+![](https://img.shields.io/badge/release%20date-February%20__%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.x.x/module.zip)
+
+- You can now change the style of story web connections between custom text and dangers.
+
 ## 1.8.5 - More robust journal lists
 ![](https://img.shields.io/badge/release%20date-February%201%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.5/module.zip)

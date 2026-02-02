@@ -2071,18 +2071,18 @@ export const storyWebStore = () => {
 
   /** Determine the type of an edge based on its nodes */
   const getEdgeType = (fromNode: string, toNode: string): 'manual' | 'relationship' | 'danger' => {
+    // Check if it's a manual edge FIRST - all custom node connections need to say manual
+    const manualEdge = getManualEdge(fromNode, toNode);
+    if (manualEdge) {
+      return 'manual';
+    }
+    
     const fromNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === fromNode);
     const toNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === toNode);
     
     // Check if it's a danger participant edge
     if (fromNodeData?.type === StoryWebNodeTypes.Danger || toNodeData?.type === StoryWebNodeTypes.Danger) {
       return 'danger';
-    }
-    
-    // Check if it's a manual edge
-    const manualEdge = getManualEdge(fromNode, toNode);
-    if (manualEdge) {
-      return 'manual';
     }
     
     // Default to relationship
