@@ -1795,12 +1795,21 @@ export const storyWebStore = () => {
       if (!fromEntry || !toEntry)
         throw new Error('Invalid entry in storyWebStore.createConnection()');
       
-      // note: if relationship already existed there would have been a edge to the 
-      //   there so we would have already caught it
+      // note: if relationship already existed there would have been a edge to
+      //   there, so we would have already caught it
 
-      // we're going to create without a label, since it's easy for user to add a label in a second step
+      // Prompt for relationship label
+      const label = await FCBDialog.inputDialog(
+        localize('labels.storyWeb.addConnection'),
+        localize('labels.storyWeb.newConnectionLabel'),
+        ''
+      );
+
+      if (label === null) // User cancelled
+        return;
+
       // Use relationship store to connect them with proper field name
-      await relationshipStore.addArbitraryRelationship(fromNode, toNode, {});
+      await relationshipStore.addArbitraryRelationship(fromNode, toNode, { relationship: label });
       await mainStore.refreshStoryWeb();
       return;
     }
