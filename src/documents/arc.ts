@@ -22,7 +22,6 @@ export interface ArcVignette {
 export interface ArcLore {
   uuid: string;
   description: string;
-  journalEntryPageId: string | null;
 }
 
 export const ArcSchema = {

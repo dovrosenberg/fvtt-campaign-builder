@@ -37,7 +37,7 @@ Before prepping for a session, you first have to create the overall [^Campaign] 
 * Review [PCs](/reference/campaign-mgt/content/session/pcs) - think through plot points to bring in to the next game
 * Outline your [Strong Start](/reference/campaign-mgt/content/session/notes#start)
 * Flesh out the [Vignettes](/reference/campaign-mgt/content/session/vignettes) ("scenes" in [Lazy DM] parlance) so you're ready to keep things moving
-* Define [Lore](/reference/campaign-mgt/content/campaign/lore) (what Lazy DM calls "secrets and clues") - flesh out headlines and link to journal entries for more detail/images/handouts
+* Define [Lore](/reference/campaign-mgt/content/campaign/lore) (what Lazy DM calls "secrets and clues") - flesh out the clues your players might discover
 * Connect to the [Amazing Locations](/reference/campaign-mgt/content/session/locations) in your Setting, giving you one-click access to the description, image, association to other Entries, along with links to Foundry Actors and Scenes.  
 * Prepare the [Important NPCs](/reference/campaign-mgt/content/session/npcs) the players may encounter to have easy access to descriptions, pictures, backstories, and Foundry character sheets/tokens
 * Sketch out the [Monsters](/reference/campaign-mgt/content/session/monsters), so you have tokens and stat sheets at your fingertips
@@ -116,11 +116,8 @@ To add lore:
 
 2. Click "Add Lore"
 
-3. Fill in the lore details and hit enter to save.
+3. Fill in the lore details and hit enter to save.  You can include links to Foundry documents (like Journal Entries) and Campaign Builder content in the text.
 
-Alternately, you can start by dragging a journal entry page (not a full entry) on to the drop box on the lore tab.  This will create a new lore entry already linked to it.
-
-You can drag journal entry pages to existing rows to attach them.  You cannot currently remove a journal entry page from a lore entry.  Instead, just create a new one and then copy/paste the lore description.
 
 ### 4. Locations
 Key places that might be relevant to the upcoming session.  They comes from [Locations](/reference/world-building/content/location/) in your Setting.

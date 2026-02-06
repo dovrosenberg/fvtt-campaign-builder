@@ -68,10 +68,7 @@ export const sessionStore = () => {
     ],
     [SessionTableTypes.Lore]: [
       { field: 'significant', header: 'Sig.', editable: true, type: 'boolean', tooltip: 'Mark as Significant/Insignificant', style: 'text-align: center; width: 40px; max-width: 40px' },
-      { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
-      { field: 'journalEntryPageName', style: 'text-align: left; width: 25%;max-width: 25%', header: 'Journal Page', editable: false,
-        onClick: onJournalClick
-      },
+      { field: 'description', style: 'text-align: left; width: 100%', header: 'Description', editable: true },
     ],  
   } as unknown as Record<SessionTableTypes, BaseTableColumn[]>;
 
@@ -452,19 +449,6 @@ export const sessionStore = () => {
   }
   
   /**
-   * Updates the journal entry associated with a lore 
-   * @param loreUuid the UUID of the lore
-   * @param journalEntryPageUuid the UUID of the journal entry page (or null)
-   */
-  const updateLoreJournalEntry = async (loreUuid: string, journalEntryPageUuid: string | null): Promise<void> => {
-    if (!currentSession.value)
-      throw new Error('Invalid session in sessionStore.updateLoreJournalEntry()');
-
-    await currentSession.value.updateLoreJournalEntry(loreUuid, journalEntryPageUuid);
-    await _refreshLoreRows();
-  }
-
-  /**
    * Deletes a lore entry from the session.
    * @param uuid - The UUID of the lore entry to delete.
    * @param skipConfirm - If true, skip the confirmation dialog.
@@ -540,7 +524,7 @@ export const sessionStore = () => {
       return;
 
     // have a next session - add there and delete here
-    await nextSession.addLore(currentLore.description, currentLore.journalEntryPageId);
+    await nextSession.addLore(currentLore.description);
     await currentSession.value.deleteLore(uuid);
 
     await _refreshLoreRows();
@@ -565,7 +549,7 @@ export const sessionStore = () => {
       return;
     
     // have a next session - add there and delete here
-    await campaign.addLore(currentLore.description, currentLore.journalEntryPageId);
+    await campaign.addLore(currentLore.description);
     await currentSession.value.deleteLore(uuid);
 
     await _refreshLoreRows();
@@ -596,7 +580,7 @@ export const sessionStore = () => {
       return;
     
     // have a next session - add there and delete here
-    await arc.addLore(currentLore.description, currentLore.journalEntryPageId);
+    await arc.addLore(currentLore.description);
     await currentSession.value.deleteLore(uuid);
 
     await _refreshLoreRows();
@@ -887,15 +871,6 @@ export const sessionStore = () => {
 
   ///////////////////////////////
   // internal functions
-  // when we click on a journal entry, open it
-  async function onJournalClick (_event: MouseEvent, uuid: string) {
-    // get session Id
-    const journalEntryPageId = loreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
-    const journalEntryPage = await fromUuid<JournalEntryPage>(journalEntryPageId);
-
-    if (journalEntryPage)
-      journalEntryPage.sheet?.render(true);
-  }
 
   // when we click on an item, open it
   async function onItemClick (_event: MouseEvent, uuid: string) {
@@ -1079,9 +1054,6 @@ export const sessionStore = () => {
         delivered: lore.delivered,
         significant: lore.significant,
         description: lore.description,
-        journalEntryPageId: lore.journalEntryPageId,
-        journalEntryPageName: entry?.name || null,
-        packId: entry?.pack || null,
       });
     }
 
@@ -1182,7 +1154,6 @@ export const sessionStore = () => {
     deleteLore,
     reorderLore,
     updateLoreDescription,
-    updateLoreJournalEntry,
     markLoreDelivered,
     markLoreSignificant,
     moveLoreToNext,

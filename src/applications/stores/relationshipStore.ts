@@ -39,26 +39,26 @@ export const relationshipStore = () => {
   const extraFields = {
     [Topics.Character]: {
       [Topics.Character]: [{field:'relationship', header:'Relationship'}],
-      [Topics.Location]: [{field:'role', header:'Role'}],
-      [Topics.Organization]: [{field:'role', header:'Role'}],
+      [Topics.Location]: [{field:'relationship', header:'Relationship'}],
+      [Topics.Organization]: [{field:'relationship', header:'Relationship'}],
       [Topics.PC]: [{field:'relationship', header:'Relationship'}],
     },
     [Topics.Location]: {
-      [Topics.Character]: [{field:'role', header:'Role'}],
+      [Topics.Character]: [{field:'relationship', header:'Relationship'}],
       [Topics.Location]: [{field:'relationship', header:'Relationship'}],
       [Topics.Organization]: [],
-      [Topics.PC]: [{field:'role', header:'Role'}],
+      [Topics.PC]: [{field:'relationship', header:'Relationship'}],
     },
     [Topics.Organization]: {
-      [Topics.Character]: [{field:'role', header:'Role'}],
+      [Topics.Character]: [{field:'relationship', header:'Relationship'}],
       [Topics.Location]: [],
       [Topics.Organization]: [{field:'relationship', header:'Relationship'}],
-      [Topics.PC]: [{field:'role', header:'Role'}],
+      [Topics.PC]: [{field:'relationship', header:'Relationship'}],
     },    
     [Topics.PC]: {
       [Topics.Character]: [{field:'relationship', header:'Relationship'}],
-      [Topics.Location]: [{field:'role', header:'Role'}],
-      [Topics.Organization]: [{field:'role', header:'Role'}],
+      [Topics.Location]: [{field:'relationship', header:'Relationship'}],
+      [Topics.Organization]: [{field:'relationship', header:'Relationship'}],
       [Topics.PC]: [],
     },    
   } as ColumnsByTopic;

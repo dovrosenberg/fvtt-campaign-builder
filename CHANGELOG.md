@@ -1,4 +1,15 @@
 # Change Log
+## 1.8.6 - Assorted bug fixes and improvements
+![](https://img.shields.io/badge/release%20date-February%205%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.6/module.zip)
+
+- You can now change the style of story web connections between custom text and dangers.
+- When copying text to the clipboard from a table text box or an editor, UUIDs will no longer be dropped and instead will be copied as the name of the document/entity.
+- Connecting two entries in a storyweb now lets you add a relationship label.
+- Similarly, copying text with bullet or numbered lists will now include the bullets/numbers in the copied text when you paste it.
+- When adding a danger to a story web, now uses a dropdown instead of a typeahead, so you don't have to remember what it's named.
+- Removed the journals column from the lore/entries tab to simplify the interface.  Journal references that were previously in the journals column will be added to the description field when the module is updated.
+
 ## 1.8.5 - More robust journal lists
 ![](https://img.shields.io/badge/release%20date-February%201%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.5/module.zip)

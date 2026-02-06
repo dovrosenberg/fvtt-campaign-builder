@@ -15,7 +15,8 @@ export const CampaignLoreSchema = () => (
     description: new fields.StringField({ required: true, nullable: false }),
 
     /** a linked journal entry page */
-    journalEntryPageId: new fields.DocumentUUIDField({ required: true, nullable: true, initial: null }),
+    // TODO: remove once 1.8.6 migration isn't needed
+    journalEntryPageId: new fields.DocumentUUIDField({ required: false, nullable: true, initial: null }),
 
     /** if it was delivered, in which session? */
     lockedToSessionId: new fields.DocumentUUIDField({ required: true, nullable: true }),

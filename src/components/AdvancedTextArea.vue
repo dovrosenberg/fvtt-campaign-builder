@@ -34,7 +34,11 @@ Dependencies
 -->
 
 <template>
-  <div class="fcb-advanced-text-area" :class="{ 'display-mode': !editMode }">
+  <div 
+    class="fcb-advanced-text-area" 
+    :class="{ 'display-mode': !editMode }" 
+    @copy="onCopy"
+  >
     <!-- Edit mode: show textarea -->
     <textarea
       v-if="editMode"
@@ -64,7 +68,8 @@ Dependencies
   
   // local imports
   import { handleUuidDropOnTextarea, enrichUuidLinks } from '@/utils/uuidHandler';
-  import DragDropService from '@/utils/dragDrop'; 
+  import DragDropService from '@/utils/dragDrop';
+  import { handleCopyWithCleanUuids } from '@/utils/clipboardUuidCleaner';
   
   // library components
 
@@ -171,8 +176,19 @@ Dependencies
     if (!props.editMode || !textareaRef.value) {
       return;
     }
-    
+
     await handleUuidDropOnTextarea(event, textareaRef.value);
+  };
+
+  const onCopy = (event: ClipboardEvent): void => {
+    if (props.editMode && textareaRef.value) {
+      const { selectionStart, selectionEnd, value } = textareaRef.value;
+      const selectedText = value.substring(selectionStart, selectionEnd);
+      handleCopyWithCleanUuids(event, selectedText);
+    } else {
+      // Display mode: clean enriched HTML content links
+      handleCopyWithCleanUuids(event);
+    }
   };
 
   ////////////////////////////////

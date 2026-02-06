@@ -8,17 +8,12 @@
       :columns="columns"
       :show-add-button="true"
       :add-button-label="localize('labels.session.addLore')"
-      :extra-add-text="localize('labels.session.addLoreDrag')"
       :allow-edit="true"
-      :allow-drop-row="true"
+      :allow-drop-row="false"
       :help-text="localize('labels.campaign.loreHelpText')"
       help-link="https://slyflourish.com/sharing_secrets.html"
       @add-item="onAddLore"
       @cell-edit-complete="onCellEditComplete"
-      @dragover-new="DragDropService.standardDragover"
-      @dragover-row="DragDropService.standardDragover"
-      @drop-row="onDropRow"
-      @drop-new="onDropNew"
       @reorder="onReorderAvailable"
     />
 
@@ -222,40 +217,6 @@
     await campaignStore.moveLoreToArc(uuid);
   }
 
-  const onDropNew = async (event: DragEvent) => {
-    event.preventDefault();  
-
-    // parse the data 
-    const data = DragDropService.getValidatedData(event);
-    if (!data)
-      return;
-
-    // make sure it's the right format - looking for JournalEntry(Page)
-    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && ('uuid' in data) && data.uuid) {
-      // Create a new lore entry and associate it with the journal entry page
-      const loreId = await campaignStore.addLore('');
-
-      if (loreId) {
-        await campaignStore.updateLoreJournalEntry(loreId, data.uuid as string);
-      }
-    }
-  }
-
-  const onDropRow = async (event: DragEvent, rowUuid: string) => {
-    event.preventDefault();  
-
-    // parse the data 
-    const data = DragDropService.getValidatedData(event);
-    if (!data)
-      return;
-
-    // make sure it's the right format - looking for JournalEntry(Page)
-    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && ('uuid' in data) && data.uuid) {
-      if (rowUuid) {
-        await campaignStore.updateLoreJournalEntry(rowUuid, data.uuid as string);
-      }
-    }
-  }
 
   const onReorderAvailable = async (reorderedRows: BaseTableGridRow[]) => {
     // Reorder using array order 
