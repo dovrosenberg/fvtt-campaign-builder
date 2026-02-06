@@ -423,17 +423,6 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
-  public async updateLoreJournalEntry(loreUuid: string, journalEntryPageId: string | null): Promise<void> {
-    const lore = this._clone.system.lore.find(l=> l.uuid===loreUuid);
-
-    if (!lore)
-      return;
-
-    lore.journalEntryPageId = journalEntryPageId;
-
-    await this.save();
-  }
-
   public async deleteLore(uuid: string): Promise<void> {
     this._clone.system.lore = this._clone.system.lore.filter(l=> l.uuid!==uuid);
 

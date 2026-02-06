@@ -20,7 +20,7 @@ import {
   Topics,
   ArcTableTypes,
 } from '@/types';
-import { ArcLore, ArcVignette, } from '@/documents';
+import { ArcLocation, ArcLore, ArcVignette, } from '@/documents';
 
 import { Entry, } from '@/classes';
 import { getTopicText } from '@/compendia';
@@ -61,9 +61,6 @@ export const arcStore = () => {
     ],
     [ArcTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
-      { field: 'journalEntryPageName', style: 'text-align: left; width: 25%;max-width: 25%', header: 'Journal Page', editable: false,
-        onClick: onJournalClick
-      },
     ],  
     [ArcTableTypes.Idea]: [
       { field: 'text', style: 'text-align: left', header: 'Idea', sortable: true, editable: true },
@@ -244,19 +241,6 @@ export const arcStore = () => {
     await _refreshLocationRows();
   }
 
-  /**
-   * Updates the journal entry associated with a lore 
-   * @param loreUuid the UUID of the lore
-   * @param journalEntryPageUuid the UUID of the journal entry page (or null)
-   */
-  const updateLoreJournalEntry = async (loreUuid: string, journalEntryPageUuid: string | null): Promise<void> => {
-    if (!currentArc.value)
-      throw new Error('Invalid arc in arcStore.updateLoreJournalEntry()');
-
-    await currentArc.value.updateLoreJournalEntry(loreUuid, journalEntryPageUuid);
-    await _refreshLoreRows();
-  }
-
     /**
    * Updates the notes associated with a participant 
    * @param uuid the UUID of the participant
@@ -377,7 +361,7 @@ export const arcStore = () => {
     if (!lore)
       return;
 
-    await currentSession.addLore(lore.description, lore.journalEntryPageId);
+    await currentSession.addLore(lore.description);
     await currentArc.value.deleteLore(uuid);
 
     await _refreshLoreRows();
@@ -402,7 +386,7 @@ export const arcStore = () => {
       return;
     
     // have a next campaign - add there and delete here
-    await campaign.addLore(currentLore.description, currentLore.journalEntryPageId);
+    await campaign.addLore(currentLore.description);
     await currentArc.value.deleteLore(uuid);
 
     await _refreshLoreRows();
@@ -586,15 +570,6 @@ export const arcStore = () => {
 
   ///////////////////////////////
   // internal functions
-  // when we click on a journal entry, open it
-  async function onJournalClick (_event: MouseEvent, uuid: string) {
-    // get session Id
-    const journalEntryPageId = loreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
-    const journalEntryPage = await fromUuid<JournalEntryPage>(journalEntryPageId);
-
-    if (journalEntryPage)
-      journalEntryPage.sheet?.render(true);
-  }
 
   // when we click on an item, open it
   async function onItemClick (_event: MouseEvent, uuid: string) {
@@ -739,17 +714,9 @@ export const arcStore = () => {
     const retval = [] as ArcLoreDetails[];
 
     for (const lore of currentArc.value?.lore) {
-      let entry: JournalEntryPage | null = null;
-
-      if (lore.journalEntryPageId)
-        entry = await fromUuid<JournalEntryPage>(lore.journalEntryPageId);
-
       retval.push({
         uuid: lore.uuid,
         description: lore.description,
-        journalEntryPageId: lore.journalEntryPageId,
-        journalEntryPageName: entry?.name || null,
-        packId: entry?.pack || null,
       });
     }
 
@@ -850,7 +817,6 @@ export const arcStore = () => {
     deleteLore,
     reorderLore,
     updateLoreDescription,
-    updateLoreJournalEntry,
     moveLoreToSession,
     moveLoreToCampaign,
   };

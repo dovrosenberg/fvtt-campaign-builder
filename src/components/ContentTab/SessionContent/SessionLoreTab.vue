@@ -6,18 +6,13 @@
     :columns="columns"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLore')"
-    :extra-add-text="localize('labels.session.addLoreDrag')"
-    :allow-drop-row="true"
+    :allow-drop-row="false"
     :help-text="localize('labels.session.loreHelpText')"
     help-link="https://slyflourish.com/sharing_secrets.html"
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddLore"
     @cell-edit-complete="onCellEditComplete"
-    @dragover-new="DragDropService.standardDragover"
-    @dragover-row="DragDropService.standardDragover"
-    @drop-row="onDropRow"
-    @drop-new="onDropNew"
     @reorder="onReorder"
   />
 </template>
@@ -211,46 +206,6 @@
       await arcStore.moveLoreToSession(uuid);
     else
       await sessionStore.moveLoreToNext(uuid);
-  }
-
-  const onDropNew = async (event: DragEvent) => {
-    event.preventDefault();  
-
-    // parse the data - looking for raw foundry data
-    const data = DragDropService.getValidatedData(event);
-    if (!data)
-      return;
-
-    // make sure it's the right format - looking for JournalEntry(Page)
-    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && ('uuid' in data) && data.uuid) {
-      // Create a new lore entry and associate it with the journal entry page
-      const loreId = await store.value.addLore('');
-
-      if (loreId) {
-        await store.value.updateLoreJournalEntry(loreId, data.uuid as string);
-      }
-    }
-  }
-
-  const onDropRow = async (event: DragEvent, rowUuid: string) => {
-    event.preventDefault();  
-
-    // parse the data - looking for raw foundry data
-    const data = DragDropService.getValidatedData(event);
-    if (!data)
-      return;
-
-    // make sure it's the right format - looking for JournalEntry(Page)
-    if (['JournalEntry', 'JournalEntryPage'].includes(data.type as string) && ('uuid' in data) && data.uuid && rowUuid) {
-      const lore = loreRows.value.find((l)=>l.uuid===rowUuid);
-      
-      if (lore?.journalEntryPageId && 
-          !(await FCBDialog.confirmDialog('Update lore?', 'Are you sure you want to replace the journal entry tied to this lore?'))) {
-        return;
-      }
-      
-      await store.value.updateLoreJournalEntry(rowUuid, data.uuid as string);
-    }
   }
 
   const onReorder = async (reorderedRows: BaseTableGridRow[]) => {

@@ -9,6 +9,7 @@ export const ArcLoreSchema = () => (
     description: new fields.StringField({ required: true, nullable: false, initial: '' }),
 
     /** a linked journal entry page */
-    journalEntryPageId: new fields.DocumentUUIDField({ required: true, nullable: true }),
+    // TODO: remove once 1.8.6 migration isn't needed
+    journalEntryPageId: new fields.DocumentUUIDField({ required: false, nullable: true }),
 }, { required: true, nullable: false} )
 );

@@ -335,13 +335,12 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     await this.save();
   }
 
-  async addLore(description: string, journalEntryPageId: string | null = null): Promise<string> {
+  async addLore(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 
     this._clone.system.lore.push({
       uuid: uuid,
       description: description,
-      journalEntryPageId: journalEntryPageId,
     });
 
     await this.save();
@@ -358,18 +357,6 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
 
     await this.save();
   }
-
-  async updateLoreJournalEntry(loreUuid: string, journalEntryPageId: string | null): Promise<void> {
-    const lore = this._clone.system.lore.find(l=> l.uuid===loreUuid);
-
-    if (!lore)
-      return;
-
-    lore.journalEntryPageId = journalEntryPageId;
-
-    await this.save();
-  }
-
 
   async deleteLore(uuid: string): Promise<void> {
     this._clone.system.lore = this._clone.system.lore.filter(l=> l.uuid!==uuid);
