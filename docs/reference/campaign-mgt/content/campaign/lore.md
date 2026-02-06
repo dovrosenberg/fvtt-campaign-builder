@@ -19,15 +19,10 @@ This tab provides:
 ## Adding Lore
 Click "Add Lore" to create a new lore entry.
 
-You can drag and drop Journal Entry Pages (or Journal Entries) from Foundry VTT onto the box at the top to create a linked lore item or onto an existing lore item to link it to the journal entry page.  
-  
-You cannot currently remove a linked entry - I recommend just creating a new lore item and copy/paste the text before removing the old one.
-
 ## The lore list
 This list contains "Campaign level" lore.  These are items you've fleshed out but aren't yet ready to share with the players.  They are also items that perhaps you added to a session but then didn't share with the players and so you want to move them back to a holding place.
+You can add links to Foundry documents (like Journal Entries) and Campaign Builder content in the text.
  
-For each lore item, you can see the text of it and the linked entry.  Click the linked entry to open the journal entry page.
-
 ### Moveable
 You can reorder the campaign lore list by dragging the handle on the left side of each row to move rows up and down.  The delivered lore list is sorted in order of when it was delivered.
 
@@ -43,4 +38,4 @@ The actions column lets you take several actions with the lore entries:
 ## The delivered lore list
 This list contains all the lore that has already been delivered to the players.  It combines items delivered from the list above with items delivered from the [Session](/reference/campaign-mgt/content/session/) lore table.  Session lore items are only included if they are marked as [Significant](/reference/campaign-mgt/content/session/lore#significant) on the Session.
 
-For each lore item, you can see the text, which session it was delivered in (if any), and the linked entry.  Click the session name to open the session details or the linked entry to open the journal entry page.
+For each lore item, you can see the text and which session it was delivered in (if any). Click the session name to open the session details.
