@@ -16,15 +16,16 @@
           />
 
           <div 
-            v-if="options2.length > 0"
+            v-if="props.useOptions2 && options2.length > 0"
             style="margin-top: 0.5rem"
           >
-            <TypeAhead 
-              ref="nameSelectRef"
-              :initial-value="''"
-              :initial-list="options2" 
-              :allow-new-items="false"
-              @selection-made="onSelection2Made"
+            <Select 
+              v-model="entryToAdd"
+              :options="options2"
+              optionLabel="label"
+              optionValue="id"
+              placeholder="Select an item..."
+              style="width: 100%"
             />
           </div>
 
@@ -70,6 +71,7 @@
 
   // library components
   import InputText from 'primevue/inputtext';
+  import Select from 'primevue/select';
   import TypeAhead from '@/components/TypeAhead.vue';
   
   // local components
@@ -163,10 +165,16 @@
   const extraFieldValuesObj = ref<Record<string, string>>({});
   const nameSelectRef = ref<typeof TypeAhead | null>(null);
   const options2 = ref<{id: string; label: string}[]>([]);
+  const firstLevelSelected = ref<string | null>(null);  // track if first level is selected
 
   ////////////////////////////////
   // computed data
   const isAddFormValid = computed((): boolean => {
+    // If using options2, require both first level selection and second level selection
+    if (props.useOptions2) {
+      return !!firstLevelSelected.value && !!entryToAdd.value;
+    }
+    // Otherwise, just require any selection
     return !!entryToAdd.value;
   });
 
@@ -192,7 +200,7 @@
 
     buttons.push({
       label: props.mainButtonLabel,
-      disable: props.allowCreate && !isAddFormValid.value,
+      disable: !isAddFormValid.value,
       default: true,
       close: true,
       callback: onActionClick,
@@ -206,6 +214,7 @@
   // methods
   const resetDialog = function() {
     entryToAdd.value = null;
+    firstLevelSelected.value = null;
     extraFieldValuesObj.value = {};
     show.value = false;
     emit('update:modelValue', false);
@@ -215,17 +224,15 @@
   // event handlers
   const onSelectionMade = async function(uuid: string) {
     if (props.useOptions2) {
+      firstLevelSelected.value = uuid;
       options2.value = await props.options2(uuid);
-      entryToAdd.value = null;
+      entryToAdd.value = null;  // Clear second level selection until user picks
     } else { 
       entryToAdd.value = uuid || null;
       options2.value = [];
     }
   };
 
-  const onSelection2Made = function(uuid: string) {
-    entryToAdd.value = uuid || null;
-  };
 
   const onActionClick = async function() {
     // replace nulls with empty strings
@@ -265,6 +272,8 @@
     if (newValue) {
       // clear fields
       extraFieldValuesObj.value = {};
+      firstLevelSelected.value = null;
+      options2.value = [];
 
       if (props.itemId)
         entryToAdd.value = props.itemId;  // assign starting value, if any
