@@ -359,7 +359,7 @@ export const storyWebStore = () => {
               // it's possible the edge is already there - specifically if we put two nodes on manually that
               //   relate to each other
               if (!edges.some(e => e.to === node.uuid && e.from === relatedEntry.uuid)) {
-                const label = relatedEntry.extraFields.role || relatedEntry.extraFields.relationship || '';
+                const label = relatedEntry.extraFields.relationship || '';
                 const edgeUuid = getEdgeUuid(node.uuid, relatedEntry.uuid, 'relationship');
                 const baseEdge = {
                   from: node.uuid,
@@ -1200,7 +1200,7 @@ export const storyWebStore = () => {
 
         const relatedEntry = relatedEntries[toNode];
         if (relatedEntry) {
-          return relatedEntry.extraFields.role || relatedEntry.extraFields.relationship || '';
+          return relatedEntry.extraFields.relationship || '';
         }
       }
     } catch (error) {
@@ -1795,12 +1795,21 @@ export const storyWebStore = () => {
       if (!fromEntry || !toEntry)
         throw new Error('Invalid entry in storyWebStore.createConnection()');
       
-      // note: if relationship already existed there would have been a edge to the 
-      //   there so we would have already caught it
+      // note: if relationship already existed there would have been a edge to
+      //   there, so we would have already caught it
 
-      // we're going to create without a label, since it's easy for user to add a label in a second step
+      // Prompt for relationship label
+      const label = await FCBDialog.inputDialog(
+        localize('labels.storyWeb.addConnection'),
+        localize('labels.storyWeb.newConnectionLabel'),
+        ''
+      );
+
+      if (label === null) // User cancelled
+        return;
+
       // Use relationship store to connect them with proper field name
-      await relationshipStore.addArbitraryRelationship(fromNode, toNode, {});
+      await relationshipStore.addArbitraryRelationship(fromNode, toNode, { relationship: label });
       await mainStore.refreshStoryWeb();
       return;
     }
@@ -2071,18 +2080,18 @@ export const storyWebStore = () => {
 
   /** Determine the type of an edge based on its nodes */
   const getEdgeType = (fromNode: string, toNode: string): 'manual' | 'relationship' | 'danger' => {
+    // Check if it's a manual edge FIRST - all custom node connections need to say manual
+    const manualEdge = getManualEdge(fromNode, toNode);
+    if (manualEdge) {
+      return 'manual';
+    }
+    
     const fromNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === fromNode);
     const toNodeData = currentStoryWeb.value?.nodes.find(n => n.uuid === toNode);
     
     // Check if it's a danger participant edge
     if (fromNodeData?.type === StoryWebNodeTypes.Danger || toNodeData?.type === StoryWebNodeTypes.Danger) {
       return 'danger';
-    }
-    
-    // Check if it's a manual edge
-    const manualEdge = getManualEdge(fromNode, toNode);
-    if (manualEdge) {
-      return 'manual';
     }
     
     // Default to relationship

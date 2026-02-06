@@ -17,12 +17,8 @@ This tab provides:
 ## Adding Lore
 Click "Add Lore" to create a new Lore entry.  Enter the text of the Lore and hit "Enter" to save.
 
-You can drag and drop Journal Entry Pages (or Journal Entries) from Foundry VTT onto the box at the top to create a linked Lore item or onto an existing Lore item to link it to the journal entry page.  
-  
-You cannot currently remove a linked entry (i.e. remove the link to the journal entry page) - I recommend just creating a new Lore item and copy/paste the text before removing the old one.
-
 ## The Lore list
-This list contains the individual pieces of Lore.  For each Lore item, you can see its text and the linked entry.  Click the linked entry (if any) to open the journal entry page.
+This list contains the individual pieces of Lore.  You can add links to Foundry documents (like Journal Entries) and Campaign Builder content in the text.
 
 ### Moveable
 New lore items are added to the bottom of the list, but you can reorder the list by dragging the handle on the left side of each row to move rows up and down.

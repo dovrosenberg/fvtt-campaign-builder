@@ -8,7 +8,7 @@ export interface RelatedEntry<PrimaryTopic extends ValidTopic, RelatedTopic exte
   uuid: string;   // the other item
   topic: PrimaryTopic;   
   type: string;   // the type of the item  (store here because it's not currently indexed, unlike name)
-  extraFields: ColumnsByTopic[PrimaryTopic][RelatedTopic];   // optional fields depending on topics (ex. role for character/location relationship)
+  extraFields: ColumnsByTopic[PrimaryTopic][RelatedTopic];   // optional fields depending on topics (ex. relationship for character/location)
 }
 
 // includes additional details

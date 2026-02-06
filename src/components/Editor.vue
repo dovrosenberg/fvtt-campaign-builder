@@ -4,6 +4,7 @@
     ref="wrapperRef"
     class="fcb-editor-wrapper"
     :style="wrapperStyle"
+    @copy="onCopy"
   >
     <!-- activation button positioned outside the scrolling area -->
     <a
@@ -53,6 +54,7 @@
   import { extractUUIDs, compareUUIDs, } from '@/utils/uuidExtraction';
   import { registerEditor, unregisterEditor } from '@/utils/editorChangeDetection';
   import { ModuleSettings, SettingKey } from '@/settings';
+  import { handleCopyWithCleanUuids } from '@/utils/clipboardUuidCleaner';
 
   // library components
 
@@ -212,7 +214,7 @@
       // Add our custom drop handler to the ProseMirror DOM element
       editorDom.addEventListener('dragover', onDragover);
       editorDom.addEventListener('drop', onDrop, true);  // capture=true makes it override prosemirror default handler
-
+      editorDom.addEventListener('copy', onProseMirrorCopy, true);  // capture=true to intercept before ProseMirror
     }
 
     // we have to do this whole thing with lastSavedContent and sessionStore.lastSavedNotes because Foundry cleans the html in a different
@@ -341,6 +343,21 @@
     if (!props.editable) return;
       DragDropService.standardDragover(event);
   }
+
+  const onCopy = (event: ClipboardEvent) => {
+    // In edit mode, ProseMirror's own copy handler + onProseMirrorCopy handles it
+    if (editor.value) return;
+    // Read mode: clean UUID references from enriched HTML
+    handleCopyWithCleanUuids(event);
+  };
+
+  const onProseMirrorCopy = (event: Event) => {
+    const handled = handleCopyWithCleanUuids(event as ClipboardEvent);
+    // Prevent ProseMirror's own copy handler from calling clearData() and overwriting our cleaned text
+    if (handled) {
+      event.stopImmediatePropagation();
+    }
+  };
 
   const onDrop = async (event: DragEvent) => {
     event.stopPropagation();

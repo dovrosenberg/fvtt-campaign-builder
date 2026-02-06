@@ -1,5 +1,11 @@
 import { DataTableFilterMetaData } from 'primevue';
 
+export interface BaseRow {
+  uuid: string;
+}
+
+export type AnyRow = BaseRow & Record<string, any>;
+
 export interface TablePagination {
   first: number;   // the cardinal number of the first included row (=rowsPerPage*page)
   page: number;    // the current page
@@ -102,19 +108,13 @@ export interface SessionLoreDetails {
   uuid: string;   
   delivered: boolean;
   description: string;
-  journalEntryPageId: string | null;  // the JournalEntryPage document
-  journalEntryPageName: string | null;  
   significant: boolean;
-  packId: string | null;  // compendium of the document
   onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
 }
 
 export interface ArcLoreDetails {
   uuid: string;  
   description: string; 
-  journalEntryPageId: string | null;  // the JournalEntryPage document
-  journalEntryPageName: string | null;  
-  packId: string | null;  // compendium of the document
   onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
 }
 

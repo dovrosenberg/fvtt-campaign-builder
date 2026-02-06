@@ -29,18 +29,12 @@ export const campaignStore = () => {
     [CampaignTableTypes.None]: [],
     [CampaignTableTypes.PC]: [],
     [CampaignTableTypes.Lore]: [
-      { field: 'description', style: 'text-align: left; width: 80%', header: 'Description', editable: true },
-      { field: 'journalEntryPageName', style: 'text-align: left; width: 20%', header: 'Journal', editable: false, 
-        onClick: onJournalClick
-      },
+      { field: 'description', style: 'text-align: left; width: 100%', header: 'Description', editable: true },
     ],
     [CampaignTableTypes.DeliveredLore]: [
-      { field: 'description', style: 'text-align: left; width: 50%', header: 'Description', editable: true },
+      { field: 'description', style: 'text-align: left; width: 70%', header: 'Description', editable: true },
       { field: 'lockedToSessionName', style: 'text-align: left; width: 30%', header: 'Delivered in', sortable: true, 
         editable: false, onClick: onSessionClick
-      },
-      { field: 'journalEntryPageName', style: 'text-align: left; width: 20%', header: 'Journal', editable: false, 
-        onClick: onJournalClick
       },
     ],
     [CampaignTableTypes.ToDo]: [
@@ -172,20 +166,7 @@ export const campaignStore = () => {
 
       await _refreshLoreRows();
     }
-    
-    /**
-     * Updates the journal entry associated with a lore 
-     * @param loreUuid the UUID of the lore
-     * @param journalEntryPageUuid the UUID of the journal entry page (or null)
-     */
-    const updateLoreJournalEntry = async (loreUuid: string, journalEntryPageUuid: string | null): Promise<void> => {
-      if (!currentCampaign.value)
-        throw new Error('Invalid session in campaignStore.updateLoreJournalEntry()');
-  
-      await currentCampaign.value.updateLoreJournalEntry(loreUuid, journalEntryPageUuid);
-      await _refreshLoreRows();
-    }
-  
+      
     /**
      * Deletes a lore from the session
      * @param uuid the UUID of the lore
@@ -265,7 +246,7 @@ export const campaignStore = () => {
         return;
   
       // have a next session - add there and delete here
-      await lastSession.addLore(currentLore.description, currentLore.journalEntryPageId);
+      await lastSession.addLore(currentLore.description);
       await currentCampaign.value.deleteLore(uuid);
   
       await _refreshLoreRows();
@@ -290,7 +271,7 @@ export const campaignStore = () => {
         return;
   
       // have a next session - add there and delete here
-      await lastArc.addLore(currentLore.description, currentLore.journalEntryPageId);
+      await lastArc.addLore(currentLore.description);
       await currentCampaign.value.deleteLore(uuid);
   
       await _refreshLoreRows();
@@ -413,7 +394,6 @@ export const campaignStore = () => {
       delivered: l.delivered,
       description: l.description,
       significant: l.significant,
-      journalEntryPageId: l.journalEntryPageId,
       lockedToSessionId: null,
       lockedToSessionName: null,
     }));
@@ -449,17 +429,8 @@ export const campaignStore = () => {
 
   ///////////////////////////////
   // internal functions
+
   // when we click on a session in the lore, open the session tab
-  async function onJournalClick (_event: MouseEvent, uuid: string) {
-    // get session Id
-    const journalEntryPageId = allRelatedLoreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
-    const journalEntryPage = await fromUuid<JournalEntryPage>(journalEntryPageId);
-
-    if (journalEntryPage)
-      journalEntryPage.sheet?.render(true);
-  }
-
-  // when we click on a journal in the lore, open it
   async function onSessionClick (event: MouseEvent, uuid: string) {
     // get session Id
     const sessionId = allRelatedLoreRows.value.find(r=> r.uuid===uuid)?.lockedToSessionId;
@@ -586,11 +557,6 @@ export const campaignStore = () => {
         if (!lore.delivered)
           continue;
         
-        let entry: JournalEntryPage | null = null;
-
-        if (lore.journalEntryPageId)
-          entry = await fromUuid<JournalEntryPage>(lore.journalEntryPageId);
-  
         retval.push({
           uuid: lore.uuid,
           lockedToSessionId: session.uuid,
@@ -598,20 +564,12 @@ export const campaignStore = () => {
           delivered: lore.delivered,
           significant: lore.significant || false,
           description: lore.description,
-          journalEntryPageId: lore.journalEntryPageId,
-          journalEntryPageName: entry?.name || null,
-          packId: entry?.pack ?? null,
         });
       }
     }
 
     // now get the ones at the campaign level - delivered or not
     for (const lore of currentCampaign.value?.lore) {
-      let entry: JournalEntryPage | null = null;
-
-      if (lore.journalEntryPageId)
-        entry = await fromUuid<JournalEntryPage>(lore.journalEntryPageId);
-
       retval.push({
         uuid: lore.uuid,
         lockedToSessionId: null,
@@ -619,9 +577,6 @@ export const campaignStore = () => {
         delivered: lore.delivered,
         significant: lore.significant || false,
         description: lore.description,
-        journalEntryPageId: lore.journalEntryPageId,
-        journalEntryPageName: entry?.name || null,
-        packId: entry?.pack ??null,
       });
     }
 
@@ -708,7 +663,6 @@ export const campaignStore = () => {
     deleteLore,
     reorderAvailableLore,    
     updateLoreDescription,
-    updateLoreJournalEntry,
     markLoreDelivered,
     moveLoreToLastSession,
     moveLoreToArc,

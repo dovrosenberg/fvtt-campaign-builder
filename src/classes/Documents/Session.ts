@@ -350,17 +350,6 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     await this.save();
   }
 
-  async updateLoreJournalEntry(loreUuid: string, journalEntryPageId: string | null): Promise<void> {
-    const lore = this._clone.system.lore.find(l=> l.uuid===loreUuid);
-
-    if (!lore)
-      return;
-
-    lore.journalEntryPageId = journalEntryPageId;
-
-    await this.save();
-  }
-
 
   async deleteLore(uuid: string): Promise<void> {
     this._clone.system.lore = this._clone.system.lore.filter(l=> l.uuid!==uuid);
