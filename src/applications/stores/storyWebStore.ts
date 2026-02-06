@@ -359,7 +359,7 @@ export const storyWebStore = () => {
               // it's possible the edge is already there - specifically if we put two nodes on manually that
               //   relate to each other
               if (!edges.some(e => e.to === node.uuid && e.from === relatedEntry.uuid)) {
-                const label = relatedEntry.extraFields.role || relatedEntry.extraFields.relationship || '';
+                const label = relatedEntry.extraFields.relationship || '';
                 const edgeUuid = getEdgeUuid(node.uuid, relatedEntry.uuid, 'relationship');
                 const baseEdge = {
                   from: node.uuid,
@@ -1200,7 +1200,7 @@ export const storyWebStore = () => {
 
         const relatedEntry = relatedEntries[toNode];
         if (relatedEntry) {
-          return relatedEntry.extraFields.role || relatedEntry.extraFields.relationship || '';
+          return relatedEntry.extraFields.relationship || '';
         }
       }
     } catch (error) {

@@ -1,18 +1,22 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
-import { Campaign, Session, Arc } from '@/classes';
+import { Campaign, Session, Arc, Entry } from '@/classes';
 import { useMainStore } from '@/applications/stores';
+import { moduleId } from '@/settings';
+import { DOCUMENT_TYPES } from '@/documents';
+import { Topics } from '@/types';
 
 /**
  * Migration v1.8.6
- * 
- * Removes the journal columns from the lore tables in Campaign, Arc, and Session views.
- * The journals tab on entries remains intact.
- * 
- * Migrates existing journal references from lore records to the description text.
+ *
+ * 1. Removes the journal columns from the lore tables in Campaign, Arc, and Session views.
+ *    The journals tab on entries remains intact.
+ *    Migrates existing journal references from lore records to the description text.
+ *
+ * 2. Renames 'role' to 'relationship' in entry-to-entry relationship extraFields.
  */
 export class MigrationV1_8_6 implements Migration {
   public readonly targetVersion = '1.8.6';
-  public readonly description = 'Removes the journal columns from the lore tables and migrates journal references to description text';
+  public readonly description = 'Removes journal columns from lore tables and renames role to relationship in entry extraFields';
 
   private _context: MigrationContext;
 
@@ -58,6 +62,38 @@ export class MigrationV1_8_6 implements Migration {
           result.migratedCount++;
         }
         }        
+      }
+      // Migrate entry relationship extraFields: rename 'role' key to 'relationship'
+      for (const setting of settings) {
+        const allDocumentsIndex = await setting.compendium.getIndex({
+          fields: [
+            'uuid',
+            `flags.fvtt-campaign-builder.campaignBuilderType`,
+          ]
+        });
+
+        const entryDocs = allDocumentsIndex.filter((d: any) =>
+          d.flags?.[moduleId]?.campaignBuilderType === DOCUMENT_TYPES.Entry
+        );
+
+        for (const doc of entryDocs) {
+          try {
+            const journalEntry = await fromUuid<JournalEntry>(doc.uuid);
+            if (!journalEntry || !journalEntry.pages || journalEntry.pages.contents.length !== 1)
+              continue;
+
+            const entry = new Entry(journalEntry);
+            const changed = this.migrateEntryExtraFields(entry);
+
+            if (changed) {
+              await entry.save();
+              result.migratedCount++;
+            }
+          } catch (inner) {
+            result.failedCount++;
+            console.error(`Failed to migrate extraFields for ${doc.uuid}:`, inner);
+          }
+        }
       }
     } catch (error) {
       console.error('Migration v1.8.6 failed:', error);
@@ -134,7 +170,7 @@ export class MigrationV1_8_6 implements Migration {
    */
   private async migrateSessionLore(session: Session): Promise<void> {
     let hasChanges = false;
-    
+
     for (const lore of session.lore) {
       // @ts-ignore - still on the data structure for now
       if (lore.journalEntryPageId) {
@@ -146,16 +182,46 @@ export class MigrationV1_8_6 implements Migration {
         } else if (!lore.description) {
           lore.description = journalRef;
         }
-        
+
         // Remove the journalEntryPageId field
         // @ts-ignore - still on the data structure for now
         delete lore.journalEntryPageId;
         hasChanges = true;
       }
     }
-    
+
     if (hasChanges) {
       await session.save();
     }
+  }
+
+  /**
+   * Renames 'role' to 'relationship' in entry-to-entry relationship extraFields
+   * @returns true if any changes were made
+   */
+  private migrateEntryExtraFields(entry: Entry): boolean {
+    let hasChanges = false;
+    const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
+
+    for (const topic of topics) {
+      const relatedEntries = entry.relationships[topic];
+      if (!relatedEntries)
+        continue;
+
+      for (const relatedId in relatedEntries) {
+        const related = relatedEntries[relatedId];
+        if (!related?.extraFields)
+          continue;
+
+        // Rename 'role' key to 'relationship'
+        if ('role' in related.extraFields && !('relationship' in related.extraFields)) {
+          (related.extraFields as Record<string, unknown>).relationship = (related.extraFields as Record<string, unknown>).role;
+          delete (related.extraFields as Record<string, unknown>).role;
+          hasChanges = true;
+        }
+      }
+    }
+
+    return hasChanges;
   }
 }
