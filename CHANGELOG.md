@@ -4,6 +4,8 @@
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.x.x/module.zip)
 
 - You can now change the style of story web connections between custom text and dangers.
+- When copying text to the clipboard from a table text box or an editor, UUIDs will no longer be dropped and instead will be copied as the name of the document/entity.
+- Similarly, copying text with bullet or numbered lists will now include the bullets/numbers in the copied text when you paste it.
 
 ## 1.8.5 - More robust journal lists
 ![](https://img.shields.io/badge/release%20date-February%201%2C%202026-blue)
