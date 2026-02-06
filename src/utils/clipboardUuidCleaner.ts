@@ -87,6 +87,9 @@ export function cleanUuidReferencesInHtml(html: string): string {
 /**
  * Converts an HTML element to plain text, preserving list formatting, paragraphs, and line breaks.
  * Unlike el.textContent which strips all structure, this produces readable plain text.
+ * 
+ * @param el the HTML element to convert to plain text
+ * @returns the plain text version of the HTML element
  */
 function htmlToPlainText(el: HTMLElement): string {
   // Convert <br> to newlines
