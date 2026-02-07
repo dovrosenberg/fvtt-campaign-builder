@@ -1,4 +1,10 @@
 # Change Log
+## 1.9.0 - [___________]
+![](https://img.shields.io/badge/release%20date-February%20___%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.0/module.zip)
+
+- You can now create color schemes to apply to custom text blocks in story webs.
+
 ## 1.8.6 - Assorted bug fixes and improvements
 ![](https://img.shields.io/badge/release%20date-February%205%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.6/module.zip)

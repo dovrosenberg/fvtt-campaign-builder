@@ -286,22 +286,25 @@
         "tabs": {
           "colors": "Connection Colors",
           "styles": "Connection Styles",
+          "customColors": "Custom Text Colors",
           "fields": "Fields"
         },
         "columns": {
           "name": "Name",
           "color": "Color",
           "style": "Style",
-          "fieldName": "Field Name",
-          "fieldKey": "Field Key"
+          "foregroundColor": "Text Color",
+          "backgroundColor": "Background Color",
+          "preview": "Preview",
+          "fieldName": "Field Name"
         },
         "fieldsHint": "The fields in this list will be displayed in the tooltip when hovering over entities in a Story Web.",
         "contentType": "Content Type",
         "selectField": "Select Field",
         "notifications": {
-          "noAvailableFields": "No available fields to add",
-          "duplicateColorIds": "Duplicate color IDs found. Please ensure all color IDs are unique.",
-          "duplicateStyleIds": "Duplicate style IDs found. Please ensure all style IDs are unique."
+          "duplicateColorIds": "Color IDs must be unique",
+          "duplicateStyleIds": "Style IDs must be unique",
+          "duplicateCustomColorSchemeIds": "Custom color scheme IDs must be unique"
         }
       },
       "createEntry": {
