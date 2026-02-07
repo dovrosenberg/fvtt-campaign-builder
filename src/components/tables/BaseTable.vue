@@ -7,10 +7,6 @@
       size="small"
       scrollable
       scroll-height="flex"
-      paginator-position="bottom"
-      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-      current-page-report-template="{first} to {last} of {totalRecords}"
-      :first="pagination.first"
       :total-records="rows.length"
       :global-filter-fields="effectiveFilterFields"
       :filters="pagination.filters"
@@ -21,6 +17,20 @@
         row: { 
           style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
         },
+      }"
+
+      @row-contextmenu="emit('rowContextMenu', $event)"
+      @row-reorder="onRowReorder"
+    >
+    <!-- These need to be set if we want pagination back -->
+    <!-- <DataTable
+      paginator-position="bottom"
+      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      current-page-report-template="{first} to {last} of {totalRecords}"
+      :first="pagination.first"
+      :global-filter-fields="effectiveFilterFields"
+      :filters="pagination.filters"
+      :pt="{
         pcPaginator: { 
           // these are needed to override the foundry button styling
           first: {
@@ -29,10 +39,7 @@
           root: { style: 'background: inherit', }
         },
       }"
-
-      @row-contextmenu="emit('rowContextMenu', $event)"
-      @row-reorder="onRowReorder"
-    >
+    > -->
       <template #header>
         <div style="display: flex; justify-content: space-between;">
           <div style="display: flex">
@@ -360,6 +367,7 @@
       type: Array as PropType<ActionButtonDefinition[]>,
       default: [],
     },
+    // can a row be dragged to the canvas/other places in Foundry
     draggableRows: {
       type: Boolean,
       required: false,
