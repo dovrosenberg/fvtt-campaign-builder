@@ -142,20 +142,18 @@ export const storyWebStore = () => {
     }
     
     const colorSchemeId = currentStoryWeb.value.nodeStyles[nodeId].colorSchemeId;
-    const colorSchemes = ModuleSettings.get(SettingKey.storyWebCustomNodeColorSchemes) as { id: string; name: string; foregroundColor: string; backgroundColor: string }[];
+    const colorSchemes = ModuleSettings.get(SettingKey.storyWebCustomNodeColorSchemes);
     const colorScheme = colorSchemes.find(s => s.id === colorSchemeId);
     
-    if (!colorScheme) {
-      return nodeConfig[StoryWebNodeTypes.Custom];
-    }
-    
-    return {
+    const colorSchemeObject = colorScheme ? {
       font: { color: colorScheme.foregroundColor },
       color: {
         border: colorScheme.foregroundColor,
         background: colorScheme.backgroundColor,
       },
-    };
+    } : {};
+
+    return foundry.utils.mergeObject(nodeConfig[StoryWebNodeTypes.Custom], colorSchemeObject);
   };
 
   /** Record a new color scheme for a custom node */
