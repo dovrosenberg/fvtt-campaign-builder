@@ -66,7 +66,7 @@ All stored as JournalEntryPage subtypes: `entry2`, `session2`, `campaign2`, `arc
 - Methods called by other methods need JSDoc; event handlers don't.
 - Include one-line comments for non-trivial logic and particularly complex template sections.
 - Prefer inline template logic unless >60 characters. Avoid deeply nested inline ternaries. Extract repeated UI into smaller components.
-- Localize all user-facing strings via `localize()` from `@/utils/game`, not Foundry's i18n directly.
+- Localize all user-facing strings via `localize()` from `@/utils/game`, not Foundry's i18n directly.  Only localize strings into `en.json`.  The build process will handle translations.
 - Props: object syntax with `PropType`, clear names, stable types, provide defaults.
 - Emits: typed object syntax. Emit objects for multi-field payloads rather than positional args. Prefer `modelValue` + `update:modelValue` for v-model.
 - Scoped SCSS styles; use CSS variables and design tokens. Avoid hard-coded magic numbers unless clearly layout-specific and documented.

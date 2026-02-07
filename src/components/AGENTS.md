@@ -72,6 +72,8 @@ Windsurf is not allowed to:
 ### Localization
 - Localize any string presented to the user (but not strings just logged to the console).
 - Use localize function in @/utils/game rather than the default Foundry i18n
+- Only localize strings into `en.json`.  The build process will handle translations.
+
 
 ### Performance
 - Avoid unnecessary watchers.

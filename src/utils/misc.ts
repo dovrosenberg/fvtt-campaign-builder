@@ -99,7 +99,7 @@ export function topicToNodeType(topic: Topics): StoryWebNodeTypes {
     case Topics.Location: return StoryWebNodeTypes.Location;
     case Topics.Organization: return StoryWebNodeTypes.Organization;
     case Topics.PC: return StoryWebNodeTypes.PC;
-    default: throw new Error('Invalid topic in storyWebStore.topicToNodeType()');
+    default: throw new Error('Invalid topic in utils.misc.topicToNodeType()');
   }
 }
 
