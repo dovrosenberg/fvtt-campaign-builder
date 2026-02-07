@@ -325,6 +325,17 @@ export const campaignDirectoryStore = () => {
       if (!storyWeb) 
         throw new Error('Unable to load story web in campaignDirectoryStore.exportStoryWebAsPng()');
 
+      // get the filename - have to do early because otherwise the browser will block us because not close enough to the user action (?)
+      const canPickFile = 'showSaveFilePicker' in window;
+  
+      // @ts-ignore - showSaveFilePicker is not in the TypeScript definitions yet
+      const fileHandle = canPickFile ?
+        // @ts-ignore
+        await (window as any).showSaveFilePicker({
+          suggestedName: storyWeb.name,
+          types: [{ description: "PNG Image", accept: { "image/png": [".png"] } }],
+        }) : null;
+
       // Import vis-network dynamically (we don't load statically because we might not be using story web functionality depending on module settings)
       const { Network } = await import('vis-network');
 
@@ -425,13 +436,27 @@ export const campaignDirectoryStore = () => {
         throw new Error('Canvas not found in campaignDirectoryStore.exportStoryWebAsPng()');
       }
 
-      // Convert to PNG and download
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          throw new Error('Failed to generate image in campaignDirectoryStore.exportStoryWebAsPng()');
-        }
+      // Fill the canvas with white background
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        // Set to draw behind existing content
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
 
-        // Create download link
+      // Convert to PNG and download
+      const blob: Blob = await new Promise((resolve, reject) => {
+        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob failed"))), "image/png");
+      });
+
+      if (fileHandle) {
+        // Write directly to disk
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } else {
+        // Fallback: anchor download (may require a second user click in some browsers)
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -439,18 +464,16 @@ export const campaignDirectoryStore = () => {
         // Sanitize filename
         const filename = storyWeb.name.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.png';
         link.download = filename;
-        
-        // Trigger download
+        link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
-        
-        // Cleanup
-        URL.revokeObjectURL(url);
-        network.destroy();
-        document.body.removeChild(container);
-      }, 'image/png');
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
 
+      // Cleanup
+      network.destroy();
+      container.remove();
     } catch (error) {
       console.error('Error exporting story web as PNG:', error);
       notifyWarn(localize('notifications.failedToExportStoryWeb'));
