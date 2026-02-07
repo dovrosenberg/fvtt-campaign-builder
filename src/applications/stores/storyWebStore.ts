@@ -153,7 +153,7 @@ export const storyWebStore = () => {
       },
     } : {};
 
-    return foundry.utils.mergeObject(nodeConfig[StoryWebNodeTypes.Custom], colorSchemeObject);
+    return foundry.utils.mergeObject(nodeConfig[StoryWebNodeTypes.Custom], colorSchemeObject, { inplace: false, overwrite: true });
   };
 
   /** Record a new color scheme for a custom node */
