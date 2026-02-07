@@ -96,7 +96,7 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.storyWeb.downloadAsPng'),
           onClick: async () => {
-            await campaignDirectoryStore.exportStoryWebAsPng(props.storyWebNode.id);
+            await campaignDirectoryStore.exportStoryWeb(props.storyWebNode.id);
           },
         },
         {
