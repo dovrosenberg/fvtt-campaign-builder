@@ -135,6 +135,45 @@ export const storyWebStore = () => {
     },
   }
 
+  /** Get styling for a custom node based on its color scheme */
+  const getCustomNodeStyling = (nodeId: string): Partial<Node> => {
+    if (!currentStoryWeb.value?.nodeStyles?.[nodeId]) {
+      return nodeConfig[StoryWebNodeTypes.Custom];
+    }
+    
+    const colorSchemeId = currentStoryWeb.value.nodeStyles[nodeId].colorSchemeId;
+    const colorSchemes = ModuleSettings.get(SettingKey.storyWebCustomNodeColorSchemes);
+    const colorScheme = colorSchemes.find(s => s.id === colorSchemeId);
+    
+    const colorSchemeObject = colorScheme ? {
+      font: { color: colorScheme.foregroundColor },
+      color: {
+        border: colorScheme.foregroundColor,
+        background: colorScheme.backgroundColor,
+      },
+    } : {};
+
+    return foundry.utils.mergeObject(nodeConfig[StoryWebNodeTypes.Custom], colorSchemeObject, { inplace: false, overwrite: true });
+  };
+
+  /** Record a new color scheme for a custom node */
+  const setCustomNodeColorScheme = async (nodeId: string, colorSchemeId: string) => {
+    if (!currentStoryWeb.value) return;
+    
+    if (!currentStoryWeb.value.nodeStyles[nodeId]) {
+      currentStoryWeb.value.nodeStyles[nodeId] = {
+        colorSchemeId: colorSchemeId,
+      };
+    } else {
+      currentStoryWeb.value.nodeStyles[nodeId].colorSchemeId = colorSchemeId;
+    }
+    
+    await currentStoryWeb.value.save();
+    
+    // Refresh the graph to apply the new color
+    await mainStore.refreshStoryWeb();
+  };
+
   const edgeConfig = {
   }
 
@@ -287,12 +326,13 @@ export const storyWebStore = () => {
           }
         } else if (node.type === StoryWebNodeTypes.Custom) {
           const positionInfo = currentStoryWeb.value?.positions?.[node.uuid] || {};
+          const customStyling = getCustomNodeStyling(node.uuid);
           nodes.push({
             ...customNodeFormat,
             id: node.uuid,
             label: node.label || '',
             ...positionInfo,
-            ...nodeConfig[node.type],
+            ...customStyling,
           });
         }
       }
@@ -1905,6 +1945,23 @@ export const storyWebStore = () => {
     const isDangerNode = node && node.type === StoryWebNodeTypes.Danger;
     const isEntryNode = node && [StoryWebNodeSource.Explicit, StoryWebNodeSource.Implicit].includes(node.source) && !isDangerNode;
 
+    // create the custom text submenu
+    let colorSubmenu: any[]= [];
+
+    if (node && node.source === StoryWebNodeSource.Custom) {
+      // Get predefined color schemes from settings
+      const colorSchemes = ModuleSettings.get(SettingKey.storyWebCustomNodeColorSchemes);
+
+      colorSubmenu = colorSchemes.map(scheme => ({
+          label: scheme.name,
+          icon: () => h('svg', { viewBox: '0 0 20 20', style: 'width: 16px; height: 16px;' }, [
+            h('rect', { x: 2, y: 2, width: 16, height: 16, rx: 3, ry: 3, fill: scheme.backgroundColor }),
+            h('text', { x: 10, y: 14, 'text-anchor': 'middle', 'font-size': '10px', fill: scheme.foregroundColor }, 'A')
+          ]),
+          onClick: async () => { await setCustomNodeColorScheme(nodeId, scheme.id); }
+        }));
+    }
+
     // Build menu items
     const menuItems = [
       {
@@ -1937,6 +1994,13 @@ export const storyWebStore = () => {
         label: localize('contextMenus.storyWebGraph.editText'),
         onClick: async () => { await editCustomNode(nodeId); },
         hidden: !node || node.source !== StoryWebNodeSource.Custom
+      },
+      {
+        icon: 'fa-palette',
+        iconFontClass: 'fas',
+        label: localize('contextMenus.storyWebGraph.setColor'),
+        hidden: !node || node.source !== StoryWebNodeSource.Custom,
+        children: colorSubmenu
       },
       {
         icon: 'fa-trash',
@@ -2184,6 +2248,7 @@ export const storyWebStore = () => {
     handleDropOnNode,
     setEdgeColor,
     setEdgeStyle,
+    setCustomNodeColorScheme,
     getNodeTooltip,
   };
 };

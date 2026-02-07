@@ -8,7 +8,6 @@
     :add-button-label="localize('labels.session.addVignette')"
     :allow-drop-row="false"
     :allow-edit="true"
-    :draggable-rows="false"
     :help-text="localize('labels.session.vignetteHelpText')"
     help-link="https://slyflourish.com/scenes_catch_all_step.html"
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"

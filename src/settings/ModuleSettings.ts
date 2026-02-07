@@ -87,6 +87,7 @@ export enum SettingKey {
   storyWebConnectionColors = 'storyWebConnectionColors', // predefined colors for edges
   storyWebConnectionStyles = 'storyWebConnectionStyles', // predefined styles for edges
   storyWebNodeFields = 'storyWebNodeFields', // selected fields to display in node tooltips by content type
+  storyWebCustomNodeColorSchemes = 'storyWebCustomNodeColorSchemes', // predefined color schemes for custom text blocks
 }
 
 export type SettingKeyType<K extends SettingKey> =
@@ -121,6 +122,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.storyWebConnectionColors ? { id: string; name: string; value: string }[] :
     K extends SettingKey.storyWebConnectionStyles ? { id: string; name: string; value: string }[] :
     K extends SettingKey.storyWebNodeFields ? Partial<Record<StoryWebNodeTypes, string[]>> :
+    K extends SettingKey.storyWebCustomNodeColorSchemes ? { id: string; name: string; foregroundColor: string; backgroundColor: string }[] :
     K extends SettingKey.aiImagePrompts ? Record<CustomFieldContentType, string> :
     K extends SettingKey.aiImageConfigurations ? Record<CustomFieldContentType, ImageConfiguration> :
     K extends SettingKey.contentTags ? TagList :
@@ -470,6 +472,13 @@ export class ModuleSettings {
       settingID: SettingKey.storyWebNodeFields,
       default: {},
       type: Object,
+    },
+    {
+      settingID: SettingKey.storyWebCustomNodeColorSchemes,
+      default: [
+        { id: 'default', name: 'Default', foregroundColor: '#1b4b3e', backgroundColor: '#ffffff' },
+      ],
+      type: Array,
     },
   ];
   
