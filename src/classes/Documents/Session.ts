@@ -1,6 +1,5 @@
 // represents a game session 
 
-import { toRaw } from 'vue';
 import { DOCUMENT_TYPES, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';

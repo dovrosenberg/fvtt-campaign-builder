@@ -3,17 +3,17 @@
 // library imports
 import { storeToRefs, } from 'pinia';
 import { watch, ref, toRaw, nextTick, h } from 'vue';
-import type { Edge, Network, Node } from 'vis-network';
+import type { Network, } from 'vis-network';
 
 // local imports
 import { useMainStore, useRelationshipStore, useNavigationStore } from '@/applications/stores';
-import { nodeTypeToTopic, } from '@/utils/misc';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { replaceUUIDsInText } from '@/utils/sanitizeHtml';
+import { confirmDialog } from '@/dialogs/confirm';
+import { setEdgeColor, setEdgeStyle, getEdgeUuid } from '@/utils/storyWebGeneration';
 
-// library componentns
+// library components
 import ContextMenu from '@imengyu/vue3-context-menu';
 
 // Global physics options for console debugging and tuning
@@ -47,10 +47,8 @@ window.fcbStoryWebPhysics = {
 };
 
 // types
-import { Danger, RelatedEntryDetails, STORYWEB_TO_CUSTOM_FIELD_MAP, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
+import { Danger, RelatedEntryDetails, StoryWebNodeSource, StoryWebNodeTypes, Topics } from '@/types';
 import { Campaign, Entry, Front } from '@/classes';
-import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
-import { confirmDialog } from '@/dialogs/confirm';
 
 interface NetworkClickEventInfo {
   nodes: string[],
@@ -74,87 +72,6 @@ export const storyWebStore = () => {
   // the current vis-network network object
   const currentNetwork = ref<Network | null>(null);
 
-  // formatting for the boxes
-  const explicitNodeFormat = {
-    shape: 'box'
-  };
-  const implicitNodeFormat = {
-    shape: 'ellipse'
-  }
-  const customNodeFormat = {
-    shape: 'box'
-  }
-
-  const nodeConfig: Record<StoryWebNodeTypes, Partial<Node>> = {
-    [StoryWebNodeTypes.Character]: {
-      font: { color: 'white' },
-      color: {
-        border: '#2d93ad',
-        background: '#2d93ad',
-      },
-    },
-    [StoryWebNodeTypes.Location]: {
-      font: { color: 'black' },
-      color: {
-        border: '#dfd687',
-        background: '#dfd687',
-      },
-    },
-    [StoryWebNodeTypes.Organization]: {
-      font: { color: 'white' },
-      color: {
-        border: '#746d75',
-        background: '#746d75',
-      },
-    },
-    [StoryWebNodeTypes.PC]: {
-      font: { color: 'black' },
-      color: {
-        border: '#c9eddc',
-        background: '#c9eddc',
-      },
-    },
-    [StoryWebNodeTypes.Danger]: {
-      font: { color: 'white' },
-      color: {
-        border: '#45050c',
-        background: '#45050c',
-      },
-    },
-    [StoryWebNodeTypes.Custom]: {
-      font: { color: 'hsl(164, 48%, 20%)' },
-      color: {
-        border: 'hsl(164, 48%, 20%)',  // light mode fcb-primary
-        background: 'white',
-      },
-      // these can be both narrower and wider than normal ones
-      widthConstraint: {
-        minimum: 70,
-        maximum: 280,
-      },
-    },
-  }
-
-  /** Get styling for a custom node based on its color scheme */
-  const getCustomNodeStyling = (nodeId: string): Partial<Node> => {
-    if (!currentStoryWeb.value?.nodeStyles?.[nodeId]) {
-      return nodeConfig[StoryWebNodeTypes.Custom];
-    }
-    
-    const colorSchemeId = currentStoryWeb.value.nodeStyles[nodeId].colorSchemeId;
-    const colorSchemes = ModuleSettings.get(SettingKey.storyWebCustomNodeColorSchemes);
-    const colorScheme = colorSchemes.find(s => s.id === colorSchemeId);
-    
-    const colorSchemeObject = colorScheme ? {
-      font: { color: colorScheme.foregroundColor },
-      color: {
-        border: colorScheme.foregroundColor,
-        background: colorScheme.backgroundColor,
-      },
-    } : {};
-
-    return foundry.utils.mergeObject(nodeConfig[StoryWebNodeTypes.Custom], colorSchemeObject, { inplace: false, overwrite: true });
-  };
 
   /** Record a new color scheme for a custom node */
   const setCustomNodeColorScheme = async (nodeId: string, colorSchemeId: string) => {
@@ -174,16 +91,6 @@ export const storyWebStore = () => {
     await mainStore.refreshStoryWeb();
   };
 
-  const edgeConfig = {
-  }
-
-  // edges with labels are a bit longer 
-  const edgeWithLabelConfig = {
-    ...edgeConfig,
-    length: 150,
-  }
-
-
   const mainStore = useMainStore();
   const relationshipStore = useRelationshipStore();
   const navigationStore = useNavigationStore();
@@ -199,20 +106,12 @@ export const storyWebStore = () => {
   // Auto-panning state
   let autoPanAnimationId: number | null = null;
 
-  // Track previous storyweb to detect switches
+  // Track previous story web to detect switches
   let previousStoryWebId: string | null = null;
 
   ///////////////////////////////
   // external state
   const isWebLoading = ref<boolean>(false);
-  const LINE_STYLES = {
-    'solid': { name: 'Solid', pattern: false },
-    'dashed': { name: 'Dashed', pattern: [6, 6] },
-    'dotted': { name: 'Dotted', pattern: [1, 4] },
-    'dash_dot': { name: 'Dash-Dot', pattern: [6, 4, 1, 4] },
-    'long_dash': { name: 'Long Dash', pattern: [12, 6] },
-    'dense_dot': { name: 'Dense Dot', pattern: [1, 2] },
-  };
   
   ///////////////////////////////
   // actions
@@ -255,184 +154,8 @@ export const storyWebStore = () => {
       // dynamically import vis-network
       const { Network, } = await import('vis-network');
       
-      // build out the graph using the selected ones and everything connected to them
-      const nodes: Node[] = [];
-      const edges: Edge[] = [];
-
-      // load all the fronts so we have them to reference
-      let fronts: Front[] = [];
-      for (const campaignIdx of currentSetting.value.campaignIndex) {
-        const campaign = await Campaign.fromUuid(campaignIdx.uuid);
-        if (!campaign)
-          continue;
-        
-        fronts = fronts.concat(await campaign.allFronts());
-      }
-
-
-      // we pull the list of nodes and edges from the storyWeb 
-      // add the explicit ones
-      for (const node of currentStoryWeb.value?.nodes) {
-        // these are entries the user added
-        if ([StoryWebNodeSource.Explicit, StoryWebNodeSource.Implicit].includes(node.source)) {
-          if (node.type === StoryWebNodeTypes.Danger) {
-            // getting the name is a bit tricky 
-            const [frontId, dangerIndex] = node.uuid.split('|');
-            const front = fronts.find(f => f.uuid === frontId);
-            if (!front)
-              continue;
-            const danger = front.dangers[Number.parseInt(dangerIndex)];
-            if (!danger)
-              continue;
-
-            const positionInfo = currentStoryWeb.value?.positions?.[node.uuid] || {};            
-            const format = node.source === StoryWebNodeSource.Explicit ? explicitNodeFormat : implicitNodeFormat;
-            const nodeTooltip = await getNodeTooltip(node.uuid, StoryWebNodeTypes.Danger);
-            nodes.push({
-              ...format,
-              id: node.uuid,
-              label: `${danger.name}\n(${front.name})`,
-              title: nodeTooltip,
-              ...positionInfo,
-              ...nodeConfig[StoryWebNodeTypes.Danger],
-            });
-          } else {
-            // if an entry, we need the topic
-            const topic = nodeTypeToTopic(node.type);
-            if (topic !== null) {
-              const index = currentSetting.value?.topics[topic]?.entries.find(e => e.uuid === node.uuid);
-
-              if (!index)
-                continue;
-
-              const positionInfo = currentStoryWeb.value?.positions?.[index.uuid] || {};
-              
-              const format = node.source === StoryWebNodeSource.Explicit ? explicitNodeFormat : implicitNodeFormat;
-              const nodeTooltip = await getNodeTooltip(index.uuid, node.type);
-
-              // titles may require additional css... not working and maybe not worth bigger package size
-              // const title = getTopicText(topic) + '\n' + 
-              //   node.source === StoryWebNodeSource.Explicit ? 'added directly' : 'added via relationship'; 
-
-              nodes.push({
-                ...format,
-                id: index.uuid,
-                label: `${index.name}${index.type ? `\n(${index.type})` : ''}`,
-                title: nodeTooltip,
-                ...positionInfo,
-                ...nodeConfig[node.type],
-              });
-            }
-          }
-        } else if (node.type === StoryWebNodeTypes.Custom) {
-          const positionInfo = currentStoryWeb.value?.positions?.[node.uuid] || {};
-          const customStyling = getCustomNodeStyling(node.uuid);
-          nodes.push({
-            ...customNodeFormat,
-            id: node.uuid,
-            label: node.label || '',
-            ...positionInfo,
-            ...customStyling,
-          });
-        }
-      }
-    
-      const edgeConfig = getEdgeConfig(false);
-      const edgeWithLabelConfig = getEdgeConfig(true);
-
-      // add each of the connections
-      const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
-      for (const node of currentStoryWeb.value?.nodes) {
-        // only create edges for entry and danger nodes (not custom nodes)
-        if (node.type === StoryWebNodeTypes.Custom)
-          continue;
-
-        if (node.type === StoryWebNodeTypes.Danger) {
-          const [frontId, dangerId] = node.uuid.split('|');
-          const front = fronts.find(f => f.uuid === frontId);
-          if (!front)
-            continue;
-          const danger = front.dangers[Number.parseInt(dangerId)];
-          if (!danger)
-            continue;
-
-          // do the participants
-          for (const participant of danger.participants) {
-            // only add edge if the related node is also in the story web
-            if (!nodes.some(n => n.id === participant.uuid))
-              continue;
-
-            // add the relationship edge
-            // it's possible the edge is already there - specifically if we put two nodes on manually that
-            //   relate to each other
-            if (!edges.some(e => e.to === node.uuid && e.from === participant.uuid)) {
-              const label = participant.role || '';
-              const edgeUuid = getEdgeUuid(node.uuid, participant.uuid, 'danger');
-              const baseEdge = {
-                from: node.uuid,
-                to: participant.uuid,
-                label,
-                title: getEdgeTooltip(edgeUuid),
-                ...(label ? edgeWithLabelConfig : edgeConfig),
-                ...getEdgeStyling(edgeUuid)
-              };
-              edges.push(baseEdge);
-            }
-          }
-        } else {
-          // it's an entry
-          const entry = await Entry.fromUuid(node.uuid);
-          if (!entry)
-            continue;
-
-          for (const topic of topics) {
-            const relatedEntries = entry?.relationships?.[topic] as RelatedEntryDetails<any, any>[] | undefined;
-            if (!relatedEntries)
-              continue;
-
-            for (const relatedEntry of Object.values(relatedEntries)) {
-              // only add edge if the related node is also in the story web
-              if (!nodes.some(n => n.id === relatedEntry.uuid))
-                continue;
-
-              // add the relationship edge
-              // it's possible the edge is already there - specifically if we put two nodes on manually that
-              //   relate to each other
-              if (!edges.some(e => e.to === node.uuid && e.from === relatedEntry.uuid)) {
-                const label = relatedEntry.extraFields.relationship || '';
-                const edgeUuid = getEdgeUuid(node.uuid, relatedEntry.uuid, 'relationship');
-                const baseEdge = {
-                  from: node.uuid,
-                  to: relatedEntry.uuid,
-                  label,
-                  title: getEdgeTooltip(edgeUuid),
-                  ...(label ? edgeWithLabelConfig : edgeConfig),
-                  ...getEdgeStyling(edgeUuid)
-                };
-                edges.push(baseEdge);
-              }
-            }
-          }
-        }
-      }
-
-      // Add manual edges from storyWeb.edges array
-      for (const edge of currentStoryWeb.value?.edges || []) {
-        // Only add edge if both nodes exist in the graph
-        if (nodes.some(n => n.id === edge.from) && nodes.some(n => n.id === edge.to)) {
-          const label = edge.label || '';
-          const edgeUuid = getEdgeUuid(edge.from, edge.to, 'manual');
-          const baseEdge = {
-            from: edge.from,
-            to: edge.to,
-            label,
-            title: getEdgeTooltip(edgeUuid),
-            ...(label ? edgeWithLabelConfig : edgeConfig),
-            ...getEdgeStyling(edgeUuid)
-          };
-          edges.push(baseEdge);
-        }
-      }
+      // Generate network data using the storyWeb method
+      const { nodes, edges } = await currentStoryWeb.value.generateNetworkData(false);
       
       const options = {
         configure: false,  // change to 'physics' to get a physics config panel
@@ -452,7 +175,7 @@ export const storyWebStore = () => {
           }
         },
         nodes: {
-          margin: 3,  // padding in px
+          margin: { top: 3, right: 3, bottom: 3, left: 3 },
           // keep all nodes the same size
           widthConstraint: {
             minimum: 140,
@@ -461,7 +184,6 @@ export const storyWebStore = () => {
         }
       };
 
-      // @ts-ignore - options type is bad on visnetwork
       currentNetwork.value = new Network(currentContainer.value, { nodes, edges }, options);
 
       // Restore viewport state if we had stored it
@@ -682,6 +404,32 @@ export const storyWebStore = () => {
     await mainStore.refreshStoryWeb();
   };
 
+  /** edit a custom node's text */
+  const editCustomNode = async (nodeId: string) => {
+    if (!currentStoryWeb.value)
+      return;
+
+    const node = currentStoryWeb.value.nodes.find(n => n.uuid === nodeId);
+    if (!node || node.type !== StoryWebNodeTypes.Custom)
+      return;
+
+    // get the updated text from a dialog
+    const newText = await FCBDialog.inputDialog(
+      localize('contextMenus.storyWebGraph.editText'), 
+      localize('contextMenus.storyWebGraph.addTextPrompt'),
+      node.label || ''
+    );
+    if (newText === null) // User cancelled
+      return;
+
+    // Update the node label
+    node.label = newText;
+    await currentStoryWeb.value.save();
+
+    // refresh the drawing
+    await mainStore.refreshStoryWeb();
+  };
+
   /** remove a node from the story web */
   const removeNode = async (nodeId: string) => {
     if (!currentStoryWeb.value || !currentNetwork.value)
@@ -795,381 +543,11 @@ export const storyWebStore = () => {
   ///////////////////////////////
   // methods
 
-  /** Generate a consistent UUID for an edge
-   *  @param fromNode - The id of the first node
-   *  @param toNode - The id of the second node
-   *  @returns A consistent UUID for the edge
-   */
-  const getEdgeUuid = (fromNode: string, toNode: string, edgeType: 'manual' | 'relationship' | 'danger'): string => {
-    const sorted = [fromNode, toNode].sort();
-    return `${edgeType}:${sorted[0]}|${sorted[1]}`;
-  };
-
-  /** Generate tooltip text for a node based on its content type and selected fields */
-  const getNodeTooltip = async (nodeId: string, nodeType: StoryWebNodeTypes): Promise<HTMLElement | undefined> => {
-    // Get the selected fields for this content type
-    const nodeFields = ModuleSettings.get(SettingKey.storyWebNodeFields) as Record<StoryWebNodeTypes, string[]>;
-    const selectedFields = nodeFields[nodeType] || [];
-    
-    if (selectedFields.length === 0) {
-      return undefined;
-    }
-
-    // Get the entry data
-    let entryData: FCBJournalEntryPage<any> | Danger | null = null;
-    let isDanger = false;
-
-    if (nodeType === StoryWebNodeTypes.Danger) {
-      isDanger = true;
-
-      // For dangers, we need to extract the data from the front
-      const [frontId, dangerIndex] = nodeId.split('|');
-      const front = await Front.fromUuid(frontId);
-      if (front && front.dangers[Number.parseInt(dangerIndex)]) {
-        entryData = front.dangers[Number.parseInt(dangerIndex)];
-      }
-    } else {
-      // For entries, get the entry document
-      const entry = await Entry.fromUuid(nodeId);
-      if (entry) {
-        entryData = entry;
-      }
-    }
-    
-    if (!entryData) {
-      return undefined;
-    }
-
-    // Build the tooltip from selected fields
-    const tooltipParts: string[] = [];
-    
-    for (const fieldKey of selectedFields) {
-      let value = '';
-      
-      // Handle danger-specific fields
-      switch (fieldKey) {
-        case 'name':
-        case 'description':
-        case 'type':
-        case 'impendingDoom':
-        case 'motivation':
-          value = entryData[fieldKey] || '';
-          break;
-        case 'species':
-          // need to get the species
-          const speciesId = (entryData as Entry).speciesId;
-          const allSpecies = ModuleSettings.get(SettingKey.speciesList);
-          const species = allSpecies.find(s => s.id === speciesId);
-          value = species?.name || '';
-          break;
-        case 'parent':
-          // need to get the parent
-          const entry = await Entry.fromUuid(nodeId);
-          const parentId = await entry?.getParentId();
-          if (!parentId)
-            value = '';
-          else {
-            const parent = await Entry.fromUuid(parentId);
-            value = parent?.name || '';
-          }
-          break;
-        default:
-          // Check custom fields (note: no support for custom fields on dangers
-          if (isDanger)
-            break;
-
-          if ((entryData as FCBJournalEntryPage<any>).customFields && (entryData as FCBJournalEntryPage<any>).getCustomField(fieldKey)) {
-            const tempValue = (entryData as FCBJournalEntryPage<any>).getCustomField(fieldKey);
-
-            // if it's a boolean, convert to yes/no
-            if (typeof tempValue === 'boolean')
-              value = localize(tempValue ? 'labels.yes' : 'labels.no');
-            else
-              value = tempValue || '';
-          }
-          break;
-      }
-      
-      // Get the field name for display
-      const allFields = getAllFieldsForContentType(nodeType);
-      const field = allFields.find(f => f.key === fieldKey);
-      const fieldName = field ? field.name : fieldKey;
-      
-      // Add to tooltip if value exists
-      if (value && value.trim()) {
-        // Replace UUIDs in the value with their names
-        value = await replaceUUIDsInText(value);
-        
-        // Strip HTML tags from the value
-        value = value.replace(/<[^>]*>/g, '');
-        
-        // Truncate long values
-        const maxLength = 200;
-        if (value.length > maxLength) {
-          value = value.substring(0, maxLength) + '...';
-        }
-        tooltipParts.push(`<strong>${fieldName}:</strong> ${value}`);
-      }
-    }
-    if (tooltipParts.length === 0)
-      return undefined;
-    
-    // need to put into a tag
-    return createHTMLTooltip(tooltipParts.join('<br>'));
-  };
-
-  const createHTMLTooltip = (text: string): HTMLElement => {
-    const container = document.createElement('div');
-    container.innerHTML = text;
-    return container;
-  }
-
-  /** Get all available fields for a content type (hardcoded + custom) */
-  const getAllFieldsForContentType = (contentType: StoryWebNodeTypes): { key: string; name: string }[] => {
-    const fields = [] as { key: string; name: string }[];
-    
-    // Hard-coded fields for each content type
-    const hardcodedFields: Partial<Record<StoryWebNodeTypes, { key: string; name: string }[]>> = {
-      [StoryWebNodeTypes.Character]: [
-        { key: 'name', name: 'Name' },
-        { key: 'type', name: 'Type' },
-        { key: 'description', name: 'Description' },
-        { key: 'gmNotes', name: 'GM Notes' },
-      ],
-      [StoryWebNodeTypes.Location]: [
-        { key: 'name', name: 'Name' },
-        { key: 'type', name: 'Type' },
-        { key: 'description', name: 'Description' },
-        { key: 'gmNotes', name: 'GM Notes' },
-      ],
-      [StoryWebNodeTypes.Organization]: [
-        { key: 'name', name: 'Name' },
-        { key: 'type', name: 'Type' },
-        { key: 'description', name: 'Description' },
-        { key: 'gmNotes', name: 'GM Notes' },
-      ],
-      [StoryWebNodeTypes.PC]: [
-        { key: 'name', name: 'Name' },
-        { key: 'type', name: 'Type' },
-        { key: 'description', name: 'Description' },
-        { key: 'gmNotes', name: 'GM Notes' },
-      ],
-      [StoryWebNodeTypes.Danger]: [
-        { key: 'name', name: 'Name' },
-        { key: 'description', name: 'Description' },
-        { key: 'type', name: 'Type' },
-        { key: 'impulse', name: 'Impulse' },
-        { key: 'cast', name: 'Cast' },
-        { key: 'moves', name: 'Moves' },
-      ],
-      // Custom nodes don't have configurable fields
-    };
-    
-    fields.push(...(hardcodedFields[contentType] || []));
-    
-    // Add custom fields if available
-    const customFields = ModuleSettings.get(SettingKey.customFields) as Record<string, any[]>;
-    const customContentType = STORYWEB_TO_CUSTOM_FIELD_MAP[contentType];
-    
-    if (customContentType && customFields && customFields[customContentType]) {
-      customFields[customContentType].forEach((field: any) => {
-        if (!fields.find(f => f.key === field.name)) {
-          fields.push({
-            key: field.name,
-            name: field.label || field.name,
-          });
-        }
-      });
-    }
-    
-    return fields;
-  };
-
-  /** Generate tooltip text for an edge based on its color and style */
-  const getEdgeTooltip = (edgeUuid: string): HTMLElement | undefined => {
-    const edgeStyles = currentStoryWeb.value?.edgeStyles?.[edgeUuid];
-    if (!edgeStyles)
-      return undefined;
-
-    const tooltipParts: string[] = [];
-
-    // Add color information
-    if (edgeStyles.colorId) {
-      const colors = ModuleSettings.get(SettingKey.storyWebConnectionColors) as { id: string; name: string; value: string }[];
-      const colorOption = colors.find(c => c.id === edgeStyles.colorId);
-      if (colorOption) {
-        tooltipParts.push(`<strong>Color:</strong> ${colorOption.name}`);
-      }
-    }
-
-    // Add style information
-    if (edgeStyles.styleId) {
-      const styles = ModuleSettings.get(SettingKey.storyWebConnectionStyles) as { id: string; name: string; value: string }[];
-      const styleOption = styles.find(s => s.id === edgeStyles.styleId);
-      if (styleOption) {
-        tooltipParts.push(`<strong>Style:</strong> ${styleOption.name}`);
-      }
-    }
-
-    if (tooltipParts.length === 0)
-      return undefined;
-
-    return createHTMLTooltip(tooltipParts.join('<br>'));
-  };
-
-  /** Apply edge styles from the story web to an edge configuration */
-  const getEdgeStyling = (edgeUuid: string): Partial<Edge> => {
-    let edgeStyles = currentStoryWeb.value?.edgeStyles?.[edgeUuid];
-
-    // Backward compatibility: check for old unprefixed format if new format not found and this is a manual edge
-    if (!edgeStyles && edgeUuid.startsWith('manual:')) {
-      const oldEdgeUuid = edgeUuid.replace('manual:', '');
-      edgeStyles = currentStoryWeb.value?.edgeStyles?.[oldEdgeUuid];
-      
-      // If found with old format, migrate it to new format
-      if (edgeStyles && currentStoryWeb.value?.edgeStyles) {
-        currentStoryWeb.value.edgeStyles[edgeUuid] = edgeStyles;
-        delete currentStoryWeb.value.edgeStyles[oldEdgeUuid];
-      }
-    }
-
-    if (!edgeStyles) {
-      return {};
-    }
-
-    const styledEdge = {} as Partial<Edge>;
-
-    // Apply color if specified
-    if (edgeStyles.colorId) {
-      const colors = ModuleSettings.get(SettingKey.storyWebConnectionColors) as { id: string; name: string; value: string }[];
-
-      const colorOption = colors.find(c => c.id === edgeStyles.colorId);
-      if (colorOption) {
-        styledEdge.color = colorOption.value;
-      }
-    }
-
-    // Apply style if specified
-    if (edgeStyles.styleId) {
-      const styles = ModuleSettings.get(SettingKey.storyWebConnectionStyles) as { id: string; name: string; value: string }[];
-      const styleOption = styles.find(s => s.id === edgeStyles.styleId);
-      if (styleOption) {
-        styledEdge.dashes = LINE_STYLES[styleOption.value]?.pattern || false;
-      }
-    }
-
-    return styledEdge;
-  };
-
-  /** Record a new color for an edge */
-  const setEdgeColor = async (edgeId: string, colorId: string) => {
-    if (!currentStoryWeb.value) return;
-    
-    if (!currentStoryWeb.value.edgeStyles) {
-      currentStoryWeb.value.edgeStyles = {};
-    }
-    
-    if (!currentStoryWeb.value.edgeStyles[edgeId]) {
-      currentStoryWeb.value.edgeStyles[edgeId] = {
-        colorId: colorId,
-        styleId: ''
-      };
-    } else {
-      currentStoryWeb.value.edgeStyles[edgeId].colorId = colorId;
-    }
-    
-    await currentStoryWeb.value.save();
-    
-    // Refresh the graph to apply the new color
-    await mainStore.refreshStoryWeb();
-  };
-
-  /** Record a new style for an edge */
-  const setEdgeStyle = async (edgeId: string, styleId: string) => {
-    if (!currentStoryWeb.value) return;
-    
-    if (!currentStoryWeb.value.edgeStyles) {
-      currentStoryWeb.value.edgeStyles = {};
-    }
-    
-    if (!currentStoryWeb.value.edgeStyles[edgeId]) {
-      currentStoryWeb.value.edgeStyles[edgeId] = {
-        colorId: '',
-        styleId: styleId
-      };
-    } else {
-      currentStoryWeb.value.edgeStyles[edgeId].styleId = styleId;
-    }
-    
-    await currentStoryWeb.value.save();
-    
-    // Refresh the graph to apply the new style
-    await mainStore.refreshStoryWeb();
-  };
-
-  /** Some colors need to be different in dark mode but we can't use css variables in canvas.
-   *   Instead we call then when we generate the graph to read the variables and set the right colors
-   */
-  const getEdgeConfig = (hasLabel: boolean): Partial<Edge> => {
-    // get the base
-    const config: Partial<Edge> = hasLabel ? edgeWithLabelConfig : edgeConfig;
-
-    // use some computed variables to set the right style
-    config.color = getComputedStyle(document.body).getPropertyValue('--fcb-primary');
-
-    if (document.body.classList.contains('theme-dark')) {
-      config.font = {
-        strokeWidth: 0,
-        color: 'white'
-      };
-    } else {
-      config.font = {
-        strokeWidth: 0,
-        color: 'black'
-      };
-    }
-
-    // Add hover highlighting
-    config.hoverWidth = (config.width || 1) * 3;
-
-    return config;
-  }
-
-  /** @param required - whether the input must have a value (false means it can be blank) */
-  const getText = async (title:string, prompt: string, initialText: string, required: boolean): Promise<string | null> => {
-    let value: string | null = initialText;
-
-
-    do {  // if hit ok, must have a value
-      value = await FCBDialog.inputDialog(title, prompt, initialText); 
-
-      if (!required)
-        return value;
-    } while (value==='');  
-    
-    return value;
-  }
-
-  const editCustomNode = async (nodeId: string) => {
-    // make sure it's a manual one
-    const node = currentStoryWeb.value?.nodes.find(n => n.uuid === nodeId);
-    if (!node || node.source !== StoryWebNodeSource.Custom)
-      return;
-
-    const newText = await getText(localize('labels.storyWeb.editText'), localize('labels.storyWeb.enterText'), node.label || '', true); 
-    if (!newText)
-      return;
-
-    node.label = newText;
-    await currentStoryWeb.value?.save();
-    await mainStore.refreshStoryWeb();
-  }
-
   const editEdge = async (edgeId: string) => {
     if (!currentStoryWeb.value || !currentNetwork.value)
       return;
-
-    // Get the connected nodes to determine what type of edge this is
+    
+    // Get the connected nodes to determine what type of edge this is    
     const connectedNodes = toRaw(currentNetwork.value).getConnectedNodes(edgeId) as string[];
     if (connectedNodes.length !== 2)
       return;
@@ -1194,6 +572,18 @@ export const storyWebStore = () => {
     await updateEdgeLabel(fromNode, toNode, newLabel);
     
     await mainStore.refreshStoryWeb();
+  }
+
+  /** @param required - whether the input must have a value (false means it can be blank) */
+  const getText = async (title:string, prompt: string, initialText: string, required: boolean): Promise<string | null> => {
+    let value: string | null = initialText;
+    do {  // if hit ok, must have a value
+      value = await FCBDialog.inputDialog(title, prompt, initialText); 
+      if (!required)
+        return value;
+    } while (value==='');  
+    
+    return value;
   }
 
   const getCurrentEdgeLabel = async (fromNode: string, toNode: string): Promise<string> => {
@@ -1397,20 +787,20 @@ export const storyWebStore = () => {
    *    3. Auto-pan mode ends when either we 'drop' or the node moves out of the pan zone
    */
   // Track previous node position to detect user drag direction
-  let previousNodePosition: { x: number, y: number } | null = null;
+  // let previousNodePosition: { x: number, y: number } | null = null;
 
   const onDragging = () => {
     const network = toRaw(currentNetwork.value);
     if (!network) return;
     
     // Log selected node location and viewport coordinates
-    const selectedNodes = network.getSelectedNodes();
-    if (selectedNodes.length === 1) {
-      const nodeId = selectedNodes[0];
-      const nodePosition = network.getPositions([nodeId])[nodeId];
+    // const selectedNodes = network.getSelectedNodes();
+    // if (selectedNodes.length === 1) {
+      // const nodeId = selectedNodes[0];
+      // const nodePosition = network.getPositions([nodeId])[nodeId];
       
-      previousNodePosition = { x: nodePosition.x, y: nodePosition.y };
-    }
+      // previousNodePosition = { x: nodePosition.x, y: nodePosition.y };
+    // }
     
     // if we're not already panning, check if we need to start
     if (!autoPanAnimationId)
@@ -1421,7 +811,7 @@ export const storyWebStore = () => {
     stopAutoPan();
     
     // if we're not using physics, we need to save (otherwise we save when
-    //   it stablizes)
+    //   it stabilizes)
     if (!ModuleSettings.get(SettingKey.storyWebAutoArrange))
       await capturePositions();
   };
@@ -2043,7 +1433,13 @@ export const storyWebStore = () => {
       icon: () => h('svg', { viewBox: '0 0 20 20', style: 'width: 16px; height: 16px;' }, [
         h('rect', { x: 2, y: 2, width: 16, height: 16, rx: 3, ry: 3, fill: color.value })
       ]),
-      onClick: async () => { await setEdgeColor(edgeUuid, color.id); }
+      onClick: async () => { 
+        if (!currentStoryWeb.value)
+          return;
+
+        await setEdgeColor(currentStoryWeb.value, edgeUuid, color.id); 
+        await mainStore.refreshStoryWeb(); 
+      }
     }));
 
     // Build style submenu items
@@ -2102,7 +1498,13 @@ export const storyWebStore = () => {
       return {
         label: style.name,
         icon: () => h('svg', { viewBox: '0 0 20 20', style: 'width: 16px; height: 16px;' }, iconContent),
-        onClick: async () => { await setEdgeStyle(edgeUuid, style.id); }
+        onClick: async () => { 
+          if (!currentStoryWeb.value)
+            return;
+          
+          await setEdgeStyle(currentStoryWeb.value, edgeUuid, style.id); 
+          await mainStore.refreshStoryWeb(); 
+        }
       };
     });
 
@@ -2216,7 +1618,7 @@ export const storyWebStore = () => {
     if (!currentContainer.value || !currentStoryWeb.value) 
       return;
 
-    // Check if this is a different storyweb or the first load
+    // Check if this is a different story web or the first load
     const currentStoryWebId = currentStoryWeb.value.uuid;
     const isDifferentStoryWeb = !!previousStoryWebId && previousStoryWebId !== currentStoryWebId;
     const isFirstLoad = !currentNetwork.value || !previousStoryWebId;
@@ -2224,7 +1626,7 @@ export const storyWebStore = () => {
     // Update the tracking
     previousStoryWebId = currentStoryWebId;
     
-    // Reset viewport if it's the first load or a different storyweb
+    // Reset viewport if it's the first load or a different story web
     await generateNetwork(isFirstLoad || isDifferentStoryWeb);
   });
 
@@ -2238,7 +1640,6 @@ export const storyWebStore = () => {
     currentContainer,
     currentNetwork,
     isWebLoading,
-    LINE_STYLES,
     
     addEntry,
     addDanger,
@@ -2246,9 +1647,8 @@ export const storyWebStore = () => {
     removeNode,
     removeEdge,
     handleDropOnNode,
-    setEdgeColor,
-    setEdgeStyle,
     setCustomNodeColorScheme,
-    getNodeTooltip,
+    addCustomNode,
+    editCustomNode,
   };
 };

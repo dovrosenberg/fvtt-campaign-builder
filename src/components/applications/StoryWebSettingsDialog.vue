@@ -372,8 +372,8 @@ Dependencies
   import { ModuleSettings, SettingKey } from '@/settings';
   import { generateIdFromName } from '@/utils/idGeneration';
   import { storyWebSettingsApp } from '@/applications/settings/StoryWebSettingsApplication';
-  import { useStoryWebStore } from '@/applications/stores';
   import { useMainStore } from '@/applications/stores';
+  import { LINE_STYLES } from '@/utils/storyWebGeneration';
 
   // library components
   import { Button, InputText, Select, DataTable, Column } from 'primevue';
@@ -519,7 +519,7 @@ Dependencies
   };
 
   // Line style options for the dropdown
-  const lineStyleOptions = Object.entries(useStoryWebStore().LINE_STYLES).map(([key, value]) => ({
+  const lineStyleOptions = Object.entries(LINE_STYLES).map(([key, value]) => ({
     label: value.name,
     value: key,
   })) as LineStyleOption[];

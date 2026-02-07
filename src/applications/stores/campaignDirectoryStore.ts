@@ -11,6 +11,7 @@ import { DirectoryCampaignNode, DirectoryArcNode, DirectoryFrontFolder, Campaign
 import ArcIndexService from '@/utils/arcIndex';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyWarn } from '@/utils/notifications';
+import { localize } from '@/utils/game';
 
 // types
 
@@ -309,6 +310,153 @@ export const campaignDirectoryStore = () => {
     return newStoryWeb;
   };
 
+  /**
+   * Export a story web as PNG image
+   * 
+   * @param storyWebId the UUID of the story web to export
+   */
+  const exportStoryWebAsPng = async (storyWebId: string): Promise<void> => {
+    if (!currentSetting.value) 
+      return;
+
+    try {
+      // Load the story web
+      const storyWeb = await StoryWeb.fromUuid(storyWebId);
+      if (!storyWeb) 
+        throw new Error('Unable to load story web in campaignDirectoryStore.exportStoryWebAsPng()');
+
+      // Import vis-network dynamically (we don't load statically because we might not be using story web functionality depending on module settings)
+      const { Network } = await import('vis-network');
+
+      // Generate network data using the story web's method
+      const { nodes, edges } = await storyWeb.generateNetworkData(true);
+
+      // Create off-screen container
+      const container = document.createElement('div');
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      container.style.width = '2000px';
+      container.style.height = '1500px';
+      container.style.backgroundColor = 'white';
+      document.body.appendChild(container);
+
+      // Check if nodes have saved positions
+      const hasSavedPositions = Object.keys(storyWeb.positions || {}).length > 0;
+      
+      // Create network options (configure physics based on whether positions are saved)
+      const options = {
+        physics: hasSavedPositions ? false : {
+          enabled: true,
+          stabilization: {
+            enabled: true,
+            iterations: 1000,
+            updateInterval: 25,
+            onlyDynamicEdges: false,
+            fit: true
+          },
+          barnesHut: {
+            gravitationalConstant: -8000,
+            centralGravity: 0.3,
+            springLength: 95,
+            springConstant: 0.04,
+            damping: 0.09,
+            avoidOverlap: 0.1
+          }
+        },
+        interaction: {
+          hover: false,
+          dragNodes: false,
+          dragView: false,
+          zoomView: false,
+        },
+        edges: {
+          smooth: {
+            enabled: true,
+            type: 'discrete',
+            roundness: 0.5
+          }
+        },
+        nodes: {
+          margin: { top: 3, right: 3, bottom: 3, left: 3 },
+          widthConstraint: {
+            minimum: 140,
+            maximum: 140,
+          },
+        }
+      };
+
+      // Create network
+      const network = new Network(container, { nodes, edges }, options);
+
+      // Wait for network to stabilize if physics is enabled, otherwise just wait a bit for rendering
+      if (!hasSavedPositions) {
+        await new Promise<void>((resolve) => {
+          let stabilizationDone = false;
+          let renderTimeout: NodeJS.Timeout;
+          
+          network.once('stabilizationIterationsDone', () => {
+            stabilizationDone = true;
+            // Add a small delay to ensure the final positions are rendered
+            renderTimeout = setTimeout(() => resolve(), 100);
+          });
+          
+          // Also set a timeout in case stabilization doesn't fire (fallback)
+          setTimeout(() => {
+            if (!stabilizationDone) {
+              clearTimeout(renderTimeout);
+              resolve();
+            }
+          }, 5000);
+          
+          // Start stabilization
+          network.stabilize();
+        });
+      } else {
+        // No physics, just wait a bit for initial render
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      // Fit to view to ensure everything is visible
+      network.fit();
+
+      // Get canvas and export as PNG
+      const canvas = container.querySelector('canvas') as HTMLCanvasElement;
+      if (!canvas) {
+        throw new Error('Canvas not found in campaignDirectoryStore.exportStoryWebAsPng()');
+      }
+
+      // Convert to PNG and download
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          throw new Error('Failed to generate image in campaignDirectoryStore.exportStoryWebAsPng()');
+        }
+
+        // Create download link
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        
+        // Sanitize filename
+        const filename = storyWeb.name.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.png';
+        link.download = filename;
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Cleanup
+        URL.revokeObjectURL(url);
+        network.destroy();
+        document.body.removeChild(container);
+      }, 'image/png');
+
+    } catch (error) {
+      console.error('Error exporting story web as PNG:', error);
+      notifyWarn(localize('notifications.failedToExportStoryWeb'));
+    }
+  };
+
   /** create a session in campaign. Puts it at the end.
    *  @param campaignId the campaign to create the session 
    */
@@ -490,6 +638,7 @@ export const campaignDirectoryStore = () => {
     deleteFront,
     deleteStoryWeb,
     duplicateStoryWeb,
+    exportStoryWebAsPng,
     createSession,
     refreshAllCampaignArcs,
     createArc,

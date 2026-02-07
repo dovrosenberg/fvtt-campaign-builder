@@ -613,8 +613,9 @@
       "addedToSession": "added to session",
       "changesSaved": "Changes saved",
       "changesDiscarded": "Changes discarded",
+      "failedToExportStoryWeb": "Failed to export story web as PNG",
       "migration": {
-        "minimumVersionRequired": "Campign Builder cannot migrate from version {0}. You must first upgrade to version {1} or higher before upgrading to {2}.",
+        "minimumVersionRequired": "Campaign Builder cannot migrate from version {0}. You must first upgrade to version {1} or higher before upgrading to {2}.",
         "cannotOpen": "Campaign Builder cannot be opened because migration failed. Please check the console for details and resolve the migration issue."
       },
       "documentIndexesRepaired": "All document indexes have been successfully repaired!"
@@ -842,7 +843,8 @@
       },
       "storyWeb": {
         "duplicate": "Duplicate Web",
-        "delete": "Delete Story Web"
+        "delete": "Delete Story Web",
+        "downloadAsPng": "Download as PNG"
       },
       "storyWebGraph": {
         "delete": "Delete",
@@ -941,7 +943,7 @@
       "copyToNextSession": "Copy to next session",
       "moveToCampaign": "Move to campaign for later usage",
       "moveToArc": "Move to arc for later usage",
-      "movetoLatestArc": "Move to latest arc",
+      "moveToLatestArc": "Move to latest arc",
       "addToCampaign": "Add to campaign",
       "addToASession": "Add to a session",
       "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",
