@@ -1059,7 +1059,7 @@ export const navigationStore = () => {
     // adjust focused panel index
     if (focusedPanelIndex.value >= tabs.value.length)
       focusPanel(tabs.value.length - 1);
-    else if (focusedPanelIndex.value > index)
+    else if (focusedPanelIndex.value >= index)
       focusPanel(focusedPanelIndex.value - 1);
 
     await _saveTabs();
