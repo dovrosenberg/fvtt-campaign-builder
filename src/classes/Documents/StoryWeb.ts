@@ -18,6 +18,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     edges: [],
     positions: {},
     edgeStyles: {},
+    nodeStyles: {},
   } as unknown as StoryWebDocClass['system'];
 
   public campaign: Campaign | null;
@@ -103,6 +104,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     newStoryWeb.edges = [...originalStoryWeb.edges];
     newStoryWeb.positions = { ...originalStoryWeb.positions };
     newStoryWeb.edgeStyles = { ...originalStoryWeb.edgeStyles };
+    newStoryWeb.nodeStyles = { ...originalStoryWeb.nodeStyles };
     await newStoryWeb.save();
 
     return newStoryWeb;
@@ -154,6 +156,14 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
 
   set edgeStyles(value: {[x:string]: { colorId: string, styleId: string }}) {
     this._clone.system.edgeStyles = { ...value };
+  }
+
+  get nodeStyles(): {[x:string]: { colorSchemeId: string }} {
+    return this._clone.system.nodeStyles || {};
+  }
+
+  set nodeStyles(value: {[x:string]: { colorSchemeId: string }}) {
+    this._clone.system.nodeStyles = { ...value };
   }
 
   /** withRelationships will also bring in all the related entries */
@@ -320,6 +330,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     // convert unsafe keys
     data.system.positions = CleanKeysService.cleanKeysOnSave(data.system.positions);
     data.system.edgeStyles = CleanKeysService.cleanKeysOnSave(data.system.edgeStyles);
+    data.system.nodeStyles = CleanKeysService.cleanKeysOnSave(data.system.nodeStyles);
   }
 
   public async save(): Promise<void> {

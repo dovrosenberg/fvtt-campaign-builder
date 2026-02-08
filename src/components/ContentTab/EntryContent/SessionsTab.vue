@@ -12,8 +12,6 @@
       :add-button-label="''"
       :extra-add-text="''"
       :allow-drop-row="false"
-      :draggable-rows="false"
-
     />
   </div>
 </template>
