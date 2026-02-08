@@ -172,32 +172,8 @@
       // activate the moved one (will also save the tabs)
       await navigationStore.activateTab(data.tabId, false, targetPi);
     } else {
-      // Cross-panel: remove from source, append to target end
-      const sourceTabs = tabs.value[sourcePi];
-      if (!sourceTabs)
-        return;
-
-      const tabIdx = sourceTabs.findIndex(t => t.id === data.tabId);
-      if (tabIdx < 0)
-        return;
-
-      const movedTab = sourceTabs.splice(tabIdx, 1)[0];
-
-      // if source panel lost its active tab, activate adjacent tab
-      if (movedTab.active && sourceTabs.length > 0) {
-        const newActiveIdx = Math.min(tabIdx, sourceTabs.length - 1);
-        await navigationStore.activateTab(sourceTabs[newActiveIdx].id, false, sourcePi);
-      }
-
-      // append to target panel end and activate
-      movedTab.active = false;
-      tabs.value[targetPi].push(movedTab);
-      await navigationStore.activateTab(movedTab.id, false, targetPi);
-
-      // if source panel is now empty and not the only panel, remove it
-      if (sourceTabs.length === 0 && tabs.value.length > 1) {
-        await navigationStore.removePanel(sourcePi);
-      }
+      // Cross-panel: delegate to store
+      await navigationStore.moveTabToPanel(data.tabId, sourcePi, targetPi);
     }
   };
 

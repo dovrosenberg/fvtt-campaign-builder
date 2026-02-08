@@ -1059,6 +1059,42 @@ export const navigationStore = () => {
   };
 
   /**
+   * Move a tab from one panel to another. Handles activating an adjacent tab in the source panel,
+   * appending to the target panel, activating it there, and removing the source panel if it becomes empty.
+   * @param tabId - The ID of the tab to move
+   * @param sourcePanelIndex - The panel the tab is currently in
+   * @param targetPanelIndex - The panel to move the tab to
+   */
+  const moveTabToPanel = async function (tabId: string, sourcePanelIndex: number, targetPanelIndex: number): Promise<void> {
+    const sourceTabs = tabs.value[sourcePanelIndex];
+    if (!sourceTabs)
+      return;
+
+    // find and remove tab from source panel
+    const tabIdx = sourceTabs.findIndex(t => t.id === tabId);
+    if (tabIdx < 0)
+      return;
+
+    const movedTab = sourceTabs.splice(tabIdx, 1)[0];
+
+    // if source panel lost its active tab, activate adjacent tab
+    if (movedTab.active && sourceTabs.length > 0) {
+      const newActiveIdx = Math.min(tabIdx, sourceTabs.length - 1);
+      await activateTab(sourceTabs[newActiveIdx].id, false, sourcePanelIndex);
+    }
+
+    // append to target panel end and activate
+    movedTab.active = false;
+    tabs.value[targetPanelIndex].push(movedTab);
+    await activateTab(movedTab.id, false, targetPanelIndex);
+
+    // if source panel is now empty and not the only panel, remove it
+    if (sourceTabs.length === 0 && tabs.value.length > 1) {
+      await removePanel(sourcePanelIndex);
+    }
+  };
+
+  /**
    * Find which panel contains a tab with the given content type and optionally content id.
    * Checks the focused panel first, then searches all other panels.
    * @param contentId - Content ID to match
@@ -1181,6 +1217,7 @@ export const navigationStore = () => {
     focusPanel,
     splitToRight,
     removePanel,
+    moveTabToPanel,
     findTabAcrossPanels,
   };
 };
