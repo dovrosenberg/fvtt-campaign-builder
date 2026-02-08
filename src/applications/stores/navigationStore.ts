@@ -976,9 +976,14 @@ export const navigationStore = () => {
     // make sure index is valid
     const validTab = Math.clamp(index, 0, tabs.value.length -1);
 
+    const previousIndex = focusedPanelIndex.value;
     focusedPanelIndex.value = validTab;
     const ps = _panelStates.get(validTab) || null;
     mainStore.setFocusedPanel(ps);
+
+    // scroll directory to the newly focused panel's active entry
+    if (validTab !== previousIndex)
+      void DirectoryScrollService.scrollToActiveEntry();
   };
 
   /**
