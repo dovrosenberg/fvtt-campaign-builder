@@ -47,16 +47,10 @@ The focused panel matters in a few ways:
 - The "Forward" and "Back" buttons control the current tab in the focused panel.
 - Clicking a bookmark will open the content in the focused panel.
 
-### Moving Tabs Between Panels
-
-You can drag tabs between panels:
-
-1. Click and hold a tab
-2. Drag it to another panel's tab bar
-3. Release to drop the tab in the new panel
-
 ### Panel Management
 
+- **Drag and drop tabs**: You can move tabs between panels by dragging the tab header
+- **Drag and drop from directory**: You can drag a Setting, Entry, Campaign, Arc, Session, Front, or Story Web from the directory sidebars onto a panel to open a new tab with that content in the panel
 - **Auto-collapse**: When a panel's last tab is closed, the panel automatically removes
 - **Resizing**: Drag the divider between panels to adjust their widths
 - **New tabs**: Each panel has its own "+" button for creating new tabs

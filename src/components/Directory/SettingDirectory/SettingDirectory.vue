@@ -5,13 +5,14 @@
       v-if="currentSettingTreeObject"
       :key="currentSettingTreeObject.id"
       class="fcb-setting-folder folder flexcol"
-      draggable="true"
     >
       <header
         class="folder-header flexrow"
         :data-testid="`setting-folder-${currentSettingTreeObject.name}`"
         @contextmenu="onSettingContextMenu($event, currentSettingTreeObject.id)"
         @click="onSettingFolderClick($event, currentSettingTreeObject.id)"
+        draggable="true"
+        @dragstart="onDragStart($event, currentSettingTreeObject.id, currentSettingTreeObject.name)"
       >
         <div class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
@@ -70,6 +71,7 @@
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
   import GlobalSettingService from '@/utils/globalSettings';
+  import DragDropService from '@/utils/dragDrop';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -82,6 +84,7 @@
   // types
   import { WindowTabType, Topics } from '@/types';
   import { DirectoryTopicFolderNode, TopicFolder, } from '@/classes';
+  import { SettingNodeDragData } from '@/types/dragDrop';
   
   ////////////////////////////////
   // props
@@ -113,6 +116,25 @@
   ////////////////////////////////
   // event handlers
 
+  /**
+   * Handles drag start for setting folders.
+   * @param event The drag start event
+   * @param settingId The UUID of the setting being dragged
+   * @param settingName The name of the setting being dragged
+   */
+  const onDragStart = async (event: DragEvent, settingId: string, settingName: string): Promise<void> => {
+    event.stopPropagation();
+
+    // Create the FCB data
+    const fcbData = {
+      type: 'fcb-setting',
+      settingId: settingId,
+      name: settingName
+    } as SettingNodeDragData;
+
+    // Set combined drag data for both canvas drops and internal operations
+    DragDropService.setCombinedDragData(event, settingId, fcbData);
+  };
 
   /**
    * Handles clicking on a setting folder to open its description.

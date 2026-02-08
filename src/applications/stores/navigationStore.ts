@@ -413,8 +413,10 @@ export const navigationStore = () => {
       tabs.value = [ ...tabs.value ];
     }
     
-    if (options.activate)
+    if (options.activate) {
       await activateTab(tab.id, options.forceTab, panelIndex);
+      await focusPanel(panelIndex);
+    }
 
     // activating doesn't always save (ex. if we added a new entry to active tab)
     await _saveTabs();

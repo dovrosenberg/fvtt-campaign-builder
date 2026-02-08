@@ -32,6 +32,8 @@
     :class="{ 'fcb-tab-panel--focused': isFocused }"
     @click="onPanelClick"
     @focusin="onPanelFocus"
+    @drop="onPanelDrop"
+    @dragover="DragDropService.standardDragover"
   >
     <div class="fcb-tab-bar flexrow">
       <div
@@ -92,7 +94,8 @@
   import ContentTab from '@/components/ContentTab/ContentTab.vue';
 
   // types
-  import { TabDragData } from '@/types';
+  import { TabDragData, } from '@/types';
+  import type { NodeDragDropData } from '@/types/dragDrop';
 
   ////////////////////////////////
   // props
@@ -175,6 +178,49 @@
       return;
 
     await navigationStore.moveTabToPanel(data.tabId, data.panelIndex, props.panelIndex);
+  };
+
+  // drop handler for the entire panel (handles directory node drops)
+  const onPanelDrop = async (event: DragEvent) => {
+    // Don't handle if another handler already processed this
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const data = DragDropService.getValidatedData(event);
+    if (!data) {
+      return;
+    }
+
+    // Don't handle tab drops (already handled by onTabBarDrop)
+    if (data.type === DragDropService.FCBDragTypes.Tab) {
+      return;
+    }
+
+    // Check if this is FCB drag data
+    const fcbData = 'fcbData' in data ? data.fcbData as NodeDragDropData : undefined;
+    if (!fcbData) {
+      return;
+    }
+
+    // Map drag types to open methods
+    const dragTypeToOpenMethod = {
+      [DragDropService.FCBDragTypes.Setting]: () => navigationStore.openSetting(fcbData.settingId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.Entry]: () => navigationStore.openEntry(fcbData.childId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.Campaign]: () => navigationStore.openCampaign(fcbData.campaignId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.Arc]: () => navigationStore.openArc(fcbData.arcId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.Session]: () => navigationStore.openSession(fcbData.sessionId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.Front]: () => navigationStore.openFront(fcbData.frontId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.StoryWeb]: () => navigationStore.openStoryWeb(fcbData.storyWebId, { panelIndex: props.panelIndex, activate: true }),
+    };
+
+    const openMethod = dragTypeToOpenMethod[fcbData.type as keyof typeof dragTypeToOpenMethod];
+    if (openMethod) {
+      await openMethod();
+    }
   };
 
   ////////////////////////////////
