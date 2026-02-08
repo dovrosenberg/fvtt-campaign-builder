@@ -308,22 +308,25 @@
         "tabs": {
           "colors": "Connection Colors",
           "styles": "Connection Styles",
-          "fields": "Fields"
+          "fields": "Fields",
+          "customColors": "Пользовательские цвета текста"
         },
         "columns": {
           "name": "Name",
           "color": "Color",
           "style": "Style",
           "fieldName": "Field Name",
-          "fieldKey": "Field Key"
+          "foregroundColor": "Цвет текста",
+          "backgroundColor": "Цвет фона",
+          "preview": "Предварительный просмотр"
         },
         "fieldsHint": "The fields in this list will be displayed in the tooltip when hovering over entities in a Story Web.",
         "contentType": "Content Type",
         "selectField": "Select Field",
         "notifications": {
-          "noAvailableFields": "No available fields to add",
-          "duplicateColorIds": "Duplicate color IDs found. Please ensure all color IDs are unique.",
-          "duplicateStyleIds": "Duplicate style IDs found. Please ensure all style IDs are unique."
+          "duplicateColorIds": "Идентификаторы цветов должны быть уникальными",
+          "duplicateStyleIds": "Идентификаторы стилей должны быть уникальными",
+          "duplicateCustomColorSchemeIds": "Идентификаторы пользовательских цветовых схем должны быть уникальными"
         }
       }
     },
