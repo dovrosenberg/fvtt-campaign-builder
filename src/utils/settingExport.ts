@@ -596,7 +596,9 @@ const exportStoryWebs = async (setting: FCBSetting): Promise<Array<{ name: strin
 
           // Only add if we got valid data
           if (pngData.size > 0) {
-            const fileName = `${storyWeb.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
+            // Get the campaign name for the filename
+            const campaignName = campaign?.name || 'Unknown Campaign';
+            const fileName = `${campaignName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${storyWeb.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
             storyWebImages.push({ name: fileName, data: pngData });
             console.log(`Successfully exported story web: ${storyWeb.name}`);
           } else {
@@ -625,85 +627,42 @@ const createAndDownloadZip = async (
   storyWebImages: Array<{ name: string; data: Blob }>
 ): Promise<void> => {
   try {
-    // Check if showSaveFilePicker is available
-    const canPickFile = 'showSaveFilePicker' in window;
-
-    if (canPickFile) {
-      try {
-        // @ts-ignore - showSaveFilePicker is not in TypeScript definitions
-        const fileHandle = await window.showSaveFilePicker({
-          suggestedName: `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.zip`,
-          types: [{ description: "ZIP Archive", accept: { "application/zip": [".zip"] } }],
-        });
-
-        // Create a proper ZIP file
-        await createProperZip(fileHandle, setting.name, markdownContent, storyWebImages);
-      } catch (err) {
-        // If file picker fails or user cancels, fallback to individual downloads
-        console.log('File picker failed, falling back to individual downloads:', err);
-        await downloadFilesSeparately(setting, markdownContent, storyWebImages);
-      }
-    } else {
-      // Fallback for browsers without showSaveFilePicker
-      downloadIndividualFiles(setting, markdownContent, storyWebImages);
-    }
-  } catch (error) {
-    console.error('Error creating zip file:', error);
-    // Final fallback - download files separately
-    await downloadFilesSeparately(setting, markdownContent, storyWebImages);
-  }
-};
-
-/**
- * Creates a proper ZIP file using CompressionStream API.
- * @param fileHandle - The file handle to write to
- * @param settingName - The name of the setting
- * @param markdownContent - The markdown content
- * @param storyWebImages - Array of story web images
- */
-const createProperZip = async (
-  fileHandle: FileSystemFileHandle,
-  settingName: string,
-  markdownContent: string,
-  storyWebImages: Array<{ name: string; data: Blob }>
-): Promise<void> => {
-  const encoder = new TextEncoder();
-  const files: Array<{ name: string; content: Uint8Array }> = [];
-  
-  // Add markdown file
-  const markdownFileName = `${settingName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
-  files.push({
-    name: markdownFileName,
-    content: encoder.encode(markdownContent)
-  });
-  
-  // Add image files
-  for (const image of storyWebImages) {
-    const arrayBuffer = await image.data.arrayBuffer();
+    // Create ZIP data directly
+    const encoder = new TextEncoder();
+    const files: Array<{ name: string; content: Uint8Array }> = [];
+    
+    // Add markdown file
+    const markdownFileName = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
     files.push({
-      name: image.name,
-      content: new Uint8Array(arrayBuffer)
+      name: markdownFileName,
+      content: encoder.encode(markdownContent)
     });
-  }
-  
-  // Create ZIP file
-  const zipData = await createZipData(files);
-  
-  try {
-    // Write to file using File System Access API
-    const writable = await fileHandle.createWritable();
-    await writable.write(zipData);
-    await writable.close();
-  } catch (error) {
-    // If writing fails, fallback to data URL download
-    console.log('Failed to write via File System Access API, using fallback:', error);
+    
+    // Add image files
+    for (const image of storyWebImages) {
+      const arrayBuffer = await image.data.arrayBuffer();
+      files.push({
+        name: image.name,
+        content: new Uint8Array(arrayBuffer)
+      });
+    }
+    
+    // Create ZIP file
+    const zipData = await createZipData(files);
+    
+    // Download immediately using blob URL
     const blob = new Blob([zipData], { type: 'application/zip' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${settingName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.zip`;
+    link.download = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.zip`;
     link.click();
     URL.revokeObjectURL(url);
+    
+  } catch (error) {
+    console.error('Error creating zip file:', error);
+    // Fallback - download files separately
+    await downloadFilesSeparately(setting, markdownContent, storyWebImages);
   }
 };
 
@@ -942,63 +901,6 @@ const downloadFilesSeparately = async (
       link.click();
       URL.revokeObjectURL(url);
     }, i * 100); // 100ms delay between downloads
-  }
-};
-
-/**
- * Downloads files individually for browsers without File System Access API.
- * @param setting - The setting object
- * @param markdownContent - The markdown content
- * @param storyWebImages - Array of story web images
- */
-const downloadIndividualFiles = (
-  setting: FCBSetting,
-  markdownContent: string,
-  storyWebImages: Array<{ name: string; data: Blob }>
-): void => {
-  // Try to create a zip and download via data URL
-  if (storyWebImages.length > 0) {
-    // Create ZIP data
-    const encoder = new TextEncoder();
-    const files: Array<{ name: string; content: Uint8Array }> = [];
-    
-    // Add markdown file
-    const markdownFileName = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
-    files.push({
-      name: markdownFileName,
-      content: encoder.encode(markdownContent)
-    });
-    
-    // Add image files
-    Promise.all(storyWebImages.map(async image => {
-      const arrayBuffer = await image.data.arrayBuffer();
-      return {
-        name: image.name,
-        content: new Uint8Array(arrayBuffer)
-      };
-    })).then(fileData => {
-      files.push(...fileData);
-      
-      // Create ZIP
-      createZipData(files).then(zipData => {
-        const blob = new Blob([zipData], { type: 'application/zip' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.zip`;
-        link.click();
-        URL.revokeObjectURL(url);
-      });
-    });
-  } else {
-    // Just download the markdown file
-    const markdownBlob = new Blob([markdownContent], { type: 'text/markdown' });
-    const markdownUrl = URL.createObjectURL(markdownBlob);
-    const markdownLink = document.createElement('a');
-    markdownLink.href = markdownUrl;
-    markdownLink.download = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
-    markdownLink.click();
-    URL.revokeObjectURL(markdownUrl);
   }
 };
 

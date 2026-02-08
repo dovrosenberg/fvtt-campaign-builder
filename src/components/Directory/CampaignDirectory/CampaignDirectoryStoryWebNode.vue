@@ -94,7 +94,7 @@
         {
           icon: 'fa-download',
           iconFontClass: 'fas',
-          label: localize('contextMenus.storyWeb.downloadAsPng'),
+          label: localize('contextMenus.storyWeb.exportAsPng'),
           onClick: async () => {
             await campaignDirectoryStore.exportStoryWeb(props.storyWebNode.id);
           },

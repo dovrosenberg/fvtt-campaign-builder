@@ -638,6 +638,10 @@ const setEdgeStyle = async (storyWeb: StoryWeb, edgeId: string, styleId: string)
     if (!storyWeb) 
       throw new Error('Unable to load story web in campaignDirectoryStore.exportStoryWebAsPng()');
 
+    // Load the campaign to get its name
+    const campaign = await storyWeb.loadCampaign();
+    const campaignName = campaign?.name || 'Unknown Campaign';
+
     // get the filename - have to do early because otherwise the browser will block us because not close enough to the user action (?)
     const canPickFile = 'showSaveFilePicker' in window;
 
@@ -645,7 +649,7 @@ const setEdgeStyle = async (storyWeb: StoryWeb, edgeId: string, styleId: string)
     const fileHandle = canPickFile ?
       // @ts-ignore
       await window.showSaveFilePicker({
-        suggestedName: storyWeb.name,
+        suggestedName: `${campaignName}-${storyWeb.name}`,
         types: [{ description: "PNG Image", accept: { "image/png": [".png"] } }],
       }) : null;
 
@@ -774,8 +778,8 @@ const setEdgeStyle = async (storyWeb: StoryWeb, edgeId: string, styleId: string)
       const link = document.createElement('a');
       link.href = url;
       
-      // Sanitize filename
-      const filename = storyWeb.name.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.png';
+      // Sanitize filename with campaign name
+      const filename = `${campaignName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${storyWeb.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
       link.download = filename;
       link.style.display = 'none';
       document.body.appendChild(link);

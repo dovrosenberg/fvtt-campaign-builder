@@ -849,7 +849,7 @@
       "storyWeb": {
         "duplicate": "Duplicate Web",
         "delete": "Delete Story Web",
-        "downloadAsPng": "Download as PNG"
+        "exportAsPng": "Export as PNG"
       },
       "storyWebGraph": {
         "delete": "Delete",
