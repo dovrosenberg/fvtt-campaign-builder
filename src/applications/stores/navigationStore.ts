@@ -1024,13 +1024,6 @@ export const navigationStore = () => {
     // splice out the panel
     tabs.value.splice(index, 1);
 
-    // // If we removed the focused panel or a panel before it, adjust focus
-    // if (index <= focusedPanelIndex.value) {
-    //   // Focus the previous panel (or 0 if we removed the first panel)
-    //   const newFocusIndex = Math.max(0, Math.min(index, tabs.value.length - 1));
-    //   focusPanel(newFocusIndex);
-    // }
-
     // re-index panelStates: shift down all entries after the removed index
     const newMap = new Map<number, TabPanelState>();
     for (const [idx, ps] of _panelStates) {
