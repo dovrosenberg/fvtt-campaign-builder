@@ -73,7 +73,7 @@ export function createTabPanelState(): TabPanelState {
   const currentStoryWeb = computed((): StoryWeb | null => (_currentStoryWeb?.value || null) as StoryWeb | null);
   const currentTab = computed((): WindowTab | null => _currentTab?.value);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);
-  const currentTag = computed((): { value: string | null } => _currentTag?.value || null);
+  const currentTag = computed((): { value: string | null } => _currentTag?.value || { value: null });
 
   const currentContentId = computed((): string | null => {
     return _currentEntry.value ? _currentEntry.value.uuid :

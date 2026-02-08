@@ -63,6 +63,9 @@ export const navigationStore = () => {
   const _sessionBookmarksRefreshToken = ref<number>(0);
   const MAX_PANELS = 3;   // maximum number of split panels allowed
 
+  // stable unique keys for each panel, so Vue can track component identity across removals
+  const panelKeys = ref<string[]>([]);
+
   ///////////////////////////////
   // actions
 
@@ -308,6 +311,12 @@ export const navigationStore = () => {
     return await openContent(tagName, WindowTabType.TagResults, options);
   };
 
+  const setActiveTab = async function(tab: WindowTab, panelIndex: number): Promise<void> {
+    const ps = _panelStates.get(panelIndex);
+    if (ps)
+      await ps.setNewTab(tab);
+  };
+
   /**
    * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
@@ -415,9 +424,7 @@ export const navigationStore = () => {
       await _updateRecent(headerData);
 
     // load content in the target panel
-    const ps = _panelStates.get(panelIndex);
-    if (ps)
-      await ps.setNewTab(tab);
+    await setActiveTab(tab, panelIndex);
 
     // scroll to the entry (only if this is the focused panel)
     if (panelIndex === focusedPanelIndex.value)
@@ -484,7 +491,11 @@ export const navigationStore = () => {
       } else {
         await activateTab(panelTabs[index-1].id, false, pi); // will also save them
       }
+    } else {
+      // the other branches save via removePanel, openEntry, or activateTab
+      await _saveTabs();
     }
+
   };
 
   /**
@@ -499,6 +510,7 @@ export const navigationStore = () => {
     }
 
     tabs.value = [[]];
+    panelKeys.value = [];
     focusPanel(0);
     bookmarks.value = [];
   };
@@ -577,9 +589,7 @@ export const navigationStore = () => {
       await _updateRecent(newTab.header);
 
     // load content in the target panel
-    const ps = _panelStates.get(pi);
-    if (ps)
-      await ps.setNewTab(newTab);
+    await setActiveTab(newTab, pi);
 
     // Scroll to and expand the active entry in the directory tree (only if focused panel)
     if (pi === focusedPanelIndex.value)
@@ -731,16 +741,14 @@ export const navigationStore = () => {
       }
     }
 
-    // save tabs and refresh the focused panel's active tab
+    // save tabs and refresh all active tabs
     await _saveTabs();
-    const activeTab = getActiveTab(false);
-    if (activeTab) {
-      const ps = _panelStates.get(focusedPanelIndex.value);
-      if (ps)
-        await ps.setNewTab(activeTab);
-
-      await DirectoryScrollService.scrollToActiveEntry();
+    for (let pi = 0; pi < tabs.value.length; pi++) {
+      const activeTab = getActiveTab(false, pi);
+      if (activeTab)
+        await setActiveTab(activeTab, pi);
     }
+    await DirectoryScrollService.scrollToActiveEntry();
 
     // now remove from bookmarks
     bookmarks.value = bookmarks.value.filter(b => b.header.uuid !== contentId);
@@ -808,6 +816,9 @@ export const navigationStore = () => {
     // ensure at least one panel exists
     if (tabs.value.length === 0)
       tabs.value = [[]];
+
+    // generate stable keys for each loaded panel
+    panelKeys.value = tabs.value.map(() => foundry.utils.randomID());
 
     // if the first panel has no tabs, create a default one
     if (!tabs.value[0].length) {
@@ -995,18 +1006,18 @@ export const navigationStore = () => {
     rightmostTabs[newActiveIdx].active = true;
 
     // tell the source panel to load its new active tab
-    const sourcePs = _panelStates.get(rightmostIdx);
-    if (sourcePs)
-      await sourcePs.setNewTab(rightmostTabs[newActiveIdx]);
+    await setActiveTab(rightmostTabs[newActiveIdx], rightmostIdx);
 
     // create the new panel with the moved tab
     movedTab.active = true;
     tabs.value.push([movedTab]);
+    panelKeys.value.push(foundry.utils.randomID());
 
     await _saveTabs();
 
-    // focus the new panel (TabPanel.vue will mount and register its panelState)
-    focusPanel(tabs.value.length - 1);
+    // focus the new panel (TabPanel.vue will mount and register its panelState,
+    //    so we don't need to use focusPanel())
+    focusedPanelIndex.value = tabs.value.length - 1;
   };
 
   /**
@@ -1021,8 +1032,9 @@ export const navigationStore = () => {
     // unregister the panel state
     _panelStates.delete(index);
 
-    // splice out the panel
+    // splice out the panel and its stable key
     tabs.value.splice(index, 1);
+    panelKeys.value.splice(index, 1);
 
     // re-index panelStates: shift down all entries after the removed index
     const newMap = new Map<number, TabPanelState>();
@@ -1131,6 +1143,7 @@ export const navigationStore = () => {
   // return the public interface
   return {
     tabs,
+    panelKeys,
     focusedPanelIndex,
     bookmarks,
     sessionBookmarks,

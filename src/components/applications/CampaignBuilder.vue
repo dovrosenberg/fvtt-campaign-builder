@@ -25,21 +25,21 @@
           <FCBHeader />
           <div class="fcb-panels-container">
             <Splitter
-              v-if="panelCount > 1"
+              v-if="panelKeys.length > 1"
               layout="horizontal"
               :gutter-size="4"
               class="fcb-panels-splitter"
             >
               <!-- Note that there are 3 at most, so min-size is ok -->
               <SplitterPanel
-                v-for="(_, pi) in panelCount"
-                :key="pi"
-                :size="Math.floor(100 / panelCount)"
+                v-for="(panelKey, pi) in panelKeys"
+                :key="panelKey"
+                :size="Math.floor(100 / panelKeys.length)"
                 :min-size="20"
               >
                 <TabPanel
                   :panel-index="pi"
-                  :is-rightmost="pi === panelCount - 1"
+                  :is-rightmost="pi === panelKeys.length - 1"
                 />
               </SplitterPanel>
             </Splitter>
@@ -111,7 +111,7 @@
   const navigationStore = useNavigationStore();
   const backendStore = useBackendStore();
   const { currentSetting, rootFolder, isArcManagerOpen } = storeToRefs(mainStore);
-  const { tabs } = storeToRefs(navigationStore);
+  const { tabs, panelKeys } = storeToRefs(navigationStore);
   const { available, inProgress } = storeToRefs(backendStore);
 
   ////////////////////////////////
