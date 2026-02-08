@@ -507,6 +507,90 @@ const exportSession = async (session: Session, prefix: string): Promise<string> 
 };
 
 /**
+ * Generates a PNG blob from a story web.
+ * @param storyWeb - The story web to export
+ * @returns Promise<Blob> - The PNG blob
+ */
+const generateStoryWebPng = async (storyWeb: any): Promise<Blob> => {
+  // Generate network data
+  const { nodes, edges } = await storyWeb.generateNetworkData(true);
+
+  // Create off-screen container
+  const container = document.createElement('div');
+  container.style.position = 'absolute';
+  container.style.left = '-9999px';
+  container.style.width = '2000px';
+  container.style.height = '1500px';
+  container.style.backgroundColor = 'white';
+  document.body.appendChild(container);
+
+  // Import vis-network dynamically
+  const { Network } = await import('vis-network');
+
+  // Create network
+  const network = new Network(container, { nodes, edges }, {
+    physics: false,
+    interaction: {
+      hover: false,
+      tooltipDelay: 0
+    }
+  });
+
+  // Wait for network to be ready and rendered
+  await new Promise<void>((resolve) => {
+    // Since physics is disabled, the network should be ready immediately
+    // But we'll wait a bit for rendering
+    setTimeout(resolve, 1000);
+  });
+
+  // Get the network canvas directly from vis-network
+  const networkCanvas = (network as any).canvas?.frame?.canvas || 
+                        container.querySelector('canvas') as HTMLCanvasElement;
+  
+  if (!networkCanvas) {
+    document.body.removeChild(container);
+    network.destroy();
+    throw new Error('Could not find network canvas for story web export');
+  }
+
+  // Create canvas with the same dimensions as the network canvas
+  const canvas = document.createElement('canvas');
+  canvas.width = networkCanvas.width || 2000;
+  canvas.height = networkCanvas.height || 1500;
+  const ctx = canvas.getContext('2d');
+  
+  if (!ctx) {
+    document.body.removeChild(container);
+    network.destroy();
+    throw new Error('Could not get canvas context for story web export');
+  }
+
+  // Draw white background
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw the network canvas to our canvas
+  ctx.drawImage(networkCanvas, 0, 0);
+
+  // Get canvas data as PNG
+  const pngData = await new Promise<Blob>((resolve) => {
+    canvas.toBlob(blob => {
+      if (blob) {
+        resolve(blob);
+      } else {
+        resolve(new Blob()); // Empty blob as fallback
+      }
+    }, 'image/png');
+  });
+
+  // Clean up
+  document.body.removeChild(container);
+  network.destroy();
+
+  return pngData;
+};
+
+/**
  * Exports all story webs in a setting as PNG images.
  * @param setting - The setting object
  * @returns Array of objects containing story web name and PNG data
@@ -522,88 +606,19 @@ const exportStoryWebs = async (setting: FCBSetting): Promise<Array<{ name: strin
     for (const storyWeb of storyWebs) {
       try {
         console.log(`Exporting story web: ${storyWeb.name}`);
-        // Generate network data
-        const { nodes, edges } = await storyWeb.generateNetworkData(true);
-        console.log(`Generated network data with ${nodes.length} nodes and ${edges.length} edges`);
-
-        // Create off-screen container
-        const container = document.createElement('div');
-        container.style.position = 'absolute';
-        container.style.left = '-9999px';
-        container.style.width = '2000px';
-        container.style.height = '1500px';
-        container.style.backgroundColor = 'white';
-        document.body.appendChild(container);
-
-        // Import vis-network dynamically
-        const { Network } = await import('vis-network');
-
-        // Create network
-        const network = new Network(container, { nodes, edges }, {
-          physics: false,
-          interaction: {
-            hover: false,
-            tooltipDelay: 0
-          }
-        });
-
-        // Wait for network to be ready and rendered
-        await new Promise<void>((resolve) => {
-          // Since physics is disabled, the network should be ready immediately
-          // But we'll wait a bit for rendering
-          setTimeout(resolve, 1000);
-        });
-
-        // Get the network canvas directly from vis-network
-        const networkCanvas = (network as any).canvas?.frame?.canvas || 
-                              container.querySelector('canvas') as HTMLCanvasElement;
         
-        if (!networkCanvas) {
-          console.error('Could not find network canvas for story web:', storyWeb.name);
-          document.body.removeChild(container);
-          network.destroy();
-          continue;
-        }
-
-        // Create canvas with the same dimensions as the network canvas
-        const canvas = document.createElement('canvas');
-        canvas.width = networkCanvas.width || 2000;
-        canvas.height = networkCanvas.height || 1500;
-        const ctx = canvas.getContext('2d');
+        // Use the shared PNG generation function
+        const pngData = await generateStoryWebPng(storyWeb, campaign);
         
-        if (ctx) {
-          // Draw white background
-          ctx.fillStyle = 'white';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-          // Draw the network canvas to our canvas
-          ctx.drawImage(networkCanvas, 0, 0);
-
-          // Get canvas data as PNG
-          const pngData = await new Promise<Blob>((resolve) => {
-            canvas.toBlob(blob => {
-              if (blob) {
-                resolve(blob);
-              } else {
-                resolve(new Blob()); // Empty blob as fallback
-              }
-            }, 'image/png');
-          });
-
-          // Clean up
-          document.body.removeChild(container);
-          network.destroy();
-
-          // Only add if we got valid data
-          if (pngData.size > 0) {
-            // Get the campaign name for the filename
-            const campaignName = campaign?.name || 'Unknown Campaign';
-            const fileName = `${campaignName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${storyWeb.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
-            storyWebImages.push({ name: fileName, data: pngData });
-            console.log(`Successfully exported story web: ${storyWeb.name}`);
-          } else {
-            console.error(`Failed to generate PNG for story web: ${storyWeb.name}`);
-          }
+        // Only add if we got valid data
+        if (pngData.size > 0) {
+          // Get the campaign name for the filename
+          const campaignName = campaign?.name || 'Unknown Campaign';
+          const fileName = `${campaignName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${storyWeb.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
+          storyWebImages.push({ name: fileName, data: pngData });
+          console.log(`Successfully exported story web: ${storyWeb.name}`);
+        } else {
+          console.error(`Failed to generate PNG for story web: ${storyWeb.name}`);
         }
       } catch (error) {
         console.error(`Error exporting story web ${storyWeb.name}:`, error);
@@ -958,7 +973,8 @@ const cleanText = (text: string): string => {
 
 const SettingExportService = {
   exportSetting,
-  exportSettingMarkdown
+  exportSettingMarkdown,
+  generateStoryWebPng
 };
 
 export default SettingExportService;
