@@ -643,40 +643,19 @@ const setEdgeStyle = async (storyWeb: StoryWeb, edgeId: string, styleId: string)
   const campaign = await storyWeb.loadCampaign();
   const campaignName = campaign?.name || 'Unknown Campaign';
 
-  // get the filename - have to do early because otherwise the browser will block us because not close enough to the user action (?)
-  const canPickFile = 'showSaveFilePicker' in window;
-
-  // @ts-ignore - showSaveFilePicker is not in the TypeScript definitions yet
-  const fileHandle = canPickFile ?
-    // @ts-ignore
-    await window.showSaveFilePicker({
-      suggestedName: `${campaignName}-${storyWeb.name}`,
-      types: [{ description: "PNG Image", accept: { "image/png": [".png"] } }],
-    }) : null;
-
   // Use the shared PNG generation function
-  const blob = await SettingExportService.generateStoryWebPng(storyWeb, campaign);
+  const blob = await SettingExportService.generateStoryWebPng(storyWeb);
 
-  if (fileHandle) {
-    // Write directly to disk
-    const writable = await fileHandle.createWritable();
-    await writable.write(blob);
-    await writable.close();
-  } else {
-    // Fallback: anchor download (may require a second user click in some browsers)
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    
-    // Sanitize filename with campaign name
-    const filename = `${campaignName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${storyWeb.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
-    link.download = filename;
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
+  // Download immediately using blob URL
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  
+  // Sanitize filename with campaign name
+  const filename = `${campaignName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${storyWeb.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
 };  
 
 export {

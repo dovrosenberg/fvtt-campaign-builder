@@ -608,7 +608,7 @@ const exportStoryWebs = async (setting: FCBSetting): Promise<Array<{ name: strin
         console.log(`Exporting story web: ${storyWeb.name}`);
         
         // Use the shared PNG generation function
-        const pngData = await generateStoryWebPng(storyWeb, campaign);
+        const pngData = await generateStoryWebPng(storyWeb);
         
         // Only add if we got valid data
         if (pngData.size > 0) {
