@@ -46,7 +46,8 @@
 
             <!--  If there's only one panel, just show it -->
             <TabPanel
-              v-else
+              v-else-if="panelKeys.length === 1"
+              :key="panelKeys[0]"
               :panel-index="0"
               :is-rightmost="true"
             />
