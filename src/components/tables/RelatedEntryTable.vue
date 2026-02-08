@@ -39,7 +39,8 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
+  import { useNavigationStore, useRelationshipStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { localize } from '@/utils/game';
   import { Entry } from '@/classes';
   import DragDropService from '@/utils/dragDrop';
@@ -76,10 +77,8 @@
   ////////////////////////////////
   // store
   const relationshipStore = useRelationshipStore();
-  const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-
-  const { currentEntryTopic } = storeToRefs(mainStore);
+  const { currentEntryTopic } = useContentState();
   const { relatedEntryRows, } = storeToRefs(relationshipStore);
   const extraFields = relationshipStore.extraFields;
 

@@ -34,7 +34,8 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useArcStore, useMainStore } from '@/applications/stores';
+  import { useArcStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { Topics, CellEditCompleteEvent, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
   import DragDropService from '@/utils/dragDrop'; 
@@ -66,9 +67,8 @@
   ////////////////////////////////
   // store
   const arcStore = useArcStore();
-  const mainStore = useMainStore();
   const { participantRows } = storeToRefs(arcStore);
-  const { currentSetting, currentArc } = storeToRefs(mainStore);
+  const { currentSetting, currentArc } = useContentState();
   
   ////////////////////////////////
   // data

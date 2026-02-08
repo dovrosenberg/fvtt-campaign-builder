@@ -128,11 +128,11 @@
 <script setup lang="ts">
 
   // library imports
-  import { storeToRefs } from 'pinia';
   import { ref, watch, onBeforeUnmount, computed, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useArcStore, } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -175,7 +175,7 @@
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const arcStore = useArcStore();
-  const { currentArc, currentSetting, } = storeToRefs(mainStore);
+  const { currentArc, currentSetting } = useContentState();
   
   ////////////////////////////////
   // data

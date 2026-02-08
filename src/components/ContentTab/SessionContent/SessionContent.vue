@@ -162,6 +162,7 @@
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, useSessionStore, } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { notifyWarn } from '@/utils/notifications';
@@ -207,7 +208,8 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const sessionStore = useSessionStore();
   const playingStore = usePlayingStore();
-  const { currentSession, currentSetting, isInPlayMode } = storeToRefs(mainStore);
+  const { isInPlayMode } = storeToRefs(mainStore);
+  const { currentSetting, currentSession } = useContentState();
   const { currentPlayedSessionId, currentPlayedSessionNotes } = storeToRefs(playingStore);
   
   ////////////////////////////////

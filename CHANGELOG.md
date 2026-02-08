@@ -1,4 +1,10 @@
 # Change Log
+## 1.9.0 - Assorted bug fixes and improvements
+![](https://img.shields.io/badge/release%20date-February%20__%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.0/module.zip)
+
+- Added the ability to split the main content area into multiple panes, so you can view multiple entries side by side.
+
 ## 1.8.6 - Assorted bug fixes and improvements
 ![](https://img.shields.io/badge/release%20date-February%205%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.6/module.zip)

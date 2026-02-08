@@ -34,7 +34,8 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, useArcStore,  useMainStore, } from '@/applications/stores';
+  import { useSessionStore, useArcStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { localize } from '@/utils/game'
   import DragDropService from '@/utils/dragDrop'; 
   import { notifyInfo } from '@/utils/notifications';
@@ -70,10 +71,9 @@
   // store
   const sessionStore = useSessionStore();
   const arcStore = useArcStore();
-  const mainStore = useMainStore();
   const { relatedMonsterRows: sessionMonsterRows } = storeToRefs(sessionStore);
   const { monsterRows: arcMonsterRows } = storeToRefs(arcStore);
-  const { currentArc } = storeToRefs(mainStore);
+  const { currentArc } = useContentState();
   
   ////////////////////////////////
   // data

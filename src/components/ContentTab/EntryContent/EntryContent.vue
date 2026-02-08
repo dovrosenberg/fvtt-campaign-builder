@@ -203,7 +203,8 @@
   // local imports
   import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useSettingDirectoryStore, useBackendStore, useMainStore, useNavigationStore, useRelationshipStore, usePlayingStore, } from '@/applications/stores';
+  import { useSettingDirectoryStore, useBackendStore, useNavigationStore, useRelationshipStore, usePlayingStore, } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -245,13 +246,12 @@
 
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
   const settingDirectoryStore = useSettingDirectoryStore();
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
   const playingStore = usePlayingStore();
   const backendStore = useBackendStore();
-  const { currentEntry, currentSetting, refreshCurrentEntry, } = storeToRefs(mainStore);
+  const { currentSetting, currentEntry, refreshCurrentEntry } = useContentState();
   const { currentPlayedCampaign } = storeToRefs(playingStore);
   const { isGeneratingImage, available } = storeToRefs(backendStore); 
 

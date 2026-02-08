@@ -91,7 +91,8 @@
   // local imports
   import { getTabTypeIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useCampaignDirectoryStore, useCampaignStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useCampaignStore, useNavigationStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyWarn } from '@/utils/notifications';
   
@@ -122,11 +123,10 @@
 
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const campaignStore = useCampaignStore();
-  const { currentCampaign, } = storeToRefs(mainStore);
+  const { currentCampaign } = useContentState();
   const { toDoRows } = storeToRefs(campaignStore);
 
   ////////////////////////////////

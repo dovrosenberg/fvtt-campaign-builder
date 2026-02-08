@@ -26,11 +26,11 @@
 <script setup lang="ts">
   // library imports
   import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
-  import { storeToRefs } from 'pinia';
 
   // local imports
   import { localize } from '@/utils/game';
-  import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useNavigationStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { getTabTypeIcon } from '@/utils/misc';
   import { notifyWarn } from '@/utils/notifications';
 
@@ -52,8 +52,7 @@
 
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
-  const { currentStoryWeb } = storeToRefs(mainStore);
+  const { currentStoryWeb } = useContentState();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
 

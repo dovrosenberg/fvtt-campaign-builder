@@ -23,8 +23,33 @@
       > 
         <div class="fcb-body flexcol">
           <FCBHeader />
-          <div class="fcb-content flexcol editable">
-            <ContentTab />
+          <div class="fcb-panels-container">
+            <Splitter
+              v-if="panelCount > 1"
+              layout="horizontal"
+              :gutter-size="4"
+              class="fcb-panels-splitter"
+            >
+              <!-- Note that there are 3 at most, so min-size is ok -->
+              <SplitterPanel
+                v-for="(_, pi) in panelCount"
+                :key="pi"
+                :size="Math.floor(100 / panelCount)"
+                :min-size="20"
+              >
+                <TabPanel
+                  :panel-index="pi"
+                  :is-rightmost="pi === panelCount - 1"
+                />
+              </SplitterPanel>
+            </Splitter>
+
+            <!--  If there's only one panel, just show it -->
+            <TabPanel
+              v-else
+              :panel-index="0"
+              :is-rightmost="true"
+            />
           </div>
         </div>
         <div
@@ -47,7 +72,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, watch, ref, } from 'vue';
+  import { onMounted, watch, ref, computed, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -65,7 +90,7 @@
 
   // local components
   import FCBHeader from '@/components/FCBHeader/FCBHeader.vue';
-  import ContentTab from '@/components/ContentTab/ContentTab.vue';
+  import TabPanel from '@/components/TabPanel/TabPanel.vue';
   import Directory from '@/components/Directory/Directory.vue';
   import TitleBarComponents from '@/components/TitleBarComponents.vue';
 
@@ -86,6 +111,7 @@
   const navigationStore = useNavigationStore();
   const backendStore = useBackendStore();
   const { currentSetting, rootFolder, isArcManagerOpen } = storeToRefs(mainStore);
+  const { tabs } = storeToRefs(navigationStore);
   const { available, inProgress } = storeToRefs(backendStore);
 
   ////////////////////////////////
@@ -96,6 +122,7 @@
 
   ////////////////////////////////
   // computed data
+  const panelCount = computed(() => tabs.value.length);
 
   ////////////////////////////////
   // methods
@@ -404,6 +431,18 @@
 
       .fcb-body {
         height: 100%;
+      }
+
+      .fcb-panels-container {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .fcb-panels-splitter {
+        height: 100%;
+        width: 100%;
       }
     }
 

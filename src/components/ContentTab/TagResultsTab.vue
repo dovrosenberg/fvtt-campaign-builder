@@ -20,7 +20,7 @@ Slots
 - None
 
 Dependencies
-- Stores: useMainStore, useNavigationStore
+- Stores: useNavigationStore
 - Composables: None
 - Services/API: searchService
 
@@ -56,12 +56,12 @@ Dependencies
 <script setup lang="ts">
   // library imports
   import { ref, watch, computed } from 'vue';
-  import { storeToRefs } from 'pinia';
 
   // local imports
   import { localize } from '@/utils/game';
   import { searchService } from '@/utils/search';
-  import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useNavigationStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
 
   // library components
 
@@ -80,9 +80,8 @@ Dependencies
 
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentSetting, currentTag } = storeToRefs(mainStore);
+  const { currentSetting, currentTag } = useContentState();
 
   ////////////////////////////////
   // computed data

@@ -1,8 +1,8 @@
 <template>
-  <div class="tags-wrapper">
-    <input 
-      id="fcb-tags-input" 
-      :class="'tags-input' + (isInitialized ? '' : ' uninitialized')" 
+  <div class="tags-wrapper" :class="{ 'uninitialized': !isInitialized }">
+    <input
+      ref="tagsInputRef"
+      class="tags-input"
       data-testid="tags-input"
       :value="JSON.stringify(currentValue)" 
       :placeholder="'Tags...'"
@@ -65,7 +65,8 @@
   ////////////////////////////////
   // data
   const tagify = ref<Tagify>();
-  const currentValue = ref<string[]>(props.modelValue);
+  const tagsInputRef = ref<HTMLInputElement>();
+  const currentValue = ref<string[]>(props.modelValue || []);
   const isInitialized = ref<boolean>(false);
 
   ////////////////////////////////
@@ -92,7 +93,7 @@
     tagData.style = "--tag-bg:" + tagData.color;
   }
 
-  const getWhitelist = () => {
+  const getWhitelist = (): string[] => {
     const tagList = ModuleSettings.get(props.tagSetting);
     const whitelist = [] as string[];
     for (const tag in tagList) {
@@ -186,14 +187,15 @@
 
   ////////////////////////////////
   // watchers
-  watch(props.modelValue, (newVal: string[]) => {
-    currentValue.value = newVal;
+  watch(() => props.modelValue, (newVal: string[] | undefined) => {
+    const safeVal = newVal || [];
+    currentValue.value = safeVal;
     
     // If tagify is already initialized, we can update it directly
     if (tagify.value && isInitialized.value) {
       // We don't need to reset isInitialized here since Tagify is already set up
       // @ts-ignore - I think the type here is specified wrong
-      tagify.value?.loadOriginalValues(newVal);
+      tagify.value?.loadOriginalValues(safeVal);
     } else {
       // If we're getting new values but Tagify isn't initialized yet,
       // make sure we're showing the loading state
@@ -213,7 +215,7 @@
 
     // Use setTimeout to ensure the DOM is fully rendered
     setTimeout(() => {
-      var input = document.getElementById("fcb-tags-input") as HTMLInputElement;
+      const input = tagsInputRef.value;
 
       // Check if Tagify is already initialized on this input
       // @ts-ignore - Tagify adds this property to the input element
@@ -223,8 +225,9 @@
         tagify.value = input.__tagify;
         isInitialized.value = true;
         return;
-      } else if (!input)
+      } else if (!input) {
         return;
+      }
 
       tagify.value = new Tagify(input, {
         whitelist: getWhitelist(),
@@ -289,7 +292,7 @@
     border-color: var(--fcb-control-border);
   }
 
-  #fcb-tags-input.uninitialized {
+  .tags-wrapper.uninitialized {
     visibility: hidden;
   }
 </style>

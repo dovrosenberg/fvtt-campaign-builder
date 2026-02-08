@@ -33,10 +33,9 @@
 <script setup lang="ts">
   // library imports
   import { PropType, watch, onMounted, nextTick, ref } from 'vue';
-  import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { localize } from '@/utils/game';
   
   // library components
@@ -80,8 +79,7 @@
 
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
-  const { currentContentTab, currentTab, currentContentId, } = storeToRefs(mainStore);
+  const { currentContentTab, currentTab, currentContentId } = useContentState();
 
   ////////////////////////////////
   // data
