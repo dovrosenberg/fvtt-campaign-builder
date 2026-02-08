@@ -14,6 +14,9 @@ Time for the fun!  Campaign Builder has a variety of tools and techniques to run
 ## Core concepts
 * Turn on "Play Mode" using the [Prep/Play Toggle](/reference/navigation/prep-play)
 * Keep [notes](/reference/campaign-mgt/content/session/notes) of what's happening while bringing in the elements you've defined; use the [Session Notes Popup](/reference/play-mode/session-notes-popup) to have easy access to notes regardless of where you are in Campaign Builder
+* If you have screen real estate, use the [multi-panel interface](/reference/navigation/panels), for example:
+  * Keep the current campaign and session in tabs in one panel
+  * Use another panel to quickly pull up details of individual [^Locations], [^Characters], etc.
 * Mark off [^Vignettes], [^Lore], etc. as being [^delivered]as they come up
 * Bring up the full world-building details of your [^Locations] and [^Characters]
   * Click on the ones you knew would come up from the [Locations](/reference/campaign-mgt/content/session/locations) and [NPCs](/reference/campaign-mgt/content/session/npcs) tabs

@@ -241,6 +241,7 @@
       font-size: var(--fcb-font-size-large);
       align-self: center;
       opacity: 0.7;
+      color: var(--fcb-header-tab-color);  // keep the color even when panel is un-focused
 
       &:hover:not(.disabled) {
         opacity: 1;
@@ -265,6 +266,11 @@
     &:not(.fcb-tab-panel--focused) {
       .fcb-tab-bar {
         color: var(--fcb-header-tab-color-disabled, rgba(128, 128, 128, 0.6));
+      }
+      
+      // Keep split button color unchanged in non-focused panels
+      .fcb-split-button {
+        color: var(--fcb-header-tab-color);
       }
     }
   }

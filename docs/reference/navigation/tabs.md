@@ -1,8 +1,8 @@
 ---
 title: Main Tabs
 prev: 
-  text: 'Main Display'
-  link: './main-display'
+  text: 'Multi-Panel Interface'
+  link: './panels'
 next: 
   text: 'Bookmarks'
   link: './bookmarks'
@@ -21,7 +21,7 @@ There are several ways to open content in tabs:
 - Click any entry in the directory sidebar, links within editors, or links in tables 
 - Opens content in the current active tab
 - Replaces whatever was previously displayed
-- You can use the forward/back buttons (see below) to navigate within the tab history 
+- You can use the forward/back buttons (see below) to navigate within the tab history (if you have multiple [panels](./panels) open, they control the [^Focused Panel])
 
 **Ctrl+Click** (New tab)
 - Holding control while clicking any of the items above opens the content in a new tab
