@@ -614,6 +614,11 @@
       "changesSaved": "Changes saved",
       "changesDiscarded": "Changes discarded",
       "failedToExportStoryWeb": "Failed to export story web as PNG",
+      "export": {
+        "starting": "Starting setting export...",
+        "complete": "Setting exported successfully",
+        "failed": "Failed to export setting"
+      },
       "migration": {
         "minimumVersionRequired": "Campaign Builder cannot migrate from version {0}. You must first upgrade to version {1} or higher before upgrading to {2}.",
         "cannotOpen": "Campaign Builder cannot be opened because migration failed. Please check the console for details and resolve the migration issue."

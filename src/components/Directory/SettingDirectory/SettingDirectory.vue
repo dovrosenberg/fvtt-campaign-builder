@@ -70,6 +70,7 @@
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
   import GlobalSettingService from '@/utils/globalSettings';
+  import SettingExportService from '@/utils/settingExport';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -146,6 +147,26 @@
       y: event.y,
       zIndex: 300,
       items: [
+        { 
+          icon: 'fa-file-alt',
+          iconFontClass: 'fas',
+          label: 'Export Setting', 
+          onClick: async () => {
+            if (settingId) {
+              await SettingExportService.exportSettingMarkdown(settingId);
+            }
+          }
+        },
+        { 
+          icon: 'fa-file-archive',
+          iconFontClass: 'fas',
+          label: 'Export Setting with Story Webs', 
+          onClick: async () => {
+            if (settingId) {
+              await SettingExportService.exportSetting(settingId);
+            }
+          }
+        },
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',

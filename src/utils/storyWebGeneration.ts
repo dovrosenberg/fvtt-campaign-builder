@@ -644,7 +644,7 @@ const setEdgeStyle = async (storyWeb: StoryWeb, edgeId: string, styleId: string)
     // @ts-ignore - showSaveFilePicker is not in the TypeScript definitions yet
     const fileHandle = canPickFile ?
       // @ts-ignore
-      await (window as any).showSaveFilePicker({
+      await window.showSaveFilePicker({
         suggestedName: storyWeb.name,
         types: [{ description: "PNG Image", accept: { "image/png": [".png"] } }],
       }) : null;
