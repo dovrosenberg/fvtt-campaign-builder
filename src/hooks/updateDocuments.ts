@@ -13,6 +13,7 @@ export function registerForUpdateHooks() {
     registerForSceneHooks();
     registerForJournalHooks();
     registerForDocumentHooks();
+    registerForJournalPageUpdateHook();
   });
 }
 
@@ -320,4 +321,24 @@ function registerForDocumentHooks() {
       }
     });
   }
+}
+
+/**
+ * When a JournalEntryPage is updated (via FCBJournalEntryPage.save()), refresh all panels
+ * that are currently showing the same content. This keeps multiple panels in sync when
+ * the same entry/campaign/session/etc. is open in more than one panel.
+ */
+function registerForJournalPageUpdateHook() {
+  if (!isClientGM())
+    return;
+
+  // @ts-ignore
+  Hooks.on('updateJournalEntryPage', async (page: JournalEntryPage) => {
+    const parentUuid = page.parent?.uuid;
+    if (!parentUuid)
+      return;
+
+    const navigationStore = useNavigationStore();
+    await navigationStore.refreshContentAcrossPanels(parentUuid);
+  });
 }

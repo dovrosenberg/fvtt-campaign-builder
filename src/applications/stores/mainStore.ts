@@ -5,6 +5,7 @@
 import { computed, ref, shallowRef, watch, } from 'vue';
 
 // local imports
+import { useNavigationStore } from '@/applications/stores';
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings';
 import TitleUpdaterService from '@/utils/titleUpdater';
 import NameGeneratorsService from '@/utils/nameGenerators';
@@ -164,7 +165,8 @@ export const mainStore = () => {
     await _focusedPanelState.value?.refreshArc(reload);
   };
 
-  /** Refresh whatever content is currently showing in the focused panel */
+  /** Refresh content across all panels, not just the focused one.
+   *  This ensures panels showing the same content stay in sync. */
   const refreshCurrentContent = async function (): Promise<void> {
     // Setting refresh stays in mainStore since settings are global
     if (currentContentType.value === WindowTabType.Setting) {
@@ -172,7 +174,8 @@ export const mainStore = () => {
       return;
     }
 
-    await _focusedPanelState.value?.refreshCurrentContent();
+    // Refresh all panels so that duplicate views of the same content stay in sync
+    await useNavigationStore().refreshContentAcrossPanels();
   }
 
   /**

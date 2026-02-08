@@ -1128,6 +1128,21 @@ export const navigationStore = () => {
     return null;
   };
 
+  /**
+   * Refresh content across all panels. If contentUuid is provided, only refreshes panels
+   * whose current content matches that UUID. If omitted, refreshes all panels.
+   * Used to synchronize panels showing the same content after saves or external changes.
+   *
+   * @param contentUuid - Optional UUID to match; if provided, only matching panels refresh
+   */
+  const refreshContentAcrossPanels = async function (contentUuid?: string): Promise<void> {
+    for (const [_, ps] of _panelStates) {
+      if (!contentUuid || ps.currentContentId.value === contentUuid) {
+        await ps.refreshCurrentContent();
+      }
+    }
+  };
+
   ///////////////////////////////
   // computed state
 
@@ -1224,5 +1239,6 @@ export const navigationStore = () => {
     removePanel,
     moveTabToPanel,
     findTabAcrossPanels,
+    refreshContentAcrossPanels,
   };
 };
