@@ -169,15 +169,43 @@
   const onTabBarDrop = async (event: DragEvent) => {
     event.preventDefault();
 
-    const data = DragDropService.getValidatedData(event) as TabDragData | undefined;
-    if (!data || data.type !== DragDropService.FCBDragTypes.Tab)
+    const data = DragDropService.getValidatedData(event);
+    if (!data) {
       return;
+    }
 
-    // only handle cross-panel drops here (same-panel handled by FCBHeaderTab)
-    if (data.panelIndex === props.panelIndex)
+    // Handle tab drops for cross-panel tab reordering
+    if (data.type === DragDropService.FCBDragTypes.Tab) {
+      const tabData = data as TabDragData;
+      // only handle cross-panel drops here (same-panel handled by FCBHeaderTab)
+      if (tabData.panelIndex === props.panelIndex)
+        return;
+
+      await navigationStore.moveTabToPanel(tabData.tabId, tabData.panelIndex, props.panelIndex);
       return;
+    }
 
-    await navigationStore.moveTabToPanel(data.tabId, data.panelIndex, props.panelIndex);
+    // Check if this is FCB drag data for directory nodes
+    const fcbData = 'fcbData' in data ? data.fcbData as NodeDragDropData : undefined;
+    if (!fcbData) {
+      return;
+    }
+
+    // Map drag types to open methods
+    const dragTypeToOpenMethod = {
+      [DragDropService.FCBDragTypes.Setting]: () => navigationStore.openSetting(fcbData.settingId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.Entry]: () => navigationStore.openEntry(fcbData.childId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.Campaign]: () => navigationStore.openCampaign(fcbData.campaignId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.Arc]: () => navigationStore.openArc(fcbData.arcId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.Session]: () => navigationStore.openSession(fcbData.sessionId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.Front]: () => navigationStore.openFront(fcbData.frontId, { panelIndex: props.panelIndex, activate: true }),
+      [DragDropService.FCBDragTypes.StoryWeb]: () => navigationStore.openStoryWeb(fcbData.storyWebId, { panelIndex: props.panelIndex, activate: true }),
+    };
+
+    const openMethod = dragTypeToOpenMethod[fcbData.type as keyof typeof dragTypeToOpenMethod];
+    if (openMethod) {
+      await openMethod();
+    }
   };
 
   // drop handler for the entire panel (handles directory node drops)
