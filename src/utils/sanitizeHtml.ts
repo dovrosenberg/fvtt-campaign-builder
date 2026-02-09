@@ -350,13 +350,39 @@ function processNode(node: Node): string {
   const el = node as HTMLElement;
   const tag = el.tagName.toLowerCase();
 
-  // Inline formatting
-  if (tag === 'b' || tag === 'strong')
-    return `**${processChildren(el)}**`;
-  if (tag === 'i' || tag === 'em')
-    return `*${processChildren(el)}*`;
-  if (tag === 'del' || tag === 's')
-    return `~~${processChildren(el)}~~`;
+  // Inline formatting - trim content but preserve surrounding whitespace
+  if (tag === 'b' || tag === 'strong') {
+    const rawContent = processChildren(el);
+    const trimmed = rawContent.trim();
+    if (!trimmed) return rawContent;
+    const leadingSpace = rawContent.match(/^(\s*)/)?.[1] || '';
+    const trailingSpace = rawContent.match(/(\s*)$/)?.[1] || '';
+    return `${leadingSpace}**${trimmed}**${trailingSpace}`;
+  }
+  if (tag === 'u' || tag ==='underline') {
+    const rawContent = processChildren(el);
+    const trimmed = rawContent.trim();
+    if (!trimmed) return rawContent;
+    const leadingSpace = rawContent.match(/^(\s*)/)?.[1] || '';
+    const trailingSpace = rawContent.match(/(\s*)$/)?.[1] || '';
+    return `${leadingSpace}<u>${trimmed}</u>${trailingSpace}`;
+  }
+  if (tag === 'i' || tag === 'em') {
+    const rawContent = processChildren(el);
+    const trimmed = rawContent.trim();
+    if (!trimmed) return rawContent;
+    const leadingSpace = rawContent.match(/^(\s*)/)?.[1] || '';
+    const trailingSpace = rawContent.match(/(\s*)$/)?.[1] || '';
+    return `${leadingSpace}*${trimmed}*${trailingSpace}`;
+  }
+  if (tag === 'del' || tag === 's') {
+    const rawContent = processChildren(el);
+    const trimmed = rawContent.trim();
+    if (!trimmed) return rawContent;
+    const leadingSpace = rawContent.match(/^(\s*)/)?.[1] || '';
+    const trailingSpace = rawContent.match(/(\s*)$/)?.[1] || '';
+    return `${leadingSpace}~~${trimmed}~~${trailingSpace}`;
+  }
   if (tag === 'code')
     return `\`${el.textContent || ''}\``;
 
@@ -387,7 +413,7 @@ function processNode(node: Node): string {
     const content = processChildren(el);
     if (effectiveLevel <= 6)
       return `\n\n${'#'.repeat(effectiveLevel)} ${content}\n\n`;
-    return `\n\n**${content}**\n\n`;
+    return `\n\n__**${content}**__\n\n`;
   }
 
   // Block elements with specialized handlers
@@ -400,7 +426,15 @@ function processNode(node: Node): string {
   if (tag === 'ol')
     return processOrderedList(el, 0);
 
-  // All other tags (mark, small, ins, sub, sup, span, li, div, etc.) — just process children
+  // All other tags (mark, small, ins, sub, sup, li, div, etc.) — just process children
+  // Special handling for span with text-decoration: underline
+  if (tag === 'span') {
+    const style = el.getAttribute('style');
+    if (style && style.includes('text-decoration: underline')) {
+      return `<u>${processChildren(el)}</u>`;
+    }
+  }
+  
   return processChildren(el);
 }
 

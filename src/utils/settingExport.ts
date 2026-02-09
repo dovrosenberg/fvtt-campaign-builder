@@ -190,20 +190,30 @@ const exportEntry = async (entry: Entry, setting: FCBSetting, customFieldDefinit
     if (!defn.deleted) {
       let value = entry.getCustomField(defn.name);
 
-      if (value != null) {
-        if (defn.fieldType === FieldType.Boolean)
-          value = value ? 'Yes' : 'No';
+      if (value == null)
+        continue;
 
-        markdown += `**${defn.label.trim()}:** ${value.trim()}\n\n`;
+      switch (defn.fieldType) {
+        case FieldType.Boolean:
+          markdown += `**${defn.label}:** ${value ? 'Yes' : 'No'}\n\n`;
+          break;
+        case FieldType.Select:
+        case FieldType.Text:
+          if ((value as string).trim())
+            markdown += `**${defn.label}:** ${(value as string).trim()}\n\n`;
+          break;
+        case FieldType.Editor:
+          if ((value as string).trim())
+            markdown += `**${defn.label}:**\n\n${cleanText((value as string).trim(), 4)}\n\n`;
+          break;
+        default:
+          continue;
       }
     }
   }
 
   // TODO - Relationships
-  const relationships = await exportRelationships(entry);
-  if (relationships) {
-    markdown += `### Relationships\n\n${relationships}\n\n`;
-  }
+  markdown += exportRelationships(entry);
 
   // Linked Foundry Documents - not sure these make sense to export
   // if (entry.foundryDocuments && entry.foundryDocuments.length > 0) {
@@ -234,24 +244,28 @@ const exportEntry = async (entry: Entry, setting: FCBSetting, customFieldDefinit
  * @param entry - The entry
  * @returns Formatted relationships markdown
  */
-const exportRelationships = async (entry: Entry): Promise<string> => {
+const exportRelationships = (entry: Entry): string => {
   let relationships = '';
 
-  for (const [topicType, topicRelationships] of Object.entries(entry.relationships)) {
-    if (Object.keys(topicRelationships).length > 0) {
-      relationships += `**${localize(`topics.${topicType}`)}:**\n`;
-      for (const [relatedId, relationship] of Object.entries(topicRelationships)) {
-        const relatedEntry = await Entry.fromUuid(relatedId);
-        if (relatedEntry) {
-          relationships += `- ${relatedEntry.name}`;
-          // RelatedEntryDetails might not have a description property, so we check safely
-          const relDetails = relationship as any;
-          if (relDetails.description) {
-            relationships += ` - ${relDetails.description}`;
-          }
-          relationships += '\n';
+  for (const [topic, topicRelationships] of Object.entries(entry.relationships)) {
+    const relationshipData = Object.values(topicRelationships);
+
+    if (relationshipData.length > 0) {
+      relationships += `#### ${localize(`export.relatedTopics.${topic}`)}\n\n`;
+      for (const relationship of relationshipData) {
+        relationships += `- ${relationship.name.trim()}`;
+
+        if (relationship.type.trim()) {
+          relationships += ` (${relationship.type?.trim()})`;
         }
+
+        if (relationship.extraFields?.relationship?.trim()) {
+          relationships += ` - ${relationship.extraFields.relationship.trim()}`;
+        }
+
+        relationships += '\n';
       }
+
       relationships += '\n';
     }
   }
