@@ -3,18 +3,13 @@
  * Provides functionality to generate hierarchical markdown documentation and package it with images.
  */
 
-import { FCBSetting } from '@/classes/Documents/FCBSetting';
-import { Entry } from '@/classes/Documents/Entry';
-import { Campaign } from '@/classes/Documents/Campaign';
-import { Arc } from '@/classes/Documents/Arc';
-import { Session } from '@/classes/Documents/Session';
-import { Front } from '@/classes/Documents/Front';
+import { FCBSetting, Entry, Campaign, Arc, Session, Front, FCBJournalEntryPage } from '@/classes';
 import { CustomFieldContentType, CustomFieldDescription, FieldType, Species, Topics } from '@/types';
 import { localize } from '@/utils/game';
 import { cleanUuidReferencesInText, resolveUuidNameSync } from '@/utils/clipboardUuidCleaner';
 import { htmlToMarkdown } from '@/utils/sanitizeHtml';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { FCBJournalEntryPage } from 'src/classes';
+import ZipFileService from '@/utils/zipFiles';
 
 /**
  * Exports an entire setting to a markdown file with story web images in a zip archive.
@@ -92,19 +87,19 @@ const exportSettingMarkdown = async (settingId: string): Promise<void> => {
  */
 const generateSettingMarkdown = async (setting: FCBSetting): Promise<string> => {
   let markdown = `# ${setting.name}\n\n`;
-  markdown += `## Overview\n\n`;
+  markdown += `## Overview\n`;
 
   // Add genre and feeling
-  if (setting.genre) {
-    markdown += `**Genre:** ${setting.genre}\n\n`;
+  if (setting.genre.trim()) {
+    markdown += `**Genre:** ${setting.genre.trim()}\n\n`;
   }
-  if (setting.settingFeeling) {
-    markdown += `**Setting Feeling:** ${setting.settingFeeling}\n\n`;
+  if (setting.settingFeeling.trim()) {
+    markdown += `**Setting Feeling:** ${setting.settingFeeling.trim()}\n\n`;
   }
 
   // Add setting description
-  if (setting.description) {
-    markdown += `**Description:**\n\n${cleanText(setting.description, 3)}\n\n`;
+  if (setting.description.trim()) {
+    markdown += `**Description:**\n${cleanText(setting.description, 3)}\n\n`;
   }
 
   const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields);
@@ -114,13 +109,11 @@ const generateSettingMarkdown = async (setting: FCBSetting): Promise<string> => 
 
   const speciesList = ModuleSettings.get(SettingKey.speciesList);
   if (speciesList.length > 0) {
-    markdown += `## Setting Species\n\n`;
+    markdown += `## Setting Species\n`;
     for (const species of speciesList) {
-      markdown += `**${species.name.trim()}:** ${species.description.trim()}\n\n`;
+      markdown += `**${species.name.trim()}:**\n${cleanText(species.description, 3)}\n\n`;
     }
   }
-
-  // TODO - skip todo list, fronts and story webs based on settings... in case they created some then turned off
 
   // Load all campaigns
   await setting.loadCampaigns();
@@ -159,7 +152,7 @@ const exportEntriesByTopic = async (setting: FCBSetting): Promise<string> => {
   for (const topic of topics) {
     const entries = await setting.topicFolders[topic.type].allEntries();
     if (entries.length > 0) {
-      markdown += `## ${topic.name}\n\n`;
+      markdown += `## ${topic.name}\n`;
       
       for (const entry of entries) {
         markdown += await exportEntry(entry, setting, validSpecies, customFieldDefinitions[topic.contentType] || []);
@@ -176,7 +169,7 @@ const exportEntriesByTopic = async (setting: FCBSetting): Promise<string> => {
  * @returns Markdown content for the entry
  */
 const exportEntry = async (entry: Entry, setting: FCBSetting, validSpecies: Record<string, string>, customFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
-  let markdown = `### ${entry.name}\n\n`;
+  let markdown = `### ${entry.name}\n`;
 
   // Tags - I think these may not make sense to export?
   // if (entry.tags && entry.tags.length > 0) {
@@ -203,13 +196,13 @@ const exportEntry = async (entry: Entry, setting: FCBSetting, validSpecies: Reco
 
   // Description
   if (entry.description.trim()) {
-    markdown += `**Description:**\n\n${cleanText(entry.description, 3)}\n\n`;
+    markdown += `**Description:**\n${cleanText(entry.description, 3)}\n\n`;
   }
 
   markdown += exportCustomFields(entry, customFieldDefinitions);
 
 
-  // TODO - Relationships
+  // Relationships
   markdown += exportRelationships(entry);
 
   // Linked Foundry Documents - not sure these make sense to export
@@ -243,25 +236,25 @@ const exportCustomFields = (content: FCBJournalEntryPage<any, any>, customFieldD
   let markdown = '';
 
   // Custom Fields
-  for (const defn of customFieldDefinitions) {  
-    if (!defn.deleted) {
-      let value = content.getCustomField(defn.name);
+  for (const fieldDef of customFieldDefinitions) {  
+    if (!fieldDef.deleted) {
+      let value = content.getCustomField(fieldDef.name);
 
       if (value == null)
         continue;
 
-      switch (defn.fieldType) {
+      switch (fieldDef.fieldType) {
         case FieldType.Boolean:
-          markdown += `**${defn.label}:** ${value ? 'Yes' : 'No'}\n\n`;
+          markdown += `**${fieldDef.label}:** ${value ? 'Yes' : 'No'}\n\n`;
           break;
         case FieldType.Select:
         case FieldType.Text:
           if ((value as string).trim())
-            markdown += `**${defn.label}:** ${(value as string).trim()}\n\n`;
+            markdown += `**${fieldDef.label}:** ${(value as string).trim()}\n\n`;
           break;
         case FieldType.Editor:
           if ((value as string).trim())
-            markdown += `**${defn.label}:**\n\n${cleanText((value as string).trim(), 4)}\n\n`;
+            markdown += `**${fieldDef.label}:**\n${cleanText((value as string), 4)}\n\n`;
           break;
         default:
           continue;
@@ -284,7 +277,7 @@ const exportRelationships = (entry: Entry): string => {
     const relationshipData = Object.values(topicRelationships);
 
     if (relationshipData.length > 0) {
-      relationships += `#### ${localize(`export.relatedTopics.${topic}`)}\n\n`;
+      relationships += `#### ${localize(`export.relatedTopics.${topic}`)}\n`;
       for (const relationship of relationshipData) {
         relationships += `- ${relationship.name.trim()}`;
 
@@ -293,7 +286,7 @@ const exportRelationships = (entry: Entry): string => {
         }
 
         if (relationship.extraFields?.relationship?.trim()) {
-          relationships += ` - ${relationship.extraFields.relationship.trim()}`;
+          relationships += ` - ${cleanText(relationship.extraFields.relationship, 5)}`;
         }
 
         relationships += '\n';
@@ -351,26 +344,41 @@ const exportCampaign = async (
   sessionFieldDefinitions: CustomFieldDescription[]
 ): Promise<string> => {
   if (campaign.completed)
-    return;  
+    return '';  
 
-  let markdown = `## Campaign: ${campaign.name}\n\n`;
+  let markdown = `## Campaign: ${campaign.name}\n`;
 
   // Description
   if (campaign.description) {
-    markdown += `**Description:**\n\n${cleanText(campaign.description, 3)}\n\n`;
+    markdown += `**Description:**\n${cleanText(campaign.description, 3)}\n\n`;
   }
 
   // Custom fields
   markdown += exportCustomFields(campaign, customFieldDefinitions);
 
+  // TODO - PCs
+  if (campaign.pcs && campaign.pcs.length > 0) {
+    markdown += `### PCs\n`;
+    for (const pc of campaign.pcs) {
+      if (!pc.actorId)
+        continue;
+
+      // lookup the actor
+      const actorName = resolveUuidNameSync(pc.actorId);
+      if (actorName)
+        markdown += `- ${actorName} (player name: ${pc.name})\n`;
+    }
+    markdown += '\n';
+  }
+
   // Lore (only undelivered) - table format
   const undeliveredLore = campaign.lore.filter(lore => !lore.delivered);
   if (undeliveredLore.length > 0) {
-    markdown += `### Not-yet-delivered Lore\n\n`;
+    markdown += `### Not-yet-delivered Lore\n`;
     markdown += `| Lore         |\n`;
     markdown += `|--------------|\n`;
     for (const lore of undeliveredLore) {
-      const description = cleanText(lore.description, 3).replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+      const description = cleanText(lore.description, 4);
       markdown += `| ${description} |\n`;
     }
     markdown += '\n';
@@ -378,25 +386,27 @@ const exportCampaign = async (
 
   // Ideas
   if (campaign.ideas && campaign.ideas.length > 0) {
-    markdown += `### Ideas\n\n`;
+    markdown += `### Ideas\n`;
     for (const idea of campaign.ideas) {
-      markdown += `- ${idea.text}\n`;
+      markdown += `- ${cleanText(idea.text, 4)}\n`;
     }
     markdown += '\n';
   }
 
   // Todo Items (table format)
-  if (campaign.todoItems && campaign.todoItems.length > 0) {
-    markdown += `### To-Do Items\n\n`;
-    markdown += `| Date | Reference | To Do |\n`;
-    markdown += `|------|-----------|-------|\n`;
-    for (const todo of campaign.todoItems) {
-      const date = new Date(todo.lastTouched).toLocaleDateString();
-      const reference = todo.linkedText || '';
-      const todoText = todo.text.replace(/\|/g, '\\|').replace(/\n/g, ' ');
-      markdown += `| ${date} | ${reference} | ${todoText} |\n`;
+  if (ModuleSettings.get(SettingKey.enableToDoList)) {
+    if (campaign.todoItems && campaign.todoItems.length > 0) {
+      markdown += `### To-Do Items\n`;
+      markdown += `| Date | Reference | To Do |\n`;
+      markdown += `|------|-----------|-------|\n`;
+      for (const todo of campaign.todoItems) {
+        const date = new Date(todo.lastTouched).toLocaleDateString();
+        const reference = todo.linkedText || '';
+        const todoText = cleanText(todo.text, 4);
+        markdown += `| ${date} | ${reference} | ${todoText} |\n`;
+      }
+      markdown += '\n';
     }
-    markdown += '\n';
   }
 
   // Fronts
@@ -416,7 +426,6 @@ const exportCampaign = async (
   const validArcs = arcs.filter(arc => arc !== null) as Arc[];
 
   if (validArcs.length > 0) {
-    markdown += `### (2) ${localize('topics.arcs')}\n\n`;
     for (const arc of validArcs) {
       markdown += await exportArc(arc, setting, arcFieldDefinitions, sessionFieldDefinitions);
     }
@@ -433,11 +442,11 @@ const exportCampaign = async (
  * @returns Markdown content for the front
  */
 const exportFront = async (front: Front, setting: FCBSetting, customFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
-  let markdown = `### Front: ${front.name}\n\n`;
+  let markdown = `### Front: ${front.name}\n`;
 
   // Description
   if (front.description) {
-    markdown += `#### Description\n\n${cleanText(front.description)}\n\n`;
+    markdown += `#### Description\n${cleanText(front.description)}\n\n`;
   }
 
   // Custom fields
@@ -445,16 +454,16 @@ const exportFront = async (front: Front, setting: FCBSetting, customFieldDefinit
 
   // Dangers
   if (front.dangers && front.dangers.length > 0) {
-    front.dangers.forEach((danger, index) => {
-      markdown += `#### Danger: ${danger.name}\n\n`;
-      if (danger.description) {
+    for (const danger of front.dangers) {
+      markdown += `#### Danger: ${danger.name}\n`;
+      if (danger.description.trim()) {
         markdown += `${cleanText(danger.description)}\n\n`;
       }
       if (danger.impendingDoom.trim()) {
-        markdown += `**Impending Doom:** ${danger.impendingDoom.trim()}\n`;
+        markdown += `**Impending Doom:** ${danger.impendingDoom.trim()}\n\n`;
       }
       if (danger.motivation.trim()) {
-        markdown += `**Motivation:** ${danger.motivation.trim()}\n`;
+        markdown += `**Motivation:** ${cleanText(danger.motivation.trim(), 5)}\n\n`;
       }
 
       // Participants
@@ -462,23 +471,28 @@ const exportFront = async (front: Front, setting: FCBSetting, customFieldDefinit
         markdown += `**Participants:**\n`;
         for (const participant of danger.participants) {
           const name = resolveUuidNameSync(participant.uuid);
-          markdown += `- ${name} ${participant.role.trim() ? `(Role: ${participant.role.trim()})` : ''}\n`;
+          markdown += `- ${name} ${participant.role.trim() ? `(Role: ${cleanText(participant.role, 5)})` : ''}\n`;
         }
         markdown += '\n';
       }
 
       // Grim Portents (table format)
       if (danger.grimPortents && danger.grimPortents.length > 0) {
-        markdown += `Grim Portents:\n`;
+        markdown += `**Grim Portents:**\n`;
         markdown += `| Complete | Description |\n`;
         markdown += `|-------------|----------|\n`;
         for (const portent of danger.grimPortents) {
           const complete = portent.complete ? 'X' : '';
-          markdown += `| ${complete} | ${portent.description.trim()} |\n`;
+          const description = cleanText(portent.description, 5);
+
+          if (!description)
+            continue;
+
+          markdown += `| ${complete} | ${description} |\n`;
         }
         markdown += '\n';
       }
-    });
+    }
   }
 
   return markdown;
@@ -493,11 +507,11 @@ const exportFront = async (front: Front, setting: FCBSetting, customFieldDefinit
  * @returns Markdown content for the arc
  */
 const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: CustomFieldDescription[], sessionFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
-  let markdown = `### Arc: ${arc.name}\n\n`;
+  let markdown = `### Arc: ${arc.name}\n`;
 
   // Description
   if (arc.description) {
-    markdown += `**Description:**${cleanText(arc.description, 5)}\n\n`;
+    markdown += `**Description:**\n${cleanText(arc.description, 5)}\n\n`;
   }
 
   // Custom fields
@@ -505,11 +519,15 @@ const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: 
 
   // Vignettes (table format)
   if (arc.vignettes && arc.vignettes.length > 0) {
-    markdown += `#### Vignettes\n\n`;
+    markdown += `#### Vignettes\n`;
     markdown += `| Description |\n`;
     markdown += `|-------------|\n`;
     for (const vignette of arc.vignettes) {
-      const description = vignette.description.replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+      const description = cleanText(vignette.description, 5);
+
+      if (!description)
+        continue;
+
       markdown += `| ${description} |\n`;
     }
     markdown += '\n';
@@ -517,7 +535,7 @@ const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: 
 
   // Locations (table format with name, type, parent, notes)
   if (arc.locations && arc.locations.length > 0) {
-    markdown += `#### Locations\n\n`;
+    markdown += `#### Locations\n`;
     markdown += `| Name | Type | Parent | Notes |\n`;
     markdown += `|------|------|--------|-------|\n`;
     for (const location of arc.locations) {
@@ -527,7 +545,7 @@ const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: 
         const type = entry.type || '';
         const hierarchy = setting?.getEntryHierarchy(entry.uuid);
         const parentName = hierarchy?.parentId ? resolveUuidNameSync(hierarchy.parentId) : '';
-        const notes = location.notes.replace(/\|/g, '\\|').replace(/\n/g, ' ');
+        const notes = cleanText(location.notes, 5);
         markdown += `| ${name} | ${type} | ${parentName} | ${notes} |\n`;
       }
     }
@@ -536,7 +554,7 @@ const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: 
 
   // Participants (table format with name, type, notes)
   if (arc.participants && arc.participants.length > 0) {
-    markdown += `#### Participants\n\n`;
+    markdown += `#### Participants\n`;
     markdown += `| Name | Type | Notes |\n`;
     markdown += `|------|------|-------|\n`;
     for (const participant of arc.participants) {
@@ -544,7 +562,7 @@ const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: 
       if (entry) {
         const name = entry.name;
         const type = entry.type || '';
-        const notes = participant.notes.replace(/\|/g, '\\|').replace(/\n/g, ' ');
+        const notes = cleanText(participant.notes, 5);
         markdown += `| ${name} | ${type} | ${notes} |\n`;
       }
     }
@@ -553,12 +571,12 @@ const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: 
 
   // Monsters
   if (arc.monsters && arc.monsters.length > 0) {
-    markdown += `#### Monsters\n\n`;
+    markdown += `#### Monsters\n`;
     for (const monster of arc.monsters) {
       const name = resolveUuidNameSync(monster.uuid);
       markdown += `- **${name}**`;
-      if (monster.notes) {
-        markdown += ` - ${monster.notes}`;
+      if (monster.notes.trim()) {
+        markdown += ` - ${cleanText(monster.notes, 5)}`;
       }
       markdown += '\n';
     }
@@ -567,22 +585,34 @@ const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: 
 
   // Lore (table format)
   if (arc.lore && arc.lore.length > 0) {
-    markdown += `#### Lore\n\n`;
+    markdown += `#### Lore\n`;
     markdown += `| Description |\n`;
     markdown += `|-------------|\n`;
     for (const lore of arc.lore) {
-      const description = lore.description.replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+      const description = cleanText(lore.description, 5);
+
+      if (!description)
+        continue;
+
       markdown += `| ${description} |\n`;
     }
     markdown += '\n';
   }
 
-  // Ideas
+  // Ideas (table format)
   if (arc.ideas && arc.ideas.length > 0) {
-    markdown += `#### Ideas\n\n`;
-    arc.ideas.forEach(idea => {
-      markdown += `- ${idea.text}\n`;
-    });
+    markdown += `#### Ideas\n`;
+
+    markdown += `| Description |\n`;
+    markdown += `|-------------|\n`;
+    for (const idea of arc.ideas) {
+      const description = cleanText(idea.text, 5);
+
+      if (!description)
+        continue;
+
+      markdown += `| ${description} |\n`;
+    }
     markdown += '\n';
   }
 
@@ -609,7 +639,7 @@ const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: 
  * @returns Markdown content for the session
  */
 const exportSession = async (session: Session, setting: FCBSetting, customFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
-  let markdown = `#### Session: ${session.name}\n\n`;
+  let markdown = `#### Session: ${session.name}\n`;
 
   // Session number and date
   markdown += `**Number:** ${session.number}\n\n`;
@@ -619,7 +649,7 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
 
   // Description
   if (session.description) {
-    markdown += `**Description:** ${cleanText(session.description)}\n\n`;
+    markdown += `**Description:**\n${cleanText(session.description, 5)}\n\n`;
   }
 
   // Custom fields
@@ -627,12 +657,12 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
 
   // Tags
   if (session.tags && session.tags.length > 0) {
-    markdown += `#### Tags\n\n${session.tags.join(', ')}\n\n`;
+    markdown += `**Tags:** ${session.tags.join(', ')}\n\n`;
   }
 
   // Locations
   if (session.locations && session.locations.length > 0) {
-    markdown += `#### Locations\n\n`;
+    markdown += `#### Locations\n`;
     for (const location of session.locations) {
       const entry = await Entry.fromUuid(location.uuid);
       if (entry) {
@@ -650,8 +680,9 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
   }
 
   // NPCs
+  // TODO - get tid of all the checks, etc.
   if (session.npcs && session.npcs.length > 0) {
-    markdown += `#### NPCs\n\n`;
+    markdown += `#### NPCs\n`;
     for (const npc of session.npcs) {
       const entry = await Entry.fromUuid(npc.uuid);
       if (entry) {
@@ -670,7 +701,7 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
 
   // Monsters
   if (session.monsters && session.monsters.length > 0) {
-    markdown += `#### Monsters\n\n`;
+    markdown += `#### Monsters\n`;
     for (const monster of session.monsters) {
       const docName = resolveFoundryDocumentName(monster.uuid);
       markdown += `- **${docName}**`;
@@ -690,7 +721,7 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
 
   // Items
   if (session.items && session.items.length > 0) {
-    markdown += `#### Items\n\n`;
+    markdown += `#### Items\n`;
     for (const item of session.items) {
       const docName = resolveFoundryDocumentName(item.uuid);
       markdown += `- **${docName}**`;
@@ -707,7 +738,7 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
 
   // Lore
   if (session.lore && session.lore.length > 0) {
-    markdown += `#### Lore\n\n`;
+    markdown += `#### Lore\n`;
     for (const lore of session.lore) {
       markdown += `- **${lore.description}**`;
       if (lore.significant) {
@@ -723,7 +754,7 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
 
   // Vignettes
   if (session.vignettes && session.vignettes.length > 0) {
-    markdown += `#### Vignettes\n\n`;
+    markdown += `#### Vignettes\n`;
     for (const vignette of session.vignettes) {
       markdown += `- **${vignette.description}**`;
       if (vignette.delivered) {
@@ -897,7 +928,7 @@ const createAndDownloadZip = async (
     }
     
     // Create ZIP file
-    const zipData = await createZipData(files);
+    const zipData = await ZipFileService.createZipData(files);
     
     // Download immediately using blob URL
     const blob = new Blob([zipData], { type: 'application/zip' });
@@ -913,210 +944,6 @@ const createAndDownloadZip = async (
     // Fallback - download files separately
     await downloadFilesSeparately(setting, markdownContent, storyWebImages);
   }
-};
-
-/**
- * Calculates CRC-32 checksum for data.
- * @param data - The data to calculate CRC-32 for
- * @returns The CRC-32 checksum
- */
-const calculateCRC32 = (data: Uint8Array): number => {
-  // CRC-32 table
-  const crcTable = new Uint32Array(256);
-  
-  // Generate CRC-32 table
-  for (let i = 0; i < 256; i++) {
-    let crc = i;
-    for (let j = 0; j < 8; j++) {
-      crc = (crc & 1) ? (0xEDB88320 ^ (crc >>> 1)) : (crc >>> 1);
-    }
-    crcTable[i] = crc;
-  }
-  
-  // Calculate CRC-32
-  let crc = 0 ^ (-1);
-  for (let i = 0; i < data.length; i++) {
-    crc = (crc >>> 8) ^ crcTable[(crc ^ data[i]) & 0xFF];
-  }
-  
-  return (crc ^ (-1)) >>> 0;
-};
-
-/**
- * Creates ZIP data from files using a simple ZIP implementation.
- * @param files - Array of files to include in the ZIP
- * @returns ZIP data as Uint8Array
- */
-const createZipData = async (files: Array<{ name: string; content: Uint8Array }>): Promise<Uint8Array> => {
-  const encoder = new TextEncoder();
-  const zipChunks: Uint8Array[] = [];
-  
-  // Simple ZIP file format
-  let centralDirectoryOffset = 0;
-  let centralDirectory: Uint8Array[] = [];
-  
-  for (const file of files) {
-    // Calculate CRC-32
-    const crc32 = calculateCRC32(file.content);
-    
-    // File header
-    const fileHeader = new Uint8Array(30 + file.name.length);
-    const view = new DataView(fileHeader.buffer);
-    
-    // Local file header signature
-    view.setUint32(0, 0x04034b50, true);
-    
-    // Version needed (20)
-    view.setUint16(4, 20, true);
-    
-    // Flags (0)
-    view.setUint16(6, 0, true);
-    
-    // Compression method (0 = stored)
-    view.setUint16(8, 0, true);
-    
-    // Mod time and date (dummy values)
-    view.setUint16(10, 0, true);
-    view.setUint16(12, 0, true);
-    
-    // CRC-32
-    view.setUint32(14, crc32, true);
-    
-    // Compressed size
-    view.setUint32(18, file.content.length, true);
-    
-    // Uncompressed size
-    view.setUint32(22, file.content.length, true);
-    
-    // File name length
-    view.setUint16(26, file.name.length, true);
-    
-    // Extra field length (0)
-    view.setUint16(28, 0, true);
-    
-    // File name
-    fileHeader.set(encoder.encode(file.name), 30);
-    
-    // Write file header and content
-    zipChunks.push(fileHeader);
-    zipChunks.push(file.content);
-    
-    // Central directory entry
-    const cdEntry = new Uint8Array(46 + file.name.length);
-    const cdView = new DataView(cdEntry.buffer);
-    
-    // Central directory signature
-    cdView.setUint32(0, 0x02014b50, true);
-    
-    // Version made by (20)
-    cdView.setUint16(4, 20, true);
-    
-    // Version needed (20)
-    cdView.setUint16(6, 20, true);
-    
-    // Flags (0)
-    cdView.setUint16(8, 0, true);
-    
-    // Compression method (0)
-    cdView.setUint16(10, 0, true);
-    
-    // Mod time and date
-    cdView.setUint16(12, 0, true);
-    cdView.setUint16(14, 0, true);
-    
-    // CRC-32
-    cdView.setUint32(16, crc32, true);
-    
-    // Compressed size
-    cdView.setUint32(20, file.content.length, true);
-    
-    // Uncompressed size
-    cdView.setUint32(24, file.content.length, true);
-    
-    // File name length
-    cdView.setUint16(28, file.name.length, true);
-    
-    // Extra field length (0)
-    cdView.setUint16(30, 0, true);
-    
-    // Comment length (0)
-    cdView.setUint16(32, 0, true);
-    
-    // Disk number start (0)
-    cdView.setUint16(34, 0, true);
-    
-    // Internal file attributes (0)
-    cdView.setUint16(36, 0, true);
-    
-    // External file attributes (0)
-    cdView.setUint32(38, 0, true);
-    
-    // Relative offset of local header
-    cdView.setUint32(42, centralDirectoryOffset, true);
-    
-    // File name
-    cdEntry.set(encoder.encode(file.name), 46);
-    
-    centralDirectory.push(cdEntry);
-    centralDirectoryOffset += fileHeader.length + file.content.length;
-  }
-  
-  // Calculate central directory size and offset
-  const centralDirectoryData = new Uint8Array(
-    centralDirectory.reduce((acc, chunk) => acc + chunk.length, 0)
-  );
-  let offset = 0;
-  for (const chunk of centralDirectory) {
-    centralDirectoryData.set(chunk, offset);
-    offset += chunk.length;
-  }
-  
-  // End of central directory record
-  const eocd = new Uint8Array(22);
-  const eocdView = new DataView(eocd.buffer);
-  
-  // End of central dir signature
-  eocdView.setUint32(0, 0x06054b50, true);
-  
-  // Number of this disk (0)
-  eocdView.setUint16(4, 0, true);
-  
-  // Disk with start of central directory (0)
-  eocdView.setUint16(6, 0, true);
-  
-  // Number of central directory records on this disk
-  eocdView.setUint16(8, files.length, true);
-  
-  // Total number of central directory records
-  eocdView.setUint16(10, files.length, true);
-  
-  // Size of central directory
-  eocdView.setUint32(12, centralDirectoryData.length, true);
-  
-  // Offset of central directory
-  eocdView.setUint32(16, centralDirectoryOffset, true);
-  
-  // Comment length (0)
-  eocdView.setUint16(20, 0, true);
-  
-  // Combine all parts
-  const totalSize = zipChunks.reduce((acc, chunk) => acc + chunk.length, 0) +
-                   centralDirectoryData.length + eocd.length;
-  
-  const result = new Uint8Array(totalSize);
-  offset = 0;
-  
-  for (const chunk of zipChunks) {
-    result.set(chunk, offset);
-    offset += chunk.length;
-  }
-  
-  result.set(centralDirectoryData, offset);
-  offset += centralDirectoryData.length;
-  
-  result.set(eocd, offset);
-  
-  return result;
 };
 
 /**
@@ -1191,7 +1018,7 @@ const resolveFoundryDocumentName = (uuid: string): string => {
 };
 
 /**
- * Cleans text content by removing UUID references and HTML.
+ * Cleans text content by removing UUID references and HTML.  Also trims.
  * @param text - The text to clean
  * @param topHeaderLevel - The header level to use for the top-level heading
  * @returns The cleaned text
@@ -1201,7 +1028,7 @@ const cleanText = (text: string, topHeaderLevel: number = 1): string => {
   let cleaned = cleanUuidReferencesInText(text);
 
   // Convert HTML to markdown
-  cleaned = htmlToMarkdown(cleaned, topHeaderLevel);
+  cleaned = htmlToMarkdown(cleaned, topHeaderLevel).trim();
 
   return cleaned;
 };
