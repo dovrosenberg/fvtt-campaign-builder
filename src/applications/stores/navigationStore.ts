@@ -342,11 +342,12 @@ export const navigationStore = () => {
   };
 
   /**
-   * Close all active storywebs except the one in the specified panel
+   * Close all active story webs except the one in the specified panel
    * @param excludePanelIndex - Panel index to exclude from closing
-   * @returns Promise that resolves when all storywebs are closed
+   * @returns Promise with an array of the closed panels that resolves when all story webs are closed
    */
-  const closeOtherStoryWebs = async function (excludePanelIndex: number): Promise<void> {
+  const closeOtherStoryWebs = async function (excludePanelIndex: number): Promise<number[]> {
+    const retval = [] as number[];
     const existingStoryWebs = findActiveStoryWebs();
     
     // Filter out the story web in the exclude panel
@@ -356,7 +357,8 @@ export const navigationStore = () => {
     
     if (storyWebsToClose.length > 0) {
       // Close each existing story web
-      for (const webToClose of storyWebsToClose) {
+      for (let i=storyWebsToClose.length - 1; i>=0; i--) {
+        const webToClose = storyWebsToClose[i];
         const storyWebPanelIndex = webToClose.panelIndex;
         const storyWebTabIndex = webToClose.tabIndex;
         
@@ -377,12 +379,15 @@ export const navigationStore = () => {
         } else {
           // Story web is the only tab - remove the entire panel (by removing the tab)
           await removeTab(webToClose.tab.id, storyWebPanelIndex);
+          retval.push(storyWebPanelIndex);
         }
       }
       
       // Show warning to user
       notifyWarn('Only one story web can be active at a time. The previous story web has been closed.');
     }
+
+    return retval;
   };
 
   /**
@@ -427,15 +432,17 @@ export const navigationStore = () => {
       contentType = metadata.contentType;
     }
 
-    // Handle story web exclusivity - only one story web can be active at a time
-    if (contentType === WindowTabType.StoryWeb && contentId) {
-      await closeOtherStoryWebs(panelIndex);
+    // // Handle story web exclusivity - only one story web can be active at a time
+    // if (contentType === WindowTabType.StoryWeb && contentId) {
+    //   const closedPanels = (await closeOtherStoryWebs(panelIndex)).sort();
       
-      // Adjust panelIndex if panels were removed before it
-      if (panelIndex > 0 && panelIndex >= tabs.value.length) {
-        panelIndex = tabs.value.length - 1;
-      }
-    }
+    //   // Adjust panelIndex if panels were removed before it
+    //   for (let i=closedPanels.length - 1; i>=0; i--) {
+    //     if (panelIndex > closedPanels[i]) {
+    //       panelIndex--;
+    //     }
+    //   }
+    // }
 
     // targetContentTab is either:
     //  * if we are remembering tabs, then it's the tab passed in
@@ -637,7 +644,7 @@ export const navigationStore = () => {
    * @param panelIndex - The panel to operate on; defaults to focusedPanelIndex
    */
   const activateTab = async function (tabId: string, forceTab: boolean = false, panelIndex?: number): Promise<void> {
-    const pi = panelIndex ?? focusedPanelIndex.value;
+    let pi = panelIndex ?? focusedPanelIndex.value;
     const panelTabs = tabs.value[pi] || [];
 
     let newTab: WindowTab | undefined;
@@ -660,12 +667,13 @@ export const navigationStore = () => {
 
     // Handle story web exclusivity - only one story web can be active at a time
     if (newTab.tabType === WindowTabType.StoryWeb) {
-      await closeOtherStoryWebs(pi);
+      const closedPanels = (await closeOtherStoryWebs(pi)).sort();
       
       // Adjust panel index if panels were removed (only if this isn't the focused panel)
-      if (pi !== focusedPanelIndex.value && pi > 0 && pi >= tabs.value.length) {
-        // This is a rare case, but we need to handle it
-        return;
+      for (let i=closedPanels.length - 1; i>=0; i--) {
+        if (pi > closedPanels[i]) {
+          pi--;
+        }
       }
     }
 
