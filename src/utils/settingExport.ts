@@ -9,9 +9,11 @@ import { Campaign } from '@/classes/Documents/Campaign';
 import { Arc } from '@/classes/Documents/Arc';
 import { Session } from '@/classes/Documents/Session';
 import { Front } from '@/classes/Documents/Front';
-import { CustomFieldDescription, FieldType, Topics } from '@/types';
+import { CustomFieldContentType, CustomFieldDescription, FieldType, Topics } from '@/types';
 import { localize } from '@/utils/game';
-import { cleanUuidReferencesInText } from '@/utils/clipboardUuidCleaner';
+import { cleanUuidReferencesInText, resolveUuidNameSync } from '@/utils/clipboardUuidCleaner';
+import { htmlToMarkdown } from '@/utils/sanitizeHtml';
+import { ModuleSettings, SettingKey } from '@/settings';
 
 /**
  * Exports an entire setting to a markdown file with story web images in a zip archive.
@@ -90,17 +92,17 @@ const exportSettingMarkdown = async (settingId: string): Promise<void> => {
 const generateSettingMarkdown = async (setting: FCBSetting): Promise<string> => {
   let markdown = `# ${setting.name}\n\n`;
   
-  // Add setting description
-  if (setting.description) {
-    markdown += `${cleanText(setting.description)}\n\n`;
-  }
-
   // Add genre and feeling
   if (setting.genre) {
     markdown += `**Genre:** ${setting.genre}\n\n`;
   }
   if (setting.settingFeeling) {
     markdown += `**Setting Feeling:** ${setting.settingFeeling}\n\n`;
+  }
+
+  // Add setting description
+  if (setting.description) {
+    markdown += `**Description:**\n\n${cleanText(setting.description, 2)}\n\n`;
   }
 
   // Load all campaigns
@@ -124,11 +126,13 @@ const exportEntriesByTopic = async (setting: FCBSetting): Promise<string> => {
   let markdown = '';
 
   const topics = [
-    { type: Topics.Character, name: localize('topics.characters') },
-    { type: Topics.Location, name: localize('topics.locations') },
-    { type: Topics.Organization, name: localize('topics.organizations') },
-    { type: Topics.PC, name: localize('topics.pcs') }
+    { type: Topics.Character, name: localize('topics.characters'), contentType: CustomFieldContentType.Character},
+    { type: Topics.Location, name: localize('topics.locations'), contentType: CustomFieldContentType.Location},
+    { type: Topics.Organization, name: localize('topics.organizations'), contentType: CustomFieldContentType.Organization},
+    { type: Topics.PC, name: localize('topics.pcs'), contentType: CustomFieldContentType.PC}
   ];
+
+  const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields);
 
   for (const topic of topics) {
     const entries = await setting.topicFolders[topic.type].allEntries();
@@ -136,7 +140,7 @@ const exportEntriesByTopic = async (setting: FCBSetting): Promise<string> => {
       markdown += `## ${topic.name}\n\n`;
       
       for (const entry of entries) {
-        markdown += await exportEntry(entry);
+        markdown += await exportEntry(entry, setting, customFieldDefinitions[topic.contentType] || []);
       }
     }
   }
@@ -158,8 +162,8 @@ const exportEntry = async (entry: Entry, setting: FCBSetting, customFieldDefinit
   // }
 
   // Type
-  if (entry.type) {
-    markdown += `**Type:** ${entry.type}\n\n`;
+  if (entry.type.trim()) {
+    markdown += `**Type:** ${entry.type.trim()}\n\n`;
   }
 
   // characters have species
@@ -172,13 +176,13 @@ const exportEntry = async (entry: Entry, setting: FCBSetting, customFieldDefinit
   if ([Topics.Location, Topics.Organization].includes(entry.topic)) {
     const parentId = setting.getEntryHierarchy(entry.uuid)?.parentId;
     if (parentId) {
-      markdown += `**Parent:** ${uuidToName(parentId)}\n\n`;
+      markdown += `**Parent:** ${resolveUuidNameSync(parentId)}\n\n`;
     }
   }
 
   // Description
-  if (entry.description) {
-    markdown += `**Description**: ${cleanText(entry.description)}\n\n`;
+  if (entry.description.trim()) {
+    markdown += `**Description:**\n\n${cleanText(entry.description.trim(), 4)}\n\n`;
   }
 
   // Custom Fields
@@ -190,7 +194,7 @@ const exportEntry = async (entry: Entry, setting: FCBSetting, customFieldDefinit
         if (defn.fieldType === FieldType.Boolean)
           value = value ? 'Yes' : 'No';
 
-        markdown += `**${defn.label}:** ${value}\n\n`;
+        markdown += `**${defn.label.trim()}:** ${value.trim()}\n\n`;
       }
     }
   }
@@ -287,7 +291,7 @@ const exportCampaign = async (campaign: Campaign, prefix: string): Promise<strin
 
   // Description
   if (campaign.description) {
-    markdown += `### Description\n\n${cleanText(campaign.description)}\n\n`;
+    markdown += `**Description:**\n\n${cleanText(campaign.description, 2)}\n\n`;
   }
 
   // Status
@@ -939,18 +943,6 @@ const downloadFilesSeparately = async (
 };
 
 /**
- * Resolves a FCB UUID to a readable name
- * @param uuid - The UUID to resolve
- * @returns The formatted name
- */
-const uuidToName = async (uuid: string): Promise<string> => {
-  // if we need better performance we could use the various indexes available
-  // but for now...
-  const content = await fromUuid(uuid);
-  return content?.name || uuid;
-};
-
-/**
  * Resolves a Foundry document UUID to a readable name.
  * @param uuid - The UUID to resolve
  * @returns The formatted name
@@ -990,15 +982,16 @@ const resolveFoundryDocumentName = (uuid: string): string => {
 /**
  * Cleans text content by removing UUID references and HTML.
  * @param text - The text to clean
+ * @param topHeaderLevel - The header level to use for the top-level heading
  * @returns The cleaned text
  */
-const cleanText = (text: string): string => {
-  // Clean UUID references
+const cleanText = (text: string, topHeaderLevel: number = 1): string => {
+  // Clean UUID references first (before DOM parsing, so names appear in markdown)
   let cleaned = cleanUuidReferencesInText(text);
-  
-  // Basic HTML cleanup (you might want to use a more sophisticated HTML stripper)
-  cleaned = cleaned.replace(/<[^>]*>/g, '');
-  
+
+  // Convert HTML to markdown
+  cleaned = htmlToMarkdown(cleaned, topHeaderLevel);
+
   return cleaned;
 };
 
