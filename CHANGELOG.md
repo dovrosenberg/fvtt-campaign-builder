@@ -6,9 +6,7 @@
 - Added the ability to split the main content area into multiple panes, so you can view multiple entries side by side.
 - You can now create color schemes to apply to custom text blocks in story webs.
 - Fixed issue with drag/drop of rows not working properly on very long tables.
-
-Known issues:
-- Opening a story web (or different ones) in more than one panel causes all sorts of issues.  It doesn't appear to cause data loss, but it's highly recommended that you don't do it.
+- Note that you cannot have more than one story web open at a time (i.e. visible in separate panels).  Opening a story web in one panel while one is visible in the other panel will close the prior one (or switch to a different tab, if available).
 
 ## 1.8.6 - Assorted bug fixes and improvements
 ![](https://img.shields.io/badge/release%20date-February%205%2C%202026-blue)

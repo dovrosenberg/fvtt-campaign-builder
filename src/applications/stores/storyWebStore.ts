@@ -2219,8 +2219,13 @@ export const storyWebStore = () => {
   // watchers
   // when the source web or container changes, rebuild the network object
   watch([currentContainer, currentStoryWeb], async () => {
-    if (!currentContainer.value || !currentStoryWeb.value)
+    if (!currentContainer.value || !currentStoryWeb.value) {
+      // If container is cleared, reset the previous storyweb ID so it will regenerate when switching back
+      if (!currentContainer.value) {
+        previousStoryWebId = null;
+      }
       return;
+    }
 
     // Check if this is a different storyweb or the first load
     const currentStoryWebId = currentStoryWeb.value.uuid;

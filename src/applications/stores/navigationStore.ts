@@ -14,7 +14,7 @@ import DirectoryScrollService from '@/utils/directoryScroll';
 import { hasUnsavedChanges, saveAndCloseAllActiveEditors, closeAllActiveEditors } from '@/utils/editorChangeDetection';
 import { FCBDialog } from '@/dialogs';
 import { SaveChangesResult } from '@/dialogs/saveChanges';
-import { notifyError, notifyInfo } from '@/utils/notifications';
+import { notifyError, notifyInfo, notifyWarn } from '@/utils/notifications';
 import GlobalSettingService from '@/utils/globalSettings';
 
 // types
@@ -318,6 +318,74 @@ export const navigationStore = () => {
   };
 
   /**
+   * Find all active story web tabs across all panels
+   * @returns Array of { panelIndex, tabIndex, tab } for each active story web
+   */
+  const findActiveStoryWebs = function (): Array<{ panelIndex: number, tabIndex: number, tab: WindowTab }> {
+    const activeStoryWebs: Array<{ panelIndex: number, tabIndex: number, tab: WindowTab }> = [];
+    
+    // iterate through all panels
+    for (let panelIndex = 0; panelIndex < tabs.value.length; panelIndex++) {
+      const panelTabs = tabs.value[panelIndex];
+      if (!panelTabs) continue;
+      
+      // find active tabs in this panel
+      for (let tabIndex = 0; tabIndex < panelTabs.length; tabIndex++) {
+        const tab = panelTabs[tabIndex];
+        if (tab.active && tab.tabType === WindowTabType.StoryWeb) {
+          activeStoryWebs.push({ panelIndex, tabIndex, tab });
+        }
+      }
+    }
+    
+    return activeStoryWebs;
+  };
+
+  /**
+   * Close all active storywebs except the one in the specified panel
+   * @param excludePanelIndex - Panel index to exclude from closing
+   * @returns Promise that resolves when all storywebs are closed
+   */
+  const closeOtherStoryWebs = async function (excludePanelIndex: number): Promise<void> {
+    const existingStoryWebs = findActiveStoryWebs();
+    
+    // Filter out the story web in the exclude panel
+    const storyWebsToClose = existingStoryWebs.filter(
+      sw => sw.panelIndex !== excludePanelIndex
+    );
+    
+    if (storyWebsToClose.length > 0) {
+      // Close each existing story web
+      for (const webToClose of storyWebsToClose) {
+        const storyWebPanelIndex = webToClose.panelIndex;
+        const storyWebTabIndex = webToClose.tabIndex;
+        
+        const panelTabs = tabs.value[storyWebPanelIndex];
+        
+        if (panelTabs && panelTabs.length > 1) {
+          // Panel has multiple tabs - switch to another tab instead of removing the story web tab
+          
+          let targetTabIndex: number;
+          if (storyWebTabIndex > 0) {
+            targetTabIndex = storyWebTabIndex - 1;
+          } else {
+            targetTabIndex = storyWebTabIndex + 1;
+          }
+          
+          // Switch to the target tab
+          await activateTab(panelTabs[targetTabIndex].id, false, storyWebPanelIndex);
+        } else {
+          // Story web is the only tab - remove the entire panel (by removing the tab)
+          await removeTab(webToClose.tab.id, storyWebPanelIndex);
+        }
+      }
+      
+      // Show warning to user
+      notifyWarn('Only one story web can be active at a time. The previous story web has been closed.');
+    }
+  };
+
+  /**
    * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
    * @param contentId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
@@ -340,7 +408,7 @@ export const navigationStore = () => {
       ...options,
     };
 
-    const panelIndex = options.panelIndex ?? focusedPanelIndex.value;
+    let panelIndex = options.panelIndex ?? focusedPanelIndex.value;
 
     // don't switch or activate a new tab if user doesn't want to deal with unsaved changes
     if (!await handleUnsavedChanges()) {
@@ -357,6 +425,16 @@ export const navigationStore = () => {
       contentId = null;
     } else {
       contentType = metadata.contentType;
+    }
+
+    // Handle story web exclusivity - only one story web can be active at a time
+    if (contentType === WindowTabType.StoryWeb && contentId) {
+      await closeOtherStoryWebs(panelIndex);
+      
+      // Adjust panelIndex if panels were removed before it
+      if (panelIndex > 0 && panelIndex >= tabs.value.length) {
+        panelIndex = tabs.value.length - 1;
+      }
     }
 
     // targetContentTab is either:
@@ -579,6 +657,17 @@ export const navigationStore = () => {
       currentTab.active = false;
     
     newTab.active = true;
+
+    // Handle story web exclusivity - only one story web can be active at a time
+    if (newTab.tabType === WindowTabType.StoryWeb) {
+      await closeOtherStoryWebs(pi);
+      
+      // Adjust panel index if panels were removed (only if this isn't the focused panel)
+      if (pi !== focusedPanelIndex.value && pi > 0 && pi >= tabs.value.length) {
+        // This is a rare case, but we need to handle it
+        return;
+      }
+    }
 
     // reset the contentTab to the default if that's the mode we're in
     if (!ModuleSettings.get(SettingKey.subTabsSavePosition) && !forceTab)
