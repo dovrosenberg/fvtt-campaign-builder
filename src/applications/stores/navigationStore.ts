@@ -1107,15 +1107,17 @@ export const navigationStore = () => {
 
     // activate adjacent tab in the source panel
     const newActiveIdx = Math.min(activeIdx, rightmostTabs.length - 1);
-    rightmostTabs[newActiveIdx].active = true;
-
-    // tell the source panel to load its new active tab
-    await setActiveTab(rightmostTabs[newActiveIdx], rightmostIdx);
+    
+    // Use activateTab to ensure story web exclusivity is handled
+    await activateTab(rightmostTabs[newActiveIdx].id, false, rightmostIdx);
 
     // create the new panel with the moved tab
-    movedTab.active = true;
     tabs.value.push([movedTab]);
     panelKeys.value.push(foundry.utils.randomID());
+    
+    // Use activateTab to ensure story web exclusivity is handled
+    const newPanelIdx = tabs.value.length - 1;
+    await activateTab(movedTab.id, false, newPanelIdx);
 
     await _saveTabs();
 
