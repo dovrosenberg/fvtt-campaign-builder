@@ -780,6 +780,7 @@ const generateStoryWebPng = async (storyWeb: any): Promise<Blob> => {
   const { nodes, edges } = await storyWeb.generateNetworkData(true);
 
   // Create off-screen container
+  // I've been unable to get the container to size dynamically; it should only be an issue for very large webs, though, since it will fit and then you can zoom in
   const container = document.createElement('div');
   container.style.position = 'absolute';
   container.style.left = '-9999px';
