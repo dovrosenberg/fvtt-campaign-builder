@@ -7,6 +7,9 @@
 - You can now create color schemes to apply to custom text blocks in story webs.
 - Fixed issue with drag/drop of rows not working properly on very long tables.
 
+Known issues:
+- Opening a story web (or different ones) in more than one panel causes all sorts of issues.  It doesn't appear to cause data loss, but it's highly recommended that you don't do it.
+
 ## 1.8.6 - Assorted bug fixes and improvements
 ![](https://img.shields.io/badge/release%20date-February%205%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.6/module.zip)
