@@ -14,6 +14,7 @@ import { localize } from '@/utils/game';
 import { cleanUuidReferencesInText, resolveUuidNameSync } from '@/utils/clipboardUuidCleaner';
 import { htmlToMarkdown } from '@/utils/sanitizeHtml';
 import { ModuleSettings, SettingKey } from '@/settings';
+import { FCBJournalEntryPage } from 'src/classes';
 
 /**
  * Exports an entire setting to a markdown file with story web images in a zip archive.
@@ -91,7 +92,8 @@ const exportSettingMarkdown = async (settingId: string): Promise<void> => {
  */
 const generateSettingMarkdown = async (setting: FCBSetting): Promise<string> => {
   let markdown = `# ${setting.name}\n\n`;
-  
+  markdown += `## Overview\n\n`;
+
   // Add genre and feeling
   if (setting.genre) {
     markdown += `**Genre:** ${setting.genre}\n\n`;
@@ -102,8 +104,23 @@ const generateSettingMarkdown = async (setting: FCBSetting): Promise<string> => 
 
   // Add setting description
   if (setting.description) {
-    markdown += `**Description:**\n\n${cleanText(setting.description, 2)}\n\n`;
+    markdown += `**Description:**\n\n${cleanText(setting.description, 3)}\n\n`;
   }
+
+  const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields);
+  const fields = customFieldDefinitions[CustomFieldContentType.Setting] || [];
+  if (fields.length>0)
+    markdown += exportCustomFields(setting, fields);
+
+  const speciesList = ModuleSettings.get(SettingKey.speciesList);
+  if (speciesList.length > 0) {
+    markdown += `## Setting Species\n\n`;
+    for (const species of speciesList) {
+      markdown += `**${species.name.trim()}:** ${species.description.trim()}\n\n`;
+    }
+  }
+
+  // TODO - skip todo list, fronts and story webs based on settings... in case they created some then turned off
 
   // Load all campaigns
   await setting.loadCampaigns();
@@ -186,35 +203,11 @@ const exportEntry = async (entry: Entry, setting: FCBSetting, validSpecies: Reco
 
   // Description
   if (entry.description.trim()) {
-    markdown += `**Description:**\n\n${cleanText(entry.description.trim(), 4)}\n\n`;
+    markdown += `**Description:**\n\n${cleanText(entry.description, 3)}\n\n`;
   }
 
-  // Custom Fields
-  for (const defn of customFieldDefinitions) {  
-    if (!defn.deleted) {
-      let value = entry.getCustomField(defn.name);
+  markdown += exportCustomFields(entry, customFieldDefinitions);
 
-      if (value == null)
-        continue;
-
-      switch (defn.fieldType) {
-        case FieldType.Boolean:
-          markdown += `**${defn.label}:** ${value ? 'Yes' : 'No'}\n\n`;
-          break;
-        case FieldType.Select:
-        case FieldType.Text:
-          if ((value as string).trim())
-            markdown += `**${defn.label}:** ${(value as string).trim()}\n\n`;
-          break;
-        case FieldType.Editor:
-          if ((value as string).trim())
-            markdown += `**${defn.label}:**\n\n${cleanText((value as string).trim(), 4)}\n\n`;
-          break;
-        default:
-          continue;
-      }
-    }
-  }
 
   // TODO - Relationships
   markdown += exportRelationships(entry);
@@ -242,6 +235,42 @@ const exportEntry = async (entry: Entry, setting: FCBSetting, validSpecies: Reco
 
   return markdown;
 };
+
+/**
+ * Exports custom field definitions for an object with them
+ */
+const exportCustomFields = (content: FCBJournalEntryPage<any, any>, customFieldDefinitions: CustomFieldDescription[]): string => {
+  let markdown = '';
+
+  // Custom Fields
+  for (const defn of customFieldDefinitions) {  
+    if (!defn.deleted) {
+      let value = content.getCustomField(defn.name);
+
+      if (value == null)
+        continue;
+
+      switch (defn.fieldType) {
+        case FieldType.Boolean:
+          markdown += `**${defn.label}:** ${value ? 'Yes' : 'No'}\n\n`;
+          break;
+        case FieldType.Select:
+        case FieldType.Text:
+          if ((value as string).trim())
+            markdown += `**${defn.label}:** ${(value as string).trim()}\n\n`;
+          break;
+        case FieldType.Editor:
+          if ((value as string).trim())
+            markdown += `**${defn.label}:**\n\n${cleanText((value as string).trim(), 4)}\n\n`;
+          break;
+        default:
+          continue;
+      }
+    }
+  }
+
+  return markdown;
+}
 
 /**
  * Exports relationships for an entry.
@@ -289,10 +318,15 @@ const exportCampaigns = async (setting: FCBSetting): Promise<string> => {
     return markdown;
   }
 
-  markdown += `## ${localize('topics.campaigns')}\n\n`;
+  // Get custom field definitions once for all campaigns
+  const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields);
+  const campaignFields = customFieldDefinitions[CustomFieldContentType.Campaign] || [];
+  const frontFields = customFieldDefinitions[CustomFieldContentType.Front] || [];
+  const arcFields = customFieldDefinitions[CustomFieldContentType.Arc] || [];
+  const sessionFields = customFieldDefinitions[CustomFieldContentType.Session] || [];
 
   for (const campaign of Object.values(setting.campaigns)) {
-    markdown += await exportCampaign(campaign, 'a');
+    markdown += await exportCampaign(campaign, setting, campaignFields, frontFields, arcFields, sessionFields);
   }
 
   return markdown;
@@ -301,26 +335,77 @@ const exportCampaigns = async (setting: FCBSetting): Promise<string> => {
 /**
  * Exports a single campaign with its fronts, arcs, and sessions.
  * @param campaign - The campaign to export
- * @param prefix - The prefix for the heading
+ * @param setting - The setting object
+ * @param customFieldDefinitions - The custom field definitions for campaigns
+ * @param frontFieldDefinitions - The custom field definitions for fronts
+ * @param arcFieldDefinitions - The custom field definitions for arcs
+ * @param sessionFieldDefinitions - The custom field definitions for sessions
  * @returns Markdown content for the campaign
  */
-const exportCampaign = async (campaign: Campaign, prefix: string): Promise<string> => {
-  let markdown = `${prefix}. **${campaign.name}**\n\n`;
+const exportCampaign = async (
+  campaign: Campaign,
+  setting: FCBSetting,
+  customFieldDefinitions: CustomFieldDescription[],
+  frontFieldDefinitions: CustomFieldDescription[],
+  arcFieldDefinitions: CustomFieldDescription[],
+  sessionFieldDefinitions: CustomFieldDescription[]
+): Promise<string> => {
+  if (campaign.completed)
+    return;  
+
+  let markdown = `## Campaign: ${campaign.name}\n\n`;
 
   // Description
   if (campaign.description) {
-    markdown += `**Description:**\n\n${cleanText(campaign.description, 2)}\n\n`;
+    markdown += `**Description:**\n\n${cleanText(campaign.description, 3)}\n\n`;
   }
 
-  // Status
-  markdown += `### Status\n\n${campaign.completed ? 'Completed' : 'Active'}\n\n`;
+  // Custom fields
+  markdown += exportCustomFields(campaign, customFieldDefinitions);
+
+  // Lore (only undelivered) - table format
+  const undeliveredLore = campaign.lore.filter(lore => !lore.delivered);
+  if (undeliveredLore.length > 0) {
+    markdown += `### Not-yet-delivered Lore\n\n`;
+    markdown += `| Lore         |\n`;
+    markdown += `|--------------|\n`;
+    for (const lore of undeliveredLore) {
+      const description = cleanText(lore.description, 3).replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+      markdown += `| ${description} |\n`;
+    }
+    markdown += '\n';
+  }
+
+  // Ideas
+  if (campaign.ideas && campaign.ideas.length > 0) {
+    markdown += `### Ideas\n\n`;
+    for (const idea of campaign.ideas) {
+      markdown += `- ${idea.text}\n`;
+    }
+    markdown += '\n';
+  }
+
+  // Todo Items (table format)
+  if (campaign.todoItems && campaign.todoItems.length > 0) {
+    markdown += `### To-Do Items\n\n`;
+    markdown += `| Date | Reference | To Do |\n`;
+    markdown += `|------|-----------|-------|\n`;
+    for (const todo of campaign.todoItems) {
+      const date = new Date(todo.lastTouched).toLocaleDateString();
+      const reference = todo.linkedText || '';
+      const todoText = todo.text.replace(/\|/g, '\\|').replace(/\n/g, ' ');
+      markdown += `| ${date} | ${reference} | ${todoText} |\n`;
+    }
+    markdown += '\n';
+  }
 
   // Fronts
-  const fronts = await campaign.allFronts();
-  if (fronts.length > 0) {
-    markdown += `### (1) ${localize('topics.fronts')}\n\n`;
-    for (const front of fronts) {
-      markdown += await exportFront(front, '(a)');
+  if (ModuleSettings.get(SettingKey.useFronts)) {
+    const fronts = await campaign.allFronts();
+    if (fronts.length > 0) {
+      for (const front of fronts) {
+        markdown += await exportFront(front, setting, frontFieldDefinitions);
+      }
     }
   }
 
@@ -329,11 +414,11 @@ const exportCampaign = async (campaign: Campaign, prefix: string): Promise<strin
     campaign.arcIndex.map(arcIndex => Arc.fromUuid(arcIndex.uuid))
   );
   const validArcs = arcs.filter(arc => arc !== null) as Arc[];
-  
+
   if (validArcs.length > 0) {
     markdown += `### (2) ${localize('topics.arcs')}\n\n`;
     for (const arc of validArcs) {
-      markdown += await exportArc(arc, '(a)');
+      markdown += await exportArc(arc, setting, arcFieldDefinitions, sessionFieldDefinitions);
     }
   }
 
@@ -343,30 +428,55 @@ const exportCampaign = async (campaign: Campaign, prefix: string): Promise<strin
 /**
  * Exports a front with its dangers.
  * @param front - The front to export
- * @param prefix - The prefix for the heading
+ * @param setting - The setting object 
+ * @param customFieldDefinitions - The custom field definitions for fronts
  * @returns Markdown content for the front
  */
-const exportFront = async (front: Front, prefix: string): Promise<string> => {
-  let markdown = `${prefix}. **${front.name}**\n\n`;
+const exportFront = async (front: Front, setting: FCBSetting, customFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
+  let markdown = `### Front: ${front.name}\n\n`;
 
   // Description
   if (front.description) {
     markdown += `#### Description\n\n${cleanText(front.description)}\n\n`;
   }
 
+  // Custom fields
+  markdown += exportCustomFields(front, customFieldDefinitions);
+
   // Dangers
   if (front.dangers && front.dangers.length > 0) {
-    markdown += `#### Dangers\n\n`;
     front.dangers.forEach((danger, index) => {
-      markdown += `**${index + 1}. ${danger.name}**\n\n`;
+      markdown += `#### Danger: ${danger.name}\n\n`;
       if (danger.description) {
         markdown += `${cleanText(danger.description)}\n\n`;
       }
-      if (danger.impendingDoom) {
-        markdown += `Impending Doom: ${danger.impendingDoom}\n\n`;
+      if (danger.impendingDoom.trim()) {
+        markdown += `**Impending Doom:** ${danger.impendingDoom.trim()}\n`;
       }
-      if (danger.motivation) {
-        markdown += `Motivation: ${danger.motivation}\n\n`;
+      if (danger.motivation.trim()) {
+        markdown += `**Motivation:** ${danger.motivation.trim()}\n`;
+      }
+
+      // Participants
+      if (danger.participants && danger.participants.length > 0) {
+        markdown += `**Participants:**\n`;
+        for (const participant of danger.participants) {
+          const name = resolveUuidNameSync(participant.uuid);
+          markdown += `- ${name} ${participant.role.trim() ? `(Role: ${participant.role.trim()})` : ''}\n`;
+        }
+        markdown += '\n';
+      }
+
+      // Grim Portents (table format)
+      if (danger.grimPortents && danger.grimPortents.length > 0) {
+        markdown += `Grim Portents:\n`;
+        markdown += `| Complete | Description |\n`;
+        markdown += `|-------------|----------|\n`;
+        for (const portent of danger.grimPortents) {
+          const complete = portent.complete ? 'X' : '';
+          markdown += `| ${complete} | ${portent.description.trim()} |\n`;
+        }
+        markdown += '\n';
       }
     });
   }
@@ -377,16 +487,94 @@ const exportFront = async (front: Front, prefix: string): Promise<string> => {
 /**
  * Exports an arc with its sessions.
  * @param arc - The arc to export
- * @param prefix - The prefix for the heading
+ * @param setting - The setting object 
+ * @param customFieldDefinitions - The custom field definitions for arcs
+ * @param sessionFieldDefinitions - The custom field definitions for sessions
  * @returns Markdown content for the arc
  */
-const exportArc = async (arc: Arc, prefix: string): Promise<string> => {
-  let markdown = `${prefix}. **${arc.name}**\n\n`;
+const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: CustomFieldDescription[], sessionFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
+  let markdown = `### Arc: ${arc.name}\n\n`;
 
-  // Session range
-  markdown += `#### Session Range\n\n`;
-  if (arc.startSessionNumber >= 0 && arc.endSessionNumber >= 0) {
-    markdown += `Sessions ${arc.startSessionNumber} to ${arc.endSessionNumber}\n\n`;
+  // Description
+  if (arc.description) {
+    markdown += `**Description:**${cleanText(arc.description, 5)}\n\n`;
+  }
+
+  // Custom fields
+  markdown += exportCustomFields(arc, customFieldDefinitions);
+
+  // Vignettes (table format)
+  if (arc.vignettes && arc.vignettes.length > 0) {
+    markdown += `#### Vignettes\n\n`;
+    markdown += `| Description |\n`;
+    markdown += `|-------------|\n`;
+    for (const vignette of arc.vignettes) {
+      const description = vignette.description.replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+      markdown += `| ${description} |\n`;
+    }
+    markdown += '\n';
+  }
+
+  // Locations (table format with name, type, parent, notes)
+  if (arc.locations && arc.locations.length > 0) {
+    markdown += `#### Locations\n\n`;
+    markdown += `| Name | Type | Parent | Notes |\n`;
+    markdown += `|------|------|--------|-------|\n`;
+    for (const location of arc.locations) {
+      const entry = await Entry.fromUuid(location.uuid);
+      if (entry) {
+        const name = entry.name;
+        const type = entry.type || '';
+        const hierarchy = setting?.getEntryHierarchy(entry.uuid);
+        const parentName = hierarchy?.parentId ? resolveUuidNameSync(hierarchy.parentId) : '';
+        const notes = location.notes.replace(/\|/g, '\\|').replace(/\n/g, ' ');
+        markdown += `| ${name} | ${type} | ${parentName} | ${notes} |\n`;
+      }
+    }
+    markdown += '\n';
+  }
+
+  // Participants (table format with name, type, notes)
+  if (arc.participants && arc.participants.length > 0) {
+    markdown += `#### Participants\n\n`;
+    markdown += `| Name | Type | Notes |\n`;
+    markdown += `|------|------|-------|\n`;
+    for (const participant of arc.participants) {
+      const entry = await Entry.fromUuid(participant.uuid);
+      if (entry) {
+        const name = entry.name;
+        const type = entry.type || '';
+        const notes = participant.notes.replace(/\|/g, '\\|').replace(/\n/g, ' ');
+        markdown += `| ${name} | ${type} | ${notes} |\n`;
+      }
+    }
+    markdown += '\n';
+  }
+
+  // Monsters
+  if (arc.monsters && arc.monsters.length > 0) {
+    markdown += `#### Monsters\n\n`;
+    for (const monster of arc.monsters) {
+      const name = resolveUuidNameSync(monster.uuid);
+      markdown += `- **${name}**`;
+      if (monster.notes) {
+        markdown += ` - ${monster.notes}`;
+      }
+      markdown += '\n';
+    }
+    markdown += '\n';
+  }
+
+  // Lore (table format)
+  if (arc.lore && arc.lore.length > 0) {
+    markdown += `#### Lore\n\n`;
+    markdown += `| Description |\n`;
+    markdown += `|-------------|\n`;
+    for (const lore of arc.lore) {
+      const description = lore.description.replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+      markdown += `| ${description} |\n`;
+    }
+    markdown += '\n';
   }
 
   // Ideas
@@ -400,14 +588,13 @@ const exportArc = async (arc: Arc, prefix: string): Promise<string> => {
 
   // Sessions
   const campaign = await arc.loadCampaign();
-  const sessions = await campaign.filterSessions(s => 
+  const sessions = await campaign.filterSessions(s =>
     s.number >= arc.startSessionNumber && s.number <= arc.endSessionNumber
   );
-  
+
   if (sessions.length > 0) {
-    markdown += `#### (i) ${localize('topics.sessions')}\n\n`;
     for (const session of sessions) {
-      markdown += await exportSession(session, '(1)');
+      markdown += await exportSession(session, setting, sessionFieldDefinitions);
     }
   }
 
@@ -417,23 +604,26 @@ const exportArc = async (arc: Arc, prefix: string): Promise<string> => {
 /**
  * Exports a session with all its content.
  * @param session - The session to export
- * @param prefix - The prefix for the heading
+ * @param setting - The setting object 
+ * @param customFieldDefinitions - The custom field definitions for sessions
  * @returns Markdown content for the session
  */
-const exportSession = async (session: Session, prefix: string): Promise<string> => {
-  let markdown = `${prefix}. **${session.name}**\n\n`;
+const exportSession = async (session: Session, setting: FCBSetting, customFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
+  let markdown = `#### Session: ${session.name}\n\n`;
 
   // Session number and date
-  markdown += `#### Session Details\n\n`;
-  markdown += `Number: ${session.number}\n\n`;
+  markdown += `**Number:** ${session.number}\n\n`;
   if (session.date) {
-    markdown += `Date: ${session.date.toLocaleDateString()}\n\n`;
+    markdown += `**Date:** ${session.date.toLocaleDateString()}\n\n`;
   }
 
   // Description
   if (session.description) {
-    markdown += `#### Description\n\n${cleanText(session.description)}\n\n`;
+    markdown += `**Description:** ${cleanText(session.description)}\n\n`;
   }
+
+  // Custom fields
+  markdown += exportCustomFields(session, customFieldDefinitions);
 
   // Tags
   if (session.tags && session.tags.length > 0) {
@@ -637,6 +827,9 @@ const generateStoryWebPng = async (storyWeb: any): Promise<Blob> => {
  * @returns Array of objects containing story web name and PNG data
  */
 const exportStoryWebs = async (setting: FCBSetting): Promise<Array<{ name: string; data: Blob }>> => {
+  if (!ModuleSettings.get(SettingKey.useStoryWebs))
+    return [];
+
   const storyWebImages: Array<{ name: string; data: Blob }> = [];
   console.log('Starting story web export for setting:', setting.name);
 
