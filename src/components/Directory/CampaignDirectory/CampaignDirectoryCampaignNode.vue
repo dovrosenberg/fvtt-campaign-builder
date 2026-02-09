@@ -124,7 +124,7 @@
     }
 
     // if we are using webs, strip the story web folder
-    if (ModuleSettings.get(SettingKey.useWebs)) {
+    if (ModuleSettings.get(SettingKey.useStoryWebs)) {
       children = children.slice(1);
     }
 
@@ -142,7 +142,7 @@
   });
 
   const storyWebFolderNode = computed((): DirectoryStoryWebFolder | null => {
-    if (!ModuleSettings.get(SettingKey.useWebs)) {
+    if (!ModuleSettings.get(SettingKey.useStoryWebs)) {
       return null;
     }
     // story webs are always the second one after fronts (if fronts are enabled)

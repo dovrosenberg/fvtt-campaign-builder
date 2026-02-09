@@ -86,7 +86,7 @@ export const campaignDirectoryStore = () => {
         }
 
         // if we are using webs, add the story web folder
-        if (ModuleSettings.get(SettingKey.useWebs)) {
+        if (ModuleSettings.get(SettingKey.useStoryWebs)) {
           children.push(campaign.uuid + ':storywebs');  // this is the id for the story web folder
         }
 

@@ -188,7 +188,7 @@
   ////////////////////////////////
   // computed data
   const showStoryWebTab = computed(() => {
-    return ModuleSettings.get(SettingKey.useWebs);
+    return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 
   const tabs = computed(() => [

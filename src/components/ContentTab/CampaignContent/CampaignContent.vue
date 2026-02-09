@@ -145,7 +145,7 @@
   });
 
   const showStoryWebTab = computed(() => {
-    return ModuleSettings.get(SettingKey.useWebs);
+    return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 
   const openToDoCount = computed(() => toDoRows.value.length);

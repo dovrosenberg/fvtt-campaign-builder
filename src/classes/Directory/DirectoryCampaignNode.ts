@@ -45,7 +45,7 @@ export class DirectoryCampaignNode<
     }
 
     // ditto for story web folder
-    if (ModuleSettings.get(SettingKey.useWebs)) {
+    if (ModuleSettings.get(SettingKey.useStoryWebs)) {
       const storyWebNode = await DirectoryStoryWebFolder.fromCampaign(this.id);
       CollapsibleNode._loadedNodes[storyWebNode.id] = storyWebNode;
     }
