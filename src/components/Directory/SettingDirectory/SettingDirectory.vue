@@ -8,6 +8,7 @@
     >
       <header
         class="folder-header flexrow"
+        :class="`folder-header flexrow ${isCurrentSettingActive ? 'active' : ''}`"
         :data-testid="`setting-folder-${currentSettingTreeObject.name}`"
         @contextmenu="onSettingContextMenu($event, currentSettingTreeObject.id)"
         @click="onSettingFolderClick($event, currentSettingTreeObject.id)"
@@ -99,7 +100,7 @@
   const navigationStore = useNavigationStore();
   const settingDirectoryStore = useSettingDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentSetting } = storeToRefs(mainStore);
+  const { currentSetting, currentContentType } = storeToRefs(mainStore);
   const { isGroupedByType, currentSettingTree } = storeToRefs(settingDirectoryStore);
 
   ////////////////////////////////
@@ -109,6 +110,11 @@
   // computed data
   const currentSettingTreeObject = computed(() => {
     return currentSettingTree.value.value.find((setting) => setting.id === currentSetting.value?.uuid) || null;
+  });
+
+  // Check if the current setting tab is active
+  const isCurrentSettingActive = computed(() => {
+    return currentContentType.value === WindowTabType.Setting && currentSetting.value?.uuid === currentSettingTreeObject.value?.id;
   });
 
   ////////////////////////////////
@@ -286,6 +292,12 @@
           width: 100%;
           flex: 1;
           cursor: pointer;
+
+          // bold the active one
+          &.active {
+            color: var(--fcb-accent-400) !important;
+            font-weight: bold !important;
+          }
         }
 
         // setting folder styling

@@ -7,6 +7,7 @@
 - You can now create color schemes to apply to custom text blocks in story webs.
 - You can now export a story web as a .PNG file from the directory context menu.
 - Fixed issue with drag/drop of rows not working properly on very long tables.
+- Opening the Setting content now properly scrolls to the Setting node in the directory and highlights it, as it does for all the other content types.
 
 ## 1.8.6 - Assorted bug fixes and improvements
 ![](https://img.shields.io/badge/release%20date-February%205%2C%202026-blue)
