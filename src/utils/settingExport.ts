@@ -569,16 +569,17 @@ const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: 
     markdown += '\n';
   }
 
-  // Monsters
+  // Monsters (table format)
   if (arc.monsters && arc.monsters.length > 0) {
     markdown += `#### Monsters\n`;
+    markdown += `| Name | Notes |\n`;
+    markdown += `|------|-------|\n`;
     for (const monster of arc.monsters) {
-      const name = resolveUuidNameSync(monster.uuid);
-      markdown += `- **${name}**`;
-      if (monster.notes.trim()) {
-        markdown += ` - ${cleanText(monster.notes, 5)}`;
+      const docName = resolveFoundryDocumentName(monster.uuid, true);
+      if (docName) {
+        const notes = cleanText(monster.notes, 5);
+        markdown += `| ${docName} | ${notes} |\n`;
       }
-      markdown += '\n';
     }
     markdown += '\n';
   }
@@ -655,10 +656,10 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
   // Custom fields
   markdown += exportCustomFields(session, customFieldDefinitions);
 
-  // Tags
-  if (session.tags && session.tags.length > 0) {
-    markdown += `**Tags:** ${session.tags.join(', ')}\n\n`;
-  }
+  // Tags - I think these may not make sense to export?
+  // if (session.tags && session.tags.length > 0) {
+  //   markdown += `**Tags:** ${session.tags.join(', ')}\n\n`;
+  // }
 
   // Lore (table format)
   if (session.lore && session.lore.length > 0) {
@@ -740,7 +741,7 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
     markdown += `| Used | Name | Number | Notes |\n`;
     markdown += `|------|------|--------|-------|\n`;
     for (const monster of session.monsters) {
-      const docName = resolveFoundryDocumentName(monster.uuid);
+      const docName = resolveFoundryDocumentName(monster.uuid, true);
       if (docName) {
         const delivered = monster.delivered ? '✓' : '';
         const notes = cleanText(monster.notes, 5);
@@ -756,7 +757,7 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
     markdown += `| Used | Name | Notes |\n`;
     markdown += `|------|------|-------|\n`;
     for (const item of session.items) {
-      const docName = resolveFoundryDocumentName(item.uuid);
+      const docName = resolveFoundryDocumentName(item.uuid, true);
       if (docName) {
         const delivered = item.delivered ? '✓' : '';
         const notes = cleanText(item.notes, 5);
@@ -984,9 +985,10 @@ const downloadFilesSeparately = async (
 /**
  * Resolves a Foundry document UUID to a readable name.
  * @param uuid - The UUID to resolve
+ * @basic = If true, just return the name of the document 
  * @returns The formatted name
  */
-const resolveFoundryDocumentName = (uuid: string): string => {
+const resolveFoundryDocumentName = (uuid: string, basic: boolean = false): string => {
   try {
     const parsed = foundry.utils.parseUuid(uuid);
     if (!parsed) return uuid;
@@ -1000,7 +1002,7 @@ const resolveFoundryDocumentName = (uuid: string): string => {
       if (indexEntry?.name) {
         // Determine document type from collection name
         const docType = collection.metadata?.name || 'Document';
-        return `[Foundry ${docType} - ${indexEntry.name}]`;
+        return basic ? indexEntry.name : `[Foundry ${docType} - ${indexEntry.name}]`;
       }
     }
 
@@ -1008,7 +1010,7 @@ const resolveFoundryDocumentName = (uuid: string): string => {
       const doc = collection.get(id);
       if (doc?.name) {
         const docType = doc.documentName || 'Document';
-        return `[Foundry ${docType} - ${doc.name}]`;
+        return basic ? doc.name : `[Foundry ${docType} - ${doc.name}]`;
       }
     }
 
