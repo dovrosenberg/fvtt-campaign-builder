@@ -9,7 +9,7 @@ import { Campaign } from '@/classes/Documents/Campaign';
 import { Arc } from '@/classes/Documents/Arc';
 import { Session } from '@/classes/Documents/Session';
 import { Front } from '@/classes/Documents/Front';
-import { Topics } from '@/types';
+import { CustomFieldDescription, FieldType, Topics } from '@/types';
 import { localize } from '@/utils/game';
 import { cleanUuidReferencesInText } from '@/utils/clipboardUuidCleaner';
 
@@ -136,7 +136,7 @@ const exportEntriesByTopic = async (setting: FCBSetting): Promise<string> => {
       markdown += `## ${topic.name}\n\n`;
       
       for (const entry of entries) {
-        markdown += await exportEntry(entry, 'a');
+        markdown += await exportEntry(entry);
       }
     }
   }
@@ -147,61 +147,80 @@ const exportEntriesByTopic = async (setting: FCBSetting): Promise<string> => {
 /**
  * Exports a single entry with all its content.
  * @param entry - The entry to export
- * @param prefix - The prefix for the heading (a, b, c, etc.)
  * @returns Markdown content for the entry
  */
-const exportEntry = async (entry: Entry, prefix: string): Promise<string> => {
-  let markdown = `${prefix}. **${entry.name}**\n\n`;
+const exportEntry = async (entry: Entry, setting: FCBSetting, customFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
+  let markdown = `### ${entry.name}\n\n`;
 
-  // Description
-  if (entry.description) {
-    markdown += `### Description\n\n${cleanText(entry.description)}\n\n`;
-  }
+  // Tags - I think these may not make sense to export?
+  // if (entry.tags && entry.tags.length > 0) {
+  //   markdown += `**Tags:** ${entry.tags.join(', ')}\n\n`;
+  // }
 
   // Type
   if (entry.type) {
-    markdown += `### Type\n\n${entry.type}\n\n`;
+    markdown += `**Type:** ${entry.type}\n\n`;
   }
 
-  // Tags
-  if (entry.tags && entry.tags.length > 0) {
-    markdown += `### Tags\n\n${entry.tags.join(', ')}\n\n`;
+  // characters have species
+  if (entry.topic === Topics.Character && entry.speciesId) {
+    // TODO
+    markdown += `**Species:** ${entry.speciesId}\n\n`;
+  }
+  
+  // locations and orgs have parents
+  if ([Topics.Location, Topics.Organization].includes(entry.topic)) {
+    const parentId = setting.getEntryHierarchy(entry.uuid)?.parentId;
+    if (parentId) {
+      markdown += `**Parent:** ${uuidToName(parentId)}\n\n`;
+    }
   }
 
-  // Relationships
+  // Description
+  if (entry.description) {
+    markdown += `**Description**: ${cleanText(entry.description)}\n\n`;
+  }
+
+  // Custom Fields
+  for (const defn of customFieldDefinitions) {  
+    if (!defn.deleted) {
+      let value = entry.getCustomField(defn.name);
+
+      if (value != null) {
+        if (defn.fieldType === FieldType.Boolean)
+          value = value ? 'Yes' : 'No';
+
+        markdown += `**${defn.label}:** ${value}\n\n`;
+      }
+    }
+  }
+
+  // TODO - Relationships
   const relationships = await exportRelationships(entry);
   if (relationships) {
     markdown += `### Relationships\n\n${relationships}\n\n`;
   }
 
-  // Linked Foundry Documents
-  if (entry.foundryDocuments && entry.foundryDocuments.length > 0) {
-    markdown += `### Linked Documents\n\n`;
-    for (const docId of entry.foundryDocuments) {
-      const docName = resolveFoundryDocumentName(docId);
-      markdown += `- ${docName}\n`;
-    }
-    markdown += '\n';
-  }
+  // Linked Foundry Documents - not sure these make sense to export
+  // if (entry.foundryDocuments && entry.foundryDocuments.length > 0) {
+  //   markdown += `### Linked Documents\n\n`;
+  //   for (const docId of entry.foundryDocuments) {
+  //     const docName = resolveFoundryDocumentName(docId);
+  //     markdown += `- ${docName}\n`;
+  //   }
+  //   markdown += '\n';
+  // }
 
-  // Custom Fields
-  if (entry.customFields && Object.keys(entry.customFields).length > 0) {
-    markdown += `### Custom Fields\n\n`;
-    for (const [key, value] of Object.entries(entry.customFields)) {
-      markdown += `**${key}:** ${value}\n\n`;
-    }
-  }
-
-  // Linked Journals
-  if (entry.journals && entry.journals.length > 0) {
-    markdown += `### Linked Journals\n\n`;
-    for (const journal of entry.journals) {
-      // RelatedJournal might not have standard properties, so we handle it safely
-      const journalName = (journal as any).name || 'Journal Entry';
-      markdown += `- ${journalName}\n`;
-    }
-    markdown += '\n';
-  }
+  // Linked Journals - not sure these make sense to export
+  // if (entry.journals && entry.journals.length > 0) {
+  //   markdown += `### Linked Journals\n\n`;
+  //   for (const journal of entry.journals) {
+  //     // RelatedJournal might not have standard properties, so we handle it safely
+  //     const journalName = (journal as any).name || 'Journal Entry';
+  //     markdown += `- ${journalName}\n`;
+  //   }
+  //   markdown += '\n';
+  // }
 
   return markdown;
 };
@@ -917,6 +936,18 @@ const downloadFilesSeparately = async (
       URL.revokeObjectURL(url);
     }, i * 100); // 100ms delay between downloads
   }
+};
+
+/**
+ * Resolves a FCB UUID to a readable name
+ * @param uuid - The UUID to resolve
+ * @returns The formatted name
+ */
+const uuidToName = async (uuid: string): Promise<string> => {
+  // if we need better performance we could use the various indexes available
+  // but for now...
+  const content = await fromUuid(uuid);
+  return content?.name || uuid;
 };
 
 /**
