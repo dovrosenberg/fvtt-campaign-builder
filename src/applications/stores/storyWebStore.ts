@@ -169,9 +169,9 @@ export const storyWebStore = () => {
     }
     
     await currentStoryWeb.value.save();
-    
+
     // Refresh the graph to apply the new color
-    await mainStore.refreshStoryWeb();
+    await refreshAndRegenerate();
   };
 
   const edgeConfig = {
@@ -500,7 +500,7 @@ export const storyWebStore = () => {
     await currentStoryWeb.value.addEntry(entryUuid, position, withRelationships);
 
     // refresh the drawing
-    await mainStore.refreshStoryWeb();
+    await refreshAndRegenerate();
     toRaw(currentNetwork.value)?.stabilize(50);
   };
 
@@ -514,7 +514,7 @@ export const storyWebStore = () => {
     await currentStoryWeb.value.addDanger(dangerId, position, withRelationships);
 
     // refresh the drawing
-    await mainStore.refreshStoryWeb();
+    await refreshAndRegenerate();
     toRaw(currentNetwork.value)?.stabilize(50);
   };
 
@@ -541,7 +541,7 @@ export const storyWebStore = () => {
     }
 
     // refresh the drawing
-    await mainStore.refreshStoryWeb();
+    await refreshAndRegenerate();
     toRaw(currentNetwork.value)?.stabilize(50);
   };
 
@@ -595,7 +595,7 @@ export const storyWebStore = () => {
       await addEntry(entryUuid, position, withRelationships);
 
       // add any edges needed
-      await mainStore.refreshStoryWeb();
+      await refreshAndRegenerate();
       await nextTick();
     }
 
@@ -679,7 +679,7 @@ export const storyWebStore = () => {
     await currentStoryWeb.value.addCustomNode(text, canvasPosition);
 
     // refresh the drawing
-    await mainStore.refreshStoryWeb();
+    await refreshAndRegenerate();
   };
 
   /** remove a node from the story web */
@@ -704,10 +704,10 @@ export const storyWebStore = () => {
 
     currentStoryWeb.value.nodes = currentStoryWeb.value.nodes.filter(n => n.uuid !== nodeId);
 
-    await currentStoryWeb.value.save(); 
+    await currentStoryWeb.value.save();
 
     // refresh the drawing
-    await mainStore.refreshStoryWeb();
+    await refreshAndRegenerate();
   };
 
   /** remove an edge from the story web 
@@ -762,10 +762,10 @@ export const storyWebStore = () => {
     // remove from the web if it was a manual edge
     const edgeUuid = getEdgeUuid(node1.uuid, node2.uuid, 'manual');
     currentStoryWeb.value.edges = currentStoryWeb.value.edges.filter(e => e.uuid !== edgeUuid);
-    await currentStoryWeb.value.save(); 
-    
+    await currentStoryWeb.value.save();
+
     // refresh the drawing
-    await mainStore.refreshStoryWeb();
+    await refreshAndRegenerate();
   };
 
   /** Remove a participant from a danger */
@@ -1079,9 +1079,9 @@ export const storyWebStore = () => {
     }
     
     await currentStoryWeb.value.save();
-    
+
     // Refresh the graph to apply the new color
-    await mainStore.refreshStoryWeb();
+    await refreshAndRegenerate();
   };
 
   /** Record a new style for an edge */
@@ -1102,9 +1102,9 @@ export const storyWebStore = () => {
     }
     
     await currentStoryWeb.value.save();
-    
+
     // Refresh the graph to apply the new style
-    await mainStore.refreshStoryWeb();
+    await refreshAndRegenerate();
   };
 
   /** Some colors need to be different in dark mode but we can't use css variables in canvas.
@@ -1162,7 +1162,7 @@ export const storyWebStore = () => {
 
     node.label = newText;
     await currentStoryWeb.value?.save();
-    await mainStore.refreshStoryWeb();
+    await refreshAndRegenerate();
   }
 
   const editEdge = async (edgeId: string) => {
@@ -1192,8 +1192,8 @@ export const storyWebStore = () => {
 
     // Update the edge based on its type
     await updateEdgeLabel(fromNode, toNode, newLabel);
-    
-    await mainStore.refreshStoryWeb();
+
+    await refreshAndRegenerate();
   }
 
   const getCurrentEdgeLabel = async (fromNode: string, toNode: string): Promise<string> => {
@@ -1612,6 +1612,12 @@ export const storyWebStore = () => {
     await currentStoryWeb.value.save();
   }
 
+  /** Refresh the StoryWeb data object and regenerate the network visualization */
+  const refreshAndRegenerate = async () => {
+    await mainStore.refreshStoryWeb();
+    await generateNetwork();
+  };
+
   const startConnectionMode = async (nodeId: string) => {
     if (!currentNetwork.value || !currentContainer.value)
       return;
@@ -1789,7 +1795,7 @@ export const storyWebStore = () => {
       });
 
       await currentStoryWeb.value.save();
-      await mainStore.refreshStoryWeb();
+      await refreshAndRegenerate();
       return;
     }
 
@@ -1825,7 +1831,7 @@ export const storyWebStore = () => {
       });
       await front.save();
 
-      await mainStore.refreshStoryWeb();
+      await refreshAndRegenerate();
       return;
     } else {
       // entry to entry connection
@@ -1850,7 +1856,7 @@ export const storyWebStore = () => {
 
       // Use relationship store to connect them with proper field name
       await relationshipStore.addArbitraryRelationship(fromNode, toNode, { relationship: label });
-      await mainStore.refreshStoryWeb();
+      await refreshAndRegenerate();
       return;
     }
   };
@@ -2006,7 +2012,7 @@ export const storyWebStore = () => {
         icon: 'fa-trash',
         iconFontClass: 'fas',
         label: isEntryNode ? localize('contextMenus.storyWebGraph.removeFromDiagram') : localize('contextMenus.storyWebGraph.delete'),
-        onClick: async () => { await removeNode(nodeId); await mainStore.refreshStoryWeb(); }
+        onClick: async () => { await removeNode(nodeId); }
       },
     ];
 
@@ -2130,13 +2136,13 @@ export const storyWebStore = () => {
           icon: 'fa-edit',
           iconFontClass: 'fas',
           label: localize('contextMenus.storyWebGraph.editRelationship'),
-          onClick: async () => { await editEdge(edgeId); await mainStore.refreshStoryWeb(); }
+          onClick: async () => { await editEdge(edgeId); }
         },
         {
           icon: 'fa-trash',
           iconFontClass: 'fas',
           label: localize('contextMenus.storyWebGraph.delete'),
-          onClick: async () => { await removeEdge(edgeId); await mainStore.refreshStoryWeb(); }
+          onClick: async () => { await removeEdge(edgeId); }
         },
       ]
     });
@@ -2213,19 +2219,21 @@ export const storyWebStore = () => {
   // watchers
   // when the source web or container changes, rebuild the network object
   watch([currentContainer, currentStoryWeb], async () => {
-    if (!currentContainer.value || !currentStoryWeb.value) 
+    if (!currentContainer.value || !currentStoryWeb.value)
       return;
 
     // Check if this is a different storyweb or the first load
     const currentStoryWebId = currentStoryWeb.value.uuid;
     const isDifferentStoryWeb = !!previousStoryWebId && previousStoryWebId !== currentStoryWebId;
     const isFirstLoad = !currentNetwork.value || !previousStoryWebId;
-    
+
     // Update the tracking
     previousStoryWebId = currentStoryWebId;
-    
-    // Reset viewport if it's the first load or a different storyweb
-    await generateNetwork(isFirstLoad || isDifferentStoryWeb);
+
+    // Only regenerate on first load or story web switch; skip same-UUID object
+    // replacements triggered by the updateJournalEntryPage hook to prevent infinite loops
+    if (isFirstLoad || isDifferentStoryWeb)
+      await generateNetwork(true);
   });
 
 
