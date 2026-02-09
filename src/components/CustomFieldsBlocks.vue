@@ -335,10 +335,7 @@
           editorHeights[field.name] = storedHeight;
         } else if (field.editorHeight) {
           // Convert rem to pixels (1rem = 16px)
-          const remMatch = field.editorHeight.match(/^(\d+(?:\.\d+)?)rem$/);
-          if (remMatch) {
-            editorHeights[field.name] = parseFloat(remMatch[1]) * 16;
-          }
+          editorHeights[field.name] = field.editorHeight * 16;
         }
       }
     }

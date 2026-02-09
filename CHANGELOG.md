@@ -6,6 +6,7 @@
 - Added the ability to split the main content area into multiple panes, so you can view multiple entries side by side.
 - You can now create color schemes to apply to custom text blocks in story webs.
 - You can now export a story web as a .PNG file from the directory context menu.
+- You can now adjust the size of all custom field editors using the grabber in the lower right corner.  This size can be set differently for each piece of content.  If you want to change the default size, you can still do that in the module settings.
 - Fixed issue with drag/drop of rows not working properly on very long tables.
 - Opening the Setting content now properly scrolls to the Setting node in the directory and highlights it, as it does for all the other content types.
 

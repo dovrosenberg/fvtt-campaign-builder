@@ -40,7 +40,7 @@
       class="resize-handle"
       @mousedown="onMouseDown"
     >
-      <i class="fas fa-grip-lines-vertical"></i>
+      <i class="fas fa-grip-lines"></i>
     </div>
   </div>
 </template>
@@ -433,7 +433,7 @@
     if (!isResizing.value) return;
     
     const deltaY = event.clientY - dragStartY.value;
-    const newHeight = Math.max(64, dragStartHeight.value + deltaY); // Minimum 64px height
+    const newHeight = Math.max(40, dragStartHeight.value + deltaY); // Minimum 40px height
     
     currentHeight.value = newHeight;
     
