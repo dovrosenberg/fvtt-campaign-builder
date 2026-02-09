@@ -72,6 +72,27 @@ export class FCBJournalEntryPage<
     this._clone.system.customFields[key] = value;
   }
 
+  public get customFieldHeights(): Readonly<Record<string, number>> {
+    // @ts-ignore - not sure how to specify customFieldHeights exists on all of these
+    return foundry.utils.deepClone(this._clone.system?.customFieldHeights) || {};
+  }
+  
+  public getCustomFieldHeight(key: string): number | undefined {
+    // @ts-ignore - not sure how to specify customFieldHeights exists on all of these
+    return this._clone.system?.customFieldHeights?.[key];
+  }
+
+  public setCustomFieldHeight(key: string, value: number): void {
+    // @ts-ignore - not sure how to specify customFieldHeights exists on all of these
+    if (!this._clone.system.customFieldHeights || typeof this._clone.system.customFieldHeights !== 'object') {
+    // @ts-ignore - not sure how to specify customFieldHeights exists on all of these
+      this._clone.system.customFieldHeights = {};
+    }
+
+    // @ts-ignore - not sure how to specify customFieldHeights exists on all of these
+    this._clone.system.customFieldHeights[key] = value;
+  }
+
   /** Note that we always refer to the uuid of the wrapping JournalEntry  */
   public get uuid(): string {
     return this._doc.parent!.uuid;

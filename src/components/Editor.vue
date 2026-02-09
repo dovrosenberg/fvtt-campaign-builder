@@ -34,6 +34,14 @@
         </div>
       </div>
     </div>
+    <!-- Resize handle - only shown when editable and not using fixed height -->
+    <div
+      v-if="props.editable && props.resizable && !props.editOnlyMode"
+      class="resize-handle"
+      @mousedown="onMouseDown"
+    >
+      <i class="fas fa-grip-lines-vertical"></i>
+    </div>
   </div>
 </template>
 
@@ -111,6 +119,11 @@
       required: false,
       default: null,
     },
+    resizable: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     currentEntityUuid: {
       type: String,
       required: false,
@@ -129,6 +142,7 @@
     (e: 'editorSaved', content: string): void;
     (e: 'editorLoaded', content: string): void;  // to catch any initial transforms of the data 
     (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+    (e: 'editorResized', height: number): void;
   }>();
 
   ////////////////////////////////
@@ -145,6 +159,10 @@
   const editorVisible = ref<boolean>(true);
   const lastSavedContent = ref<string>('');   // the parsemirror serialized content last saved, to see if any changes were made
   const initialUUIDs = ref<string[]>([]);     // UUIDs present when editor was first loaded
+  const isResizing = ref<boolean>(false);
+  const currentHeight = ref<number>(0);
+  const dragStartY = ref<number>(0);
+  const dragStartHeight = ref<number>(0);
 
   const coreEditorRef = ref<HTMLDivElement>();
   const wrapperRef = ref<HTMLDivElement>();
@@ -163,7 +181,14 @@
 
   const safeEnrichedContent = computed((): string => (sanitizeHTML(enrichedInitialContent.value)));
 
-  const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight}; margin-bottom: 0.375rem` : ''));
+  const wrapperStyle = computed((): string => {
+    if (props.fixedHeight && !props.resizable) {
+      return `height: ${props.fixedHeight}; margin-bottom: 0.375rem`;
+    } else if (props.resizable && currentHeight.value > 0) {
+      return `height: ${currentHeight.value}px; margin-bottom: 0.375rem`;
+    }
+    return '';
+  });
 
   ////////////////////////////////
   // methods
@@ -182,9 +207,17 @@
       throw new Error('Missing name in activateEditor()');
 
     // Determine the preferred editor height
-    const heights = [wrapperRef.value.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
-    const validHeights = heights.filter(h => Number.isFinite(h) && h > 0);
-    const height = validHeights.length > 0 ? Math.min(...validHeights) : 240; // fallback to 240px minimum
+    let height = 240; // fallback to 240px minimum
+    
+    // Use currentHeight if already set, otherwise calculate based on wrapper
+    if (props.resizable && currentHeight.value > 0) {
+      height = currentHeight.value;
+    } else {
+      const heights = [wrapperRef.value.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
+      const validHeights = heights.filter(h => Number.isFinite(h) && h > 0);
+      height = validHeights.length > 0 ? Math.min(...validHeights) : 240;
+      currentHeight.value = height;
+    }
 
     // Get initial content
     const options = {
@@ -384,6 +417,48 @@
     }
   };
 
+  const onMouseDown = (event: MouseEvent) => {
+    if (!props.editable || !props.resizable) return;
+    
+    isResizing.value = true;
+    dragStartY.value = event.clientY;
+    dragStartHeight.value = currentHeight.value || wrapperRef.value?.offsetHeight || 240;
+    
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    event.preventDefault();
+  };
+
+  const onMouseMove = (event: MouseEvent) => {
+    if (!isResizing.value) return;
+    
+    const deltaY = event.clientY - dragStartY.value;
+    const newHeight = Math.max(64, dragStartHeight.value + deltaY); // Minimum 64px height
+    
+    currentHeight.value = newHeight;
+    
+    // Update the ProseMirror editor height if active
+    if (editor.value) {
+      const editorElement = wrapperRef.value?.querySelector('.prosemirror .editor-content');
+      if (editorElement) {
+        (editorElement as HTMLElement).style.height = `${newHeight - 50}px`; // Adjust for menu bar
+      }
+    }
+  };
+
+  const onMouseUp = () => {
+    if (!isResizing.value) return;
+    
+    isResizing.value = false;
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    
+    // Emit the new height
+    if (currentHeight.value > 0) {
+      emit('editorResized', currentHeight.value);
+    }
+  };
+
   ////////////////////////////////
   // watchers
   watch(() => props.initialContent, async (newContent) =>{
@@ -567,4 +642,30 @@
     }
   }
 
+  .resize-handle {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    cursor: ns-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fcb-text-muted);
+    background: var(--fcb-surface-2);
+    border-radius: 3px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    z-index: 5;
+
+    &:hover {
+      opacity: 1;
+      color: var(--fcb-text);
+    }
+
+    i {
+      font-size: 10px;
+    }
+  }
 </style>
