@@ -89,7 +89,8 @@
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyError, notifyInfo } from '@/utils/notifications';
-  import { useMainStore, useBackendStore } from '@/applications/stores';
+  import { useBackendStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { nameStyles } from '@/utils/nameStyles';
   import { promptReplace } from '@/utils/generation';
   import { replaceUUIDsInText } from '@/utils/sanitizeHtml';
@@ -127,9 +128,8 @@
   // store
 
   const backendStore = useBackendStore();
-  const mainStore = useMainStore();
   const { available: backendAvailable } = storeToRefs(backendStore);
-  const { currentSetting, currentArc, currentSession, currentCampaign, currentEntry, currentFront, } = storeToRefs(mainStore);
+  const { currentSetting, currentArc, currentSession, currentCampaign, currentEntry, currentFront } = useContentState();
 
   ////////////////////////////////
   // data

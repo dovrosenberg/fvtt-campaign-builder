@@ -13,6 +13,7 @@ Click the links below to learn more about each element of the UI:
 - [Directory Sidebar](./sidebar)
 - [Editors](./editors)
 - [Main Content Display](./main-display)
+- [Multi-Panel Interface](./panels)
 - [Tabs](./tabs)
 - [Bookmarks](./bookmarks)
 - [Search](./search)

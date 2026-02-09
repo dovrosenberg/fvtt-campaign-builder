@@ -6,7 +6,6 @@ export class WindowTab {
    * Id of the tab
    *
    * @type {string}
-   * @memberof WindowTab
    */
   public id: string;   
 
@@ -14,7 +13,6 @@ export class WindowTab {
    * Is this the currently active tab
    *
    * @type {boolean}
-   * @memberof WindowTab
    */
   public active: boolean;   
 
@@ -22,7 +20,6 @@ export class WindowTab {
    * Array of the history of ids/types shown in this tab (for the forward/back arrows) 
    *
    * @type {WindowTabHistory[]}
-   * @memberof WindowTab
    */
   public history: WindowTabHistory[];     
   
@@ -30,7 +27,6 @@ export class WindowTab {
    * Index of current history point
    *
    * @type {number}
-   * @memberof WindowTab
    */
   public historyIdx: number;   
 
@@ -38,7 +34,6 @@ export class WindowTab {
    * Header data for the tab - including uuid for the content
    *
    * @type {TabHeader}
-   * @memberof WindowTab
    */
   public header: TabHeader;  
 

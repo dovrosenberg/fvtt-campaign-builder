@@ -24,10 +24,10 @@
 <script setup lang="ts">
   // library imports
   import { ref, watch, } from 'vue';
-  import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useRelationshipStore, useMainStore } from '@/applications/stores';
+  import { useRelationshipStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   
   // library components
 
@@ -83,7 +83,6 @@
   ////////////////////////////////
   // store
   const relationshipStore = useRelationshipStore();
-  const mainStore = useMainStore();
   const { 
     currentSetting, 
     currentEntry,
@@ -91,7 +90,7 @@
     currentArc,
     currentSession,
     currentFront,
-  } = storeToRefs(mainStore);
+  } = useContentState();
 
   ////////////////////////////////
   // data

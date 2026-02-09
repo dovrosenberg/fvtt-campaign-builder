@@ -111,6 +111,18 @@ World building content seamlessly integrates with other Campaign Builder workflo
 - **Session Preparation**: Reference world content when preparing for specific sessions
 - **Playing Sessions**: Quick access to world content during gameplay
 
+## Using Panels for World Building
+
+The [multi-panel interface](/reference/navigation/panels) is particularly useful for world building:
+
+- **Compare Related Entries**: Keep a location open in one panel while editing associated characters in another panel
+- **Reference While Creating**: Keep a template or example entry open while creating new content
+- **Build Hierarchies**: View parent locations while creating child locations to maintain consistency
+
+For example, when building a city:
+- Left panel: City overview entry
+- Right panel: Individual district or building entries
+
 Your world building efforts create a living foundation that supports all other aspects of your campaign management.  -->
 
 <!-- ### [World Building](world-building/)

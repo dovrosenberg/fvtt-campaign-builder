@@ -4,8 +4,8 @@ prev:
   text: 'Editors'
   link: './editors'
 next: 
-  text: 'Main Tabs'
-  link: './tabs'
+  text: 'Multi-Panel Interface'
+  link: './panels'
 ---
 # Main Content Display
 

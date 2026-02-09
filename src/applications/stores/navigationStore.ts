@@ -1,4 +1,5 @@
 // this store handles main navigation (tabs, bookmarks, recent)
+// tabs is a 2D array: tabs[panelIndex][tabIndex]. Each inner array is one panel's tabs.
 
 // library imports
 import { ref, } from 'vue';
@@ -19,6 +20,24 @@ import GlobalSettingService from '@/utils/globalSettings';
 // types
 import { Bookmark, SessionDisplayMode, TabHeader, WindowTabType, } from '@/types';
 import { WindowTab, Entry, Campaign, Session, Front, Arc, StoryWeb } from '@/classes';
+import type { TabPanelState } from '@/composables/useTabPanelState';
+
+interface OpenContentOptions {
+  activate?: boolean;
+  newTab?: boolean;
+  updateHistory?: boolean;
+  contentTabId?: string;
+  forceTab?: boolean; // when true, use contentTabId even if subTabsSavePosition is false
+  panelIndex?: number; // which panel to open in; defaults to focusedPanelIndex
+}
+
+interface ContentMetadata {
+  name: string;
+  icon: string;
+  contentType: WindowTabType;
+  defaultContentTab: string;
+  badId: boolean;
+}
 
 // the store definition
 export const navigationStore = () => {
@@ -32,33 +51,23 @@ export const navigationStore = () => {
 
   ///////////////////////////////
   // internal state
+  const _panelStates = new Map<number, TabPanelState>();
 
   ///////////////////////////////
   // external state
-  const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of FCBHeader)
+  const tabs = ref<WindowTab[][]>([[]]);       // main tabs - tabs[panelIndex][tabIndex]
+  const focusedPanelIndex = ref<number>(0);
   const bookmarks = ref<Bookmark[]>([]);
   const sessionBookmarks = ref<Bookmark[]>([]); // special, derived bookmarks for latest sessions
   const recent = ref<TabHeader[]>([]);
   const _sessionBookmarksRefreshToken = ref<number>(0);
+  const MAX_PANELS = 3;   // maximum number of split panels allowed
+
+  // stable unique keys for each panel, so Vue can track component identity across removals
+  const panelKeys = ref<string[]>([]);
 
   ///////////////////////////////
   // actions
- 
-  interface OpenContentOptions {
-    activate?: boolean;
-    newTab?: boolean;
-    updateHistory?: boolean;
-    contentTabId?: string;
-    forceTab?: boolean; // when true, use contentTabId even if subTabsSavePosition is false
-  }
-
-  interface ContentMetadata {
-    name: string;
-    icon: string;
-    contentType: WindowTabType;
-    defaultContentTab: string;
-    badId: boolean;
-  }
 
   /**
    * Load metadata for content including name, icon, and default content tab.
@@ -302,6 +311,12 @@ export const navigationStore = () => {
     return await openContent(tagName, WindowTabType.TagResults, options);
   };
 
+  const setActiveTab = async function(tab: WindowTab, panelIndex: number): Promise<void> {
+    const ps = _panelStates.get(panelIndex);
+    if (ps)
+      await ps.setNewTab(tab);
+  };
+
   /**
    * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
@@ -325,11 +340,13 @@ export const navigationStore = () => {
       ...options,
     };
 
+    const panelIndex = options.panelIndex ?? focusedPanelIndex.value;
+
     // don't switch or activate a new tab if user doesn't want to deal with unsaved changes
     if (!await handleUnsavedChanges()) {
       // for there to be unsaved changes, there has to be an active tab, so this is safe
       // @ts-ignore
-      return getActiveTab(false);
+      return getActiveTab(false, panelIndex);
     }
 
     // Load content metadata (name, icon, type)
@@ -352,9 +369,13 @@ export const navigationStore = () => {
 
     const headerData: TabHeader = { uuid: contentId || null, name: metadata.name, icon: metadata.icon };
 
+    // ensure the panel array exists
+    if (!tabs.value[panelIndex])
+      tabs.value[panelIndex] = [];
+
     // see if we need a new tab
     let tab;
-    if (options.newTab || !getActiveTab(false)) {
+    if (options.newTab || !getActiveTab(false, panelIndex)) {
       tab = new WindowTab(
         false,
         headerData,
@@ -366,10 +387,10 @@ export const navigationStore = () => {
 
       // set the target content tab 
       tab.contentTab = targetContentTab;
-      //add to tabs list
-      tabs.value.push(tab);
+      // add to this panel's tabs list
+      tabs.value[panelIndex].push(tab);
     } else {
-      tab = getActiveTab(false);
+      tab = getActiveTab(false, panelIndex);
 
       // if same entry and same content tab, nothing to do
       if ((tab.header?.uuid === contentId || null) && tab.contentTab === targetContentTab)
@@ -392,8 +413,10 @@ export const navigationStore = () => {
       tabs.value = [ ...tabs.value ];
     }
     
-    if (options.activate)
-      await activateTab(tab.id, options.forceTab);
+    if (options.activate) {
+      await activateTab(tab.id, options.forceTab, panelIndex);
+      await focusPanel(panelIndex);
+    }
 
     // activating doesn't always save (ex. if we added a new entry to active tab)
     await _saveTabs();
@@ -402,21 +425,30 @@ export const navigationStore = () => {
     if (headerData.uuid)
       await _updateRecent(headerData);
 
-    await mainStore.setNewTab(tab);
+    // load content in the target panel
+    await setActiveTab(tab, panelIndex);
 
-    // scroll to the entry
-    await DirectoryScrollService.scrollToActiveEntry();
+    // scroll to the entry (only if this is the focused panel)
+    if (panelIndex === focusedPanelIndex.value)
+      await DirectoryScrollService.scrollToActiveEntry();
 
     return tab;
   };
 
-  // return the active tab
-  // if findOne is true, always returns one (i.e. if nothing active, returns the first one)
-  const getActiveTab = function (findOne = true): WindowTab | null {
-    let tab = tabs.value.find(t => t.active);
+  /**
+   * Return the active tab within a specific panel.
+   * If findOne is true, always returns one (i.e. if nothing active, returns the last one).
+   * @param findOne - Whether to return a fallback tab if none is active
+   * @param panelIndex - The panel to search in; defaults to focusedPanelIndex
+   */
+  const getActiveTab = function (findOne = true, panelIndex?: number): WindowTab | null {
+    const pi = panelIndex ?? focusedPanelIndex.value;
+    const panelTabs = tabs.value[pi] || [];
+
+    let tab = panelTabs.find(t => t.active);
     if (findOne) {
-      if (!tab && tabs.value.length > 0)  // nothing was marked as active, just pick the last one
-        tab = tabs.value[tabs.value.length-1];
+      if (!tab && panelTabs.length > 0)  // nothing was marked as active, just pick the last one
+        tab = panelTabs[panelTabs.length - 1];
     }
 
     return tab || null;
@@ -424,41 +456,64 @@ export const navigationStore = () => {
 
   /**
    * Remove the tab with the given id. If the tab is active, then activate the previous tab.
-   * If it's the last tab, create a new default one.
+   * If it's the last tab in the only remaining panel, create a new default one.
+   * If it's the last tab in any non-sole panel, remove the panel entirely.
    * @param tabId The id of the tab to remove.
+   * @param panelIndex The panel the tab belongs to; defaults to focusedPanelIndex.
    */
-  const removeTab = async function (tabId: string): Promise<void> {
-    // find the tab
-    const tab = tabs.value.find((t) => (t.id === tabId));
-    const index = tabs.value.findIndex((t) => (t.id === tabId));
+  const removeTab = async function (tabId: string, panelIndex?: number): Promise<void> {
+    const pi = panelIndex ?? focusedPanelIndex.value;
+    const panelTabs = tabs.value[pi];
+    if (!panelTabs)
+      return;
+
+    // find the tab within this panel
+    const tab = panelTabs.find((t) => (t.id === tabId));
+    const index = panelTabs.findIndex((t) => (t.id === tabId));
 
     if (!tab) return;
 
-    // remove it from the array
-    tabs.value.splice(index, 1);
+    // remove it from the panel's array
+    panelTabs.splice(index, 1);
 
-    if (tabs.value.length === 0) {
-      await openEntry();  // make a default tab if that was the last one (will also activate it) and save them
+    if (panelTabs.length === 0) {
+      if (tabs.value.length > 1) {
+        // more than one panel — remove this panel entirely
+        await removePanel(pi);
+      } else {
+        // only panel remaining — create a default tab
+        await openEntry(null, { panelIndex: pi });
+      }
+
+      // note: pi is out of date now; need to adjust it if we have to do anything else
     } else if (tab.active) {
       // if it was active, make the one before it active (or after if it was up front)
       if (index===0) {
-        await activateTab(tabs.value[0].id);  // will also save them
+        await activateTab(panelTabs[0].id, false, pi); // will also save them
+      } else {
+        await activateTab(panelTabs[index-1].id, false, pi); // will also save them
       }
-      else {
-        await activateTab(tabs.value[index-1].id);  // will also save them
-      }
+    } else {
+      // the other branches save via removePanel, openEntry, or activateTab
+      await _saveTabs();
     }
 
-    // force a refresh of the display
-    // tabs.value = [ ...tabs.value ];
   };
 
-/**
- * Closes all open tabs and removes all bookmarks. Should be used only when there is no
- * setting available.
- */
+  /**
+   * Closes all open tabs, removes all but the first panel, and removes all bookmarks.
+   * Should be used only when there is no setting available.
+   */
   const clearTabsAndBookmarks = async function () {
-    tabs.value = [];
+    // unregister all panel states except the first
+    for (const [idx] of _panelStates) {
+      if (idx !== 0)
+        _panelStates.delete(idx);
+    }
+
+    tabs.value = [[]];
+    panelKeys.value = [];
+    focusPanel(0);
     bookmarks.value = [];
   };
 
@@ -497,15 +552,22 @@ export const navigationStore = () => {
     return true;
   }
 
-  // activate the given tab, first closing the current subsheet
-  // tabId must exist
-  const activateTab = async function (tabId: string, forceTab: boolean = false): Promise<void> {
+  /**
+   * Activate the given tab within a specific panel, first closing the current subsheet.
+   * @param tabId - The id of the tab to activate
+   * @param forceTab - When true, preserve the contentTab even when subTabsSavePosition is off
+   * @param panelIndex - The panel to operate on; defaults to focusedPanelIndex
+   */
+  const activateTab = async function (tabId: string, forceTab: boolean = false, panelIndex?: number): Promise<void> {
+    const pi = panelIndex ?? focusedPanelIndex.value;
+    const panelTabs = tabs.value[pi] || [];
+
     let newTab: WindowTab | undefined;
-    if (!tabId || !(newTab = tabs.value.find((t)=>(t.id===tabId))))
+    if (!tabId || !(newTab = panelTabs.find((t) => (t.id === tabId))))
       return;
 
     // see if it's already current
-    const currentTab = getActiveTab(false);
+    const currentTab = getActiveTab(false, pi);
     if (currentTab?.id === tabId) {
       return;
     }
@@ -528,17 +590,24 @@ export const navigationStore = () => {
     if (newTab?.header?.uuid)
       await _updateRecent(newTab.header);
 
-    await mainStore.setNewTab(newTab);
+    // load content in the target panel
+    await setActiveTab(newTab, pi);
 
-    // Scroll to and expand the active entry in the directory tree
-    await DirectoryScrollService.scrollToActiveEntry();
+    // Scroll to and expand the active entry in the directory tree (only if focused panel)
+    if (pi === focusedPanelIndex.value)
+      await DirectoryScrollService.scrollToActiveEntry();
 
     return;
   };
 
-  /** Update the contenttab on the current tab and save to DB */
-  const updateContentTab = async function (newContentTab: string): Promise<void> {
-    const currentTab = getActiveTab(false);
+  /**
+   * Update the contenttab on the current tab and save to DB
+   * @param newContentTab - The new content tab identifier
+   * @param panelIndex - The panel to operate on; defaults to focusedPanelIndex
+   */
+  const updateContentTab = async function (newContentTab: string, panelIndex?: number): Promise<void> {
+    const pi = panelIndex ?? focusedPanelIndex.value;
+    const currentTab = getActiveTab(false, pi);
     
     if (!currentTab) 
       return;
@@ -551,25 +620,28 @@ export const navigationStore = () => {
     await _saveTabs();
   }
 
-  /** Move forward/back across tab bar 
+  /** Move forward/back across tab bar within the focused panel
    * @param numberOfTabs The number of tabs to move forward/back
    */
   const traverseTabs = async function (numberOfTabs: number): Promise<void> {
-    const currentTab = getActiveTab(false);
+    const pi = focusedPanelIndex.value;
+    const panelTabs = tabs.value[pi] || [];
+    const currentTab = getActiveTab(false, pi);
     
     if (!currentTab) 
       return;
 
-    const newIdx = tabs.value.findIndex((t)=>(t.id===currentTab.id)) + numberOfTabs;
-    if (newIdx < 0 || newIdx >= tabs.value.length) 
+    const newIdx = panelTabs.findIndex((t) => (t.id === currentTab.id)) + numberOfTabs;
+    if (newIdx < 0 || newIdx >= panelTabs.length)
       return;
 
-    await activateTab(tabs.value[newIdx].id);
-};
+    await activateTab(panelTabs[newIdx].id, false, pi);
+  };
 
-  // moves forward/back through the history "move" spaces (or less if not possible); negative numbers move back
+  /** Moves forward/back through the history "move" spaces within the focused panel */
   const navigateHistory = async function (move: number) {
-    const tab = getActiveTab();
+    const pi = focusedPanelIndex.value;
+    const tab = getActiveTab(true, pi);
 
     if (!tab) return;
 
@@ -588,26 +660,26 @@ export const navigationStore = () => {
     // Trigger reactivity by reassigning the tabs array
     tabs.value = [...tabs.value];
     
-    await openContent(tab.history[tab.historyIdx].contentId, tab.history[tab.historyIdx].tabType, { activate: false, newTab: false, contentTabId: tab.history[tab.historyIdx].contentTab || undefined, updateHistory: false});  // will also save the tab and update recent
+    await openContent(tab.history[tab.historyIdx].contentId, tab.history[tab.historyIdx].tabType, { activate: false, newTab: false, contentTabId: tab.history[tab.historyIdx].contentTab || undefined, updateHistory: false, panelIndex: pi });
   };
 
   /**
-   * Used after deleting an entry/campaign/session to make sure that no current tab or tab history includes 
-   * the deleted item.
+   * Used after deleting an entry/campaign/session to make sure that no current tab or tab history includes
+   * the deleted item. Iterates ALL panels.
    *
    * @param contentId - The content ID to remove.
    * @returns A promise that resolves when the ID has been removed.
    */
   const cleanupDeletedEntry = async (contentId: string): Promise<void> => {
-    // get the current set of tabs
-    const tempTabs = foundry.utils.deepClone(tabs.value);
+    // iterate all panels (backward, since removePanel may shift indices)
+    for (let pi = tabs.value.length - 1; pi >= 0; pi--) {
+      const panelTabs = tabs.value[pi];
+      if (!panelTabs)
+        continue;
 
-    if (tempTabs) {
-      // loop over each one and remove from the history; set tabIndex to point to the subsequent entry
-      // if there is only one entry left, eliminate the tab altogether
       // go backward in case we need to remove one
-      for (let i = tempTabs.length-1; i>=0; i--) {
-        const tab = tempTabs[i];
+      for (let i = panelTabs.length-1; i>=0; i--) {
+        const tab = panelTabs[i];
         let tabRemoved = false;
 
         // loop over the whole history
@@ -617,17 +689,7 @@ export const navigationStore = () => {
           if (history.contentId === contentId) {
             if (tab.historyIdx === j && tab.history.length===1) {
               tabRemoved = true;
-              await removeTab(tab.id);
-              tempTabs.splice(i, 1);
-
-              // let's say this was the only remaining tab; then when we
-              //    delete it, there's a new tab 0 (the default) that we
-              //    need to retain
-              // but if we finish the loop, we're going to screw it up because
-              //    `tempTabs` doesn't reflect that change yet
-              if (tempTabs.length===0 && i===0) {
-                tempTabs.push(tabs.value[0]);
-              }
+              await removeTab(tab.id, pi);
 
               break;
             } else if (tab.historyIdx >= j && (j>0 || tab.historyIdx>0)) {
@@ -679,20 +741,16 @@ export const navigationStore = () => {
           }
         }
       }
-
-      // save the tabs
-      tabs.value = tempTabs;
-      await _saveTabs();
-
-      // refresh the current tab just in case it was displaying the now-deleted item
-      const activeTab = getActiveTab(false);
-      if (activeTab) {
-        await mainStore.setNewTab(activeTab);
-        
-        // Scroll to and expand the active entry in the directory tree
-        await DirectoryScrollService.scrollToActiveEntry();
-      }
     }
+
+    // save tabs and refresh all active tabs
+    await _saveTabs();
+    for (let pi = 0; pi < tabs.value.length; pi++) {
+      const activeTab = getActiveTab(false, pi);
+      if (activeTab)
+        await setActiveTab(activeTab, pi);
+    }
+    await DirectoryScrollService.scrollToActiveEntry();
 
     // now remove from bookmarks
     bookmarks.value = bookmarks.value.filter(b => b.header.uuid !== contentId);
@@ -704,19 +762,21 @@ export const navigationStore = () => {
   };
   
   /**
-   * When an entry's name changes, propagate that change to the header of all open tabs and bookmarks referring to that entry.
+   * When an entry's name changes, propagate that change to the header of all open tabs (across ALL panels) and bookmarks.
    * @param contentId - The ID of the entry whose name changed.
    * @param newName - The new name of the entry.
    */
   const propagateNameChange = async (contentId: string, newName: string):Promise<void> => {
-    // Update the tabs
+    // Update tabs across all panels
     let updated = false;
-    tabs.value.forEach((t: WindowTab): void => {
-      if (t.header.uuid===contentId) {
-        t.header.name = newName;
-        updated = true;
-      }
-    });
+    for (const panelTabs of tabs.value) {
+      panelTabs.forEach((t: WindowTab): void => {
+        if (t.header.uuid === contentId) {
+          t.header.name = newName;
+          updated = true;
+        }
+      });
+    }
 
     if (updated)
       await _saveTabs();
@@ -746,25 +806,34 @@ export const navigationStore = () => {
       await _saveRecent();   
   };
 
+  /** Loads tabs (2D array), bookmarks, and recent from UserFlags. Ensures at least one panel with one tab. */
   const loadTabs = async function () {
     if (!currentSetting.value)
       return;
 
-    tabs.value = UserFlags.get(UserFlagKey.tabs, currentSetting.value.uuid) || [];
+    tabs.value = UserFlags.get(UserFlagKey.tabs, currentSetting.value.uuid) || [[]];
     bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, currentSetting.value.uuid) || [];
     recent.value = UserFlags.get(UserFlagKey.recentlyViewed, currentSetting.value.uuid) || [];
 
-    if (!tabs.value.length) {
-      // if there are no tabs, add one
-      await openEntry();
+    // ensure at least one panel exists
+    if (tabs.value.length === 0)
+      tabs.value = [[]];
+
+    // generate stable keys for each loaded panel
+    panelKeys.value = tabs.value.map(() => foundry.utils.randomID());
+
+    // if the first panel has no tabs, create a default one
+    if (!tabs.value[0].length) {
+      await openEntry(null, { panelIndex: 0 });
     } else {
-      // activate the active one but clear the content tab if needed
-      const tabToActivate = getActiveTab(true) as WindowTab;
+      // activate the active one in the first panel (focused by default)
+      focusPanel(0);
+      const tabToActivate = getActiveTab(true, 0) as WindowTab;
       if (!ModuleSettings.get(SettingKey.subTabsSavePosition))
         tabToActivate.contentTab = null;
       
-      await mainStore.setNewTab(tabToActivate);
-      // Scroll to and expand the active entry in the directory tree
+      // the panel state will be set up by TabPanel.vue on mount; for now just scroll
+      // TabPanel.onMounted will call setNewTab on the active tab for each panel
       await DirectoryScrollService.scrollToActiveEntry();
     }
   };
@@ -882,6 +951,201 @@ export const navigationStore = () => {
   
 
   ///////////////////////////////
+  // panel management
+
+  /**
+   * Register a TabPanelState for a given panel index. Called by TabPanel on mount.
+   * @param index - The panel index
+   * @param state - The TabPanelState to register
+   */
+  const registerPanelState = function (index: number, state: TabPanelState): void {
+    _panelStates.set(index, state);
+  };
+
+  /**
+   * Unregister a TabPanelState. Called by TabPanel on unmount.
+   * @param index - The panel index to unregister
+   */
+  const unregisterPanelState = function (index: number): void {
+    _panelStates.delete(index);
+  };
+
+  /**
+   * Focus a specific panel. Updates focusedPanelIndex and tells mainStore to delegate to this panel.
+   * @param index - The panel index to focus
+   */
+  const focusPanel = function (index: number): void {
+    // make sure index is valid
+    const validTab = Math.clamp(index, 0, tabs.value.length -1);
+
+    const previousIndex = focusedPanelIndex.value;
+    focusedPanelIndex.value = validTab;
+    const ps = _panelStates.get(validTab) || null;
+    mainStore.setFocusedPanel(ps);
+
+    // scroll directory to the newly focused panel's active entry
+    if (validTab !== previousIndex)
+      void DirectoryScrollService.scrollToActiveEntry();
+  };
+
+  /**
+   * Split the rightmost panel: move its active tab into a newly created panel to the right.
+   * Only callable when rightmost panel has >1 tab AND total panels < 3.
+   */
+  const splitToRight = async function (): Promise<void> {
+    if (tabs.value.length >= MAX_PANELS)
+      return;
+
+    const rightmostIdx = tabs.value.length - 1;
+    const rightmostTabs = tabs.value[rightmostIdx];
+    if (rightmostTabs.length <= 1)
+      return;
+
+    // find the active tab in the rightmost panel
+    const activeIdx = rightmostTabs.findIndex(t => t.active);
+    if (activeIdx < 0)
+      return;
+
+    const movedTab = rightmostTabs.splice(activeIdx, 1)[0];
+
+    // activate adjacent tab in the source panel
+    const newActiveIdx = Math.min(activeIdx, rightmostTabs.length - 1);
+    rightmostTabs[newActiveIdx].active = true;
+
+    // tell the source panel to load its new active tab
+    await setActiveTab(rightmostTabs[newActiveIdx], rightmostIdx);
+
+    // create the new panel with the moved tab
+    movedTab.active = true;
+    tabs.value.push([movedTab]);
+    panelKeys.value.push(foundry.utils.randomID());
+
+    await _saveTabs();
+
+    // focus the new panel (TabPanel.vue will mount and register its panelState,
+    //    so we don't need to use focusPanel())
+    focusedPanelIndex.value = tabs.value.length - 1;
+  };
+
+  /**
+   * Remove a panel at the given index. Re-indexes remaining panels.
+   * Focus adjusts to stay valid. The last remaining panel cannot be removed.
+   * @param index - The panel index to remove
+   */
+  const removePanel = async function (index: number): Promise<void> {
+    if (tabs.value.length <= 1)
+      return;
+
+    // unregister the panel state
+    _panelStates.delete(index);
+
+    // splice out the panel and its stable key
+    tabs.value.splice(index, 1);
+    panelKeys.value.splice(index, 1);
+
+    // re-index panelStates: shift down all entries after the removed index
+    const newMap = new Map<number, TabPanelState>();
+    for (const [idx, ps] of _panelStates) {
+      if (idx > index)
+        newMap.set(idx - 1, ps);
+      else
+        newMap.set(idx, ps);
+    }
+    _panelStates.clear();
+    for (const [idx, ps] of newMap) {
+      _panelStates.set(idx, ps);
+    }
+
+    // adjust focused panel index
+    if (focusedPanelIndex.value >= tabs.value.length)
+      focusPanel(tabs.value.length - 1);
+    else if (focusedPanelIndex.value >= index)
+      focusPanel(focusedPanelIndex.value - 1);
+
+    await _saveTabs();
+  };
+
+  /**
+   * Move a tab from one panel to another. Handles activating an adjacent tab in the source panel,
+   * appending to the target panel, activating it there, and removing the source panel if it becomes empty.
+   * @param tabId - The ID of the tab to move
+   * @param sourcePanelIndex - The panel the tab is currently in
+   * @param targetPanelIndex - The panel to move the tab to
+   */
+  const moveTabToPanel = async function (tabId: string, sourcePanelIndex: number, targetPanelIndex: number): Promise<void> {
+    const sourceTabs = tabs.value[sourcePanelIndex];
+    if (!sourceTabs)
+      return;
+
+    // find and remove tab from source panel
+    const tabIdx = sourceTabs.findIndex(t => t.id === tabId);
+    if (tabIdx < 0)
+      return;
+
+    const movedTab = sourceTabs.splice(tabIdx, 1)[0];
+
+    // if source panel lost its active tab, activate adjacent tab
+    if (movedTab.active && sourceTabs.length > 0) {
+      const newActiveIdx = Math.min(tabIdx, sourceTabs.length - 1);
+      await activateTab(sourceTabs[newActiveIdx].id, false, sourcePanelIndex);
+    }
+
+    // append to target panel end and activate
+    movedTab.active = false;
+    tabs.value[targetPanelIndex].push(movedTab);
+    await activateTab(movedTab.id, false, targetPanelIndex);
+
+    // if source panel is now empty and not the only panel, remove it
+    if (sourceTabs.length === 0 && tabs.value.length > 1) {
+      await removePanel(sourcePanelIndex);
+    }
+  };
+
+  /**
+   * Find which panel contains a tab with the given content type and optionally content id.
+   * Checks the focused panel first, then searches all other panels.
+   * @param contentId - Content ID to match
+   * @returns An object with panelIndex and tab, or null if not found
+   */
+  const findTabAcrossPanels = function (contentId: string): { panelIndex: number; tab: WindowTab } | null {
+    // check focused panel first
+    const focused = focusedPanelIndex.value;
+    const focusedTabs = tabs.value[focused] || [];
+    for (const tab of focusedTabs) {
+      if (tab.header.uuid === contentId)
+        return { panelIndex: focused, tab };
+    }
+
+    // search remaining panels
+    for (let pi = 0; pi < tabs.value.length; pi++) {
+      if (pi === focused)
+        continue;
+      const panelTabs = tabs.value[pi] || [];
+      for (const tab of panelTabs) {
+        if (tab.header.uuid === contentId)
+          return { panelIndex: pi, tab };
+      }
+    }
+
+    return null;
+  };
+
+  /**
+   * Refresh content across all panels. If contentUuid is provided, only refreshes panels
+   * whose current content matches that UUID. If omitted, refreshes all panels.
+   * Used to synchronize panels showing the same content after saves or external changes.
+   *
+   * @param contentUuid - Optional UUID to match; if provided, only matching panels refresh
+   */
+  const refreshContentAcrossPanels = async function (contentUuid?: string): Promise<void> {
+    for (const [_, ps] of _panelStates) {
+      if (!contentUuid || ps.currentContentId.value === contentUuid) {
+        await ps.refreshCurrentContent();
+      }
+    }
+  };
+
+  ///////////////////////////////
   // computed state
 
   ///////////////////////////////
@@ -937,9 +1201,12 @@ export const navigationStore = () => {
   // return the public interface
   return {
     tabs,
+    panelKeys,
+    focusedPanelIndex,
     bookmarks,
     sessionBookmarks,
     recent,
+    MAX_PANELS,
 
     openEntry,
     openSession,
@@ -964,6 +1231,16 @@ export const navigationStore = () => {
     traverseTabs,
     navigateHistory,
     loadContentMetadata,
-    refreshSessionBookmarks
+    refreshSessionBookmarks,
+
+    // panel management
+    registerPanelState,
+    unregisterPanelState,
+    focusPanel,
+    splitToRight,
+    removePanel,
+    moveTabToPanel,
+    findTabAcrossPanels,
+    refreshContentAcrossPanels,
   };
 };

@@ -25,7 +25,8 @@
   // local imports
   import { notifyError, notifyInfo, notifyWarn } from '@/utils/notifications';
   import { localize } from '@/utils/game';
-  import { useMainStore, useBackendStore } from '@/applications/stores';
+  import { useBackendStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { getTopicText } from '@/compendia';
 
   // library components
@@ -73,9 +74,8 @@
 
   ////////////////////////////////
   // data
-  const mainStore = useMainStore();
   const backendStore = useBackendStore();
-  const { currentEntry, currentContentType } = storeToRefs(mainStore);
+  const { currentEntry, currentContentType } = useContentState();
   const { available, isGeneratingImage } = storeToRefs(backendStore);
 
 

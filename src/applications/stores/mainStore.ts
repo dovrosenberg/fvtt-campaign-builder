@@ -1,12 +1,13 @@
 // this store handles the main state (current setting, entry, etc.)
+// Content-specific refs (currentEntry, currentCampaign, etc.) delegate to the focused panel's TabPanelState.
 
 // library imports
-import { computed, ref, watch, nextTick, triggerRef } from 'vue';
+import { computed, ref, shallowRef, watch, } from 'vue';
 
 // local imports
+import { useNavigationStore } from '@/applications/stores';
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings';
 import TitleUpdaterService from '@/utils/titleUpdater';
-import { useNavigationStore } from '@/applications/stores';
 import NameGeneratorsService from '@/utils/nameGenerators';
 import GlobalSettingService from '@/utils/globalSettings';
 import AppWindowService from '@/utils/appWindow';
@@ -15,6 +16,7 @@ import AppWindowService from '@/utils/appWindow';
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { FCBSetting, WindowTab, Entry, Campaign, Session, Front, Arc, StoryWeb, CollapsibleNode, RootFolder } from '@/classes';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
+import type { TabPanelState } from '@/composables/useTabPanelState';
 
 // the store definition
 export const mainStore = () => {
@@ -24,22 +26,16 @@ export const mainStore = () => {
 
   ///////////////////////////////
   // internal state
-  const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
-  const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
-  const _currentFront = ref<Front | null>(null);  // current front (when showing a front tab)
-  const _currentArc = ref<Arc | null>(null);  // current arc (when showing a front tab)
-  const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
-  const _currentStoryWeb = ref<StoryWeb | null>(null);  // current story web (when showing a story web tab)
-  const _currentTab = ref<WindowTab | null>(null);  // current tab
   const _currentSetting = ref<FCBSetting | null>(null);  // the current setting
-  const _currentTag = ref< { value: string | null }>({ value: null });  // current tag (when showing a tag results tab); we can't use ref<string> because we can't force updates if value doesn't change
+
+  // per-panel content state; delegates to whichever panel is currently focused
+  // shallowRef prevents Vue from deeply converting TabPanelState to reactive,
+  // which would auto-unwrap the computed refs inside it
+  const _focusedPanelState = shallowRef<TabPanelState | null>(null);
  
   ///////////////////////////////
   // external state
   const rootFolder = ref<RootFolder | null>(null);
-
-  /** can set this to tell current entry tab to refresh everything */
-  const refreshCurrentEntry = ref<boolean>(false);
 
   /** whether the arc manager dialog is currently open */
   const isArcManagerOpen = ref<boolean>(false);
@@ -58,29 +54,20 @@ export const mainStore = () => {
     return pack as CompendiumCollection<any>;
   });
 
-  // these are the currently selected entry shown in the main tab
-  // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
-  const currentEntry = computed((): Entry | null => (_currentEntry?.value || null) as Entry | null);
-  const currentCampaign = computed((): Campaign | null => (_currentCampaign?.value || null) as Campaign | null);
-  const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
-  const currentArc = computed((): Arc | null => (_currentArc?.value || null) as Arc | null);
-  const currentFront = computed((): Front | null => (_currentFront?.value || null) as Front | null);
-  const currentStoryWeb = computed((): StoryWeb | null => (_currentStoryWeb?.value || null) as StoryWeb | null);
-  const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
-  const currentTab = computed((): WindowTab | null => _currentTab?.value);  
-  const currentSetting = computed((): FCBSetting | null => (_currentSetting?.value || null) as FCBSetting | null);
-  const currentTag = computed((): { value: string | null } => { return _currentTag?.value || null; });
-  
+  // content refs delegate to the focused panel's TabPanelState
+  const currentEntry = computed((): Entry | null => (_focusedPanelState.value?.currentEntry?.value ?? null));
+  const currentCampaign = computed((): Campaign | null => (_focusedPanelState.value?.currentCampaign?.value ?? null));
+  const currentSession = computed((): Session | null => (_focusedPanelState.value?.currentSession?.value ?? null));
+  const currentArc = computed((): Arc | null => (_focusedPanelState.value?.currentArc?.value ?? null));
+  const currentFront = computed((): Front | null => (_focusedPanelState.value?.currentFront?.value ?? null));
+  const currentStoryWeb = computed((): StoryWeb | null => (_focusedPanelState.value?.currentStoryWeb?.value ?? null));
+  const currentContentType = computed((): WindowTabType => (_focusedPanelState.value?.currentContentType?.value ?? WindowTabType.NewTab));
+  const currentTab = computed((): WindowTab | null => (_focusedPanelState.value?.currentTab?.value ?? null));
+  const currentSetting = computed((): FCBSetting | null => (_currentSetting?.value as FCBSetting ?? null));
+  const currentTag = computed((): { value: string | null } => (_focusedPanelState.value?.currentTag?.value ?? { value: null }));
+
   /** the current content id -- used primarily for main tabs to know when to refresh */
-  const currentContentId = computed((): string | null => {
-    return _currentEntry.value ? _currentEntry.value.uuid : 
-      _currentCampaign.value ? _currentCampaign.value.uuid : 
-      _currentSession.value ? _currentSession.value.uuid : 
-      _currentArc.value ? _currentArc.value.uuid : 
-      _currentFront.value ? _currentFront.value.uuid : 
-      _currentStoryWeb.value ? _currentStoryWeb.value.uuid : 
-      null;
-  });
+  const currentContentId = computed((): string | null => (_focusedPanelState.value?.currentContentId?.value ?? null));
 
   ///////////////////////////////
   // actions
@@ -114,128 +101,42 @@ export const mainStore = () => {
     await UserFlags.set(UserFlagKey.currentSetting, settingId);
   };
 
-  /** loads the content associated with the specified tab; updates currentTab */
+  /** loads the content associated with the specified tab via the focused panel state */
   const setNewTab = async function (tab: WindowTab): Promise<void> {
-    if (!currentSetting.value)
+    if (!currentSetting.value || !_focusedPanelState.value)
       return;
 
-    await nextTick();
-    _currentTab.value = tab;
-    
-    // Force reactivity update even if same tab object (e.g., when navigating history with different contentTab)
-    triggerRef(_currentTab);
-
-    // clear everything
-    _currentEntry.value = null;
-    _currentCampaign.value = null;
-    _currentSession.value = null;
-    _currentArc.value = null;
-    _currentFront.value = null;
-    _currentStoryWeb.value = null;
-    _currentTag.value = { value: null };
-
-    switch (tab.tabType) {
-      case WindowTabType.Entry:
-        if (tab.header.uuid) {
-          _currentEntry.value = await Entry.fromUuid(tab.header.uuid);
-          if (!_currentEntry.value)
-            throw new Error(`Invalid entry uuid ${tab.header.uuid} in mainStore.setNewTab()`);
-
-          // _currentEntry.value.topicFolder = currentSetting.value.topicFolders[_currentEntry.value.topic];
-        }
-        break;
-      case WindowTabType.Setting:
-        // we can only set tabs within a setting, so we don't actually need to do anything here
-        break;
-      case WindowTabType.Campaign:
-        if (tab.header.uuid) {
-          _currentCampaign.value = await Campaign.fromUuid(tab.header.uuid);
-
-          if (!_currentCampaign.value)
-            throw new Error(`Invalid campaign uuid ${tab.header.uuid} in mainStore.setNewTab()`);
-        }
-        break;
-      case WindowTabType.Front:
-        if (tab.header.uuid) {
-          _currentFront.value = await Front.fromUuid(tab.header.uuid);
-          if (!_currentFront.value)
-            throw new Error(`Invalid front uuid ${tab.header.uuid} in mainStore.setNewTab()`);
-        }
-        break;
-      case WindowTabType.Session:
-        if (tab.header.uuid) {
-          _currentSession.value = await Session.fromUuid(tab.header.uuid);
-          if (!_currentSession.value)
-            throw new Error(`Invalid session uuid ${tab.header.uuid} in mainStore.setNewTab()`);
-        }
-        break;
-      case WindowTabType.Arc:
-        if (tab.header.uuid) {
-          _currentArc.value = await Arc.fromUuid(tab.header.uuid);
-          if (!_currentArc.value)
-            throw new Error(`Invalid arc uuid ${tab.header.uuid} in mainStore.setNewTab()`);
-        }
-        break;
-      case WindowTabType.StoryWeb:
-        if (tab.header.uuid) {
-          _currentStoryWeb.value = await StoryWeb.fromUuid(tab.header.uuid);
-          if (!_currentStoryWeb.value)
-            throw new Error(`Invalid story web uuid ${tab.header.uuid} in mainStore.setNewTab()`);
-        }
-        break;
-      case WindowTabType.TagResults:
-        // Use the tag name from the uuid field
-        _currentTag.value.value = tab.header.uuid || null;
-        if (!_currentTag.value.value)
-          throw new Error(`Invalid/missing tag in mainStore.setNewTab()`);
-        break;
-      default:  // make it a 'new entry' window
-        tab.tabType = WindowTabType.NewTab;
-    }
+    await _focusedPanelState.value.setNewTab(tab);
   };
 
-  /**
-   * Refreshes the current entry by forcing all reactive properties to update.
-   * This is achieved by simply creating a new entry based on the EntryDoc of the current one
-   */
+  /** Sets the focused panel state; called by navigationStore.focusPanel() */
+  const setFocusedPanel = function (panelState: TabPanelState | null): void {
+    _focusedPanelState.value = panelState;
+  };
+
+  /** Refreshes the current entry via the focused panel state */
   const refreshEntry = async function (): Promise<void> {
-    if (!_currentEntry.value?.raw?.parent || !currentSetting.value)
-      return;
-
-    // just force all reactivity to update
-    _currentEntry.value = new Entry(_currentEntry.value.raw.parent as unknown as JournalEntry);
+    await _focusedPanelState.value?.refreshEntry();
   };
 
+  /** Refreshes the current campaign via the focused panel state */
   const refreshCampaign = async function (): Promise<void> {
-    if (!_currentCampaign.value?.raw?.parent || !currentSetting.value)
-      return;
-
-    // just force all reactivity to update
-    _currentCampaign.value = new Campaign(_currentCampaign.value.raw.parent as unknown as JournalEntry);
+    await _focusedPanelState.value?.refreshCampaign();
   };
 
+  /** Refreshes the current front via the focused panel state */
   const refreshFront = async function (): Promise<void> {
-    if (!_currentFront.value?.raw?.parent || !currentSetting.value)
-      return;
-
-    // just force all reactivity to update
-    _currentFront.value = new Front(_currentFront.value.raw.parent as unknown as JournalEntry);
+    await _focusedPanelState.value?.refreshFront();
   };
 
+  /** Refreshes the current story web via the focused panel state */
   const refreshStoryWeb = async function (): Promise<void> {
-    if (!_currentStoryWeb.value?.raw?.parent || !currentSetting.value)
-      return;
-
-    // just force all reactivity to update
-    _currentStoryWeb.value = new StoryWeb(_currentStoryWeb.value.raw.parent as unknown as JournalEntry);
+    await _focusedPanelState.value?.refreshStoryWeb();
   };
 
+  /** Refreshes the current tag results via the focused panel state */
   const refreshTagResults = async function (): Promise<void> {
-    if (!_currentTag.value.value)
-      return;
-
-    // just force all reactivity to update
-    _currentTag.value = { ..._currentTag.value };
+    await _focusedPanelState.value?.refreshTagResults();
   };
 
   const refreshSetting = async function (reload = false): Promise<void> {
@@ -254,59 +155,27 @@ export const mainStore = () => {
     _currentSetting.value = newSetting;
   };
 
+  /** Refreshes the current session via the focused panel state */
   const refreshSession = async function (reload = false): Promise<void> {
-    if (!_currentSession.value?.raw?.parent || !currentSetting.value)
-      return;
-
-    // just force all reactivity to update
-    const campaign = await _currentSession.value.loadCampaign();
-    if (reload)
-      _currentSession.value = await Session.fromUuid(_currentSession.value.raw.parent.uuid);
-    else
-      _currentSession.value = new Session(_currentSession.value.raw.parent as unknown as JournalEntry, campaign || undefined);
+    await _focusedPanelState.value?.refreshSession(reload);
   };
 
+  /** Refreshes the current arc via the focused panel state */
   const refreshArc = async function (reload = false): Promise<void> {
-    if (!_currentArc.value?.raw?.parent || !currentSetting.value)
-      return;
-
-    // just force all reactivity to update
-    const campaign = await _currentArc.value.loadCampaign();
-    if (reload)
-      _currentArc.value = await Arc.fromUuid(_currentArc.value.raw.parent.uuid);
-    else
-      _currentArc.value = new Arc(_currentArc.value.raw.parent as unknown as JournalEntry, campaign || undefined);
+    await _focusedPanelState.value?.refreshArc(reload);
   };
 
-  /** Refresh whatever content is currently showing */
+  /** Refresh content across all panels, not just the focused one.
+   *  This ensures panels showing the same content stay in sync. */
   const refreshCurrentContent = async function (): Promise<void> {
-    switch (currentContentType.value) {
-      case WindowTabType.Entry:
-        await refreshEntry();
-        break;
-      case WindowTabType.Campaign:
-        await refreshCampaign();
-        break;
-      case WindowTabType.Session:
-        await refreshSession();
-        break;
-      case WindowTabType.Arc:
-        await refreshArc();
-        break;
-      case WindowTabType.Front:
-        await refreshFront();
-        break;
-      case WindowTabType.Setting:
-        await refreshSetting();
-        break;
-      case WindowTabType.StoryWeb:
-        await refreshStoryWeb();
-        break;
-      case WindowTabType.TagResults:
-        await refreshTagResults();
-        break;
-      default:
+    // Setting refresh stays in mainStore since settings are global
+    if (currentContentType.value === WindowTabType.Setting) {
+      await refreshSetting();
+      return;
     }
+
+    // Refresh all panels so that duplicate views of the same content stay in sync
+    await useNavigationStore().refreshContentAcrossPanels();
   }
 
   /**
@@ -349,12 +218,7 @@ export const mainStore = () => {
 
   ///////////////////////////////
   // computed state
-  const currentEntryTopic = computed((): Topics => {
-    if (!currentEntry.value)
-      return Topics.None;
-
-    return currentEntry.value.topic || Topics.None;
-  });
+  const currentEntryTopic = computed((): Topics => _focusedPanelState.value?.currentEntryTopic?.value ?? Topics.None);
 
   const hasMultipleCampaigns = computed((): boolean => {
     if (!currentSetting.value) return false;
@@ -362,18 +226,22 @@ export const mainStore = () => {
     return currentSetting.value.campaignIndex.length > 1;
   });
 
-  // the currently selected tab for the content page
+  // refreshCurrentEntry delegates to focused panel state
+  const refreshCurrentEntry = computed({
+    get: (): boolean => _focusedPanelState.value?.refreshCurrentEntry?.value ?? false,
+    set: (val: boolean) => {
+      if (_focusedPanelState.value)
+        _focusedPanelState.value.refreshCurrentEntry.value = val;
+    }
+  });
+
+  // the currently selected tab for the content page — delegates to focused panel
   const currentContentTab = computed({
-    get: (): string | null => _currentTab.value?.contentTab || null,
+    get: (): string | null => _focusedPanelState.value?.currentContentTab?.value ?? null,
     set: (newContentTab: string) => {
-        if (_currentTab.value) {
-          // Update the contentTab property of the current tab
-          _currentTab.value.contentTab = newContentTab;
-          
-          // update the tab history in the DB
-          void useNavigationStore().updateContentTab(newContentTab);
-        }
-      }
+      if (_focusedPanelState.value)
+        _focusedPanelState.value.currentContentTab.value = newContentTab;
+    }
   });
 
   const currentDocumentType = computed((): DocumentLinkType => {
@@ -448,6 +316,7 @@ export const mainStore = () => {
 
     setNewSetting,
     setNewTab,
+    setFocusedPanel,
     refreshEntry,
     refreshCampaign,
     refreshSession,

@@ -15,6 +15,9 @@ It can even be fun to clean up your notes after a session!  This is when you go 
 * Turn off "Play Mode" using the [Prep/Play Toggle](/reference/navigation/prep-play)
 * Go through [Vignettes](/reference/campaign-mgt/content/session/vignettes), [Lore](/reference/campaign-mgt/content/session/lore), [Locations](/reference/campaign-mgt/content/session/locations), [NPCs](/reference/campaign-mgt/content/session/npcs), [Monsters](/reference/campaign-mgt/content/session/monsters), and [Magic Items](/reference/campaign-mgt/content/session/magic-items)
    * Note which were [^delivered] and for the rest, push them off to the next session, move them back to the campaign (Lore only), or delete them if they're never going to be needed - all with a single click
+* If you have screen real-estate, use the [multi-panel interface](/reference/navigation/panels) to make post-session cleanup more efficient, for example:
+  * Keep completed session notes and the campaign to-do list open in one  panel
+  * Update world entries in another panel.
 * Go through the Session [Notes](/reference/campaign-mgt/content/session/notes) and the [To-do List](/reference/campaign-mgt/content/campaign/todos)
    * Add any new [^Locations], [^Characters], or [^Organizations] to the [^Setting] (you can do this while playing but it may be easier to just take quick notes and do it afterwards)
    * Flesh out details on the same that came up in the Session

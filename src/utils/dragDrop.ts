@@ -86,12 +86,21 @@ const DragDropService = {
    * @param event - The dragover event
    */
   standardDragover: (event: DragEvent): void => {
+    // Don't interfere with existing handlers
+    // if (event.defaultPrevented) {
+    //   return;
+    // }
+
+    // Only handle if we have valid drag data
+    if (!event.dataTransfer?.types.includes('text/plain')) {
+      if (event.dataTransfer)
+        event.dataTransfer.dropEffect = 'none';
+ 
+      return;
+    }
+    
     event.preventDefault();
     event.stopPropagation();
-
-    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain')) {
-      event.dataTransfer.dropEffect = 'none';
-    }
   },
 
   /**

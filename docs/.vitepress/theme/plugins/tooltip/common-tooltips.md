@@ -51,3 +51,4 @@
 [^Impending Doom]: The end-state or worst-case outcome of a Danger
 [^Story Web]: A visual depiction of a group of related Characters, Locations, Organizations, Fronts, etc.
 [^Story Webs]: Visual depictions of a group of related Characters, Locations, Organizations, Fronts, etc.
+[^Focused Panel]: When using the multi-panel view, the focused panel is the one that is currently focused and has the full-color tab text (vs. greyed out). You can make a panel focused by clicking anywhere in it.

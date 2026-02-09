@@ -80,6 +80,7 @@
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { notifyWarn } from '@/utils/notifications';
@@ -111,7 +112,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentFront, currentContentTab } = storeToRefs(mainStore);
+  const { currentFront, currentContentTab } = useContentState();
   
   ////////////////////////////////
   // data  

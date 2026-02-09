@@ -54,7 +54,11 @@
     tab: {
       type: Object as PropType<WindowTab>,
       required: true,
-    }
+    },
+    panelIndex: {
+      type: Number as PropType<number>,
+      required: true,
+    },
   });
 
   ////////////////////////////////
@@ -78,7 +82,7 @@
   // methods
 
   const onTabClick = async () => {
-    void navigationStore.activateTab(props.tab.id);
+    void navigationStore.activateTab(props.tab.id, false, props.panelIndex);
   };
 
   // listener for the tab close buttons
@@ -103,8 +107,9 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.tabs.closeAll'), 
           onClick: async () => {
-            // Close all tabs
-            const tabIds = tabs.value.map(t => t.id);
+            // Close all tabs in this panel
+            const panelTabs = tabs.value[props.panelIndex] || [];
+            const tabIds = panelTabs.map(t => t.id);
             for (const tabId of tabIds) {
               emit('closeTab', tabId);
             }
@@ -115,8 +120,9 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.tabs.closeOther'), 
           onClick: async () => {
-            // Close all tabs except the current one
-            const tabIds = tabs.value.map(t => t.id);
+            // Close all tabs except the current one in this panel
+            const panelTabs = tabs.value[props.panelIndex] || [];
+            const tabIds = panelTabs.map(t => t.id);
             for (const tabId of tabIds) {
               if (tabId !== props.tab.id) {
                 emit('closeTab', tabId);
@@ -133,11 +139,11 @@
 
   // handle a bookmark or tab dragging
   const onDragStart = (event: DragEvent): void => {
-    const dragData = { 
-      //from: this.object.uuid 
-      type: 'fcb-tab',   // JournalEntry... may want to consider passing a type that other things can do something with
+    const dragData: TabDragData = {
+      type: DragDropService.FCBDragTypes.Tab,
       tabId: props.tab.id,
-    } as TabDragData;
+      panelIndex: props.panelIndex,
+    };
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
@@ -146,27 +152,29 @@
     event.preventDefault();  
 
     // parse the data 
-    let data = DragDropService.getValidatedData(event) as TabDragData | undefined;
-    if (!data || data.type !== 'fcb-tab')
-      return;
-
-    // where are we droping it?
-    const target = (event.currentTarget as HTMLElement).closest('.fcb-tab') as HTMLElement;
-    if (!target)
+    const data = DragDropService.getValidatedData(event) as TabDragData | undefined;
+    if (!data || data.type !== DragDropService.FCBDragTypes.Tab)
       return;
 
     if (data.tabId === props.tab.id) 
       return; // Don't drop on yourself
 
-    // insert before the drop target
-    const tabsValue = tabs.value;
-    const from = tabsValue.findIndex(t => t.id === data.tabId);
-    const to = tabsValue.findIndex(t => t.id === props.tab.id);
-    tabsValue.splice(to, 0, tabsValue.splice(from, 1)[0]);
-    tabs.value = tabsValue;
+    const sourcePi = data.panelIndex;
+    const targetPi = props.panelIndex;
 
-    // activate the moved one (will also save the tabs)
-    await navigationStore.activateTab(data.tabId);
+    if (sourcePi === targetPi) {
+      // Same-panel reorder: insert before the drop target
+      const panelTabs = tabs.value[targetPi];
+      const from = panelTabs.findIndex(t => t.id === data.tabId);
+      const to = panelTabs.findIndex(t => t.id === props.tab.id);
+      panelTabs.splice(to, 0, panelTabs.splice(from, 1)[0]);
+
+      // activate the moved one (will also save the tabs)
+      await navigationStore.activateTab(data.tabId, false, targetPi);
+    } else {
+      // Cross-panel: delegate to store
+      await navigationStore.moveTabToPanel(data.tabId, sourcePi, targetPi);
+    }
   };
 
   ////////////////////////////////

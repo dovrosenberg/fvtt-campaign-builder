@@ -10,11 +10,11 @@ export enum UserFlagKey {
 }
 
 type UserFlagType<K extends UserFlagKey> =
-    K extends UserFlagKey.tabs ? WindowTab[] :
+    K extends UserFlagKey.tabs ? WindowTab[][] :
     K extends UserFlagKey.bookmarks ? Bookmark[] :
     K extends UserFlagKey.recentlyViewed ? TabHeader[] :
     K extends UserFlagKey.currentSetting ? string :
-    never;  
+    never;
 
 export abstract class UserFlags {
   // for setting-specific settings, we concatenate the flag and settingId... why? settingId has dots in it, which cannot be used in a key because they
@@ -26,16 +26,21 @@ export abstract class UserFlags {
 
     if (flag === UserFlagKey.tabs) {
       // We need to create the class instances
-      return (game.user?.getFlag(moduleId, `${flag}.${settingId}`) || []).map((t: any) => new WindowTab(
-        t.active, 
-        t.header,
-        null,
-        null,
-        t.id,
-        null,
-        t.history,
-        t.historyIdx
-      )) as unknown as UserFlagType<T>;
+      // Deserialize as 2D array of WindowTab instances (one inner array per panel)
+      const rawPanels: any[][] = game.user?.getFlag(moduleId, `${flag}.${settingId}`) || [];
+
+      return rawPanels.map((panel: any[]) =>
+        panel.map((t: any) => new WindowTab(
+          t.active,
+          t.header,
+          null,
+          null,
+          t.id,
+          null,
+          t.history,
+          t.historyIdx
+        ))
+      ) as unknown as UserFlagType<T>;
     } else if (flag === UserFlagKey.currentSetting) {
       return (game.user?.getFlag(moduleId, flag) ||  '') as UserFlagType<T>;
     } else {

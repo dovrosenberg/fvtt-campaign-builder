@@ -24,10 +24,9 @@
   import { computed, ref, watch } from 'vue';
 
   // local imports
-  import { useSessionStore, useArcStore, useMainStore, } from '@/applications/stores';
+  import { useSessionStore, useArcStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { localize } from '@/utils/game'
-  import DragDropService from '@/utils/dragDrop'; 
-  import { FCBDialog } from '@/dialogs';
   import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
@@ -59,10 +58,9 @@
   // store
   const sessionStore = useSessionStore();
   const arcStore = useArcStore();
-  const mainStore = useMainStore();
   const { loreRows: sessionLoreRows } = storeToRefs(sessionStore);
   const { loreRows: arcLoreRows } = storeToRefs(arcStore);
-  const { currentArc } = storeToRefs(mainStore);
+  const { currentArc } = useContentState();
   
   ////////////////////////////////
   // data

@@ -65,10 +65,9 @@
 
 <script setup lang="ts">
   // library imports
-  import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
 
   // library components
 
@@ -94,8 +93,7 @@
 
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
-  const { currentContentType, } = storeToRefs(mainStore);
+  const { currentContentType } = useContentState();
 
   ////////////////////////////////
   // data

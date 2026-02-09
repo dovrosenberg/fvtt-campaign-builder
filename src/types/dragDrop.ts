@@ -53,6 +53,7 @@ export interface BookmarkDragDropData {
 export interface TabDragData {
   type: DragDropService.FCBDragTypes.Tab;
   tabId: string;
+  panelIndex: number;
 }
 
 export type NodeDragDropData = 

@@ -116,6 +116,7 @@
 
   // local imports
   import { useMainStore, useNavigationStore, useSettingDirectoryStore, useRelationshipStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import DragDropService from '@/utils/dragDrop'; 
@@ -148,7 +149,7 @@
   const navigationStore = useNavigationStore();
   const settingDirectoryStore = useSettingDirectoryStore();
   const relationshipStore = useRelationshipStore();
-  const { currentEntry, currentContentTab } = storeToRefs(mainStore);
+  const { currentEntry, currentContentTab } = useContentState();
   
   ////////////////////////////////
   // data

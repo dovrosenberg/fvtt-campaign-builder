@@ -129,6 +129,7 @@
 
   // local imports
   import { useMainStore, useFrontStore, } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { localize } from '@/utils/game';
   import { notifyWarn } from '@/utils/notifications';
   import { getDangerRelatedEntries } from '@/utils/uuidExtraction';
@@ -160,7 +161,7 @@
   // store
   const mainStore = useMainStore();
   const frontStore = useFrontStore();
-  const { currentFront, currentSetting } = storeToRefs(mainStore);
+  const { currentSetting, currentFront } = useContentState();
   const { currentDangerIndex, currentDanger } = storeToRefs(frontStore);
   
   ////////////////////////////////
@@ -263,7 +264,7 @@
     currentFront.value.updateDanger(currentDangerIndex.value, danger);
     await currentFront.value.save();
 
-    await useMainStore().refreshFront();
+    await mainStore.refreshFront();
   };
 
   const onMotivationEditorSaved = (newMotivation: string) => {

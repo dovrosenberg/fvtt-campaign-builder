@@ -12,6 +12,8 @@ Session prep is when you get ready for your next game session by pulling togethe
 
 Campaign Builder is designed after the [Lazy DM] method, though it should be adaptable to whatever your style.
 
+If you have enough screen real estate, you can use the [multi-panel interface](/reference/navigation/panels) to keep the current campaign and session in tabs in one panel, while using other panels to view/edit individual [^Locations], [^Characters], etc.
+
 ## Campaigns
 Before prepping for a session, you first have to create the overall [^Campaign] it fits into.  You can outline a description and house rules, and connect the PCs (see below).
 
@@ -198,6 +200,3 @@ After each session:
     
 >[!TIP]
 > For Lore items, marking them as delivered can also add the Lore to the master campaign list.  Lore items that are marked as [significant](/reference/campaign-mgt/content/session/#significant) and also delivered will show up on the campaign's "Delivered Lore" list.  
-
-
-

@@ -55,7 +55,7 @@ All stored as JournalEntryPage subtypes: `entry2`, `session2`, `campaign2`, `arc
 - No single-line if bodies — always put the body on a new line.
 - Don't create intermediate variables for one-time expressions unless it significantly improves readability.
 - Only define functions inside other functions if they need to modify outer variables.
-- All methods in .ts files must have JSDoc comments.
+- All methods in .ts files must have JSDoc comments.  Don't use @memberof in JSDoc comments.
 - Include one-line comments for all non-trivial logic.
 
 ### Vue Components
@@ -73,8 +73,44 @@ All stored as JournalEntryPage subtypes: `entry2`, `session2`, `campaign2`, `arc
 - Accessibility: inputs must have labels or `aria-label`, buttons must be keyboard accessible, ensure sensible focus states and tab order.
 - Performance: avoid unnecessary watchers. Use `watchEffect` only when it improves clarity and you truly want implicit dependencies.
 
+### Utility Services (`src/utils/`)
+- Structure as a single plain object with methods, exported as the default export. No classes or `new`.
+- Each method must have JSDoc comments with `@param` and `@returns`.
+- Use proper TypeScript types for parameters and return values.
+- Use this pattern for stateless grouped utilities, external API interactions, and cross-cutting concerns.
+- Don't use this pattern for stateful services (use Pinia stores), composables, or single-function exports (export the function directly).
+- See `src/utils/AGENTS.md` for the full template and examples.
+
 ### Style/Linting
 - 2-space indentation, single quotes, semicolons, unix line endings
 - Vue files: script indented 1 level (2 spaces base indent)
 - `@typescript-eslint/no-floating-promises: error` — all promises must be handled
 - Vue: max 3 attributes per single line, 1 per line for multiline; hyphenated events and attributes
+
+## Unit Testing (Quench)
+
+Quench tests run **inside** the live Foundry VTT environment — use real APIs, never mock them.
+
+### Philosophy
+- **Never stub** `game`, `game.settings`, or other Foundry core APIs.
+- Create real Foundry objects (Settings, Entries) and test with actual data/UUIDs.
+- Do not unit-test UI components; use integration/E2E for those.
+
+### Shared Test Setting
+- All test batches share **one global `FCBSetting`** managed by `test/unit/testUtils.ts` (mutex + reference counting).
+- Call `initializeTestSetting()` in `before()` and `cleanupTestSetting()` in `after()` of each batch.
+- Use `getTestSetting()` inside tests. Create with `makeCurrent=false` to avoid changing the user's active setting.
+- Objects created within the test setting don't need individual cleanup — deleting the parent cascades.
+
+### File Organization
+- `test/unit/utils/` — utility tests; `test/unit/classes/` — class tests.
+- Each test file exports a `register*Tests(context)` function, registered as its own Quench batch for selective execution.
+- Batch registration in `test/unit/[category]/index.ts`; wired up in `test/unit/index.ts`.
+- Import modules under test **directly** (no dynamic imports). Import `getTestSetting` from `@unittest/testUtils`.
+- No outer `describe` wrapper in test files — the batch registration handles grouping.
+
+### Settings Tests
+- Tests that **modify** `game.settings` must call `backupSettings()` / `restoreSettings()` (from `@unittest/testUtils`) in a `try/finally` block.
+- Tests that only **read** settings need no backup.
+
+See `test/unit/AGENTS.md` for full templates, patterns, and examples.

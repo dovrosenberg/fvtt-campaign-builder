@@ -1,8 +1,9 @@
 # Change Log
-## 1.9.0 - [___________]
-![](https://img.shields.io/badge/release%20date-February%20___%2C%202026-blue)
+## 1.9.0 - Assorted bug fixes and improvements
+![](https://img.shields.io/badge/release%20date-February%20__%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.0/module.zip)
 
+- Added the ability to split the main content area into multiple panes, so you can view multiple entries side by side.
 - You can now create color schemes to apply to custom text blocks in story webs.
 - You can now export a story web as a .PNG file from the directory context menu.
 - Fixed issue with drag/drop of rows not working properly on very long tables.
