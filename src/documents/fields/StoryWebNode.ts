@@ -21,7 +21,7 @@ export enum StoryWebNodeTypes {
 }
 
 /** Master mapping between StoryWebNodeTypes and CustomFieldContentTypes */
-export const STORYWEB_TO_CUSTOM_FIELD_MAP: Record<StoryWebNodeTypes, CustomFieldContentType | null> = {
+export const STORY_WEB_TO_CUSTOM_FIELD_MAP: Record<StoryWebNodeTypes, CustomFieldContentType | null> = {
   [StoryWebNodeTypes.Character]: CustomFieldContentType.Character,
   [StoryWebNodeTypes.Location]: CustomFieldContentType.Location,
   [StoryWebNodeTypes.Organization]: CustomFieldContentType.Organization,

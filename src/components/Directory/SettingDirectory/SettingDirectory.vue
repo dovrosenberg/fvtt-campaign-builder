@@ -8,6 +8,7 @@
     >
       <header
         class="folder-header flexrow"
+        :class="`folder-header flexrow ${isCurrentSettingActive ? 'active' : ''}`"
         :data-testid="`setting-folder-${currentSettingTreeObject.name}`"
         @contextmenu="onSettingContextMenu($event, currentSettingTreeObject.id)"
         @click="onSettingFolderClick($event, currentSettingTreeObject.id)"
@@ -71,6 +72,7 @@
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
   import GlobalSettingService from '@/utils/globalSettings';
+  import SettingExportService from '@/utils/settingExport';
   import DragDropService from '@/utils/dragDrop';
   
   // library components
@@ -98,7 +100,7 @@
   const navigationStore = useNavigationStore();
   const settingDirectoryStore = useSettingDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentSetting } = storeToRefs(mainStore);
+  const { currentSetting, currentContentType } = storeToRefs(mainStore);
   const { isGroupedByType, currentSettingTree } = storeToRefs(settingDirectoryStore);
 
   ////////////////////////////////
@@ -108,6 +110,11 @@
   // computed data
   const currentSettingTreeObject = computed(() => {
     return currentSettingTree.value.value.find((setting) => setting.id === currentSetting.value?.uuid) || null;
+  });
+
+  // Check if the current setting tab is active
+  const isCurrentSettingActive = computed(() => {
+    return currentContentType.value === WindowTabType.Setting && currentSetting.value?.uuid === currentSettingTreeObject.value?.id;
   });
 
   ////////////////////////////////
@@ -168,6 +175,26 @@
       y: event.y,
       zIndex: 300,
       items: [
+        { 
+          icon: 'fa-file-alt',
+          iconFontClass: 'fas',
+          label: 'Export Setting', 
+          onClick: async () => {
+            if (settingId) {
+              await SettingExportService.exportSettingMarkdown(settingId);
+            }
+          }
+        },
+        { 
+          icon: 'fa-file-archive',
+          iconFontClass: 'fas',
+          label: 'Export Setting with Story Webs', 
+          onClick: async () => {
+            if (settingId) {
+              await SettingExportService.exportSetting(settingId);
+            }
+          }
+        },
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
@@ -265,6 +292,12 @@
           width: 100%;
           flex: 1;
           cursor: pointer;
+
+          // bold the active one
+          &.active {
+            color: var(--fcb-accent-400) !important;
+            font-weight: bold !important;
+          }
         }
 
         // setting folder styling

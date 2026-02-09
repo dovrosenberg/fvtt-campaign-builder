@@ -188,7 +188,7 @@
   ////////////////////////////////
   // computed data
   const showStoryWebTab = computed(() => {
-    return ModuleSettings.get(SettingKey.useWebs);
+    return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 
   const tabs = computed(() => [
@@ -220,7 +220,7 @@
 
       // name can't be blank
       if (newValue.trim() === '') {
-        notifyWarn(localize('errors.nameRequired'));
+        notifyWarn(localize('notifications.nameRequired'));
         name.value = currentArc.value?.name!;
         return;
       }

@@ -4,9 +4,12 @@
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.0/module.zip)
 
 - Added the ability to split the main content area into multiple panes, so you can view multiple entries side by side.
+   - Note that you cannot have more than one story web open at a time (i.e. visible in separate panels).  Opening a story web in one panel while one is visible in the other panel will close the prior one (or switch to a different tab, if available).
 - You can now create color schemes to apply to custom text blocks in story webs.
+- You can now export a story web as a .PNG file from the directory context menu.
+- You can now export a full setting as either a .MD file or a .ZIP file (the .MD plus all the story web .PNGs)from the directory context menu.  This is handy for reviewing in another interface or for feeding to an LLM to ask it questions about the setting/campaign.
 - Fixed issue with drag/drop of rows not working properly on very long tables.
-- Note that you cannot have more than one story web open at a time (i.e. visible in separate panels).  Opening a story web in one panel while one is visible in the other panel will close the prior one (or switch to a different tab, if available).
+- Opening the Setting content now properly scrolls to the Setting node in the directory and highlights it, as it does for all the other content types.
 
 ## 1.8.6 - Assorted bug fixes and improvements
 ![](https://img.shields.io/badge/release%20date-February%205%2C%202026-blue)
@@ -15,7 +18,7 @@
 - You can now change the style of story web connections between custom text and dangers.
 - When copying text to the clipboard from a table text box or an editor, UUIDs will no longer be dropped and instead will be copied as the name of the document/entity.
 - Similarly, copying text with bullet or numbered lists will now include the bullets/numbers in the copied text when you paste it.
-- Connecting two entries in a storyweb now lets you add a relationship label.
+- Connecting two entries in a story web now lets you add a relationship label.
 - When adding a danger to a story web, now uses a dropdown instead of a typeahead, so you don't have to remember what it's named.
 - Removed the journals column from the lore/entries tab to simplify the interface.  Journal references that were previously in the journals column will be added to the description field when the module is updated.
 

@@ -347,7 +347,7 @@
 
     // see if a bookmark for the entry already exists
     if (bookmarks.value.find((b) => (b.header.uuid === tab?.header?.uuid)) != undefined) {
-      ui?.notifications?.warn(localize('errors.duplicateBookmark') || '');
+      ui?.notifications?.warn(localize('notifications.duplicateBookmark') || '');
       return;
     }
 

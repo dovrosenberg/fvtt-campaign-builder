@@ -145,7 +145,7 @@
   });
 
   const showStoryWebTab = computed(() => {
-    return ModuleSettings.get(SettingKey.useWebs);
+    return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 
   const openToDoCount = computed(() => toDoRows.value.length);
@@ -193,7 +193,7 @@
 
       // name can't be blank
       if (newValue.trim() === '') {
-        notifyWarn(localize('errors.nameRequired'));
+        notifyWarn(localize('notifications.nameRequired'));
         name.value = currentCampaign.value?.name!;
         return;
       }

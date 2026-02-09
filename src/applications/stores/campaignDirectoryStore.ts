@@ -11,6 +11,8 @@ import { DirectoryCampaignNode, DirectoryArcNode, DirectoryFrontFolder, Campaign
 import ArcIndexService from '@/utils/arcIndex';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyWarn } from '@/utils/notifications';
+import { localize } from '@/utils/game';
+import { exportStoryWebAsPng } from '@/utils/storyWebGeneration';
 
 // types
 
@@ -84,7 +86,7 @@ export const campaignDirectoryStore = () => {
         }
 
         // if we are using webs, add the story web folder
-        if (ModuleSettings.get(SettingKey.useWebs)) {
+        if (ModuleSettings.get(SettingKey.useStoryWebs)) {
           children.push(campaign.uuid + ':storywebs');  // this is the id for the story web folder
         }
 
@@ -309,6 +311,20 @@ export const campaignDirectoryStore = () => {
     return newStoryWeb;
   };
 
+  /**
+   * Export a story web as PNG image
+   * 
+   * @param storyWebId the UUID of the story web to export
+   */
+  const exportStoryWeb = async (storyWebId: string): Promise<void> => {
+    try {
+      await exportStoryWebAsPng(storyWebId);
+    } catch (error) {
+      console.error('Error exporting story web as PNG:', error);
+      notifyWarn(localize('notifications.failedToExportStoryWeb'));
+    }
+  };
+
   /** create a session in campaign. Puts it at the end.
    *  @param campaignId the campaign to create the session 
    */
@@ -490,6 +506,7 @@ export const campaignDirectoryStore = () => {
     deleteFront,
     deleteStoryWeb,
     duplicateStoryWeb,
+    exportStoryWeb,
     createSession,
     refreshAllCampaignArcs,
     createArc,

@@ -372,8 +372,8 @@ Dependencies
   import { ModuleSettings, SettingKey } from '@/settings';
   import { generateIdFromName } from '@/utils/idGeneration';
   import { storyWebSettingsApp } from '@/applications/settings/StoryWebSettingsApplication';
-  import { useStoryWebStore } from '@/applications/stores';
   import { useMainStore } from '@/applications/stores';
+  import { LINE_STYLES } from '@/utils/storyWebGeneration';
 
   // library components
   import { Button, InputText, Select, DataTable, Column } from 'primevue';
@@ -384,7 +384,7 @@ Dependencies
 
   // types
   import { CustomFieldContentType, StoryWebNodeTypes } from '@/types';
-  import { STORYWEB_TO_CUSTOM_FIELD_MAP } from '@/documents/fields/StoryWebNode';
+  import { STORY_WEB_TO_CUSTOM_FIELD_MAP } from '@/documents/fields/StoryWebNode';
 
   interface ColorOption {
     uuid: string;
@@ -479,11 +479,11 @@ Dependencies
 
   // Content type options
   const contentTypeOptions: ContentTypeOption[] = [
-    { label: 'Character', value: StoryWebNodeTypes.Character, customFieldType: STORYWEB_TO_CUSTOM_FIELD_MAP[StoryWebNodeTypes.Character] },
-    { label: 'Location', value: StoryWebNodeTypes.Location, customFieldType: STORYWEB_TO_CUSTOM_FIELD_MAP[StoryWebNodeTypes.Location] },
-    { label: 'Organization', value: StoryWebNodeTypes.Organization, customFieldType: STORYWEB_TO_CUSTOM_FIELD_MAP[StoryWebNodeTypes.Organization] },
-    { label: 'PC', value: StoryWebNodeTypes.PC, customFieldType: STORYWEB_TO_CUSTOM_FIELD_MAP[StoryWebNodeTypes.PC] },
-    { label: 'Danger', value: StoryWebNodeTypes.Danger, customFieldType: STORYWEB_TO_CUSTOM_FIELD_MAP[StoryWebNodeTypes.Danger] },
+    { label: 'Character', value: StoryWebNodeTypes.Character, customFieldType: STORY_WEB_TO_CUSTOM_FIELD_MAP[StoryWebNodeTypes.Character] },
+    { label: 'Location', value: StoryWebNodeTypes.Location, customFieldType: STORY_WEB_TO_CUSTOM_FIELD_MAP[StoryWebNodeTypes.Location] },
+    { label: 'Organization', value: StoryWebNodeTypes.Organization, customFieldType: STORY_WEB_TO_CUSTOM_FIELD_MAP[StoryWebNodeTypes.Organization] },
+    { label: 'PC', value: StoryWebNodeTypes.PC, customFieldType: STORY_WEB_TO_CUSTOM_FIELD_MAP[StoryWebNodeTypes.PC] },
+    { label: 'Danger', value: StoryWebNodeTypes.Danger, customFieldType: STORY_WEB_TO_CUSTOM_FIELD_MAP[StoryWebNodeTypes.Danger] },
   ];
 
   // Hard-coded fields for each content type
@@ -519,7 +519,7 @@ Dependencies
   };
 
   // Line style options for the dropdown
-  const lineStyleOptions = Object.entries(useStoryWebStore().LINE_STYLES).map(([key, value]) => ({
+  const lineStyleOptions = Object.entries(LINE_STYLES).map(([key, value]) => ({
     label: value.name,
     value: key,
   })) as LineStyleOption[];

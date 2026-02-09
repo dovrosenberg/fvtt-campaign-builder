@@ -42,7 +42,7 @@ export enum SettingKey {
   autoRelationships = 'autoRelationships', // whether to automatically suggest relationship changes based on editor
   showTypesInTree = 'showTypesInTree', // show the type of the entry in the hierarchy tree
   useFronts = 'useFronts', // allow creation and viewing of fronts
-  useWebs = 'useWebs', // allow creation and viewing of story webs
+  useStoryWebs = 'useWebs', // allow creation and viewing of story webs; name for backward compatibility
   subTabsSavePosition = 'subTabsSavePosition', // whether sub-tabs remember their last position
   storyWebAutoArrange = 'storyWebAutoArrange', // whether to enable physics in story webs
   genericFoundryTab = 'genericFoundryTab', // whether to show the generic Foundry tab on entries
@@ -100,7 +100,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.autoRelationships ? boolean :
     K extends SettingKey.showTypesInTree ? boolean :
     K extends SettingKey.useFronts ? boolean :
-    K extends SettingKey.useWebs ? boolean :
+    K extends SettingKey.useStoryWebs ? boolean :
     K extends SettingKey.subTabsSavePosition ? boolean :
     K extends SettingKey.storyWebAutoArrange ? boolean :
     K extends SettingKey.genericFoundryTab ? boolean :
@@ -243,9 +243,9 @@ export class ModuleSettings {
       type: Boolean,
     },
     {
-      settingID: SettingKey.useWebs,
-      name: 'settings.useWebs',
-      hint: 'settings.useWebsHelp',
+      settingID: SettingKey.useStoryWebs,
+      name: 'settings.useStoryWebs',
+      hint: 'settings.useStoryWebsHelp',
       requiresReload: true,
       default: true,
       type: Boolean,

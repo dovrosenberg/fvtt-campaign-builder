@@ -219,3 +219,255 @@ export function htmlToPlainText(html: string): string {
 
   return tempDiv.textContent?.trim() ?? '';
 }
+
+/** Base heading levels by tag name */
+const baseHeadingLevels: Record<string, number> = {
+  h1: 1, h2: 2, h3: 3, h4: 4, h5: 5, h6: 6,
+};
+
+/** Heading level offset applied during conversion (set by htmlToMarkdown before processing) */
+let headingLevelOffset = 0;
+
+/**
+ * Processes all child nodes of an element, concatenating their markdown results.
+ * @param el - The parent element whose children to process
+ * @returns Concatenated markdown string from all child nodes
+ */
+function processChildren(el: HTMLElement): string {
+  let result = '';
+  for (const child of Array.from(el.childNodes)) {
+    result += processNode(child);
+  }
+  return result;
+}
+
+/**
+ * Converts a blockquote element to markdown by prefixing each line with "> ".
+ * @param el - The blockquote element
+ * @returns Markdown blockquote string
+ */
+function processBlockquote(el: HTMLElement): string {
+  const inner = processChildren(el).trim();
+  const quoted = inner.split('\n').map(line => `> ${line}`).join('\n');
+  return `\n\n${quoted}\n\n`;
+}
+
+/**
+ * Converts a pre element to a fenced markdown code block.
+ * @param el - The pre element (may contain a child code element)
+ * @returns Fenced code block string
+ */
+function processPreBlock(el: HTMLElement): string {
+  // Use textContent to get raw text without processing inner tags
+  const content = el.textContent || '';
+  return `\n\n\`\`\`\n${content}\n\`\`\`\n\n`;
+}
+
+/**
+ * Converts an unordered list element to markdown list items.
+ * @param el - The ul element
+ * @param depth - Current nesting depth for indentation
+ * @returns Markdown unordered list string
+ */
+function processUnorderedList(el: HTMLElement, depth: number): string {
+  let result = '\n\n';
+  const indent = '  '.repeat(depth);
+
+  for (const li of Array.from(el.querySelectorAll(':scope > li'))) {
+    const content = processListItemContent(li as HTMLElement, depth);
+    result += `${indent}- ${content}\n`;
+  }
+
+  return result + '\n';
+}
+
+/**
+ * Converts an ordered list element to markdown numbered list items.
+ * @param el - The ol element
+ * @param depth - Current nesting depth for indentation
+ * @returns Markdown ordered list string
+ */
+function processOrderedList(el: HTMLElement, depth: number): string {
+  let result = '\n\n';
+  const indent = '  '.repeat(depth);
+
+  let index = 1;
+  for (const li of Array.from(el.querySelectorAll(':scope > li'))) {
+    const content = processListItemContent(li as HTMLElement, depth);
+    result += `${indent}${index}. ${content}\n`;
+    index++;
+  }
+
+  return result + '\n';
+}
+
+/**
+ * Processes the content of a list item, handling nested lists with increased depth.
+ * @param li - The li element
+ * @param currentDepth - Current nesting depth
+ * @returns Processed list item content string
+ */
+function processListItemContent(li: HTMLElement, currentDepth: number): string {
+  let textParts = '';
+
+  for (const child of Array.from(li.childNodes)) {
+    if (child.nodeType === Node.ELEMENT_NODE) {
+      const childTag = (child as HTMLElement).tagName.toLowerCase();
+
+      // Nested lists get processed with increased depth
+      if (childTag === 'ul') {
+        textParts += '\n' + processUnorderedList(child as HTMLElement, currentDepth + 1).trim();
+      } else if (childTag === 'ol') {
+        textParts += '\n' + processOrderedList(child as HTMLElement, currentDepth + 1).trim();
+      } else {
+        textParts += processNode(child);
+      }
+    } else {
+      textParts += processNode(child);
+    }
+  }
+
+  return textParts.trim();
+}
+
+/**
+ * Recursively processes a single DOM node, converting it to markdown.
+ * Dispatches to tag-specific handlers based on element type.
+ * @param node - The DOM node to process
+ * @returns Markdown string for this node and its descendants
+ */
+function processNode(node: Node): string {
+  // Text node — return content as-is (DOM already decoded HTML entities)
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.textContent || '';
+  }
+
+  // Skip non-element nodes (comments, etc.)
+  if (node.nodeType !== Node.ELEMENT_NODE) {
+    return '';
+  }
+
+  const el = node as HTMLElement;
+  const tag = el.tagName.toLowerCase();
+
+  // Inline formatting - trim content but preserve surrounding whitespace
+  if (tag === 'b' || tag === 'strong') {
+    const rawContent = processChildren(el);
+    const trimmed = rawContent.trim();
+    if (!trimmed) return rawContent;
+    const leadingSpace = rawContent.match(/^(\s*)/)?.[1] || '';
+    const trailingSpace = rawContent.match(/(\s*)$/)?.[1] || '';
+    return `${leadingSpace}**${trimmed}**${trailingSpace}`;
+  }
+  if (tag === 'u' || tag ==='underline') {
+    const rawContent = processChildren(el);
+    const trimmed = rawContent.trim();
+    if (!trimmed) return rawContent;
+    const leadingSpace = rawContent.match(/^(\s*)/)?.[1] || '';
+    const trailingSpace = rawContent.match(/(\s*)$/)?.[1] || '';
+    return `${leadingSpace}<u>${trimmed}</u>${trailingSpace}`;
+  }
+  if (tag === 'i' || tag === 'em') {
+    const rawContent = processChildren(el);
+    const trimmed = rawContent.trim();
+    if (!trimmed) return rawContent;
+    const leadingSpace = rawContent.match(/^(\s*)/)?.[1] || '';
+    const trailingSpace = rawContent.match(/(\s*)$/)?.[1] || '';
+    return `${leadingSpace}*${trimmed}*${trailingSpace}`;
+  }
+  if (tag === 'del' || tag === 's') {
+    const rawContent = processChildren(el);
+    const trimmed = rawContent.trim();
+    if (!trimmed) return rawContent;
+    const leadingSpace = rawContent.match(/^(\s*)/)?.[1] || '';
+    const trailingSpace = rawContent.match(/(\s*)$/)?.[1] || '';
+    return `${leadingSpace}~~${trimmed}~~${trailingSpace}`;
+  }
+  if (tag === 'code')
+    return `\`${el.textContent || ''}\``;
+
+  // Links
+  if (tag === 'a') {
+    const href = el.getAttribute('href');
+    const text = processChildren(el);
+    // Only create markdown links for http(s) URLs
+    if (href && href.startsWith('http'))
+      return `[${text}](${href})`;
+    return text;
+  }
+
+  // Images — skip (local Foundry paths won't work externally)
+  if (tag === 'img')
+    return '';
+
+  // Paragraphs and line breaks
+  if (tag === 'p')
+    return `\n\n${processChildren(el)}\n\n`;
+  if (tag === 'br')
+    return '\n';
+
+  // Headings — adjust level by offset; levels beyond 6 become bold text
+  const baseLevel = baseHeadingLevels[tag];
+  if (baseLevel) {
+    const effectiveLevel = baseLevel + headingLevelOffset;
+    const content = processChildren(el);
+    if (effectiveLevel <= 6)
+      return `\n\n${'#'.repeat(effectiveLevel)} ${content}\n\n`;
+    return `\n\n__**${content}**__\n\n`;
+  }
+
+  // Block elements with specialized handlers
+  if (tag === 'blockquote')
+    return processBlockquote(el);
+  if (tag === 'pre')
+    return processPreBlock(el);
+  if (tag === 'ul')
+    return processUnorderedList(el, 0);
+  if (tag === 'ol')
+    return processOrderedList(el, 0);
+
+  // All other tags (mark, small, ins, sub, sup, li, div, etc.) — just process children
+  // Special handling for span with text-decoration: underline
+  if (tag === 'span') {
+    const style = el.getAttribute('style');
+    if (style && style.includes('text-decoration: underline')) {
+      return `<u>${processChildren(el)}</u>`;
+    }
+  }
+  
+  return processChildren(el);
+}
+
+/**
+ * Collapses excessive newlines and trims the result.
+ * @param text - Raw markdown text with potential extra whitespace
+ * @returns Cleaned markdown text
+ */
+function normalizeWhitespace(text: string): string {
+  return text
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/**
+ * Converts ProseMirror HTML content to markdown format.
+ * Handles common formatting tags (bold, italic, strikethrough, code),
+ * block elements (paragraphs, headings, blockquotes, lists, code blocks),
+ * and links. Tags without markdown equivalents are reduced to their text content.
+ *
+ * @param html - The HTML string from ProseMirror editor content
+ * @param topHeaderLevel - The header level to use for the top-level heading
+ * @returns Markdown-formatted string
+ */
+export function htmlToMarkdown(html: string, topHeaderLevel: number = 1): string {
+  if (!html)
+    return '';
+
+  // Set offset so <h1> maps to topHeaderLevel, <h2> to topHeaderLevel+1, etc.
+  headingLevelOffset = topHeaderLevel - 1;
+
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+
+  return normalizeWhitespace(processChildren(tempDiv));
+}

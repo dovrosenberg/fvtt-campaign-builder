@@ -7,6 +7,8 @@ import { StoryWebEdge, StoryWebNode, StoryWebNodeSource, StoryWebNodeTypes, Topi
 import { topicToNodeType } from '@/utils/misc';
 import { Entry, Front } from '@/classes';
 import CleanKeysService from '@/utils/cleanKeys';
+import type { Edge, Node } from 'vis-network';
+import { generateNetworkData } from '@/utils/storyWebGeneration';
 
 type StoryWebDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb>;
 
@@ -110,6 +112,15 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     return newStoryWeb;
   }
 
+  /**
+   * Generates network data for the story web
+   * @param forExport - true if this is being generated for export (i.e. PNG); impacts colors (default false)
+   * @returns Object containing nodes and edges arrays
+   */
+  public async generateNetworkData(forExport: boolean = false): Promise<{ nodes: Node[], edges: Edge[] }> {
+    return await generateNetworkData(this, forExport);
+  }
+  
   get name(): string {
     return this._clone.name;
   }

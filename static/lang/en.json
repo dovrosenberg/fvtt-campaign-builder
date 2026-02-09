@@ -72,8 +72,8 @@
       "showTypesInTreeHelp": "When true, if the Setting directory is not grouped by type, it will show the type of each Entry in the tree.",
       "useFronts": "Use Fronts",
       "useFrontsHelp": "Turn on campaign \"front\" functionality.",
-      "useWebs": "Use Story Webs",
-      "useWebsHelp": "Turn on campaign \"story web\" functionality.",
+      "useStoryWebs": "Use Story Webs",
+      "useStoryWebsHelp": "Turn on campaign \"story web\" functionality.",
       "subTabsSavePosition": "Sub-tabs save position",
       "subTabsSavePositionHelp": "When enabled, every tab will remember which interior sub-tab was open and return to it when you re-open that tab. When disabled, tabs will always revert to the first one (usually description).",
       "storyWebAutoArrange": "Auto-arrange story webs",
@@ -606,6 +606,9 @@
         "emailSettingsNotSet": "You have enabled the email idea list feature, but you haven't set a default Setting or Campaign.  Please set these in the advanced settings.",
         "rollTablesNotAvailable": "Backend is not available. Automatic RollTables will not be refreshed. Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
       },
+      "duplicateBookmark": "Already stored as a bookmark",
+      "nameRequired": "Name cannot be blank",
+      "failedToRepairIndexes": "Failed to repair indexes. Check console for details.",
       "participantCopiedToNextSession": "Participant copied to next session",
       "locationCopiedToNextSession": "Location copied to next session",
       "monsterCopiedToNextSession": "Monster copied to next session",
@@ -613,8 +616,14 @@
       "addedToSession": "added to session",
       "changesSaved": "Changes saved",
       "changesDiscarded": "Changes discarded",
+      "failedToExportStoryWeb": "Failed to export story web as PNG",
+      "export": {
+        "starting": "Starting setting export...",
+        "complete": "Setting exported successfully",
+        "failed": "Failed to export setting"
+      },
       "migration": {
-        "minimumVersionRequired": "Campign Builder cannot migrate from version {0}. You must first upgrade to version {1} or higher before upgrading to {2}.",
+        "minimumVersionRequired": "Campaign Builder cannot migrate from version {0}. You must first upgrade to version {1} or higher before upgrading to {2}.",
         "cannotOpen": "Campaign Builder cannot be opened because migration failed. Please check the console for details and resolve the migration issue."
       },
       "documentIndexesRepaired": "All document indexes have been successfully repaired!"
@@ -842,7 +851,8 @@
       },
       "storyWeb": {
         "duplicate": "Duplicate Web",
-        "delete": "Delete Story Web"
+        "delete": "Delete Story Web",
+        "exportAsPng": "Export as PNG"
       },
       "storyWebGraph": {
         "delete": "Delete",
@@ -941,7 +951,7 @@
       "copyToNextSession": "Copy to next session",
       "moveToCampaign": "Move to campaign for later usage",
       "moveToArc": "Move to arc for later usage",
-      "movetoLatestArc": "Move to latest arc",
+      "moveToLatestArc": "Move to latest arc",
       "addToCampaign": "Add to campaign",
       "addToASession": "Add to a session",
       "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",
@@ -981,10 +991,13 @@
       "entryFound": "entry found",
       "entriesFound": "entries found"
     },
-    "errors": {
-      "duplicateBookmark": "Already stored as a bookmark",
-      "nameRequired": "Name cannot be blank",
-      "failedToRepairIndexes": "Failed to repair indexes. Check console for details."
+    "export": {
+      "relatedTopics": {
+        "1": "Related Characters",
+        "2": "Related Locations",
+        "3": "Related Organizations",
+        "4": "Related PCs"
+      }
     }
   }
 }

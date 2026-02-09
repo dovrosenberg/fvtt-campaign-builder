@@ -6,7 +6,7 @@
           :class="`${props.storyWebNode.id===currentStoryWeb?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
           style="pointer-events: auto;"
           draggable="true"
-          :data-testid="`storyweb-node-${props.storyWebNode.id}`"
+          :data-testid="`story-web-node-${props.storyWebNode.id}`"
           @click="onStoryWebClick"
           @contextmenu="onStoryWebContextMenu"
           @dragstart="onDragStart"
@@ -89,6 +89,14 @@
           label: localize('contextMenus.storyWeb.duplicate'),
           onClick: async () => {
             await campaignDirectoryStore.duplicateStoryWeb(props.storyWebNode.id);
+          },
+        },
+        {
+          icon: 'fa-download',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.storyWeb.exportAsPng'),
+          onClick: async () => {
+            await campaignDirectoryStore.exportStoryWeb(props.storyWebNode.id);
           },
         },
         {

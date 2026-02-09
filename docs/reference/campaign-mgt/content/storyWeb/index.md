@@ -41,6 +41,10 @@ Right-click on the Story Web in the Campaign Directory and select "Delete" to re
 
 Right-click on the Story Web in the Campaign Directory and select "Duplicate Web" to create an exact copy of the Story Web. 
 
+### Exporting a Story Web as PNG
+
+Right-click on the Story Web in the Campaign Directory and select "Download as PNG" to export the entire story web as a PNG image file. 
+
 ## Working with the Graph Interface
 
 The Story Web interface provides an interactive canvas where you can manipulate shapes representing [^Entries] and [^Dangers] and the connections between them to visualize relationships.

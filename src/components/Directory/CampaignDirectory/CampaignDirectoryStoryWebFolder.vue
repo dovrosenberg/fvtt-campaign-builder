@@ -16,7 +16,7 @@
           data-testid="campaign-folder-toggle"
         ></i>
         <i :class="'icon fas ' + getTabTypeIcon(WindowTabType.StoryWeb)" style="margin-right: 4px;"></i>
-        <span data-testid="storyweb-folder">
+        <span data-testid="story-web-folder">
           <span class="node-name">
             {{ localize('contentFolders.storyWebs') }}
           </span>
