@@ -99,7 +99,7 @@ const generateSettingMarkdown = async (setting: FCBSetting): Promise<string> => 
 
   // Add setting description
   if (setting.description.trim()) {
-    markdown += `**Description:**\n${cleanText(setting.description, 3)}\n\n`;
+    markdown += `**Description:**\n\n${cleanText(setting.description, 3)}\n\n`;
   }
 
   const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields);
@@ -111,7 +111,7 @@ const generateSettingMarkdown = async (setting: FCBSetting): Promise<string> => 
   if (speciesList.length > 0) {
     markdown += `## Setting Species\n`;
     for (const species of speciesList) {
-      markdown += `**${species.name.trim()}:**\n${cleanText(species.description, 3)}\n\n`;
+      markdown += `**${species.name.trim()}:**\n\n${cleanText(species.description, 3)}\n\n`;
     }
   }
 
@@ -196,7 +196,7 @@ const exportEntry = async (entry: Entry, setting: FCBSetting, validSpecies: Reco
 
   // Description
   if (entry.description.trim()) {
-    markdown += `**Description:**\n${cleanText(entry.description, 3)}\n\n`;
+    markdown += `**Description:**\n\n${cleanText(entry.description, 3)}\n\n`;
   }
 
   markdown += exportCustomFields(entry, customFieldDefinitions);
@@ -254,7 +254,7 @@ const exportCustomFields = (content: FCBJournalEntryPage<any, any>, customFieldD
           break;
         case FieldType.Editor:
           if ((value as string).trim())
-            markdown += `**${fieldDef.label}:**\n${cleanText((value as string), 4)}\n\n`;
+            markdown += `**${fieldDef.label}:**\n\n${cleanText((value as string), 4)}\n\n`;
           break;
         default:
           continue;
@@ -350,7 +350,7 @@ const exportCampaign = async (
 
   // Description
   if (campaign.description) {
-    markdown += `**Description:**\n${cleanText(campaign.description, 3)}\n\n`;
+    markdown += `**Description:**\n\n${cleanText(campaign.description, 3)}\n\n`;
   }
 
   // Custom fields
@@ -468,7 +468,7 @@ const exportFront = async (front: Front, setting: FCBSetting, customFieldDefinit
 
       // Participants
       if (danger.participants && danger.participants.length > 0) {
-        markdown += `**Participants:**\n`;
+        markdown += `**Participants:**\n\n`;
         for (const participant of danger.participants) {
           const name = resolveUuidNameSync(participant.uuid);
           markdown += `- ${name} ${participant.role.trim() ? `(Role: ${cleanText(participant.role, 5)})` : ''}\n`;
@@ -478,11 +478,11 @@ const exportFront = async (front: Front, setting: FCBSetting, customFieldDefinit
 
       // Grim Portents (table format)
       if (danger.grimPortents && danger.grimPortents.length > 0) {
-        markdown += `**Grim Portents:**\n`;
+        markdown += `**Grim Portents:**\n\n`;
         markdown += `| Complete | Description |\n`;
         markdown += `|-------------|----------|\n`;
         for (const portent of danger.grimPortents) {
-          const complete = portent.complete ? 'X' : '';
+          const complete = portent.complete ? '✓' : '';
           const description = cleanText(portent.description, 5);
 
           if (!description)
@@ -511,7 +511,7 @@ const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: 
 
   // Description
   if (arc.description) {
-    markdown += `**Description:**\n${cleanText(arc.description, 5)}\n\n`;
+    markdown += `**Description:**\n\n${cleanText(arc.description, 5)}\n\n`;
   }
 
   // Custom fields
@@ -642,14 +642,14 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
   let markdown = `#### Session: ${session.name}\n`;
 
   // Session number and date
-  markdown += `**Number:** ${session.number}\n\n`;
+  markdown += `**Session Number:** ${session.number}\n\n`;
   if (session.date) {
-    markdown += `**Date:** ${session.date.toLocaleDateString()}\n\n`;
+    markdown += `**Session Date:** ${session.date.toLocaleDateString()}\n\n`;
   }
 
   // Description
   if (session.description) {
-    markdown += `**Description:**\n${cleanText(session.description, 5)}\n\n`;
+    markdown += `**Notes:**\n\n${cleanText(session.description, 5)}\n\n`;
   }
 
   // Custom fields
@@ -660,94 +660,20 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
     markdown += `**Tags:** ${session.tags.join(', ')}\n\n`;
   }
 
-  // Locations
-  if (session.locations && session.locations.length > 0) {
-    markdown += `#### Locations\n`;
-    for (const location of session.locations) {
-      const entry = await Entry.fromUuid(location.uuid);
-      if (entry) {
-        markdown += `- **${entry.name}**`;
-        if (location.delivered) {
-          markdown += ' ✓';
-        }
-        if (location.notes) {
-          markdown += ` - ${location.notes}`;
-        }
-        markdown += '\n';
-      }
-    }
-    markdown += '\n';
-  }
-
-  // NPCs
-  // TODO - get tid of all the checks, etc.
-  if (session.npcs && session.npcs.length > 0) {
-    markdown += `#### NPCs\n`;
-    for (const npc of session.npcs) {
-      const entry = await Entry.fromUuid(npc.uuid);
-      if (entry) {
-        markdown += `- **${entry.name}**`;
-        if (npc.delivered) {
-          markdown += ' ✓';
-        }
-        if (npc.notes) {
-          markdown += ` - ${npc.notes}`;
-        }
-        markdown += '\n';
-      }
-    }
-    markdown += '\n';
-  }
-
-  // Monsters
-  if (session.monsters && session.monsters.length > 0) {
-    markdown += `#### Monsters\n`;
-    for (const monster of session.monsters) {
-      const docName = resolveFoundryDocumentName(monster.uuid);
-      markdown += `- **${docName}**`;
-      if (monster.number > 1) {
-        markdown += ` x${monster.number}`;
-      }
-      if (monster.delivered) {
-        markdown += ' ✓';
-      }
-      if (monster.notes) {
-        markdown += ` - ${monster.notes}`;
-      }
-      markdown += '\n';
-    }
-    markdown += '\n';
-  }
-
-  // Items
-  if (session.items && session.items.length > 0) {
-    markdown += `#### Items\n`;
-    for (const item of session.items) {
-      const docName = resolveFoundryDocumentName(item.uuid);
-      markdown += `- **${docName}**`;
-      if (item.delivered) {
-        markdown += ' ✓';
-      }
-      if (item.notes) {
-        markdown += ` - ${item.notes}`;
-      }
-      markdown += '\n';
-    }
-    markdown += '\n';
-  }
-
-  // Lore
+  // Lore (table format)
   if (session.lore && session.lore.length > 0) {
     markdown += `#### Lore\n`;
+    markdown += `| Used | Significant | Description |\n`;
+    markdown += `|------|-------------|-------------|\n`;
     for (const lore of session.lore) {
-      markdown += `- **${lore.description}**`;
-      if (lore.significant) {
-        markdown += ' ⭐';
-      }
-      if (lore.delivered) {
-        markdown += ' ✓';
-      }
-      markdown += '\n';
+      const description = cleanText(lore.description, 5);
+      const significant = lore.significant ? '✓' : '';
+      const delivered = lore.delivered ? '✓' : '';
+
+      if (!description)
+        continue;
+
+      markdown += `| ${delivered} | ${significant} | ${description} |\n`;
     }
     markdown += '\n';
   }
@@ -755,12 +681,87 @@ const exportSession = async (session: Session, setting: FCBSetting, customFieldD
   // Vignettes
   if (session.vignettes && session.vignettes.length > 0) {
     markdown += `#### Vignettes\n`;
+    markdown += `| Used | Description |\n`;
+    markdown += `|------|-------------|\n`;
     for (const vignette of session.vignettes) {
-      markdown += `- **${vignette.description}**`;
-      if (vignette.delivered) {
-        markdown += ' ✓';
+      const description = cleanText(vignette.description, 5);
+      const delivered = vignette.delivered ? '✓' : '';
+
+      if (!description)
+        continue;
+
+      markdown += `| ${delivered} | ${description} |\n`;
+    }
+    markdown += '\n';
+  }
+
+  // Locations
+  if (session.locations && session.locations.length > 0) {
+    markdown += `#### Locations\n`;
+
+    markdown += `| Used | Name | Type | Parent | Notes |\n`;
+    markdown += `|------|------|------|--------|-------|\n`;
+    for (const location of session.locations) {
+      const entry = await Entry.fromUuid(location.uuid);
+      if (entry && entry.uuid) {
+        const name = entry.name;
+        const type = entry.type || '';
+        const delivered = location.delivered ? '✓' : '';
+        const notes = cleanText(location.notes, 5);
+        const parentName = setting?.getEntryHierarchy(entry.uuid)?.parentId ? resolveUuidNameSync(setting.getEntryHierarchy(entry.uuid)!.parentId || '') : '';
+        markdown += `| ${delivered} | ${name} | ${type} | ${parentName} | ${notes} |\n`;
       }
-      markdown += '\n';
+    }
+    markdown += '\n';
+  }
+
+  // NPCs (table format)
+  // TODO - get tid of all the checks, etc.
+   if (session.npcs && session.npcs.length > 0) {
+    markdown += `#### NPCs\n`;
+    markdown += `| Used | Name | Type | Notes |\n`;
+    markdown += `|------|------|------|-------|\n`;
+    for (const npc of session.npcs) {
+      const entry = await Entry.fromUuid(npc.uuid);
+      if (entry) {
+        const name = entry.name;
+        const type = entry.type || '';
+        const delivered = npc.delivered ? '✓' : '';
+        const notes = cleanText(npc.notes, 5);
+        markdown += `| ${delivered} | ${name} | ${type} | ${notes} |\n`;
+      }
+    }
+    markdown += '\n';
+  }
+
+  // Monsters (table format)
+  if (session.monsters && session.monsters.length > 0) {
+    markdown += `#### Monsters\n`;
+    markdown += `| Used | Name | Number | Notes |\n`;
+    markdown += `|------|------|--------|-------|\n`;
+    for (const monster of session.monsters) {
+      const docName = resolveFoundryDocumentName(monster.uuid);
+      if (docName) {
+        const delivered = monster.delivered ? '✓' : '';
+        const notes = cleanText(monster.notes, 5);
+        markdown += `| ${delivered} | ${docName} | ${monster.number} | ${notes} |\n`;
+      }
+    }
+    markdown += '\n';
+  }
+
+  // Items
+  if (session.items && session.items.length > 0) {
+    markdown += `#### Items\n`;
+    markdown += `| Used | Name | Notes |\n`;
+    markdown += `|------|------|-------|\n`;
+    for (const item of session.items) {
+      const docName = resolveFoundryDocumentName(item.uuid);
+      if (docName) {
+        const delivered = item.delivered ? '✓' : '';
+        const notes = cleanText(item.notes, 5);
+        markdown += `| ${delivered} | ${docName} | ${notes} |\n`;
+      }
     }
     markdown += '\n';
   }
