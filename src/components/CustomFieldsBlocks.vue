@@ -11,7 +11,7 @@
               class="fcb-ai-button"
               :title="localize('tooltips.generateAIContent')"
               :disabled="isGeneratingAi[aiGenerationKey(field)]"
-              @click.stop="onGenerateAiClick(field)"
+              @click.stop="onGenerateAiClick(field.name)"
             >
               <i class="fas fa-head-side-virus"></i>
             </button>
@@ -364,7 +364,11 @@
     queueSave();
   };
 
-  const onGenerateAiClick = async (field: CustomFieldDescription) => {
+  const onGenerateAiClick = async (fieldName: string) => {
+    // we load the field rather than just taking from the vue template because settings might have been updated
+    const field = ModuleSettings.get(SettingKey.customFields)?.[props.contentType]?.find((f) => f.name === fieldName);
+    if (!field) return;
+
     if (!content.value) return;
     if (!backendAvailable.value) return;
     if (!field.aiEnabled) return;

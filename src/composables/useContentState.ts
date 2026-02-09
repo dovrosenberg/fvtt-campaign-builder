@@ -23,7 +23,7 @@ export function useContentState() {
 
   if (panelState) {
     return {
-      currentSetting: useMainStore().currentSetting,  // just pass through - they're all the same
+      currentSetting: storeToRefs(useMainStore()).currentSetting,  // just pass through - they're all the same
       currentEntry: panelState.currentEntry,
       currentCampaign: panelState.currentCampaign,
       currentSession: panelState.currentSession,
