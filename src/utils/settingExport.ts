@@ -9,7 +9,7 @@ import { Campaign } from '@/classes/Documents/Campaign';
 import { Arc } from '@/classes/Documents/Arc';
 import { Session } from '@/classes/Documents/Session';
 import { Front } from '@/classes/Documents/Front';
-import { CustomFieldContentType, CustomFieldDescription, FieldType, Topics } from '@/types';
+import { CustomFieldContentType, CustomFieldDescription, FieldType, Species, Topics } from '@/types';
 import { localize } from '@/utils/game';
 import { cleanUuidReferencesInText, resolveUuidNameSync } from '@/utils/clipboardUuidCleaner';
 import { htmlToMarkdown } from '@/utils/sanitizeHtml';
@@ -134,13 +134,18 @@ const exportEntriesByTopic = async (setting: FCBSetting): Promise<string> => {
 
   const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields);
 
+  const validSpecies = ModuleSettings.get(SettingKey.speciesList).reduce((acc, s: Species) => {
+    acc[s.id] = s.name;
+    return acc;
+  }, {} as Record<string, string>);
+
   for (const topic of topics) {
     const entries = await setting.topicFolders[topic.type].allEntries();
     if (entries.length > 0) {
       markdown += `## ${topic.name}\n\n`;
       
       for (const entry of entries) {
-        markdown += await exportEntry(entry, setting, customFieldDefinitions[topic.contentType] || []);
+        markdown += await exportEntry(entry, setting, validSpecies, customFieldDefinitions[topic.contentType] || []);
       }
     }
   }
@@ -153,7 +158,7 @@ const exportEntriesByTopic = async (setting: FCBSetting): Promise<string> => {
  * @param entry - The entry to export
  * @returns Markdown content for the entry
  */
-const exportEntry = async (entry: Entry, setting: FCBSetting, customFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
+const exportEntry = async (entry: Entry, setting: FCBSetting, validSpecies: Record<string, string>, customFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
   let markdown = `### ${entry.name}\n\n`;
 
   // Tags - I think these may not make sense to export?
@@ -167,9 +172,8 @@ const exportEntry = async (entry: Entry, setting: FCBSetting, customFieldDefinit
   }
 
   // characters have species
-  if (entry.topic === Topics.Character && entry.speciesId) {
-    // TODO
-    markdown += `**Species:** ${entry.speciesId}\n\n`;
+  if (entry.topic === Topics.Character && entry.speciesId && validSpecies[entry.speciesId]) {
+    markdown += `**Species:** ${validSpecies[entry.speciesId]}\n\n`;
   }
   
   // locations and orgs have parents
