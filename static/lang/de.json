@@ -853,7 +853,8 @@
       },
       "storyWeb": {
         "duplicate": "Web duplizieren",
-        "delete": "Story-Netz löschen"
+        "delete": "Story-Netz löschen",
+        "exportAsPng": "Als PNG exportieren"
       },
       "storyWebGraph": {
         "delete": "Löschen",
@@ -954,11 +955,6 @@
       "restoreWindow": "Fenster wiederherstellen",
       "currentSession": "aktuelle Sitzung"
     },
-    "errors": {
-      "duplicateBookmark": "Bereits als Lesezeichen gespeichert",
-      "nameRequired": "Name darf nicht leer sein",
-      "failedToRepairIndexes": "Fehler beim Reparieren der Indizes. Überprüfen Sie die Konsole für Details."
-    },
     "notifications": {
       "backend": {
         "successfulConnection": "Erfolgreich mit dem Campaign Builder-Backend verbunden.",
@@ -972,19 +968,36 @@
       "todoReferenceNotFound": "Die verknüpfte Referenz für dieses To-Do-Element existiert nicht mehr.",
       "changesDiscarded": "Änderungen verworfen",
       "migration": {
-        "minimumVersionRequired": "Campign Builder kann nicht von Version {0} migrieren. Sie müssen zuerst auf Version {1} oder höher aktualisieren, bevor Sie auf {2} upgraden.",
+        "minimumVersionRequired": "Campaign Builder kann nicht von Version {0} migrieren. Sie müssen zuerst auf Version {1} oder höher aktualisieren, bevor Sie auf {2} upgraden.",
         "cannotOpen": "Campaign Builder kann nicht geöffnet werden, da die Migration fehlgeschlagen ist. Bitte überprüfen Sie die Konsole auf Details und beheben Sie das Migrationsproblem."
       },
       "participantCopiedToNextSession": "Teilnehmer in die nächste Sitzung kopiert",
       "locationCopiedToNextSession": "Ort in die nächste Sitzung kopiert",
       "monsterCopiedToNextSession": "Monster in die nächste Sitzung kopiert",
-      "documentIndexesRepaired": "Alle Dokumentindizes wurden erfolgreich repariert!"
+      "documentIndexesRepaired": "Alle Dokumentindizes wurden erfolgreich repariert!",
+      "duplicateBookmark": "Bereits als Lesezeichen gespeichert",
+      "nameRequired": "Name darf nicht leer sein",
+      "failedToRepairIndexes": "Fehler beim Reparieren der Indizes. Überprüfen Sie die Konsole für Details.",
+      "failedToExportStoryWeb": "Fehler beim Exportieren des Story-Webs als PNG",
+      "export": {
+        "starting": "Starte den Export der Einstellungen...",
+        "complete": "Einstellungen erfolgreich exportiert",
+        "failed": "Fehler beim Exportieren der Einstellungen"
+      }
     },
     "tags": {
       "tag": "Tag",
       "resultsFor": "Tag-Ergebnisse für",
       "entryFound": "Eintrag gefunden",
       "entriesFound": "Einträge gefunden"
+    },
+    "export": {
+      "relatedTopics": {
+        "1": "Verwandte Charaktere",
+        "2": "Verwandte Orte",
+        "3": "Verwandte Organisationen",
+        "4": "Verwandte PCs"
+      }
     }
   }
 }

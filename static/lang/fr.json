@@ -853,7 +853,8 @@
       },
       "storyWeb": {
         "duplicate": "Dupliquer la toile",
-        "delete": "Supprimer la toile d'histoire"
+        "delete": "Supprimer la toile d'histoire",
+        "exportAsPng": "Exporter en PNG"
       },
       "storyWebGraph": {
         "delete": "Supprimer",
@@ -954,11 +955,6 @@
       "restoreWindow": "Restaurer la fenêtre",
       "currentSession": "session en cours"
     },
-    "errors": {
-      "duplicateBookmark": "Déjà enregistré comme favori",
-      "nameRequired": "Le nom ne peut pas être vide",
-      "failedToRepairIndexes": "Échec de la réparation des index. Vérifiez la console pour plus de détails."
-    },
     "notifications": {
       "backend": {
         "successfulConnection": "Connexion réussie au backend de Campaign Builder.",
@@ -972,19 +968,36 @@
       "todoReferenceNotFound": "La référence liée pour cet élément à faire n'existe plus.",
       "changesDiscarded": "Modifications annulées",
       "migration": {
-        "minimumVersionRequired": "Le constructeur de campagne ne peut pas migrer depuis la version {0}. Vous devez d'abord passer à la version {1} ou supérieure avant de passer à {2}.",
+        "minimumVersionRequired": "Campaign Builder ne peut pas migrer depuis la version {0}. Vous devez d'abord mettre à niveau vers la version {1} ou supérieure avant de passer à la version {2}.",
         "cannotOpen": "Le constructeur de campagne ne peut pas être ouvert car la migration a échoué. Veuillez vérifier la console pour plus de détails et résoudre le problème de migration."
       },
       "participantCopiedToNextSession": "Participant copié à la session suivante",
       "locationCopiedToNextSession": "Lieu copié à la session suivante",
       "monsterCopiedToNextSession": "Monstre copié à la session suivante",
-      "documentIndexesRepaired": "Tous les index des documents ont été réparés avec succès !"
+      "documentIndexesRepaired": "Tous les index des documents ont été réparés avec succès !",
+      "duplicateBookmark": "Déjà enregistré comme un signet",
+      "nameRequired": "Le nom ne peut pas être vide",
+      "failedToRepairIndexes": "Échec de la réparation des index. Vérifiez la console pour plus de détails.",
+      "failedToExportStoryWeb": "Échec de l'exportation du réseau d'histoires en PNG",
+      "export": {
+        "starting": "Démarrage de l'exportation des paramètres...",
+        "complete": "Paramètre exporté avec succès",
+        "failed": "Échec de l'exportation du paramètre"
+      }
     },
     "tags": {
       "tag": "Étiquette",
       "resultsFor": "Résultats de l'étiquette pour",
       "entryFound": "entrée trouvée",
       "entriesFound": "entrées trouvées"
+    },
+    "export": {
+      "relatedTopics": {
+        "1": "Personnages associés",
+        "2": "Lieux associés",
+        "3": "Organisations associées",
+        "4": "PJ associés"
+      }
     }
   }
 }
