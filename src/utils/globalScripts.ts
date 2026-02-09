@@ -107,7 +107,7 @@ const repairAllIndexes = async (settingId?: string): Promise<void> => {
     
   } catch (error) {
     console.error('Fatal error during index repair:', error);
-    ui.notifications?.error(localize('errors.failedToRepairIndexes'));
+    ui.notifications?.error(localize('notifications.failedToRepairIndexes'));
     throw error;
   }
 };

@@ -259,7 +259,7 @@
 
       // name can't be blank
       if (newValue.trim() === '') {
-        notifyWarn(localize('errors.nameRequired'));
+        notifyWarn(localize('notifications.nameRequired'));
         name.value = currentSession.value?.name!;
         return;
       }

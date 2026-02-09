@@ -606,6 +606,9 @@
         "emailSettingsNotSet": "You have enabled the email idea list feature, but you haven't set a default Setting or Campaign.  Please set these in the advanced settings.",
         "rollTablesNotAvailable": "Backend is not available. Automatic RollTables will not be refreshed. Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
       },
+      "duplicateBookmark": "Already stored as a bookmark",
+      "nameRequired": "Name cannot be blank",
+      "failedToRepairIndexes": "Failed to repair indexes. Check console for details.",
       "participantCopiedToNextSession": "Participant copied to next session",
       "locationCopiedToNextSession": "Location copied to next session",
       "monsterCopiedToNextSession": "Monster copied to next session",
@@ -988,10 +991,13 @@
       "entryFound": "entry found",
       "entriesFound": "entries found"
     },
-    "errors": {
-      "duplicateBookmark": "Already stored as a bookmark",
-      "nameRequired": "Name cannot be blank",
-      "failedToRepairIndexes": "Failed to repair indexes. Check console for details."
+    "export": {
+      "relatedTopics": {
+        "1": "Related Characters",
+        "2": "Related Locations",
+        "3": "Related Organizations",
+        "4": "Related PCs"
+      }
     }
   }
 }

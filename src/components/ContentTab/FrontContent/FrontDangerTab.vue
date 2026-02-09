@@ -195,7 +195,7 @@
 
       // name can't be blank
       if (newValue.trim() === '') {
-        notifyWarn(localize('errors.nameRequired'));
+        notifyWarn(localize('notifications.nameRequired'));
         name.value = currentDanger.value?.name || localize('placeholders.dangerName');
         return;
       }
