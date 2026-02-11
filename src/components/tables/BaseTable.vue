@@ -18,19 +18,20 @@
         header: { style: 'border: none' },
         table: { style: 'margin: 0px; table-layout: fixed;' },
         thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
-        row: { 
-          style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
+        row: {
+          style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;',
         },
         rowGroupHeader: {
-          style: 'background-color: red'
+          style: 'background-color: var(--fcb-primary); color: var(--fcb-text-on-primary); cursor: pointer;',
+          colspan: totalColumnCount
+        },
+        rowGroupHeaderCell: {
+          colspan: totalColumnCount
         }
       }"
 
       @row-contextmenu="emit('rowContextMenu', $event)"
-      @row-reorder="onRowReorder"
-      @rowgroup-expand="emit('update:expandedRowGroups', $event)"
-      @rowgroup-collapse="emit('update:expandedRowGroups', $event)"
-    >
+      @row-reorder="onRowReorder"    >
     <!-- These need to be set if we want pagination back -->
     <!-- <DataTable
       paginator-position="bottom"
@@ -121,31 +122,51 @@
 
       <!-- Group header template for grouped mode -->
       <template #groupheader="slotProps" v-if="props.grouped">
-        <span class="fcb-group-header-actions">
-          <a
-            v-if="slotProps.data.groupId !== 'ungrouped'"
-            class="fcb-action-icon"
-            data-tooltip="Edit"
-            @click.stop="setEditingGroup(slotProps.data.groupId)"
+        <div 
+          class="fcb-group-header-actions"
+          style="display:inline-block" 
+        >
+          <div 
+            :class="['fcb-row-wrapper']"
+            @dragover="onDragoverRow($event, slotProps.data.groupId)"
+            @dragleave="onDragLeaveRow(slotProps.data.groupId)"
+            @drop="onDropRow($event, slotProps.data.groupId)"
           >
-            <i class="fas fa-edit"></i>
-          </a>
-          <a
-            v-if="slotProps.data.groupId !== 'ungrouped'"
-            class="fcb-action-icon"
-            data-tooltip="Delete"
-            @click.stop="deleteGroup(slotProps.data.groupId)"
-          >
-            <i class="fas fa-trash"></i>
-          </a>
-      </span>
-      <span 
-        :class="['fcb-group-header', 'fcb-group-header-name',editingGroupId === slotProps.data.groupId ? 'editing' : '']"
-        @dragstart="onGroupDragStart($event, slotProps.data.groupId)"
-        @dragover="onGroupDragOver($event)"
-        @drop="onGroupDrop($event, slotProps.data.groupId)"
-        @dragend="onGroupDragEnd"
-      >
+            <div 
+              class="fcb-drag-handle" 
+              draggable="true"
+              @dragstart="onDragstart($event, slotProps.data.groupId)"
+            >
+              <i class="fas fa-bars"></i>
+            </div>
+          </div>
+          <div>
+            <a
+              v-if="slotProps.data.groupId !== 'ungrouped'"
+              class="fcb-action-icon"
+              data-tooltip="Edit"
+              @click.stop="setEditingGroup(slotProps.data.groupId)"
+            >
+              <i class="fas fa-edit"></i>
+            </a>
+            <a
+              v-if="slotProps.data.groupId !== 'ungrouped'"
+              class="fcb-action-icon"
+              data-tooltip="Delete"
+              @click.stop="deleteGroup(slotProps.data.groupId)"
+            >
+              <i class="fas fa-trash"></i>
+            </a>
+          </div>
+        </div>
+        <div 
+          :class="['fcb-group-header', editingGroupId === slotProps.data.groupId ? 'editing' : '']"
+          style="display:inline-block"
+          @dragstart="onGroupDragStart($event, slotProps.data.groupId)"
+          @dragover="onGroupDragOver($event)"
+          @drop="onGroupDrop($event, slotProps.data.groupId)"
+          @dragend="onGroupDragEnd"
+        >
           <!-- Edit mode -->
           <div v-if="editingGroupId === slotProps.data.groupId" class="fcb-group-edit">
             <InputText 
@@ -165,7 +186,7 @@
           >
             {{ slotProps.data.name }}
           </div>
-        </span>
+        </div>
       </template>
 
       <Column
@@ -465,18 +486,15 @@
     // enable grouping mode with groups
     grouped: {
       type: Boolean,
+      required: false,
       default: false,
     },
     // array of groups for grouped mode
     groups: {
       type: Array as PropType<TableGroup[]>,
+      required: false,
       default: () => [],
-    },
-    // array of expanded group IDs
-    expandedRowGroups: {
-      type: Array as PropType<string[]>,
-      default: () => [],
-    },
+    }
   });
 
   ////////////////////////////////
@@ -527,8 +545,8 @@
     },
   });
 
-  /** which groups are currently expanded */
-  const expandedRowGroups = ref<string[]>([]);
+  /** which groups are currently expanded, they all start expanded */
+  const expandedRowGroups = ref<string[]>(props.groups.map(g => g.groupId));
 
   /** are we editing and row, and which one (uuid) */
   const editingRow = ref<string | null>(null);
@@ -560,6 +578,11 @@
   /** Check if any columns are editable */
   const hasEditableColumns = computed(() => {
     return props.columns.some((col) => col.editable);
+  });
+
+  /** Calculate total column count including reorder column if enabled */
+  const totalColumnCount = computed(() => {
+    return props.columns.length + (props.canReorder ? 1 : 0);
   });
 
   // PrimeVue disables row reordering when the table is sorted, so omit sort props entirely
@@ -1194,33 +1217,6 @@
     padding: 8px;
     text-align: center;
     border-right: 1px solid var(--fcb-color-border);
-  }
-
-  .fcb-group-header-expander {
-    width: 40px;
-    padding: 8px;
-    text-align: center;
-    border-right: 1px solid var(--fcb-color-border);
-    
-    button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 4px;
-      
-      &:hover {
-        color: var(--fcb-link-hover);
-      }
-    }
-  }
-
-  .fcb-group-header-name {
-    padding: 8px 12px;
-    cursor: pointer;
-    
-    &:hover {
-      color: var(--fcb-link-hover);
-    }
   }
 
   .fcb-group-edit {
