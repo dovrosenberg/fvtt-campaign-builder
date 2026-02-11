@@ -451,7 +451,7 @@
         "campaign": {
           "pcs": "PJs",
           "lore": "Savoir",
-          "toDo": "À faire",
+          "todo": "À faire",
           "ideas": "Idées"
         },
         "session": {

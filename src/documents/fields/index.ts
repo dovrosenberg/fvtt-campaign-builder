@@ -26,6 +26,7 @@ import { ArcLoreSchema } from './ArcLore';
 import { ArcVignetteSchema } from './ArcVignette';
 import { StoryWebNodeSchema } from './StoryWebNode';
 import { StoryWebEdgeSchema } from './StoryWebEdge';
+import { GroupArraySchema } from './GroupArray';
 
 export type * from './Danger';
 export type * from './StoryWebNode';
@@ -61,5 +62,6 @@ export const schemas = {
   ArcVignette: ArcVignetteSchema,
   StoryWebNode: StoryWebNodeSchema,
   StoryWebEdge: StoryWebEdgeSchema,
+  GroupArray: GroupArraySchema,
 }
 

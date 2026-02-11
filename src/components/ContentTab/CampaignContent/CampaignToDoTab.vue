@@ -7,6 +7,8 @@
       :filter-fields="[]"
       :add-button-label="localize('labels.campaign.addToDo')"
       :allow-drop-row="false"
+      :grouped="true"
+      :groups="mappedToDoGroups"
       :rows="mappedToDoRows"
       :columns="columns"
       :allow-edit="true"
@@ -15,6 +17,9 @@
       @add-item="onAddToDoItem"
       @cell-edit-complete="onCellEditComplete"
       @reorder="onReorder"
+      @group-add="onGroupAdd"
+      @group-edit="onGroupEdit"
+      @group-delete="onGroupDelete"
     >
     </BaseTable>
   </div>
@@ -36,44 +41,41 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { ToDoItem, ToDoTypes, CampaignTableTypes, BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent } from '@/types';
+  import { ToDoItem, ToDoTypes, CampaignTableTypes, BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent, TableGroup, GroupedTableGridRow } from '@/types';
 
   // store
   const campaignStore = useCampaignStore();
-  const { toDoRows, } = storeToRefs(campaignStore);
+  const { todoRows, todoGroups } = storeToRefs(campaignStore);
 
   // data
   const baseTableRef = ref<typeof BaseTable | null>(null);
   
+  ///////////////////////////////
   // computed
-  const mapToDoToName = (toDo: ToDoItem) => {
-    switch (toDo.type) {
-      case ToDoTypes.Manual:
-        return '';
-      case ToDoTypes.Entry:
-        return toDo.linkedText;
-      case ToDoTypes.Lore:
-        return 'Lore';
-      case ToDoTypes.Monster:
-        return 'Monster';
-      case ToDoTypes.Vignette:
-        return 'Vignette'; 
-      case ToDoTypes.Item:
-        return 'Item';
-      case ToDoTypes.GeneratedName:
-        return 'Generated Name';
-      default:
-        return '';
-    }
-  }
-
   const actions = computed(() => [
     { icon: 'fa-trash', callback: (data) => onDeleteToDoItem(data.uuid), tooltip: localize('tooltips.deleteToDo') },
     { icon: 'fa-arrow-left', callback: (data) => onMoveToIdeas(data.uuid), tooltip: localize('tooltips.moveToIdeas') },
-  ])
+  ]);
+
+  const mappedToDoGroups = computed(() => {
+    // Add an "Ungrouped" group for items without a group
+    const groups = [...todoGroups.value];
+    const hasUngroupedItems = todoRows.value.some(item => !item.groupId);
+    
+    if (hasUngroupedItems) {
+      groups.unshift({
+        groupId: 'ungrouped',
+        name: 'Ungrouped'
+      });
+    }
+    
+    return groups;
+  });
+
   const mappedToDoRows = computed(() => (
-    toDoRows.value.map((row) => ({
+    todoRows.value.map((row) => ({
       ...row,
+      groupId: row.groupId || 'ungrouped',
       entry: mapToDoToName(row),
       lastTouched: row.lastTouched ? formatDate(row.lastTouched) : '', 
     }))
@@ -91,7 +93,31 @@
     return columns;
   });
   
+  ///////////////////////////////
   // methods
+  const mapToDoToName = (todo: ToDoItem) => {
+    switch (todo.type) {
+      case ToDoTypes.Manual:
+        return '';
+      case ToDoTypes.Entry:
+        return todo.linkedText;
+      case ToDoTypes.Lore:
+        return 'Lore';
+      case ToDoTypes.Monster:
+        return 'Monster';
+      case ToDoTypes.Vignette:
+        return 'Vignette'; 
+      case ToDoTypes.Item:
+        return 'Item';
+      case ToDoTypes.GeneratedName:
+        return 'Generated Name';
+      default:
+        return '';
+    }
+  }
+
+  ///////////////////////////////
+  // event handlers
   const onDeleteToDoItem = async (uuid: string) => {
     await campaignStore.completeToDoItem(uuid);
   };
@@ -119,9 +145,32 @@
   }
 
   const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    // Reorder using array order
-    const reorderedToDos = reorderedRows.map((row) => toDoRows.value.find(toDo => toDo.uuid === row.uuid));
-    await campaignStore.reorderToDos(reorderedToDos);
+    // Check if this is a group reorder or row reorder
+    const firstRow = reorderedRows[0] as any;
+    if (firstRow && !firstRow.uuid) {
+      // This is a group reorder - filter out the ungrouped group and reorder
+      const newGroups = reorderedRows
+        .map(row => todoGroups.value.find(g => g.groupId === (row as any).groupId))
+        .filter(Boolean) as TableGroup[];
+      await campaignStore.reorderToDoGroups(newGroups);
+    } else {
+      // This is a row reorder within or between groups
+      const reorderedToDos = reorderedRows.map((row) => todoRows.value.find(todo => todo.uuid === row.uuid));
+      await campaignStore.reorderToDos(reorderedToDos);
+    }
+  };
+
+  const onGroupAdd = async () => {
+    await campaignStore.addToDoGroup('New Group');
+  };
+
+  const onGroupEdit = async (groupId: string, newName: string) => {
+    await campaignStore.updateToDoGroup(groupId, newName);
+  };
+
+  const onGroupDelete = async (groupId: string) => {
+    if (groupId === 'ungrouped') return; // Can't delete the ungrouped group
+    await campaignStore.deleteToDoGroup(groupId);
   };
 
   const onMoveToIdeas = async (uuid: string) => {

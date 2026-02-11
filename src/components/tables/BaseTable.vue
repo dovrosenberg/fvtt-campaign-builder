@@ -3,11 +3,15 @@
     <DataTable
       data-key="uuid"
       v-bind="dataTableSortBindings"
-      :value="rows"
+      :value="transformedData"
+      :row-group-mode="props.grouped ? 'subheader' : undefined"
+      :group-rows-by="props.grouped ? 'groupId' : undefined"
+      :expandable-row-groups="props.grouped"
+      v-model:expanded-row-groups="expandedRowGroups"
       size="small"
       scrollable
       scroll-height="flex"
-      :total-records="rows.length"
+      :total-records="transformedData.length"
       :global-filter-fields="effectiveFilterFields"
       :filters="pagination.filters"
       :pt="{
@@ -17,10 +21,15 @@
         row: { 
           style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
         },
+        rowGroupHeader: {
+          style: 'background-color: red'
+        }
       }"
 
       @row-contextmenu="emit('rowContextMenu', $event)"
       @row-reorder="onRowReorder"
+      @rowgroup-expand="emit('update:expandedRowGroups', $event)"
+      @rowgroup-collapse="emit('update:expandedRowGroups', $event)"
     >
     <!-- These need to be set if we want pagination back -->
     <!-- <DataTable
@@ -44,11 +53,22 @@
         <div style="display: flex; justify-content: space-between;">
           <div style="display: flex">
             <Button
+              v-if="props.grouped"
+              unstyled
+              data-testid="table-add-group-button"
+              style="flex: initial; width: auto; margin-right: 0.5rem;"
+              @click="addNewGroup"
+            >
+              <template #icon>
+                <i class="fas fa-folder-plus"></i>
+              </template>
+            </Button>
+            <Button
               v-if="props.showAddButton"
               unstyled
               data-testid="table-add-button"
               :label="props.addButtonLabel" 
-              style="flex: initial; width:auto;"
+              style="flex: initial; width: auto;"
               @click="emit('addItem')"
             >
               <template #icon>
@@ -99,6 +119,55 @@
         {{ localize('labels.loading') }}...
       </template>
 
+      <!-- Group header template for grouped mode -->
+      <template #groupheader="slotProps" v-if="props.grouped">
+        <span class="fcb-group-header-actions">
+          <a
+            v-if="slotProps.data.groupId !== 'ungrouped'"
+            class="fcb-action-icon"
+            data-tooltip="Edit"
+            @click.stop="setEditingGroup(slotProps.data.groupId)"
+          >
+            <i class="fas fa-edit"></i>
+          </a>
+          <a
+            v-if="slotProps.data.groupId !== 'ungrouped'"
+            class="fcb-action-icon"
+            data-tooltip="Delete"
+            @click.stop="deleteGroup(slotProps.data.groupId)"
+          >
+            <i class="fas fa-trash"></i>
+          </a>
+      </span>
+      <span 
+        :class="['fcb-group-header', 'fcb-group-header-name',editingGroupId === slotProps.data.groupId ? 'editing' : '']"
+        @dragstart="onGroupDragStart($event, slotProps.data.groupId)"
+        @dragover="onGroupDragOver($event)"
+        @drop="onGroupDrop($event, slotProps.data.groupId)"
+        @dragend="onGroupDragEnd"
+      >
+          <!-- Edit mode -->
+          <div v-if="editingGroupId === slotProps.data.groupId" class="fcb-group-edit">
+            <InputText 
+              v-model="editingGroupName"
+              ref="groupEditInput"
+              unstyled
+              class="fcb-group-input"
+              @keydown.enter.stop="saveEditingGroup"
+              @keydown.esc.stop="cancelEditGroup"
+            />
+          </div>
+          <!-- Display mode -->
+          <div 
+            v-else 
+            class="fcb-group-display"
+            @click.stop="setEditingGroup(slotProps.data.groupId)"
+          >
+            {{ slotProps.data.name }}
+          </div>
+        </span>
+      </template>
+
       <Column
         v-if="props.canReorder"
         :row-reorder="true"
@@ -116,8 +185,13 @@
         :sortable="props.canReorder ? false : col.sortable"
       >
         <template #body="{ data, field }">
+          <!-- Skip rendering for group rows in grouped mode -->
+          <div v-if="props.grouped && data.isGroup">
+            <!-- Group content is rendered in groupheader template -->
+          </div>
+          
           <!-- ACTIONS -->
-          <div v-if="field === 'actions'">
+          <div v-else-if="field === 'actions'">
             <div 
               :class="[
                 'fcb-row-wrapper', 
@@ -286,7 +360,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, PropType, computed, reactive, nextTick } from 'vue';
+  import { ref, PropType, computed, reactive, nextTick, watch } from 'vue';
   import { FilterMatchMode } from '@primevue/core/api';
 
   // local imports
@@ -317,7 +391,7 @@
   import { 
     TablePagination, BaseTableGridRow, ActionButtonDefinition, 
     CellEditCompleteEvent, RowEditCompleteEvent, 
-    BaseTableColumn
+    BaseTableColumn, TableGroup, GroupedTableGridRow
   } from '@/types';
 
 
@@ -388,6 +462,21 @@
       type: Boolean,
       default: false,
     },
+    // enable grouping mode with groups
+    grouped: {
+      type: Boolean,
+      default: false,
+    },
+    // array of groups for grouped mode
+    groups: {
+      type: Array as PropType<TableGroup[]>,
+      default: () => [],
+    },
+    // array of expanded group IDs
+    expandedRowGroups: {
+      type: Array as PropType<string[]>,
+      default: () => [],
+    },
   });
 
   ////////////////////////////////
@@ -410,6 +499,10 @@
     (e: 'setEditingRow', uuid: string): void;
     (e: 'reorder', reorderedRows: BaseTableGridRow[], dragIndex: number, dropIndex: number): void;
     (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+    (e: 'groupDelete', groupId: string): void;
+    (e: 'groupEdit', groupId: string, newName: string): void;
+    (e: 'groupAdd'): void;
+    (e: 'update:expandedRowGroups', value: string[]): void;
   }>();
 
   ////////////////////////////////
@@ -434,6 +527,9 @@
     },
   });
 
+  /** which groups are currently expanded */
+  const expandedRowGroups = ref<string[]>([]);
+
   /** are we editing and row, and which one (uuid) */
   const editingRow = ref<string | null>(null);
   const editingRowData = ref<any>({});
@@ -446,6 +542,16 @@
 
   /** track initial UUIDs when a row enters edit mode */
   const initialRowUUIDs = ref<string[]>([]);
+
+  /** track if we're editing a group */
+  const editingGroupId = ref<string | null>(null);
+  const editingGroupName = ref<string>('');
+
+  /** store collapse state during group drag */
+  const groupCollapseState = ref<string[]>([]);
+
+  /** track if a group is being dragged */
+  const isDraggingGroup = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
@@ -463,6 +569,34 @@
       ? {}
       : { sortField: pagination.sortField, sortOrder: pagination.sortOrder, defaultSortOrder: 1 }
   ));
+
+  /** Transform data for grouped mode */
+  const transformedData = computed(() => {
+    if (!props.grouped) {
+      return props.rows;
+    }
+
+    const result: (BaseTableGridRow & { isGroup?: boolean; groupId: string })[] = [];
+    
+    // Add groups and their rows in order
+    for (const group of props.groups) {
+      // Add group row
+      result.push({
+        isGroup: true,
+        groupId: group.groupId,
+        name: group.name,
+        uuid: `group-${group.groupId}`, // Add uuid for PrimeVue
+      });
+      
+      // Add data rows for this group
+      const groupRows = props.rows.filter(row => 
+        (row as GroupedTableGridRow).groupId === group.groupId
+      );
+      result.push(...groupRows);
+    }
+    
+    return result;
+  });
 
   ////////////////////////////////
   // methods
@@ -509,6 +643,56 @@
 
     emit('setEditingRow', uuid);
     emit('cellEditInit');
+  };
+
+  /**
+   * Sets a group to edit mode
+   * @param groupId The ID of the group to edit
+   */
+  const setEditingGroup = (groupId: string) => {
+    if (groupId === 'ungrouped') return; // Can't edit the ungrouped group
+
+    const group = props.groups.find(g => g.groupId === groupId);
+    if (!group) return;
+    
+    editingGroupId.value = groupId;
+    editingGroupName.value = group.name;
+  };
+
+  /**
+   * Saves the currently editing group
+   */
+  const saveEditingGroup = () => {
+    if (!editingGroupId.value) return;
+  
+    if (editingGroupId.value === 'ungrouped') return; // Can't edit the ungrouped group (should never happen)
+
+    emit('groupEdit', editingGroupId.value, editingGroupName.value);
+    editingGroupId.value = null;
+    editingGroupName.value = '';
+  };
+
+  /**
+   * Cancels group editing
+   */
+  const cancelEditGroup = () => {
+    editingGroupId.value = null;
+    editingGroupName.value = '';
+  };
+
+  /**
+   * Deletes a group
+   * @param groupId The ID of the group to delete
+   */
+  const deleteGroup = (groupId: string) => {
+    emit('groupDelete', groupId);
+  };
+
+  /**
+   * Adds a new group
+   */
+  const addNewGroup = () => {
+    emit('groupAdd');
   };
 
   const cancelEdit = () => {
@@ -756,8 +940,54 @@
 
     const { value, dragIndex, dropIndex } = event;
 
+    // In grouped mode, we need to handle cross-group moves
+    if (props.grouped) {
+      // Find which group the dropped row belongs to
+      const droppedRow = value[dropIndex];
+      const targetGroupId = (droppedRow as GroupedTableGridRow).groupId;
+      
+      // Update the row's groupId if it changed groups
+      if (targetGroupId) {
+        const draggedRow = transformedData.value[dragIndex];
+        const originalGroupId = (draggedRow as GroupedTableGridRow).groupId;
+        
+        // Only update if this is a data row (not a group) and groupId changed
+        if (!draggedRow.isGroup && originalGroupId !== targetGroupId) {
+          // Find the actual row in props.rows and update its groupId
+          const rowIndex = props.rows.findIndex(r => r.uuid === draggedRow.uuid);
+          if (rowIndex !== -1) {
+            const updatedRows = [...props.rows];
+            updatedRows[rowIndex] = {
+              ...updatedRows[rowIndex],
+              groupId: targetGroupId,
+            };
+            
+            // Reorder all rows based on the new arrangement
+            const finalRows = reorderRowsFromTransformed(value);
+            emit('reorder', finalRows, dragIndex, dropIndex);
+            return;
+          }
+        }
+      }
+    }
+
     emit('reorder', value, dragIndex, dropIndex);
   }
+
+  /**
+   * Convert transformed data back to rows array format
+   */
+  const reorderRowsFromTransformed = (transformed: (BaseTableGridRow & { isGroup?: boolean })[]) => {
+    const result: BaseTableGridRow[] = [];
+    
+    for (const item of transformed) {
+      if (!item.isGroup) {
+        result.push(item);
+      }
+    }
+    
+    return result;
+  };
 
   const onEditButtonClick = (data: BaseTableGridRow, callback: (data: BaseTableGridRow) => void) => {
     // Check if there are any editable columns
@@ -778,9 +1008,104 @@
     }
   }
 
+  const onGroupToggle = (groupId: string) => {
+    const newExpanded = [...props.expandedRowGroups];
+    const index = newExpanded.indexOf(groupId);
+    
+    if (index > -1) {
+      newExpanded.splice(index, 1);
+    } else {
+      newExpanded.push(groupId);
+    }
+    
+    emit('update:expandedRowGroups', newExpanded);
+  };
+
+  const onGroupDragStart = (event: DragEvent, groupId: string) => {
+    if (!event.dataTransfer) return;
+    
+    // Store the current collapse state
+    groupCollapseState.value = [...props.expandedRowGroups];
+    
+    // Collapse all groups during drag
+    emit('update:expandedRowGroups', []);
+    
+    // Set drag data
+    event.dataTransfer.setData('text/plain', groupId);
+    event.dataTransfer.effectAllowed = 'move';
+    
+    isDraggingGroup.value = true;
+  };
+
+  const onGroupDragOver = (event: DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = 'move';
+  };
+
+  const onGroupDrop = (event: DragEvent, targetGroupId: string) => {
+    event.preventDefault();
+    
+    if (!event.dataTransfer || !isDraggingGroup.value) return;
+    
+    const draggedGroupId = event.dataTransfer.getData('text/plain');
+    if (draggedGroupId === targetGroupId) return;
+    
+    // Find indices
+    const draggedIndex = props.groups.findIndex(g => g.groupId === draggedGroupId);
+    const targetIndex = props.groups.findIndex(g => g.groupId === targetGroupId);
+    
+    if (draggedIndex === -1 || targetIndex === -1) return;
+    
+    // Create new groups array with reordered items
+    const newGroups = [...props.groups];
+    const [draggedGroup] = newGroups.splice(draggedIndex, 1);
+    newGroups.splice(targetIndex, 0, draggedGroup);
+    
+    // Restore collapse state
+    emit('update:expandedRowGroups', groupCollapseState.value);
+    
+    // Emit reorder event with both groups and reordered rows
+    const reorderedRows = reorderRowsByGroups(newGroups);
+    emit('reorder', reorderedRows, draggedIndex, targetIndex);
+  };
+
+  const onGroupDragEnd = () => {
+    isDraggingGroup.value = false;
+    groupCollapseState.value = [];
+  };
+
+  /**
+   * Reorder rows based on new group order
+   */
+  const reorderRowsByGroups = (newGroups: TableGroup[]) => {
+    const result: BaseTableGridRow[] = [];
+    
+    for (const group of newGroups) {
+      const groupRows = props.rows.filter(row => 
+        (row as GroupedTableGridRow).groupId === group.groupId
+      );
+      result.push(...groupRows);
+    }
+    
+    return result;
+  };
+
   ////////////////////////////////
   // watchers
   // reload when topic changes
+  
+  /** Watch for group edit mode to focus input */
+  watch(editingGroupId, (newId) => {
+    if (newId) {
+      nextTick(() => {
+        const input = document.querySelector('.fcb-group-input') as HTMLInputElement;
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      });
+    }
+  });
 
   ////////////////////////////////
   // lifecycle events
@@ -848,5 +1173,80 @@
   .fcb-table-help-icon {
     margin-left: 8px;
     margin-right: 8px;
+  }
+
+  // Group header styles
+  .fcb-group-header {
+    background-color: var(--fcb-color-surface-200);
+    font-weight: bold;
+    
+    &:hover {
+      background-color: var(--fcb-color-surface-300);
+    }
+    
+    &.editing {
+      background-color: var(--fcb-color-surface-100);
+    }
+  }
+
+  .fcb-group-header-actions {
+    width: 60px;
+    padding: 8px;
+    text-align: center;
+    border-right: 1px solid var(--fcb-color-border);
+  }
+
+  .fcb-group-header-expander {
+    width: 40px;
+    padding: 8px;
+    text-align: center;
+    border-right: 1px solid var(--fcb-color-border);
+    
+    button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      
+      &:hover {
+        color: var(--fcb-link-hover);
+      }
+    }
+  }
+
+  .fcb-group-header-name {
+    padding: 8px 12px;
+    cursor: pointer;
+    
+    &:hover {
+      color: var(--fcb-link-hover);
+    }
+  }
+
+  .fcb-group-edit {
+    display: iline-block;
+    align-items: center;
+    height: 100%;
+  }
+
+  .fcb-group-input {
+    width: 100%;
+    font-size: inherit;
+    font-family: inherit;
+    background: var(--fcb-color-surface-50);
+    border: 1px solid var(--fcb-color-border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--fcb-link);
+    }
+  }
+
+  .fcb-group-display {
+    display: inline-block;
+    align-items: center;
+    height: 100%;
   }
 </style>

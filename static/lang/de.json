@@ -451,7 +451,7 @@
         "campaign": {
           "pcs": "PCs",
           "lore": "Überlieferung",
-          "toDo": "Zu erledigen",
+          "todo": "Zu erledigen",
           "ideas": "Ideen"
         },
         "session": {

@@ -537,7 +537,7 @@
         "campaign": {
           "pcs": "PCs",
           "lore": "Lore",
-          "toDo": "To-Do",
+          "todo": "To-Do",
           "ideas": "Ideas"
         },
         "front": {

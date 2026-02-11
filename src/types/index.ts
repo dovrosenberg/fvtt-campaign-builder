@@ -131,6 +131,7 @@ export interface ToDoItem {
   linkedUuid: string | null;  // uuid of the linked entry, lore, etc.
   linkedText: string | null;  // text to display for linked items
   sessionUuid: string | null; // uuid of the session if it's a session to-do (lore, vignette, monster, item)
+  groupId?: string;  // optional group ID for grouping todo items
   text: string;
   type: ToDoTypes;
 }

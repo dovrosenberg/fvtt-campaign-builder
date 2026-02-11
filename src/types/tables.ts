@@ -1,4 +1,5 @@
 import { DataTableFilterMetaData } from 'primevue';
+import { BaseTableGridRow } from './index';
 
 export interface BaseRow {
   uuid: string;
@@ -32,7 +33,7 @@ export interface ActionButtonDefinition {
 
 export interface BaseTableColumn {
   field:string; 
-  header: string;
+  group?: string;
   editable?: boolean;
   style?: string;
   sortable?: boolean;
@@ -40,6 +41,15 @@ export interface BaseTableColumn {
   type?: string;  
   onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;  // should a specific fn be called when the cell is clicked (also underlines the text)
 };
+
+export interface TableGroup {
+  groupId: string;
+  name: string;
+}
+
+export interface GroupedTableGridRow extends BaseTableGridRow {
+  groupId?: string; // Only for data rows, not groups
+}
 
 export interface PaginationResult<T extends AnyRow> {
   rows: T[];

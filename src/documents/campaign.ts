@@ -1,5 +1,5 @@
 import { SessionLore, } from '@/documents/session';
-import { ToDoItem, Idea, RelatedJournal, RelatedPCDetails, SessionBasicIndex, ArcBasicIndex } from '@/types';
+import { ToDoItem, Idea, RelatedJournal, RelatedPCDetails, SessionBasicIndex, ArcBasicIndex, TableGroup } from '@/types';
 import { DOCUMENT_TYPES } from './types';
 import { schemas } from './fields';
 
@@ -59,6 +59,9 @@ export const CampaignSchema = {
     schemas.ToDoItem(), 
     { required: true, nullable: false, initial: [] as ToDoItem[] }
   ),
+
+  /** todo item groups */
+  todoGroups: schemas.GroupArray(),
 
   /** ideas */
   ideas: new fields.ArrayField(
@@ -122,6 +125,7 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
     lore: CampaignLore[];  
     img: string;   
     todoItems: ToDoItem[];   
+    todoGroups: TableGroup[];
     ideas: Idea[];   
     journals: RelatedJournal[]; 
     pcs: RelatedPCDetails[];

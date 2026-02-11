@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { DOCUMENT_TYPES, CampaignLore, frontIndexFields } from '@/documents';
-import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, StoryWebFilterIndex, ToDoItem, ToDoTypes, Idea,} from '@/types';
+import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, StoryWebFilterIndex, ToDoItem, ToDoTypes, Idea, TableGroup } from '@/types';
 import { Entry, Session, FCBSetting, Front, Arc, StoryWeb } from '@/classes';
 import ArcIndexService from '@/utils/arcIndex';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
@@ -447,6 +447,14 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     this._clone.system.todoItems = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
+  public get todoGroups(): readonly TableGroup[] {
+    return this._clone.system.todoGroups as TableGroup[];
+  }
+
+  public set todoGroups(value: TableGroup[] | readonly TableGroup[]) {
+    this._clone.system.todoGroups = value.slice();     // we clone it so it can't be edited outside (this is historical)
+  }
+
   /** Creates a new to-do item and adds to the campaign*/
   public async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string | null | undefined, sessionUuid?: string, manualDate?: Date): Promise<ToDoItem | null> {
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
@@ -543,6 +551,80 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
   public async completeToDoItem(uuid: string): Promise<void> {
     this._clone.system.todoItems = this._clone.system.todoItems.filter(i => i.uuid !== uuid);
+    await this.save();
+  }
+
+  /** Creates a new todo group */
+  public async addToDoGroup(name: string): Promise<TableGroup> {
+    const newGroup: TableGroup = {
+      groupId: foundry.utils.randomID(),
+      name: name,
+    };
+
+    this._clone.system.todoGroups.push(newGroup);
+    await this.save();
+
+    return newGroup;
+  }
+
+  /** Updates a todo group name */
+  public async updateToDoGroup(groupId: string, newName: string): Promise<void> {
+    const group = this._clone.system.todoGroups.find(g => g.groupId === groupId);
+    if (!group)
+      return;
+
+    group.name = newName;
+    await this.save();
+  }
+
+  /** Deletes a todo group and moves its items to ungrouped */
+  public async deleteToDoGroup(groupId: string): Promise<void> {
+    // Remove the group
+    this._clone.system.todoGroups = this._clone.system.todoGroups.filter(g => g.groupId !== groupId);
+    
+    // Remove groupId from all todo items in that group
+    this._clone.system.todoItems.forEach(item => {
+      if (item.groupId === groupId) {
+        delete item.groupId;
+      }
+    });
+
+    await this.save();
+  }
+
+  /** Moves a todo item to a different group */
+  public async moveToDoItemToGroup(todoUuid: string, groupId?: string): Promise<void> {
+    const item = this._clone.system.todoItems.find(i => i.uuid === todoUuid);
+    if (!item)
+      return;
+
+    if (groupId) {
+      item.groupId = groupId;
+    } else {
+      delete item.groupId;
+    }
+
+    await this.save();
+  }
+
+  /** Reorders todo groups */
+  public async reorderToDoGroups(newOrder: TableGroup[]): Promise<void> {
+    this._clone.system.todoGroups = newOrder;
+    
+    // Reorder todo items to match group order
+    const reorderedItems: ToDoItem[] = [];
+    
+    // Add items for each group in order
+    for (const group of newOrder) {
+      const groupItems = this._clone.system.todoItems.filter(item => item.groupId === group.groupId);
+      reorderedItems.push(...groupItems);
+    }
+    
+    // Add ungrouped items at the end
+    const ungroupedItems = this._clone.system.todoItems.filter(item => !item.groupId);
+    reorderedItems.push(...ungroupedItems);
+    
+    this._clone.system.todoItems = reorderedItems;
     await this.save();
   }
 
@@ -645,12 +727,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @param uuid The UUID of the to-do item to move
    */
   public async moveToDoToIdea(uuid: string): Promise<void> {
-    const toDo = this._clone.system.todoItems.find(i => i.uuid === uuid);
-    if (!toDo)
+    const todo = this._clone.system.todoItems.find(i => i.uuid === uuid);
+    if (!todo)
       return;
 
     // Create a new idea with the to-do's text
-    await this.addIdea(toDo.text);
+    await this.addIdea(todo.text);
 
     // Remove the to-do item
     this._clone.system.todoItems = this._clone.system.todoItems.filter(i => i.uuid !== uuid);

@@ -127,7 +127,7 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const campaignStore = useCampaignStore();
   const { currentCampaign } = useContentState();
-  const { toDoRows } = storeToRefs(campaignStore);
+  const { todoRows } = storeToRefs(campaignStore);
 
   ////////////////////////////////
   // data
@@ -148,7 +148,7 @@
     return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 
-  const openToDoCount = computed(() => toDoRows.value.length);
+  const openToDoCount = computed(() => todoRows.value.length);
 
   const tabs = computed(() => {
     let baseTabs = [
@@ -160,7 +160,7 @@
     ];
 
     if (showToDoTab.value) {
-      const baseLabel = localize('labels.tabs.campaign.toDo');
+      const baseLabel = localize('labels.tabs.campaign.todo');
       const label = openToDoCount.value ? `${baseLabel} (${openToDoCount.value})` : baseLabel;
       baseTabs.push({ id: 'todo', label });
     }

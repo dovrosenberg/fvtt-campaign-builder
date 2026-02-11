@@ -9,7 +9,7 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { RelatedPCDetails, BaseTableColumn, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea, CampaignTableTypes} from '@/types';
+import { RelatedPCDetails, BaseTableColumn, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea, CampaignTableTypes, TableGroup} from '@/types';
 import { Arc, Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import { notifyWarn } from '@/utils/notifications';
@@ -22,7 +22,8 @@ export const campaignStore = () => {
   // used for tables
   const relatedPCRows = ref<RelatedPCDetails[]>([]);
   const allRelatedLoreRows = ref<CampaignLoreDetails[]>([]);  // all the rows - for lookups
-  const toDoRows = ref<ToDoItem[]>([]);
+  const todoRows = ref<ToDoItem[]>([]);
+  const todoGroups = ref<TableGroup[]>([]);
   const ideaRows = ref<Idea[]>([]);
 
   const extraFields = {
@@ -368,6 +369,36 @@ export const campaignStore = () => {
     await _refreshToDoRows();
   };
 
+  // ToDo group methods
+  const addToDoGroup = async (name: string): Promise<TableGroup | null> => {
+    if (!currentCampaign.value) return null;
+
+    const newGroup = await currentCampaign.value.addToDoGroup(name);
+    await _refreshToDoRows();
+    return newGroup;
+  };
+
+  const updateToDoGroup = async (groupId: string, newName: string): Promise<void> => {
+    if (!currentCampaign.value) return;
+
+    await currentCampaign.value.updateToDoGroup(groupId, newName);
+    await _refreshToDoRows();
+  };
+
+  const deleteToDoGroup = async (groupId: string): Promise<void> => {
+    if (!currentCampaign.value) return;
+
+    await currentCampaign.value.deleteToDoGroup(groupId);
+    await _refreshToDoRows();
+  };
+
+  const reorderToDoGroups = async (newOrder: TableGroup[]): Promise<void> => {
+    if (!currentCampaign.value) return;
+
+    await currentCampaign.value.reorderToDoGroups(newOrder);
+    await _refreshToDoRows();
+  };
+
   const moveIdeaToToDo = async (uuid: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
@@ -446,17 +477,17 @@ export const campaignStore = () => {
 
   // when we click on an entry in the todo list, open it
   async function onToDoClick (event: MouseEvent, uuid: string) {
-    const toDo = toDoRows.value.find(r=> r.uuid===uuid);
+    const todo = todoRows.value.find(r=> r.uuid===uuid);
 
-    if (!toDo) 
+    if (!todo) 
       return;
 
     // If there's a linked entity, check if it still exists
-    if (toDo.linkedUuid) {
-      const entry = await Entry.fromUuid(toDo.linkedUuid);
+    if (todo.linkedUuid) {
+      const entry = await Entry.fromUuid(todo.linkedUuid);
       if (!entry)  {
         // I don't think we currently link to documents, but just in case
-        const document = await fromUuid<foundry.abstract.Document<any, any>>(toDo.linkedUuid);
+        const document = await fromUuid<foundry.abstract.Document<any, any>>(todo.linkedUuid);
         if (!document) {
           notifyWarn(localize('notifications.todoReferenceNotFound'));
           return;
@@ -466,7 +497,7 @@ export const campaignStore = () => {
 
     // set the tab if needed
     let tabId = null as string | null;
-    switch (toDo?.type) {
+    switch (todo?.type) {
       case ToDoTypes.Lore:
         tabId = 'lore';
         break;
@@ -481,11 +512,11 @@ export const campaignStore = () => {
         break;
     }
 
-    switch (toDo?.type) {
+    switch (todo?.type) {
       case ToDoTypes.Entry:
         // just open the entry
-        if (toDo.linkedUuid) { // Check if linkedUuid exists before trying to use it
-          navigationStore.openEntry(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true });
+        if (todo.linkedUuid) { // Check if linkedUuid exists before trying to use it
+          navigationStore.openEntry(todo.linkedUuid, { newTab: event.ctrlKey, activate: true });
         }
         break;
       case ToDoTypes.Lore:
@@ -493,8 +524,8 @@ export const campaignStore = () => {
       case ToDoTypes.Monster:
       case ToDoTypes.Item:
         // open the session and set the right tab
-        if (toDo.sessionUuid) { // Check if sessionUuid exists
-          navigationStore.openSession(toDo.sessionUuid, { newTab: event.ctrlKey, activate: true, contentTabId: tabId || undefined });
+        if (todo.sessionUuid) { // Check if sessionUuid exists
+          navigationStore.openSession(todo.sessionUuid, { newTab: event.ctrlKey, activate: true, contentTabId: tabId || undefined });
         }
         break;
       case ToDoTypes.GeneratedName:
@@ -584,12 +615,14 @@ export const campaignStore = () => {
   }
 
   const _refreshToDoRows = async () => {
-    toDoRows.value = [];
+    todoRows.value = [];
+    todoGroups.value = [];
 
     if (!currentCampaign.value)
       return;
     
-    toDoRows.value = currentCampaign.value.todoItems.slice();
+    todoRows.value = currentCampaign.value.todoItems.slice();
+    todoGroups.value = currentCampaign.value.todoGroups.slice();
   }
 
   const _refreshIdeaRows = async () => {
@@ -625,6 +658,7 @@ export const campaignStore = () => {
   ///////////////////////////////
   // watchers
   watch(()=> currentCampaign.value, async () => {
+    // if not on the todo tab, still load the rows so the counter gets updated
     if (currentContentTab.value !== 'todo')
       await _refreshToDoRows();
 
@@ -652,7 +686,8 @@ export const campaignStore = () => {
     availableLoreRows,
     extraFields,
     availableCampaigns,
-    toDoRows,
+    todoRows,
+    todoGroups,
     ideaRows,
     
     addPC,
@@ -670,6 +705,10 @@ export const campaignStore = () => {
     mergeToDoItem,
     completeToDoItem,
     updateToDoItem,
+    addToDoGroup,
+    updateToDoGroup,
+    deleteToDoGroup,
+    reorderToDoGroups,
     addIdea,
     updateIdea,
     deleteIdea,
