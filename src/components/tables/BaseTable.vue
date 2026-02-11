@@ -26,7 +26,8 @@
           colspan: totalColumnCount
         },
         rowGroupHeaderCell: {
-          colspan: totalColumnCount
+          colspan: totalColumnCount,
+          style: 'position: relative; padding-left: 60px;'
         }
       }"
 
@@ -122,27 +123,20 @@
 
       <!-- Group header template for grouped mode -->
       <template #groupheader="slotProps" v-if="props.grouped">
-        <div 
-          class="fcb-group-header-actions"
-          style="display:inline-block" 
+        <div
+          v-if="slotProps.data.groupId !== 'ungrouped'"
+          class="fcb-group-header-actions fcb-row-wrapper"
         >
           <div 
-            :class="['fcb-row-wrapper']"
+            class="fcb-group-header-grip"
             @dragover="onDragoverRow($event, slotProps.data.groupId)"
             @dragleave="onDragLeaveRow(slotProps.data.groupId)"
             @drop="onDropRow($event, slotProps.data.groupId)"
           >
-            <div 
-              class="fcb-drag-handle" 
-              draggable="true"
-              @dragstart="onDragstart($event, slotProps.data.groupId)"
-            >
-              <i class="fas fa-bars"></i>
-            </div>
+            <i class="fas fa-grip-vertical"></i>
           </div>
           <div>
             <a
-              v-if="slotProps.data.groupId !== 'ungrouped'"
               class="fcb-action-icon"
               data-tooltip="Edit"
               @click.stop="setEditingGroup(slotProps.data.groupId)"
@@ -150,7 +144,6 @@
               <i class="fas fa-edit"></i>
             </a>
             <a
-              v-if="slotProps.data.groupId !== 'ungrouped'"
               class="fcb-action-icon"
               data-tooltip="Delete"
               @click.stop="deleteGroup(slotProps.data.groupId)"
@@ -159,9 +152,8 @@
             </a>
           </div>
         </div>
-        <div 
+        <div
           :class="['fcb-group-header', editingGroupId === slotProps.data.groupId ? 'editing' : '']"
-          style="display:inline-block"
           @dragstart="onGroupDragStart($event, slotProps.data.groupId)"
           @dragover="onGroupDragOver($event)"
           @drop="onGroupDrop($event, slotProps.data.groupId)"
@@ -1198,25 +1190,36 @@
     margin-right: 8px;
   }
 
-  // Group header styles
+  // Actions are absolutely positioned to the left of PrimeVue's toggle button.
+  // The td gets position:relative + padding-left:60px via :pt on rowGroupHeaderCell.
+  .fcb-group-header-actions {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    padding-left: 8px;
+    display: flex;
+    align-items: center;
+  }
+
+  .fcb-group-header-grip {
+    color: var(--text-on-primary); 
+    cursor: move; 
+    margin-right: 8px
+  }
+
   .fcb-group-header {
+    display: inline-block;
     background-color: var(--fcb-color-surface-200);
     font-weight: bold;
-    
+
     &:hover {
       background-color: var(--fcb-color-surface-300);
     }
-    
+
     &.editing {
       background-color: var(--fcb-color-surface-100);
     }
-  }
-
-  .fcb-group-header-actions {
-    width: 60px;
-    padding: 8px;
-    text-align: center;
-    border-right: 1px solid var(--fcb-color-border);
   }
 
   .fcb-group-edit {
