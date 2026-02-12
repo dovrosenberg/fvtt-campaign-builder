@@ -112,7 +112,7 @@
             <Editor
               :initial-content="currentEntry?.description || ''"
               :current-entity-uuid="currentEntry?.uuid"
-              fixed-height="240px"
+              fixed-height="15"
               @editor-saved="onDescriptionEditorSaved"
               @related-entries-changed="onRelatedEntriesChanged"
             />

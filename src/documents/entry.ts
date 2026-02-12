@@ -11,7 +11,7 @@ export const EntrySchema = {
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
-  /** the height of each custom field */
+  /** the height of each custom field (in rem) */
   customFieldHeights: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
   /** keyed by topic, then entryId */

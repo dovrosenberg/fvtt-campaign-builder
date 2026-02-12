@@ -35,7 +35,7 @@
         <div class="flexrow form-group" style="margin-top: 1rem">
           <Editor
             :initial-content="currentDanger?.description || ''"
-            fixed-height="120px"
+            fixed-height="8"
             :current-entity-uuid="currentFront?.uuid"
             @related-entries-changed="onRelatedEntriesChanged"
             @editor-saved="onDescriptionEditorSaved"
@@ -84,7 +84,7 @@
         <div class="flexrow form-group">
           <Editor
             :initial-content="motivation || ''"
-            fixed-height="120px"
+            fixed-height="8"
             :current-entity-uuid="currentFront?.uuid"
             @related-entries-changed="onRelatedEntriesChanged"
             @editor-saved="onMotivationEditorSaved"

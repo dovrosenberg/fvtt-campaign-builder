@@ -73,7 +73,7 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="sessionNotesContent"
-              fixed-height="400px"
+              fixed-height="25"
               :current-entity-uuid="currentSession?.uuid"
               @related-entries-changed="onRelatedEntriesChanged"
               @editor-saved="onNotesEditorSaved"

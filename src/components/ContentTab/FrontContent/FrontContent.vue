@@ -49,7 +49,7 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentFront?.description || ''"
-              fixed-height="380px"
+              fixed-height="23.75"
               :current-entity-uuid="currentFront?.uuid"
               @editor-saved="onDescriptionEditorSaved"
             />

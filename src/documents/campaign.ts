@@ -14,7 +14,7 @@ export const CampaignSchema = {
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
-  /** the height of each custom field */
+  /** the height of each custom field (in rem) */
   customFieldHeights: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
   // we have to leave this until 1.8 migration is gone because otherwise the migration doesn't have access to it

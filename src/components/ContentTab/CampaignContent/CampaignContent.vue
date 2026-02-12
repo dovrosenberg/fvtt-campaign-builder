@@ -36,7 +36,7 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentCampaign?.description || ''"
-              fixed-height="240px"
+              fixed-height="15"
               :current-entity-uuid="currentCampaign?.uuid"
               @editor-saved="onDescriptionEditorSaved"
             />

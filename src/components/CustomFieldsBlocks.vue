@@ -28,7 +28,7 @@
           <Editor
             :key="`${content.uuid}-${field.name}`"
             :initial-content="String(values[field.name] ?? '')"
-            :fixed-height="editorHeights[field.name] ? `${editorHeights[field.name]}px` : `${field.editorHeight ?? 4}rem`"
+            :fixed-height="editorHeights[field.name] ? editorHeights[field.name] : (field.editorHeight ?? 4)"
             :resizable="true"
             :current-entity-uuid="content.uuid"
             @editor-saved="(newContent: string) => onFieldValueChanged(field, newContent)"
@@ -334,8 +334,7 @@
         if (storedHeight) {
           editorHeights[field.name] = storedHeight;
         } else if (field.editorHeight) {
-          // Convert rem to pixels (1rem = 16px)
-          editorHeights[field.name] = field.editorHeight * 16;
+          editorHeights[field.name] = field.editorHeight;
         }
       }
     }

@@ -45,7 +45,7 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentArc?.description || ''"
-              fixed-height="240px"
+              fixed-height="15"
               :current-entity-uuid="currentArc?.uuid"
               @related-entries-changed="onRelatedEntriesChanged"
               @editor-saved="onDescriptionEditorSaved"

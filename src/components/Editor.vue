@@ -115,9 +115,9 @@
       default: null,
     },
     fixedHeight: {
-      type: String,
+      type: Number,
       required: false,
-      default: null,
+      default: 0,
     },
     resizable: {
       type: Boolean,
@@ -160,14 +160,18 @@
   const lastSavedContent = ref<string>('');   // the parsemirror serialized content last saved, to see if any changes were made
   const initialUUIDs = ref<string[]>([]);     // UUIDs present when editor was first loaded
   const isResizing = ref<boolean>(false);
-  const currentHeight = ref<number>(0);
+  const currentHeight = ref<number>(props.fixedHeight ? props.fixedHeight : 0); // TODO: set default to reasonable
   const dragStartY = ref<number>(0);
   const dragStartHeight = ref<number>(0);
 
   const coreEditorRef = ref<HTMLDivElement>();
   const wrapperRef = ref<HTMLDivElement>();
   
-  //
+  // min/max heights in rem
+  const MIN_HEIGHT = 2.5;  // 40px
+  const MAX_HEIGHT = 30;   // 480px
+  const DEFAULT_HEIGHT = 15; // 240px minimum (15rem)
+
   ////////////////////////////////
   // computed data
   const datasetProperties = computed((): Record<string, string> => {
@@ -183,15 +187,27 @@
 
   const wrapperStyle = computed((): string => {
     if (props.fixedHeight && !props.resizable) {
-      return `height: ${props.fixedHeight}; margin-bottom: 0.375rem`;
+      return `height: ${props.fixedHeight}rem; margin-bottom: 0.375rem`;
     } else if (props.resizable && currentHeight.value > 0) {
-      return `height: ${currentHeight.value}px; margin-bottom: 0.375rem`;
+      return `height: ${currentHeight.value}rem; margin-bottom: 0.375rem`;
     }
     return '';
   });
 
   ////////////////////////////////
   // methods
+  
+  /**
+   * Convert pixel values to rem units
+   * @param px - The pixel value to convert
+   * @returns The equivalent value in rem
+   */
+  const convertPxToRem = (px: number): number => {
+    // Get the root font size from the document element
+    const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    return px / rootFontSize;
+  };
+  
   // shouldn't be called unless there's already a document
   // this creates the Editor class that converts the div into a functional editor
   const activateEditor = async (): Promise<void> => {
@@ -207,15 +223,19 @@
       throw new Error('Missing name in activateEditor()');
 
     // Determine the preferred editor height
-    let height = 240; // fallback to 240px minimum
+    let height = DEFAULT_HEIGHT; // fallback to 240px minimum (15rem)
     
     // Use currentHeight if already set, otherwise calculate based on wrapper
-    if (props.resizable && currentHeight.value > 0) {
-      height = currentHeight.value;
+    if (props.resizable) {
+      height = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, currentHeight.value));
     } else {
-      const heights = [wrapperRef.value.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
-      const validHeights = heights.filter(h => Number.isFinite(h) && h > 0);
-      height = validHeights.length > 0 ? Math.min(...validHeights) : 240;
+      const heightsInPx = [wrapperRef.value.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
+      
+      const validHeightsInPx = heightsInPx.filter(h => Number.isFinite(h) && h > 0);
+      
+      const minHeightInPx = validHeightsInPx.length > 0 ? Math.min(...validHeightsInPx) : DEFAULT_HEIGHT;
+      
+      height = convertPxToRem(minHeightInPx);
       currentHeight.value = height;
     }
 
@@ -232,7 +252,7 @@
     options.plugins = configureProseMirrorPlugins();
 
     if (!fitToSize && options.target.offsetHeight) 
-      options.height = options.target.offsetHeight;
+      options.height = convertPxToRem(options.target.offsetHeight);
     
     buttonDisplay.value = 'none';
     
@@ -422,7 +442,7 @@
     
     isResizing.value = true;
     dragStartY.value = event.clientY;
-    dragStartHeight.value = currentHeight.value || wrapperRef.value?.offsetHeight || 240;
+    dragStartHeight.value = currentHeight.value || convertPxToRem(wrapperRef.value?.offsetHeight || DEFAULT_HEIGHT);
     
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
@@ -433,7 +453,7 @@
     if (!isResizing.value) return;
     
     const deltaY = event.clientY - dragStartY.value;
-    const newHeight = Math.max(40, dragStartHeight.value + deltaY); // Minimum 40px height
+    const newHeight = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, dragStartHeight.value + convertPxToRem(deltaY))); 
     
     currentHeight.value = newHeight;
     
@@ -441,7 +461,9 @@
     if (editor.value) {
       const editorElement = wrapperRef.value?.querySelector('.prosemirror .editor-content');
       if (editorElement) {
-        (editorElement as HTMLElement).style.height = `${newHeight - 50}px`; // Adjust for menu bar
+        // Adjust for menu bar
+        const adjusted = newHeight - convertPxToRem(50);
+        (editorElement as HTMLElement).style.height = `${adjusted}rem`; 
       }
     }
   };
