@@ -21,7 +21,10 @@ This can be doubly helpful in Campaign Builder because of the [auto-suggest capa
 
 ## Drag and Drop
 
-You can drag any [^Entry], [^Campaign], or [^Session], from the [Setting Directory] into the description editor, and it will insert a UUID indicator that when you save will be displayed as a clickable link that will open that Entry *(hold 'Control' while clicking to open it in a new tab)*.  Similarly, you can drag any Foundry document (ex. Actors, Journal Entries, etc.) into the description editor for a link to that document (the same way you can in other Foundry editors).
+You can drag any [^Entry], [^Campaign], or [^Session], from the [Setting Directory] into the description editor, and it will insert a UUID indicator that when you save will be displayed as a clickable link that will open that Entry *(hold 'Control' while clicking to open it in a new tab)*.  Similarly, you can drag any Foundry document (ex. Actors, Journal Entries, etc.) into the description (or other) editor for a link to that document (the same way you can in other Foundry editors).
+
+## Resizing
+You can adjust the size of all custom field editors using the grabber in the lower-right corner.  This size can be set differently for each piece of content and each field (i.e. you can make the "boxed text" field on NPC1 and NPC2 different heights).  If you want to change the default size for a particular field, you can do that in the [Custom Fields Menu](/reference/configuration/custom-fields) in [Module Settings].
 
 ## Automatic references
 

@@ -7,7 +7,7 @@
    - Note that you cannot have more than one story web open at a time (i.e. visible in separate panels).  Opening a story web in one panel while one is visible in the other panel will close the prior one (or switch to a different tab, if available).
 - You can now create color schemes to apply to custom text blocks in story webs.
 - You can now export a story web as a .PNG file from the directory context menu.
-- You can now adjust the size of all custom field editors using the grabber in the lower right corner.  This size can be set differently for each piece of content.  If you want to change the default size, you can still do that in the module settings.
+- You can now adjust the size of all custom field editors using the grabber in the lower-right corner.  This size can be set differently for each piece of content.  If you want to change the default size for a particular field, you can still do that in the module settings.
 - You can now export a full setting as either a .MD file or a .ZIP file (the .MD plus all the story web .PNGs)from the directory context menu.  This is handy for reviewing in another interface or for feeding to an LLM to ask it questions about the setting/campaign.
 - Fixed issue with drag/drop of rows not working properly on very long tables.
 - Opening the Setting content now properly scrolls to the Setting node in the directory and highlights it, as it does for all the other content types.

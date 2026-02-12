@@ -34,18 +34,16 @@ The Fields tab allows you to add and manage custom fields for the selected conte
 
 Click the **Add** button to create a new custom field. Each field has the following properties:
 
-- **Label** - The display name shown in the UI
+- **Label** - Label is the text shown next to the input for the field.  The initial label also determines the "name" of the field that is used to store the data internally (and to specify it in AI templates (see below) [[Advanced Feature]]).  Once a field is saved, that name will never change, even if you change the label in the future.  This ensures that the field will also display any data you've previously created for it.  So, if you want to replace one field with another, you're better off deleting the old one and creating a new one, or the old data will continue to show.
 - **Type** - The field type:
-  - **Input** - Single line text input
-  - **Select** - Dropdown selection (configure options in the "Select Options" column)
+  - **Input** - Single line text input.
+  - **Select** - Dropdown selection
   - **Editor** - Text editor with formatting options
   - **Checkbox** - Yes/No checkbox
-
-### Field Options
-
-- Label is the text shown next to the input for the field.  The initial label also determines the "name" of the field that is used to store the data internally (and to specify it in AI templates (see below) [[Advanced Feature]]).  Once a field is saved, that name will never change, even if you change the label in the future.  This ensures that the field will also display any data you've previously created for it.  So, if you want to replace one field with another, you're better off deleting the old one and creating a new one, or the old data will continue to show.
-- For Select fields, you can configure multiple options that will appear in the dropdown menu.  Separate options with semi-colons
-- For Editor fields, you can configure how tall the box is (in rows, more or less).
+- **Select Options** - Only visible for Select fields, this is where you configure the options that will appear in the dropdown menu.  Separate options with semi-colons.
+- **Search** - Should the text in this field be indexed for search results?
+- **Height** - For Editor fields, you can configure how tall the box is (in rows, more or less).
+- **Help Text** - The help text (if any) that shows up when you hover over an "i" icon next to the field.
 
 ### Managing Fields
 
