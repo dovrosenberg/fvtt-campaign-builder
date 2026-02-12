@@ -225,15 +225,15 @@
     
     // Use currentHeight if already set, otherwise calculate based on wrapper
     if (props.resizable) {
-      height = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, currentHeight.value));
+      height = Math.clamp(currentHeight.value, MIN_HEIGHT, MAX_HEIGHT);
     } else {
       const heightsInPx = [wrapperRef.value.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
       
       const validHeightsInPx = heightsInPx.filter(h => Number.isFinite(h) && h > 0);
       
-      const minHeightInPx = validHeightsInPx.length > 0 ? Math.min(...validHeightsInPx) : DEFAULT_HEIGHT;
+      const minHeightInPx = validHeightsInPx.length > 0 ? convertPxToRem(Math.min(...validHeightsInPx)) : DEFAULT_HEIGHT;
       
-      height = convertPxToRem(minHeightInPx);
+      height = Math.clamp(minHeightInPx, MIN_HEIGHT, MAX_HEIGHT);
       currentHeight.value = height;
     }
 
@@ -460,7 +460,7 @@
       const editorElement = wrapperRef.value?.querySelector('.prosemirror .editor-content');
       if (editorElement) {
         // Adjust for menu bar
-        const adjusted = newHeight - convertPxToRem(50);
+        const adjusted = Math.clamp(newHeight - convertPxToRem(50), MIN_HEIGHT, MAX_HEIGHT);
         (editorElement as HTMLElement).style.height = `${adjusted}rem`; 
       }
     }
@@ -552,7 +552,7 @@
 
     editor.value = null;
 
-    // show the pretty text - but only if we have a button... otherwise we're in permananent edit mode and shouldn't be enriching the text
+    // show the pretty text - but only if we have a button... otherwise we're in permanent edit mode and shouldn't be enriching the text
     enrichedInitialContent.value = !props.editOnlyMode ? await enrichFcbHTML(currentSetting.value.uuid, props.initialContent || '') : props.initialContent || '';
 
     // Initialize UUIDs for tracking if enabled
