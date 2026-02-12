@@ -69,7 +69,6 @@ See the [user documentation](https://dovrosenberg.github.io/fvtt-campaign-builde
 
 * If you have a Story Web open in one panel and make a modification to something shown in it in a another panel, the Story Web will not immediately update.  Workaround: Change to a different tab in the Story Web panel and then come back.
 
-English, French, German, and Russian currently supported.  Let me know if you want others.  PRs also welcome for either new languages or fixes to bad translations in the current ones.  
 
 ## Issues?
 

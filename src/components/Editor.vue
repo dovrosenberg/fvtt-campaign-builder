@@ -39,9 +39,7 @@
       v-if="props.editable && props.resizable && !props.editOnlyMode"
       class="resize-handle"
       @mousedown="onMouseDown"
-    >
-      <i class="fas fa-grip-lines"></i>
-    </div>
+    />
   </div>
 </template>
 
@@ -686,8 +684,24 @@
       color: var(--fcb-text);
     }
 
-    i {
-      font-size: 10px;
-    }
+     &::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+
+      /* diagonal hatch */
+      background: repeating-linear-gradient(
+        135deg,
+        currentColor 0px,
+        currentColor 1px,
+        transparent 1px,
+        transparent 3px
+      );
+
+      /* clip to a bottom-right triangle */
+      clip-path: polygon(100% 0%, 100% 100%, 0% 100%);
+
+      opacity: 0.9;
+     }
   }
 </style>
