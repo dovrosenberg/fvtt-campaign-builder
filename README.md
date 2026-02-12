@@ -14,9 +14,10 @@ See the [user documentation](https://dovrosenberg.github.io/fvtt-campaign-builde
   <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot1.webp" alt="World building view" width="260" />
   <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot2.webp" alt="Entry relationships view" width="260" />
   <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot3.webp" alt="Session planning view" width="260" />
-  <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot4.webp" alt="Fronts" width="260" />
+<img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot4.webp" alt="Fronts" width="260" />
   <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot5.webp" alt="Story Arcs" width="260" />
   <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot7.webp" alt="Relationship graphs" width="260" />
+  <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot8.webp" alt="Multi panels" width="260" />
 </p>
 
 ## A note on AI and "Advanced Features"

@@ -33,7 +33,8 @@ features:
     'Use Fronts to track \'off-camera\' action by the bad guys',
     'Story arcs let you track your plot and store ideas for the future', 
     'AI generation of text and images (optional)',
-    'Relationship graphs let you see connections between elements'
+    'Relationship graphs let you see connections between elements',
+    'Multiple panels let you work more efficiently'
   ];
   const screenshots = Array.from({ length: labels.length }, (_, i) =>
     `${baseUrl}screenshots/screenshot${i + 1}.webp`

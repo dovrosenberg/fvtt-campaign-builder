@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, toRaw } from 'vue';
+  import { ref, watch, toRaw, onBeforeUnmount } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -194,6 +194,15 @@
 
   ////////////////////////////////
   // lifecycle events
+  onBeforeUnmount(() => {
+    // Clear the container reference when component is unmounted
+    currentContainer.value = null;
+    
+    // Destroy the network to prevent memory leaks
+    if (currentNetwork.value) {
+      toRaw(currentNetwork.value).destroy();
+    }
+  });
 
 </script>
 
