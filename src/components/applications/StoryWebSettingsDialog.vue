@@ -36,7 +36,7 @@ Dependencies
           {{ localize('applications.storyWebSettings.tabs.styles') }}
         </a>
         <a class="item" data-tab="custom-colors">
-          {{ localize('applications.storyWebSettings.tabs.customColors') }}
+          {{ localize('applications.storyWebSettings.tabs.shapeColors') }}
         </a>
         <a class="item" data-tab="fields">
           {{ localize('applications.storyWebSettings.tabs.fields') }}

@@ -265,7 +265,8 @@
 </script>
 
 <style lang="scss">
-  .tags-wrapper {
+  // tagify might be used elsewhere, but we don't have a ton of control over these class names
+  .fcb .tags-wrapper {
     // TODO - do these heights need to change when font size scales? Should it be like x rem+1px or something?
     min-height: 31px;
     width: 100%;
@@ -273,7 +274,7 @@
     font-family: var(--fcb-font-family);
   }
 
-  .tagify {
+  .fcb .tagify {
     min-height: 31px; /* Ensure consistent height even when empty */
     
     &:focus-within {
@@ -283,16 +284,16 @@
     }
   }
 
-  .tagify__input::before {
+  .fcb .tagify__input::before {
     color: var(--fcb-text);
   }
 
-  .tags-input {
+  .fcb .tags-input {
     width: 100%;
     border-color: var(--fcb-control-border);
   }
 
-  .tags-wrapper.uninitialized {
+  .fcb .tags-wrapper.uninitialized {
     visibility: hidden;
   }
 </style>

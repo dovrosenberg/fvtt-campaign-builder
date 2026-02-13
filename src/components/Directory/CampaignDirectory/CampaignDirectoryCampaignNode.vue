@@ -193,7 +193,7 @@
   };
 
   const onCampaignSelectClick = async (event: MouseEvent) => {
-    await navigationStore.openCampaign(currentNode.value.id, {newTab: event.ctrlKey});
+    await navigationStore.openCampaign(currentNode.value.id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
   };
 
   const onCampaignContextMenu = (event: MouseEvent): void => {

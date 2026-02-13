@@ -153,7 +153,7 @@
     event.stopPropagation();
 
     if (settingId) {
-      await navigationStore.openSetting(settingId, {newTab: event.ctrlKey});
+      await navigationStore.openSetting(settingId, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
     }
   };
 

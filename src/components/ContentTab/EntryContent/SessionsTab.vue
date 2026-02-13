@@ -18,11 +18,12 @@
 
 <script setup lang="ts">
 // library imports
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import { storeToRefs } from 'pinia';
 
 // local imports
-import { useNavigationStore, useRelationshipStore, useMainStore } from '@/applications/stores';
+import { useNavigationStore, useMainStore } from '@/applications/stores';
+import { ENTRY_DERIVED_STATE_KEY } from '@/composables/useEntryDerivedState';
 import { localize } from '@/utils/game';
 
 // library components
@@ -35,14 +36,13 @@ import { BaseTableColumn } from '@/types';
 
 // store
 const navigationStore = useNavigationStore();
-const relationshipStore = useRelationshipStore();
 const mainStore = useMainStore();
-const { sessionReferences } = storeToRefs(relationshipStore);
+const { sessionReferences } = inject(ENTRY_DERIVED_STATE_KEY)!;
 const { hasMultipleCampaigns } = storeToRefs(mainStore);
 
 // methods
-const onSessionClick = (event: MouseEvent, uuid: string) => {
-  navigationStore.openSession(uuid, { newTab: event.ctrlKey, activate: true });
+const onSessionClick = (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) => {
+  navigationStore.openSession(rowData.uuid, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
 };
 
 // computed

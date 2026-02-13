@@ -43,6 +43,9 @@ export const SettingSchema = {
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
+  /** the height of each custom field (in rem) */
+  customFieldHeights: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
+
   /** image path for the setting */
   img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
 
@@ -108,5 +111,7 @@ export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_T
     rollTableConfig: SettingGeneratorConfig | null;   
     nameStyleExamples: NameStyleExamples;   
     journals: RelatedJournal[]; 
+    customFields: Record<string, string>;
+    customFieldHeights: Record<string, number>;
   };
 }

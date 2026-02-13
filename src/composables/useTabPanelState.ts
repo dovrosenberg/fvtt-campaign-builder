@@ -16,6 +16,9 @@ import { WindowTab, Entry, Campaign, Session, Front, Arc, StoryWeb } from '@/cla
  * Interface for per-panel content state. Mirrors the content-specific parts of mainStore.
  */
 export interface TabPanelState {
+  // panel identity (mutable ref — updated by navigationStore during panel re-indexing)
+  panelIndex: Ref<number>;
+
   // content state refs
   // note that currentSetting is on main store because it's global
   currentEntry: ComputedRef<Entry | null>;
@@ -51,10 +54,12 @@ export const TAB_PANEL_STATE_KEY: InjectionKey<TabPanelState> = Symbol('tabPanel
  * Creates a new TabPanelState instance for a specific panel.
  * Each TabPanel calls this once on mount and provides the result to its descendants.
  *
+ * @param panelIndex - The index of the panel this state belongs to
  * @returns A new TabPanelState with independent content refs
  */
-export function createTabPanelState(): TabPanelState {
+export function createTabPanelState(initialPanelIndex: number): TabPanelState {
   // internal refs
+  const panelIndex = ref<number>(initialPanelIndex);
   const _currentEntry = ref<Entry | null>(null);
   const _currentCampaign = ref<Campaign | null>(null);
   const _currentSession = ref<Session | null>(null);
@@ -99,7 +104,7 @@ export function createTabPanelState(): TabPanelState {
     set: (newContentTab: string) => {
       if (_currentTab.value) {
         _currentTab.value.contentTab = newContentTab;
-        void useNavigationStore().updateContentTab(newContentTab);
+        void useNavigationStore().updateContentTab(newContentTab, panelIndex.value);
       }
     }
   });
@@ -203,11 +208,15 @@ export function createTabPanelState(): TabPanelState {
     _currentFront.value = new Front(_currentFront.value.raw.parent as unknown as JournalEntry);
   };
 
-  /** Refreshes the current story web. */
+  /** Refreshes the current story web.  Always reload because these are finicky */
   const refreshStoryWeb = async function (): Promise<void> {
     if (!_currentStoryWeb.value?.raw?.parent)
       return;
-    _currentStoryWeb.value = new StoryWeb(_currentStoryWeb.value.raw.parent as unknown as JournalEntry);
+    
+    const reloaded = await StoryWeb.fromUuid(_currentStoryWeb.value.uuid);
+    if (reloaded) {
+      _currentStoryWeb.value = reloaded;
+    }
   };
 
   /** Refreshes the current tag results. */
@@ -270,6 +279,7 @@ export function createTabPanelState(): TabPanelState {
   };
 
   return {
+    panelIndex,
     currentEntry,
     currentCampaign,
     currentSession,

@@ -20,7 +20,7 @@ Click "Add NPC" to create a new NPC entry.  You will be prompted to search for a
 ## The NPC list
 This list contains the individual NPCs.  For each NPC, you can see its name, [^Type], and a notes field you can use to track things like how you intend to use them.
 
-Click the name of the NPC to open the [Character details](/reference/world-building/content/character/) page.  Hold control to open in a new tab.
+Click the name of the NPC to open the [Character details](/reference/world-building/content/character/) page.  Hold Control to open in a new tab, Alt to open in a different [panel](/reference/navigation/panels).
 
 Click on the notes field to edit it.  Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.
 

@@ -31,13 +31,14 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref, } from 'vue';
+  import { computed, ref, inject, } from 'vue';
   import { storeToRefs } from 'pinia';
-  
+
   // local imports
   import { localize } from '@/utils/game';
   import { useFrontStore, useMainStore, useNavigationStore } from '@/applications/stores';
-  import DragDropService from '@/utils/dragDrop'; 
+  import { FRONT_DERIVED_STATE_KEY } from '@/composables/useFrontDerivedState';
+  import DragDropService from '@/utils/dragDrop';
   import { mapEntryToOption } from '@/utils/misc';
   
   // local components
@@ -45,7 +46,7 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
 
   // types
-  import { BaseTableColumn, CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, EntryNodeDragData, } from '@/types';
+  import { BaseTableColumn, CellEditCompleteEvent, ActionButtonDefinition, DangerParticipant, Topics, EntryNodeDragData, BaseTableGridRow, } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -59,7 +60,7 @@
   const frontStore = useFrontStore();
   const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
-  const { participantRows } = storeToRefs(frontStore);
+  const { participantRows, currentDangerIndex } = inject(FRONT_DERIVED_STATE_KEY)!;
   const { currentSetting } = storeToRefs(mainStore);
   
   ////////////////////////////////
@@ -102,7 +103,7 @@
     const actions = [] as ActionButtonDefinition[];
     actions.push({ 
       icon: 'fa-trash', 
-      callback: async (data) => { await frontStore.deleteParticipant(data.uuid); }, 
+      callback: async (data) => { if (currentDangerIndex.value != null) await frontStore.deleteParticipant(currentDangerIndex.value, data.uuid); },
       tooltip: localize('tooltips.deleteParticipant')
     });
 
@@ -137,16 +138,19 @@
   ////////////////////////////////
   // event handlers
   const onDialogSubmitClick = async (selectedItemId: string, extraFieldValues: Record<string, string>) => {
+    if (currentDangerIndex.value == null)
+      return;
+
     const fullEntry = await Entry.fromUuid(selectedItemId);
 
     if (fullEntry) {
-      await frontStore.addParticipant(fullEntry, extraFieldValues);
+      await frontStore.addParticipant(currentDangerIndex.value, fullEntry, extraFieldValues);
     }
   };
   
   // when we click on a name, open the entry
-  async function onNameClick (event: MouseEvent, uuid: string) {
-    return navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
+  async function onNameClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    return navigationStore.openEntry(rowData.uuid, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
   }
 
   const onAddParticipant = () => {
@@ -168,21 +172,23 @@
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, } = event;
 
-    await frontStore.updateParticipant(data.uuid, newValue as string);
+    if (currentDangerIndex.value != null)
+      await frontStore.updateParticipant(currentDangerIndex.value, data.uuid, newValue as string);
   };
 
-  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
+  const onReorder = async (reorderedRows: (DangerParticipant & { name: string; type: string })[]) => {
     const reorderedParticipants = reorderedRows.map((row) => {
       const participant = participantRows.value.find(p => p.uuid === row.uuid);
 
       // rows have extra fields we don't want
       return {
         uuid: row.uuid,
-        notes: participant?.notes ?? '',
-      } as ArcParticipant;
+        role: participant?.role ?? '',
+      } as DangerParticipant;
     });
 
-    frontStore.reorderParticipants(reorderedParticipants);
+    if (currentDangerIndex.value != null)
+      frontStore.reorderParticipants(currentDangerIndex.value, reorderedParticipants);
   };
 
   const onDropNew = async (event: DragEvent) => {
@@ -201,7 +207,8 @@
     if (!entry)
       return;
 
-    await frontStore.addParticipant(entry, { role: '' });
+    if (currentDangerIndex.value != null)
+      await frontStore.addParticipant(currentDangerIndex.value, entry, { role: '' });
   };
 
 

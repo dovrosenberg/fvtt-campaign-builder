@@ -16,6 +16,7 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     campaignId: '',  
     dangers: [],
     customFields: {},
+    customFieldHeights: {},
     tags: [],
     img: '',   
   } as unknown as FrontDocClass['system'];

@@ -111,7 +111,7 @@
     if (!props.bookmark)
       return;
 
-    await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: event.ctrlKey });
+    await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
   };
 
   // handle a bookmark or tab dragging

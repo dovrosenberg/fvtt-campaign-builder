@@ -16,6 +16,9 @@ export const FrontSchema = {
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
+  /** the height of each custom field (in rem) */
+  customFieldHeights: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
+
   /** tags  */
   tags: schemas.Tags(),
 
@@ -43,6 +46,7 @@ export interface FrontDoc extends JournalEntryPage {
     campaignId: string;
     dangers: Danger[];
     customFields: Record<string, string>;
+    customFieldHeights: Record<string, number>;
     img: string;
     tags: string[];
   };

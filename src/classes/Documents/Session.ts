@@ -17,6 +17,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     number: 0,  
     date: null,  
     customFields: {},
+    customFieldHeights: {},
     locations: [],  
     items: [],  
     npcs: [],  

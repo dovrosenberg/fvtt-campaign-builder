@@ -35,12 +35,12 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { ref, computed, PropType, inject } from 'vue';
 
   // local imports
   import { useNavigationStore, useRelationshipStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { ENTRY_DERIVED_STATE_KEY } from '@/composables/useEntryDerivedState';
   import { localize } from '@/utils/game';
   import { Entry } from '@/classes';
   import DragDropService from '@/utils/dragDrop';
@@ -79,7 +79,7 @@
   const relationshipStore = useRelationshipStore();
   const navigationStore = useNavigationStore();
   const { currentEntryTopic } = useContentState();
-  const { relatedEntryRows, } = storeToRefs(relationshipStore);
+  const { relatedEntryRows } = inject(ENTRY_DERIVED_STATE_KEY)!;
   const extraFields = relationshipStore.extraFields;
 
   ////////////////////////////////
@@ -205,8 +205,8 @@
   ////////////////////////////////
   // methods
   // when we click on a name, open the entry
-  async function onNameClick (event: MouseEvent, uuid: string) {
-    navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
+  async function onNameClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    navigationStore.openEntry(rowData.uuid, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
   }
 
   ////////////////////////////////

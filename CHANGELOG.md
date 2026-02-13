@@ -4,9 +4,13 @@
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.0/module.zip)
 
 - Added the ability to split the main content area into multiple panes, so you can view multiple entries side by side.
+   - Anywhere you could hold "Control" to open a link in a new tab, you can now also hold "Alt" to open it in a different panel than the current one (i.e. open next to the content you're currently looking at).
 - You can now create color schemes to apply to custom text blocks in story webs.
 - You can now export a story web as a .PNG file from the directory context menu.
+- You can now adjust the size of all custom field editors using the grabber in the lower-right corner.  This size can be set differently for each piece of content.  If you want to change the default size for a particular field, you can still do that in the module settings.
+- You can now export a full setting as either a .MD file or a .ZIP file (the .MD plus all the story web .PNGs)from the directory context menu.  This is handy for reviewing in another interface or for feeding to an LLM to ask it questions about the setting/campaign.
 - Fixed issue with drag/drop of rows not working properly on very long tables.
+- Fixed conflict with Pathfinder 2e that was causing tags to show white (ex. traits)
 - Opening the Setting content now properly scrolls to the Setting node in the directory and highlights it, as it does for all the other content types.
 
 ## 1.8.6 - Assorted bug fixes and improvements

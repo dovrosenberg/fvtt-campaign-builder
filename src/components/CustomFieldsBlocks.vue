@@ -28,9 +28,11 @@
           <Editor
             :key="`${content.uuid}-${field.name}`"
             :initial-content="String(values[field.name] ?? '')"
-            :fixed-height="`${field.editorHeight ?? 4}rem`"
+            :fixed-height="editorHeights[field.name] ? editorHeights[field.name] : (field.editorHeight ?? 4)"
+            :resizable="true"
             :current-entity-uuid="content.uuid"
             @editor-saved="(newContent: string) => onFieldValueChanged(field, newContent)"
+            @editor-resized="(height: number) => onEditorResized(field, height)"
             @related-entries-changed="onRelatedEntriesChanged"
           />
         </div>
@@ -147,6 +149,7 @@
   };
 
   const values = reactive<Record<string, unknown>>({});
+  const editorHeights = reactive<Record<string, number>>({});
 
   const isGeneratingAi = reactive<Record<string, boolean>>({});
 
@@ -324,6 +327,16 @@
       } else {
         values[field.name] = (current ?? '') as any;
       }
+
+      // Load custom height if it exists
+      if (field.fieldType === FieldType.Editor) {
+        const storedHeight = content.value.getCustomFieldHeight(field.name);
+        if (storedHeight) {
+          editorHeights[field.name] = storedHeight;
+        } else if (field.editorHeight) {
+          editorHeights[field.name] = field.editorHeight;
+        }
+      }
     }
   };
 
@@ -361,6 +374,14 @@
 
     values[field.name] = value;
     content.value.setCustomField(field.name, value);
+    queueSave();
+  };
+
+  const onEditorResized = (field: CustomFieldDescription, height: number) => {
+    if (!content.value) return;
+
+    editorHeights[field.name] = height;
+    content.value.setCustomFieldHeight(field.name, height);
     queueSave();
   };
 

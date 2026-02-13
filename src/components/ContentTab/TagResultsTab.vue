@@ -144,23 +144,25 @@ Dependencies
   ////////////////////////////////
   // event handlers
 
-  async function onNameClick(event: MouseEvent, uuid: string) {
-    const result = results.value.find(r => r.uuid === uuid);
+  async function onNameClick(event: MouseEvent, data: Record<string, unknown> & { uuid: string; }) {
+    // we pull from results because the table rows have a modified version of type
+    const result = results.value.find(r => r.uuid === data.uuid);
+
     if (!result)
       return;
 
     switch (result.resultType) {
       case 'entry':
-        navigationStore.openEntry(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true });
+        navigationStore.openEntry(data.uuid, { newTab: event.ctrlKey || event.metaKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
         break;
       case 'session':
-        navigationStore.openSession(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true });
+        navigationStore.openSession(data.uuid, { newTab: event.ctrlKey || event.metaKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
         break;
       case 'front':
-        navigationStore.openFront(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true });
+        navigationStore.openFront(data.uuid, { newTab: event.ctrlKey || event.metaKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
         break;
       case 'arc':
-        navigationStore.openArc(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true });
+        navigationStore.openArc(data.uuid, { newTab: event.ctrlKey || event.metaKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
         break;
       default:
         throw new Error(`Unknown result type in TagResultsTab.onRowClick(): ${result.resultType}`);

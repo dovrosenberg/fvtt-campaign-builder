@@ -20,6 +20,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     endSessionNumber: -1,
     sortOrder: 0,
     customFields: {},
+    customFieldHeights: {},
     locations: [],  
     participants: [],  
     monsters: [],  

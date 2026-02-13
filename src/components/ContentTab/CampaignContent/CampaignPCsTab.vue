@@ -27,11 +27,11 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref } from 'vue';
-  import { storeToRefs } from 'pinia';
-  
+  import { computed, ref, inject } from 'vue';
+
   // local imports
   import { useCampaignStore, useNavigationStore, } from '@/applications/stores';
+  import { CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { localize } from '@/utils/game';
   import DragDropService from '@/utils/dragDrop'; 
 
@@ -55,7 +55,7 @@
   // store
   const campaignStore = useCampaignStore();
   const navigationStore = useNavigationStore();
-  const { relatedPCRows, } = storeToRefs(campaignStore);
+  const { relatedPCRows } = inject(CAMPAIGN_DERIVED_STATE_KEY)!;
 
   ////////////////////////////////
   // data
@@ -95,12 +95,12 @@
 
   ////////////////////////////////
   // methods
-  const onNameClick = async function (event: MouseEvent, uuid: string) { 
-    await navigationStore.openEntry(uuid, { newTab: event.ctrlKey });
+  const onNameClick = async function (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string; }) { 
+    await navigationStore.openEntry(rowData.uuid, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
   };
 
-  const onActorClick = async function (_event: MouseEvent, uuid: string) { 
-    const pc = await Entry.fromUuid(uuid);
+  const onActorClick = async function (_event: MouseEvent, rowData: Record<string, unknown> & { uuid: string; }) { 
+    const pc = await Entry.fromUuid(rowData.uuid);
 
     if (!pc)
       return;

@@ -7,32 +7,14 @@ import { storeToRefs, } from 'pinia';
 import { useMainStore, } from '@/applications/stores';
 
 // types
-import { 
+import {
   Topics, ValidTopic,
   RelatedEntryDetails, ColumnsByTopic,
-  RelatedDocumentDetails,
-  DocumentLinkType,
 } from '@/types';
-import { watch } from 'vue';
-import { ref } from 'vue';
 import { Entry } from '@/classes';
-
-interface SessionReference {
-  uuid: string;
-  number: number;
-  name: string;
-  date: string | null;
-  campaignName: string;
-}
 
 // the store definition
 export const relationshipStore = () => {
-  ///////////////////////////////
-  // the state
-  const relatedEntryRows = ref<RelatedEntryDetails<any, any>[]>([]);
-  const relatedDocumentRows = ref<RelatedDocumentDetails[]>([]);
-  const sessionReferences = ref<SessionReference[]>([]);
-
   // note that the field attribute becomes the key in the storage
   //    and that key is used as part of the search index, so they should
   //    be meaningful words/phrases
@@ -54,25 +36,19 @@ export const relationshipStore = () => {
       [Topics.Location]: [],
       [Topics.Organization]: [{field:'relationship', header:'Relationship'}],
       [Topics.PC]: [{field:'relationship', header:'Relationship'}],
-    },    
+    },
     [Topics.PC]: {
       [Topics.Character]: [{field:'relationship', header:'Relationship'}],
       [Topics.Location]: [{field:'relationship', header:'Relationship'}],
       [Topics.Organization]: [{field:'relationship', header:'Relationship'}],
       [Topics.PC]: [],
-    },    
+    },
   } as ColumnsByTopic;
-  
+
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentContentTab, currentDocumentType, currentSetting, } = storeToRefs(mainStore);
-
-  ///////////////////////////////
-  // internal state
-
-  ///////////////////////////////
-  // external state
+  const { currentEntry, currentSetting, currentEntryTopic, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // actions
@@ -225,7 +201,7 @@ export const relationshipStore = () => {
   async function editRelationship(relatedEntryId: string, extraFields: Record<string, string>): Promise<void> {
     // create the relationship on current entry
     const entry = currentEntry.value;
-    const relatedEntry = await Entry.fromUuid(relatedEntryId); 
+    const relatedEntry = await Entry.fromUuid(relatedEntryId);
 
     if (!entry || !relatedEntry)
       throw new Error('Invalid entry in relationshipStore.addRelationship()');
@@ -271,13 +247,13 @@ export const relationshipStore = () => {
     await mainStore.refreshEntry();
   }
 
-  // used to delete the relationship between two entries 
+  // used to delete the relationship between two entries
   async function deleteArbitraryRelationship(entry1Uuid: string, entry2Uuid: string): Promise<void> {
-    const entry = await Entry.fromUuid(entry1Uuid); 
+    const entry = await Entry.fromUuid(entry1Uuid);
     if (!entry)
       throw new Error('Invalid entry1 in relationshipStore.deleteRelationship()');
 
-    const relatedEntry = await Entry.fromUuid(entry2Uuid); 
+    const relatedEntry = await Entry.fromUuid(entry2Uuid);
     if (!relatedEntry)
       throw new Error('Invalid entry2 in relationshipStore.deleteRelationship()');
 
@@ -305,13 +281,13 @@ export const relationshipStore = () => {
     }
   }
 
-  // used to add a relationship between two entries 
+  // used to add a relationship between two entries
   async function addArbitraryRelationship(entry1Uuid: string, entry2Uuid: string, extraFields: Record<string, string>): Promise<void> {
-    const entry = await Entry.fromUuid(entry1Uuid); 
+    const entry = await Entry.fromUuid(entry1Uuid);
     if (!entry)
       throw new Error('Invalid entry1 in relationshipStore.addArbitraryRelationship()');
 
-    const relatedEntry = await Entry.fromUuid(entry2Uuid); 
+    const relatedEntry = await Entry.fromUuid(entry2Uuid);
     if (!relatedEntry)
       throw new Error('Invalid entry2 in relationshipStore.addArbitraryRelationship()');
 
@@ -375,7 +351,7 @@ export const relationshipStore = () => {
     // make sure only valid fields present, etc.
     if (!entry || !entry.relationships || fieldsArray.find(f => !['name', 'type'].includes(f)))
       return;
-    
+
     // relationships are bi-directional, so look at all the relationships for the entry
     // for each one, go to the matching (reverse) relationship on the related item and update the field
     for (const topicRelationships of Object.values(entry.relationships)) {
@@ -393,7 +369,7 @@ export const relationshipStore = () => {
         for (let i=0; i< fieldsArray.length; i++) {
           relatedEntryRelationships[entry.topic]![entry.uuid][fieldsArray[i]] = entry[fieldsArray[i]];
         }
-        
+
         // Reassign the cloned relationships back to the entry
         relatedEntry.relationships = relatedEntryRelationships;
         await relatedEntry.save();
@@ -402,7 +378,7 @@ export const relationshipStore = () => {
   }
 
   // return all of the related items to this one for a given topic
-  async function getRelationships<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic>(topic: RelatedTopic): 
+  async function getRelationships<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic>(topic: RelatedTopic):
       Promise<RelatedEntryDetails<PrimaryTopic, RelatedTopic>[]> {
     const retval = [] as RelatedEntryDetails<PrimaryTopic, RelatedTopic>[];
 
@@ -416,201 +392,14 @@ export const relationshipStore = () => {
       if (relatedEntry)
         retval.push(relatedEntry as RelatedEntryDetails<PrimaryTopic, RelatedTopic>);
     }
-   
+
     return retval;
   }
 
   ///////////////////////////////
-  // computed state
-  const findReferencesInNotes = (notes: string, entryUuid: string): boolean => {
-    // We could make sure it's in a link format, but really we just need to know if there's a UUID in it
-    return notes.includes(entryUuid);
-  };
-
-  ///////////////////////////////
-  // internal functions
-  const _refreshRows = async () => {
-    if (!currentEntry.value || !currentContentTab.value) {
-      relatedEntryRows.value = [];
-      relatedDocumentRows.value = [];
-      sessionReferences.value = [];
-    } else {
-      let topic: Topics;
-      switch (currentContentTab.value) {
-        case 'characters':
-          topic = Topics.Character;
-          break;
-        case 'locations':
-          topic = Topics.Location;
-          break;
-        case 'organizations':
-          topic = Topics.Organization;
-          break;
-        case 'pcs':
-          topic = Topics.PC;
-          break;
-        case 'scenes':
-          topic = Topics.None;
-          break;
-        case 'actors':
-          topic = Topics.None;
-          break;
-        case 'sessions':
-          topic = Topics.None;
-          await _refreshSessionReferences();
-          break;
-        case 'foundry':
-          topic = Topics.None;
-          break;
-        default:
-          topic = Topics.None;
-      }
-
-      if (topic !== Topics.None) {
-        relatedEntryRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]!) : [];
-        relatedDocumentRows.value = [];
-      } else if (currentDocumentType.value===DocumentLinkType.Scenes) {
-        relatedEntryRows.value = [];
-
-        const sceneList = [] as RelatedDocumentDetails[];
-        for (let i=0; i<currentEntry.value.scenes.length; i++) {
-          const scene = await foundry.utils.fromUuid(currentEntry.value.scenes[i] as `Scene.${string}`) as Scene;
-
-          if (!scene)
-            continue;
-          
-          sceneList.push({
-            uuid: currentEntry.value.scenes[i],
-            name: scene.name,
-            packId: scene.pack,
-            packName: scene.pack ? game.packs?.get(scene.pack)?.title ?? null : null,
-          });
-        }
-        relatedDocumentRows.value = sceneList;
-      } else if (currentDocumentType.value===DocumentLinkType.Actors) {
-        relatedEntryRows.value = [];
-
-        const actorList = [] as RelatedDocumentDetails[];
-        for (let i=0; i<currentEntry.value.actors.length; i++) {
-          const actor = await fromUuid<Actor>(currentEntry.value.actors[i]);
-          if (!actor)
-            continue;
-
-          actorList.push({
-            uuid: currentEntry.value.actors[i],
-            name: actor.name,
-            packId: actor.pack,
-            packName: actor.pack ? game.packs?.get(actor.pack)?.title ?? null : null,
-          });
-        }
-        relatedDocumentRows.value = actorList;
-      } else if (currentDocumentType.value===DocumentLinkType.GenericFoundry) {
-        relatedEntryRows.value = [];
-
-        const docList = [] as RelatedDocumentDetails[];
-        for (let i=0; i<currentEntry.value.foundryDocuments.length; i++) {
-          const doc = await fromUuid(currentEntry.value.foundryDocuments[i]);
-          if (!doc)
-            continue;
-
-          docList.push({
-            uuid: currentEntry.value.foundryDocuments[i],
-            name: doc.name || '???',
-            packId: doc.pack,
-            packName: doc.pack ? game.packs?.get(doc.pack)?.title ?? null : null,
-          });
-        }
-        relatedDocumentRows.value = docList;
-      } else {
-        relatedEntryRows.value = [];
-        relatedDocumentRows.value = [];
-      }
-    }
-  };
-
-  // if this ever becomes too slow, we could store a lookup table on each entry - or a global one on the 
-  // setting - and refresh it whenever a link is added/removed on the session side.  But for now, this 
-  // seems to be fine.
-  const _refreshSessionReferences = async () => {
-    if (!currentEntry.value || !currentSetting.value) {
-      sessionReferences.value = [];
-      return;
-    }
-
-    const references: SessionReference[] = [];
-    const campaigns = Object.values(currentSetting.value.campaigns);
-
-    // Go through all campaigns in the setting
-    for (const campaign of campaigns) {
-      // Get all sessions in the campaign
-      const sessions = await campaign.allSessions();
-
-      for (const session of sessions) {
-        let isReferenced = false;
-
-        // Check if entry is referenced as delivered content
-        if (currentEntry.value.topic === Topics.Character) {
-          const npcRef = session.npcs.find(npc => npc.uuid === currentEntry.value?.uuid && npc.delivered);
-          if (npcRef) {
-            isReferenced = true;
-          }
-        } else if (currentEntry.value.topic === Topics.Location) {
-          const locationRef = session.locations.find(loc => loc.uuid === currentEntry.value?.uuid && loc.delivered);
-          if (locationRef) {
-            isReferenced = true;
-          }
-        }
-
-        // we don't currently track organizations (because they don't fit the Lazy DM model)or PCs (because they're in basically every session)
-
-        // Check if entry is referenced in notes
-        if (!isReferenced && findReferencesInNotes(session.description, currentEntry.value.uuid)) {
-          isReferenced = true;
-        }
-
-        if (isReferenced) {
-          references.push({
-            uuid: session.uuid,
-            number: session.number,
-            name: session.name,
-            date: session.date?.toLocaleDateString() || null,
-            campaignName: campaign.name
-          });
-        }
-      }
-    }
-
-    // Sort by session number
-    references.sort((a, b) => a.number - b.number);
-    sessionReferences.value = references;
-  };
-
-  ///////////////////////////////
-  // computed state
-
-  ///////////////////////////////
-  // internal functions
-
-  ///////////////////////////////
-  // watchers
-  watch(()=> currentEntry.value, async () => {
-    await _refreshRows();
-  });
-
-  watch(()=> currentContentTab.value, async () => {
-    await _refreshRows();
-  });
-
-  ///////////////////////////////
-  // lifecycle events 
-
-  ///////////////////////////////
   // return the public interface
   return {
-    relatedEntryRows,
-    relatedDocumentRows,
     extraFields,
-    sessionReferences,
 
     addRelationship,
     deleteRelationship,

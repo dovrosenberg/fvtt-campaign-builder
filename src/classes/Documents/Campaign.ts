@@ -25,6 +25,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     journals: [], 
     pcs: [],
     customFields: {},
+    customFieldHeights: {},
     frontIds: [],
     storyWebIds: [],
     storyWebs: [],

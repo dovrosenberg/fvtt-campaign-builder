@@ -38,6 +38,9 @@ export const ArcSchema = {
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
+  /** the height of each custom field (in rem) */
+  customFieldHeights: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
+
   /** image URL */
   img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
 
@@ -110,6 +113,7 @@ export interface ArcDoc extends JournalEntryPage {
 
     // campaign-like
     customFields: Record<string, string>;
+    customFieldHeights: Record<string, number>;
     img: string;
     tags: string[];
 

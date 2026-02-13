@@ -25,7 +25,7 @@ You can also drag/drop from the [Setting Directory].
 ## The Participant list
 This list contains the individual Entries.  For each Entry, you can see its name and [^Type].
 
-Click the name of the Entry to open the details page.  Hold control to open in a new tab.
+Click the name of the Entry to open the details page.  Hold Control to open in a new tab, Alt to open in a different [panel](/reference/navigation/panels).
 
 You can also add notes to each Entry to track how it will be used in the Arc.  Double click the notes field for a row or click the "Edit" icon to open the row editor.
 

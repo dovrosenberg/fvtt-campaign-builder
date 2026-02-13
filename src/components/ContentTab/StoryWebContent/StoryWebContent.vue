@@ -25,12 +25,13 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
+  import { ref, provide, onMounted, watch, onBeforeUnmount } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useNavigationStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useStoryWebGraphState, STORY_WEB_GRAPH_STATE_KEY } from '@/composables/useStoryWebGraphState';
   import { getTabTypeIcon } from '@/utils/misc';
   import { notifyWarn } from '@/utils/notifications';
 
@@ -55,6 +56,10 @@
   const { currentStoryWeb } = useContentState();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
+
+  // create per-panel graph state and provide to descendants (StoryWebGraph)
+  const graphState = useStoryWebGraphState();
+  provide(STORY_WEB_GRAPH_STATE_KEY, graphState);
 
   ////////////////////////////////
   // data

@@ -40,6 +40,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     actorId: null,
     img: '',
     customFields: {},
+    customFieldHeights: {},
   } as unknown as EntryDocClass['system'];
 
   private _actor: Actor | null;  // for pcs

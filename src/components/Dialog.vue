@@ -14,11 +14,11 @@
       <div class="fcb-window-title">{{ title }}</div>
       <a 
         class="header-button control close"
+        data-tooltip="Close"
         data-testid="dialog-close-button"
         @click="() => { show = false; emit('update:modelValue', false); emit('cancel'); }"
       >
         <i class="fas fa-times"></i>
-        <span class="close-text">{{ localize('labels.close') }}</span>
       </a>
     </header>
     <section class="window-content">
@@ -305,12 +305,12 @@
         border-radius: 4px;
         transition: all 0.2s ease;
 
-        i {
-          font-size: var(--fcb-font-size-large);
-        }
+        a {
+          padding: 0;
 
-        .close-text {
-          font-size: var(--fcb-font-size-large);
+          i {
+            font-size: var(--fcb-font-size-large);
+          }
         }
       }
 

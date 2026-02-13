@@ -46,6 +46,8 @@ export const SessionSchema = {
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
+  /** the height of each custom field (in rem) */
+  customFieldHeights: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
   // we have to leave this until 1.8 migration is gone because otherwise the migration doesn't have access to it
   strongStart: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
 
@@ -118,6 +120,7 @@ export interface SessionDoc extends JournalEntryPage {
     number: number;
     date: string | null;
     customFields: Record<string, string>;
+    customFieldHeights: Record<string, number>;
     locations: SessionLocation[];
     items: SessionItem[];
     npcs: SessionNPC[];

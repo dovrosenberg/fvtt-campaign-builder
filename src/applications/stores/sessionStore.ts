@@ -1,28 +1,20 @@
-// this store handles activities specific to campaigns 
-// 
+// this store handles activities specific to sessions
+//
 // library imports
-import { ref, watch, } from 'vue';
 import { storeToRefs, } from 'pinia';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
-import { localize } from '@/utils/game'; 
 import ArcIndexService from '@/utils/arcIndex';
 
 // types
-import { 
-  SessionLocationDetails, 
-  SessionItemDetails, 
-  BaseTableColumn, 
-  Topics, 
-  SessionNPCDetails, 
-  SessionMonsterDetails, 
-  SessionLoreDetails,
+import {
+  BaseTableColumn,
   ToDoTypes,
   SessionTableTypes
 } from '@/types';
-import { SessionLore, SessionVignette } from '@/documents';
+import { SessionLore, SessionMonster, SessionVignette } from '@/documents';
 
 import { Arc, Entry, Session } from '@/classes';
 
@@ -31,27 +23,19 @@ import { Arc, Entry, Session } from '@/classes';
 export const sessionStore = () => {
   ///////////////////////////////
   // the state
-  // used for tables
-  const relatedLocationRows = ref<SessionLocationDetails[]>([]);
-  const relatedEntryRows = ref<SessionItemDetails[]>([]);
-  const relatedNPCRows = ref<SessionNPCDetails[]>([]);
-  const relatedMonsterRows = ref<SessionMonsterDetails[]>([]);
-  const vignetteRows = ref<SessionVignette[]>([]);
-  const loreRows = ref<SessionLoreDetails[]>([]); 
-  
   const extraFields = {
     [SessionTableTypes.None]: [],
     [SessionTableTypes.Location]: [
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
       { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
-      { field: 'parent', style: 'text-align: left', header: 'Parent', sortable: true, onClick: onParentClick},
+      { field: 'parent', style: 'text-align: left', header: 'Parent', sortable: true, onClick: onParentClick },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],
     [SessionTableTypes.Item]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onItemClick },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
-    ],  
+    ],
     [SessionTableTypes.NPC]: [
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
       { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
@@ -62,24 +46,24 @@ export const sessionStore = () => {
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onMonsterClick },
       { field: 'number', header: 'Number', style: 'width: 80px; max-width: 80px', editable: true, smallEditBox: true },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
-    ], 
+    ],
     [SessionTableTypes.Vignette]: [
       { field: 'description', style: 'text-align: left', header: 'Vignette', editable: true },
     ],
     [SessionTableTypes.Lore]: [
       { field: 'significant', header: 'Sig.', editable: true, type: 'boolean', tooltip: 'Mark as Significant/Insignificant', style: 'text-align: center; width: 40px; max-width: 40px' },
       { field: 'description', style: 'text-align: left; width: 100%', header: 'Description', editable: true },
-    ],  
+    ],
   } as unknown as Record<SessionTableTypes, BaseTableColumn[]>;
 
-  
+
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const playingStore = usePlayingStore();
-  const { currentSetting, currentContentTab, currentSession, } = storeToRefs(mainStore);
+  const { currentSession, } = storeToRefs(mainStore);
   const { currentPlayedSessionId } = storeToRefs(playingStore);
 
   ///////////////////////////////
@@ -90,7 +74,7 @@ export const sessionStore = () => {
 
   ///////////////////////////////
   // actions
-  
+
   /**
    * Adds a location to the session.
    * @param uuid the UUID of the location to add.
@@ -100,7 +84,7 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.addLocation()');
 
     await currentSession.value.addLocation(uuid, delivered);
-    await _refreshLocationRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -116,7 +100,6 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.addLocationToPlayedSession()');
 
     await session.addLocation(uuid, delivered);
-    await _refreshLocationRows();
 
     // refresh the viewed session if needed
     if (currentSession.value?.uuid === session.uuid)
@@ -138,7 +121,7 @@ export const sessionStore = () => {
       return false;
 
     await currentSession.value.deleteLocation(uuid);
-    await _refreshLocationRows();
+    mainStore.refreshSession();
     return true;
   }
 
@@ -152,7 +135,7 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.updateLocationNotes()');
 
     await currentSession.value.updateLocationNotes(uuid, notes);
-    await _refreshLocationRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -176,7 +159,7 @@ export const sessionStore = () => {
       await campaign.mergeToDoItem(ToDoTypes.Entry, `Delivered in session ${currentSession.value.number}`, uuid);
     }
 
-    await _refreshLocationRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -196,7 +179,7 @@ export const sessionStore = () => {
     await nextSession.addLocation(uuid);
     await currentSession.value.deleteLocation(uuid);
 
-    await _refreshLocationRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -209,7 +192,7 @@ export const sessionStore = () => {
 
     currentSession.value.locations = reorderedLocations;
     await currentSession.value.save();
-    await _refreshLocationRows();
+    mainStore.refreshSession();
   };
 
   /**
@@ -221,7 +204,7 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.addNPC()');
 
     await currentSession.value.addNPC(uuid, delivered);
-    await _refreshNPCRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -237,7 +220,7 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.addNPCToPlayedSession()');
 
     await session.addNPC(uuid, delivered);
-    await _refreshNPCRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -253,9 +236,9 @@ export const sessionStore = () => {
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete NPC?', 'Are you sure you want to delete this NPC? This will not impact the associated Character')))
       return false;
-    
+
     await currentSession.value.deleteNPC(uuid);
-    await _refreshNPCRows();
+    mainStore.refreshSession();
     return true;
   }
 
@@ -269,7 +252,7 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.updateNPCNotes()');
 
     await currentSession.value.updateNPCNotes(uuid, notes);
-    await _refreshNPCRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -293,7 +276,7 @@ export const sessionStore = () => {
       await campaign.mergeToDoItem(ToDoTypes.Entry, `Delivered in session ${currentSession.value.number}`, uuid);
     }
 
-    await _refreshNPCRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -313,7 +296,7 @@ export const sessionStore = () => {
     await nextSession.addNPC(uuid);
     await currentSession.value.deleteNPC(uuid);
 
-    await _refreshNPCRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -326,7 +309,7 @@ export const sessionStore = () => {
 
     currentSession.value.npcs = reorderedNPCs;
     await currentSession.value.save();
-    await _refreshNPCRows();
+    mainStore.refreshSession();
   };
 
   /**
@@ -339,7 +322,7 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.addVignette()');
 
     const vignetteUuid = await currentSession.value.addVignette(description);
-    await _refreshVignetteRows();
+    mainStore.refreshSession();
     return vignetteUuid;
   }
 
@@ -352,9 +335,9 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.updateVignetteDescription()');
 
     await currentSession.value.updateVignetteDescription(uuid, description);
-    await _refreshVignetteRows();
+    mainStore.refreshSession();
   }
-  
+
   /**
    * Deletes a vignette from the session.
    * @param uuid - The UUID of the vignette to delete.
@@ -368,9 +351,9 @@ export const sessionStore = () => {
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete vignette?', 'Are you sure you want to delete this vignette?')))
       return false;
-    
+
     await currentSession.value.deleteVignette(uuid);
-    await _refreshVignetteRows();
+    mainStore.refreshSession();
     return true;
   }
 
@@ -394,14 +377,15 @@ export const sessionStore = () => {
     if (vignette && delivered && campaign) {
       await campaign.mergeToDoItem(ToDoTypes.Vignette, `Delivered in session ${currentSession.value.number}`, null, currentSession.value.uuid);
     }
-    await _refreshVignetteRows();
+    mainStore.refreshSession();
   }
 
   /**
    * Move a vignette to the next session in the campaign, creating it if needed.
    * @param uuid the UUID of the vignette to move
+   * @param description the vignette description
    */
-  const moveVignetteToNext = async (uuid: string): Promise<void> => {
+  const moveVignetteToNext = async (uuid: string, description: string): Promise<void> => {
     if (!currentSession.value)
       return;
 
@@ -410,16 +394,11 @@ export const sessionStore = () => {
     if (!nextSession)
       return;
 
-    const currentVignette = currentSession.value.vignettes.find(s=> s.uuid===uuid);
-
-    if (!currentVignette)
-      return;
-
     // have a next session - add there and delete here
-    await nextSession.addVignette(currentVignette.description);
+    await nextSession.addVignette(description);
     await currentSession.value.deleteVignette(uuid);
 
-    await _refreshVignetteRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -432,12 +411,12 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.addLore()');
 
     const loreUuid = await currentSession.value.addLore(description);
-    await _refreshLoreRows();
+    mainStore.refreshSession();
     return loreUuid;
   }
 
   /**
-   * Updates the description associated with a lore 
+   * Updates the description associated with a lore
    * @param uuid the UUID of the lore
    */
   const updateLoreDescription = async (uuid: string, description: string): Promise<void> => {
@@ -445,9 +424,9 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.updateLoreDescription()');
 
     await currentSession.value.updateLoreDescription(uuid, description);
-    await _refreshLoreRows();
+    mainStore.refreshSession();
   }
-  
+
   /**
    * Deletes a lore entry from the session.
    * @param uuid - The UUID of the lore entry to delete.
@@ -461,9 +440,9 @@ export const sessionStore = () => {
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete lore?', 'Are you sure you want to delete this lore?')))
       return false;
-    
+
     await currentSession.value.deleteLore(uuid);
-    await _refreshLoreRows();
+    mainStore.refreshSession();
     return true;
   }
 
@@ -489,7 +468,7 @@ export const sessionStore = () => {
       }
     }
 
-    await _refreshLoreRows();
+    mainStore.refreshSession();
   };
 
   /**
@@ -502,14 +481,15 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.markLoreSignificant()');
 
     await currentSession.value.markLoreSignificant(uuid, significant);
-    await _refreshLoreRows();
+    mainStore.refreshSession();
   };
 
   /**
    * Move a lore to the next session in the campaign, creating it if needed.
    * @param uuid the UUID of the lore to move
+   * @param description the lore description
    */
-  const moveLoreToNext = async (uuid: string): Promise<void> => {
+  const moveLoreToNext = async (uuid: string, description: string): Promise<void> => {
     if (!currentSession.value)
       return;
 
@@ -518,72 +498,58 @@ export const sessionStore = () => {
     if (!nextSession)
       return;
 
-    const currentLore = currentSession.value.lore.find(l=> l.uuid===uuid);
-
-    if (!currentLore)
-      return;
-
     // have a next session - add there and delete here
-    await nextSession.addLore(currentLore.description);
+    await nextSession.addLore(description);
     await currentSession.value.deleteLore(uuid);
 
-    await _refreshLoreRows();
+    mainStore.refreshSession();
   }
 
   /**
    * Move a lore back to the campaign as unused.
    * @param uuid the UUID of the lore to move
+   * @param description the lore description
    */
-  const moveLoreToCampaign = async (uuid: string): Promise<void> => {
+  const moveLoreToCampaign = async (uuid: string, description: string): Promise<void> => {
     if (!currentSession.value)
-      return;
-
-    const currentLore = currentSession.value.lore.find(l=> l.uuid===uuid);
-
-    if (!currentLore)
       return;
 
     const campaign = await currentSession.value.loadCampaign();
 
-    if (!campaign) 
+    if (!campaign)
       return;
-    
-    // have a next session - add there and delete here
-    await campaign.addLore(currentLore.description);
+
+    // have a campaign - add there and delete here
+    await campaign.addLore(description);
     await currentSession.value.deleteLore(uuid);
 
-    await _refreshLoreRows();
+    mainStore.refreshSession();
   }
 
   /**
    * Move a lore back to the arc as unused.
    * @param uuid the UUID of the lore to move
+   * @param description the lore description
    */
-  const moveLoreToArc = async (uuid: string): Promise<void> => {
+  const moveLoreToArc = async (uuid: string, description: string): Promise<void> => {
     if (!currentSession.value)
       return;
 
-    const currentLore = currentSession.value.lore.find(l=> l.uuid===uuid);
-
-    if (!currentLore)
-      return;
-
-
     const campaign = await currentSession.value.loadCampaign();
 
-    if (!campaign) 
+    if (!campaign)
       return;
 
     const arcIndexEntry = ArcIndexService.getArcForSession(campaign.arcIndex, currentSession.value.number);
     const arc = arcIndexEntry ? await Arc.fromUuid(arcIndexEntry.uuid) : null;
     if (!arc)
       return;
-    
-    // have a next session - add there and delete here
-    await arc.addLore(currentLore.description);
+
+    // have an arc - add there and delete here
+    await arc.addLore(description);
     await currentSession.value.deleteLore(uuid);
 
-    await _refreshLoreRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -595,7 +561,7 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.addItem()');
 
     await currentSession.value.addItem(uuid);
-    await _refreshItemRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -611,9 +577,9 @@ export const sessionStore = () => {
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete item?', 'Are you sure you want to delete this item?')))
       return false;
-    
+
     await currentSession.value.deleteItem(uuid);
-    await _refreshItemRows();
+    mainStore.refreshSession();
     return true;
   }
 
@@ -638,7 +604,7 @@ export const sessionStore = () => {
       await campaign.mergeToDoItem(ToDoTypes.Item, `Delivered in session ${currentSession.value.number}`, null, currentSession.value.uuid);
     }
 
-    await _refreshItemRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -651,7 +617,7 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.updateItemNotes()');
 
     await currentSession.value.updateItemNotes(uuid, notes);
-    await _refreshItemRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -664,7 +630,7 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.updateMonsterNotes()');
 
     await currentSession.value.updateMonsterNotes(uuid, notes);
-    await _refreshMonsterRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -684,7 +650,7 @@ export const sessionStore = () => {
     await nextSession.addItem(uuid);
     await currentSession.value.deleteItem(uuid);
 
-    await _refreshItemRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -696,7 +662,7 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.addMonster()');
 
     await currentSession.value.addMonster(uuid, number);
-    await _refreshMonsterRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -712,9 +678,9 @@ export const sessionStore = () => {
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete monster?', 'Are you sure you want to delete this monster?')))
       return false;
-    
+
     await currentSession.value.deleteMonster(uuid);
-    await _refreshMonsterRows();
+    mainStore.refreshSession();
     return true;
   }
 
@@ -727,7 +693,7 @@ export const sessionStore = () => {
       throw new Error('Invalid session in sessionStore.updateMonsterNumber()');
 
     await currentSession.value.updateMonsterNumber(uuid, value);
-    await _refreshMonsterRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -751,20 +717,16 @@ export const sessionStore = () => {
       await campaign.mergeToDoItem(ToDoTypes.Monster, `Delivered in session ${currentSession.value.number}`, null, currentSession.value.uuid);
     }
 
-    await _refreshMonsterRows();
+    mainStore.refreshSession();
   }
 
   /**
    * Move a monster to the next session in the campaign, creating it if needed.
    * @param uuid the UUID of the actor to move
+   * @param number the monster count
    */
-  const moveMonsterToNext = async (uuid: string): Promise<void> => {
+  const moveMonsterToNext = async (uuid: string, number: number): Promise<void> => {
     if (!currentSession.value)
-      return;
-
-    const currentMonster = currentSession.value.monsters.find(m=> m.uuid===uuid);
-
-    if (!currentMonster)
       return;
 
     const nextSession = await getNextSession();
@@ -773,10 +735,10 @@ export const sessionStore = () => {
       return;
 
     // have a next session - add there and delete here
-    await nextSession.addMonster(uuid, currentMonster.number);
+    await nextSession.addMonster(uuid, number);
     await currentSession.value.deleteMonster(uuid);
 
-    await _refreshMonsterRows();
+    mainStore.refreshSession();
   }
 
   /**
@@ -789,7 +751,7 @@ export const sessionStore = () => {
 
     currentSession.value.items = reorderedItems;
     await currentSession.value.save();
-    await _refreshItemRows();
+    mainStore.refreshSession();
   };
 
   /**
@@ -802,7 +764,7 @@ export const sessionStore = () => {
 
     currentSession.value.monsters = reorderedMonsters;
     await currentSession.value.save();
-    await _refreshMonsterRows();
+    mainStore.refreshSession();
   };
 
   /**
@@ -818,6 +780,7 @@ export const sessionStore = () => {
     await mainStore.refreshCurrentContent();
   };
 
+  /** Gets or creates the next session in sequence. */
   const getNextSession = async (): Promise<Session | null> => {
     let campaign;
     if (currentSession.value)
@@ -832,12 +795,12 @@ export const sessionStore = () => {
 
     if (nextSessionIndex) {
       const nextSession = await Session.fromUuid(nextSessionIndex.uuid);
-    
+
       // found it - just return it
-      if (nextSession) 
+      if (nextSession)
         return nextSession;
     }
-    
+
     // need to create one
     const newSession = await Session.create(campaign);
     if (!newSession)
@@ -855,7 +818,7 @@ export const sessionStore = () => {
 
     currentSession.value.vignettes = reorderedVignettes;
     await currentSession.value.save();
-    await _refreshVignetteRows();
+    mainStore.refreshSession();
   };
 
   const reorderLore = async (reorderedLore: SessionLore[]) => {
@@ -863,7 +826,7 @@ export const sessionStore = () => {
 
     currentSession.value.lore = reorderedLore;
     await currentSession.value.save();
-    await _refreshLoreRows();
+    mainStore.refreshSession();
   };
 
   ///////////////////////////////
@@ -873,248 +836,44 @@ export const sessionStore = () => {
   // internal functions
 
   // when we click on an item, open it
-  async function onItemClick (_event: MouseEvent, uuid: string) {
-    const item = await fromUuid<Item>(uuid);
+  async function onItemClick (_event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    const item = await fromUuid<Item>(rowData.uuid);
 
     if (item)
       item.sheet?.render(true);
   }
 
-  // when we click on an monster, open it
-  async function onMonsterClick (_event: MouseEvent, uuid: string) {
-    const monster = await fromUuid<Actor>(uuid);
+  // when we click on a monster, open it
+  async function onMonsterClick (_event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    const monster = await fromUuid<Actor>(rowData.uuid);
 
     if (monster)
       monster.sheet?.render(true);
   }
 
   // when we click on a name, open the entry
-  async function onNameClick (event: MouseEvent, uuid: string) {
-    navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
+  async function onNameClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    navigationStore.openEntry(rowData.uuid, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
   }
 
-  // when we click on a parent, open the entry
-  async function onParentClick (event: MouseEvent, uuid: string) {
-    // get entry Id
-    const parentId = relatedLocationRows.value.find(r=> r.uuid===uuid)?.parentId;
-
+  // when we click on a parent, open the parent entry using parentId from row data
+  async function onParentClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    const parentId = rowData.parentId as string | null;
     if (parentId)
-      navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true });
+      navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
   }
 
-
-  const _refreshLocationRows = async () => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionLocationDetails[];
-    const topicFolder = currentSetting.value?.topicFolders[Topics.Location];
-
-    if (!topicFolder)
-      throw new Error('Invalid topic folder in sessionStore._refreshRows()');
-
-    for (const location of currentSession.value?.locations) {
-      const entry = await topicFolder.findEntry(location.uuid);
-
-      if (!entry)
-        continue;
-
-      const parentId = await entry.getParentId();
-      const parent = parentId ? await Entry.fromUuid(parentId) : null;
-
-      if (entry) {
-        retval.push({
-          uuid: location.uuid,
-          delivered: location.delivered,
-          name: entry.name, 
-          type: entry.type,
-          parent: parent?.name || '',
-          parentId: parent?.uuid || null,
-          notes: location.notes || '',
-        });
-      }
-    }
-
-    relatedLocationRows.value = retval;
-  }
-
-
-  const _refreshNPCRows = async () => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionNPCDetails[];
-    const topicFolder = currentSetting.value?.topicFolders[Topics.Character];
-
-    if (!topicFolder)
-      throw new Error('Invalid topic folder in sessionStore._refreshRows()');
-
-    for (const npc of currentSession.value?.npcs) {
-      const entry = await topicFolder.findEntry(npc.uuid);
-
-      if (entry) {
-        retval.push({
-          uuid: npc.uuid,
-          delivered: npc.delivered,
-          name: entry.name, 
-          type: entry.type,
-          notes: npc.notes || '',
-        });
-      }
-    }
-
-    relatedNPCRows.value = retval;
-  }
-
-  const _refreshItemRows = async () => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionItemDetails[];
-
-    for (const item of currentSession.value?.items) {
-      const entry = await fromUuid<Item>(item.uuid);
-
-      if (entry) {
-        retval.push({
-          uuid: item.uuid,
-          delivered: item.delivered,
-          name: entry.name, 
-          notes: item.notes || '',
-          dragTooltip: localize('tooltips.dragItemFromSession'),
-        });
-      } else {
-        // the item was deleted - remove it from our session
-        await currentSession.value.deleteItem(item.uuid);
-      }
-    }
-
-    relatedEntryRows.value = retval;
-  }
-
-  const _refreshMonsterRows = async () => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionMonsterDetails[];
-
-    for (const monster of currentSession.value?.monsters) {
-      const entry = await fromUuid<Actor>(monster.uuid);
-
-      if (entry) {
-        retval.push({
-          uuid: monster.uuid,
-          delivered: monster.delivered,
-          number: monster.number,
-          notes: monster.notes || '',
-          name: entry.name, 
-          dragTooltip: localize('tooltips.dragMonsterFromSession'),
-        });
-      } else {
-        // the actor was deleted - remove it from our session
-        await currentSession.value.deleteMonster(monster.uuid);
-      }
-    }
-
-    relatedMonsterRows.value = retval;
-  }
-
-
-  const _refreshVignetteRows = async () => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionVignette[];
-
-    for (const vignette of (currentSession.value?.vignettes || [])) {
-      retval.push({
-        uuid: vignette.uuid,
-        delivered: vignette.delivered,
-        description: vignette.description,
-      });
-    }
-
-    vignetteRows.value = retval;
-  }
-
-  const _refreshLoreRows = async () => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionLoreDetails[];
-
-    for (const lore of currentSession.value?.lore) {
-      let entry: JournalEntryPage | null = null;
-
-      if (lore.journalEntryPageId)
-        entry = await fromUuid<JournalEntryPage>(lore.journalEntryPageId);
-
-      retval.push({
-        uuid: lore.uuid,
-        delivered: lore.delivered,
-        significant: lore.significant,
-        description: lore.description,
-      });
-    }
-
-    loreRows.value = retval;
-  }
-
-  const _refreshRowsForTab = async () => {
-    switch (currentContentTab.value) {
-      case 'notes':
-        // await _refreshLocationRows();
-        break;
-      case 'lore':
-        await _refreshLoreRows();
-        break;
-      case 'vignettes':
-        await _refreshVignetteRows();
-        break;
-      case 'locations':
-        await _refreshLocationRows();
-        break;
-      case 'npcs':
-        await _refreshNPCRows();
-        break;
-      case 'monsters':
-        await _refreshMonsterRows();
-        break;
-      case 'magic':
-        await _refreshItemRows();
-        break;
-      case 'pcs':
-        // handled by campaignStore
-        break;
-      default:
-        break;
-    }
-  }
 
 
   ///////////////////////////////
   // watchers
-  watch(()=> currentSession.value, async () => {
-    // just refresh the rows for the current contentTab
-    await _refreshRowsForTab();
-  });
-
-  watch(()=> currentContentTab.value, async () => {
-    await _refreshRowsForTab();
-  });
 
   ///////////////////////////////
-  // lifecycle events 
+  // lifecycle events
 
   ///////////////////////////////
   // return the public interface
   return {
-    relatedLocationRows,
-    relatedEntryRows,
-    relatedNPCRows,
-    relatedMonsterRows,
-    vignetteRows,
-    loreRows,
     extraFields,
     addLocation,
     addLocationToPlayedSession,

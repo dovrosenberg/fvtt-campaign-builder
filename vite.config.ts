@@ -10,6 +10,7 @@ import { viteCommonjs } from '@originjs/vite-plugin-commonjs';
 import { defineConfig, Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
+import postcssPrefixSelector from 'postcss-prefix-selector';
 // import Components from 'unplugin-vue-components/vite';
 // import { PrimeVueResolver } from '@primevue/auto-import-resolver';
 
@@ -95,6 +96,24 @@ export default defineConfig(({ mode }) => {
       updateModuleManifestPlugin(),
     ],
     css: {
+      postcss: {
+        plugins: [
+          postcssPrefixSelector({
+            prefix: '.fcb',
+            transform: (prefix, selector) => {
+              // Skip if selector already has .fcb prefix
+              if (selector.includes('.fcb ')) {
+                return selector;
+              }
+              // Only prefix Tagify-related selectors and tags-input
+              if (selector.includes('tagify') || selector.includes('.tag') || selector.includes('[data-tagify]') || selector.includes('tags-input')) {
+                return `${prefix} ${selector}`;
+              }
+              return selector;
+            }
+          })
+        ]
+      },
       preprocessorOptions: {
         scss: {
           // Injected at the top of every <style lang="scss"> block and .scss file

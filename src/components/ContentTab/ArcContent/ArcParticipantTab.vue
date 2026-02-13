@@ -30,12 +30,12 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref, watch } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { computed, ref, watch, inject } from 'vue';
 
   // local imports
   import { useArcStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
   import { Topics, CellEditCompleteEvent, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
   import DragDropService from '@/utils/dragDrop'; 
@@ -67,7 +67,7 @@
   ////////////////////////////////
   // store
   const arcStore = useArcStore();
-  const { participantRows } = storeToRefs(arcStore);
+  const { participantRows } = inject(ARC_DERIVED_STATE_KEY)!;
   const { currentSetting, currentArc } = useContentState();
   
   ////////////////////////////////

@@ -39,13 +39,12 @@
 <script setup lang="ts">
 
   // library imports
-  import { storeToRefs } from 'pinia';
-  import { computed, ref } from 'vue';
+  import { computed, ref, inject } from 'vue';
 
   // local imports
   import { useCampaignStore, } from '@/applications/stores';
+  import { CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { localize } from '@/utils/game'
-  import DragDropService from '@/utils/dragDrop'; 
   
   // library components
 	
@@ -64,7 +63,7 @@
   ////////////////////////////////
   // store
   const campaignStore = useCampaignStore();
-  const { availableLoreRows, deliveredLoreRows } = storeToRefs(campaignStore);
+  const { availableLoreRows, deliveredLoreRows, allRelatedLoreRows } = inject(CAMPAIGN_DERIVED_STATE_KEY)!;
   
   ////////////////////////////////
   // data
@@ -122,18 +121,18 @@
     },
 
     // move to next arc
-    { 
-      icon: 'fa-arrow-down', 
+    {
+      icon: 'fa-arrow-down',
       display: (data) => !data.delivered, // hide arrow for things already delivered
-      callback: (data) => moveLoreToArc(data.uuid), 
-      tooltip: localize('tooltips.moveToLatestArc') 
+      callback: (data) => moveLoreToArc(data.uuid, data.description as string),
+      tooltip: localize('tooltips.moveToLatestArc')
     },
     // move to next session
-    { 
-      icon: 'fa-share', 
+    {
+      icon: 'fa-share',
       display: (data) => !data.delivered, // hide arrow for things already delivered
-      callback: (data) => moveLoreToLastSession(data.uuid), 
-      tooltip: localize('tooltips.moveToNextSession') 
+      callback: (data) => moveLoreToLastSession(data.uuid, data.description as string),
+      tooltip: localize('tooltips.moveToNextSession')
     }
   ]));
 
@@ -181,40 +180,50 @@
     }
   }
 
+  /**
+   * Finds the lockedToSessionId for a lore row by uuid.
+   * @param uuid the lore UUID
+   * @returns the session ID if session-level, or null for campaign-level
+   */
+  const getSessionIdForLore = (uuid: string): string | null => {
+    const row = allRelatedLoreRows.value.find(r => r.uuid === uuid);
+    return row?.lockedToSessionId ?? null;
+  };
+
   // only applicable to the available lore table
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, field, } = event;
 
     switch (field) {
       case 'description':
-        await campaignStore.updateLoreDescription(data.uuid, newValue as string);
+        await campaignStore.updateLoreDescription(data.uuid, newValue as string, getSessionIdForLore(data.uuid));
         break;
 
       default:
         break;
-    }  
+    }
   }
 
   const onDeleteLore = async (uuid: string) => {
-    await campaignStore.deleteLore(uuid);
+    await campaignStore.deleteLore(uuid, getSessionIdForLore(uuid));
   }
 
   // only applicable to the available lore table
   const onMarkLoreDelivered = async (uuid: string) => {
-    await campaignStore.markLoreDelivered(uuid, true);
+    await campaignStore.markLoreDelivered(uuid, true, getSessionIdForLore(uuid));
   }
 
   // only applicable to the delivered lore table
   const onUnmarkLoreDelivered = async (uuid: string) => {
-    await campaignStore.markLoreDelivered(uuid, false);
+    await campaignStore.markLoreDelivered(uuid, false, getSessionIdForLore(uuid));
   }
 
-  const moveLoreToLastSession = async (uuid: string) => {
-    await campaignStore.moveLoreToLastSession(uuid);
+  const moveLoreToLastSession = async (uuid: string, description: string) => {
+    await campaignStore.moveLoreToLastSession(uuid, description);
   }
 
-  const moveLoreToArc = async (uuid: string) => {
-    await campaignStore.moveLoreToArc(uuid);
+  const moveLoreToArc = async (uuid: string, description: string) => {
+    await campaignStore.moveLoreToArc(uuid, description);
   }
 
 

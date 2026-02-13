@@ -39,7 +39,7 @@ export interface BaseTableColumn {
   sortable?: boolean;
   smallEditBox?: boolean;
   type?: string;  
-  onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;  // should a specific fn be called when the cell is clicked (also underlines the text)
+  onClick?: (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) => void | Promise<void>;  // should a specific fn be called when the cell is clicked (also underlines the text)
 };
 
 export interface TableGroup {

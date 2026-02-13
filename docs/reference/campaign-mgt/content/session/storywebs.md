@@ -25,7 +25,7 @@ You can also drag/drop a Story Web from the Campaign Directory.
 ## The Story Web list
 This list contains the selected Story Webs.  
 
-Click the name of a Story Web to open it (hold Control to open in a new tab).
+Click the name of a Story Web to open it. Hold Control to open in a new tab, Alt to open in a different [panel](/reference/navigation/panels).
 
 ### Moveable
 You can reorder the story web list by dragging the handle on the left side of each row to move rows up and down.

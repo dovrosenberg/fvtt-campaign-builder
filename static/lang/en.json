@@ -286,7 +286,7 @@
         "tabs": {
           "colors": "Connection Colors",
           "styles": "Connection Styles",
-          "customColors": "Custom Text Colors",
+          "shapeColors": "Shape Colors",
           "fields": "Fields"
         },
         "columns": {
@@ -869,7 +869,8 @@
         "openEntryInNewTab": "Open Entry in new tab",
         "openDangerInNewTab": "Open Danger in new tab",
         "setColor": "Set Color",
-        "setStyle": "Set Style"
+        "setStyle": "Set Style",
+        "resetToDefault": "Reset to Default"
       },
       "dialogs": {
         "cannotActivateFromCompendium": "Cannot activate from compendium",

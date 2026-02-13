@@ -23,7 +23,7 @@ You can also drag/drop from the [Setting Directory].
 ## The Location list
 This list contains the individual Locations.  For each Location, you can see its name, [^Type], and parent Location (if any).
 
-Click the name of the Location or parent to open the [Location details](/reference/world-building/content/location/) page.  Hold control to open in a new tab.
+Click the name of the Location or parent to open the [Location details](/reference/world-building/content/location/) page.  Hold Control to open in a new tab, Alt to open in a different [panel](/reference/navigation/panels).
 
 You can also add notes to each Location to track how it will be used in the Arc.  Double click the notes field for a row or click the "Edit" icon to open the row editor.
 

@@ -28,11 +28,11 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { computed, ref, inject } from 'vue';
 
   // local imports
   import { useSessionStore, } from '@/applications/stores';
+  import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { localize, } from '@/utils/game'
   import DragDropService from '@/utils/dragDrop'; 
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -59,7 +59,7 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const { relatedEntryRows } = storeToRefs(sessionStore);
+  const { relatedEntryRows } = inject(SESSION_DERIVED_STATE_KEY)!;
   
   ////////////////////////////////
   // data

@@ -12,6 +12,9 @@ next:
 
 The Campaign Builder supports splitting your workspace into multiple panels, allowing you to work with different content side-by-side. You can have up to 3 panels open simultaneously, each with its own set of tabs.
 
+> [!NOTE]
+> You cannot have more than one [^Story Web] open at a time (i.e. visible in separate panels).  Opening a Story Web in one panel while one (the same or another) is visible in another panel will close the first one (or switch that panel to a different tab, if available).  
+
 ## Panel Overview
 
 ![Two panel view](/assets/images/two-panels.webp)

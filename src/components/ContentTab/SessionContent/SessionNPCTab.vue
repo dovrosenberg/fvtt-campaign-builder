@@ -26,11 +26,11 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref, } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { computed, ref, inject } from 'vue';
 
   // local imports
   import { useSessionStore} from '@/applications/stores';
+  import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { Topics, RelatedEntryDialogModes, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
   import DragDropService from '@/utils/dragDrop'; 
@@ -58,7 +58,7 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const { relatedNPCRows } = storeToRefs(sessionStore);
+  const { relatedNPCRows } = inject(SESSION_DERIVED_STATE_KEY)!;
   
   ////////////////////////////////
   // data

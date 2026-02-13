@@ -34,6 +34,12 @@
         </div>
       </div>
     </div>
+    <!-- Resize handle - only shown when editable and not using fixed height -->
+    <div
+      v-if="props.editable && props.resizable && !props.editOnlyMode"
+      class="resize-handle"
+      @mousedown="onMouseDown"
+    />
   </div>
 </template>
 
@@ -107,9 +113,14 @@
       default: null,
     },
     fixedHeight: {
-      type: String,
+      type: Number,
       required: false,
-      default: null,
+      default: 0,
+    },
+    resizable: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
     currentEntityUuid: {
       type: String,
@@ -129,6 +140,7 @@
     (e: 'editorSaved', content: string): void;
     (e: 'editorLoaded', content: string): void;  // to catch any initial transforms of the data 
     (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
+    (e: 'editorResized', height: number): void;
   }>();
 
   ////////////////////////////////
@@ -145,11 +157,19 @@
   const editorVisible = ref<boolean>(true);
   const lastSavedContent = ref<string>('');   // the parsemirror serialized content last saved, to see if any changes were made
   const initialUUIDs = ref<string[]>([]);     // UUIDs present when editor was first loaded
+  const isResizing = ref<boolean>(false);
+  const currentHeight = ref<number>(props.fixedHeight ? props.fixedHeight : 15); 
+  const dragStartY = ref<number>(0);
+  const dragStartHeight = ref<number>(0);
 
   const coreEditorRef = ref<HTMLDivElement>();
   const wrapperRef = ref<HTMLDivElement>();
   
-  //
+  // min/max heights in rem
+  const MIN_HEIGHT = 2.5;  // 40px
+  const MAX_HEIGHT = 30;   // 480px
+  const DEFAULT_HEIGHT = 15; // 240px minimum (15rem)
+
   ////////////////////////////////
   // computed data
   const datasetProperties = computed((): Record<string, string> => {
@@ -163,10 +183,29 @@
 
   const safeEnrichedContent = computed((): string => (sanitizeHTML(enrichedInitialContent.value)));
 
-  const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight}; margin-bottom: 0.375rem` : ''));
+  const wrapperStyle = computed((): string => {
+    if (props.fixedHeight && !props.resizable) {
+      return `height: ${props.fixedHeight}rem; margin-bottom: 0.375rem`;
+    } else if (props.resizable && currentHeight.value > 0) {
+      return `height: ${currentHeight.value}rem; margin-bottom: 0.375rem`;
+    }
+    return '';
+  });
 
   ////////////////////////////////
   // methods
+  
+  /**
+   * Convert pixel values to rem units
+   * @param px - The pixel value to convert
+   * @returns The equivalent value in rem
+   */
+  const convertPxToRem = (px: number): number => {
+    // Get the root font size from the document element
+    const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    return px / rootFontSize;
+  };
+  
   // shouldn't be called unless there's already a document
   // this creates the Editor class that converts the div into a functional editor
   const activateEditor = async (): Promise<void> => {
@@ -182,9 +221,21 @@
       throw new Error('Missing name in activateEditor()');
 
     // Determine the preferred editor height
-    const heights = [wrapperRef.value.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
-    const validHeights = heights.filter(h => Number.isFinite(h) && h > 0);
-    const height = validHeights.length > 0 ? Math.min(...validHeights) : 240; // fallback to 240px minimum
+    let height = DEFAULT_HEIGHT; // fallback to 240px minimum (15rem)
+    
+    // Use currentHeight if already set, otherwise calculate based on wrapper
+    if (props.resizable) {
+      height = Math.clamp(currentHeight.value, MIN_HEIGHT, MAX_HEIGHT);
+    } else {
+      const heightsInPx = [wrapperRef.value.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
+      
+      const validHeightsInPx = heightsInPx.filter(h => Number.isFinite(h) && h > 0);
+      
+      const minHeightInPx = validHeightsInPx.length > 0 ? convertPxToRem(Math.min(...validHeightsInPx)) : DEFAULT_HEIGHT;
+      
+      height = Math.clamp(minHeightInPx, MIN_HEIGHT, MAX_HEIGHT);
+      currentHeight.value = height;
+    }
 
     // Get initial content
     const options = {
@@ -199,7 +250,7 @@
     options.plugins = configureProseMirrorPlugins();
 
     if (!fitToSize && options.target.offsetHeight) 
-      options.height = options.target.offsetHeight;
+      options.height = convertPxToRem(options.target.offsetHeight);
     
     buttonDisplay.value = 'none';
     
@@ -384,8 +435,57 @@
     }
   };
 
+  const onMouseDown = (event: MouseEvent) => {
+    if (!props.editable || !props.resizable) return;
+    
+    isResizing.value = true;
+    dragStartY.value = event.clientY;
+    dragStartHeight.value = currentHeight.value || convertPxToRem(wrapperRef.value?.offsetHeight || DEFAULT_HEIGHT);
+    
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    event.preventDefault();
+  };
+
+  const onMouseMove = (event: MouseEvent) => {
+    if (!isResizing.value) return;
+    
+    const deltaY = event.clientY - dragStartY.value;
+    const newHeight = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, dragStartHeight.value + convertPxToRem(deltaY))); 
+    
+    currentHeight.value = newHeight;
+    
+    // Update the ProseMirror editor height if active
+    if (editor.value) {
+      const editorElement = wrapperRef.value?.querySelector('.prosemirror .editor-content');
+      if (editorElement) {
+        // Adjust for menu bar
+        const adjusted = Math.clamp(newHeight - convertPxToRem(50), MIN_HEIGHT, MAX_HEIGHT);
+        (editorElement as HTMLElement).style.height = `${adjusted}rem`; 
+      }
+    }
+  };
+
+  const onMouseUp = () => {
+    if (!isResizing.value) return;
+    
+    isResizing.value = false;
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    
+    // Emit the new height
+    if (currentHeight.value > 0) {
+      emit('editorResized', currentHeight.value);
+    }
+  };
+
   ////////////////////////////////
   // watchers
+  watch(() => props.fixedHeight, () => {
+    currentHeight.value = props.fixedHeight ? props.fixedHeight : 15;
+  });
+
+
   watch(() => props.initialContent, async (newContent) =>{
     if (!currentSetting.value)
       return;
@@ -457,7 +557,7 @@
 
     editor.value = null;
 
-    // show the pretty text - but only if we have a button... otherwise we're in permananent edit mode and shouldn't be enriching the text
+    // show the pretty text - but only if we have a button... otherwise we're in permanent edit mode and shouldn't be enriching the text
     enrichedInitialContent.value = !props.editOnlyMode ? await enrichFcbHTML(currentSetting.value.uuid, props.initialContent || '') : props.initialContent || '';
 
     // Initialize UUIDs for tracking if enabled
@@ -469,6 +569,8 @@
       await nextTick();
       await activateEditor();
     }
+
+    currentHeight.value = props.fixedHeight ? props.fixedHeight : 15;
   });
 
   onUnmounted(() => {
@@ -567,4 +669,46 @@
     }
   }
 
+  .resize-handle {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    cursor: ns-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fcb-text-muted);
+    background: var(--fcb-surface-2);
+    border-radius: 3px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    z-index: 5;
+
+    &:hover {
+      opacity: 1;
+      color: var(--fcb-text);
+    }
+
+     &::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+
+      /* diagonal hatch */
+      background: repeating-linear-gradient(
+        135deg,
+        currentColor 0px,
+        currentColor 1px,
+        transparent 1px,
+        transparent 3px
+      );
+
+      /* clip to a bottom-right triangle */
+      clip-path: polygon(100% 0%, 100% 100%, 0% 100%);
+
+      opacity: 0.9;
+     }
+  }
 </style>

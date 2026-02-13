@@ -91,7 +91,7 @@
     event.stopPropagation();
     event.preventDefault();
 
-    await navigationStore.openFront(props.frontNode.id, {newTab: event.ctrlKey});
+    await navigationStore.openFront(props.frontNode.id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
   };
 
   const onFrontContextMenu = (event: MouseEvent): void => {

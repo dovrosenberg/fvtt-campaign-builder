@@ -27,12 +27,12 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, PropType, ref } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { computed, PropType, ref, inject } from 'vue';
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local imports
   import { useRelationshipStore } from '@/applications/stores';
+  import { ENTRY_DERIVED_STATE_KEY } from '@/composables/useEntryDerivedState';
   import { localize } from '@/utils/game';
   import DragDropService from '@/utils/dragDrop';
   import { FCBDialog } from '@/dialogs';
@@ -62,8 +62,7 @@
   ////////////////////////////////
   // store
   const relationshipStore = useRelationshipStore();
-
-  const { relatedDocumentRows, } = storeToRefs(relationshipStore);
+  const { relatedDocumentRows } = inject(ENTRY_DERIVED_STATE_KEY)!;
 
   ////////////////////////////////
   // data
@@ -170,8 +169,8 @@
     }
   };
 
-  const onNameClick = async (_event: MouseEvent, uuid: string) => { 
-    const doc = await fromUuid(uuid);
+  const onNameClick = async (_event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) => {
+    const doc = await fromUuid(rowData.uuid);
     await doc?.sheet?.render(true);
   };
 

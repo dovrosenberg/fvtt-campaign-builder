@@ -7,10 +7,10 @@ import { localize } from '@/utils/game';
 import { nodeTypeToTopic } from '@/utils/misc';
 import { replaceUUIDsInText } from '@/utils/sanitizeHtml';
 
-/** Get styling for a custom node based on its color scheme, including nodeConfig[] */
-const getCustomNodeStyling = (storyWeb: StoryWeb, nodeId: string): Partial<Node> => {
+/** Get styling for a node based on its color scheme, including nodeConfig[] */
+const getNodeStyling = (storyWeb: StoryWeb, nodeId: string, nodeType: StoryWebNodeTypes): Partial<Node> => {
   if (!storyWeb.nodeStyles?.[nodeId]) {
-    return nodeConfig[StoryWebNodeTypes.Custom];
+    return nodeConfig[nodeType];
   }
   
   const colorSchemeId = storyWeb.nodeStyles[nodeId].colorSchemeId;
@@ -20,13 +20,13 @@ const getCustomNodeStyling = (storyWeb: StoryWeb, nodeId: string): Partial<Node>
   const colorSchemeObject = colorScheme ? {
     font: { color: colorScheme.foregroundColor },
     color: {
-      border: colorScheme.backgroundColor,
+      border: colorScheme.foregroundColor,
       background: colorScheme.backgroundColor,
     },
   } : {};
 
   return {
-    ...nodeConfig[StoryWebNodeTypes.Custom],
+    ...nodeConfig[nodeType],
     ...colorSchemeObject,
   };
 };
@@ -447,13 +447,14 @@ const generateNetworkData = async (storyWeb: StoryWeb, forExport: boolean = fals
         const positionInfo = storyWeb.positions?.[node.uuid] || {};            
         const format = node.source === StoryWebNodeSource.Explicit ? explicitNodeFormat : implicitNodeFormat;
         const nodeTooltip = await getNodeTooltip(node.uuid, StoryWebNodeTypes.Danger);
+        const nodeStyling = getNodeStyling(storyWeb, node.uuid, StoryWebNodeTypes.Danger);
         nodes.push({
           ...format,
           id: node.uuid,
           label: `${danger.name}\n(${front.name})`,
           title: nodeTooltip,
           ...positionInfo,
-          ...nodeConfig[StoryWebNodeTypes.Danger],
+          ...nodeStyling,
         });
       } else {
         // if an entry, we need the topic
@@ -469,25 +470,26 @@ const generateNetworkData = async (storyWeb: StoryWeb, forExport: boolean = fals
           const format = node.source === StoryWebNodeSource.Explicit ? explicitNodeFormat : implicitNodeFormat;
           const nodeTooltip = await getNodeTooltip(index.uuid, node.type);
 
+          const nodeStyling = getNodeStyling(storyWeb, index.uuid, node.type);
           nodes.push({
             ...format,
             id: index.uuid,
             label: `${index.name}${index.type ? `\n(${index.type})` : ''}`,
             title: nodeTooltip,
             ...positionInfo,
-            ...nodeConfig[node.type],
+            ...nodeStyling,
           });
         }
       }
     } else if (node.type === StoryWebNodeTypes.Custom) {
       const positionInfo = storyWeb.positions?.[node.uuid] || {};
-      const customStyling = getCustomNodeStyling(storyWeb, node.uuid);
+      const nodeStyling = getNodeStyling(storyWeb, node.uuid, StoryWebNodeTypes.Custom);
       nodes.push({
         ...customNodeFormat,
         id: node.uuid,
         label: node.label || '',
         ...positionInfo,
-        ...customStyling,
+        ...nodeStyling,
       });
     }
   }

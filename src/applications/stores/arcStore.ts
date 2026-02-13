@@ -1,7 +1,6 @@
-// this store handles activities specific to campaigns 
-// 
+// this store handles activities specific to arcs
+//
 // library imports
-import { ref, watch, } from 'vue';
 import { storeToRefs, } from 'pinia';
 
 // local imports
@@ -9,40 +8,26 @@ import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { 
-  ArcLocationDetails, 
-  BaseTableColumn, 
-  ArcParticipantDetails, 
-  ArcMonsterDetails, 
-  ArcLoreDetails,
-  ArcVignetteDetails,
+import {
+  BaseTableColumn,
   Idea,
   Topics,
   ArcTableTypes,
 } from '@/types';
-import { ArcLocation, ArcLore, ArcVignette, } from '@/documents';
+import { ArcLocation, ArcLore, ArcMonster, ArcParticipant, ArcVignette, } from '@/documents';
 
 import { Entry, } from '@/classes';
-import { getTopicText } from '@/compendia';
 
 // the store definition
 export const arcStore = () => {
   ///////////////////////////////
   // the state
-  // used for tables
-  const locationRows = ref<ArcLocationDetails[]>([]);
-  const participantRows = ref<ArcParticipantDetails[]>([]);
-  const monsterRows = ref<ArcMonsterDetails[]>([]);
-  const vignetteRows = ref<ArcVignetteDetails[]>([]);
-  const loreRows = ref<ArcLoreDetails[]>([]); 
-  const ideaRows = ref<Idea[]>([]);
-  
   const extraFields = {
     [ArcTableTypes.None]: [],
     [ArcTableTypes.Location]: [
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
       { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
-      { field: 'parent', style: 'text-align: left', header: 'Parent', sortable: true, onClick: onParentClick},
+      { field: 'parent', style: 'text-align: left', header: 'Parent', sortable: true, onClick: onParentClick },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],
     [ArcTableTypes.Participant]: [
@@ -50,29 +35,29 @@ export const arcStore = () => {
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onItemClick },
       { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
-    ],  
+    ],
     [ArcTableTypes.Monster]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onMonsterClick },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
-    ], 
+    ],
     [ArcTableTypes.Vignette]: [
       { field: 'description', style: 'text-align: left', header: 'Vignette', editable: true },
     ],
     [ArcTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
-    ],  
+    ],
     [ArcTableTypes.Idea]: [
       { field: 'text', style: 'text-align: left', header: 'Idea', sortable: true, editable: true },
     ],
   } as unknown as Record<ArcTableTypes, BaseTableColumn[]>;
 
-  
+
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentContentTab, currentArc, } = storeToRefs(mainStore);
+  const { currentArc, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -82,7 +67,7 @@ export const arcStore = () => {
 
   ///////////////////////////////
   // actions
-  
+
   /**
    * Adds a location to the arc.
    * @param uuid the UUID of the location to add.
@@ -92,7 +77,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.addLocation()');
 
     await currentArc.value.addLocation(uuid, notes);
-    await _refreshLocationRows();
+    mainStore.refreshArc();
   }
 
   /**
@@ -110,7 +95,7 @@ export const arcStore = () => {
       return false;
 
     await currentArc.value.deleteLocation(uuid);
-    await _refreshLocationRows();
+    mainStore.refreshArc();
     return true;
   }
 
@@ -126,7 +111,7 @@ export const arcStore = () => {
     if (!campaign)
       throw new Error('Invalid campaign in arcStore.copyLocationToSession()');
 
-    const currentSession = await campaign.getCurrentSession(); 
+    const currentSession = await campaign.getCurrentSession();
 
     if (!currentSession)
       return;
@@ -144,7 +129,7 @@ export const arcStore = () => {
 
     currentArc.value.locations = reorderedLocations;
     await currentArc.value.save();
-    await _refreshLocationRows();
+    mainStore.refreshArc();
   };
 
   /**
@@ -156,7 +141,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.addParticipant()');
 
     await currentArc.value.addParticipant(uuid, notes);
-    await _refreshParticipantRows();
+    mainStore.refreshArc();
   }
 
   /**
@@ -172,9 +157,9 @@ export const arcStore = () => {
     // confirm
     if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete participant?', 'Are you sure you want to delete this participant? This will not impact the associated entry')))
       return false;
-    
+
     await currentArc.value.deleteParticipant(uuid);
-    await _refreshParticipantRows();
+    mainStore.refreshArc();
     return true;
   }
 
@@ -191,7 +176,7 @@ export const arcStore = () => {
     if (!campaign)
       throw new Error('Invalid campaign in arcStore.copyParticipantToSession()');
 
-    const currentSession = await campaign.getCurrentSession(); 
+    const currentSession = await campaign.getCurrentSession();
     if (!currentSession)
       throw new Error('Invalid session in arcStore.copyParticipantToSession()');
 
@@ -199,7 +184,7 @@ export const arcStore = () => {
     const character = await Entry.fromUuid(uuid);
     if (!character || character.topic!=Topics.Character)
       return;
- 
+
     await currentSession.addNPC(uuid);
   }
 
@@ -213,12 +198,12 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.addLore()');
 
     const loreUuid = await currentArc.value.addLore(description);
-    await _refreshLoreRows();
+    mainStore.refreshArc();
     return loreUuid;
   }
 
   /**
-   * Updates the description associated with a lore 
+   * Updates the description associated with a lore
    * @param uuid the UUID of the lore
    */
   const updateLoreDescription = async (uuid: string, description: string): Promise<void> => {
@@ -226,9 +211,9 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.updateLoreDescription()');
 
     await currentArc.value.updateLoreDescription(uuid, description);
-    await _refreshLoreRows();
+    mainStore.refreshArc();
   }
-  
+
   /**
    * Updates the notes on a location
    * @param uuid the UUID of the location
@@ -238,11 +223,11 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.updateLocationNotes()');
 
     await currentArc.value.updateLocationNotes(uuid, notes);
-    await _refreshLocationRows();
+    mainStore.refreshArc();
   }
 
     /**
-   * Updates the notes associated with a participant 
+   * Updates the notes associated with a participant
    * @param uuid the UUID of the participant
    */
   const updateParticipantNotes = async (uuid: string, description: string): Promise<void> => {
@@ -250,7 +235,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.updateParticipantNotes()');
 
     await currentArc.value.updateParticipantNotes(uuid, description);
-    await _refreshParticipantRows();
+    mainStore.refreshArc();
   }
 
   /**
@@ -265,9 +250,9 @@ export const arcStore = () => {
     // confirm
     if (!(await FCBDialog.confirmDialog('Delete lore?', 'Are you sure you want to delete this lore?')))
       return false;
-    
+
     await currentArc.value.deleteLore(uuid);
-    await _refreshLoreRows();
+    mainStore.refreshArc();
     return true;
   }
 
@@ -281,7 +266,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.addVignette()');
 
     const vignetteUuid = await currentArc.value.addVignette(description);
-    await _refreshVignetteRows();
+    mainStore.refreshArc();
     return vignetteUuid;
   }
 
@@ -294,7 +279,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.updateVignetteDescription()');
 
     await currentArc.value.updateVignetteDescription(uuid, description);
-    await _refreshVignetteRows();
+    mainStore.refreshArc();
   }
 
   /**
@@ -311,15 +296,16 @@ export const arcStore = () => {
       return false;
 
     await currentArc.value.deleteVignette(uuid);
-    await _refreshVignetteRows();
+    mainStore.refreshArc();
     return true;
   }
 
   /**
    * Move a vignette to the current session in the campaign.
    * @param uuid the UUID of the vignette to move
+   * @param description the vignette description
    */
-  const moveVignetteToSession = async (uuid: string): Promise<void> => {
+  const moveVignetteToSession = async (uuid: string, description: string): Promise<void> => {
     if (!currentArc.value)
       return;
 
@@ -327,24 +313,21 @@ export const arcStore = () => {
     if (!campaign)
       throw new Error('Invalid campaign in arcStore.moveVignetteToSession()');
 
-    const currentSession = await campaign.getCurrentSession(); 
+    const currentSession = await campaign.getCurrentSession();
     if (!currentSession)
       throw new Error('Invalid session in arcStore.moveVignetteToSession()');
 
-    const vignette = (currentArc.value.vignettes as ArcVignette[]).find(v=> v.uuid===uuid);
-    if (!vignette)
-      return;
-
-    await currentSession.addVignette(vignette.description);
+    await currentSession.addVignette(description);
     await currentArc.value.deleteVignette(uuid);
-    await _refreshVignetteRows();
+    mainStore.refreshArc();
   }
 
   /**
    * Move a lore to the current session in the campaign.
    * @param uuid the UUID of the lore to move
+   * @param description the lore description
    */
-  const moveLoreToSession = async (uuid: string): Promise<void> => {
+  const moveLoreToSession = async (uuid: string, description: string): Promise<void> => {
     if (!currentArc.value)
       return;
 
@@ -352,44 +335,35 @@ export const arcStore = () => {
     if (!campaign)
       throw new Error('Invalid campaign in arcStore.moveLoreToSession()');
 
-    const currentSession = await campaign.getCurrentSession(); 
+    const currentSession = await campaign.getCurrentSession();
     if (!currentSession)
       throw new Error('Invalid session in arcStore.moveLoreToSession()');
 
-    const lore = currentArc.value.lore.find(l=> l.uuid===uuid);
-
-    if (!lore)
-      return;
-
-    await currentSession.addLore(lore.description);
+    await currentSession.addLore(description);
     await currentArc.value.deleteLore(uuid);
 
-    await _refreshLoreRows();
+    mainStore.refreshArc();
   }
 
   /**
    * Move a lore back to the campaign as unused.
    * @param uuid the UUID of the lore to move
+   * @param description the lore description
    */
-  const moveLoreToCampaign = async (uuid: string): Promise<void> => {
+  const moveLoreToCampaign = async (uuid: string, description: string): Promise<void> => {
     if (!currentArc.value)
-      return;
-
-    const currentLore = currentArc.value.lore.find(l=> l.uuid===uuid);
-
-    if (!currentLore)
       return;
 
     const campaign = await currentArc.value.loadCampaign();
 
-    if (!campaign) 
+    if (!campaign)
       return;
-    
-    // have a next campaign - add there and delete here
-    await campaign.addLore(currentLore.description);
+
+    // have a campaign - add there and delete here
+    await campaign.addLore(description);
     await currentArc.value.deleteLore(uuid);
 
-    await _refreshLoreRows();
+    mainStore.refreshArc();
   }
 
   /**
@@ -401,7 +375,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.addMonster()');
 
     await currentArc.value.addMonster(uuid, notes);
-    await _refreshMonsterRows();
+    mainStore.refreshArc();
   }
 
   /**
@@ -416,9 +390,9 @@ export const arcStore = () => {
     // confirm
     if (!(await FCBDialog.confirmDialog('Delete monster?', 'Are you sure you want to delete this monster?')))
       return false;
-    
+
     await currentArc.value.deleteMonster(uuid);
-    await _refreshMonsterRows();
+    mainStore.refreshArc();
     return true;
   }
 
@@ -431,7 +405,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.updateMonsterNotes()');
 
     await currentArc.value.updateMonsterNotes(uuid, notes);
-    await _refreshMonsterRows();
+    mainStore.refreshArc();
   }
 
   /**
@@ -446,7 +420,7 @@ export const arcStore = () => {
     if (!campaign)
       throw new Error('Invalid campaign in arcStore.copyMonsterToSession()');
 
-    const currentSession = await campaign.getCurrentSession(); 
+    const currentSession = await campaign.getCurrentSession();
     if (!currentSession)
       throw new Error('Invalid session in arcStore.copyMonsterToSession()');
 
@@ -463,7 +437,7 @@ export const arcStore = () => {
 
     currentArc.value.participants = reorderedParticipants;
     await currentArc.value.save();
-    await _refreshParticipantRows();
+    mainStore.refreshArc();
   };
 
   /**
@@ -476,7 +450,7 @@ export const arcStore = () => {
 
     currentArc.value.monsters = reorderedMonsters;
     await currentArc.value.save();
-    await _refreshMonsterRows();
+    mainStore.refreshArc();
   };
 
   /**
@@ -498,7 +472,7 @@ export const arcStore = () => {
 
     currentArc.value.vignettes = reorderedVignettes;
     await currentArc.value.save();
-    await _refreshVignetteRows();
+    mainStore.refreshArc();
   };
 
   const reorderLore = async (reorderedLore: ArcLore[]) => {
@@ -506,7 +480,7 @@ export const arcStore = () => {
 
     currentArc.value.lore = reorderedLore;
     await currentArc.value.save();
-    await _refreshLoreRows();
+    mainStore.refreshArc();
   };
 
      /**
@@ -517,20 +491,20 @@ export const arcStore = () => {
     const addIdea = async (description = ''): Promise<string | null> => {
       if (!currentArc.value)
         throw new Error('Invalid arc in arcStore.addIdea()');
-  
+
       const ideaUuid = await currentArc.value.addIdea(description);
-      await _refreshIdeaRows();
+      mainStore.refreshArc();
       return ideaUuid;
     }
-  
+
     const updateIdea = async (uuid: string, newText: string): Promise<void> => {
       if (!currentArc.value)
         return;
-  
+
       await currentArc.value.updateIdea(uuid, newText);
-      await _refreshIdeaRows();
+      mainStore.refreshArc();
     }
-  
+
     /**
      * Deletes an idea from the arc.
      * @param uuid - The UUID of the idea to delete.
@@ -539,30 +513,30 @@ export const arcStore = () => {
     const deleteIdea = async (uuid: string): Promise<boolean> => {
       if (!currentArc.value)
         return false;
-  
+
       // confirm
       if (!(await FCBDialog.confirmDialog('Delete Idea?', 'Are you sure you want to delete this idea?')))
         return false;
-  
+
       await currentArc.value.deleteIdea(uuid);
-      await _refreshIdeaRows();
+      mainStore.refreshArc();
       return true;
     }
-  
+
     const reorderIdeas = async (reorderedIdeas: Idea[]) => {
       if (!currentArc.value) return;
-  
+
       currentArc.value.ideas = reorderedIdeas;
       await currentArc.value.save();
-      await _refreshIdeaRows();
+      mainStore.refreshArc();
     };
-  
+
     const moveIdeaToCampaign = async (uuid: string): Promise<void> => {
       if (!currentArc.value)
         return;
 
       await currentArc.value.moveIdeaToCampaign(uuid);
-      await _refreshIdeaRows();
+      mainStore.refreshArc();
     }
 
   ///////////////////////////////
@@ -572,222 +546,45 @@ export const arcStore = () => {
   // internal functions
 
   // when we click on an item, open it
-  async function onItemClick (_event: MouseEvent, uuid: string) {
-    const item = await fromUuid<Item>(uuid);
+  async function onItemClick (_event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    const item = await fromUuid<Item>(rowData.uuid);
 
     if (item)
       item.sheet?.render(true);
   }
 
-  // when we click on an monster, open it
-  async function onMonsterClick (_event: MouseEvent, uuid: string) {
-    const monster = await fromUuid<Actor>(uuid);
+  // when we click on a monster, open it
+  async function onMonsterClick (_event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    const monster = await fromUuid<Actor>(rowData.uuid);
 
     if (monster)
       monster.sheet?.render(true);
   }
 
   // when we click on a name, open the entry
-  async function onNameClick (event: MouseEvent, uuid: string) {
-    navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
+  async function onNameClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    navigationStore.openEntry(rowData.uuid, { newTab: event.ctrlKey, activate: true });
   }
 
-  // when we click on a parent, open the entry
-  async function onParentClick (event: MouseEvent, uuid: string) {
-    // get entry Id
-    const parentId = locationRows.value.find(r=> r.uuid===uuid)?.parentId;
-
+  // when we click on a parent, open the parent entry using parentId from row data
+  async function onParentClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    const parentId = rowData.parentId as string | null;
     if (parentId)
-      navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true });
-  }
-
-
-  // const _refreshRows = async () => {
-  //   locationRows.value = [];
-  //   participantRows.value = [];
-  //   locationRows.value = [];
-  //   loreRows.value = [];
-  //   ideaRows.value = [];
-
-  //   if (!currentSession.value)
-  //     return;
-
-  //   await _refreshLocationRows();
-  //   await _refreshItemRows();
-  //   await _refreshNPCRows();
-  //   await _refreshMonsterRows();
-  //   await _refreshVignetteRows();
-  //   await _refreshLoreRows();
-  // };
-
-  const _refreshLocationRows = async () => {
-    if (!currentArc.value)
-      return;
-
-    const retval = [] as ArcLocationDetails[];
-
-    for (const location of currentArc.value?.locations) {
-      const entry = await Entry.fromUuid(location.uuid);
-
-      if (!entry)
-        continue;
-
-      const parentId = await entry.getParentId();
-      const parent = parentId ? await Entry.fromUuid(parentId) : null;
-
-      if (entry) {
-        retval.push({
-          uuid: location.uuid,
-          name: entry.name, 
-          type: entry.type,
-          parent: parent?.name || '',
-          parentId: parent?.uuid || null,
-          notes: location.notes,
-        });
-      }
-    }
-
-    locationRows.value = retval;
-  }
-
-
-  const _refreshParticipantRows = async () => {
-    if (!currentArc.value)
-      return;
-
-    // note these can be character or organization
-    const retval = [] as ArcParticipantDetails[];
-
-    for (const participant of currentArc.value?.participants) {
-      const entry = await Entry.fromUuid(participant.uuid);
-
-      if (entry) {
-        retval.push({
-          uuid: participant.uuid,
-          name: entry.name, 
-          type: entry.type || getTopicText(entry.topic),
-          notes: participant.notes
-        });
-      }
-    }
-
-    participantRows.value = retval;
-  }
-
-  const _refreshMonsterRows = async () => {
-    if (!currentArc.value)
-      return;
-
-    const retval = [] as ArcMonsterDetails[];
-
-    for (const monster of currentArc.value?.monsters) {
-      const entry = await fromUuid<Actor>(monster.uuid);
-
-      if (entry) {
-        retval.push({
-          uuid: monster.uuid,
-          name: entry.name, 
-          notes: monster.notes
-        });
-      } else {
-        // the actor was deleted - remove it from our session
-        await currentArc.value.deleteMonster(monster.uuid);
-      }
-    }
-
-    monsterRows.value = retval;
-  }
-  
-  const _refreshIdeaRows = async () => {
-    ideaRows.value = [];
-
-    if (!currentArc.value)
-      return;
-    
-    ideaRows.value = currentArc.value.ideas.slice();
-  }
-
-  const _refreshLoreRows = async () => {
-    if (!currentArc.value)
-      return;
-
-    const retval = [] as ArcLoreDetails[];
-
-    for (const lore of currentArc.value?.lore) {
-      retval.push({
-        uuid: lore.uuid,
-        description: lore.description,
-      });
-    }
-
-    loreRows.value = retval;
-  }
-
-  const _refreshVignetteRows = async () => {
-    if (!currentArc.value)
-      return;
-
-    const vignettes = (currentArc.value.vignettes as ArcVignette[] | undefined) || [];
-    vignetteRows.value = vignettes.map((v) => ({
-      uuid: v.uuid,
-      description: v.description,
-    }));
-  }
-
-  const _refreshRowsForTab = async () => {
-    switch (currentContentTab.value) {
-      case 'description':
-        // await _refreshLocationRows();
-        break;
-      case 'ideas':
-        await _refreshIdeaRows();
-        break;
-      case 'vignettes':
-        await _refreshVignetteRows();
-        break;
-      case 'lore':
-        await _refreshLoreRows();
-        break;
-      case 'locations':
-        await _refreshLocationRows();
-        break;
-      case 'participants':
-        await _refreshParticipantRows();
-        break;
-      case 'monsters':
-        await _refreshMonsterRows();
-        break;
-      default:
-        break;
-    }
+      navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
   }
 
 
   ///////////////////////////////
   // watchers
-  watch(()=> currentArc.value, async () => {
-    // just refresh the rows for the current contentTab
-    await _refreshRowsForTab();
-  });
-
-  watch(()=> currentContentTab.value, async () => {
-    await _refreshRowsForTab();
-  });
 
   ///////////////////////////////
-  // lifecycle events 
+  // lifecycle events
 
   ///////////////////////////////
   // return the public interface
   return {
-    locationRows,
-    participantRows,
-    monsterRows,
-    vignetteRows,
-    ideaRows,
-    loreRows,
     extraFields,
-    addIdea, 
+    addIdea,
     deleteIdea,
     updateIdea,
     moveIdeaToCampaign,

@@ -48,11 +48,10 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, toRaw } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { ref, inject, watch, toRaw, onBeforeUnmount } from 'vue';
 
   // local imports
-  import { useStoryWebStore } from '@/applications/stores';
+  import { STORY_WEB_GRAPH_STATE_KEY } from '@/composables/useStoryWebGraphState';
   import DragDropService from '@/utils/dragDrop';
   import { localize } from '@/utils/game';
   
@@ -72,8 +71,8 @@
 
   ////////////////////////////////
   // store
-  const storyWebStore = useStoryWebStore();
-  const { currentContainer, isWebLoading, currentNetwork } = storeToRefs(storyWebStore);
+  const graphState = inject(STORY_WEB_GRAPH_STATE_KEY)!;
+  const { currentContainer, isWebLoading, currentNetwork } = graphState;
 
   ////////////////////////////////
   // data
@@ -94,11 +93,11 @@
     switch (event.key) {
       case 'Delete':
         for (const node of toRaw(currentNetwork.value).getSelectedNodes()) {
-          storyWebStore.removeNode(node as string);
+          graphState.removeNode(node as string);
         }
 
         for (const edge of toRaw(currentNetwork.value).getSelectedEdges()) {
-          storyWebStore.removeEdge(edge as string);
+          graphState.removeEdge(edge as string);
         }
         break;
     }
@@ -153,7 +152,7 @@
       const domPosition = { x: event.offsetX, y: event.offsetY };
       const convertedPosition = toRaw(currentNetwork.value).DOMtoCanvas(domPosition);
 
-      await storyWebStore.addFront(fcbData.frontId, convertedPosition, withRelationships);
+      await graphState.addFront(fcbData.frontId, convertedPosition, withRelationships);
       return;
     }
 
@@ -173,11 +172,11 @@
       const nodeUnderCursor = toRaw(currentNetwork.value).getNodeAt(domPosition) as string | null;
       
       if (nodeUnderCursor) {
-        // Handle the drop on node using the store method
-        await storyWebStore.handleDropOnNode(fcbData.childId, nodeUnderCursor, convertedPosition, withRelationships);
+        // Handle the drop on node
+        await graphState.handleDropOnNode(fcbData.childId, nodeUnderCursor, convertedPosition, withRelationships);
       } else {
         // Normal drop - just add the entry
-        await storyWebStore.addEntry(fcbData.childId, convertedPosition, withRelationships);      
+        await graphState.addEntry(fcbData.childId, convertedPosition, withRelationships);      
       }
     }
   };
@@ -185,7 +184,7 @@
 
   ////////////////////////////////
   // watchers
-  // once the ref is set - pass to the store
+  // once the ref is set - pass to the composable
   watch(() => networkContainer.value, () => {
     if (networkContainer.value) {
       currentContainer.value = networkContainer.value;
@@ -194,6 +193,15 @@
 
   ////////////////////////////////
   // lifecycle events
+  onBeforeUnmount(() => {
+    // Clear the container reference when component is unmounted
+    currentContainer.value = null;
+    
+    // Destroy the network to prevent memory leaks
+    if (currentNetwork.value) {
+      toRaw(currentNetwork.value).destroy();
+    }
+  });
 
 </script>
 
