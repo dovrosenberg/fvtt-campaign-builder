@@ -1,4 +1,4 @@
-import { useNavigationStore, useMainStore, useSettingDirectoryStore, useCampaignDirectoryStore } from '@/applications/stores';
+import { useNavigationStore, useMainStore, useSettingDirectoryStore, useCampaignDirectoryStore, useStoryWebStore } from '@/applications/stores';
 import { Topics, EntryFilterIndex } from '@/types';
 import { isClientGM } from '@/utils/game';
 import { JournalEntryFlagKey, moduleId } from '@/settings';
@@ -340,5 +340,12 @@ function registerForJournalPageUpdateHook() {
 
     const navigationStore = useNavigationStore();
     await navigationStore.refreshContentAcrossPanels(parentUuid);
+
+    // When a non-story-web document changes, regenerate story web graphs that
+    // reference it so they pick up updated entry names, relationships, etc.
+    if (page.type !== DOCUMENT_TYPES.StoryWeb) {
+      const storyWebStore = useStoryWebStore();
+      await storyWebStore.regenerateAllGraphs(parentUuid);
+    }
   });
 }

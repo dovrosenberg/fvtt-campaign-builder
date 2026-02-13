@@ -50,6 +50,7 @@ export interface StoryWebGraphState {
   addCustomNode(position?: { x: number; y: number } | null): Promise<void>;
   editCustomNode(nodeId: string): Promise<void>;
   setCustomNodeColorScheme(nodeId: string, colorSchemeId: string): Promise<void>;
+  regenerate(contentUuid?: string): Promise<void>;
 }
 
 export const STORY_WEB_GRAPH_STATE_KEY: InjectionKey<StoryWebGraphState> = Symbol('storyWebGraphState');
@@ -1606,6 +1607,34 @@ export function useStoryWebGraphState(): StoryWebGraphState {
       await generateNetwork(true);
   });
 
+  /** Check whether this story web references the given content UUID (entry or front).
+   * @param contentUuid - The UUID to check for
+   */
+  const storyWebUsesContent = (contentUuid: string): boolean => {
+    if (!currentStoryWeb.value)
+      return false;
+
+    // Direct match for entry nodes, or prefix match for danger nodes (frontUuid|dangerIndex)
+    return currentStoryWeb.value.nodes.some(node =>
+      node.uuid === contentUuid || node.uuid.startsWith(contentUuid + '|')
+    );
+  };
+
+  /** Regenerate the network from refreshed data (e.g., after an entry name changes).
+   * Preserves viewport position. Called by the store facade when external documents change.
+   * @param contentUuid - If provided, only regenerate if this web uses that content
+   */
+  const regenerate = async (contentUuid?: string) => {
+    if (!currentNetwork.value || !currentStoryWeb.value)
+      return;
+
+    // Skip regeneration if the changed content isn't in this web
+    if (contentUuid && !storyWebUsesContent(contentUuid))
+      return;
+
+    await refreshAndRegenerate();
+  };
+
   ///////////////////////////////
   // registration with store facade
   const graphState: StoryWebGraphState = {
@@ -1622,6 +1651,7 @@ export function useStoryWebGraphState(): StoryWebGraphState {
     addCustomNode,
     editCustomNode,
     setCustomNodeColorScheme,
+    regenerate,
   };
 
   storyWebStore.registerGraphState(panelState.panelIndex, graphState);

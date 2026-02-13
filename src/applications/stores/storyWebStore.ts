@@ -81,10 +81,23 @@ export const storyWebStore = () => {
     await _getFocusedGraphState()?.addFront(frontId, position, withRelationships);
   };
 
+  /**
+   * Regenerate active story web graphs that use the given content.
+   * Called by the updateJournalEntryPage hook so that story webs pick up
+   * changes to entries/fronts displayed in their graphs.
+   * @param contentUuid - If provided, only regenerate webs that reference this UUID
+   */
+  const regenerateAllGraphs = async (contentUuid?: string) => {
+    for (const [_, state] of _graphStates) {
+      await state.regenerate(contentUuid);
+    }
+  };
+
   return {
     registerGraphState,
     unregisterGraphState,
     addEntry,
     addFront,
+    regenerateAllGraphs,
   };
 };
