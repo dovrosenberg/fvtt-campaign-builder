@@ -1080,10 +1080,10 @@ export const navigationStore = () => {
     // re-index panelStates: shift down all entries after the removed index
     const newMap = new Map<number, TabPanelState>();
     for (const [idx, ps] of _panelStates) {
-      if (idx > index)
-        newMap.set(idx - 1, ps);
-      else
-        newMap.set(idx, ps);
+      const newIdx = idx > index ? idx - 1 : idx;
+      newMap.set(newIdx, ps);
+      // keep each panel state's own index in sync
+      ps.panelIndex.value = newIdx;
     }
     _panelStates.clear();
     for (const [idx, ps] of newMap) {

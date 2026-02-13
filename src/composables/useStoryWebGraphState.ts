@@ -1654,8 +1654,15 @@ export function useStoryWebGraphState(): StoryWebGraphState {
     regenerate,
   };
 
-  storyWebStore.registerGraphState(panelState.panelIndex, graphState);
-  onScopeDispose(() => storyWebStore.unregisterGraphState(panelState.panelIndex));
+  storyWebStore.registerGraphState(panelState.panelIndex.value, graphState);
+
+  // Re-register under the new key when the panel is re-indexed after a panel removal
+  watch(panelState.panelIndex, (newIndex, oldIndex) => {
+    storyWebStore.unregisterGraphState(oldIndex);
+    storyWebStore.registerGraphState(newIndex, graphState);
+  });
+
+  onScopeDispose(() => storyWebStore.unregisterGraphState(panelState.panelIndex.value));
 
   return graphState;
 }

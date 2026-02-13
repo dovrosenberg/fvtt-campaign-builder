@@ -16,8 +16,8 @@ import { WindowTab, Entry, Campaign, Session, Front, Arc, StoryWeb } from '@/cla
  * Interface for per-panel content state. Mirrors the content-specific parts of mainStore.
  */
 export interface TabPanelState {
-  // panel identity
-  panelIndex: number;
+  // panel identity (mutable ref — updated by navigationStore during panel re-indexing)
+  panelIndex: Ref<number>;
 
   // content state refs
   // note that currentSetting is on main store because it's global
@@ -57,8 +57,9 @@ export const TAB_PANEL_STATE_KEY: InjectionKey<TabPanelState> = Symbol('tabPanel
  * @param panelIndex - The index of the panel this state belongs to
  * @returns A new TabPanelState with independent content refs
  */
-export function createTabPanelState(panelIndex: number): TabPanelState {
+export function createTabPanelState(initialPanelIndex: number): TabPanelState {
   // internal refs
+  const panelIndex = ref<number>(initialPanelIndex);
   const _currentEntry = ref<Entry | null>(null);
   const _currentCampaign = ref<Campaign | null>(null);
   const _currentSession = ref<Session | null>(null);
@@ -103,7 +104,7 @@ export function createTabPanelState(panelIndex: number): TabPanelState {
     set: (newContentTab: string) => {
       if (_currentTab.value) {
         _currentTab.value.contentTab = newContentTab;
-        void useNavigationStore().updateContentTab(newContentTab, panelIndex);
+        void useNavigationStore().updateContentTab(newContentTab, panelIndex.value);
       }
     }
   });
