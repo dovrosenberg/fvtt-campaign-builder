@@ -16,6 +16,9 @@ import { WindowTab, Entry, Campaign, Session, Front, Arc, StoryWeb } from '@/cla
  * Interface for per-panel content state. Mirrors the content-specific parts of mainStore.
  */
 export interface TabPanelState {
+  // panel identity
+  panelIndex: number;
+
   // content state refs
   // note that currentSetting is on main store because it's global
   currentEntry: ComputedRef<Entry | null>;
@@ -271,6 +274,7 @@ export function createTabPanelState(panelIndex: number): TabPanelState {
   };
 
   return {
+    panelIndex,
     currentEntry,
     currentCampaign,
     currentSession,
