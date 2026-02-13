@@ -45,10 +45,12 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentArc?.description || ''"
-              :fixed-height="15"
+              :fixed-height="descriptionHeight"
+              :resizable="true"
               :current-entity-uuid="currentArc?.uuid"
               @related-entries-changed="onRelatedEntriesChanged"
               @editor-saved="onDescriptionEditorSaved"
+              @editor-resized="onDescriptionEditorResized"
             />
           </div>
 
@@ -187,6 +189,7 @@
   const showRelatedEntriesDialog = ref<boolean>(false);
   const pendingAddedUUIDs = ref<string[]>([]);
   const pendingRemovedUUIDs = ref<string[]>([]);
+  const descriptionHeight = ref<number>(15);  // for handling description editor height
 
   ////////////////////////////////
   // computed data
@@ -210,6 +213,15 @@
 
   ////////////////////////////////
   // event handlers
+  const onDescriptionEditorResized = async (height: number) => {
+    if (!currentArc.value)
+      return;
+    
+    descriptionHeight.value = height;
+    currentArc.value?.setCustomFieldHeight('###description###', height);
+    await currentArc.value?.save();
+  };
+
   // debounce changes to name/number/strong start
   let nameDebounceTimer: NodeJS.Timeout | undefined = undefined;
 
@@ -318,6 +330,7 @@
       // load starting data values
       name.value = newArc.name || '';
       descriptionContent.value = newArc.description || '';
+      descriptionHeight.value = newArc.getCustomFieldHeight('###description###') || 15;
     }
   }, { immediate: true });
   

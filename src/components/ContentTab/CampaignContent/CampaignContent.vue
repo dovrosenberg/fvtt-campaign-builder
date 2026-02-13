@@ -36,9 +36,11 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentCampaign?.description || ''"
-              :fixed-height="15"
+              :fixed-height="descriptionHeight"
+              :resizable="true"
               :current-entity-uuid="currentCampaign?.uuid"
               @editor-saved="onDescriptionEditorSaved"
+              @editor-resized="onDescriptionEditorResized"
             />
           </div>
 
@@ -138,7 +140,8 @@
   const name = ref<string>('');
 
   const icon =  getTabTypeIcon(WindowTabType.Campaign);
- 
+   const descriptionHeight = ref<number>(15);  // for handling description editor height
+
   ////////////////////////////////
   // computed data
   const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
@@ -182,6 +185,15 @@
 
   ////////////////////////////////
   // event handlers
+
+  const onDescriptionEditorResized = async (height: number) => {
+    if (!currentCampaign.value)
+      return;
+    
+    descriptionHeight.value = height;
+    currentCampaign.value?.setCustomFieldHeight('###description###', height);
+    await currentCampaign.value?.save();
+  };
 
   // debounce changes to name
   let debounceTimer: NodeJS.Timeout | undefined = undefined;
@@ -241,6 +253,7 @@
 
     // load starting data values
     name.value = currentCampaign.value.name || '';
+    descriptionHeight.value = currentCampaign.value.getCustomFieldHeight('###description###') || 15;
   });
 
   ////////////////////////////////

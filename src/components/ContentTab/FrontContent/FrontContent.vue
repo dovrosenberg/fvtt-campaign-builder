@@ -49,9 +49,11 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentFront?.description || ''"
-              :fixed-height="23.75"
+              :fixed-height="descriptionHeight"
+              :resizable="true"
               :current-entity-uuid="currentFront?.uuid"
               @editor-saved="onDescriptionEditorSaved"
+              @editor-resized="onDescriptionEditorResized"
             />
           </div>
         </DescriptionTab>
@@ -121,6 +123,7 @@
   ////////////////////////////////
   // data  
   const name = ref<string>('');
+  const descriptionHeight = ref<number>(23.75);  // for handling description editor height
 
   ////////////////////////////////
   // computed data
@@ -145,6 +148,16 @@
 
   ////////////////////////////////
   // event handlers
+
+  const onDescriptionEditorResized = async (height: number) => {
+    if (!currentFront.value)
+      return;
+    
+    descriptionHeight.value = height;
+    currentFront.value?.setCustomFieldHeight('###description###', height);
+    await currentFront.value?.save();
+  };
+
   // debounce changes to name
   let nameDebounceTimer: NodeJS.Timeout | undefined = undefined;
 
@@ -235,6 +248,8 @@
     if (newFront && newFront.uuid) {
       // load starting data values
       name.value = newFront.name || '';
+
+      descriptionHeight.value = newFront.getCustomFieldHeight('###description###') || 23.75;
     }
   });
   
