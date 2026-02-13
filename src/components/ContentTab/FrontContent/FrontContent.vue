@@ -98,7 +98,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
   // types
-  import { WindowTabType } from '@/types';
+  import type { WindowTabType, ContentTabDescriptor } from '@/types';
   import { Front, } from '@/classes';
   
   ////////////////////////////////
@@ -125,8 +125,8 @@
   ////////////////////////////////
   // computed data
 
-  const tabs = computed(() => {
-    let retval = [
+  const tabs = computed((): ContentTabDescriptor[] => {
+    let retval: ContentTabDescriptor[] = [
       { id: 'description', label: localize('labels.description')},
     ];
 

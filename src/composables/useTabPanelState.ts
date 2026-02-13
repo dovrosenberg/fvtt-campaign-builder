@@ -207,11 +207,15 @@ export function createTabPanelState(panelIndex: number): TabPanelState {
     _currentFront.value = new Front(_currentFront.value.raw.parent as unknown as JournalEntry);
   };
 
-  /** Refreshes the current story web. */
+  /** Refreshes the current story web.  Always reload because these are finicky */
   const refreshStoryWeb = async function (): Promise<void> {
     if (!_currentStoryWeb.value?.raw?.parent)
       return;
-    _currentStoryWeb.value = new StoryWeb(_currentStoryWeb.value.raw.parent as unknown as JournalEntry);
+    
+    const reloaded = await StoryWeb.fromUuid(_currentStoryWeb.value.uuid);
+    if (reloaded) {
+      _currentStoryWeb.value = reloaded;
+    }
   };
 
   /** Refreshes the current tag results. */
