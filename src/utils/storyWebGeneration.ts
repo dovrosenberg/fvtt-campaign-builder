@@ -20,7 +20,7 @@ const getNodeStyling = (storyWeb: StoryWeb, nodeId: string, nodeType: StoryWebNo
   const colorSchemeObject = colorScheme ? {
     font: { color: colorScheme.foregroundColor },
     color: {
-      border: colorScheme.backgroundColor,
+      border: colorScheme.foregroundColor,
       background: colorScheme.backgroundColor,
     },
   } : {};
