@@ -308,7 +308,8 @@
         "tabs": {
           "colors": "Connection Colors",
           "styles": "Connection Styles",
-          "fields": "Fields"
+          "fields": "Fields",
+          "shapeColors": "Цвета фигур"
         },
         "columns": {
           "name": "Name",
@@ -900,7 +901,8 @@
         "openEntryInNewTab": "Открыть запись в новой вкладке",
         "openDangerInNewTab": "Открыть опасность в новой вкладке",
         "setColor": "Set Color",
-        "setStyle": "Set Style"
+        "setStyle": "Set Style",
+        "resetToDefault": "Сбросить по умолчанию"
       },
       "addToStoryWeb": "Добавить в текущую Story Web",
       "addWithRelationships": "Добавить с отношениями",
