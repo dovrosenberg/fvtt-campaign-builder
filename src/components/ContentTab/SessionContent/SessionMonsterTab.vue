@@ -30,12 +30,13 @@
 <script setup lang="ts">
 
   // library imports
-  import { ref, computed, watch } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { ref, computed, watch, inject } from 'vue';
 
   // local imports
   import { useSessionStore, useArcStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
+  import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { localize } from '@/utils/game'
   import DragDropService from '@/utils/dragDrop'; 
   import { notifyInfo } from '@/utils/notifications';
@@ -71,8 +72,10 @@
   // store
   const sessionStore = useSessionStore();
   const arcStore = useArcStore();
-  const { relatedMonsterRows: sessionMonsterRows } = storeToRefs(sessionStore);
-  const { monsterRows: arcMonsterRows } = storeToRefs(arcStore);
+  const sessionDerivedState = inject(SESSION_DERIVED_STATE_KEY, null);
+  const sessionMonsterRows = computed(() => sessionDerivedState?.relatedMonsterRows.value ?? []);
+  const arcDerivedState = inject(ARC_DERIVED_STATE_KEY, null);
+  const arcMonsterRows = computed(() => arcDerivedState?.monsterRows.value ?? []);
   const { currentArc } = useContentState();
   
   ////////////////////////////////
@@ -134,7 +137,7 @@
       // only show for arc mode if the campaign has at least one session
       display: (data) => (props.arcMode && campaignHasSessions.value)
         || (!props.arcMode && !data.delivered), // hide arrow for things already delivered
-      callback: (data) => onMoveMonsterToNext(data.uuid), 
+      callback: (data) => onMoveMonsterToNext(data.uuid, data.number as number),
       tooltip: props.arcMode ? localize('tooltips.copyToNextSession') : localize('tooltips.moveToNextSession') 
     }
   ]));
@@ -200,12 +203,12 @@
     await sessionStore.markMonsterDelivered(uuid, false);
   }
 
-  const onMoveMonsterToNext = async (uuid: string) => {
+  const onMoveMonsterToNext = async (uuid: string, number: number) => {
     if (props.arcMode) {
       await arcStore.copyMonsterToSession(uuid);
       notifyInfo(localize('notifications.monsterCopiedToNextSession'));
     } else {
-      await sessionStore.moveMonsterToNext(uuid);
+      await sessionStore.moveMonsterToNext(uuid, number);
     }
   }
 

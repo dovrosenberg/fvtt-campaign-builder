@@ -22,11 +22,11 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref, } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { computed, ref, inject, } from 'vue';
 
   // local imports
   import { useCampaignStore, } from '@/applications/stores';
+  import { CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { localize } from '@/utils/game';
   import { formatDate } from '@/utils/misc';
 
@@ -40,7 +40,7 @@
 
   // store
   const campaignStore = useCampaignStore();
-  const { toDoRows, } = storeToRefs(campaignStore);
+  const { toDoRows } = inject(CAMPAIGN_DERIVED_STATE_KEY)!;
 
   // data
   const baseTableRef = ref<typeof BaseTable | null>(null);

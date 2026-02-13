@@ -20,12 +20,13 @@
 <script setup lang="ts">
 
   // library imports
-  import { storeToRefs } from 'pinia';
-  import { computed, ref, watch } from 'vue';
+  import { computed, ref, watch, inject } from 'vue';
 
   // local imports
   import { useSessionStore, useArcStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
+  import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { localize } from '@/utils/game'
   import { ModuleSettings, SettingKey } from '@/settings';
 
@@ -58,8 +59,10 @@
   // store
   const sessionStore = useSessionStore();
   const arcStore = useArcStore();
-  const { loreRows: sessionLoreRows } = storeToRefs(sessionStore);
-  const { loreRows: arcLoreRows } = storeToRefs(arcStore);
+  const sessionDerivedState = inject(SESSION_DERIVED_STATE_KEY, null);
+  const sessionLoreRows = computed(() => sessionDerivedState?.loreRows.value ?? []);
+  const arcDerivedState = inject(ARC_DERIVED_STATE_KEY, null);
+  const arcLoreRows = computed(() => arcDerivedState?.loreRows.value ?? []);
   const { currentArc } = useContentState();
   
   ////////////////////////////////
@@ -103,11 +106,11 @@
       },
 
       // move up (to arc or campaign)
-      { 
-        icon: 'fa-arrow-up', 
+      {
+        icon: 'fa-arrow-up',
         display: (data) => props.arcMode || !data.delivered,
-        callback: (data) => onMoveLoreUp(data.uuid), 
-        tooltip: props.arcMode ? localize('tooltips.moveToCampaign') : localize('tooltips.moveToArc') 
+        callback: (data) => onMoveLoreUp(data.uuid, data.description as string),
+        tooltip: props.arcMode ? localize('tooltips.moveToCampaign') : localize('tooltips.moveToArc')
       },
 
       // deliver/undeliver buttons
@@ -125,13 +128,13 @@
       },
 
       // move to next session
-      { 
-        icon: 'fa-share', 
-        // we hide if already deleivered in session mode or no sessions in arc's campaign
-        display: (data) => (props.arcMode && campaignHasSessions.value) 
+      {
+        icon: 'fa-share',
+        // we hide if already delivered in session mode or no sessions in arc's campaign
+        display: (data) => (props.arcMode && campaignHasSessions.value)
           || (!props.arcMode && !data.delivered), // hide arrow for things already delivered
-        callback: (data) => onMoveLoreToNext(data.uuid), 
-        tooltip: localize('tooltips.moveToNextSession') 
+        callback: (data) => onMoveLoreToNext(data.uuid, data.description as string),
+        tooltip: localize('tooltips.moveToNextSession')
       }
     ];
   });
@@ -192,18 +195,18 @@
       await sessionStore.markLoreDelivered(uuid, false);
   }
 
-  const onMoveLoreUp = async (uuid: string) => {
+  const onMoveLoreUp = async (uuid: string, description: string) => {
     if (props.arcMode)
-      await arcStore.moveLoreToCampaign(uuid);
-    else 
-      await sessionStore.moveLoreToArc(uuid);
+      await arcStore.moveLoreToCampaign(uuid, description);
+    else
+      await sessionStore.moveLoreToArc(uuid, description);
   }
 
-  const onMoveLoreToNext = async (uuid: string) => {
-    if (props.arcMode) 
-      await arcStore.moveLoreToSession(uuid);
+  const onMoveLoreToNext = async (uuid: string, description: string) => {
+    if (props.arcMode)
+      await arcStore.moveLoreToSession(uuid, description);
     else
-      await sessionStore.moveLoreToNext(uuid);
+      await sessionStore.moveLoreToNext(uuid, description);
   }
 
   const onReorder = async (reorderedRows: BaseTableGridRow[]) => {

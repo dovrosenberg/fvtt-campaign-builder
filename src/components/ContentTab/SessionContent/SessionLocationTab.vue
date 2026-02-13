@@ -29,12 +29,13 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref, watch } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { computed, ref, watch, inject } from 'vue';
 
   // local imports
   import { useSessionStore, useArcStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
+  import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { localize } from '@/utils/game'
   import DragDropService from '@/utils/dragDrop';
   import { notifyInfo } from '@/utils/notifications';
@@ -70,8 +71,10 @@
   // store
   const sessionStore = useSessionStore();
   const arcStore = useArcStore();
-  const { relatedLocationRows: sessionLocationRows } = storeToRefs(sessionStore);
-  const { locationRows: arcLocationRows } = storeToRefs(arcStore);
+  const sessionDerivedState = inject(SESSION_DERIVED_STATE_KEY, null);
+  const sessionLocationRows = computed(() => sessionDerivedState?.relatedLocationRows.value ?? []);
+  const arcDerivedState = inject(ARC_DERIVED_STATE_KEY, null);
+  const arcLocationRows = computed(() => arcDerivedState?.locationRows.value ?? []);
   const { currentArc } = useContentState();
 
   ////////////////////////////////
@@ -93,7 +96,7 @@
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
-    const extraFields = props.arcMode ? 
+    const extraFields = props.arcMode ?
       arcStore.extraFields[ArcTableTypes.Location] :
       sessionStore.extraFields[SessionTableTypes.Location]
 
