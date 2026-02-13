@@ -206,7 +206,7 @@
   // methods
   // when we click on a name, open the entry
   async function onNameClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
-    navigationStore.openEntry(rowData.uuid, { newTab: event.ctrlKey, activate: true });
+    navigationStore.openEntry(rowData.uuid, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
   }
 
   ////////////////////////////////

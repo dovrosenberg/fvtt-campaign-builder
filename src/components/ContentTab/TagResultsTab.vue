@@ -151,16 +151,16 @@ Dependencies
 
     switch (result.resultType) {
       case 'entry':
-        navigationStore.openEntry(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true });
+        navigationStore.openEntry(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
         break;
       case 'session':
-        navigationStore.openSession(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true });
+        navigationStore.openSession(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
         break;
       case 'front':
-        navigationStore.openFront(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true });
+        navigationStore.openFront(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
         break;
       case 'arc':
-        navigationStore.openArc(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true });
+        navigationStore.openArc(uuid, { newTab: event.ctrlKey || event.metaKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
         break;
       default:
         throw new Error(`Unknown result type in TagResultsTab.onRowClick(): ${result.resultType}`);

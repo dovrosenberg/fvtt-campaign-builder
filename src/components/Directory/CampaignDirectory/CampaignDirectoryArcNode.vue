@@ -128,7 +128,7 @@
   };
 
   const onArcSelectClick = async (event: MouseEvent) => {
-    await navigationStore.openArc(currentNode.value.id, {newTab: event.ctrlKey});
+    await navigationStore.openArc(currentNode.value.id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
   };
 
   // hidden for now because we want all management to go through arcmanager and only add sessions

@@ -20,7 +20,7 @@ Click "Add Location" to create a new Location entry.  You will be prompted to se
 ## The Location list
 This list contains the individual Locations.  For each Location, you can see its name, [^Type], its parent Location (if any), and a notes field you can use to track things like how you intend to use them.
 
-Click the name of the Location or parent to open the [Location details](/reference/world-building/content/location/) page.  Hold control to open in a new tab.
+Click the name of the Location or parent to open the [Location details](/reference/world-building/content/location/) page.  Hold Control to open in a new tab, Alt to open in a different [panel](/reference/navigation/panels).
 
 Click on the notes field to edit it.  Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.
 

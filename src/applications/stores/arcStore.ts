@@ -570,7 +570,7 @@ export const arcStore = () => {
   async function onParentClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
     const parentId = rowData.parentId as string | null;
     if (parentId)
-      navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true });
+      navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
   }
 
 

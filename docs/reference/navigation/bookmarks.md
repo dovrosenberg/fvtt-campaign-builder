@@ -27,6 +27,6 @@ Open the tab you want to bookmark and click the "Create Bookmark" button.
 
 ## Bookmark Management
 
-   * **Opening Bookmarks**: Just click a bookmark to open the associated page.  Hold control to open it in a new tab.
+   * **Opening Bookmarks**: Just click a bookmark to open the associated page.  Hold Control to open in a new tab, Alt to open in a different [panel](/reference/navigation/panels).
    * **Reordering Bookmarks**: Drag and drop any bookmark to reorder the bookmarks.
    * **Deleting a Bookmark**: Right-click on any bookmark and choose "Delete Bookmark".

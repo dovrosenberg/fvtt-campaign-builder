@@ -98,7 +98,7 @@
   ]));
 
   const onNameClick = async (event: MouseEvent, uuid: string) => {
-    await navigationStore.openStoryWeb(uuid, { newTab: event.ctrlKey, activate: true });
+    await navigationStore.openStoryWeb(uuid, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
   };
 
   const refreshRows = async () => {

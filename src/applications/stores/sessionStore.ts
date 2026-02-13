@@ -853,14 +853,14 @@ export const sessionStore = () => {
 
   // when we click on a name, open the entry
   async function onNameClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
-    navigationStore.openEntry(rowData.uuid, { newTab: event.ctrlKey, activate: true });
+    navigationStore.openEntry(rowData.uuid, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
   }
 
   // when we click on a parent, open the parent entry using parentId from row data
   async function onParentClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
     const parentId = rowData.parentId as string | null;
     if (parentId)
-      navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true });
+      navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
   }
 
 

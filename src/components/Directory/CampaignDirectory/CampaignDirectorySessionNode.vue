@@ -94,7 +94,7 @@
     event.stopPropagation();
     event.preventDefault();
 
-    await navigationStore.openSession(props.sessionNode.id, {newTab: event.ctrlKey});
+    await navigationStore.openSession(props.sessionNode.id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
   };
 
   const onSessionContextMenu = (event: MouseEvent): void => {

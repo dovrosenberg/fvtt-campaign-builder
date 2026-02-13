@@ -42,7 +42,7 @@ const { hasMultipleCampaigns } = storeToRefs(mainStore);
 
 // methods
 const onSessionClick = (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) => {
-  navigationStore.openSession(rowData.uuid, { newTab: event.ctrlKey, activate: true });
+  navigationStore.openSession(rowData.uuid, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
 };
 
 // computed

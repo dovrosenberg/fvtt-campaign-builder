@@ -402,7 +402,7 @@ export const campaignStore = () => {
     if (!sessionId)
       return;
 
-    await useNavigationStore().openSession(sessionId, { newTab: event.ctrlKey, activate: true });
+    await useNavigationStore().openSession(sessionId, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
     await useNavigationStore().updateContentTab('lore');
   }
 
@@ -449,7 +449,7 @@ export const campaignStore = () => {
       case ToDoTypes.Entry:
         // just open the entry
         if (toDo.linkedUuid) { // Check if linkedUuid exists before trying to use it
-          navigationStore.openEntry(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true });
+          navigationStore.openEntry(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
         }
         break;
       case ToDoTypes.Lore:
@@ -458,7 +458,7 @@ export const campaignStore = () => {
       case ToDoTypes.Item:
         // open the session and set the right tab
         if (toDo.sessionUuid) { // Check if sessionUuid exists
-          navigationStore.openSession(toDo.sessionUuid, { newTab: event.ctrlKey, activate: true, contentTabId: tabId || undefined });
+          navigationStore.openSession(toDo.sessionUuid, { newTab: event.ctrlKey, activate: true, contentTabId: tabId || undefined, panelIndex: event.altKey ? -1 : undefined });
         }
         break;
       case ToDoTypes.GeneratedName:

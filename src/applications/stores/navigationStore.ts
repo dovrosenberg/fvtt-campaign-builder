@@ -28,7 +28,7 @@ interface OpenContentOptions {
   updateHistory?: boolean;
   contentTabId?: string;
   forceTab?: boolean; // when true, use contentTabId even if subTabsSavePosition is false
-  panelIndex?: number; // which panel to open in; defaults to focusedPanelIndex
+  panelIndex?: number; // which panel to open in; defaults to focusedPanelIndex; -1 indicates to open in a different panel than current
 }
 
 interface ContentMetadata {
@@ -205,10 +205,11 @@ export const navigationStore = () => {
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
-   * @returns The newly opened tab.
+    * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
+    * @returns The newly opened tab.
    */
   const openEntry = async function(entryId = null as string | null, options?: OpenContentOptions) {
-    await openContent(entryId, WindowTabType.Entry, options );
+    await openContent(entryId, WindowTabType.Entry, options);
   };
 
   /**
@@ -220,6 +221,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the setting be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openSetting = async function(settingId = null as string | null, options?: OpenContentOptions) {
@@ -235,6 +237,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the campaign open in a new tab? Defaults to true.
    * @param options.updateHistory Should the campaign be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openCampaign = async function(campaignId = null as string | null, options?: OpenContentOptions) {
@@ -250,6 +253,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the session open in a new tab? Defaults to true.
    * @param options.updateHistory Should the session be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openSession = async function(sessionId = null as string | null, options?: OpenContentOptions) {
@@ -265,6 +269,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the arc open in a new tab? Defaults to true.
    * @param options.updateHistory Should the arc be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openArc = async function(arcId = null as string | null, options?: OpenContentOptions) {
@@ -280,6 +285,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the front open in a new tab? Defaults to true.
    * @param options.updateHistory Should the front be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openFront = async function(frontId = null as string | null, options?: OpenContentOptions) {
@@ -295,6 +301,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the story web open in a new tab? Defaults to true.
    * @param options.updateHistory Should the story web be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openStoryWeb = async function(storyWebId = null as string | null, options?: OpenContentOptions) {
@@ -400,6 +407,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The index of the panel to open the tab in. If null, defaults to the focused panel. If -1 it will be one to the right of the focused panel, of one to the left if the focused panel is the last panel.
    * @returns The newly opened tab.
    */
   const openContent = async function (contentId = null as string | null, contentType: WindowTabType, options?: OpenContentOptions,): Promise<WindowTab> { 
@@ -413,6 +421,22 @@ export const navigationStore = () => {
       ...options,
     };
 
+    // -1 indicates to open in a different panel than current
+    let createPanel = false;
+    if (options.panelIndex == -1) {
+      // make sure there are at least two panels
+      if (tabs.value.length < 2) {
+        // open a new panel
+        createPanel = true;
+        options.panelIndex = 0;
+      } else {
+        // go one right, if possible, otherwise one left
+        options.panelIndex = focusedPanelIndex.value + 1 <= tabs.value.length -1 ? focusedPanelIndex.value + 1 : focusedPanelIndex.value - 1;
+      }
+
+      // have to create a new tab
+      options.newTab = true;
+    }
     let panelIndex = options.panelIndex ?? focusedPanelIndex.value;
 
     // don't switch or activate a new tab if user doesn't want to deal with unsaved changes
@@ -498,11 +522,18 @@ export const navigationStore = () => {
       tabs.value = [ ...tabs.value ];
     }
     
-    if (options.activate) {
+    // if we have to open a new panel, do that (only when we asked for new panel but only have 1 open)
+    if (createPanel) {
+      // add to single panel, then split
+      await activateTab(tab.id, options.forceTab, 0);
+      await splitToRight();
+      panelIndex = 1;
+      await focusPanel(panelIndex);
+    } else if (options.activate) {
       await activateTab(tab.id, options.forceTab, panelIndex);
       await focusPanel(panelIndex);
     }
-
+    
     // activating doesn't always save (ex. if we added a new entry to active tab)
     await _saveTabs();
 
@@ -1125,6 +1156,7 @@ export const navigationStore = () => {
     //    so we don't need to use focusPanel())
     focusedPanelIndex.value = tabs.value.length - 1;
   };
+
 
   /**
    * Remove a panel at the given index. Re-indexes remaining panels.

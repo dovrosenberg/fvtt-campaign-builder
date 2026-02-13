@@ -95,12 +95,12 @@
 
   ////////////////////////////////
   // methods
-  const onNameClick = async function (event: MouseEvent, uuid: string) { 
-    await navigationStore.openEntry(uuid, { newTab: event.ctrlKey });
+  const onNameClick = async function (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string; }) { 
+    await navigationStore.openEntry(rowData.uuid, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
   };
 
-  const onActorClick = async function (_event: MouseEvent, uuid: string) { 
-    const pc = await Entry.fromUuid(uuid);
+  const onActorClick = async function (_event: MouseEvent, rowData: Record<string, unknown> & { uuid: string; }) { 
+    const pc = await Entry.fromUuid(rowData.uuid);
 
     if (!pc)
       return;
