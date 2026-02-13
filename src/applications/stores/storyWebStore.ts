@@ -427,7 +427,7 @@ export const storyWebStore = () => {
     await currentStoryWeb.value.save();
 
     // refresh the drawing
-    await mainStore.refreshStoryWeb();
+    await refreshAndRegenerate();
   };
 
   /** remove a node from the story web */
@@ -1443,7 +1443,7 @@ export const storyWebStore = () => {
           return;
 
         await setEdgeColor(currentStoryWeb.value, edgeUuid, color.id); 
-        await mainStore.refreshStoryWeb(); 
+        await refreshAndRegenerate(); 
       }
     }));
 
@@ -1508,7 +1508,7 @@ export const storyWebStore = () => {
             return;
           
           await setEdgeStyle(currentStoryWeb.value, edgeUuid, style.id); 
-          await mainStore.refreshStoryWeb(); 
+          await refreshAndRegenerate(); 
         }
       };
     });
