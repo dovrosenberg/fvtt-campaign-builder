@@ -1,8 +1,7 @@
-// this store handles activities specific to campaigns
+// this store handles actions specific to fronts
 //
 // library imports
 import { storeToRefs, } from 'pinia';
-import { watch, ref, computed, } from 'vue';
 
 // local imports
 import { useMainStore, } from '@/applications/stores';
@@ -14,246 +13,224 @@ import { Entry } from '@/classes';
 // the store definition
 export const frontStore = () => {
   ///////////////////////////////
-  // the state
-
-  // used for tables
-  const participantRows = ref<(DangerParticipant & { name: string; type: string })[]>([]);
-  const grimPortentRows = ref<GrimPortent[]>([]);
-
-
-  ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentFront, currentContentTab, currentSetting } = storeToRefs(mainStore);
-  
+  const { currentFront } = storeToRefs(mainStore);
+
+  ///////////////////////////////
   // internal state
-
-  ///////////////////////////////
-  // external state
-  const currentDangerIndex = computed(() => {
-    if (!currentFront.value || currentContentTab.value == null)
-      return null;
-
-    // danger tabs are keyed as 'danger0', 'danger1', etc.
-    const index = parseInt(currentContentTab.value.toString().replace('danger', ''));
-    if (isNaN(index) || index < 0 || index >= currentFront.value.dangers.length)
-      return null;
-
-    return index;
-  });
-
-  const currentDanger = computed(() => {
-    if (!currentFront.value || currentDangerIndex.value == null)
-      return null;
-
-    return currentFront.value.dangers[currentDangerIndex.value];
-  });
-
-  ///////////////////////////////
-  // actions
-  /** add participant to given danger */
-  const addParticipant = async (entryToAdd: Entry, extraFields: Record<string, string>): Promise<string | null> => {
-    if (!currentDanger.value || currentDangerIndex.value == null)
-      return null;
-
-    // no duplicates
-    if (currentDanger.value.participants.some(p => p.uuid === entryToAdd.uuid))
-      return null;
-
-    const uuid = entryToAdd.uuid;
-    currentFront.value?.updateDanger(currentDangerIndex.value, {
-      ...currentDanger.value,
-      participants: [...currentDanger.value.participants, { uuid, role: extraFields.role || '' }],
-    });
-    await currentFront.value?.save();
-
-    await _refreshParticipantRows();
-
-    return uuid;
-  };
-
-  /**
-   * Removes a participant from the current danger.
-   * @param uuid - The UUID of the participant to remove.
-   * @returns True if the participant was removed, false if no danger is selected.
-   */
-  const deleteParticipant = async (uuid: string): Promise<boolean> => {
-    if (!currentDanger.value || currentDangerIndex.value == null)
-      return false;
-    
-    currentFront.value?.updateDanger(currentDangerIndex.value, {
-      ...currentDanger.value,
-      participants: currentDanger.value.participants.filter(p => p.uuid !== uuid),
-    });
-    await currentFront.value?.save();
-
-    await _refreshParticipantRows();
-    return true;
-  };
-
-  /** update participant in given danger */
-  const updateParticipant = async (uuid: string, role: string): Promise<void> => {
-    if (!currentDanger.value || currentDangerIndex.value == null)
-      return;
-
-    currentFront.value?.updateDanger(currentDangerIndex.value, {
-      ...currentDanger.value,
-      participants: currentDanger.value.participants.map(p => p.uuid === uuid ? { uuid, role } : p),
-    });
-    await currentFront.value?.save();
-
-    await _refreshParticipantRows();
-  };
-  
-  /** add portent to given danger 
-   * @returns the uuid of the new portent
-   */
-  const addGrimPortent = async (description = ''): Promise<string | null> => {
-    if (!currentDanger.value || currentDangerIndex.value == null)
-      return null;
-    
-    const uuid = foundry.utils.randomID();
-    currentFront.value?.updateDanger(currentDangerIndex.value, {
-      ...currentDanger.value,
-      grimPortents: [...currentDanger.value.grimPortents, { uuid, description, complete: false }],
-    });
-    await currentFront.value?.save();
-
-    await _refreshPortentRows();
-
-    return uuid;
-  };
-
-  /**
-   * Removes a grim portent from the current danger.
-   * @param uuid - The UUID of the grim portent to remove.
-   * @returns True if the portent was removed, false if no danger is selected.
-   */
-  const deleteGrimPortent = async (uuid: string): Promise<boolean> => {
-    if (!currentDanger.value || currentDangerIndex.value == null)
-      return false;
-    
-    currentFront.value?.updateDanger(currentDangerIndex.value, {
-      ...currentDanger.value,
-      grimPortents: currentDanger.value.grimPortents.filter(p => p.uuid !== uuid),
-    });
-    await currentFront.value?.save();
-
-    await _refreshPortentRows();
-    return true;
-  };
-
-  /** update portent in given danger */
-  const updateGrimPortent = async (uuid: string, description: string, complete: boolean): Promise<void> => {
-    if (!currentDanger.value || currentDangerIndex.value == null)
-      return;
-    
-    currentFront.value?.updateDanger(currentDangerIndex.value, {
-      ...currentDanger.value,
-      grimPortents: currentDanger.value.grimPortents.map(p => p.uuid === uuid ? { uuid, description, complete } : p),
-    });
-    await currentFront.value?.save();
-
-    await _refreshPortentRows();
-  };
-  
-  const reorderGrimPortents = async (reorderedPortents: GrimPortent[]) => {
-    if (!currentFront.value || currentDangerIndex.value == null || !currentDanger.value) 
-      return;
-
-    currentFront.value?.updateDanger(currentDangerIndex.value, {
-      ...currentDanger.value,
-      grimPortents: reorderedPortents,
-    });
-    await currentFront.value?.save();
-
-    await _refreshPortentRows();
-  };
-
-  const reorderParticipants = async (reorderedParticipants: DangerParticipant[]) => {
-    if (!currentFront.value || currentDangerIndex.value == null || !currentDanger.value) 
-      return;
-
-    currentFront.value?.updateDanger(currentDangerIndex.value, {
-      ...currentDanger.value,
-      participants: reorderedParticipants,
-    });
-    await currentFront.value?.save();
-
-    await _refreshParticipantRows();
-  };
 
   ///////////////////////////////
   // computed state
 
   ///////////////////////////////
-  // internal functions
-  // force reactive update of current table rows
-  const _refreshParticipantRows = async (): Promise<void> => {
-    participantRows.value = [];
+  // actions
+  /**
+   * Add participant to the specified danger.
+   * @param dangerIndex - Index of the danger to add to.
+   * @param entryToAdd - The entry to add as a participant.
+   * @param extraFields - Additional fields (e.g. role).
+   * @returns The UUID of the added participant, or null.
+   */
+  const addParticipant = async (dangerIndex: number, entryToAdd: Entry, extraFields: Record<string, string>): Promise<string | null> => {
+    if (!currentFront.value)
+      return null;
 
-    if (!currentDanger.value || !currentSetting.value)
-      return;
-    
-    for (const p of currentDanger.value.participants) {
-      // get it from the setting because we don't know topic
-      const items = await currentSetting.value.filterEntries((e) => e.uuid===p.uuid);
-      
-      if (items.length === 0)
-        throw new Error('Invalid uuid in frontStore._refreshParticipantRows');
+    const danger = currentFront.value.dangers[dangerIndex];
+    if (!danger)
+      return null;
 
-      participantRows.value.push({
-        uuid: p.uuid,
-        name: items[0].name,
-        type: items[0].type,
-        role: p.role,
-      });
-    }
-  }
+    // no duplicates
+    if (danger.participants.some(p => p.uuid === entryToAdd.uuid))
+      return null;
 
-  const _refreshPortentRows = (): void => {
-    grimPortentRows.value = [];
+    const uuid = entryToAdd.uuid;
+    currentFront.value.updateDanger(dangerIndex, {
+      ...danger,
+      participants: [...danger.participants, { uuid, role: extraFields.role || '' }],
+    });
+    await currentFront.value.save();
 
-    if (!currentDanger.value)
-      return;
-    
-    grimPortentRows.value = [...currentDanger.value.grimPortents];
-  }
+    await mainStore.refreshFront();
 
-  const _refreshDangerRows = async(): Promise<void> => {
-    await _refreshParticipantRows();
-    await _refreshPortentRows();
+    return uuid;
   };
 
+  /**
+   * Removes a participant from the specified danger.
+   * @param dangerIndex - Index of the danger.
+   * @param uuid - The UUID of the participant to remove.
+   * @returns True if the participant was removed, false if the danger is invalid.
+   */
+  const deleteParticipant = async (dangerIndex: number, uuid: string): Promise<boolean> => {
+    if (!currentFront.value)
+      return false;
 
-  ///////////////////////////////
-  // watchers
-  watch(()=> currentFront.value, async () => {
-    await _refreshDangerRows();
-  });
+    const danger = currentFront.value.dangers[dangerIndex];
+    if (!danger)
+      return false;
 
-  watch(()=> currentContentTab.value, async () => {
-    await _refreshDangerRows();
-  });
+    currentFront.value.updateDanger(dangerIndex, {
+      ...danger,
+      participants: danger.participants.filter(p => p.uuid !== uuid),
+    });
+    await currentFront.value.save();
 
-  ///////////////////////////////
-  // lifecycle events 
+    await mainStore.refreshFront();
+    return true;
+  };
+
+  /**
+   * Update participant role in the specified danger.
+   * @param dangerIndex - Index of the danger.
+   * @param uuid - The UUID of the participant.
+   * @param role - The new role.
+   */
+  const updateParticipant = async (dangerIndex: number, uuid: string, role: string): Promise<void> => {
+    if (!currentFront.value)
+      return;
+
+    const danger = currentFront.value.dangers[dangerIndex];
+    if (!danger)
+      return;
+
+    currentFront.value.updateDanger(dangerIndex, {
+      ...danger,
+      participants: danger.participants.map(p => p.uuid === uuid ? { uuid, role } : p),
+    });
+    await currentFront.value.save();
+
+    await mainStore.refreshFront();
+  };
+
+  /**
+   * Add a grim portent to the specified danger.
+   * @param dangerIndex - Index of the danger.
+   * @param description - The portent description.
+   * @returns The uuid of the new portent, or null.
+   */
+  const addGrimPortent = async (dangerIndex: number, description = ''): Promise<string | null> => {
+    if (!currentFront.value)
+      return null;
+
+    const danger = currentFront.value.dangers[dangerIndex];
+    if (!danger)
+      return null;
+
+    const uuid = foundry.utils.randomID();
+    currentFront.value.updateDanger(dangerIndex, {
+      ...danger,
+      grimPortents: [...danger.grimPortents, { uuid, description, complete: false }],
+    });
+    await currentFront.value.save();
+
+    await mainStore.refreshFront();
+
+    return uuid;
+  };
+
+  /**
+   * Removes a grim portent from the specified danger.
+   * @param dangerIndex - Index of the danger.
+   * @param uuid - The UUID of the grim portent to remove.
+   * @returns True if the portent was removed, false if the danger is invalid.
+   */
+  const deleteGrimPortent = async (dangerIndex: number, uuid: string): Promise<boolean> => {
+    if (!currentFront.value)
+      return false;
+
+    const danger = currentFront.value.dangers[dangerIndex];
+    if (!danger)
+      return false;
+
+    currentFront.value.updateDanger(dangerIndex, {
+      ...danger,
+      grimPortents: danger.grimPortents.filter(p => p.uuid !== uuid),
+    });
+    await currentFront.value.save();
+
+    await mainStore.refreshFront();
+    return true;
+  };
+
+  /**
+   * Update a grim portent in the specified danger.
+   * @param dangerIndex - Index of the danger.
+   * @param uuid - The UUID of the portent.
+   * @param description - The new description.
+   * @param complete - The new complete status.
+   */
+  const updateGrimPortent = async (dangerIndex: number, uuid: string, description: string, complete: boolean): Promise<void> => {
+    if (!currentFront.value)
+      return;
+
+    const danger = currentFront.value.dangers[dangerIndex];
+    if (!danger)
+      return;
+
+    currentFront.value.updateDanger(dangerIndex, {
+      ...danger,
+      grimPortents: danger.grimPortents.map(p => p.uuid === uuid ? { uuid, description, complete } : p),
+    });
+    await currentFront.value.save();
+
+    await mainStore.refreshFront();
+  };
+
+  /**
+   * Reorder grim portents in the specified danger.
+   * @param dangerIndex - Index of the danger.
+   * @param reorderedPortents - The reordered portent array.
+   */
+  const reorderGrimPortents = async (dangerIndex: number, reorderedPortents: GrimPortent[]) => {
+    if (!currentFront.value)
+      return;
+
+    const danger = currentFront.value.dangers[dangerIndex];
+    if (!danger)
+      return;
+
+    currentFront.value.updateDanger(dangerIndex, {
+      ...danger,
+      grimPortents: reorderedPortents,
+    });
+    await currentFront.value.save();
+
+    await mainStore.refreshFront();
+  };
+
+  /**
+   * Reorder participants in the specified danger.
+   * @param dangerIndex - Index of the danger.
+   * @param reorderedParticipants - The reordered participant array.
+   */
+  const reorderParticipants = async (dangerIndex: number, reorderedParticipants: DangerParticipant[]) => {
+    if (!currentFront.value)
+      return;
+
+    const danger = currentFront.value.dangers[dangerIndex];
+    if (!danger)
+      return;
+
+    currentFront.value.updateDanger(dangerIndex, {
+      ...danger,
+      participants: reorderedParticipants,
+    });
+    await currentFront.value.save();
+
+    await mainStore.refreshFront();
+  };
 
   ///////////////////////////////
   // return the public interface
   return {
-    currentDanger,
-    currentDangerIndex,
-    participantRows,
-    grimPortentRows,
-    
     addParticipant,
     deleteParticipant,
     updateParticipant,
     addGrimPortent,
     deleteGrimPortent,
-    updateGrimPortent,  
+    updateGrimPortent,
     reorderGrimPortents,
-    reorderParticipants,  
+    reorderParticipants,
   };
 };
