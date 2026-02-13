@@ -145,7 +145,13 @@ Dependencies
   // event handlers
 
   async function onNameClick(event: MouseEvent, data: Record<string, unknown> & { uuid: string; }) {
-    switch (data.resultType) {
+    // we pull from results because the table rows have a modified version of type
+    const result = results.value.find(r => r.uuid === data.uuid);
+
+    if (!result)
+      return;
+
+    switch (result.resultType) {
       case 'entry':
         navigationStore.openEntry(data.uuid, { newTab: event.ctrlKey || event.metaKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
         break;
