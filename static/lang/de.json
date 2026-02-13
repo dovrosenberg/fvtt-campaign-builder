@@ -308,8 +308,7 @@
         "tabs": {
           "colors": "Connection Colors",
           "styles": "Connection Styles",
-          "fields": "Fields",
-          "customColors": "Benutzerdefinierte Textfarben"
+          "fields": "Fields"
         },
         "columns": {
           "name": "Name",

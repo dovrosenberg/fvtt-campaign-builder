@@ -73,8 +73,8 @@ export const storyWebStore = () => {
   const currentNetwork = ref<Network | null>(null);
 
 
-  /** Record a new color scheme for a custom node */
-  const setCustomNodeColorScheme = async (nodeId: string, colorSchemeId: string) => {
+  /** Record a new color scheme for a node */
+  const setNodeColorScheme = async (nodeId: string, colorSchemeId: string) => {
     if (!currentStoryWeb.value) return;
     
     if (!currentStoryWeb.value.nodeStyles[nodeId]) {
@@ -1340,22 +1340,34 @@ export const storyWebStore = () => {
     const isDangerNode = node && node.type === StoryWebNodeTypes.Danger;
     const isEntryNode = node && [StoryWebNodeSource.Explicit, StoryWebNodeSource.Implicit].includes(node.source) && !isDangerNode;
 
-    // create the custom text submenu
+    // create the color submenu - available for all node types
     let colorSubmenu: any[]= [];
 
-    if (node && node.source === StoryWebNodeSource.Custom) {
-      // Get predefined color schemes from settings
-      const colorSchemes = ModuleSettings.get(SettingKey.storyWebCustomNodeColorSchemes);
+    // Get predefined color schemes from settings
+    const colorSchemes = ModuleSettings.get(SettingKey.storyWebCustomNodeColorSchemes);
 
-      colorSubmenu = colorSchemes.map(scheme => ({
-          label: scheme.name,
-          icon: () => h('svg', { viewBox: '0 0 20 20', style: 'width: 16px; height: 16px;' }, [
-            h('rect', { x: 2, y: 2, width: 16, height: 16, rx: 3, ry: 3, fill: scheme.backgroundColor }),
-            h('text', { x: 10, y: 14, 'text-anchor': 'middle', 'font-size': '10px', fill: scheme.foregroundColor }, 'A')
-          ]),
-          onClick: async () => { await setCustomNodeColorScheme(nodeId, scheme.id); }
-        }));
-    }
+    colorSubmenu = colorSchemes.map(scheme => ({
+        label: scheme.name,
+        icon: () => h('svg', { viewBox: '0 0 20 20', style: 'width: 16px; height: 16px;' }, [
+          h('rect', { x: 2, y: 2, width: 16, height: 16, rx: 3, ry: 3, fill: scheme.backgroundColor }),
+          h('text', { x: 10, y: 14, 'text-anchor': 'middle', 'font-size': '10px', fill: scheme.foregroundColor }, 'A')
+        ]),
+        onClick: async () => { await setNodeColorScheme(nodeId, scheme.id); }
+      }));
+
+    // Add reset to default option at the beginning
+    colorSubmenu.unshift({
+      label: localize('contextMenus.storyWebGraph.resetToDefault'),
+      icon: 'fa-undo',
+      iconFontClass: 'fas',
+      onClick: async () => { 
+        if (currentStoryWeb.value?.nodeStyles[nodeId]) {
+          delete currentStoryWeb.value.nodeStyles[nodeId];
+          await currentStoryWeb.value.save();
+          await refreshAndRegenerate();
+        }
+      }
+    });
 
     // Build menu items
     const menuItems = [
@@ -1394,7 +1406,7 @@ export const storyWebStore = () => {
         icon: 'fa-palette',
         iconFontClass: 'fas',
         label: localize('contextMenus.storyWebGraph.setColor'),
-        hidden: !node || node.source !== StoryWebNodeSource.Custom,
+        hidden: !node,
         children: colorSubmenu
       },
       {
@@ -1659,7 +1671,7 @@ export const storyWebStore = () => {
     removeNode,
     removeEdge,
     handleDropOnNode,
-    setCustomNodeColorScheme,
+    setNodeColorScheme,
     addCustomNode,
     editCustomNode,
   };
