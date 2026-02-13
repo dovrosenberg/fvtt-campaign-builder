@@ -51,9 +51,10 @@ export const TAB_PANEL_STATE_KEY: InjectionKey<TabPanelState> = Symbol('tabPanel
  * Creates a new TabPanelState instance for a specific panel.
  * Each TabPanel calls this once on mount and provides the result to its descendants.
  *
+ * @param panelIndex - The index of the panel this state belongs to
  * @returns A new TabPanelState with independent content refs
  */
-export function createTabPanelState(): TabPanelState {
+export function createTabPanelState(panelIndex: number): TabPanelState {
   // internal refs
   const _currentEntry = ref<Entry | null>(null);
   const _currentCampaign = ref<Campaign | null>(null);
@@ -99,7 +100,7 @@ export function createTabPanelState(): TabPanelState {
     set: (newContentTab: string) => {
       if (_currentTab.value) {
         _currentTab.value.contentTab = newContentTab;
-        void useNavigationStore().updateContentTab(newContentTab);
+        void useNavigationStore().updateContentTab(newContentTab, panelIndex);
       }
     }
   });
