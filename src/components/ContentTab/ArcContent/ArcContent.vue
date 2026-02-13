@@ -45,7 +45,7 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentArc?.description || ''"
-              fixed-height="15"
+              :fixed-height="15"
               :current-entity-uuid="currentArc?.uuid"
               @related-entries-changed="onRelatedEntriesChanged"
               @editor-saved="onDescriptionEditorSaved"
@@ -128,11 +128,12 @@
 <script setup lang="ts">
 
   // library imports
-  import { ref, watch, onBeforeUnmount, computed, } from 'vue';
+  import { ref, watch, onBeforeUnmount, computed, provide, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useArcStore, } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useArcDerivedState, ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -176,7 +177,9 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const arcStore = useArcStore();
   const { currentArc, currentSetting } = useContentState();
-  
+  const arcDerivedState = useArcDerivedState();
+  provide(ARC_DERIVED_STATE_KEY, arcDerivedState);
+
   ////////////////////////////////
   // data
   const name = ref<string>('');

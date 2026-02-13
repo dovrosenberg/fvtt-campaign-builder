@@ -73,7 +73,7 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="sessionNotesContent"
-              fixed-height="25"
+              :fixed-height="25"
               :current-entity-uuid="currentSession?.uuid"
               @related-entries-changed="onRelatedEntriesChanged"
               @editor-saved="onNotesEditorSaved"
@@ -158,11 +158,13 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { ref, watch, onBeforeUnmount, computed, } from 'vue';
+  import { ref, watch, onBeforeUnmount, computed, provide, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, useSessionStore, } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useSessionDerivedState, SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
+  import { useCampaignDerivedState, CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { notifyWarn } from '@/utils/notifications';
@@ -210,6 +212,12 @@
   const playingStore = usePlayingStore();
   const { isInPlayMode } = storeToRefs(mainStore);
   const { currentSetting, currentSession } = useContentState();
+  const sessionDerivedState = useSessionDerivedState();
+  provide(SESSION_DERIVED_STATE_KEY, sessionDerivedState);
+
+  // campaign derived state needed for CampaignPCsTab (PCs come from the session's campaign)
+  const campaignDerivedState = useCampaignDerivedState();
+  provide(CAMPAIGN_DERIVED_STATE_KEY, campaignDerivedState);
   const { currentPlayedSessionId, currentPlayedSessionNotes } = storeToRefs(playingStore);
   
   ////////////////////////////////

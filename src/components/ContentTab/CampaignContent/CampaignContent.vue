@@ -85,14 +85,14 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref, watch, } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { computed, ref, watch, provide, } from 'vue';
 
   // local imports
   import { getTabTypeIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useCampaignDirectoryStore, useCampaignStore, useNavigationStore } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useNavigationStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useCampaignDerivedState, CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyWarn } from '@/utils/notifications';
   
@@ -125,9 +125,12 @@
   // store
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const campaignStore = useCampaignStore();
   const { currentCampaign } = useContentState();
-  const { toDoRows } = storeToRefs(campaignStore);
+
+  // per-panel derived state for campaign content
+  const campaignDerivedState = useCampaignDerivedState();
+  provide(CAMPAIGN_DERIVED_STATE_KEY, campaignDerivedState);
+  const { toDoRows } = campaignDerivedState;
 
   ////////////////////////////////
   // data

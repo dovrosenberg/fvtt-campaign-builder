@@ -49,7 +49,7 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentFront?.description || ''"
-              fixed-height="23.75"
+              :fixed-height="23.75"
               :current-entity-uuid="currentFront?.uuid"
               @editor-saved="onDescriptionEditorSaved"
             />
@@ -75,12 +75,12 @@
 <script setup lang="ts">
 
   // library imports
-  import { storeToRefs } from 'pinia';
-  import { ref, watch, onBeforeUnmount, computed, } from 'vue';
+  import { ref, watch, onBeforeUnmount, computed, provide, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useFrontDerivedState, FRONT_DERIVED_STATE_KEY } from '@/composables/useFrontDerivedState';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { notifyWarn } from '@/utils/notifications';
@@ -113,7 +113,11 @@
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentFront, currentContentTab } = useContentState();
-  
+
+  // per-panel derived state for front dangers
+  const frontDerivedState = useFrontDerivedState();
+  provide(FRONT_DERIVED_STATE_KEY, frontDerivedState);
+
   ////////////////////////////////
   // data  
   const name = ref<string>('');
