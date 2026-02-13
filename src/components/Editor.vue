@@ -158,7 +158,7 @@
   const lastSavedContent = ref<string>('');   // the parsemirror serialized content last saved, to see if any changes were made
   const initialUUIDs = ref<string[]>([]);     // UUIDs present when editor was first loaded
   const isResizing = ref<boolean>(false);
-  const currentHeight = ref<number>(props.fixedHeight ? props.fixedHeight : 0); // TODO: set default to reasonable
+  const currentHeight = ref<number>(props.fixedHeight ? props.fixedHeight : 15); 
   const dragStartY = ref<number>(0);
   const dragStartHeight = ref<number>(0);
 
@@ -481,6 +481,11 @@
 
   ////////////////////////////////
   // watchers
+  watch(() => props.fixedHeight, () => {
+    currentHeight.value = props.fixedHeight ? props.fixedHeight : 15;
+  });
+
+
   watch(() => props.initialContent, async (newContent) =>{
     if (!currentSetting.value)
       return;
@@ -564,6 +569,8 @@
       await nextTick();
       await activateEditor();
     }
+
+    currentHeight.value = props.fixedHeight ? props.fixedHeight : 15;
   });
 
   onUnmounted(() => {

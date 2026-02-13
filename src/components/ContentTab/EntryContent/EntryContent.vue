@@ -112,9 +112,11 @@
             <Editor
               :initial-content="currentEntry?.description || ''"
               :current-entity-uuid="currentEntry?.uuid"
-              :fixed-height="15"
+              :fixed-height="descriptionHeight"
+              :resizable="true"
               @editor-saved="onDescriptionEditorSaved"
               @related-entries-changed="onRelatedEntriesChanged"
+              @editor-resized="onDescriptionEditorResized"
             />
           </div>
 
@@ -287,6 +289,8 @@
   const pendingAddedUUIDs = ref<string[]>([]);
   const pendingRemovedUUIDs = ref<string[]>([]);
 
+  const descriptionHeight = ref<number>(15);  // for handling description editor height
+
   ////////////////////////////////
   // computed data
     
@@ -403,6 +407,15 @@
 
   ////////////////////////////////
   // event handlers
+
+  const onDescriptionEditorResized = async (height: number) => {
+    if (!currentEntry.value)
+      return;
+    
+    descriptionHeight.value = height;
+    currentEntry.value?.setCustomFieldHeight('###description###', height);
+    await currentEntry.value?.save();
+  };
 
   // debounce changes to name
   let debounceTimer: NodeJS.Timeout | undefined = undefined;
@@ -703,6 +716,8 @@
   
   watch(currentEntry, async (): Promise<void> => {
     await refreshEntry();
+
+    descriptionHeight.value = currentEntry.value?.getCustomFieldHeight('###description###') || 15;
   });
   
   // see if we want to force a full refresh (ex. when parent changes externally)

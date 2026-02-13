@@ -85,7 +85,7 @@
       return {
         uuid: journal.uuid,
         journalName: journalDoc?.name || '?',
-        pageName: `${pageDoc?.name || ''}${journal.anchor?.name ? ` - ${journal.anchor.name}` : ''}${pageType ? ` (${pageType})` : ''}`,
+        pageName: `${pageDoc?.name || ''}${journal.anchor?.slug ? ` - ${journal.anchor.name}` : ''}${pageType ? ` (${pageType})` : ''}`,
         journalUuid: journal.journalUuid,
         pageUuid: journal.pageUuid,
         anchor: journal.anchor?.slug || '',
@@ -138,26 +138,17 @@
     await addJournal(documentUuid);
   };
 
-  const onJournalClick = async (_event: MouseEvent, uuid: string) => {
-    // uuid id the ROW uuid
-    const row = tableRows.value.find(r => r.uuid === uuid);
-    if (!row) return;
-
-    const journal = await fromUuid<JournalEntry>(row.journalUuid);
+  const onJournalClick = async (_event: MouseEvent, data: Record<string, unknown> & { uuid: string; }) => {
+    const journal = await fromUuid<JournalEntry>(data.journalUuid as string);
     // @ts-ignore - fvtt types aren't working
     await journal?.sheet?.render({force: true});
   };
 
-  const onPageClick = async (_event: MouseEvent, uuid: string) => {
-    // uuid id the ROW uuid
-    const row = tableRows.value.find(r => r.uuid === uuid);
-    if (!row) return;
-    
-    const page = await fromUuid<JournalEntryPage>(row.pageUuid);
+  const onPageClick = async (_event: MouseEvent, data: Record<string, unknown> & { uuid: string; }) => {
+    const page = await fromUuid<JournalEntryPage>(data.pageUuid as string);
     // we have to use the parent because the page can't handle the anchor on its own
     // @ts-ignore - fvtt types aren't working
-    await page?.parent?.sheet?.render({force: true, pageId: page.id, anchor: row.anchor});
-    // await page?.sheet?.render({force: true, options: { anchor: row.anchor}});
+    await page?.parent?.sheet?.render({force: true, pageId: page.id, anchor: data.anchor});
   };
 
   async function onDropNew(event: DragEvent) {
