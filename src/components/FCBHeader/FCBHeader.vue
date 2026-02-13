@@ -284,9 +284,9 @@
           iconFontClass: 'fas',
           label: bookmark.header.name,
           customClass: `fcb-overflow-item-${index}${isSessionBookmark ? ' fcb-session-bookmark' : ''}`,
-          onClick: () => {
+          onClick: (e: MouseEvent) => {
             isOverflowMenuOpen.value = false;
-            void navigationStore.openContent(bookmark.header.uuid, bookmark.tabInfo.tabType, { newTab: false });
+            void navigationStore.openContent(bookmark.header.uuid, bookmark.tabInfo.tabType, { newTab: e.ctrlKey, panelIndex: e.altKey ? -1 : undefined });
           }
         };
       }),

@@ -19,12 +19,12 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref, nextTick } from 'vue';
-  import { storeToRefs } from 'pinia';
-  
+  import { computed, ref, nextTick, inject } from 'vue';
+
   // local imports
   import { localize } from '@/utils/game';
   import { useFrontStore } from '@/applications/stores';
+  import { FRONT_DERIVED_STATE_KEY } from '@/composables/useFrontDerivedState';
   import { ModuleSettings, SettingKey } from '@/settings';
   
   // local components
@@ -45,7 +45,7 @@
   ////////////////////////////////
   // store
   const frontStore = useFrontStore();
-  const { grimPortentRows } = storeToRefs(frontStore);
+  const { grimPortentRows, currentDangerIndex } = inject(FRONT_DERIVED_STATE_KEY)!;
 
   ////////////////////////////////
   // data
@@ -79,12 +79,14 @@
     const actions = [] as ActionButtonDefinition[];
     actions.push({ 
       icon: 'fa-trash', 
-      callback: async (data, removedUUIDs) => { 
-        const deleted = await frontStore.deleteGrimPortent(data.uuid);
+      callback: async (data, removedUUIDs) => {
+        if (currentDangerIndex.value == null)
+          return;
+        const deleted = await frontStore.deleteGrimPortent(currentDangerIndex.value, data.uuid);
         if (deleted && removedUUIDs && removedUUIDs.length > 0) {
           emit('relatedEntriesChanged', [], removedUUIDs);
         }
-      }, 
+      },
       tooltip: localize('tooltips.deletePortent')
     });
 
@@ -119,7 +121,10 @@
   ////////////////////////////////
   // event handlers
   const onAddPortent = async () => {
-    const uuid = await frontStore.addGrimPortent();
+    if (currentDangerIndex.value == null)
+      return;
+
+    const uuid = await frontStore.addGrimPortent(currentDangerIndex.value);
 
     if (!uuid)
       return;
@@ -134,14 +139,18 @@
   const onCellEditComplete = async (event: CellEditCompleteEvent) => {
     const { data, newValue, field } = event;
 
+    if (currentDangerIndex.value == null)
+      return;
+
     if (field === 'description')
-      await frontStore.updateGrimPortent(data.uuid, newValue as string, data.complete as boolean);
+      await frontStore.updateGrimPortent(currentDangerIndex.value, data.uuid, newValue as string, data.complete as boolean);
     else if (field === 'complete')
-      await frontStore.updateGrimPortent(data.uuid, data.description as string, newValue as boolean);
+      await frontStore.updateGrimPortent(currentDangerIndex.value, data.uuid, data.description as string, newValue as boolean);
   };
 
   const onReorder = (reorderedRows: GrimPortent[]) => {
-    frontStore.reorderGrimPortents(reorderedRows);
+    if (currentDangerIndex.value != null)
+      frontStore.reorderGrimPortents(currentDangerIndex.value, reorderedRows);
   };
 
 

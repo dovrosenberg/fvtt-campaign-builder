@@ -36,9 +36,11 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentCampaign?.description || ''"
-              fixed-height="15"
+              :fixed-height="descriptionHeight"
+              :resizable="true"
               :current-entity-uuid="currentCampaign?.uuid"
               @editor-saved="onDescriptionEditorSaved"
+              @editor-resized="onDescriptionEditorResized"
             />
           </div>
 
@@ -85,14 +87,14 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref, watch, } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { computed, ref, watch, provide, } from 'vue';
 
   // local imports
   import { getTabTypeIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useCampaignDirectoryStore, useCampaignStore, useNavigationStore } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useNavigationStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useCampaignDerivedState, CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyWarn } from '@/utils/notifications';
   
@@ -125,9 +127,12 @@
   // store
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const campaignStore = useCampaignStore();
   const { currentCampaign } = useContentState();
-  const { toDoRows } = storeToRefs(campaignStore);
+
+  // per-panel derived state for campaign content
+  const campaignDerivedState = useCampaignDerivedState();
+  provide(CAMPAIGN_DERIVED_STATE_KEY, campaignDerivedState);
+  const { toDoRows } = campaignDerivedState;
 
   ////////////////////////////////
   // data
@@ -135,7 +140,8 @@
   const name = ref<string>('');
 
   const icon =  getTabTypeIcon(WindowTabType.Campaign);
- 
+   const descriptionHeight = ref<number>(15);  // for handling description editor height
+
   ////////////////////////////////
   // computed data
   const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
@@ -179,6 +185,15 @@
 
   ////////////////////////////////
   // event handlers
+
+  const onDescriptionEditorResized = async (height: number) => {
+    if (!currentCampaign.value)
+      return;
+    
+    descriptionHeight.value = height;
+    currentCampaign.value?.setCustomFieldHeight('###description###', height);
+    await currentCampaign.value?.save();
+  };
 
   // debounce changes to name
   let debounceTimer: NodeJS.Timeout | undefined = undefined;
@@ -238,6 +253,7 @@
 
     // load starting data values
     name.value = currentCampaign.value.name || '';
+    descriptionHeight.value = currentCampaign.value.getCustomFieldHeight('###description###') || 15;
   });
 
   ////////////////////////////////

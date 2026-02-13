@@ -121,7 +121,7 @@
 
   ////////////////////////////////
   // data
-  const panelState = createTabPanelState();
+  const panelState = createTabPanelState(props.panelIndex);
   provide(TAB_PANEL_STATE_KEY, panelState);
 
   ////////////////////////////////

@@ -73,10 +73,12 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="sessionNotesContent"
-              fixed-height="25"
+              :fixed-height="descriptionHeight"
+              :resizable="true"
               :current-entity-uuid="currentSession?.uuid"
               @related-entries-changed="onRelatedEntriesChanged"
               @editor-saved="onNotesEditorSaved"
+              @editor-resized="onDescriptionEditorResized"
             />
           </div>
 
@@ -158,11 +160,13 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { ref, watch, onBeforeUnmount, computed, } from 'vue';
+  import { ref, watch, onBeforeUnmount, computed, provide, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, useSessionStore, } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useSessionDerivedState, SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
+  import { useCampaignDerivedState, CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { notifyWarn } from '@/utils/notifications';
@@ -210,6 +214,12 @@
   const playingStore = usePlayingStore();
   const { isInPlayMode } = storeToRefs(mainStore);
   const { currentSetting, currentSession } = useContentState();
+  const sessionDerivedState = useSessionDerivedState();
+  provide(SESSION_DERIVED_STATE_KEY, sessionDerivedState);
+
+  // campaign derived state needed for CampaignPCsTab (PCs come from the session's campaign)
+  const campaignDerivedState = useCampaignDerivedState();
+  provide(CAMPAIGN_DERIVED_STATE_KEY, campaignDerivedState);
   const { currentPlayedSessionId, currentPlayedSessionNotes } = storeToRefs(playingStore);
   
   ////////////////////////////////
@@ -221,6 +231,7 @@
   const showRelatedEntriesDialog = ref<boolean>(false);
   const pendingAddedUUIDs = ref<string[]>([]);
   const pendingRemovedUUIDs = ref<string[]>([]);
+  const descriptionHeight = ref<number>(25);  // for handling description editor height
 
   ////////////////////////////////
   // computed data
@@ -245,6 +256,15 @@
 
   ////////////////////////////////
   // event handlers
+  const onDescriptionEditorResized = async (height: number) => {
+    if (!currentSession.value)
+      return;
+    
+    descriptionHeight.value = height;
+    currentSession.value?.setCustomFieldHeight('###description###', height);
+    await currentSession.value?.save();
+  };
+
   // debounce changes to name/number/strong start
   let nameDebounceTimer: NodeJS.Timeout | undefined = undefined;
   let numberDebounceTimer: NodeJS.Timeout | undefined = undefined;
@@ -405,6 +425,7 @@
       sessionNumber.value = newSession.number?.toString() || '';
       sessionDate.value = newSession.date || undefined;
       sessionNotesContent.value = newSession.description || '';
+      descriptionHeight.value = newSession.getCustomFieldHeight('###description###') || 25;
     }
   });
   

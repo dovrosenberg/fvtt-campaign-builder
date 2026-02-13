@@ -78,7 +78,7 @@ To create a new session:
 
 Each session must have a unique number within a campaign. Sessions are sorted by number in the campaign directory, and the most recent session date determines the "current session" when in Play mode.  There is a [setting](/reference/configuration/) that will instead sort it by date or name.
 
-The name is required, but it could be "Sesson 4" or something.  If you name your sessions after you're done, you can also just call the current one "TBD" until you give it a name.
+The name is required, but it could be "Session 4" or something.  If you name your sessions after you're done, you can also just call the current one "TBD" until you give it a name.
 
 ## The Lazy DM Method
 

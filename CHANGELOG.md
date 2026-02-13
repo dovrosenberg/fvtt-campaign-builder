@@ -4,7 +4,7 @@
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.0/module.zip)
 
 - Added the ability to split the main content area into multiple panes, so you can view multiple entries side by side.
-   - Note that you cannot have more than one story web open at a time (i.e. visible in separate panels).  Opening a story web in one panel while one is visible in the other panel will close the prior one (or switch to a different tab, if available).
+   - Anywhere you could hold "Control" to open a link in a new tab, you can now also hold "Alt" to open it in a different panel than the current one (i.e. open next to the content you're currently looking at).
 - You can now create color schemes to apply to custom text blocks in story webs.
 - You can now export a story web as a .PNG file from the directory context menu.
 - You can now adjust the size of all custom field editors using the grabber in the lower-right corner.  This size can be set differently for each piece of content.  If you want to change the default size for a particular field, you can still do that in the module settings.

@@ -24,11 +24,12 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref, } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { computed, ref, inject, } from 'vue';
 
   // local imports
   import { useCampaignStore, useArcStore, } from '@/applications/stores';
+  import { CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
+  import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
 
@@ -59,8 +60,10 @@
   // store
   const campaignStore = useCampaignStore();
   const arcStore = useArcStore();
-  const { ideaRows: campaignIdeaRows } = storeToRefs(campaignStore);
-  const { ideaRows: arcIdeaRows } = storeToRefs(arcStore);
+  const campaignDerivedState = inject(CAMPAIGN_DERIVED_STATE_KEY, null);
+  const arcDerivedState = inject(ARC_DERIVED_STATE_KEY, null);
+  const campaignIdeaRows = computed(() => campaignDerivedState?.ideaRows.value ?? []);
+  const arcIdeaRows = computed(() => arcDerivedState?.ideaRows.value ?? []);
 
   ////////////////////////////////
   // data

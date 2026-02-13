@@ -74,9 +74,11 @@
           <div class="flexrow form-group fcb-description">
             <Editor
                 :initial-content="currentSetting.description || ''"
-                fixed-height="18.75"
+                :fixed-height="descriptionHeight"
+                :resizable="true"
                 :current-entity-uuid="currentSetting?.uuid"
                 @editor-saved="onDescriptionEditorSaved"
+                @editor-resized="onDescriptionEditorResized"
               />
           </div>
 
@@ -103,7 +105,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, onMounted, ref } from 'vue';
+  import { computed, onMounted, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -130,6 +132,7 @@
   
   // types
   import { CustomFieldContentType, RelatedJournal, WindowTabType, } from '@/types';
+  import { FCBSetting } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -151,6 +154,7 @@
   const name = ref<string>('');
   const icon = getTabTypeIcon(WindowTabType.Setting);
   const showConfigureNamesDialog = ref<boolean>(false);
+  const descriptionHeight = ref<number>(18.75);  // for handling description editor height
 
   ////////////////////////////////
   // computed data
@@ -167,6 +171,15 @@
 
   ////////////////////////////////
   // event handlers
+
+  const onDescriptionEditorResized = async (height: number) => {
+    if (!currentSetting.value)
+      return;
+    
+    descriptionHeight.value = height;
+    currentSetting.value?.setCustomFieldHeight('###description###', height);
+    await currentSetting.value?.save();
+  };
 
   // debounce changes to name
   let debounceTimer: NodeJS.Timeout | undefined = undefined;
@@ -278,7 +291,13 @@
 
   ////////////////////////////////
   // watchers
-
+  watch(currentSetting, async (newSetting: FCBSetting | null): Promise<void> => {
+    if (newSetting && newSetting.uuid) {
+      // load starting data values
+      descriptionHeight.value = newSetting.getCustomFieldHeight('###description###') || 18.75;
+    }
+  });
+  
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {

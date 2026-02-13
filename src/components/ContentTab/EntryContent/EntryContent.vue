@@ -112,9 +112,11 @@
             <Editor
               :initial-content="currentEntry?.description || ''"
               :current-entity-uuid="currentEntry?.uuid"
-              fixed-height="15"
+              :fixed-height="descriptionHeight"
+              :resizable="true"
               @editor-saved="onDescriptionEditorSaved"
               @related-entries-changed="onRelatedEntriesChanged"
+              @editor-resized="onDescriptionEditorResized"
             />
           </div>
 
@@ -197,7 +199,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref, watch, } from 'vue';
+  import { computed, ref, watch, provide, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -205,6 +207,7 @@
   import { localize } from '@/utils/game';
   import { useSettingDirectoryStore, useBackendStore, useNavigationStore, useRelationshipStore, usePlayingStore, } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useEntryDerivedState, ENTRY_DERIVED_STATE_KEY } from '@/composables/useEntryDerivedState';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -253,7 +256,11 @@
   const backendStore = useBackendStore();
   const { currentSetting, currentEntry, refreshCurrentEntry } = useContentState();
   const { currentPlayedCampaign } = storeToRefs(playingStore);
-  const { isGeneratingImage, available } = storeToRefs(backendStore); 
+  const { isGeneratingImage, available } = storeToRefs(backendStore);
+
+  // per-panel derived state for entry relationships
+  const entryDerivedState = useEntryDerivedState();
+  provide(ENTRY_DERIVED_STATE_KEY, entryDerivedState);
 
   ////////////////////////////////
   // data
@@ -281,6 +288,8 @@
   const showRelatedEntriesDialog = ref<boolean>(false);
   const pendingAddedUUIDs = ref<string[]>([]);
   const pendingRemovedUUIDs = ref<string[]>([]);
+
+  const descriptionHeight = ref<number>(15);  // for handling description editor height
 
   ////////////////////////////////
   // computed data
@@ -398,6 +407,15 @@
 
   ////////////////////////////////
   // event handlers
+
+  const onDescriptionEditorResized = async (height: number) => {
+    if (!currentEntry.value)
+      return;
+    
+    descriptionHeight.value = height;
+    currentEntry.value?.setCustomFieldHeight('###description###', height);
+    await currentEntry.value?.save();
+  };
 
   // debounce changes to name
   let debounceTimer: NodeJS.Timeout | undefined = undefined;
@@ -698,6 +716,8 @@
   
   watch(currentEntry, async (): Promise<void> => {
     await refreshEntry();
+
+    descriptionHeight.value = currentEntry.value?.getCustomFieldHeight('###description###') || 15;
   });
   
   // see if we want to force a full refresh (ex. when parent changes externally)

@@ -166,28 +166,28 @@
     // the only things tagged fcb-content-link are ones for the setting we're looking at, so just need to open it
     switch (parseInt(target.dataset.linkType ?? '-1')) {
       case WindowTabType.Entry:
-        void navigationStore.openEntry(target.dataset.uuid, { newTab: event.ctrlKey});
+        void navigationStore.openEntry(target.dataset.uuid, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
         break;
       case WindowTabType.Campaign:
-        void navigationStore.openCampaign(target.dataset.uuid, { newTab: event.ctrlKey });
+        void navigationStore.openCampaign(target.dataset.uuid, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
         break;
       case WindowTabType.Session:
-        void navigationStore.openSession(target.dataset.uuid, { newTab: event.ctrlKey });
+        void navigationStore.openSession(target.dataset.uuid, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
         break;
       case WindowTabType.Arc:
-        void navigationStore.openArc(target.dataset.uuid, { newTab: event.ctrlKey });
+        void navigationStore.openArc(target.dataset.uuid, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
         break;
       case WindowTabType.Front:
-        void navigationStore.openFront(target.dataset.uuid, { newTab: event.ctrlKey });
+        void navigationStore.openFront(target.dataset.uuid, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
         break;
       case WindowTabType.StoryWeb:
-        void navigationStore.openStoryWeb(target.dataset.uuid, { newTab: event.ctrlKey });
+        void navigationStore.openStoryWeb(target.dataset.uuid, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
         break;
       case WindowTabType.Setting:
-        void navigationStore.openSetting(target.dataset.uuid, { newTab: event.ctrlKey });
+        void navigationStore.openSetting(target.dataset.uuid, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
         break;
       case WindowTabType.TagResults:
-        void navigationStore.openTagResults(target.dataset.uuid, { newTab: event.ctrlKey });
+        void navigationStore.openTagResults(target.dataset.uuid, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
         break;
     }  
   };

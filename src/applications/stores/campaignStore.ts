@@ -1,8 +1,8 @@
-// this store handles activities specific to campaigns
+// this store handles actions specific to campaigns
 //
 // library imports
 import { storeToRefs, } from 'pinia';
-import { watch, ref, computed } from 'vue';
+import { computed } from 'vue';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
@@ -19,12 +19,6 @@ export const campaignStore = () => {
   ///////////////////////////////
   // the state
 
-  // used for tables
-  const relatedPCRows = ref<RelatedPCDetails[]>([]);
-  const allRelatedLoreRows = ref<CampaignLoreDetails[]>([]);  // all the rows - for lookups
-  const toDoRows = ref<ToDoItem[]>([]);
-  const ideaRows = ref<Idea[]>([]);
-
   const extraFields = {
     [CampaignTableTypes.None]: [],
     [CampaignTableTypes.PC]: [],
@@ -33,7 +27,7 @@ export const campaignStore = () => {
     ],
     [CampaignTableTypes.DeliveredLore]: [
       { field: 'description', style: 'text-align: left; width: 70%', header: 'Description', editable: true },
-      { field: 'lockedToSessionName', style: 'text-align: left; width: 30%', header: 'Delivered in', sortable: true, 
+      { field: 'lockedToSessionName', style: 'text-align: left; width: 30%', header: 'Delivered in', sortable: true,
         editable: false, onClick: onSessionClick
       },
     ],
@@ -52,13 +46,21 @@ export const campaignStore = () => {
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentSession, currentContentTab, currentSetting, } = storeToRefs(mainStore);
-  
-  ///////////////////////////////
-  // internal state
+  const { currentCampaign, currentSession, currentSetting, } = storeToRefs(mainStore);
 
   ///////////////////////////////
-  // external state
+  // computed state
+  const availableCampaigns = computed((): Campaign[] => {
+    if (!currentSetting.value)
+      return [];
+
+    let campaigns = [] as Campaign[];
+    for (const campaignId in currentSetting.value.campaigns) {
+      campaigns.push(currentSetting.value.campaigns[campaignId]);
+    }
+
+    return campaigns;
+  });
 
   ///////////////////////////////
   // actions
@@ -72,14 +74,14 @@ export const campaignStore = () => {
     campaign.pcs = [...campaign.pcs, pc];
     await campaign.save();
 
-    await _refreshPCRows();
+    await mainStore.refreshCampaign();
     await mainStore.refreshCurrentContent();
   };
 
   /** removes from the campaign - not the entry */
   const deletePC = async (uuid: string): Promise<void> => {
     const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
-    
+
     if (!campaign)
       return;
 
@@ -90,10 +92,10 @@ export const campaignStore = () => {
     campaign.pcs = campaign.pcs.filter(pc => pc.uuid !== uuid);
     await campaign.save();
 
-    await _refreshPCRows();
+    await mainStore.refreshCampaign();
     await mainStore.refreshCurrentContent();
   };
-  
+
   /**
    * Reorders PCs in the campaign (persisting the new array order).
    * @param reorderedPCs the reordered PC array
@@ -106,7 +108,7 @@ export const campaignStore = () => {
     campaign.pcs = reorderedPCs;
     await campaign.save();
 
-    await _refreshPCRows();
+    await mainStore.refreshCampaign();
     await mainStore.refreshCurrentContent();
   };
 
@@ -130,188 +132,171 @@ export const campaignStore = () => {
    * @param description The description for the lore entry
    * @returns The UUID of the created lore entry
    */
-    const addLore = async (description = ''): Promise<string | null> => {
-      if (!currentCampaign.value)
-        throw new Error('Invalid campaign in campaignStore.addLore()');
-  
-      const loreUuid = await currentCampaign.value.addLore(description);
-      await _refreshLoreRows();
-      return loreUuid;
+  const addLore = async (description = ''): Promise<string | null> => {
+    if (!currentCampaign.value)
+      throw new Error('Invalid campaign in campaignStore.addLore()');
+
+    const loreUuid = await currentCampaign.value.addLore(description);
+    await mainStore.refreshCampaign();
+    return loreUuid;
+  };
+
+  /**
+   * Updates the description associated with a lore.
+   * @param uuid the UUID of the lore
+   * @param description the new description
+   * @param sessionId the session UUID if the lore is session-level, or null for campaign-level
+   */
+  const updateLoreDescription = async (uuid: string, description: string, sessionId: string | null): Promise<void> => {
+    if (!currentCampaign.value)
+      throw new Error('Invalid session in campaignStore.updateLoreDescription()');
+
+    if (sessionId) {
+      // session-level lore
+      const session = await Session.fromUuid(sessionId);
+      if (!session)
+        throw new Error('Session not found in campaignStore.updateLoreDescription()');
+
+      await session.updateLoreDescription(uuid, description);
+    } else {
+      await currentCampaign.value.updateLoreDescription(uuid, description);
     }
-  
-    /**
-     * Updates the description associated with a lore 
-     * @param uuid the UUID of the lore
-     */
-    const updateLoreDescription = async (uuid: string, description: string): Promise<void> => {
-      if (!currentCampaign.value)
-        throw new Error('Invalid session in campaignStore.updateLoreDescription()');
-  
-      // first look it up in the rows to see if it's campaign or session
-      const row = allRelatedLoreRows.value.find(r=> r.uuid===uuid);
 
-      if (!row)
-        throw new Error('Lore not found in campaignStore.updateLoreDescription()');
+    await mainStore.refreshCampaign();
+  };
 
-      if (row.lockedToSessionId) {
-        // it's a session one, so we need to update it in the session
-        const session = await Session.fromUuid(row.lockedToSessionId);
-        if (!session)
-          throw new Error('Session not found in campaignStore.updateLoreDescription()');
-        
-        await session.updateLoreDescription(uuid, description);
-      } else {
-        await currentCampaign.value.updateLoreDescription(uuid, description);
-      }
+  /**
+   * Deletes a lore from the campaign or session.
+   * @param uuid the UUID of the lore
+   * @param sessionId the session UUID if the lore is session-level, or null for campaign-level
+   */
+  const deleteLore = async (uuid: string, sessionId: string | null): Promise<void> => {
+    if (!currentCampaign.value)
+      throw new Error('Invalid session in campaignStore.deleteLore()');
 
-      await _refreshLoreRows();
-    }
-      
-    /**
-     * Deletes a lore from the session
-     * @param uuid the UUID of the lore
-     */
-    const deleteLore = async (uuid: string): Promise<void> => {
-      if (!currentCampaign.value)
-        throw new Error('Invalid session in campaignStore.deleteLore()');
-  
-      // first look it up in the rows to see if it's campaign or session
-      const row = allRelatedLoreRows.value.find(r=> r.uuid===uuid);
+    // confirm
+    if (!(await FCBDialog.confirmDialog('Delete Lore?', 'Are you sure you want to delete this lore?')))
+      return;
 
-      if (!row)
-        throw new Error('Lore not found in campaignStore.deleteLore()');
+    if (sessionId) {
+      // session-level lore
+      const session = await Session.fromUuid(sessionId);
+      if (!session)
+        throw new Error('Session not found in campaignStore.deleteLore()');
 
-      // confirm
-      if (!(await FCBDialog.confirmDialog('Delete Lore?', 'Are you sure you want to delete this lore?')))
-        return;
-
-      if (row.lockedToSessionId) {
-        // it's a session one, so we need to delete it from the session
-        const session = await Session.fromUuid(row.lockedToSessionId);
-        if (!session)
-          throw new Error('Session not found in campaignStore.deleteLore()');
-        
-        await session.deleteLore(uuid);
-      } else { 
-        await currentCampaign.value.deleteLore(uuid);
-      }
-
-      await _refreshLoreRows();
-    }
-  
-    /**
-     * Set the delivered status for a given lore.
-     * @param uuid the UUID of the lore
-     * @param delivered the new delivered status
-     */
-    const markLoreDelivered = async (uuid: string, delivered: boolean): Promise<void> => {
-      if (!currentCampaign.value)
-        throw new Error('Invalid session in campaignStore.markLoreDelivered()');
-  
-      const row = allRelatedLoreRows.value.find(r => r.uuid === uuid);
-      if (!row)
-        throw new Error('Lore not found in campaignStore.markLoreDelivered()');
-
-      if (row.lockedToSessionId) {
-        // Session-tied lore
-        const session = await Session.fromUuid(row.lockedToSessionId);
-        if (!session)
-          throw new Error('Session not found in campaignStore.markLoreDelivered()');
-
-        await session.markLoreDelivered(uuid, delivered);
-      } else {
-        // Campaign-level lore
-        await currentCampaign.value.markLoreDelivered(uuid, delivered);
-      }
-
-      await _refreshLoreRows();
-    }
-  
-    /**
-     * Move a lore to the last session in the campaign, creating if needed
-     * @param uuid the UUID of the lore to move
-     */
-    const moveLoreToLastSession = async (uuid: string): Promise<void> => {
-      if (!currentCampaign.value)
-        return;
-  
-      const lastSession = await _getLastSession();
-  
-      if (!lastSession) 
-        return;
-  
-      const currentLore = currentCampaign.value.lore.find(l=> l.uuid===uuid);
-  
-      if (!currentLore)
-        return;
-  
-      // have a next session - add there and delete here
-      await lastSession.addLore(currentLore.description);
+      await session.deleteLore(uuid);
+    } else {
       await currentCampaign.value.deleteLore(uuid);
-  
-      await _refreshLoreRows();
     }
 
-    /**
-     * Move a lore to the last arc in the campaign
-     * @param uuid the UUID of the lore to move
-     */
-    const moveLoreToArc = async (uuid: string): Promise<void> => {
-      if (!currentCampaign.value || currentCampaign.value.arcIndex.length===0)
-        return;
+    await mainStore.refreshCampaign();
+  };
 
-      const lastArc = await Arc.fromUuid(currentCampaign.value.arcIndex[currentCampaign.value.arcIndex.length-1].uuid);
-  
-      if (!lastArc) 
-        return;
-  
-      const currentLore = currentCampaign.value.lore.find(l=> l.uuid===uuid);
-  
-      if (!currentLore)
-        return;
-  
-      // have a next session - add there and delete here
-      await lastArc.addLore(currentLore.description);
-      await currentCampaign.value.deleteLore(uuid);
-  
-      await _refreshLoreRows();
+  /**
+   * Set the delivered status for a given lore.
+   * @param uuid the UUID of the lore
+   * @param delivered the new delivered status
+   * @param sessionId the session UUID if the lore is session-level, or null for campaign-level
+   */
+  const markLoreDelivered = async (uuid: string, delivered: boolean, sessionId: string | null): Promise<void> => {
+    if (!currentCampaign.value)
+      throw new Error('Invalid session in campaignStore.markLoreDelivered()');
+
+    if (sessionId) {
+      // session-level lore
+      const session = await Session.fromUuid(sessionId);
+      if (!session)
+        throw new Error('Session not found in campaignStore.markLoreDelivered()');
+
+      await session.markLoreDelivered(uuid, delivered);
+    } else {
+      await currentCampaign.value.markLoreDelivered(uuid, delivered);
     }
 
-    const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> => {
+    await mainStore.refreshCampaign();
+  };
+
+  /**
+   * Move a lore to the last session in the campaign, creating if needed.
+   * @param uuid the UUID of the lore to move
+   * @param description the lore description
+   */
+  const moveLoreToLastSession = async (uuid: string, description: string): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
+
+    const lastSession = await _getLastSession();
+
+    if (!lastSession)
+      return;
+
+    // have a next session - add there and delete here
+    await lastSession.addLore(description);
+    await currentCampaign.value.deleteLore(uuid);
+
+    await mainStore.refreshCampaign();
+  };
+
+  /**
+   * Move a lore to the last arc in the campaign.
+   * @param uuid the UUID of the lore to move
+   * @param description the lore description
+   */
+  const moveLoreToArc = async (uuid: string, description: string): Promise<void> => {
+    if (!currentCampaign.value || currentCampaign.value.arcIndex.length === 0)
+      return;
+
+    const lastArc = await Arc.fromUuid(currentCampaign.value.arcIndex[currentCampaign.value.arcIndex.length - 1].uuid);
+
+    if (!lastArc)
+      return;
+
+    // have a next session - add there and delete here
+    await lastArc.addLore(description);
+    await currentCampaign.value.deleteLore(uuid);
+
+    await mainStore.refreshCampaign();
+  };
+
+  /** Add a to-do item to the campaign */
+  const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> => {
     if (!currentCampaign.value)
       return null;
 
     const newItem = await currentCampaign.value.addNewToDoItem(type, text, linkedUuid, sessionUuid);
-    await _refreshToDoRows();
+    await mainStore.refreshCampaign();
     return newItem;
-  }
-  
+  };
+
+  /** Merge a to-do item (add or update existing) */
   const mergeToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
 
     await currentCampaign.value.mergeToDoItem(type, text, linkedUuid, sessionUuid);
-    await _refreshToDoRows();
-  }
+    await mainStore.refreshCampaign();
+  };
 
+  /** Update a to-do item description */
   const updateToDoItem = async (uuid: string, newDescription: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
 
     await currentCampaign.value.updateToDoItem(uuid, newDescription);
-    await _refreshToDoRows();
-  }
+    await mainStore.refreshCampaign();
+  };
 
+  /** Complete (remove) a to-do item */
   const completeToDoItem = async (uuid: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
 
     await currentCampaign.value.completeToDoItem(uuid);
-    await _refreshToDoRows();
-  }
+    await mainStore.refreshCampaign();
+  };
 
-   /**
-   * Adds a lore to the campaign.
+  /**
+   * Adds an idea to the campaign.
    * @param description The description for the idea
    * @returns The UUID of the created idea
    */
@@ -320,18 +305,20 @@ export const campaignStore = () => {
       throw new Error('Invalid campaign in campaignStore.addIdea()');
 
     const ideaUuid = await currentCampaign.value.addIdea(description);
-    await _refreshIdeaRows();
+    await mainStore.refreshCampaign();
     return ideaUuid;
-  }
+  };
 
+  /** Update an idea's text */
   const updateIdea = async (uuid: string, newText: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
 
     await currentCampaign.value.updateIdea(uuid, newText);
-    await _refreshIdeaRows();
-  }
+    await mainStore.refreshCampaign();
+  };
 
+  /** Delete an idea from the campaign */
   const deleteIdea = async (uuid: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
@@ -341,55 +328,59 @@ export const campaignStore = () => {
       return;
 
     await currentCampaign.value.deleteIdea(uuid);
-    await _refreshIdeaRows();
-  }
+    await mainStore.refreshCampaign();
+  };
 
+  /** Reorder ideas in the campaign */
   const reorderIdeas = async (reorderedIdeas: Idea[]) => {
     if (!currentCampaign.value) return;
 
     currentCampaign.value.ideas = reorderedIdeas;
     await currentCampaign.value.save();
-    await _refreshIdeaRows();
+    await mainStore.refreshCampaign();
   };
 
+  /** Move an idea to the last arc */
   const moveIdeaToArc = async (uuid: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
 
     await currentCampaign.value.moveIdeaToArc(uuid);
-    await _refreshIdeaRows();
-  }
+    await mainStore.refreshCampaign();
+  };
 
+  /** Reorder to-do items in the campaign */
   const reorderToDos = async (reorderedToDos: ToDoItem[]) => {
     if (!currentCampaign.value) return;
 
     currentCampaign.value.todoItems = reorderedToDos;
     await currentCampaign.value.save();
-    await _refreshToDoRows();
+    await mainStore.refreshCampaign();
   };
 
+  /** Move an idea to the to-do list */
   const moveIdeaToToDo = async (uuid: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
 
     await currentCampaign.value.moveIdeaToToDo(uuid);
-    await _refreshIdeaRows();
-    await _refreshToDoRows();
+    await mainStore.refreshCampaign();
   };
 
+  /** Move a to-do item to the ideas list */
   const moveToDoToIdea = async (uuid: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
 
     await currentCampaign.value.moveToDoToIdea(uuid);
-    await _refreshIdeaRows();
-    await _refreshToDoRows();
+    await mainStore.refreshCampaign();
   };
 
+  /** Reorder available (undelivered) lore */
   const reorderAvailableLore = async (reorderedLore: CampaignLoreDetails[]) => {
-      if (!currentCampaign.value) return;
-  
-    currentCampaign.value.lore = reorderedLore.map(l => ({ 
+    if (!currentCampaign.value) return;
+
+    currentCampaign.value.lore = reorderedLore.map(l => ({
       uuid: l.uuid,
       delivered: l.delivered,
       description: l.description,
@@ -397,64 +388,37 @@ export const campaignStore = () => {
       lockedToSessionId: null,
       lockedToSessionName: null,
     }));
-    
+
     await currentCampaign.value.save();
-    await _refreshLoreRows();
-    };
-  
-  ///////////////////////////////
-  // computed state
-  /** only significant rows from sessions are returned */
-  const deliveredLoreRows = computed((): CampaignLoreDetails[] => {
-    return allRelatedLoreRows.value.filter((r) => r.delivered && (r.lockedToSessionId === null || r.significant));
-  });
-
-  const availableLoreRows = computed((): CampaignLoreDetails[] => {
-    return allRelatedLoreRows.value.filter((r) => !r.delivered);
-  });
-
-  const availableCampaigns = computed((): Campaign[] => {
-    if (!currentSetting.value) {
-      return [];
-    }
-
-    let campaigns = [] as Campaign[];
-    for (const campaignId in currentSetting.value.campaigns) {
-      campaigns.push(currentSetting.value.campaigns[campaignId]);
-    }
-
-    return campaigns;
-  });
-
+    await mainStore.refreshCampaign();
+  };
 
   ///////////////////////////////
   // internal functions
 
-  // when we click on a session in the lore, open the session tab
-  async function onSessionClick (event: MouseEvent, uuid: string) {
-    // get session Id
-    const sessionId = allRelatedLoreRows.value.find(r=> r.uuid===uuid)?.lockedToSessionId;
-
+  // when we click on a session in delivered lore, open the session's lore tab
+  async function onSessionClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    const sessionId = rowData.lockedToSessionId as string | null;
     if (!sessionId)
-      throw new Error('Session not found in campaignStore.onSessionClick()');
+      return;
 
-    await useNavigationStore().openSession(sessionId, { newTab: event.ctrlKey, activate: true });
-
-    // set the tab to the lore
+    await useNavigationStore().openSession(sessionId, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
     await useNavigationStore().updateContentTab('lore');
   }
 
   // when we click on an entry in the todo list, open it
-  async function onToDoClick (event: MouseEvent, uuid: string) {
-    const toDo = toDoRows.value.find(r=> r.uuid===uuid);
+  async function onToDoClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
+    const uuid = rowData.uuid;
+    // look up the todo item from the campaign
+    const toDo = currentCampaign.value?.todoItems.find(t => t.uuid === uuid);
 
-    if (!toDo) 
+    if (!toDo)
       return;
 
     // If there's a linked entity, check if it still exists
     if (toDo.linkedUuid) {
       const entry = await Entry.fromUuid(toDo.linkedUuid);
-      if (!entry)  {
+      if (!entry) {
         // I don't think we currently link to documents, but just in case
         const document = await fromUuid<foundry.abstract.Document<any, any>>(toDo.linkedUuid);
         if (!document) {
@@ -485,7 +449,7 @@ export const campaignStore = () => {
       case ToDoTypes.Entry:
         // just open the entry
         if (toDo.linkedUuid) { // Check if linkedUuid exists before trying to use it
-          navigationStore.openEntry(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true });
+          navigationStore.openEntry(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true, panelIndex: event.altKey ? -1 : undefined });
         }
         break;
       case ToDoTypes.Lore:
@@ -494,7 +458,7 @@ export const campaignStore = () => {
       case ToDoTypes.Item:
         // open the session and set the right tab
         if (toDo.sessionUuid) { // Check if sessionUuid exists
-          navigationStore.openSession(toDo.sessionUuid, { newTab: event.ctrlKey, activate: true, contentTabId: tabId || undefined });
+          navigationStore.openSession(toDo.sessionUuid, { newTab: event.ctrlKey, activate: true, contentTabId: tabId || undefined, panelIndex: event.altKey ? -1 : undefined });
         }
         break;
       case ToDoTypes.GeneratedName:
@@ -503,21 +467,22 @@ export const campaignStore = () => {
     }
   }
 
+  /** Get the last (highest-numbered) session in the campaign, creating one if needed */
   const _getLastSession = async (): Promise<Session | null> => {
     if (!currentCampaign.value || !currentSetting.value)
       return null;
 
     const sessions = currentCampaign.value.sessionIndex;
 
-    if (sessions.length!==0) {
+    if (sessions.length !== 0) {
       const highestSession = sessions.reduce((session, maxSession) => {
-        if (session.number > maxSession.number) 
+        if (session.number > maxSession.number)
           return session;
         else
           return maxSession;
       }, sessions[0]);
       return await Session.fromUuid(highestSession.uuid);
-    } 
+    }
 
     // need to create one
     const newSession = await Session.create(currentCampaign.value);
@@ -529,139 +494,21 @@ export const campaignStore = () => {
     await campaignDirectoryStore.refreshCampaignDirectoryTree();
 
     return newSession;
-  }
-
-  const _refreshPCRows = async (): Promise<void> => {
-    relatedPCRows.value = [];
-
-    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
-    
-    if (!campaign) 
-      return;
-    
-    relatedPCRows.value = (await campaign.getPCs()) || [];
   };
-
-  const _refreshLoreRows = async () => {
-    allRelatedLoreRows.value = [];
-    
-    if (!currentCampaign.value)
-      return;
-
-    const retval = [] as CampaignLoreDetails[];
-
-    // go through everything in the sessions that was delivered
-    const sessions = await currentCampaign.value.allSessions();
-    for (const session of sessions) {
-      for (const lore of session.lore) {
-        if (!lore.delivered)
-          continue;
-        
-        retval.push({
-          uuid: lore.uuid,
-          lockedToSessionId: session.uuid,
-          lockedToSessionName: `${session.number}- ${session.name}`,
-          delivered: lore.delivered,
-          significant: lore.significant || false,
-          description: lore.description,
-        });
-      }
-    }
-
-    // now get the ones at the campaign level - delivered or not
-    for (const lore of currentCampaign.value?.lore) {
-      retval.push({
-        uuid: lore.uuid,
-        lockedToSessionId: null,
-        lockedToSessionName: 'Campaign',
-        delivered: lore.delivered,
-        significant: lore.significant || false,
-        description: lore.description,
-      });
-    }
-
-    allRelatedLoreRows.value = retval;
-  }
-
-  const _refreshToDoRows = async () => {
-    toDoRows.value = [];
-
-    if (!currentCampaign.value)
-      return;
-    
-    toDoRows.value = currentCampaign.value.todoItems.slice();
-  }
-
-  const _refreshIdeaRows = async () => {
-    ideaRows.value = [];
-
-    if (!currentCampaign.value)
-      return;
-    
-    ideaRows.value = currentCampaign.value.ideas.slice();
-  }
-
-  const _refreshRowsForTab = async () => {
-    switch (currentContentTab.value) {
-      case 'pcs':
-        await _refreshPCRows();
-        break;
-      case 'lore':
-        await _refreshLoreRows();
-        break;
-      case 'ideas':
-        await _refreshIdeaRows();
-        break;
-      case 'todo':
-        await _refreshToDoRows();
-        break;
-      case 'start':
-        break;
-      default:
-    }
-  }
-
-
-  ///////////////////////////////
-  // watchers
-  watch(()=> currentCampaign.value, async () => {
-    if (currentContentTab.value !== 'todo')
-      await _refreshToDoRows();
-
-    await _refreshRowsForTab();
-  });
-
-  // have to watch the session because they share PCs
-  watch(()=> currentSession.value, async () => {
-    if (currentContentTab.value === 'pcs')
-      await _refreshPCRows();
-  });
-
-  watch(()=> currentContentTab.value, async () => {
-    await _refreshRowsForTab();
-  });
-
-  ///////////////////////////////
-  // lifecycle events 
 
   ///////////////////////////////
   // return the public interface
   return {
-    relatedPCRows,
-    deliveredLoreRows,
-    availableLoreRows,
     extraFields,
     availableCampaigns,
-    toDoRows,
-    ideaRows,
-    
+
     addPC,
     deletePC,
     reorderPCs,
     reorderStoryWebs,
     addLore,
     deleteLore,
-    reorderAvailableLore,    
+    reorderAvailableLore,
     updateLoreDescription,
     markLoreDelivered,
     moveLoreToLastSession,

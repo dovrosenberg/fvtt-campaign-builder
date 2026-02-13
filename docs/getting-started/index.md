@@ -28,7 +28,7 @@ That's basically it - everything else is optional.  Some other things you'll lik
 * Provide the Setting details (this is particularly important if using [Advanced Features])
   * Click the Setting name in the directory to get to the Setting details tab, where you can provide background on the Setting
 * Give your [^Entries] more details
-  * Open an entry by clicking on it in the directory.  (Holding Control while clicking will open it in a new tab)
+  * Open an entry by clicking on it in the directory.  (Holding Control while clicking will open it in a new tab.  Holding Alt while clicking will open it in a different [panel](/reference/navigation/panels)).
   * Give it a type - just enter your new type in the Type box
   * Click on the image box to assign an image
   * Add relationships to other entries on the other tabs 

@@ -106,7 +106,7 @@
     event.stopPropagation();
     event.preventDefault();
     
-    await navigationStore.openEntry(props.node.id, {newTab: event.ctrlKey});
+    await navigationStore.openEntry(props.node.id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
   };
 
   // handle an entry dragging to another or to canvas

@@ -44,7 +44,7 @@ The intent is to clean up the list after each session, before preparing for the 
 ## The To-do list
 This list contains the individual to-dos.  For each item, you can see its description, a timestamp of the last time the to-do was updated, and the name of the Entry the to-do is referencing (if any).
 
-Click the reference name to open the [Entry details](/reference/world-building/content/entry/) page.  Hold control to open in a new tab.
+Click the reference name to open the [Entry details](/reference/world-building/content/entry/) page.  Hold Control to open in a new tab, Alt to open in a different [panel](/reference/navigation/panels).
 
 Click on the to-do text to edit it.  Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.  You can edit to-do items even if they were automatically created.
 

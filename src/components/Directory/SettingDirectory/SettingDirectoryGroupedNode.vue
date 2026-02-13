@@ -78,7 +78,7 @@
     event.stopPropagation();
     event.preventDefault();
     
-    await navigationStore.openEntry(props.node.id, {newTab: event.ctrlKey});
+    await navigationStore.openEntry(props.node.id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
   };
 
   const onDragStart = async (event: DragEvent): Promise<void> => {

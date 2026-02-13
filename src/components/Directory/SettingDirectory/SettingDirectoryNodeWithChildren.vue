@@ -132,7 +132,7 @@
     event.stopPropagation();
     event.preventDefault();
     
-    await navigationStore.openEntry(node.id, {newTab: event.ctrlKey});
+    await navigationStore.openEntry(node.id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
   };
 
   

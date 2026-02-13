@@ -14,7 +14,7 @@ import DirectoryScrollService from '@/utils/directoryScroll';
 import { hasUnsavedChanges, saveAndCloseAllActiveEditors, closeAllActiveEditors } from '@/utils/editorChangeDetection';
 import { FCBDialog } from '@/dialogs';
 import { SaveChangesResult } from '@/dialogs/saveChanges';
-import { notifyError, notifyInfo, notifyWarn } from '@/utils/notifications';
+import { notifyError, notifyInfo } from '@/utils/notifications';
 import GlobalSettingService from '@/utils/globalSettings';
 
 // types
@@ -28,7 +28,7 @@ interface OpenContentOptions {
   updateHistory?: boolean;
   contentTabId?: string;
   forceTab?: boolean; // when true, use contentTabId even if subTabsSavePosition is false
-  panelIndex?: number; // which panel to open in; defaults to focusedPanelIndex
+  panelIndex?: number; // which panel to open in; defaults to focusedPanelIndex; -1 indicates to open in a different panel than current
 }
 
 interface ContentMetadata {
@@ -205,10 +205,11 @@ export const navigationStore = () => {
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
-   * @returns The newly opened tab.
+    * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
+    * @returns The newly opened tab.
    */
   const openEntry = async function(entryId = null as string | null, options?: OpenContentOptions) {
-    await openContent(entryId, WindowTabType.Entry, options );
+    await openContent(entryId, WindowTabType.Entry, options);
   };
 
   /**
@@ -220,6 +221,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the setting be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openSetting = async function(settingId = null as string | null, options?: OpenContentOptions) {
@@ -235,6 +237,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the campaign open in a new tab? Defaults to true.
    * @param options.updateHistory Should the campaign be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openCampaign = async function(campaignId = null as string | null, options?: OpenContentOptions) {
@@ -250,6 +253,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the session open in a new tab? Defaults to true.
    * @param options.updateHistory Should the session be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openSession = async function(sessionId = null as string | null, options?: OpenContentOptions) {
@@ -265,6 +269,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the arc open in a new tab? Defaults to true.
    * @param options.updateHistory Should the arc be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openArc = async function(arcId = null as string | null, options?: OpenContentOptions) {
@@ -280,6 +285,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the front open in a new tab? Defaults to true.
    * @param options.updateHistory Should the front be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openFront = async function(frontId = null as string | null, options?: OpenContentOptions) {
@@ -295,6 +301,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the story web open in a new tab? Defaults to true.
    * @param options.updateHistory Should the story web be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The panel to open the tab in. If null, defaults to the focused panel. -1 means to open in a different panel than the current one. 
    * @returns The newly opened tab.
    */
   const openStoryWeb = async function(storyWebId = null as string | null, options?: OpenContentOptions) {
@@ -318,79 +325,6 @@ export const navigationStore = () => {
   };
 
   /**
-   * Find all active story web tabs across all panels
-   * @returns Array of { panelIndex, tabIndex, tab } for each active story web
-   */
-  const findActiveStoryWebs = function (): Array<{ panelIndex: number, tabIndex: number, tab: WindowTab }> {
-    const activeStoryWebs: Array<{ panelIndex: number, tabIndex: number, tab: WindowTab }> = [];
-    
-    // iterate through all panels
-    for (let panelIndex = 0; panelIndex < tabs.value.length; panelIndex++) {
-      const panelTabs = tabs.value[panelIndex];
-      if (!panelTabs) continue;
-      
-      // find active tabs in this panel
-      for (let tabIndex = 0; tabIndex < panelTabs.length; tabIndex++) {
-        const tab = panelTabs[tabIndex];
-        if (tab.active && tab.tabType === WindowTabType.StoryWeb) {
-          activeStoryWebs.push({ panelIndex, tabIndex, tab });
-        }
-      }
-    }
-    
-    return activeStoryWebs;
-  };
-
-  /**
-   * Close all active story webs except the one in the specified panel
-   * @param excludePanelIndex - Panel index to exclude from closing
-   * @returns Promise with an array of the closed panels that resolves when all story webs are closed
-   */
-  const closeOtherStoryWebs = async function (excludePanelIndex: number): Promise<number[]> {
-    const retval = [] as number[];
-    const existingStoryWebs = findActiveStoryWebs();
-    
-    // Filter out the story web in the exclude panel
-    const storyWebsToClose = existingStoryWebs.filter(
-      sw => sw.panelIndex !== excludePanelIndex
-    );
-    
-    if (storyWebsToClose.length > 0) {
-      // Close each existing story web
-      for (let i=storyWebsToClose.length - 1; i>=0; i--) {
-        const webToClose = storyWebsToClose[i];
-        const storyWebPanelIndex = webToClose.panelIndex;
-        const storyWebTabIndex = webToClose.tabIndex;
-        
-        const panelTabs = tabs.value[storyWebPanelIndex];
-        
-        if (panelTabs && panelTabs.length > 1) {
-          // Panel has multiple tabs - switch to another tab instead of removing the story web tab
-          
-          let targetTabIndex: number;
-          if (storyWebTabIndex > 0) {
-            targetTabIndex = storyWebTabIndex - 1;
-          } else {
-            targetTabIndex = storyWebTabIndex + 1;
-          }
-          
-          // Switch to the target tab
-          await activateTab(panelTabs[targetTabIndex].id, false, storyWebPanelIndex);
-        } else {
-          // Story web is the only tab - remove the entire panel (by removing the tab)
-          await removeTab(webToClose.tab.id, storyWebPanelIndex);
-          retval.push(storyWebPanelIndex);
-        }
-      }
-      
-      // Show warning to user
-      notifyWarn('Only one story web can be active at a time. The previous story web has been closed.');
-    }
-
-    return retval;
-  };
-
-  /**
    * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
    * @param contentId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
@@ -400,6 +334,7 @@ export const navigationStore = () => {
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
+   * @param options.panelIndex The index of the panel to open the tab in. If null, defaults to the focused panel. If -1 it will be one to the right of the focused panel, of one to the left if the focused panel is the last panel.
    * @returns The newly opened tab.
    */
   const openContent = async function (contentId = null as string | null, contentType: WindowTabType, options?: OpenContentOptions,): Promise<WindowTab> { 
@@ -413,6 +348,22 @@ export const navigationStore = () => {
       ...options,
     };
 
+    // -1 indicates to open in a different panel than current
+    let createPanel = false;
+    if (options.panelIndex == -1) {
+      // make sure there are at least two panels
+      if (tabs.value.length < 2) {
+        // open a new panel
+        createPanel = true;
+        options.panelIndex = 0;
+      } else {
+        // go one right, if possible, otherwise one left
+        options.panelIndex = focusedPanelIndex.value + 1 <= tabs.value.length -1 ? focusedPanelIndex.value + 1 : focusedPanelIndex.value - 1;
+      }
+
+      // have to create a new tab
+      options.newTab = true;
+    }
     let panelIndex = options.panelIndex ?? focusedPanelIndex.value;
 
     // don't switch or activate a new tab if user doesn't want to deal with unsaved changes
@@ -431,18 +382,6 @@ export const navigationStore = () => {
     } else {
       contentType = metadata.contentType;
     }
-
-    // // Handle story web exclusivity - only one story web can be active at a time
-    // if (contentType === WindowTabType.StoryWeb && contentId) {
-    //   const closedPanels = (await closeOtherStoryWebs(panelIndex)).sort();
-      
-    //   // Adjust panelIndex if panels were removed before it
-    //   for (let i=closedPanels.length - 1; i>=0; i--) {
-    //     if (panelIndex > closedPanels[i]) {
-    //       panelIndex--;
-    //     }
-    //   }
-    // }
 
     // targetContentTab is either:
     //  * if we are remembering tabs, then it's the tab passed in
@@ -498,11 +437,18 @@ export const navigationStore = () => {
       tabs.value = [ ...tabs.value ];
     }
     
-    if (options.activate) {
+    // if we have to open a new panel, do that (only when we asked for new panel but only have 1 open)
+    if (createPanel) {
+      // add to single panel, then split
+      await activateTab(tab.id, options.forceTab, 0);
+      await splitToRight();
+      panelIndex = 1;
+      await focusPanel(panelIndex);
+    } else if (options.activate) {
       await activateTab(tab.id, options.forceTab, panelIndex);
       await focusPanel(panelIndex);
     }
-
+    
     // activating doesn't always save (ex. if we added a new entry to active tab)
     await _saveTabs();
 
@@ -664,18 +610,6 @@ export const navigationStore = () => {
       currentTab.active = false;
     
     newTab.active = true;
-
-    // Handle story web exclusivity - only one story web can be active at a time
-    if (newTab.tabType === WindowTabType.StoryWeb) {
-      const closedPanels = (await closeOtherStoryWebs(pi)).sort();
-      
-      // Adjust panel index if panels were removed (only if this isn't the focused panel)
-      for (let i=closedPanels.length - 1; i>=0; i--) {
-        if (pi > closedPanels[i]) {
-          pi--;
-        }
-      }
-    }
 
     // reset the contentTab to the default if that's the mode we're in
     if (!ModuleSettings.get(SettingKey.subTabsSavePosition) && !forceTab)
@@ -1126,6 +1060,7 @@ export const navigationStore = () => {
     focusedPanelIndex.value = tabs.value.length - 1;
   };
 
+
   /**
    * Remove a panel at the given index. Re-indexes remaining panels.
    * Focus adjusts to stay valid. The last remaining panel cannot be removed.
@@ -1145,10 +1080,10 @@ export const navigationStore = () => {
     // re-index panelStates: shift down all entries after the removed index
     const newMap = new Map<number, TabPanelState>();
     for (const [idx, ps] of _panelStates) {
-      if (idx > index)
-        newMap.set(idx - 1, ps);
-      else
-        newMap.set(idx, ps);
+      const newIdx = idx > index ? idx - 1 : idx;
+      newMap.set(newIdx, ps);
+      // keep each panel state's own index in sync
+      ps.panelIndex.value = newIdx;
     }
     _panelStates.clear();
     for (const [idx, ps] of newMap) {

@@ -250,7 +250,7 @@
             >
               <div
                 class="fcb-table-body-text clickable"
-                @click.stop="col.onClick($event, data.uuid)"
+                @click.stop="col.onClick($event, data)"
               >
                 <span style="text-decoration: underline;">
                   {{ data[field] }}               

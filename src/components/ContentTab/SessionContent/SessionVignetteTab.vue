@@ -21,11 +21,13 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref, watch } from 'vue';
+  import { computed, ref, watch, inject } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { useSessionStore, useArcStore, useMainStore, } from '@/applications/stores';
+  import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
+  import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { localize } from '@/utils/game'
   import { ModuleSettings, SettingKey } from '@/settings';
 
@@ -59,8 +61,10 @@
   // store
   const sessionStore = useSessionStore();
   const arcStore = useArcStore();
-  const { vignetteRows: sessionVignetteRows } = storeToRefs(sessionStore);
-  const { vignetteRows: arcVignetteRows } = storeToRefs(arcStore);
+  const sessionDerivedState = inject(SESSION_DERIVED_STATE_KEY, null);
+  const sessionVignetteRows = computed(() => sessionDerivedState?.vignetteRows.value ?? []);
+  const arcDerivedState = inject(ARC_DERIVED_STATE_KEY, null);
+  const arcVignetteRows = computed(() => arcDerivedState?.vignetteRows.value ?? []);
   const { currentArc } = storeToRefs(useMainStore());
   
   ////////////////////////////////
@@ -122,7 +126,7 @@
       // only show for arc mode if the campaign has at least one session
       display: (data) => (props.arcMode && campaignHasSessions.value)
         || (!props.arcMode && !data.delivered), // hide arrow for things already delivered
-      callback: (data) => onMoveVignetteToNext(data.uuid), 
+      callback: (data) => onMoveVignetteToNext(data.uuid, data.description as string),
       tooltip: localize('tooltips.moveToNextSession') 
     }
   ]));
@@ -178,11 +182,11 @@
       await sessionStore.markVignetteDelivered(uuid, false);
   }
 
-  const onMoveVignetteToNext = async (uuid: string) => {
+  const onMoveVignetteToNext = async (uuid: string, description: string) => {
     if (props.arcMode)
-      await arcStore.moveVignetteToSession(uuid);
+      await arcStore.moveVignetteToSession(uuid, description);
     else
-      await sessionStore.moveVignetteToNext(uuid);
+      await sessionStore.moveVignetteToNext(uuid, description);
   }
   
   const onReorder = async (reorderedRows: BaseTableGridRow[]) => {

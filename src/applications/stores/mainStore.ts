@@ -124,6 +124,16 @@ export const mainStore = () => {
     await _focusedPanelState.value?.refreshCampaign();
   };
 
+  /** Refreshes the current session via the focused panel state */
+  const refreshSession = async function (reload = false): Promise<void> {
+    await _focusedPanelState.value?.refreshSession(reload);
+  };
+
+  /** Refreshes the current arc via the focused panel state */
+  const refreshArc = async function (reload = false): Promise<void> {
+    await _focusedPanelState.value?.refreshArc(reload);
+  };
+
   /** Refreshes the current front via the focused panel state */
   const refreshFront = async function (): Promise<void> {
     await _focusedPanelState.value?.refreshFront();
@@ -155,15 +165,6 @@ export const mainStore = () => {
     _currentSetting.value = newSetting;
   };
 
-  /** Refreshes the current session via the focused panel state */
-  const refreshSession = async function (reload = false): Promise<void> {
-    await _focusedPanelState.value?.refreshSession(reload);
-  };
-
-  /** Refreshes the current arc via the focused panel state */
-  const refreshArc = async function (reload = false): Promise<void> {
-    await _focusedPanelState.value?.refreshArc(reload);
-  };
 
   /** Refresh content across all panels, not just the focused one.
    *  This ensures panels showing the same content stay in sync. */

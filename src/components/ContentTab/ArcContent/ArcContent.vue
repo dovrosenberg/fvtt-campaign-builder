@@ -45,10 +45,12 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentArc?.description || ''"
-              fixed-height="15"
+              :fixed-height="descriptionHeight"
+              :resizable="true"
               :current-entity-uuid="currentArc?.uuid"
               @related-entries-changed="onRelatedEntriesChanged"
               @editor-saved="onDescriptionEditorSaved"
+              @editor-resized="onDescriptionEditorResized"
             />
           </div>
 
@@ -128,11 +130,12 @@
 <script setup lang="ts">
 
   // library imports
-  import { ref, watch, onBeforeUnmount, computed, } from 'vue';
+  import { ref, watch, onBeforeUnmount, computed, provide, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useArcStore, } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useArcDerivedState, ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -176,7 +179,9 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const arcStore = useArcStore();
   const { currentArc, currentSetting } = useContentState();
-  
+  const arcDerivedState = useArcDerivedState();
+  provide(ARC_DERIVED_STATE_KEY, arcDerivedState);
+
   ////////////////////////////////
   // data
   const name = ref<string>('');
@@ -184,6 +189,7 @@
   const showRelatedEntriesDialog = ref<boolean>(false);
   const pendingAddedUUIDs = ref<string[]>([]);
   const pendingRemovedUUIDs = ref<string[]>([]);
+  const descriptionHeight = ref<number>(15);  // for handling description editor height
 
   ////////////////////////////////
   // computed data
@@ -207,6 +213,15 @@
 
   ////////////////////////////////
   // event handlers
+  const onDescriptionEditorResized = async (height: number) => {
+    if (!currentArc.value)
+      return;
+    
+    descriptionHeight.value = height;
+    currentArc.value?.setCustomFieldHeight('###description###', height);
+    await currentArc.value?.save();
+  };
+
   // debounce changes to name/number/strong start
   let nameDebounceTimer: NodeJS.Timeout | undefined = undefined;
 
@@ -315,6 +330,7 @@
       // load starting data values
       name.value = newArc.name || '';
       descriptionContent.value = newArc.description || '';
+      descriptionHeight.value = newArc.getCustomFieldHeight('###description###') || 15;
     }
   }, { immediate: true });
   
