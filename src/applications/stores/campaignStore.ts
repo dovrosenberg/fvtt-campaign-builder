@@ -363,7 +363,7 @@ export const campaignStore = () => {
     if (!currentCampaign.value) return null;
 
     const newGroup = await currentCampaign.value.addToDoGroup(name);
-    await _refreshToDoRows();
+    await mainStore.refreshCampaign();
     return newGroup;
   };
 
@@ -371,21 +371,21 @@ export const campaignStore = () => {
     if (!currentCampaign.value) return;
 
     await currentCampaign.value.updateToDoGroup(groupId, newName);
-    await _refreshToDoRows();
+    await mainStore.refreshCampaign();
   };
 
   const deleteToDoGroup = async (groupId: string): Promise<void> => {
     if (!currentCampaign.value) return;
 
     await currentCampaign.value.deleteToDoGroup(groupId);
-    await _refreshToDoRows();
+    await mainStore.refreshCampaign();
   };
 
   const reorderToDoGroups = async (newOrder: TableGroup[]): Promise<void> => {
     if (!currentCampaign.value) return;
 
     await currentCampaign.value.reorderToDoGroups(newOrder);
-    await _refreshToDoRows();
+    await mainStore.refreshCampaign();
   };
 
   /** Move an idea to the to-do list */
