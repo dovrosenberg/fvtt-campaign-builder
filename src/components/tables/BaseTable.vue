@@ -123,8 +123,9 @@
 
       <!-- Group header template for grouped mode -->
       <template #groupheader="slotProps" v-if="props.grouped">
+        <!-- Note: slotProps.data is the 1st row in the group -->
         <div
-          v-if="slotProps.data.groupId"
+          v-if="slotProps.data.groupId && editingGroupId !== slotProps.data.groupId"
           class="fcb-group-header-actions fcb-row-wrapper"
         >
           <div 
@@ -152,15 +153,13 @@
             </a>
           </div>
         </div>
+
+        <!-- Edit mode -->
         <div
-          :class="['fcb-group-header', editingGroupId === slotProps.data.groupId ? 'editing' : '']"
-          @dragstart="onGroupDragStart($event, slotProps.data.groupId)"
-          @dragover="onGroupDragOver($event)"
-          @drop="onGroupDrop($event, slotProps.data.groupId)"
-          @dragend="onGroupDragEnd"
+          v-if="slotProps.data.groupId && editingGroupId === slotProps.data.groupId"
+          class="fcb-group-header editing"
         >
-          <!-- Edit mode -->
-          <div v-if="editingGroupId === slotProps.data.groupId" class="fcb-group-edit">
+          <div class="fcb-group-edit">
             <InputText 
               v-model="editingGroupName"
               ref="groupEditInput"
@@ -170,13 +169,22 @@
               @keydown.esc.stop="cancelEditGroup"
             />
           </div>
-          <!-- Display mode -->
+        </div>
+
+        <!-- Display mode -->
+        <div
+          v-else 
+          class="fcb-group-header"
+          @dragstart="onGroupDragStart($event, slotProps.data.groupId)"
+          @dragover="onGroupDragOver($event)"
+          @drop="onGroupDrop($event, slotProps.data.groupId)"
+          @dragend="onGroupDragEnd"
+        >
           <div 
-            v-else 
             class="fcb-group-display"
             @click.stop="setEditingGroup(slotProps.data.groupId)"
           >
-            {{ slotProps.data.name }}
+            {{ groups.find(g => g.groupId === slotProps.data.groupId)?.name }}
           </div>
         </div>
       </template>
@@ -596,24 +604,27 @@
       return props.rows;
     }
 
-    const result: (BaseTableGridRow & { isGroup?: boolean; groupId: string })[] = [];
-    
+    let result: GroupedTableGridRow[] = [];
+
+    // rows with an invalid group - set to nullungrouped
+    const cleanedRows = (props.rows as GroupedTableGridRow[])
+      .map((row: GroupedTableGridRow): GroupedTableGridRow => {
+        if (row.groupId && groups.value.some(g => g.groupId === row.groupId)) {
+          return row;
+        }
+        
+        return { ...row, groupId: 'ungrouped' };
+      });
+
     // Add groups and their rows in order
     for (const group of groups.value) {
-      // Add group row
-      result.push({
-        isGroup: true,
-        groupId: group.groupId,
-        name: group.name,
-        uuid: `group-${group.groupId}`, // Add uuid for PrimeVue
-      });
-      
       // Add data rows for this group
-      const groupRows = props.rows.filter(row => 
-        (row as GroupedTableGridRow).groupId === group.groupId
-      );
+      const groupRows = cleanedRows
+        .filter((row: GroupedTableGridRow) => 
+          (row.groupId === group.groupId) || (group.groupId==='ungrouped' && !row.groupId)
+        )
       result.push(...groupRows);
-    }
+    };
     
     return result;
   });
@@ -670,7 +681,7 @@
    * @param groupId The ID of the group to edit
    */
   const setEditingGroup = (groupId: string) => {
-    if (!groupId) return; // Can't edit the ungrouped group
+    if (!groupId || groupId==='ungrouped') return; // Can't edit the ungrouped group
 
     const group = groups.value.find(g => g.groupId === groupId);
     if (!group) return;
@@ -685,7 +696,7 @@
   const saveEditingGroup = () => {
     if (!editingGroupId.value) return;
   
-    if (!editingGroupId.value) return; // Can't edit the ungrouped group (should never happen)
+    if (editingGroupId.value==='ungrouped') return; // Can't edit the ungrouped group (should never happen)
 
     emit('groupEdit', editingGroupId.value, editingGroupName.value);
     editingGroupId.value = null;
@@ -972,7 +983,7 @@
         const originalGroupId = (draggedRow as GroupedTableGridRow).groupId;
         
         // Only update if this is a data row (not a group) and groupId changed
-        if (!draggedRow.isGroup && originalGroupId !== targetGroupId) {
+        if (originalGroupId !== targetGroupId) {
           // Find the actual row in props.rows and update its groupId
           const rowIndex = props.rows.findIndex(r => r.uuid === draggedRow.uuid);
           if (rowIndex !== -1) {
@@ -983,8 +994,7 @@
             };
             
             // Reorder all rows based on the new arrangement
-            const finalRows = reorderRowsFromTransformed(value);
-            emit('reorder', finalRows, dragIndex, dropIndex);
+            emit('reorder', value, dragIndex, dropIndex);
             return;
           }
         }
@@ -993,21 +1003,6 @@
 
     emit('reorder', value, dragIndex, dropIndex);
   }
-
-  /**
-   * Convert transformed data back to rows array format
-   */
-  const reorderRowsFromTransformed = (transformed: (BaseTableGridRow & { isGroup?: boolean })[]) => {
-    const result: BaseTableGridRow[] = [];
-    
-    for (const item of transformed) {
-      if (!item.isGroup) {
-        result.push(item);
-      }
-    }
-    
-    return result;
-  };
 
   const onEditButtonClick = (data: BaseTableGridRow, callback: (data: BaseTableGridRow) => void) => {
     // Check if there are any editable columns
@@ -1116,7 +1111,7 @@
   
   /** Watch for group edit mode to focus input */
   watch(editingGroupId, (newId) => {
-    if (newId) {
+    if (newId && newId!=='ungrouped') {
       nextTick(() => {
         const input = document.querySelector('.fcb-group-input') as HTMLInputElement;
         if (input) {

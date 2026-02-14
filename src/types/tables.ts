@@ -48,7 +48,7 @@ export interface TableGroup {
 }
 
 export interface GroupedTableGridRow extends BaseTableGridRow {
-  groupId?: string; // Only for data rows, not groups
+  groupId?: string | null; // Only for data rows, not groups
 }
 
 export interface PaginationResult<T extends AnyRow> {

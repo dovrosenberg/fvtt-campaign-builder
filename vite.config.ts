@@ -23,7 +23,8 @@ export default defineConfig(({ mode }) => {
   return {
     // our dev mode is still using build so we have to overwrite like this
     define: {
-      __DEV_BUILD__: JSON.stringify(isDevelopment)
+      __DEV_BUILD__: JSON.stringify(isDevelopment),
+      __VUE_PROD_DEVTOOLS__: JSON.stringify(isDevelopment),  // true for debugging purposes only
     },
 
     // base: './',
