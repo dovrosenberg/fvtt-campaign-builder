@@ -124,7 +124,7 @@
       <!-- Group header template for grouped mode -->
       <template #groupheader="slotProps" v-if="props.grouped">
         <div
-          v-if="slotProps.data.groupId !== 'ungrouped'"
+          v-if="slotProps.data.groupId"
           class="fcb-group-header-actions fcb-row-wrapper"
         >
           <div 
@@ -538,7 +538,7 @@
   });
 
   /** which groups are currently expanded, they all start expanded */
-  const expandedRowGroups = ref<string[]>(props.groups.map(g => g.groupId));
+  const expandedRowGroups = ref<string[]>(['ungrouped', ...props.groups.map(g => g.groupId)]);
 
   /** are we editing and row, and which one (uuid) */
   const editingRow = ref<string | null>(null);
@@ -567,6 +567,11 @@
   // computed data
   const effectiveFilterFields = computed(() => deriveFilterFields());
 
+  // add the 'ungrouped' group to the groups list
+  const groups = computed(() => {
+    return [{ groupId: 'ungrouped', name: 'Ungrouped' }, ...props.groups];
+  });
+  
   /** Check if any columns are editable */
   const hasEditableColumns = computed(() => {
     return props.columns.some((col) => col.editable);
@@ -594,7 +599,7 @@
     const result: (BaseTableGridRow & { isGroup?: boolean; groupId: string })[] = [];
     
     // Add groups and their rows in order
-    for (const group of props.groups) {
+    for (const group of groups.value) {
       // Add group row
       result.push({
         isGroup: true,
@@ -665,9 +670,9 @@
    * @param groupId The ID of the group to edit
    */
   const setEditingGroup = (groupId: string) => {
-    if (groupId === 'ungrouped') return; // Can't edit the ungrouped group
+    if (!groupId) return; // Can't edit the ungrouped group
 
-    const group = props.groups.find(g => g.groupId === groupId);
+    const group = groups.value.find(g => g.groupId === groupId);
     if (!group) return;
     
     editingGroupId.value = groupId;
@@ -680,7 +685,7 @@
   const saveEditingGroup = () => {
     if (!editingGroupId.value) return;
   
-    if (editingGroupId.value === 'ungrouped') return; // Can't edit the ungrouped group (should never happen)
+    if (!editingGroupId.value) return; // Can't edit the ungrouped group (should never happen)
 
     emit('groupEdit', editingGroupId.value, editingGroupName.value);
     editingGroupId.value = null;
@@ -1066,13 +1071,13 @@
     if (draggedGroupId === targetGroupId) return;
     
     // Find indices
-    const draggedIndex = props.groups.findIndex(g => g.groupId === draggedGroupId);
-    const targetIndex = props.groups.findIndex(g => g.groupId === targetGroupId);
+    const draggedIndex = groups.value.findIndex(g => g.groupId === draggedGroupId);
+    const targetIndex = groups.value.findIndex(g => g.groupId === targetGroupId);
     
     if (draggedIndex === -1 || targetIndex === -1) return;
     
     // Create new groups array with reordered items
-    const newGroups = [...props.groups];
+    const newGroups = [...groups.value];
     const [draggedGroup] = newGroups.splice(draggedIndex, 1);
     newGroups.splice(targetIndex, 0, draggedGroup);
     

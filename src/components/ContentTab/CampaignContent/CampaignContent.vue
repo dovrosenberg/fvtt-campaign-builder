@@ -74,7 +74,7 @@
             <StoryWebsTab mode="campaign" />
           </div>
         </div>
-        <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="todo">
+        <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="toDo">
           <div class="tab-inner">
             <CampaignToDoTab />
           </div>
@@ -154,7 +154,7 @@
     return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 
-  const openToDoCount = computed(() => todoRows.value.length);
+  const openToDoCount = computed(() => toDoRows.value.length);
 
   const tabs = computed(() => {
     let baseTabs = [
@@ -166,9 +166,9 @@
     ];
 
     if (showToDoTab.value) {
-      const baseLabel = localize('labels.tabs.campaign.todo');
+      const baseLabel = localize('labels.tabs.campaign.toDo');
       const label = openToDoCount.value ? `${baseLabel} (${openToDoCount.value})` : baseLabel;
-      baseTabs.push({ id: 'todo', label });
+      baseTabs.push({ id: 'toDo', label });
     }
 
 

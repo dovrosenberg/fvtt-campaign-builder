@@ -353,7 +353,7 @@ export const campaignStore = () => {
   const reorderToDos = async (reorderedToDos: ToDoItem[]) => {
     if (!currentCampaign.value) return;
 
-    currentCampaign.value.todoItems = reorderedToDos;
+    currentCampaign.value.toDoItems = reorderedToDos;
     await currentCampaign.value.save();
     await mainStore.refreshCampaign();
   };
@@ -436,11 +436,11 @@ export const campaignStore = () => {
     await useNavigationStore().updateContentTab('lore');
   }
 
-  // when we click on an entry in the todo list, open it
+  // when we click on an entry in the toDo list, open it
   async function onToDoClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
     const uuid = rowData.uuid;
-    // look up the todo item from the campaign
-    const toDo = currentCampaign.value?.todoItems.find(t => t.uuid === uuid);
+    // look up the toDo item from the campaign
+    const toDo = currentCampaign.value?.toDoItems.find(t => t.uuid === uuid);
 
     if (!toDo)
       return;
@@ -450,9 +450,9 @@ export const campaignStore = () => {
       const entry = await Entry.fromUuid(toDo.linkedUuid);
       if (!entry) {
         // I don't think we currently link to documents, but just in case
-        const document = await fromUuid<foundry.abstract.Document<any, any>>(todo.linkedUuid);
+        const document = await fromUuid<foundry.abstract.Document<any, any>>(toDo.linkedUuid);
         if (!document) {
-          notifyWarn(localize('notifications.todoReferenceNotFound'));
+          notifyWarn(localize('notifications.toDoReferenceNotFound'));
           return;
         }
       }

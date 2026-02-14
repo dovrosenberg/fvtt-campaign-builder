@@ -427,7 +427,7 @@
         "addPCDrag": "(oder PC ziehen/ablegen)",
         "pcs": "SCs",
         "lore": "Überlieferung",
-        "todo": "Zu erledigen",
+        "toDo": "Zu erledigen",
         "addToDo": "Neues 'Zu erledigen' erstellen",
         "loreHelpText": "Verfolgen Sie große kampagnenweite Geheimnisse und kleinere, die Sie noch nicht preisgeben möchten. Klicken Sie, um mehr von Lazy DM zu lesen.",
         "ideas": "Ideen",
@@ -450,7 +450,7 @@
         "campaign": {
           "pcs": "PCs",
           "lore": "Überlieferung",
-          "todo": "Zu erledigen",
+          "toDo": "Zu erledigen",
           "ideas": "Ideen"
         },
         "session": {
@@ -463,7 +463,7 @@
           "npcs": "NPCs",
           "monsters": "Monster",
           "magic": "Magische Gegenstände",
-          "todo": "Zu erledigen",
+          "toDo": "Zu erledigen",
           "noteBox": "Notizbox"
         },
         "front": {
@@ -964,7 +964,7 @@
       },
       "addedToSession": "zur Sitzung hinzugefügt",
       "changesSaved": "Änderungen gespeichert",
-      "todoReferenceNotFound": "Die verknüpfte Referenz für dieses To-Do-Element existiert nicht mehr.",
+      "toDoReferenceNotFound": "Die verknüpfte Referenz für dieses To-Do-Element existiert nicht mehr.",
       "changesDiscarded": "Änderungen verworfen",
       "migration": {
         "minimumVersionRequired": "Campaign Builder kann nicht von Version {0} migrieren. Sie müssen zuerst auf Version {1} oder höher aktualisieren, bevor Sie auf {2} upgraden.",

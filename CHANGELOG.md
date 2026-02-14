@@ -332,7 +332,7 @@ Bug fixes:
 - Added ability to link Foundry journals to Entries, Settings, Campaigns, and PCs - great for attaching maps, multiple images of the same character, and various other info you want to store and/or share with your players
 - Added support for Anthropic (Claude 3) for text generation (see module settings)
 - Added ability to choose from multiple image generation models
-- Made lore hold a fixed order (like ideas and todos)and enabled the ability to drag and drop to reorder them
+- Made lore hold a fixed order (like ideas and to-dos)and enabled the ability to drag and drop to reorder them
 - Removed pagination from all tables; it took up extra room and was a nuisance
 - Added a keybinding (Ctrl-Shift-Z by default) to toggle the main window
 - Added keybindings for moving forward/back across the tab bar; changed default for closing the tab

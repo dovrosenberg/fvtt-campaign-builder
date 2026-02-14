@@ -20,7 +20,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     sessions: [],
     lore: [],  
     img: '',   
-    todoItems: [],   
+    toDoItems: [],  
     ideas: [],   
     journals: [], 
     pcs: [],
@@ -440,20 +440,21 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
-  public get todoItems(): readonly ToDoItem[] {
-    return this._clone.system.todoItems as ToDoItem[];
+  public get toDoItems(): readonly ToDoItem[] {
+    return this._clone.system.toDoItems as ToDoItem[]; 
   }
 
-  public set todoItems(value: ToDoItem[] | readonly ToDoItem[]) {
-    this._clone.system.todoItems = value.slice();     // we clone it so it can't be edited outside (this is historical)
+  public set toDoItems(value: ToDoItem[] | readonly ToDoItem[]) {
+    // we clone it so it can't be edited outside (this is historical)
+    this._clone.system.toDoItems = value.slice();     
   }
 
-  public get todoGroups(): readonly TableGroup[] {
-    return this._clone.system.todoGroups as TableGroup[];
+  public get toDoGroups(): readonly TableGroup[] {
+    return this._clone.system.toDoGroups as TableGroup[];
   }
 
-  public set todoGroups(value: TableGroup[] | readonly TableGroup[]) {
-    this._clone.system.todoGroups = value.slice();     // we clone it so it can't be edited outside (this is historical)
+  public set toDoGroups(value: TableGroup[] | readonly TableGroup[]) {
+    this._clone.system.toDoGroups = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
   /** Creates a new to-do item and adds to the campaign*/
@@ -489,9 +490,10 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       linkedText: entry ? entry.name : null,
       text: text || '',
       type: type || ToDoTypes.Manual,
+      groupId: null,
     };
 
-    this._clone.system.todoItems.push(item);
+    this._clone.system.toDoItems.push(item);
     await this.save();
 
     return item;
@@ -510,9 +512,9 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     // see if one exists for this linked uuid
     let existingItem = undefined as ToDoItem | undefined;
     if (linkedUuid) {
-       existingItem = (this._clone.system.todoItems as ToDoItem[]).find(i => i.linkedUuid === linkedUuid);
+       existingItem = (this._clone.system.toDoItems as ToDoItem[]).find(i => i.linkedUuid === linkedUuid);
     } else if (sessionUuid) {
-       existingItem = (this._clone.system.todoItems as ToDoItem[]).find(i => i.sessionUuid === sessionUuid && i.type === type);
+       existingItem = (this._clone.system.toDoItems as ToDoItem[]).find(i => i.sessionUuid === sessionUuid && i.type === type);
     }
 
     // make sure the type matches
@@ -539,7 +541,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   public async updateToDoItem(uuid: string, newDescription: string): Promise<void> {
-    const item = this._clone.system.todoItems.find(i => i.uuid === uuid);
+    const item = this._clone.system.toDoItems.find(i => i.uuid === uuid);
     if (!item)
       return;
 
@@ -551,26 +553,26 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   public async completeToDoItem(uuid: string): Promise<void> {
-    this._clone.system.todoItems = this._clone.system.todoItems.filter(i => i.uuid !== uuid);
+    this._clone.system.toDoItems = this._clone.system.toDoItems.filter(i => i.uuid !== uuid);
     await this.save();
   }
 
-  /** Creates a new todo group */
+  /** Creates a new toDo group */
   public async addToDoGroup(name: string): Promise<TableGroup> {
     const newGroup: TableGroup = {
       groupId: foundry.utils.randomID(),
       name: name,
     };
 
-    this._clone.system.todoGroups.push(newGroup);
+    this._clone.system.toDoGroups.push(newGroup);
     await this.save();
 
     return newGroup;
   }
 
-  /** Updates a todo group name */
+  /** Updates a toDo group name */
   public async updateToDoGroup(groupId: string, newName: string): Promise<void> {
-    const group = this._clone.system.todoGroups.find(g => g.groupId === groupId);
+    const group = this._clone.system.toDoGroups.find(g => g.groupId === groupId);
     if (!group)
       return;
 
@@ -578,54 +580,54 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
-  /** Deletes a todo group and moves its items to ungrouped */
+  /** Deletes a toDo group and moves its items to ungrouped */
   public async deleteToDoGroup(groupId: string): Promise<void> {
     // Remove the group
-    this._clone.system.todoGroups = this._clone.system.todoGroups.filter(g => g.groupId !== groupId);
+    this._clone.system.toDoGroups = this._clone.system.toDoGroups.filter(g => g.groupId !== groupId);
     
-    // Remove groupId from all todo items in that group
-    this._clone.system.todoItems.forEach(item => {
+    // Remove groupId from all toDo items in that group
+    this._clone.system.toDoItems.forEach((item: ToDoItem) => {
       if (item.groupId === groupId) {
-        delete item.groupId;
+        item.groupId = null;
       }
     });
 
     await this.save();
   }
 
-  /** Moves a todo item to a different group */
-  public async moveToDoItemToGroup(todoUuid: string, groupId?: string): Promise<void> {
-    const item = this._clone.system.todoItems.find(i => i.uuid === todoUuid);
+  /** Moves a toDo item to a different group */
+  public async moveToDoItemToGroup(toDoUuid: string, groupId?: string | null): Promise<void> {
+    const item = this._clone.system.toDoItems.find(i => i.uuid === toDoUuid);
     if (!item)
       return;
 
     if (groupId) {
       item.groupId = groupId;
     } else {
-      delete item.groupId;
+      item.groupId = null;
     }
 
     await this.save();
   }
 
-  /** Reorders todo groups */
+  /** Reorders toDo groups */
   public async reorderToDoGroups(newOrder: TableGroup[]): Promise<void> {
-    this._clone.system.todoGroups = newOrder;
+    this._clone.system.toDoGroups = newOrder;
     
-    // Reorder todo items to match group order
+    // Reorder toDo items to match group order
     const reorderedItems: ToDoItem[] = [];
     
     // Add items for each group in order
     for (const group of newOrder) {
-      const groupItems = this._clone.system.todoItems.filter(item => item.groupId === group.groupId);
+      const groupItems = this._clone.system.toDoItems.filter((item: ToDoItem) => item.groupId === group.groupId);
       reorderedItems.push(...groupItems);
     }
     
     // Add ungrouped items at the end
-    const ungroupedItems = this._clone.system.todoItems.filter(item => !item.groupId);
+    const ungroupedItems = this._clone.system.toDoItems.filter((item: ToDoItem) => !item.groupId);
     reorderedItems.push(...ungroupedItems);
     
-    this._clone.system.todoItems = reorderedItems;
+    this._clone.system.toDoItems = reorderedItems;
     await this.save();
   }
 
@@ -728,15 +730,15 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @param uuid The UUID of the to-do item to move
    */
   public async moveToDoToIdea(uuid: string): Promise<void> {
-    const todo = this._clone.system.todoItems.find(i => i.uuid === uuid);
-    if (!todo)
+    const toDo = this._clone.system.toDoItems.find(i => i.uuid === uuid);
+    if (!toDo)
       return;
 
     // Create a new idea with the to-do's text
-    await this.addIdea(todo.text);
+    await this.addIdea(toDo.text);
 
     // Remove the to-do item
-    this._clone.system.todoItems = this._clone.system.todoItems.filter(i => i.uuid !== uuid);
+    this._clone.system.toDoItems = this._clone.system.toDoItems.filter(i => i.uuid !== uuid);
     await this.save();
   }
 
@@ -776,11 +778,11 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   
   /**
    * Find all PCs for a given campaign
-   * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
-   *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
-   *            improvements in lots of places
    * @returns a list of Entries
    */
+   // TODO: At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
+   // might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
+   // improvements in lots of places
   public async getPCs(): Promise<Entry[]> {
     // we find all journal entries with this topic
     return await this.filterPCs(()=>true);

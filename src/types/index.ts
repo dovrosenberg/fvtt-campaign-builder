@@ -126,12 +126,12 @@ export enum ToDoTypes {
 
 export interface ToDoItem {
   uuid: string;  // uuid of the to-do item
-  lastTouched: string;  // ISO string
+  lastTouched: string | null;  // ISO string
   manuallyUpdated: boolean;   // has the user edited the text yet
   linkedUuid: string | null;  // uuid of the linked entry, lore, etc.
   linkedText: string | null;  // text to display for linked items
   sessionUuid: string | null; // uuid of the session if it's a session to-do (lore, vignette, monster, item)
-  groupId?: string;  // optional group ID for grouping todo items
+  groupId?: string | null;  // optional group ID for grouping toDo items
   text: string;
   type: ToDoTypes;
 }

@@ -62,7 +62,7 @@
       "hideBackendWarning": "Hide missing backend warning?",
       "hideBackendWarningHelp": "If you're not using the backend, this lets you turn off the notification that it's missing",
       "enableToDoList": "Enable To-do List",
-      "enableToDoListHelp": "If disabled, the todo list feature will be turned off.",
+      "enableToDoListHelp": "If disabled, the To Do list feature will be turned off.",
       "autoRelationships": "Auto-suggest relationships",
       "autoRelationshipsHelp": "If enabled, the system will automatically suggest changes to relationships between entries based on changes made to the description.",
       "images": "Configure Content Images",
@@ -504,7 +504,7 @@
         "pcs": "PCs",
         "lore": "Lore",
         "loreHelpText": "Track big campaign-level secrets and smaller ones that you aren't ready to deliver. Click to read more from Lazy DM.",
-        "todo": "To-Do",
+        "toDo": "To-Do",
         "addToDo": "Add To-do Item",
         "ideas": "Ideas",
         "addIdea": "Add idea"
@@ -537,7 +537,7 @@
         "campaign": {
           "pcs": "PCs",
           "lore": "Lore",
-          "todo": "To-Do",
+          "toDo": "To-Do",
           "ideas": "Ideas"
         },
         "front": {
@@ -563,7 +563,7 @@
           "npcs": "NPCs",
           "monsters": "Monsters",
           "magic": "Magic Items",
-          "todo": "To-Do"
+          "toDo": "To-Do"
         }
       },
       "noResults": "Nothing here",
@@ -612,7 +612,7 @@
       "participantCopiedToNextSession": "Participant copied to next session",
       "locationCopiedToNextSession": "Location copied to next session",
       "monsterCopiedToNextSession": "Monster copied to next session",
-      "todoReferenceNotFound": "The linked reference for this to-do item no longer exists.",
+      "toDoReferenceNotFound": "The linked reference for this to-do item no longer exists.",
       "addedToSession": "added to session",
       "changesSaved": "Changes saved",
       "changesDiscarded": "Changes discarded",

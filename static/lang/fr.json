@@ -427,7 +427,7 @@
         "addPCDrag": "(ou glisser/déposer un PC)",
         "pcs": "PJ",
         "lore": "Tradition",
-        "todo": "À faire",
+        "toDo": "À faire",
         "addToDo": "Créer un nouveau 'À faire'",
         "loreHelpText": "Suivez les grands secrets au niveau de la campagne et les plus petits que vous n'êtes pas prêt à révéler. Cliquez pour en savoir plus de Lazy DM.",
         "ideas": "Idées",
@@ -450,7 +450,7 @@
         "campaign": {
           "pcs": "PJs",
           "lore": "Savoir",
-          "todo": "À faire",
+          "toDo": "À faire",
           "ideas": "Idées"
         },
         "session": {
@@ -463,7 +463,7 @@
           "npcs": "PNJs",
           "monsters": "Monstres",
           "magic": "Objets Magiques",
-          "todo": "À faire",
+          "toDo": "À faire",
           "noteBox": "Boîte à notes"
         },
         "front": {
@@ -964,7 +964,7 @@
       },
       "addedToSession": "ajouté à la session",
       "changesSaved": "Modifications enregistrées",
-      "todoReferenceNotFound": "La référence liée pour cet élément à faire n'existe plus.",
+      "toDoReferenceNotFound": "La référence liée pour cet élément à faire n'existe plus.",
       "changesDiscarded": "Modifications annulées",
       "migration": {
         "minimumVersionRequired": "Campaign Builder ne peut pas migrer depuis la version {0}. Vous devez d'abord mettre à niveau vers la version {1} ou supérieure avant de passer à la version {2}.",

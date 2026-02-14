@@ -62,7 +62,7 @@ export enum SettingKey {
   APIToken = 'APIToken',
   selectedTextModel = 'selectedTextModel', // selected text generation model
   selectedImageModel = 'selectedImageModel', // selected image generation model
-  useGmailToDos = 'useGmailToDos', // whether to use Gmail for todos
+  useGmailToDos = 'useGmailToDos', // whether to use Gmail for toDos
   emailDefaultSetting = 'emailDefaultWorld', // default setting for email features
   emailDefaultCampaign = 'emailDefaultCampaign', // default campaign for email features
 

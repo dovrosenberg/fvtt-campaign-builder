@@ -57,14 +57,19 @@ export const CampaignSchema = {
   /** url of image */
   img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),   
 
-  /** todo items */
+  /** toDo items */
+  // old case - we can remove this once the 1.9 migration is removed
   todoItems: new fields.ArrayField(
     schemas.ToDoItem(), 
     { required: true, nullable: false, initial: [] as ToDoItem[] }
   ),
+  toDoItems: new fields.ArrayField(
+    schemas.ToDoItem(), 
+    { required: true, nullable: false, initial: [] as ToDoItem[] }
+  ),
 
-  /** todo item groups */
-  todoGroups: schemas.GroupArray(),
+  /** toDo item groups */
+  toDoGroups: schemas.GroupArray(),
 
   /** ideas */
   ideas: new fields.ArrayField(
@@ -128,8 +133,8 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
     storyWebs: string[];
     lore: CampaignLore[];  
     img: string;   
-    todoItems: ToDoItem[];   
-    todoGroups: TableGroup[];
+    toDoItems: ToDoItem[];
+    toDoGroups: TableGroup[];
     ideas: Idea[];   
     journals: RelatedJournal[]; 
     pcs: RelatedPCDetails[];

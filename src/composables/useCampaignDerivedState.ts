@@ -9,7 +9,7 @@ import { ref, computed, watch, type InjectionKey, type Ref, type ComputedRef } f
 import { useContentState } from '@/composables/useContentState';
 
 // types
-import type { RelatedPCDetails, CampaignLoreDetails, ToDoItem, Idea } from '@/types';
+import type { RelatedPCDetails, CampaignLoreDetails, ToDoItem, Idea, TableGroup } from '@/types';
 
 export interface CampaignDerivedState {
   relatedPCRows: Ref<RelatedPCDetails[]>;
@@ -17,13 +17,14 @@ export interface CampaignDerivedState {
   deliveredLoreRows: ComputedRef<CampaignLoreDetails[]>;
   availableLoreRows: ComputedRef<CampaignLoreDetails[]>;
   toDoRows: Ref<ToDoItem[]>;
+  toDoGroups: Ref<TableGroup[]>;
   ideaRows: Ref<Idea[]>;
 }
 
 export const CAMPAIGN_DERIVED_STATE_KEY: InjectionKey<CampaignDerivedState> = Symbol('campaignDerivedState');
 
 /**
- * Creates panel-scoped derived state for campaign content (PC rows, lore, todos, ideas).
+ * Creates panel-scoped derived state for campaign content (PC rows, lore, toDos, ideas).
  * Must be called inside a component that is a descendant of a TabPanel (or fallback context).
  * @returns Reactive refs for all campaign table row data.
  */
@@ -35,6 +36,7 @@ export function useCampaignDerivedState(): CampaignDerivedState {
   const relatedPCRows = ref<RelatedPCDetails[]>([]);
   const allRelatedLoreRows = ref<CampaignLoreDetails[]>([]);
   const toDoRows = ref<ToDoItem[]>([]);
+  const toDoGroups = ref<TableGroup[]>([]);
   const ideaRows = ref<Idea[]>([]);
 
   // derived computeds
@@ -49,7 +51,7 @@ export function useCampaignDerivedState(): CampaignDerivedState {
 
   // watchers to rebuild rows
   watch(() => currentCampaign.value, async () => {
-    if (currentContentTab.value !== 'todo')
+    if (currentContentTab.value !== 'toDo')
       await _refreshToDoRows();
 
     await _refreshRowsForTab();
@@ -120,14 +122,16 @@ export function useCampaignDerivedState(): CampaignDerivedState {
     allRelatedLoreRows.value = retval;
   };
 
-  /** Refresh todo rows from the campaign */
+  /** Refresh toDo rows from the campaign */
   const _refreshToDoRows = async () => {
     toDoRows.value = [];
+    toDoGroups.value = [];
 
     if (!currentCampaign.value)
       return;
 
-    toDoRows.value = currentCampaign.value.todoItems.slice();
+    toDoRows.value = currentCampaign.value.toDoItems.slice();
+    toDoGroups.value = currentCampaign.value.toDoGroups.slice();
   };
 
   /** Refresh idea rows from the campaign */
@@ -152,7 +156,7 @@ export function useCampaignDerivedState(): CampaignDerivedState {
       case 'ideas':
         await _refreshIdeaRows();
         break;
-      case 'todo':
+      case 'toDo':
         await _refreshToDoRows();
         break;
       case 'start':
@@ -167,6 +171,7 @@ export function useCampaignDerivedState(): CampaignDerivedState {
     deliveredLoreRows,
     availableLoreRows,
     toDoRows,
+    toDoGroups,
     ideaRows,
   };
 }

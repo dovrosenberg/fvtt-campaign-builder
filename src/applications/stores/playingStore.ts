@@ -133,7 +133,7 @@ export const playingStore = () => {
         await oldSession.campaign.mergeToDoItem(ToDoTypes.Entry, `Added to notes in Session ${oldSession.number}`, uuid, oldSession.uuid);
       }
 
-      // we might happen to be looking at campaign todos, so refresh
+      // we might happen to be looking at campaign toDos, so refresh
       await mainStore.refreshCurrentContent();
     }
 
