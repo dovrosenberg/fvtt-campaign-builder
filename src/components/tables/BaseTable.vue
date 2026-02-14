@@ -198,7 +198,7 @@
       />
 
       <Column 
-        v-for="col of props.columns" 
+        v-for="(col, colIndex) of props.columns" 
         :key="col.field" 
         :field="col.field" 
         :header="col.header" 
@@ -206,13 +206,8 @@
         :sortable="props.canReorder ? false : col.sortable"
       >
         <template #body="{ data, field }">
-          <!-- Skip rendering for group rows in grouped mode -->
-          <div v-if="props.grouped && data.isGroup">
-            <!-- Group content is rendered in groupheader template -->
-          </div>
-          
           <!-- ACTIONS -->
-          <div v-else-if="field === 'actions'">
+          <div v-if="field === 'actions' && !isPlaceholderRow(data)">
             <div 
               :class="[
                 'fcb-row-wrapper', 
@@ -259,7 +254,7 @@
           </div>
 
           <!-- EDITABLE TEXT -->
-          <div v-else-if="col.editable && col.type !== 'boolean'">
+          <div v-else-if="col.editable && col.type !== 'boolean' && !isPlaceholderRow(data)">
             <div 
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
@@ -336,7 +331,7 @@
           </div>
 
           <!-- CLICKABLE -->
-          <div v-else-if="col.onClick">
+          <div v-else-if="col.onClick && !isPlaceholderRow(data)">
             <div 
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '']"
               @dragover="onDragoverRow($event, data.uuid)"
@@ -355,6 +350,17 @@
             </div>
           </div>
 
+          <!-- PLACEHOLDER -->
+          <div v-else-if="colIndex==1 && isPlaceholderRow(data)">
+            <div class="fcb-row-wrapper">
+              <div>
+                <span>
+                  {{ localize('labels.noResults') }} 
+                </span>
+              </div>
+            </div>
+          </div>
+
           <!-- STANDARD -->
           <div v-else>
             <div 
@@ -363,8 +369,7 @@
               @dragleave="onDragLeaveRow(data.uuid)"
               @drop="onDropRow($event, data.uuid)"
             >
-              <div
-              >
+              <div>
                 <span>
                   {{ data[field] }}               
                 </span>
@@ -606,7 +611,7 @@
 
     let result: GroupedTableGridRow[] = [];
 
-    // rows with an invalid group - set to nullungrouped
+    // rows with an invalid group - set to ungrouped
     const cleanedRows = (props.rows as GroupedTableGridRow[])
       .map((row: GroupedTableGridRow): GroupedTableGridRow => {
         if (row.groupId && groups.value.some(g => g.groupId === row.groupId)) {
@@ -616,6 +621,16 @@
         return { ...row, groupId: 'ungrouped' };
       });
 
+    // groups with no rows (but not the empty one) - add placeholders
+    props.groups
+      .filter(g => !cleanedRows.some(r => r.groupId === g.groupId))
+      .forEach((g: TableGroup) => {
+        cleanedRows.push({
+          groupId: g.groupId,
+          uuid: `placeholder|${g.groupId}`
+        })
+      });
+    
     // Add groups and their rows in order
     for (const group of groups.value) {
       // Add data rows for this group
@@ -631,6 +646,13 @@
 
   ////////////////////////////////
   // methods
+  /** 
+   * Determine if a row is a placeholder for an empty group 
+   */
+  const isPlaceholderRow = (row: GroupedTableGridRow) => {
+    return row.uuid.startsWith('placeholder|');
+  };
+
   /**
    * Sets a specific row to edit mode
    * @param uuid The UUID of the row to edit
