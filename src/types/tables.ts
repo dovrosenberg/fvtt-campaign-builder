@@ -33,6 +33,7 @@ export interface ActionButtonDefinition {
 
 export interface BaseTableColumn {
   field:string; 
+  header: string;
   group?: string;
   editable?: boolean;
   style?: string;

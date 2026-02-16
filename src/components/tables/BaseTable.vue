@@ -8,6 +8,7 @@
       :group-rows-by="props.grouped ? 'groupId' : undefined"
       :expandable-row-groups="props.grouped"
       v-model:expanded-row-groups="expandedRowGroups"
+      :row-class="getRowClass"
       size="small"
       scrollable
       scroll-height="flex"
@@ -173,7 +174,7 @@
 
         <!-- Display mode -->
         <div
-          v-else 
+          v-else
           class="fcb-group-header"
           @dragstart="onGroupDragStart($event, slotProps.data.groupId)"
           @dragover="onGroupDragOver($event)"
@@ -189,6 +190,7 @@
         </div>
       </template>
 
+      <!-- Custom reorder grip column -->
       <Column
         v-if="props.canReorder"
         :row-reorder="true"
@@ -208,7 +210,7 @@
         <template #body="{ data, field }">
           <!-- ACTIONS -->
           <div v-if="field === 'actions' && !isPlaceholderRow(data)">
-            <div 
+            <div
               :class="[
                 'fcb-row-wrapper', 
                 isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
@@ -236,7 +238,7 @@
 
           <!-- DRAG HANDLE (FOR DRAGGING ELSEWHERE) -->
           <div v-else-if="field === 'drag'">
-            <div 
+            <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
               @dragover="onDragoverRow($event, data.uuid)"
@@ -255,7 +257,7 @@
 
           <!-- EDITABLE TEXT -->
           <div v-else-if="col.editable && col.type !== 'boolean' && !isPlaceholderRow(data)">
-            <div 
+            <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
               @dragover="onDragoverRow($event, data.uuid)"
@@ -314,7 +316,7 @@
 
           <!-- EDITABLE BOOLEAN -->
           <div v-else-if="col.editable && col.type === 'boolean'">
-            <div 
+            <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
               @dragover="onDragoverRow($event, data.uuid)"
@@ -332,7 +334,7 @@
 
           <!-- CLICKABLE -->
           <div v-else-if="col.onClick && !isPlaceholderRow(data)">
-            <div 
+            <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '']"
               @dragover="onDragoverRow($event, data.uuid)"
               @dragleave="onDragLeaveRow(data.uuid)"
@@ -363,7 +365,7 @@
 
           <!-- STANDARD -->
           <div v-else>
-            <div 
+            <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '']"
               @dragover="onDragoverRow($event, data.uuid)"
               @dragleave="onDragLeaveRow(data.uuid)"
@@ -576,6 +578,15 @@
   /** track if a group is being dragged */
   const isDraggingGroup = ref<boolean>(false);
 
+  /** the row being dragged for reorder */
+  const reorderDragRow = ref<BaseTableGridRow | null>(null);
+
+  /** the row currently being hovered during reorder (uuid) */
+  const reorderDropTarget = ref<string | null>(null);
+
+  /** whether the drop would be above or below the target row */
+  const reorderDropPosition = ref<'above' | 'below'>('below');
+
   ////////////////////////////////
   // computed data
   const effectiveFilterFields = computed(() => deriveFilterFields());
@@ -602,6 +613,14 @@
       ? {}
       : { sortField: pagination.sortField, sortOrder: pagination.sortOrder, defaultSortOrder: 1 }
   ));
+
+  /** Returns CSS class for a row based on reorder drop target state */
+  const getRowClass = (data: BaseTableGridRow) => {
+    if (reorderDropTarget.value === data.uuid) {
+      return reorderDropPosition.value === 'above' ? 'reorder-drop-above' : 'reorder-drop-below';
+    }
+    return '';
+  };
 
   /** Transform data for grouped mode */
   const transformedData = computed(() => {
@@ -1155,6 +1174,16 @@
     font-size: var(--fcb-font-size);
   }
 
+  // Remove td padding so the drop target wrapper fills the entire cell,
+  // preventing dead zones at cell borders where drop events wouldn't fire
+  :deep(.p-datatable.p-datatable-sm .p-datatable-tbody > tr > td) {
+    padding: 0 !important;
+  }
+
+  .fcb-cell-drop-target {
+    padding: 0.375rem 0.5rem;
+  }
+
   .fcb-action-icon {
     cursor: pointer;
     margin-right: 3px;
@@ -1269,5 +1298,14 @@
     display: inline-block;
     align-items: center;
     height: 100%;
+  }
+
+  // Visual drop indicators for row reorder
+  :deep(tr.reorder-drop-above td) {
+    border-top: 2px solid var(--fcb-link);
+  }
+
+  :deep(tr.reorder-drop-below td) {
+    border-bottom: 2px solid var(--fcb-link);
   }
 </style>
