@@ -141,7 +141,10 @@
     } else {
       // This is a row reorder within or between groups
       const reorderedToDos = reorderedRows
-        .map((row): ToDoItem | undefined => toDoRows.value.find(toDo => toDo.uuid === row.uuid))
+        .map((row): ToDoItem | null => {
+          const toDo = toDoRows.value.find(toDo => toDo.uuid === row.uuid);
+          return toDo ? { ...toDo, groupId: (row as any).groupId } : null;
+        })
         .filter(Boolean) as ToDoItem[];
       await campaignStore.reorderToDos(reorderedToDos);
     }

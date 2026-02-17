@@ -26,14 +26,16 @@
           style: 'background-color: var(--fcb-primary); color: var(--fcb-text-on-primary); cursor: pointer;',
           colspan: totalColumnCount
         },
+        // the ones that are headers still need the left padding to push 
+        //   the collapse button and text past the actions
         rowGroupHeaderCell: {
           colspan: totalColumnCount,
-          style: 'position: relative; padding-left: 60px;'
+          style: 'position: relative; padding-left: 70px !important;'
         }
       }"
 
       @row-contextmenu="emit('rowContextMenu', $event)"
-      @row-reorder="onRowReorder"    >
+    >
     <!-- These need to be set if we want pagination back -->
     <!-- <DataTable
       paginator-position="bottom"
@@ -92,7 +94,7 @@
               v-if="props.extraAddText"
               :class="['fcb-table-new-drop-box', isDragHover ? 'valid-drag-hover' : '']"
               @dragover="onDragoverNew"
-              @dragleave="onDragLeaveNew"
+              @dragleave="onDragleaveNew"
               @drop="onDropNew"
             >
               {{ props.extraAddText}}
@@ -131,8 +133,8 @@
         >
           <div 
             class="fcb-group-header-grip"
-            @dragover="onDragoverRow($event, slotProps.data.groupId)"
-            @dragleave="onDragLeaveRow(slotProps.data.groupId)"
+            @dragover="onDragoverRow($event, slotProps.data)"
+            @dragleave="onDragleaveRow(slotProps.data.groupId)"
             @drop="onDropRow($event, slotProps.data.groupId)"
           >
             <i class="fas fa-grip-vertical"></i>
@@ -176,6 +178,7 @@
         <div
           v-else
           class="fcb-group-header"
+          draggable="true"
           @dragstart="onGroupDragStart($event, slotProps.data.groupId)"
           @dragover="onGroupDragOver($event)"
           @drop="onGroupDrop($event, slotProps.data.groupId)"
@@ -193,11 +196,27 @@
       <!-- Custom reorder grip column -->
       <Column
         v-if="props.canReorder"
-        :row-reorder="true"
-        row-reorder-icon="fas fa-grip-vertical"
-        header-style="width: 10px; whitespace: nowrap;"
+        header-style="width: 30px; max-width: 30px;"
         :reorderable-column="false"
-      />
+      >
+        <template #body="{ data }">
+          <div
+            class="fcb-cell-drop-target"
+            @dragover="onDragoverRow($event, data)"
+            @dragleave="onDragleaveRow(data)"
+            @drop="onDropRow($event, data)"
+          >
+            <div
+              v-if="!isPlaceholderRow(data)"
+              class="fcb-drag-handle"
+              draggable="true"
+              @dragstart="onReorderDragStart($event, data.uuid)"
+            >
+              <i class="fas fa-grip-vertical"></i>
+            </div>
+          </div>
+        </template>
+      </Column>
 
       <Column 
         v-for="(col, colIndex) of props.columns" 
@@ -208,16 +227,22 @@
         :sortable="props.canReorder ? false : col.sortable"
       >
         <template #body="{ data, field }">
+          <div
+            class="fcb-cell-drop-target"
+            @dragover="onDragoverRow($event, data)"
+            @dragleave="onDragleaveRow(data)"
+            @drop="onDropRow($event, data)"
+          >
           <!-- ACTIONS -->
           <div v-if="field === 'actions' && !isPlaceholderRow(data)">
             <div
               :class="[
-                'fcb-row-wrapper', 
+                'fcb-row-wrapper',
                 isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
-              @dragover="onDragoverRow($event, data.uuid)"
-              @dragleave="onDragLeaveRow(data.uuid)"
-              @drop="onDropRow($event, data.uuid)"
+              @dragover="onDragoverRow($event, data)"
+              @dragleave="onDragleaveRow(data.uuid)"
+              @drop="onDropRow($event, data)"
             >
               <template
                 v-for="(action, index) in actions"
@@ -241,9 +266,9 @@
             <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
-              @dragover="onDragoverRow($event, data.uuid)"
-              @dragleave="onDragLeaveRow(data.uuid)"
-              @drop="onDropRow($event, data.uuid)"
+              @dragover="onDragoverRow($event, data)"
+              @dragleave="onDragleaveRow(data)"
+              @drop="onDropRow($event, data)"
             >
               <div 
                 class="fcb-drag-handle" 
@@ -260,9 +285,9 @@
             <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
-              @dragover="onDragoverRow($event, data.uuid)"
-              @dragleave="onDragLeaveRow(data.uuid)"
-              @drop="onDropRow($event, data.uuid)"
+              @dragover="onDragoverRow($event, data)"
+              @dragleave="onDragleaveRow(data)"
+              @drop="onDropRow($event, data)"
             >
               <!-- we're editing this row -->
               <div 
@@ -319,9 +344,9 @@
             <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
-              @dragover="onDragoverRow($event, data.uuid)"
-              @dragleave="onDragLeaveRow(data.uuid)"
-              @drop="onDropRow($event, data.uuid)"
+              @dragover="onDragoverRow($event, data)"
+              @dragleave="onDragleaveRow(data)"
+              @drop="onDropRow($event, data)"
             >
               <Checkbox 
                 :model-value="data[field]" 
@@ -336,9 +361,9 @@
           <div v-else-if="col.onClick && !isPlaceholderRow(data)">
             <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '']"
-              @dragover="onDragoverRow($event, data.uuid)"
-              @dragleave="onDragLeaveRow(data.uuid)"
-              @drop="onDropRow($event, data.uuid)"
+              @dragover="onDragoverRow($event, data)"
+              @dragleave="onDragleaveRow(data)"
+              @drop="onDropRow($event, data)"
             >
               <div
                 class="fcb-table-body-text clickable"
@@ -354,7 +379,12 @@
 
           <!-- PLACEHOLDER -->
           <div v-else-if="colIndex==1 && isPlaceholderRow(data)">
-            <div class="fcb-row-wrapper">
+            <div 
+              class="fcb-row-wrapper"
+              @dragover="onDragoverRow($event, data)"
+              @dragleave="onDragleaveRow(data)"
+              @drop="onDropRow($event, data)"
+            >
               <div>
                 <span>
                   {{ localize('labels.noResults') }} 
@@ -367,9 +397,9 @@
           <div v-else>
             <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '']"
-              @dragover="onDragoverRow($event, data.uuid)"
-              @dragleave="onDragLeaveRow(data.uuid)"
-              @drop="onDropRow($event, data.uuid)"
+              @dragover="onDragoverRow($event, data)"
+              @dragleave="onDragleaveRow(data)"
+              @drop="onDropRow($event, data)"
             >
               <div>
                 <span>
@@ -378,6 +408,7 @@
                 &nbsp; <!-- nbsp because otherwise the cell will have 0 width and the mouse events won't work -->
               </div>
             </div>
+          </div>
           </div>
         </template>
       </Column>
@@ -522,12 +553,11 @@
     (e: 'dropRow', event: DragEvent, uuid: string): void;
     (e: 'dropNew', event: DragEvent): void;
     (e: 'setEditingRow', uuid: string): void;
-    (e: 'reorder', reorderedRows: BaseTableGridRow[], dragIndex: number, dropIndex: number): void;
+    (e: 'reorder', reorderedRows: BaseTableGridRow[]): void;
     (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
     (e: 'groupDelete', groupId: string): void;
     (e: 'groupEdit', groupId: string, newName: string): void;
     (e: 'groupAdd'): void;
-    (e: 'update:expandedRowGroups', value: string[]): void;
   }>();
 
   ////////////////////////////////
@@ -578,8 +608,9 @@
   /** track if a group is being dragged */
   const isDraggingGroup = ref<boolean>(false);
 
-  /** the row being dragged for reorder */
-  const reorderDragRow = ref<BaseTableGridRow | null>(null);
+  /** the row being dragged for reorder; we need this to track the uuid during dragover 
+   * events (where the browser restricts access to event.data) */
+  const reorderDragUuid = ref<string | null>(null);
 
   /** the row currently being hovered during reorder (uuid) */
   const reorderDropTarget = ref<string | null>(null);
@@ -963,29 +994,9 @@
     }
   }
 
-  const onDragoverRow = (event: DragEvent, uuid: string) => {
-    if (props.allowDropRow) {
-      // First, call the parent's dragover handler
-      emit('dragoverRow', event, uuid);
-
-      // Check if this is a valid drag (has text/plain data)
-      if (event.dataTransfer && event.dataTransfer.types.includes('text/plain')) {
-        isDragHoverRow.value = uuid;
-      } else {
-        isDragHoverRow.value = null;
-      }
-    }
-  }
-
-  const onDragLeaveNew = () => {
+  const onDragleaveNew = () => {
     // Reset the valid drag state when the drag leaves the drop zone
     isDragHover.value = false;
-  }
-
-  const onDragLeaveRow = (uuid: string) => {
-    // Reset the valid drag state when the drag leaves the drop zone
-    if (isDragHoverRow.value===uuid)
-      isDragHoverRow.value = null;
   }
 
   const onDropNew = (event: DragEvent) => {
@@ -996,54 +1007,121 @@
     emit('dropNew', event);
   }
 
-  const onDropRow = (event: DragEvent, uuid: string) => {
-    if (props.allowDropRow) {
+  const onReorderDragStart = (event: DragEvent, uuid: string) => {
+    if (!event.dataTransfer) 
+      return;
+
+    reorderDragUuid.value = uuid;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', uuid);
+  };
+
+  const onDragoverRow = (event: DragEvent, data: BaseTableGridRow) => {
+    // see if we're allowed to drop stuff on rows
+    if (props.allowDropRow && !reorderDragUuid.value) {
+      // First, call the parent's dragover handler
+      emit('dragoverRow', event, data.uuid);
+
+      // Check if this is a valid drag (has text/plain data)
+      if (event.dataTransfer && event.dataTransfer.types.includes('text/plain')) {
+        isDragHoverRow.value = data.uuid;
+      } else {
+        isDragHoverRow.value = null;
+      }
+    } else if (reorderDragUuid.value) {
+      // check for reordering of rows
+      if (reorderDragUuid.value === data.uuid) return;
+      if (isPlaceholderRow(data as GroupedTableGridRow)) return;
+
+      event.preventDefault();
+      event.dataTransfer!.dropEffect = 'move';
+
+      // Determine above/below based on mouse position within the row
+      const row = (event.currentTarget as HTMLElement).closest('tr');
+      if (row) {
+        const rect = row.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+        reorderDropPosition.value = event.clientY < midpoint ? 'above' : 'below';
+      }
+
+      reorderDropTarget.value = data.uuid;
+    }
+  };
+
+  /** 
+   * Reset the drop target when the drag leaves the row
+   */
+  const onDragleaveRow = (data: BaseTableGridRow) => {
+    // Reset the valid drag state when the drag leaves the drop zone
+    if (isDragHoverRow.value===data.uuid)
+      isDragHoverRow.value = null;
+
+    // Reset the drop target if it was on this row
+    if (reorderDropTarget.value === data.uuid)
+      reorderDropTarget.value = null;
+  };
+
+  /** 
+   * Handle the drop event on a row
+   */
+  const onDropRow = (event: DragEvent, targetData: BaseTableGridRow) => {
+    if (props.allowDropRow && !reorderDragUuid.value) {
       // Reset the valid drag state
-      if (isDragHoverRow.value===uuid)
+      if (isDragHoverRow.value===targetData.uuid)
         isDragHoverRow.value = null;
     
       // Call the parent's drop handler
-      emit('dropRow', event, uuid);
-    }
-  }
+      emit('dropRow', event, targetData.uuid);
+    } else if (reorderDragUuid.value) {
+      event.preventDefault();
 
-  const onRowReorder = (event: any) => {
-    if (!props.canReorder) return;
-
-    const { value, dragIndex, dropIndex } = event;
-
-    // In grouped mode, we need to handle cross-group moves
-    if (props.grouped) {
-      // Find which group the dropped row belongs to
-      const droppedRow = value[dropIndex];
-      const targetGroupId = (droppedRow as GroupedTableGridRow).groupId;
-      
-      // Update the row's groupId if it changed groups
-      if (targetGroupId) {
-        const draggedRow = transformedData.value[dragIndex];
-        const originalGroupId = (draggedRow as GroupedTableGridRow).groupId;
-        
-        // Only update if this is a data row (not a group) and groupId changed
-        if (originalGroupId !== targetGroupId) {
-          // Find the actual row in props.rows and update its groupId
-          const rowIndex = props.rows.findIndex(r => r.uuid === draggedRow.uuid);
-          if (rowIndex !== -1) {
-            const updatedRows = [...props.rows];
-            updatedRows[rowIndex] = {
-              ...updatedRows[rowIndex],
-              groupId: targetGroupId,
-            };
-            
-            // Reorder all rows based on the new arrangement
-            emit('reorder', value, dragIndex, dropIndex);
-            return;
-          }
-        }
+      // make sure there actually is a row being dragged and it's not the same one
+      if (reorderDragUuid.value === targetData.uuid) {
+        // same row - do nothing but clean up
+        reorderDragUuid.value = null;
+        reorderDropTarget.value = null;
+        return;
       }
-    }
 
-    emit('reorder', value, dragIndex, dropIndex);
-  }
+      const currentRows = [...transformedData.value];
+
+      // get the index or row being dropped
+      const dragIndex = currentRows.findIndex(r => r.uuid === reorderDragUuid.value);
+
+      // index of the row being dropped on
+      const rawDropIndex = currentRows.findIndex(r => r.uuid === targetData.uuid);
+
+      // make sure we found both rows
+      if (dragIndex === -1 || rawDropIndex === -1) {
+        // Clean up
+        reorderDragUuid.value = null;
+        reorderDropTarget.value = null;
+        return;
+      }
+
+      // Remove dragged row from old position
+      const [removed] = currentRows.splice(dragIndex, 1);
+
+      // Update groupId if crossing groups in grouped mode
+      const newGroupId = (targetData as GroupedTableGridRow).groupId;
+      if (props.grouped && newGroupId) {
+        (removed as GroupedTableGridRow).groupId = newGroupId;
+
+        // placehodlers and group id will get adjusted when the parent resets the rows prop
+      }
+
+      // Calculate insertion index (adjust for the splice above)
+      const adjustedDropIndex = dragIndex < rawDropIndex ? rawDropIndex - 1 : rawDropIndex;
+      const insertIndex = reorderDropPosition.value === 'below' ? adjustedDropIndex + 1 : adjustedDropIndex;
+      currentRows.splice(insertIndex, 0, removed);
+
+      emit('reorder', currentRows.filter(r => !isPlaceholderRow(r)));
+
+      // Clean up
+      reorderDragUuid.value = null;
+      reorderDropTarget.value = null;
+    }
+  };
 
   const onEditButtonClick = (data: BaseTableGridRow, callback: (data: BaseTableGridRow) => void) => {
     // Check if there are any editable columns
@@ -1065,7 +1143,7 @@
   }
 
   const onGroupToggle = (groupId: string) => {
-    const newExpanded = [...props.expandedRowGroups];
+    const newExpanded = [...expandedRowGroups.value];
     const index = newExpanded.indexOf(groupId);
     
     if (index > -1) {
@@ -1073,18 +1151,13 @@
     } else {
       newExpanded.push(groupId);
     }
-    
-    emit('update:expandedRowGroups', newExpanded);
   };
 
   const onGroupDragStart = (event: DragEvent, groupId: string) => {
     if (!event.dataTransfer) return;
     
     // Store the current collapse state
-    groupCollapseState.value = [...props.expandedRowGroups];
-    
-    // Collapse all groups during drag
-    emit('update:expandedRowGroups', []);
+    groupCollapseState.value = [...expandedRowGroups.value];
     
     // Set drag data
     event.dataTransfer.setData('text/plain', groupId);
@@ -1118,11 +1191,11 @@
     newGroups.splice(targetIndex, 0, draggedGroup);
     
     // Restore collapse state
-    emit('update:expandedRowGroups', groupCollapseState.value);
+    expandedRowGroups.value = groupCollapseState.value;
     
     // Emit reorder event with both groups and reordered rows
     const reorderedRows = reorderRowsByGroups(newGroups);
-    emit('reorder', reorderedRows, draggedIndex, targetIndex);
+    emit('reorder', reorderedRows);
   };
 
   const onGroupDragEnd = () => {
@@ -1248,7 +1321,7 @@
     left: 0;
     top: 0;
     bottom: 0;
-    padding-left: 8px;
+    padding-left: 10px;
     display: flex;
     align-items: center;
   }
@@ -1256,13 +1329,15 @@
   .fcb-group-header-grip {
     color: var(--text-on-primary); 
     cursor: move; 
-    margin-right: 8px
+    margin-right: 18px
   }
 
   .fcb-group-header {
     display: inline-block;
     background-color: var(--fcb-color-surface-200);
     font-weight: bold;
+    vertical-align: super; // gets it close to middle
+    height: 100%;
 
     &:hover {
       background-color: var(--fcb-color-surface-300);
