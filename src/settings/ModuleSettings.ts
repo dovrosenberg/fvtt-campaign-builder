@@ -4,10 +4,12 @@ import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSet
 import { CustomFieldsApplication } from '@/applications/settings/CustomFieldsApplication';
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { ImageSettingsApplication } from '@/applications/settings/ImageSettingsApplication';
+import { TableGroupingSettingsApplication } from '@/applications/settings/TableGroupingSettingsApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { StoryWebSettingsApplication } from '@/applications/settings/StoryWebSettingsApplication';
 import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
 import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, } from '@/types';
+import { TableGroupingSetting, TableGroupingSettings } from '@/types/tableGrouping';
 
 export type ImageConfiguration = ApiCustomGenerateImagePostRequestImageConfiguration & {
   descriptionField?: string;
@@ -22,7 +24,7 @@ export interface ImageVisibility {
   fronts: boolean;
 }
 
- export interface WindowBounds {
+export interface WindowBounds {
    left: number;
    top: number;
    width: number;
@@ -88,6 +90,10 @@ export enum SettingKey {
   storyWebConnectionStyles = 'storyWebConnectionStyles', // predefined styles for edges
   storyWebNodeFields = 'storyWebNodeFields', // selected fields to display in node tooltips by content type
   storyWebCustomNodeColorSchemes = 'storyWebCustomNodeColorSchemes', // predefined color schemes for custom text blocks
+
+  // table grouping settings
+  tableGroupingMenu = 'tableGroupingMenu', // display the table grouping menu
+  tableGroupingSettings = 'tableGroupingSettings', // table grouping settings per content type
 }
 
 export type SettingKeyType<K extends SettingKey> =
@@ -123,6 +129,8 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.storyWebConnectionStyles ? { id: string; name: string; value: string }[] :
     K extends SettingKey.storyWebNodeFields ? Partial<Record<StoryWebNodeTypes, string[]>> :
     K extends SettingKey.storyWebCustomNodeColorSchemes ? { id: string; name: string; foregroundColor: string; backgroundColor: string }[] :
+    K extends SettingKey.tableGroupingMenu ? never :
+    K extends SettingKey.tableGroupingSettings ? Partial<Record<TableGroupingSetting, boolean>> :
     K extends SettingKey.aiImagePrompts ? Record<CustomFieldContentType, string> :
     K extends SettingKey.aiImageConfigurations ? Record<CustomFieldContentType, ImageConfiguration> :
     K extends SettingKey.contentTags ? TagList :
@@ -221,6 +229,15 @@ export class ModuleSettings {
       icon: 'fa-solid fa-project-diagram',
       permissions: ['SETTINGS_WRITE'],
       type: StoryWebSettingsApplication,
+    },
+    {
+      settingID: SettingKey.tableGroupingMenu,
+      name: 'settings.tableGrouping',
+      label: 'fcb.settings.tableGroupingLabel',   // localized by Foundry
+      hint: 'settings.tableGroupingHelp',
+      icon: 'fa-solid fa-table',
+      permissions: ['SETTINGS_WRITE'],
+      type: TableGroupingSettingsApplication,
     }
   ];
 
@@ -479,6 +496,11 @@ export class ModuleSettings {
         { id: 'default', name: 'Default', foregroundColor: '#1b4b3e', backgroundColor: '#ffffff' },
       ],
       type: Array,
+    },
+    {
+      settingID: SettingKey.tableGroupingSettings,
+      default: {},
+      type: Object,
     },
   ];
   

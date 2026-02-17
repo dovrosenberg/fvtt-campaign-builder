@@ -83,7 +83,10 @@
       "customFieldsHelp": "Configure additional fields and AI instructions for each content type",
       "storyWebSettings": "Story Web Settings",
       "storyWebSettingsLabel": "Configure Settings",
-      "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs"
+      "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs",
+      "tableGrouping": "Table Grouping Settings",
+      "tableGroupingLabel": "Table Grouping",
+      "tableGroupingHelp": "Configure which tabs use grouped tables for each content type"
     },
     "applications": {
       "sessionNotes": {
@@ -796,6 +799,38 @@
         "arcs": "Arcs",
         "sessions": "Sessions",
         "fronts": "Fronts"
+      },
+      "tableGrouping": {
+        "title": "Table Grouping Settings",
+        "description": "Choose which tabs should use grouped tables for each content type.",
+        "contentTypes": {
+          "settings": "Settings",
+          "entries": "Entries",
+          "campaigns": "Campaigns",
+          "arcs": "Arcs",
+          "sessions": "Sessions",
+          "fronts": "Fronts"
+        },
+        "tabs": {
+          "journals": "Journals",
+          "characters": "Characters",
+          "npcs": "NPCs",
+          "locations": "Locations",
+          "organizations": "Organizations",
+          "pcs": "PCs",
+          "actors": "Actors",
+          "sessions": "Sessions",
+          "items": "Items",
+          "magicItems": "Magic Items",
+          "monsters": "Monsters",
+          "vignettes": "Vignettes",
+          "lore": "Lore",
+          "ideas": "Ideas",
+          "todo": "To-Do",
+          "storyWebs": "Story Webs",
+          "participants": "Participants",
+          "grimPortents": "Grim Portents"
+        }
       },
       "relatedEntriesManagement": {
         "title": "Manage Related Entries",
