@@ -127,7 +127,9 @@
       <!-- Group header template for grouped mode -->
       <template #groupheader="slotProps" v-if="props.grouped">
         <div
-          :class="{ 'fcb-row-wrapper': true, 'group-drag-over': isDraggingOverGroup === slotProps.data.groupId }"
+          :class="{ 'fcb-row-wrapper': true, 'group-drag-over': isDraggingOverGroup === slotProps.data.groupId, 
+                    'reorder-drop-above': isDraggingOverGroup === null && reorderDropTarget === slotProps.data.groupId && reorderDropPosition === 'above',
+                    'reorder-drop-below': isDraggingOverGroup === null && reorderDropTarget === slotProps.data.groupId && reorderDropPosition === 'below' }"
           style="display:inline-block"
           @dragover="onDragoverGroup($event, slotProps.data);"
           @dragleave="onDragleaveGroup($event, slotProps.data);"
@@ -137,11 +139,12 @@
           <div
             v-if="slotProps.data.groupId && editingGroupId !== slotProps.data.groupId"
             class="fcb-group-header-actions"
-            @dragstart="onDragstartGroup($event, slotProps.data.groupId)"
-            @dragend="onDragendGroup()"
           >
             <div 
               class="fcb-group-header-grip"
+              draggable="true"
+              @dragstart="onDragstartGroup($event, slotProps.data.groupId)"
+              @dragend="onDragendGroup()"
             >
               <i class="fas fa-grip-vertical"></i>
             </div>
@@ -184,7 +187,6 @@
           <div
             v-else
             class="fcb-group-header"
-            draggable="true"
           >
             <div 
               class="fcb-group-display"
@@ -530,13 +532,27 @@
     (e: 'markItemDelivered', uuid: string): void;
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;
+
+    /** Start of a drag into foundry */
     (e: 'dragstart', event: DragEvent, uuid: string): void;
+
+    /** Dragging something external over a new drop zone */
     (e: 'dragoverNew', event: DragEvent): void;
+
+    /** Dragging something external over a row */
     (e: 'dragoverRow', event: DragEvent, uuid: string): void;
+
+    /** Dropping something external on a row */
     (e: 'dropRow', event: DragEvent, uuid: string): void;
+
+    /** Dropping something external on a new drop zone */
     (e: 'dropNew', event: DragEvent): void;
     (e: 'setEditingRow', uuid: string): void;
     (e: 'reorder', reorderedRows: BaseTableGridRow[]): void;
+
+    /** Groups were reordered; param is group IDs in new order */
+    (e: 'reorderGroup', reorderedGroups: string[]): void;
+
     (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
     (e: 'groupDelete', groupId: string): void;
     (e: 'groupEdit', groupId: string, newName: string): void;
@@ -631,7 +647,7 @@
 
   /** Returns CSS class for a row based on reorder drop target state */
   const getRowClass = (data: BaseTableGridRow) => {
-    if (reorderDropTarget.value === data.uuid) {
+    if (reorderDropTarget.value === data.uuid || ) {
       return reorderDropPosition.value === 'above' ? 'reorder-drop-above' : 'reorder-drop-below';
     }
     return '';
@@ -958,6 +974,7 @@
     setEditingRow(uuid);
   };
   
+  /** For dragging a row into Foundry */
   const onDragstart = (event: DragEvent, uuid: string) => {
     if (!event.target || !uuid) return;
 
@@ -1014,12 +1031,17 @@
     // Store the current collapse state
     groupCollapseState.value = [...expandedRowGroups.value];
     
-    // collapse everything
-
     // Set drag data
-    reorderDragGroupId.value = groupId;
     event.dataTransfer.setData('text/plain', groupId);
     event.dataTransfer.effectAllowed = 'move';
+
+    // Store which group is being dragged
+    reorderDragGroupId.value = groupId;
+    
+    // Defer collapsing groups to avoid blocking the drag operation
+    setTimeout(() => {
+      expandedRowGroups.value = [];
+    }, 0);
   };
 
   const onDragendGroup = () => {
@@ -1072,10 +1094,10 @@
       event.preventDefault();
       event.dataTransfer!.dropEffect = 'move';
 
-      // Determine above/below based on mouse position within the row
-      const row = (event.currentTarget as HTMLElement).closest('tr');
-      if (row) {
-        const rect = row.getBoundingClientRect();
+      // Determine above/below based on mouse position within the group header
+      const groupHeader = (event.currentTarget as HTMLElement).closest('.p-rowgroup-header');
+      if (groupHeader) {
+        const rect = groupHeader.getBoundingClientRect();
         const midpoint = rect.top + rect.height / 2;
         reorderDropPosition.value = event.clientY < midpoint ? 'above' : 'below';
       }
@@ -1232,25 +1254,44 @@
     // Handle group reordering
     if (reorderDragGroupId.value && event.dataTransfer) {
       const draggedGroupId = event.dataTransfer.getData('text/plain');
-      if (draggedGroupId === data.groupId) return;
+      if (draggedGroupId === data.groupId) {
+        // Clean up without changes
+        expandedRowGroups.value = groupCollapseState.value;
+        reorderDragGroupId.value = null;
+        reorderDropTarget.value = null;
+        return;
+      }
       
       // Find indices
       const draggedIndex = groups.value.findIndex(g => g.groupId === draggedGroupId);
       const targetIndex = groups.value.findIndex(g => g.groupId === data.groupId);
       
-      if (draggedIndex === -1 || targetIndex === -1) return;
+      if (draggedIndex === -1 || targetIndex === -1) {
+        // Clean up
+        expandedRowGroups.value = groupCollapseState.value;
+        reorderDragGroupId.value = null;
+        reorderDropTarget.value = null;
+        return;
+      }
       
       // Create new groups array with reordered items
       const newGroups = [...groups.value];
       const [draggedGroup] = newGroups.splice(draggedIndex, 1);
-      newGroups.splice(targetIndex, 0, draggedGroup);
+      
+      // Calculate insertion index (adjust for the splice above)
+      const adjustedTargetIndex = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
+      const insertIndex = reorderDropPosition.value === 'below' ? adjustedTargetIndex + 1 : adjustedTargetIndex;
+      newGroups.splice(insertIndex, 0, draggedGroup);
       
       // Restore collapse state
       expandedRowGroups.value = groupCollapseState.value;
       
-      // Emit reorder event with both groups and reordered rows
-      const reorderedRows = reorderRowsByGroups(newGroups);
-      emit('reorder', reorderedRows);
+      // Filter out the 'ungrouped' group and emit reorder event
+      const reorderedGroupIds = newGroups
+        .filter(g => g.groupId !== 'ungrouped')
+        .map(g => g.groupId);
+      
+      emit('reorderGroup', reorderedGroupIds);
     }
     // Handle row being dropped on group
     else if (reorderDragUuid.value && data.groupId) {
@@ -1286,24 +1327,10 @@
     }
     
     // Clean up
+    reorderDragGroupId.value = null;
     reorderDropTarget.value = null;
   };
 
-  /**
-   * Reorder rows based on new group order
-   */
-  const reorderRowsByGroups = (newGroups: TableGroup[]) => {
-    const result: BaseTableGridRow[] = [];
-    
-    for (const group of newGroups) {
-      const groupRows = props.rows.filter(row => 
-        (row as GroupedTableGridRow).groupId === group.groupId
-      );
-      result.push(...groupRows);
-    }
-    
-    return result;
-  };
 
   ////////////////////////////////
   // watchers
@@ -1414,7 +1441,7 @@
 
   .fcb-group-header-grip {
     color: var(--text-on-primary); 
-    cursor: move; 
+    cursor: grab; 
     margin-right: 18px
   }
 
@@ -1467,6 +1494,15 @@
   }
 
   :deep(tr.reorder-drop-below td) {
+    border-bottom: 2px solid var(--fcb-link);
+  }
+
+  // Visual drop indicators for group reorder
+  :deep(.p-rowgroup-header.reorder-drop-above) {
+    border-top: 2px solid var(--fcb-link);
+  }
+
+  :deep(.p-rowgroup-header.reorder-drop-below) {
     border-bottom: 2px solid var(--fcb-link);
   }
 
