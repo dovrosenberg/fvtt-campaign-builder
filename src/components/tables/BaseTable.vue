@@ -128,8 +128,8 @@
       <template #groupheader="slotProps" v-if="props.grouped">
         <div
           :class="{ 'fcb-row-wrapper': true, 'group-drag-over': isDraggingOverGroup === slotProps.data.groupId, 
-                    'reorder-drop-above': isDraggingOverGroup === null && reorderDropTarget === slotProps.data.groupId && reorderDropPosition === 'above',
-                    'reorder-drop-below': isDraggingOverGroup === null && reorderDropTarget === slotProps.data.groupId && reorderDropPosition === 'below' }"
+                    'reorder-drop-above': reorderDropTarget === slotProps.data.groupId && reorderDropPosition === 'above',
+                    'reorder-drop-below': reorderDropTarget === slotProps.data.groupId && reorderDropPosition === 'below' }"
           style="display:inline-block"
           @dragover="onDragoverGroup($event, slotProps.data);"
           @dragleave="onDragleaveGroup($event, slotProps.data);"
@@ -141,12 +141,21 @@
             class="fcb-group-header-actions"
           >
             <div 
+              v-if="slotProps.data.groupId !== 'ungrouped'"
               class="fcb-group-header-grip"
               draggable="true"
               @dragstart="onDragstartGroup($event, slotProps.data.groupId)"
               @dragend="onDragendGroup()"
             >
               <i class="fas fa-grip-vertical"></i>
+            </div>
+
+            <!-- spacer for ungrouped group -->
+            <div 
+              v-else
+              class="fcb-group-header-grip"
+              style="width: 8.125px"
+            >
             </div>
             <div>
               <a
@@ -647,7 +656,7 @@
 
   /** Returns CSS class for a row based on reorder drop target state */
   const getRowClass = (data: BaseTableGridRow) => {
-    if (reorderDropTarget.value === data.uuid || ) {
+    if (reorderDropTarget.value === data.uuid) {
       return reorderDropPosition.value === 'above' ? 'reorder-drop-above' : 'reorder-drop-below';
     }
     return '';
@@ -1094,17 +1103,21 @@
       event.preventDefault();
       event.dataTransfer!.dropEffect = 'move';
 
+      // Set that we're dragging over this group
+      isDraggingOverGroup.value = data.groupId;
+
       // Determine above/below based on mouse position within the group header
       const groupHeader = (event.currentTarget as HTMLElement).closest('.p-rowgroup-header');
       if (groupHeader) {
         const rect = groupHeader.getBoundingClientRect();
-        const midpoint = rect.top + rect.height / 2;
-        reorderDropPosition.value = event.clientY < midpoint ? 'above' : 'below';
+        const midY = rect.top + rect.height / 2;
+        
+        // Update the shared reorder tracking variables
+        reorderDropTarget.value = data.groupId;
+        reorderDropPosition.value = event.clientY < midY ? 'above' : 'below';
       }
-
-      reorderDropTarget.value = data.groupId;
     }
-    // Handle row being dragged onto group
+    // Handle row dragging over groups
     else if (reorderDragUuid.value) {
       event.preventDefault();
       event.dataTransfer!.dropEffect = 'move';
@@ -1156,9 +1169,9 @@
     const groupHeader = (event.currentTarget as HTMLElement).closest('.p-rowgroup-header');
     if (groupHeader && !groupHeader.contains(event.relatedTarget as Node)) {
       // Reset the drop target if it was on this group
-      if (reorderDropTarget.value === data.groupId || reorderDropTarget.value === `header:${data.groupId}`) {
+      if (reorderDropTarget.value === data.groupId || reorderDropTarget.value === `header:${data.groupId}`) 
         reorderDropTarget.value = null;
-      }
+      
       // Clear dragging over group state
       isDraggingOverGroup.value = null;
     }
