@@ -126,69 +126,72 @@
 
       <!-- Group header template for grouped mode -->
       <template #groupheader="slotProps" v-if="props.grouped">
-        <!-- Note: slotProps.data is the 1st row in the group -->
         <div
-          v-if="slotProps.data.groupId && editingGroupId !== slotProps.data.groupId"
-          class="fcb-group-header-actions fcb-row-wrapper"
+          :class="{ 'fcb-row-wrapper': true, 'group-drag-over': isDraggingOverGroup === slotProps.data.groupId }"
+          style="display:inline-block"
+          @dragover="onDragoverGroup($event, slotProps.data);"
+          @dragleave="onDragleaveGroup($event, slotProps.data);"
+          @drop="onDropGroup($event, slotProps.data)"
         >
-          <div 
-            class="fcb-group-header-grip"
-            @dragover="onDragoverRow($event, slotProps.data)"
-            @dragleave="onDragleaveRow(slotProps.data.groupId)"
-            @drop="onDropRow($event, slotProps.data.groupId)"
+          <!-- Note: slotProps.data is the 1st row in the group -->
+          <div
+            v-if="slotProps.data.groupId && editingGroupId !== slotProps.data.groupId"
+            class="fcb-group-header-actions"
+            @dragstart="onDragstartGroup($event, slotProps.data.groupId)"
+            @dragend="onDragendGroup()"
           >
-            <i class="fas fa-grip-vertical"></i>
+            <div 
+              class="fcb-group-header-grip"
+            >
+              <i class="fas fa-grip-vertical"></i>
+            </div>
+            <div>
+              <a
+                class="fcb-action-icon"
+                data-tooltip="Edit"
+                @click.stop="setEditingGroup(slotProps.data.groupId)"
+              >
+                <i class="fas fa-edit"></i>
+              </a>
+              <a
+                class="fcb-action-icon"
+                data-tooltip="Delete"
+                @click.stop="deleteGroup(slotProps.data.groupId)"
+              >
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
           </div>
-          <div>
-            <a
-              class="fcb-action-icon"
-              data-tooltip="Edit"
+
+          <!-- Edit mode -->
+          <div
+            v-if="slotProps.data.groupId && editingGroupId === slotProps.data.groupId"
+            class="fcb-group-header editing"
+          >
+            <div class="fcb-group-edit">
+              <InputText 
+                v-model="editingGroupName"
+                ref="groupEditInput"
+                unstyled
+                class="fcb-group-input"
+                @keydown.enter.stop="saveEditingGroup"
+                @keydown.esc.stop="cancelEditGroup"
+              />
+            </div>
+          </div>
+
+          <!-- Display mode -->
+          <div
+            v-else
+            class="fcb-group-header"
+            draggable="true"
+          >
+            <div 
+              class="fcb-group-display"
               @click.stop="setEditingGroup(slotProps.data.groupId)"
             >
-              <i class="fas fa-edit"></i>
-            </a>
-            <a
-              class="fcb-action-icon"
-              data-tooltip="Delete"
-              @click.stop="deleteGroup(slotProps.data.groupId)"
-            >
-              <i class="fas fa-trash"></i>
-            </a>
-          </div>
-        </div>
-
-        <!-- Edit mode -->
-        <div
-          v-if="slotProps.data.groupId && editingGroupId === slotProps.data.groupId"
-          class="fcb-group-header editing"
-        >
-          <div class="fcb-group-edit">
-            <InputText 
-              v-model="editingGroupName"
-              ref="groupEditInput"
-              unstyled
-              class="fcb-group-input"
-              @keydown.enter.stop="saveEditingGroup"
-              @keydown.esc.stop="cancelEditGroup"
-            />
-          </div>
-        </div>
-
-        <!-- Display mode -->
-        <div
-          v-else
-          class="fcb-group-header"
-          draggable="true"
-          @dragstart="onGroupDragStart($event, slotProps.data.groupId)"
-          @dragover="onGroupDragOver($event)"
-          @drop="onGroupDrop($event, slotProps.data.groupId)"
-          @dragend="onGroupDragEnd"
-        >
-          <div 
-            class="fcb-group-display"
-            @click.stop="setEditingGroup(slotProps.data.groupId)"
-          >
-            {{ groups.find(g => g.groupId === slotProps.data.groupId)?.name }}
+              {{ groups.find(g => g.groupId === slotProps.data.groupId)?.name }}
+            </div>
           </div>
         </div>
       </template>
@@ -210,7 +213,8 @@
               v-if="!isPlaceholderRow(data)"
               class="fcb-drag-handle"
               draggable="true"
-              @dragstart="onReorderDragStart($event, data.uuid)"
+              @dragstart="onDragstartRow($event, data.uuid)"
+              @dragend="onDragendRow()"
             >
               <i class="fas fa-grip-vertical"></i>
             </div>
@@ -240,9 +244,6 @@
                 'fcb-row-wrapper',
                 isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
-              @dragover="onDragoverRow($event, data)"
-              @dragleave="onDragleaveRow(data.uuid)"
-              @drop="onDropRow($event, data)"
             >
               <template
                 v-for="(action, index) in actions"
@@ -266,9 +267,6 @@
             <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
-              @dragover="onDragoverRow($event, data)"
-              @dragleave="onDragleaveRow(data)"
-              @drop="onDropRow($event, data)"
             >
               <div 
                 class="fcb-drag-handle" 
@@ -285,9 +283,6 @@
             <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
-              @dragover="onDragoverRow($event, data)"
-              @dragleave="onDragleaveRow(data)"
-              @drop="onDropRow($event, data)"
             >
               <!-- we're editing this row -->
               <div 
@@ -344,9 +339,6 @@
             <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
-              @dragover="onDragoverRow($event, data)"
-              @dragleave="onDragleaveRow(data)"
-              @drop="onDropRow($event, data)"
             >
               <Checkbox 
                 :model-value="data[field]" 
@@ -361,9 +353,6 @@
           <div v-else-if="col.onClick && !isPlaceholderRow(data)">
             <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '']"
-              @dragover="onDragoverRow($event, data)"
-              @dragleave="onDragleaveRow(data)"
-              @drop="onDropRow($event, data)"
             >
               <div
                 class="fcb-table-body-text clickable"
@@ -381,9 +370,6 @@
           <div v-else-if="colIndex==1 && isPlaceholderRow(data)">
             <div 
               class="fcb-row-wrapper"
-              @dragover="onDragoverRow($event, data)"
-              @dragleave="onDragleaveRow(data)"
-              @drop="onDropRow($event, data)"
             >
               <div>
                 <span>
@@ -397,9 +383,6 @@
           <div v-else>
             <div
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '']"
-              @dragover="onDragoverRow($event, data)"
-              @dragleave="onDragleaveRow(data)"
-              @drop="onDropRow($event, data)"
             >
               <div>
                 <span>
@@ -604,9 +587,7 @@
 
   /** store collapse state during group drag */
   const groupCollapseState = ref<string[]>([]);
-
-  /** track if a group is being dragged */
-  const isDraggingGroup = ref<boolean>(false);
+  const reorderDragGroupId = ref<string | null>(null);
 
   /** the row being dragged for reorder; we need this to track the uuid during dragover 
    * events (where the browser restricts access to event.data) */
@@ -617,6 +598,9 @@
 
   /** whether the drop would be above or below the target row */
   const reorderDropPosition = ref<'above' | 'below'>('below');
+
+  /** track if we're currently dragging over a group header; store the groupid */
+  const isDraggingOverGroup = ref<string | null>(null);
 
   ////////////////////////////////
   // computed data
@@ -1007,13 +991,45 @@
     emit('dropNew', event);
   }
 
-  const onReorderDragStart = (event: DragEvent, uuid: string) => {
+  const onDragstartRow = (event: DragEvent, uuid: string) => {
     if (!event.dataTransfer) 
       return;
 
     reorderDragUuid.value = uuid;
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', uuid);
+  };
+
+  const onDragendRow = () => {
+    if (!reorderDragUuid.value) return;
+    
+    // Set drag data
+    reorderDragUuid.value = null;
+  };
+
+
+  const onDragstartGroup = (event: DragEvent, groupId: string) => {
+    if (!event.dataTransfer) return;
+    
+    // Store the current collapse state
+    groupCollapseState.value = [...expandedRowGroups.value];
+    
+    // collapse everything
+
+    // Set drag data
+    reorderDragGroupId.value = groupId;
+    event.dataTransfer.setData('text/plain', groupId);
+    event.dataTransfer.effectAllowed = 'move';
+  };
+
+  const onDragendGroup = () => {
+    if (!reorderDragGroupId.value) return;
+    
+    // Reset the current collapse state
+    expandedRowGroups.value = groupCollapseState.value;
+    
+    // Set drag data
+    reorderDragGroupId.value = null;
   };
 
   const onDragoverRow = (event: DragEvent, data: BaseTableGridRow) => {
@@ -1048,6 +1064,55 @@
     }
   };
 
+  const onDragoverGroup = (event: DragEvent, data: BaseTableGridRow) => {
+    // Handle group reordering
+    if (reorderDragGroupId.value) {
+      if (reorderDragGroupId.value === data.groupId) return;
+
+      event.preventDefault();
+      event.dataTransfer!.dropEffect = 'move';
+
+      // Determine above/below based on mouse position within the row
+      const row = (event.currentTarget as HTMLElement).closest('tr');
+      if (row) {
+        const rect = row.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+        reorderDropPosition.value = event.clientY < midpoint ? 'above' : 'below';
+      }
+
+      reorderDropTarget.value = data.groupId;
+    }
+    // Handle row being dragged onto group
+    else if (reorderDragUuid.value) {
+      event.preventDefault();
+      event.dataTransfer!.dropEffect = 'move';
+      
+      // Track that we're over this group and expand it
+      isDraggingOverGroup.value = data.groupId;
+      if (data.groupId && !expandedRowGroups.value.includes(data.groupId)) {
+        expandedRowGroups.value.push(data.groupId);
+      }
+      
+      // Determine if dropping on header vs within group
+      const groupHeader = (event.currentTarget as HTMLElement).closest('.p-rowgroup-header');
+      if (groupHeader) {
+        const rect = groupHeader.getBoundingClientRect();
+        // Consider it a header drop if in top 25% of the header
+        if (event.clientY < rect.top + rect.height * 0.25) {
+          reorderDropTarget.value = `header:${data.groupId}`;
+        } else {
+          reorderDropTarget.value = data.groupId;
+        }
+      }
+    }
+    // Handle external drops on group - not allowed
+    else if (props.allowDropRow && event.dataTransfer && event.dataTransfer.types.includes('text/plain')) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'none';
+      isDraggingOverGroup.value = null;
+    }
+  };
+
   /** 
    * Reset the drop target when the drag leaves the row
    */
@@ -1059,6 +1124,22 @@
     // Reset the drop target if it was on this row
     if (reorderDropTarget.value === data.uuid)
       reorderDropTarget.value = null;
+  };
+
+  /** 
+   * Reset the drop target when the drag leaves the group
+   */
+  const onDragleaveGroup = (event: DragEvent, data: BaseTableGridRow) => {
+    // Check if we're actually leaving the group header area
+    const groupHeader = (event.currentTarget as HTMLElement).closest('.p-rowgroup-header');
+    if (groupHeader && !groupHeader.contains(event.relatedTarget as Node)) {
+      // Reset the drop target if it was on this group
+      if (reorderDropTarget.value === data.groupId || reorderDropTarget.value === `header:${data.groupId}`) {
+        reorderDropTarget.value = null;
+      }
+      // Clear dragging over group state
+      isDraggingOverGroup.value = null;
+    }
   };
 
   /** 
@@ -1142,65 +1223,70 @@
     }
   }
 
-  const onGroupToggle = (groupId: string) => {
-    const newExpanded = [...expandedRowGroups.value];
-    const index = newExpanded.indexOf(groupId);
+  const onDropGroup = (event: DragEvent, data: BaseTableGridRow) => {
+    event.preventDefault();
     
-    if (index > -1) {
-      newExpanded.splice(index, 1);
-    } else {
-      newExpanded.push(groupId);
+    // Clear dragging over state
+    isDraggingOverGroup.value = null;
+    
+    // Handle group reordering
+    if (reorderDragGroupId.value && event.dataTransfer) {
+      const draggedGroupId = event.dataTransfer.getData('text/plain');
+      if (draggedGroupId === data.groupId) return;
+      
+      // Find indices
+      const draggedIndex = groups.value.findIndex(g => g.groupId === draggedGroupId);
+      const targetIndex = groups.value.findIndex(g => g.groupId === data.groupId);
+      
+      if (draggedIndex === -1 || targetIndex === -1) return;
+      
+      // Create new groups array with reordered items
+      const newGroups = [...groups.value];
+      const [draggedGroup] = newGroups.splice(draggedIndex, 1);
+      newGroups.splice(targetIndex, 0, draggedGroup);
+      
+      // Restore collapse state
+      expandedRowGroups.value = groupCollapseState.value;
+      
+      // Emit reorder event with both groups and reordered rows
+      const reorderedRows = reorderRowsByGroups(newGroups);
+      emit('reorder', reorderedRows);
     }
-  };
+    // Handle row being dropped on group
+    else if (reorderDragUuid.value && data.groupId) {
+      const currentRows = [...transformedData.value];
+      const dragIndex = currentRows.findIndex(r => r.uuid === reorderDragUuid.value);
+      
+      if (dragIndex === -1) {
+        reorderDragUuid.value = null;
+        reorderDropTarget.value = null;
+        return;
+      }
+      
+      // Remove dragged row from old position
+      const [removed] = currentRows.splice(dragIndex, 1);
+      
+      // Update the row's group
+      (removed as GroupedTableGridRow).groupId = data.groupId;
 
-  const onGroupDragStart = (event: DragEvent, groupId: string) => {
-    if (!event.dataTransfer) return;
+      // drop index is the same as the 1st row of the group 
+      const dropIndex = currentRows.findIndex(r => r.groupId === data.groupId);
+      
+      if (dropIndex !== -1) {
+        currentRows.splice(dropIndex, 0, removed);
+      } else {
+        // Group is empty, just add the row
+        currentRows.push(removed);
+      }
+      
+      emit('reorder', currentRows.filter(r => !isPlaceholderRow(r)));
+    }
+    // Handle external drops on group - not allowed
+    else if (props.allowDropRow && event.dataTransfer && event.dataTransfer.types.includes('text/plain')) {
+    }
     
-    // Store the current collapse state
-    groupCollapseState.value = [...expandedRowGroups.value];
-    
-    // Set drag data
-    event.dataTransfer.setData('text/plain', groupId);
-    event.dataTransfer.effectAllowed = 'move';
-    
-    isDraggingGroup.value = true;
-  };
-
-  const onGroupDragOver = (event: DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer!.dropEffect = 'move';
-  };
-
-  const onGroupDrop = (event: DragEvent, targetGroupId: string) => {
-    event.preventDefault();
-    
-    if (!event.dataTransfer || !isDraggingGroup.value) return;
-    
-    const draggedGroupId = event.dataTransfer.getData('text/plain');
-    if (draggedGroupId === targetGroupId) return;
-    
-    // Find indices
-    const draggedIndex = groups.value.findIndex(g => g.groupId === draggedGroupId);
-    const targetIndex = groups.value.findIndex(g => g.groupId === targetGroupId);
-    
-    if (draggedIndex === -1 || targetIndex === -1) return;
-    
-    // Create new groups array with reordered items
-    const newGroups = [...groups.value];
-    const [draggedGroup] = newGroups.splice(draggedIndex, 1);
-    newGroups.splice(targetIndex, 0, draggedGroup);
-    
-    // Restore collapse state
-    expandedRowGroups.value = groupCollapseState.value;
-    
-    // Emit reorder event with both groups and reordered rows
-    const reorderedRows = reorderRowsByGroups(newGroups);
-    emit('reorder', reorderedRows);
-  };
-
-  const onGroupDragEnd = () => {
-    isDraggingGroup.value = false;
-    groupCollapseState.value = [];
+    // Clean up
+    reorderDropTarget.value = null;
   };
 
   /**
@@ -1382,5 +1468,11 @@
 
   :deep(tr.reorder-drop-below td) {
     border-bottom: 2px solid var(--fcb-link);
+  }
+
+  // Visual feedback when dragging over group headers
+  .group-drag-over {
+    background-color: var(--fcb-color-surface-300);
+    border: 2px dashed var(--fcb-link);
   }
 </style>
