@@ -623,8 +623,8 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       reorderedItems.push(...groupItems);
     }
     
-    // Add ungrouped items at the end
-    const ungroupedItems = this._clone.system.toDoItems.filter((item: ToDoItem) => !item.groupId);
+    // Add ungrouped items at the end (items with null, undefined, or 'ungrouped' groupId)
+    const ungroupedItems = this._clone.system.toDoItems.filter((item: ToDoItem) => !item.groupId || item.groupId === 'ungrouped');
     reorderedItems.push(...ungroupedItems);
     
     this._clone.system.toDoItems = reorderedItems;

@@ -17,6 +17,7 @@
       @add-item="onAddToDoItem"
       @cell-edit-complete="onCellEditComplete"
       @reorder="onReorder"
+      @reorder-group="onReorderGroup"
       @group-add="onGroupAdd"
       @group-edit="onGroupEdit"
       @group-delete="onGroupDelete"
@@ -130,24 +131,41 @@
   }
 
   const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    // Check if this is a group reorder or row reorder
-    const firstRow = reorderedRows[0] as any;
-    if (firstRow && !firstRow.uuid) {
-      // This is a group reorder - filter out the ungrouped group and reorder
-      const newGroups = reorderedRows
-        .map(row => toDoGroups.value.find(g => g.groupId === (row as any).groupId))
-        .filter(Boolean) as TableGroup[];
-      await campaignStore.reorderToDoGroups(newGroups);
-    } else {
-      // This is a row reorder within or between groups
-      const reorderedToDos = reorderedRows
-        .map((row): ToDoItem | null => {
-          const toDo = toDoRows.value.find(toDo => toDo.uuid === row.uuid);
-          return toDo ? { ...toDo, groupId: (row as any).groupId } : null;
-        })
-        .filter(Boolean) as ToDoItem[];
-      await campaignStore.reorderToDos(reorderedToDos);
+    // This is a row reorder within or between groups
+    const reorderedToDos = reorderedRows
+      .map((row): ToDoItem | null => {
+        const toDo = toDoRows.value.find(toDo => toDo.uuid === row.uuid);
+        return toDo ? { ...toDo, groupId: (row as any).groupId } : null;
+      })
+      .filter(Boolean) as ToDoItem[];
+    await campaignStore.reorderToDos(reorderedToDos);
+  };
+
+  const onReorderGroup = async (reorderedGroupIds: string[]) => {
+    // Map the reordered group IDs back to TableGroup objects
+    const newGroups = reorderedGroupIds
+      .map(id => toDoGroups.value.find(g => g.groupId === id))
+      .filter(Boolean) as TableGroup[];
+    
+    // Reorder all rows to match the new group order
+    const reorderedToDos: ToDoItem[] = [];
+    
+    // Add ungrouped items at the beginning (items with null, undefined, or 'ungrouped' groupId)
+    const ungroupedItems = toDoRows.value
+      .filter(item => !item.groupId || item.groupId === 'ungrouped')
+      .map(item => ({ ...item, groupId: null })); 
+    reorderedToDos.push(...ungroupedItems);
+
+    // Add items for each group in order, maintaining their relative order
+    for (const group of newGroups) {
+      const groupItems = toDoRows.value
+        .filter(item => item.groupId === group.groupId)
+        .map(item => ({ ...item })); // Create copies to avoid reference issues
+      reorderedToDos.push(...groupItems);
     }
+    
+    await campaignStore.reorderToDos(reorderedToDos);
+    await campaignStore.reorderToDoGroups(newGroups);
   };
 
   const onGroupAdd = async () => {

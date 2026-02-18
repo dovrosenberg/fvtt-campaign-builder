@@ -1136,7 +1136,13 @@
         
         // Update the shared reorder tracking variables
         reorderDropTarget.value = groupId;
-        reorderDropPosition.value = event.clientY < midY ? 'above' : 'below';
+        
+        // Prevent dropping above the 'ungrouped' group - only allow below
+        if (groupId === 'ungrouped') {
+          reorderDropPosition.value = 'below';
+        } else {
+          reorderDropPosition.value = event.clientY < midY ? 'above' : 'below';
+        }
       }
     }
     // Handle row dragging over groups
