@@ -183,12 +183,12 @@
               </div>
             </div>
 
-            <!-- Edit mode -->
-            <div
-              v-if="slotProps.data.groupId && editingGroupId === slotProps.data.groupId"
-              class="fcb-group-header editing"
-            >
-              <div class="fcb-group-edit">
+            <div class="fcb-group-header">
+              <!-- Edit mode -->
+              <div 
+                v-if="slotProps.data.groupId && editingGroupId === slotProps.data.groupId"
+                class="fcb-group-edit"
+              >
                 <InputText 
                   v-model="editingGroupName"
                   ref="groupEditInput"
@@ -198,14 +198,10 @@
                   @keydown.esc.stop="cancelEditGroup"
                 />
               </div>
-            </div>
 
-            <!-- Display mode -->
-            <div
-              v-else
-              class="fcb-group-header"
-            >
+              <!-- Display mode -->
               <div 
+                v-else
                 class="fcb-group-display"
                 @click.stop="setEditingGroup(slotProps.data.groupId)"
               >
@@ -633,7 +629,7 @@
   /** whether the drop would be above or below the target row */
   const reorderDropPosition = ref<'above' | 'below'>('below');
 
-  /** track if we're currently dragging a row over a group header; store the groupid */
+  /** track if we're currently dragging a ROW over a group header; store the groupid */
   const isDraggingOverGroup = ref<string | null>(null);
 
   /** Timer for delayed group expansion during row/external drag */
@@ -1507,14 +1503,14 @@
     background-color: var(--fcb-primary); 
     color: var(--fcb-text-on-primary);
 
-    &:has(.reorder-drop-above) {
-      background-color: red !important;
-      border-top: 8px solid var(--fcb-link) !important;
+    &.reorder-drop-above {
+      // background-color: red !important;
+      border-top: 2px solid var(--fcb-text-on-primary) !important;
     }
 
-    &:has(.reorder-drop-below) {
-      background-color: red !important;
-      border-bottom: 8px solid var(--fcb-link) !important;
+    &.reorder-drop-below {
+      // background-color: red !important;
+      border-bottom: 2px solid var(--fcb-text-on-primary) !important;
     }
 
     &:has(.group-drag-over) {
@@ -1529,6 +1525,7 @@
     display: inline-block;
     padding-left: 70px; // Clear space for actions
     height: 100%;
+    pointer-events: auto; // Ensure pointer events work on content
   }
 
   // Actions are absolutely positioned to the left of the content
@@ -1541,6 +1538,7 @@
     display: flex;
     align-items: center;
     z-index: 2; // Above drop target for click events
+    pointer-events: auto; // Ensure pointer events work on action buttons
   }
 
   .fcb-group-header-grip {
@@ -1550,25 +1548,19 @@
   }
 
   .fcb-group-header {
-    display: inline-block;
+    // display: inline-block;
     background-color: var(--fcb-color-surface-200);
     font-weight: bold;
-    vertical-align: super; // gets it close to middle
+    // vertical-align: super; // gets it close to middle
     height: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 30px;
 
     &:hover {
       background-color: var(--fcb-color-surface-300);
     }
 
-    &.editing {
-      background-color: var(--fcb-color-surface-100);
-    }
-  }
-
-  .fcb-group-edit {
-    display: iline-block;
-    align-items: center;
-    height: 100%;
   }
 
   .fcb-group-input {
@@ -1584,13 +1576,6 @@
       outline: none;
       border-color: var(--fcb-link);
     }
-  }
-
-  .fcb-group-display {
-    display: flex;
-    align-items: center;
-    padding-left: 30px;
-    height: 100%;
   }
 
   // Visual drop indicators for row reorder
