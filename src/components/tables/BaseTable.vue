@@ -23,7 +23,6 @@
           style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;',
         },
         rowGroupHeader: {
-          style: 'background-color: var(--fcb-primary); color: var(--fcb-text-on-primary); cursor: pointer;',
           colspan: totalColumnCount
         },
         // the ones that are headers still need the left padding to push 
@@ -31,6 +30,9 @@
         rowGroupHeaderCell: {
           colspan: totalColumnCount,
           style: 'position: relative; padding-left: 70px !important;'
+        },
+        rowToggleButton: {
+          style: 'color: var(--fcb-text-on-primary); z-index: 2;',
         }
       }"
 
@@ -126,83 +128,89 @@
 
       <!-- Group header template for grouped mode -->
       <template #groupheader="slotProps" v-if="props.grouped">
+        <!-- Full-cell drop target wrapper - fills entire td to capture all drop events -->
         <div
+          class="fcb-group-header-drop-target"
           :class="{ 
-            'fcb-row-wrapper': true, 
             'group-drag-over': isDraggingOverGroup === slotProps.data.groupId,
             'reorder-drop-above': reorderDropTarget === slotProps.data.groupId && reorderDropPosition === 'above',
             'reorder-drop-below': reorderDropTarget === slotProps.data.groupId && reorderDropPosition === 'below'
           }"
           :data-group-id="slotProps.data.groupId"
-          style="display:inline-block"
-          >
-          <!-- Note: slotProps.data is the 1st row in the group -->
-          <div
-            v-if="slotProps.data.groupId && editingGroupId !== slotProps.data.groupId"
-            class="fcb-group-header-actions"
-          >
-            <div 
-              v-if="slotProps.data.groupId !== 'ungrouped'"
-              class="fcb-group-header-grip"
-              draggable="true"
-              @dragstart="onDragstartGroup($event, slotProps.data.groupId)"
-              @dragend="onDragendGroup()"
+          @dragover="onDragoverGroup($event, slotProps.data.groupId)"
+          @dragleave="onDragleaveGroup($event, slotProps.data.groupId)"
+          @drop="onDropGroup($event, slotProps.data.groupId)"
+        >
+          <!-- Content wrapper positioned with padding to clear the actions -->
+          <div class="fcb-group-header-content">
+            <!-- Note: slotProps.data is the 1st row in the group -->
+            <div
+              v-if="slotProps.data.groupId && editingGroupId !== slotProps.data.groupId"
+              class="fcb-group-header-actions"
             >
-              <i class="fas fa-grip-vertical"></i>
+              <div 
+                v-if="slotProps.data.groupId !== 'ungrouped'"
+                class="fcb-group-header-grip"
+                draggable="true"
+                @dragstart="onDragstartGroup($event, slotProps.data.groupId)"
+                @dragend="onDragendGroup($event)"
+              >
+                <i class="fas fa-grip-vertical"></i>
+              </div>
+
+              <!-- spacer for ungrouped group -->
+              <div 
+                v-else
+                class="fcb-group-header-grip"
+                style="width: 8.125px"
+              >
+              </div>
+              <div>
+                <a
+                  class="fcb-action-icon"
+                  data-tooltip="Edit"
+                  @click.stop="setEditingGroup(slotProps.data.groupId)"
+                >
+                  <i class="fas fa-edit"></i>
+                </a>
+                <a
+                  class="fcb-action-icon"
+                  data-tooltip="Delete"
+                  @click.stop="deleteGroup(slotProps.data.groupId)"
+                >
+                  <i class="fas fa-trash"></i>
+                </a>
+              </div>
             </div>
 
-            <!-- spacer for ungrouped group -->
-            <div 
-              v-else
-              class="fcb-group-header-grip"
-              style="width: 8.125px"
+            <!-- Edit mode -->
+            <div
+              v-if="slotProps.data.groupId && editingGroupId === slotProps.data.groupId"
+              class="fcb-group-header editing"
             >
+              <div class="fcb-group-edit">
+                <InputText 
+                  v-model="editingGroupName"
+                  ref="groupEditInput"
+                  unstyled
+                  class="fcb-group-input"
+                  @keydown.enter.stop="saveEditingGroup"
+                  @keydown.esc.stop="cancelEditGroup"
+                />
+              </div>
             </div>
-            <div>
-              <a
-                class="fcb-action-icon"
-                data-tooltip="Edit"
+
+            <!-- Display mode -->
+            <div
+              v-else
+              class="fcb-group-header"
+            >
+              <div 
+                class="fcb-group-display"
                 @click.stop="setEditingGroup(slotProps.data.groupId)"
               >
-                <i class="fas fa-edit"></i>
-              </a>
-              <a
-                class="fcb-action-icon"
-                data-tooltip="Delete"
-                @click.stop="deleteGroup(slotProps.data.groupId)"
-              >
-                <i class="fas fa-trash"></i>
-              </a>
-            </div>
-          </div>
-
-          <!-- Edit mode -->
-          <div
-            v-if="slotProps.data.groupId && editingGroupId === slotProps.data.groupId"
-            class="fcb-group-header editing"
-          >
-            <div class="fcb-group-edit">
-              <InputText 
-                v-model="editingGroupName"
-                ref="groupEditInput"
-                unstyled
-                class="fcb-group-input"
-                @keydown.enter.stop="saveEditingGroup"
-                @keydown.esc.stop="cancelEditGroup"
-              />
-            </div>
-          </div>
-
-          <!-- Display mode -->
-          <div
-            v-else
-            class="fcb-group-header"
-          >
-            <div 
-              class="fcb-group-display"
-              @click.stop="setEditingGroup(slotProps.data.groupId)"
-            >
-              {{ groups.find(g => g.groupId === slotProps.data.groupId)?.name }}
+                {{ groups.find(g => g.groupId === slotProps.data.groupId)?.name }}
+              </div>
             </div>
           </div>
         </div>
@@ -625,8 +633,23 @@
   /** whether the drop would be above or below the target row */
   const reorderDropPosition = ref<'above' | 'below'>('below');
 
-  /** track if we're currently dragging over a group header; store the groupid */
+  /** track if we're currently dragging a row over a group header; store the groupid */
   const isDraggingOverGroup = ref<string | null>(null);
+
+  /** Timer for delayed group expansion during row/external drag */
+  const groupExpandTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+
+  /** The group that will be expanded after the timer */
+  const pendingExpandGroupId = ref<string | null>(null);
+
+  /** Helper to clear the group expand timer */
+  const clearGroupExpandTimer = () => {
+    if (groupExpandTimer.value) {
+      clearTimeout(groupExpandTimer.value);
+      groupExpandTimer.value = null;
+      pendingExpandGroupId.value = null;
+    }
+  };
 
   ////////////////////////////////
   // computed data
@@ -662,18 +685,6 @@
     }
     return '';
   };
-
-  /** ordered list of group ids - including ungrouped*/
-  const rowGroupIds = computed(() => {
-    if (!props.grouped) return [];
-    
-    const retval = [] as string[];
-    if (props.rows.some(r => r.groupId === 'ungrouped' || !r.groupId)) {
-      retval.push('ungrouped');
-    }
-    retval.push(...props.groups.map(g => g.groupId));
-    return retval;
-  });
   
   /** Transform data for grouped mode */
   const transformedData = computed(() => {
@@ -1042,6 +1053,9 @@
   const onDragendRow = () => {
     if (!reorderDragUuid.value) return;
     
+    // Clear the expand timer if it's running
+    clearGroupExpandTimer();
+    
     // Set drag data
     reorderDragUuid.value = null;
   };
@@ -1060,55 +1074,23 @@
     // Store which group is being dragged
     reorderDragGroupId.value = groupId;
     
-    // Find the .p-datatable-table ancestor
-    const tableBody = (event.target as HTMLElement).closest('.p-datatable-table');
-    if (tableBody) {
-      // Add event listeners to all group header td elements within this table body
-      const groupHeaders = tableBody.querySelectorAll('tr.p-datatable-row-group-header td');
-
-      // they're in order
-      let i=0
-      groupHeaders.forEach(td => {
-        td.addEventListener('dragover', (e) => onDragoverGroup(e, rowGroupIds.value[i]));
-        td.addEventListener('dragleave', (e) => onDragleaveGroup(e, rowGroupIds.value[i]));
-        td.addEventListener('drop', (e) => onDropGroup(e, rowGroupIds.value[i]));
-        i++;
-      });
-    }
-    
     // Defer collapsing groups to avoid blocking the drag operation
     setTimeout(() => {
       expandedRowGroups.value = [];
     }, 0);
   };
 
-  const onDragendGroup = (event: DragEvent) => {
+  const onDragendGroup = (_event: DragEvent) => {
     if (!reorderDragGroupId.value) return;
     
     // Reset the current collapse state
     expandedRowGroups.value = groupCollapseState.value;
-    
-      // Find the .p-datatable-table ancestor and remove event listeners
-    const tableBody = (event.target as HTMLElement).closest('.p-datatable-table');
-    if (tableBody) {
-      // Find the table for the source element and remove event listeners from their group header td elements
-      const groupHeaders = tableBody?.querySelectorAll('tr.p-datatable-row-group-header td');
-
-      let i=0;
-      groupHeaders?.forEach(td => {
-        // they're in order
-        td.removeEventListener('dragover', (e) => onDragoverGroup(e, rowGroupIds[i]));
-        td.removeEventListener('dragleave', (e) => onDragleaveGroup(e, rowGroupIds[i]));
-        td.removeEventListener('drop', (e) => onDropGroup(e, rowGroupIds[i]));
-        i++;
-      });
-    }
         
     // Clear drop target and position
     reorderDropTarget.value = null;
     reorderDropPosition.value = 'below';
     
-    // Set drag data
+    // Clear drag data
     reorderDragGroupId.value = null;
   };
 
@@ -1152,9 +1134,6 @@
       event.preventDefault();
       event.dataTransfer!.dropEffect = 'move';
 
-      // Set that we're dragging over this group
-      isDraggingOverGroup.value = groupId;
-
       // Determine above/below based on mouse position within the group header
       const groupHeader = (event.currentTarget as HTMLElement).closest('.p-datatable-row-group-header');
       if (groupHeader) {
@@ -1171,10 +1150,27 @@
       event.preventDefault();
       event.dataTransfer!.dropEffect = 'move';
       
-      // Track that we're over this group and expand it
+      // Track that we're over this group
       isDraggingOverGroup.value = groupId;
+      
+      // Start timer to expand group after 500ms delay (only if not already expanded)
       if (groupId && !expandedRowGroups.value.includes(groupId)) {
-        expandedRowGroups.value.push(groupId);
+        // Clear any existing timer
+        if (groupExpandTimer.value) {
+          clearTimeout(groupExpandTimer.value);
+        }
+        
+        // Only start a new timer if this is a different group than the pending one
+        if (pendingExpandGroupId.value !== groupId) {
+          pendingExpandGroupId.value = groupId;
+          groupExpandTimer.value = setTimeout(() => {
+            if (pendingExpandGroupId.value === groupId && !expandedRowGroups.value.includes(groupId)) {
+              expandedRowGroups.value.push(groupId);
+            }
+            groupExpandTimer.value = null;
+            pendingExpandGroupId.value = null;
+          }, 500);
+        }
       }
       
       // Determine if dropping on header vs within group
@@ -1223,6 +1219,11 @@
       
       // Clear dragging over group state
       isDraggingOverGroup.value = null;
+      
+      // Clear the expand timer if we're leaving this group
+      if (pendingExpandGroupId.value === groupId) {
+        clearGroupExpandTimer();
+      }
     }
   };
 
@@ -1230,11 +1231,14 @@
    * Handle the drop event on a row
    */
   const onDropRow = (event: DragEvent, uuid: string) => {
+    // Clear the expand timer if it's running
+    clearGroupExpandTimer();
+    
     if (props.allowDropRow && !reorderDragUuid.value) {
       // Reset the valid drag state
       if (isDragHoverRow.value===uuid)
         isDragHoverRow.value = null;
-    
+     
       // Call the parent's drop handler
       emit('dropRow', event, uuid);
     } else if (reorderDragUuid.value) {
@@ -1267,8 +1271,11 @@
       // Remove dragged row from old position
       const [removed] = currentRows.splice(dragIndex, 1);
 
+      // Get target row data to check groupId
+      const targetData = currentRows.find(r => r.uuid === uuid);
+      
       // Update groupId if crossing groups in grouped mode
-      const newGroupId = (targetData as GroupedTableGridRow).groupId;
+      const newGroupId = (targetData as GroupedTableGridRow)?.groupId;
       if (props.grouped && newGroupId) {
         (removed as GroupedTableGridRow).groupId = newGroupId;
 
@@ -1309,6 +1316,9 @@
 
   const onDropGroup = (event: DragEvent, groupId: string) => {
     event.preventDefault();
+    
+    // Clear the expand timer if it's running
+    clearGroupExpandTimer();
     
     // Clear dragging over state
     isDraggingOverGroup.value = null;
@@ -1411,9 +1421,6 @@
     }
   });
 
-  ////////////////////////////////
-  // lifecycle events
-
 </script>
 
 <style lang="scss" scoped>
@@ -1489,8 +1496,42 @@
     margin-right: 8px;
   }
 
-  // Actions are absolutely positioned to the left of PrimeVue's toggle button.
-  // The td gets position:relative + padding-left:60px via :pt on rowGroupHeaderCell.
+  // Full-cell drop target that fills the entire td to capture all drop events
+  // The td gets position:relative via :pt on rowGroupHeaderCell
+  // pointer-events: none allows clicks to pass through to action buttons and toggle
+  .fcb-group-header-drop-target {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-color: var(--fcb-primary); 
+    color: var(--fcb-text-on-primary);
+
+    &:has(.reorder-drop-above) {
+      background-color: red !important;
+      border-top: 8px solid var(--fcb-link) !important;
+    }
+
+    &:has(.reorder-drop-below) {
+      background-color: red !important;
+      border-bottom: 8px solid var(--fcb-link) !important;
+    }
+
+    &:has(.group-drag-over) {
+      // Visual feedback when dragging a row over group headers
+      background-color: var(--fcb-color-surface-300) !important;
+      border: 2px dashed var(--fcb-link) !important;
+    }
+  }
+
+  // Content wrapper positioned with padding to clear the actions area
+  .fcb-group-header-content {
+    display: inline-block;
+    padding-left: 70px; // Clear space for actions
+    height: 100%;
+  }
+
+  // Actions are absolutely positioned to the left of the content
   .fcb-group-header-actions {
     position: absolute;
     left: 0;
@@ -1499,6 +1540,7 @@
     padding-left: 10px;
     display: flex;
     align-items: center;
+    z-index: 2; // Above drop target for click events
   }
 
   .fcb-group-header-grip {
@@ -1545,54 +1587,26 @@
   }
 
   .fcb-group-display {
-    display: inline-block;
+    display: flex;
     align-items: center;
+    padding-left: 30px;
     height: 100%;
   }
 
   // Visual drop indicators for row reorder
-  :deep(tr.reorder-drop-above td) {
+  :deep(tr.reorder-drop-above) {
     border-top: 2px solid var(--fcb-link);
   }
 
-  :deep(tr.reorder-drop-below td) {
+  :deep(tr.reorder-drop-below) {
     border-bottom: 2px solid var(--fcb-link);
   }
 
-  // Visual drop indicators for group reorder
-  :deep(.p-datatable-row-group-header) {
-    // Test if :has() works at all
-    &:has(.fcb-row-wrapper) {
-      outline: 3px solid green !important;
-    }
-
-    &:has(.reorder-drop-above) {
-      background-color: red !important;  // for testing
-      border-top: 2px solid var(--fcb-link) !important;
-    }
-
-    &:has(.reorder-drop-below) {
-      background-color: red !important;  // for testing
-      border-bottom: 2px solid var(--fcb-link) !important;
-    }
-
-    &:has(.group-drag-over) {
-      // Visual feedback when dragging over group headers
-      background-color: var(--fcb-color-surface-300) !important;
-      border: 2px dashed var(--fcb-link) !important;
-    }
-  }
-
-  // Visual feedback when dragging over group headers
+  // Visual feedback when dragging rows over group headers
   .group-drag-over {
     background-color: var(--fcb-color-surface-300);
     border: 2px dashed var(--fcb-link);
   }
 
-  // Container to capture drag events over entire group header
-  .group-header-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
+
 </style>
