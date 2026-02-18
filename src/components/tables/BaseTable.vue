@@ -13,7 +13,7 @@
       scrollable
       scroll-height="flex"
       :total-records="transformedData.length"
-      :global-filter-fields="effectiveFilterFields"
+      :global-filter-fields="effectiveFilterFields"      
       :filters="pagination.filters"
       :pt="{
         header: { style: 'border: none' },
@@ -131,8 +131,7 @@
         <!-- Full-cell drop target wrapper - fills entire td to capture all drop events -->
         <div
           class="fcb-group-header-drop-target"
-          :class="{ 
-            'group-drag-over': isDraggingOverGroup === slotProps.data.groupId,
+          :class="{
             'reorder-drop-above': reorderDropTarget === slotProps.data.groupId && reorderDropPosition === 'above',
             'reorder-drop-below': reorderDropTarget === slotProps.data.groupId && reorderDropPosition === 'below'
           }"
@@ -141,6 +140,8 @@
           @dragleave="onDragleaveGroup($event, slotProps.data.groupId)"
           @drop="onDropGroup($event, slotProps.data.groupId)"
         >
+          <!-- Invisible overlay to capture drag events in empty space -->
+          <div class="fcb-group-header-drag-overlay"></div>
           <!-- Content wrapper positioned with padding to clear the actions -->
           <div class="fcb-group-header-content">
             <!-- Note: slotProps.data is the 1st row in the group -->
@@ -628,9 +629,6 @@
 
   /** whether the drop would be above or below the target row */
   const reorderDropPosition = ref<'above' | 'below'>('below');
-
-  /** track if we're currently dragging a ROW over a group header; store the groupid */
-  const isDraggingOverGroup = ref<string | null>(null);
 
   /** Timer for delayed group expansion during row/external drag */
   const groupExpandTimer = ref<ReturnType<typeof setTimeout> | null>(null);
@@ -1146,46 +1144,28 @@
       event.preventDefault();
       event.dataTransfer!.dropEffect = 'move';
       
-      // Track that we're over this group
-      isDraggingOverGroup.value = groupId;
-      
-      // Start timer to expand group after 500ms delay (only if not already expanded)
-      if (groupId && !expandedRowGroups.value.includes(groupId)) {
-        // Clear any existing timer
+      // Start timer to expand group after 600ms delay (only if not already expanded)
+      if (groupId && pendingExpandGroupId.value !== groupId &&!expandedRowGroups.value.includes(groupId)) {
+        // Clear any existing timer only when switching to a different group
         if (groupExpandTimer.value) {
           clearTimeout(groupExpandTimer.value);
         }
         
-        // Only start a new timer if this is a different group than the pending one
-        if (pendingExpandGroupId.value !== groupId) {
-          pendingExpandGroupId.value = groupId;
-          groupExpandTimer.value = setTimeout(() => {
-            if (pendingExpandGroupId.value === groupId && !expandedRowGroups.value.includes(groupId)) {
-              expandedRowGroups.value.push(groupId);
-            }
-            groupExpandTimer.value = null;
-            pendingExpandGroupId.value = null;
-          }, 500);
-        }
-      }
-      
-      // Determine if dropping on header vs within group
-      const groupHeader = (event.currentTarget as HTMLElement).closest('.p-datatable-row-group-header');
-      if (groupHeader) {
-        const rect = groupHeader.getBoundingClientRect();
-        // Consider it a header drop if in top 25% of the header
-        if (event.clientY < rect.top + rect.height * 0.25) {
-          reorderDropTarget.value = `header:${groupId}`;
-        } else {
-          reorderDropTarget.value = groupId;
-        }
+        pendingExpandGroupId.value = groupId;
+
+        groupExpandTimer.value = setTimeout(() => {
+          if (pendingExpandGroupId.value && !expandedRowGroups.value.includes(pendingExpandGroupId.value)) {
+            expandedRowGroups.value.push(pendingExpandGroupId.value);
+          }
+          groupExpandTimer.value = null;
+          pendingExpandGroupId.value = null;
+        }, 600);
       }
     }
     // Handle external drops on group - not allowed
     else if (props.allowDropRow && event.dataTransfer && event.dataTransfer.types.includes('text/plain')) {
       event.preventDefault();
       event.dataTransfer.dropEffect = 'none';
-      isDraggingOverGroup.value = null;
     }
   };
 
@@ -1202,24 +1182,22 @@
       reorderDropTarget.value = null;
   };
 
-  /** 
+  /**
    * Reset the drop target when the drag leaves the group
    */
   const onDragleaveGroup = (event: DragEvent, groupId: string) => {
     // Check if we're actually leaving the group header area
     const groupHeader = (event.currentTarget as HTMLElement).closest('.p-datatable-row-group-header');
-    if (groupHeader && !groupHeader.contains(event.relatedTarget as Node)) {
+    const relatedTarget = event.relatedTarget as Node;
+    const isLeaving = groupHeader && !groupHeader.contains(relatedTarget);
+    
+    if (isLeaving) {
       // Reset the drop target if it was on this group
-      if (reorderDropTarget.value === groupId || reorderDropTarget.value === `header:${groupId}`) 
+      if (reorderDropTarget.value === groupId || reorderDropTarget.value === `header:${groupId}`)
         reorderDropTarget.value = null;
       
-      // Clear dragging over group state
-      isDraggingOverGroup.value = null;
-      
-      // Clear the expand timer if we're leaving this group
-      if (pendingExpandGroupId.value === groupId) {
-        clearGroupExpandTimer();
-      }
+      // Always clear the expand timer when leaving the group header
+      clearGroupExpandTimer();
     }
   };
 
@@ -1248,6 +1226,7 @@
         return;
       }
 
+      // get the current rows
       const currentRows = [...transformedData.value];
 
       // get the index or row being dropped
@@ -1315,9 +1294,6 @@
     
     // Clear the expand timer if it's running
     clearGroupExpandTimer();
-    
-    // Clear dragging over state
-    isDraggingOverGroup.value = null;
     
     // Handle group reordering
     if (reorderDragGroupId.value && event.dataTransfer) {
@@ -1504,20 +1480,21 @@
     color: var(--fcb-text-on-primary);
 
     &.reorder-drop-above {
-      // background-color: red !important;
       border-top: 2px solid var(--fcb-text-on-primary) !important;
     }
 
     &.reorder-drop-below {
-      // background-color: red !important;
       border-bottom: 2px solid var(--fcb-text-on-primary) !important;
     }
+  }
 
-    &:has(.group-drag-over) {
-      // Visual feedback when dragging a row over group headers
-      background-color: var(--fcb-color-surface-300) !important;
-      border: 2px dashed var(--fcb-link) !important;
-    }
+  // Invisible overlay to capture drag events in empty space
+  .fcb-group-header-drag-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: auto;
+    // No background - invisible but captures drag events
   }
 
   // Content wrapper positioned with padding to clear the actions area
@@ -1586,12 +1563,5 @@
   :deep(tr.reorder-drop-below) {
     border-bottom: 2px solid var(--fcb-link);
   }
-
-  // Visual feedback when dragging rows over group headers
-  .group-drag-over {
-    background-color: var(--fcb-color-surface-300);
-    border: 2px dashed var(--fcb-link);
-  }
-
 
 </style>
