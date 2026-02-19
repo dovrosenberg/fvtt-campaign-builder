@@ -1,4 +1,4 @@
-import { Idea } from '@/types';
+import { GroupableItem, Idea } from '@/types';
 import { schemas } from './fields';
 
 const fields = foundry.data.fields;
@@ -87,6 +87,11 @@ export const ArcSchema = {
     schemas.Idea(),
     { required: true, nullable: false, initial: [] as Idea[] }
   ),
+
+  /** consolidated groups structure */
+  groups: new fields.SchemaField({
+    [GroupableItem.Ideas]: schemas.GroupArray(),
+  }, { required: true, nullable: false, initial: { [GroupableItem.Ideas]: [] } }),
 };
 
 type ArcSchemaType = typeof ArcSchema;

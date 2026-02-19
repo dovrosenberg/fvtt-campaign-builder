@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
-import { ValidDocType } from '@/types';
+import { ValidDocType, TableGroup, DocumentGroups, GroupableItem } from '@/types';
 import { FCBSetting } from './FCBSetting';
 import { sanitizeHTML } from '@/utils/sanitizeHtml';
 import GlobalSettingService from '@/utils/globalSettings';
@@ -231,6 +231,153 @@ export class FCBJournalEntryPage<
     } catch (e) {
       throw new Error(`Error updating journal entry page ${this._doc.uuid} ${this._doc.name}: ${e}`);
     }
+  }
+
+  // Generic group management methods
+  
+  /**
+   * Adds a new group to the specified item type
+   * @param itemType - The type of items (e.g., 'ideas', 'toDoItems')
+   * @param name - The name of the new group
+   * @returns The newly created group
+   */
+  public async addGroup(itemType: GroupableItem, name?: string): Promise<TableGroup> {
+    const newGroup: TableGroup = {
+      groupId: foundry.utils.randomID(),
+      name: name || 'New Group',
+    };
+    
+    // Initialize groups object if it doesn't exist
+    if (!this._clone.system.groups) {
+      this._clone.system.groups = {} as DocumentGroups;
+    }
+    
+    // Initialize the specific group array if it doesn't exist
+    if (!this._clone.system.groups[itemType]) {
+      this._clone.system.groups[itemType] = [];
+    }
+    
+    // Add the new group
+    this._clone.system.groups[itemType]!.push(newGroup);
+    
+    await this.save();
+    return newGroup;
+  }
+
+  /**
+   * Updates a group's name
+   * @param itemType - The type of items (e.g., 'ideas', 'toDoItems')
+   * @param groupId - The ID of the group to update
+   * @param newName - The new name for the group
+   */
+  public async updateGroup(itemType: GroupableItem, groupId: string, newName: string): Promise<void> {
+    if (!this._clone.system.groups || !this._clone.system.groups[itemType]) {
+      return;
+    }
+
+    const groups = this._clone.system.groups[itemType]!;
+    const group = groups.find(g => g.groupId === groupId);
+    if (!group) {
+      return;
+    }
+
+    group.name = newName;
+    await this.save();
+  }
+
+  /**
+   * Deletes a group and moves its items to ungrouped
+   * @param itemType - The type of items (e.g., 'ideas', 'toDoItems')
+   * @param groupId - The ID of the group to delete
+   */
+  public async deleteGroup(itemType: GroupableItem, groupId: string): Promise<void> {
+    // Remove the group
+    if (this._clone.system.groups && this._clone.system.groups[itemType]) {
+      this._clone.system.groups[itemType] = this._clone.system.groups[itemType]!.filter(g => g.groupId !== groupId);
+    }
+
+    // Remove groupId from all items in that group
+    const itemsField = itemType;
+    if (this._clone.system[itemsField] && Array.isArray(this._clone.system[itemsField])) {
+      const items = this._clone.system[itemsField] as any[];
+      items.forEach((item) => {
+        if (item && item.groupId === groupId) {
+          item.groupId = null;
+        }
+      });
+    }
+
+    await this.save();
+  }
+
+  /**
+   * Reorders groups and updates item ordering to match
+   * @param itemType - The type of items (e.g., 'ideas', 'toDoItems')
+   * @param newOrder - The groups in their new order
+   */
+  public async reorderGroups(itemType: GroupableItem, newOrder: TableGroup[]): Promise<void> {
+    // Update group order
+    if (this._clone.system.groups && this._clone.system.groups[itemType]) {
+      this._clone.system.groups[itemType] = newOrder.slice();
+    }
+
+    // Reorder items to match group order
+    const itemsField = itemType;
+    if (this._clone.system[itemsField] && Array.isArray(this._clone.system[itemsField])) {
+      const items = this._clone.system[itemsField] as any[];
+      const reorderedItems: any[] = [];
+
+      // Add ungrouped items at the beginning
+      const ungroupedItems = items
+        .filter(item => !item.groupId || item.groupId === 'ungrouped')
+        .map(item => ({ ...item, groupId: null }));
+      reorderedItems.push(...ungroupedItems);
+
+      // Add items for each group in order
+      for (const group of newOrder) {
+        const groupItems = items
+          .filter(item => item.groupId === group.groupId)
+          .map(item => ({ ...item }));
+        reorderedItems.push(...groupItems);
+      }
+
+      this._clone.system[itemsField] = reorderedItems;
+    }
+
+    await this.save();
+  }
+
+  /**
+   * Reorders items within their groups or between groups
+   * @param itemProperty - The field (ex. ideas) on the entity with the list of items
+   * @param reorderedItems - The items in their new order
+   */
+  public async reorderItems(itemProperty: string, reorderedItems: any[]): Promise<void> {
+    if (this._clone.system[itemProperty] && Array.isArray(this._clone.system[itemProperty])) {
+      this._clone.system[itemProperty] = reorderedItems.slice();
+      await this.save();
+    }
+  }
+
+  /**
+   * Universal getter for groups of a specific type
+   * @param itemType - The type of items (e.g., 'ideas', 'toDoItems')
+   * @returns The groups array for that item type
+   */
+  public getGroups(itemType: GroupableItem): readonly TableGroup[] {
+    return this._clone.system.groups?.[itemType] || [];
+  }
+
+  /**
+   * Universal setter for groups of a specific type
+   * @param itemType - The type of items (e.g., 'ideas', 'toDoItems')
+   * @param value - The new groups array
+   */
+  public setGroups(itemType: GroupableItem, value: TableGroup[] | readonly TableGroup[]): void {
+    if (!this._clone.system.groups) {
+      this._clone.system.groups = {} as DocumentGroups;
+    }
+    this._clone.system.groups[itemType] = value.slice(); // we clone it so it can't be edited outside (this is historical)
   }
   
   

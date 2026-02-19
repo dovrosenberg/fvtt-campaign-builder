@@ -8,7 +8,7 @@ import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Session } from './Session';
 import GlobalSettingService from '@/utils/globalSettings';
-import { Idea } from '@/types';
+import { Idea, TableGroup, DocumentGroups, GroupableItem } from '@/types';
 
 type ArcDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Arc>;
 
@@ -30,6 +30,9 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     img: '',   
     tags: [],
     storyWebs: [],
+    groups: {
+      [GroupableItem.Ideas]: [] as TableGroup[],
+    },
   } as unknown as ArcDocClass['system'];
 
   public campaign: Campaign | null;  // the campaign the front is in (if we don't setup up front, we can load it later)

@@ -7,9 +7,10 @@ import { ref, computed, watch, type InjectionKey, type Ref, type ComputedRef } f
 
 // local imports
 import { useContentState } from '@/composables/useContentState';
+import { useGroupedTableState } from '@/composables/useGroupedTableState';
 
 // types
-import type { RelatedPCDetails, CampaignLoreDetails, ToDoItem, Idea, TableGroup } from '@/types';
+import { RelatedPCDetails, CampaignLoreDetails, ToDoItem, Idea, TableGroup, GroupableItem } from '@/types';
 
 export interface CampaignDerivedState {
   relatedPCRows: Ref<RelatedPCDetails[]>;
@@ -19,6 +20,7 @@ export interface CampaignDerivedState {
   toDoRows: Ref<ToDoItem[]>;
   toDoGroups: Ref<TableGroup[]>;
   ideaRows: Ref<Idea[]>;
+  ideaGroups: Ref<TableGroup[]>;
 }
 
 export const CAMPAIGN_DERIVED_STATE_KEY: InjectionKey<CampaignDerivedState> = Symbol('campaignDerivedState');
@@ -35,9 +37,10 @@ export function useCampaignDerivedState(): CampaignDerivedState {
   // table row state
   const relatedPCRows = ref<RelatedPCDetails[]>([]);
   const allRelatedLoreRows = ref<CampaignLoreDetails[]>([]);
-  const toDoRows = ref<ToDoItem[]>([]);
-  const toDoGroups = ref<TableGroup[]>([]);
-  const ideaRows = ref<Idea[]>([]);
+  
+  // Use unified grouped table state for grouped tables
+  const { rows: toDoRows, groups: toDoGroups, refresh: _refreshToDo } = useGroupedTableState<ToDoItem>(currentCampaign, 'toDoItems', GroupableItem.ToDos);
+  const { rows: ideaRows, groups: ideaGroups, refresh: _refreshIdeas } = useGroupedTableState<Idea>(currentCampaign, 'ideas', GroupableItem.Ideas);
 
   // derived computeds
   /** Only significant rows from sessions are returned */
@@ -52,7 +55,7 @@ export function useCampaignDerivedState(): CampaignDerivedState {
   // watchers to rebuild rows
   watch(() => currentCampaign.value, async () => {
     if (currentContentTab.value !== 'toDo')
-      await _refreshToDoRows();
+      await _refreshToDo();
 
     await _refreshRowsForTab();
   });
@@ -122,27 +125,6 @@ export function useCampaignDerivedState(): CampaignDerivedState {
     allRelatedLoreRows.value = retval;
   };
 
-  /** Refresh toDo rows from the campaign */
-  const _refreshToDoRows = async () => {
-    toDoRows.value = [];
-    toDoGroups.value = [];
-
-    if (!currentCampaign.value)
-      return;
-
-    toDoRows.value = currentCampaign.value.toDoItems.slice();
-    toDoGroups.value = currentCampaign.value.toDoGroups.slice();
-  };
-
-  /** Refresh idea rows from the campaign */
-  const _refreshIdeaRows = async () => {
-    ideaRows.value = [];
-
-    if (!currentCampaign.value)
-      return;
-
-    ideaRows.value = currentCampaign.value.ideas.slice();
-  };
 
   /** Refresh rows for the currently active tab */
   const _refreshRowsForTab = async () => {
@@ -154,10 +136,10 @@ export function useCampaignDerivedState(): CampaignDerivedState {
         await _refreshLoreRows();
         break;
       case 'ideas':
-        await _refreshIdeaRows();
+        await _refreshIdeas();
         break;
       case 'toDo':
-        await _refreshToDoRows();
+        await _refreshToDo();
         break;
       case 'start':
         break;
@@ -173,5 +155,6 @@ export function useCampaignDerivedState(): CampaignDerivedState {
     toDoRows,
     toDoGroups,
     ideaRows,
+    ideaGroups,
   };
 }

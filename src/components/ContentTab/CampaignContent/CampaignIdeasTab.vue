@@ -7,6 +7,8 @@
       :filter-fields="[]"
       :add-button-label="localize('labels.campaign.addIdea')"
       :allow-drop-row="false"
+      :grouped="true"
+      :groups="ideaGroups"
       :rows="mappedIdeaRows"
       :columns="columns"
       :allow-edit="true"
@@ -16,7 +18,11 @@
       @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
       @add-item="onAddIdea"
       @cell-edit-complete="onCellEditComplete"
-      @reorder="onReorder"
+      @reorder="groupedTable.onReorder"
+      @reorder-group="groupedTable.onReorderGroup"
+      @group-add="groupedTable.onGroupAdd"
+      @group-edit="groupedTable.onGroupEdit"
+      @group-delete="groupedTable.onGroupDelete"
     >
     </BaseTable>
   </div>
@@ -30,6 +36,7 @@
   import { useCampaignStore, useArcStore, } from '@/applications/stores';
   import { CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
+  import { useGroupedTable } from '@/composables/useGroupedTable';
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
 
@@ -39,7 +46,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { Idea, BaseTableColumn, BaseTableGridRow, CampaignTableTypes, CellEditCompleteEvent } from '@/types';
+  import { Idea, BaseTableColumn, BaseTableGridRow, CampaignTableTypes, CellEditCompleteEvent, GroupedTableGridRow, GroupableItem } from '@/types';
 
   ////////////////////////////////
   // props
@@ -63,7 +70,9 @@
   const campaignDerivedState = inject(CAMPAIGN_DERIVED_STATE_KEY, null);
   const arcDerivedState = inject(ARC_DERIVED_STATE_KEY, null);
   const campaignIdeaRows = computed(() => campaignDerivedState?.ideaRows.value ?? []);
+  const campaignIdeaGroups = computed(() => campaignDerivedState?.ideaGroups.value ?? []);
   const arcIdeaRows = computed(() => arcDerivedState?.ideaRows.value ?? []);
+  const arcIdeaGroups = computed(() => arcDerivedState?.ideaGroups.value ?? []);
 
   ////////////////////////////////
   // data
@@ -73,10 +82,26 @@
   // computed data
   const store = computed(() => props.arcMode ? arcStore : campaignStore);
   const ideaRows = computed(() => props.arcMode ? arcIdeaRows.value : campaignIdeaRows.value);
+  const ideaGroups = computed(() => props.arcMode ? arcIdeaGroups.value : campaignIdeaGroups.value);
+
+  // Grouped table composable
+  const groupedTable = useGroupedTable<Idea, GroupableItem.Ideas>({
+    store: props.arcMode ? arcStore.groupStores[GroupableItem.Ideas] : campaignStore.groupStores[GroupableItem.Ideas],
+    rows: ideaRows,
+    mapReorderedRows: (reorderedRows: BaseTableGridRow[], originalRows: Idea[]) => {
+      return reorderedRows
+        .map((row): Idea | null => {
+          const idea = originalRows.find(idea => idea.uuid === row.uuid);
+          return idea ? { ...idea, groupId: (row as GroupedTableGridRow).groupId } : null;
+        })
+        .filter((row): row is Idea => row !== null);
+    },
+  });
 
   const mappedIdeaRows = computed(() => {
     return ideaRows.value.map((row: Idea) => ({
-      ...row
+      ...row,
+      groupId: row.groupId || null,
     }));
   });
 
@@ -154,12 +179,6 @@
     if (field === 'text') {
       await store.value.updateIdea(data.uuid, newValue as string);
     }
-  };
-
-  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    // Reorder using array order
-    const reorderedIdeas = reorderedRows.map((row) => ideaRows.value.find(idea => idea.uuid === row.uuid));
-    await store.value.reorderIdeas(reorderedIdeas);
   };
 
   const onMoveToToDo = async (uuid: string) => {

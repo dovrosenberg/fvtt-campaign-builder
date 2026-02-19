@@ -7,6 +7,7 @@ import { ref, watch, type InjectionKey, type Ref } from 'vue';
 
 // local imports
 import { useContentState } from '@/composables/useContentState';
+import { useGroupedTableState } from '@/composables/useGroupedTableState';
 import { Entry } from '@/classes';
 import { getTopicText } from '@/compendia';
 
@@ -18,7 +19,9 @@ import type {
   ArcLoreDetails,
   ArcVignetteDetails,
   Idea,
+  TableGroup,
 } from '@/types';
+import { GroupableItem } from '@/types';
 import type { ArcVignette } from '@/documents';
 
 export interface ArcDerivedState {
@@ -28,6 +31,7 @@ export interface ArcDerivedState {
   vignetteRows: Ref<ArcVignetteDetails[]>;
   loreRows: Ref<ArcLoreDetails[]>;
   ideaRows: Ref<Idea[]>;
+  ideaGroups: Ref<TableGroup[]>;
 }
 
 export const ARC_DERIVED_STATE_KEY: InjectionKey<ArcDerivedState> = Symbol('arcDerivedState');
@@ -47,7 +51,9 @@ export function useArcDerivedState(): ArcDerivedState {
   const monsterRows = ref<ArcMonsterDetails[]>([]);
   const vignetteRows = ref<ArcVignetteDetails[]>([]);
   const loreRows = ref<ArcLoreDetails[]>([]);
-  const ideaRows = ref<Idea[]>([]);
+  
+  // Use unified grouped table state for grouped tables
+  const { rows: ideaRows, groups: ideaGroups, refresh: _refreshIdeas } = useGroupedTableState<Idea>(currentArc, 'ideas', GroupableItem.Ideas);
 
   // watchers to rebuild rows
   watch(() => currentArc.value, async () => {
@@ -139,16 +145,6 @@ export function useArcDerivedState(): ArcDerivedState {
     monsterRows.value = retval;
   };
 
-  /** Refresh idea rows from the arc */
-  const _refreshIdeaRows = async (): Promise<void> => {
-    ideaRows.value = [];
-
-    if (!currentArc.value)
-      return;
-
-    ideaRows.value = currentArc.value.ideas.slice();
-  };
-
   /** Refresh lore rows from the arc */
   const _refreshLoreRows = async (): Promise<void> => {
     if (!currentArc.value)
@@ -184,7 +180,7 @@ export function useArcDerivedState(): ArcDerivedState {
       case 'description':
         break;
       case 'ideas':
-        await _refreshIdeaRows();
+        await _refreshIdeas();
         break;
       case 'vignettes':
         await _refreshVignetteRows();
@@ -213,5 +209,6 @@ export function useArcDerivedState(): ArcDerivedState {
     vignetteRows,
     loreRows,
     ideaRows,
+    ideaGroups,
   };
 }

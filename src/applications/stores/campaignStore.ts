@@ -7,9 +7,10 @@ import { computed } from 'vue';
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
+import { createGroupedTableStores } from '@/composables/createGroupedTableStores';
 
 // types
-import { RelatedPCDetails, BaseTableColumn, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea, CampaignTableTypes, TableGroup} from '@/types';
+import { RelatedPCDetails, BaseTableColumn, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea, CampaignTableTypes, TableGroup, GroupableItem } from '@/types';
 import { Arc, Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import { notifyWarn } from '@/utils/notifications';
@@ -527,6 +528,23 @@ export const campaignStore = () => {
   };
 
   ///////////////////////////////
+  // Generic grouped table stores
+  
+  // Multi-group store for all grouped items in the campaign
+  const groupStores = createGroupedTableStores({
+    currentEntity: currentCampaign,
+    refresh: mainStore.refreshCampaign,
+    groupConfigs: {
+      [GroupableItem.ToDos]: {
+        items: computed(() => (currentCampaign.value?.toDoItems || []) as ToDoItem[]),
+      },
+      [GroupableItem.Ideas]: {
+        items: computed(() => (currentCampaign.value?.ideas || []) as Idea[]),
+      },
+    },
+  });
+
+  ///////////////////////////////
   // return the public interface
   return {
     extraFields,
@@ -546,10 +564,8 @@ export const campaignStore = () => {
     mergeToDoItem,
     completeToDoItem,
     updateToDoItem,
-    addToDoGroup,
-    updateToDoGroup,
-    deleteToDoGroup,
-    reorderToDoGroups,
+
+    groupStores,
     addIdea,
     updateIdea,
     deleteIdea,

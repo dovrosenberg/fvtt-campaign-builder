@@ -2,7 +2,8 @@ import { DOCUMENT_TYPES } from '@/documents/types.js';
 
 export type * from './directory.d.ts';
 export * from './tables';
-export type * from './relationships.d.ts';
+export * from './tableGrouping';
+export * from './documentGroups';
 export type * from './hierarchy.d.ts';
 export type * from './global.d.ts';
 export type * from './species.d.ts';
@@ -11,6 +12,7 @@ export type * from './search.d.ts';
 export type * from './tags.d.ts';
 export type * from './dragDrop.ts';
 export type * from './documentIndices.ts';
+export type * from './relationships.d.ts';
 
 // @ts-ignore - need to pull enum
 export * from './generators.ts';
@@ -131,7 +133,7 @@ export interface ToDoItem {
   linkedUuid: string | null;  // uuid of the linked entry, lore, etc.
   linkedText: string | null;  // text to display for linked items
   sessionUuid: string | null; // uuid of the session if it's a session to-do (lore, vignette, monster, item)
-  groupId?: string | null;  // optional group ID for grouping toDo items
+  groupId: string | null;  // optional group ID for grouping toDo items
   text: string;
   type: ToDoTypes;
 }
@@ -139,6 +141,7 @@ export interface ToDoItem {
 export interface Idea {
   uuid: string;  // uuid of the idea item
   text: string;
+  groupId: string | null; // Optional group ID for grouping
 }
 
 export interface BaseTableGridRow extends Record<string, any> { 

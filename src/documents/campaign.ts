@@ -1,5 +1,5 @@
 import { SessionLore, } from '@/documents/session';
-import { ToDoItem, Idea, RelatedJournal, RelatedPCDetails, SessionBasicIndex, ArcBasicIndex, TableGroup } from '@/types';
+import { ToDoItem, Idea, RelatedJournal, RelatedPCDetails, SessionBasicIndex, ArcBasicIndex, TableGroup, GroupableItem } from '@/types';
 import { DOCUMENT_TYPES } from './types';
 import { schemas } from './fields';
 
@@ -68,14 +68,17 @@ export const CampaignSchema = {
     { required: true, nullable: false, initial: [] as ToDoItem[] }
   ),
 
-  /** toDo item groups */
-  toDoGroups: schemas.GroupArray(),
-
   /** ideas */
   ideas: new fields.ArrayField(
     schemas.Idea(),
     { required: true, nullable: false, initial: [] as Idea[] }
   ),
+
+  /** consolidated groups structure */
+  groups: new fields.SchemaField({
+    [GroupableItem.ToDos]: schemas.GroupArray(),
+    [GroupableItem.Ideas]: schemas.GroupArray(),
+  }, { required: true, nullable: false, initial: { [GroupableItem.ToDos]: [], [GroupableItem.Idea]: [] } }),
 
   /** related journal entries */
   journals: new fields.ArrayField(
@@ -134,9 +137,12 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
     lore: CampaignLore[];  
     img: string;   
     toDoItems: ToDoItem[];
-    toDoGroups: TableGroup[];
     ideas: Idea[];   
     journals: RelatedJournal[]; 
     pcs: RelatedPCDetails[];
+    groups: {
+      toDoItems: TableGroup[];
+      ideas: TableGroup[];
+    };
   };
 }
