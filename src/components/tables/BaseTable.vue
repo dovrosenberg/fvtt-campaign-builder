@@ -150,7 +150,7 @@
               class="fcb-group-header-actions"
             >
               <div 
-                v-if="slotProps.data.groupId !== 'ungrouped'"
+                v-if="slotProps.data.groupId !== UNGROUPED_GROUP_ID"
                 class="fcb-group-header-grip"
                 draggable="true"
                 @dragstart="onDragstartGroup($event, slotProps.data.groupId)"
@@ -450,7 +450,8 @@
   import { 
     TablePagination, BaseTableGridRow, ActionButtonDefinition, 
     CellEditCompleteEvent, RowEditCompleteEvent, 
-    BaseTableColumn, TableGroup, GroupedTableGridRow
+    BaseTableColumn, TableGroup, GroupedTableGridRow,
+    UNGROUPED_GROUP_ID
   } from '@/types';
 
 
@@ -597,7 +598,7 @@
   });
 
   /** which groups are currently expanded, they all start expanded */
-  const expandedRowGroups = ref<string[]>(['ungrouped', ...props.groups.map(g => g.groupId)]);
+  const expandedRowGroups = ref<string[]>([UNGROUPED_GROUP_ID, ...props.groups.map(g => g.groupId)]);
 
   /** are we editing and row, and which one (uuid) */
   const editingRow = ref<string | null>(null);
@@ -651,7 +652,7 @@
 
   // add the 'ungrouped' group to the groups list
   const groups = computed(() => {
-    return [{ groupId: 'ungrouped', name: 'Ungrouped' }, ...props.groups];
+    return [{ groupId: UNGROUPED_GROUP_ID, name: 'Ungrouped' }, ...props.groups];
   });
   
   /** Check if any columns are editable */
@@ -695,7 +696,7 @@
           return row;
         }
         
-        return { ...row, groupId: 'ungrouped' };
+        return { ...row, groupId: UNGROUPED_GROUP_ID };
       });
 
     // groups with no rows (but not the empty one) - add placeholders
@@ -713,7 +714,7 @@
       // Add data rows for this group
       const groupRows = cleanedRows
         .filter((row: GroupedTableGridRow) => 
-          (row.groupId === group.groupId) || (group.groupId==='ungrouped' && !row.groupId)
+          (row.groupId === group.groupId) || (group.groupId===UNGROUPED_GROUP_ID && !row.groupId)
         )
       result.push(...groupRows);
     };
@@ -780,7 +781,7 @@
    * @param groupId The ID of the group to edit
    */
   const setEditingGroup = (groupId: string) => {
-    if (!groupId || groupId==='ungrouped') return; // Can't edit the ungrouped group
+    if (!groupId || groupId===UNGROUPED_GROUP_ID) return; // Can't edit the ungrouped group
 
     const group = groups.value.find(g => g.groupId === groupId);
     if (!group) return;
@@ -795,7 +796,7 @@
   const saveEditingGroup = () => {
     if (!editingGroupId.value) return;
   
-    if (editingGroupId.value==='ungrouped') return; // Can't edit the ungrouped group (should never happen)
+    if (editingGroupId.value===UNGROUPED_GROUP_ID) return; // Can't edit the ungrouped group (should never happen)
 
     emit('groupEdit', editingGroupId.value, editingGroupName.value);
     editingGroupId.value = null;
@@ -1138,7 +1139,7 @@
         reorderDropTarget.value = groupId;
         
         // Prevent dropping above the 'ungrouped' group - only allow below
-        if (groupId === 'ungrouped') {
+        if (groupId === UNGROUPED_GROUP_ID) {
           reorderDropPosition.value = 'below';
         } else {
           reorderDropPosition.value = event.clientY < midY ? 'above' : 'below';
@@ -1338,7 +1339,7 @@
       
       // Filter out the 'ungrouped' group and emit reorder event
       const reorderedGroupIds = newGroups
-        .filter(g => g.groupId !== 'ungrouped')
+        .filter(g => g.groupId !== UNGROUPED_GROUP_ID)
         .map(g => g.groupId);
       
       emit('reorderGroup', reorderedGroupIds);
@@ -1388,7 +1389,7 @@
   
   /** Watch for group edit mode to focus input */
   watch(editingGroupId, (newId) => {
-    if (newId && newId!=='ungrouped') {
+    if (newId && newId!==UNGROUPED_GROUP_ID) {
       nextTick(() => {
         const input = document.querySelector('.fcb-group-input') as HTMLInputElement;
         if (input) {

@@ -4,6 +4,8 @@
 
 import { TableGroup } from './tables';
 
+export const UNGROUPED_GROUP_ID = '#&#ungrouped#&#';
+
 /**
  * Enum for all item types that can have groups
  * Using an enum provides better type safety and IDE autocomplete

@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
-import { ValidDocType, TableGroup, DocumentGroups, GroupableItem } from '@/types';
+import { ValidDocType, TableGroup, DocumentGroups, GroupableItem, UNGROUPED_GROUP_ID } from '@/types';
 import { FCBSetting } from './FCBSetting';
 import { sanitizeHTML } from '@/utils/sanitizeHtml';
 import GlobalSettingService from '@/utils/globalSettings';
@@ -312,24 +312,25 @@ export class FCBJournalEntryPage<
 
   /**
    * Reorders groups and updates item ordering to match
-   * @param itemType - The type of items (e.g., 'ideas', 'toDoItems')
+   * @param itemProperty - The property name for the items array on the entity(e.g., 'ideas', 'toDoItems')
    * @param newOrder - The groups in their new order
    */
-  public async reorderGroups(itemType: GroupableItem, newOrder: TableGroup[]): Promise<void> {
+  public async reorderGroups(itemProperty: GroupableItem, itemType: GroupableItem, newOrder: TableGroup[]): Promise<void> {
+    // filter ungrouped, just in case
+    newOrder = newOrder.filter(g => g.groupId !== UNGROUPED_GROUP_ID);
+    
     // Update group order
-    if (this._clone.system.groups && this._clone.system.groups[itemType]) {
-      this._clone.system.groups[itemType] = newOrder.slice();
-    }
+    this.setGroups(itemType, newOrder);
 
     // Reorder items to match group order
-    const itemsField = itemType;
-    if (this._clone.system[itemsField] && Array.isArray(this._clone.system[itemsField])) {
-      const items = this._clone.system[itemsField] as any[];
+    if (this._clone.system[itemProperty]) {
+      const items = this._clone.system[itemProperty] as any[];
       const reorderedItems: any[] = [];
+      const validGroupIds = new Set(newOrder.map(g => g.groupId));
 
-      // Add ungrouped items at the beginning
+      // Add ungrouped items at the beginning (and invalid groups)
       const ungroupedItems = items
-        .filter(item => !item.groupId || item.groupId === 'ungrouped')
+        .filter(item => !item.groupId || item.groupId === UNGROUPED_GROUP_ID || !validGroupIds.has(item.groupId))
         .map(item => ({ ...item, groupId: null }));
       reorderedItems.push(...ungroupedItems);
 
@@ -341,7 +342,7 @@ export class FCBJournalEntryPage<
         reorderedItems.push(...groupItems);
       }
 
-      this._clone.system[itemsField] = reorderedItems;
+      this._clone.system[itemProperty] = reorderedItems;
     }
 
     await this.save();
@@ -353,7 +354,7 @@ export class FCBJournalEntryPage<
    * @param reorderedItems - The items in their new order
    */
   public async reorderItems(itemProperty: string, reorderedItems: any[]): Promise<void> {
-    if (this._clone.system[itemProperty] && Array.isArray(this._clone.system[itemProperty])) {
+    if (this._clone.system[itemProperty]) {
       this._clone.system[itemProperty] = reorderedItems.slice();
       await this.save();
     }
