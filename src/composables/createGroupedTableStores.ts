@@ -24,18 +24,40 @@
 import { Ref, ComputedRef, computed, } from 'vue';
 import type { TableGroup } from '@/types/tables';
 import { GroupableItem } from '@/types/documentGroups';
-import { type ToDoItem, type Idea,UNGROUPED_GROUP_ID } from '@/types';
+import { type ToDoItem, type Idea, type CampaignLoreDetails, type RelatedPCDetails, UNGROUPED_GROUP_ID } from '@/types';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
+import type { 
+  ArcLore, ArcVignette, ArcLocation, ArcParticipant, ArcMonster,
+  SessionLore, SessionVignette, SessionLocation, SessionNPC, SessionMonster, SessionItem
+} from '@/documents';
 
 /**
  * Type mapping from GroupableItem to the corresponding item type
  */
 export type GroupableItemTypeMap = {
-  [GroupableItem.ToDos]: ToDoItem;
-  [GroupableItem.Ideas]: Idea;
-};
+  [GroupableItem.SettingJournals]: RelatedJournal;
+  [GroupableItem.CampaignJournals]: RelatedJournal;
+  [GroupableItem.CampaignPCs]: RelatedPCDetails;
+  [GroupableItem.CampaignLore]: CampaignLoreDetails;
+  [GroupableItem.CampaignIdeas]: Idea;
+  [GroupableItem.CampaignToDos]: ToDoItem;
+  [GroupableItem.ArcJournals]: RelatedJournal;
+  [GroupableItem.ArcLore]: ArcLore;
+  [GroupableItem.ArcVignettes]: ArcVignette;
+  [GroupableItem.ArcLocations]: ArcLocation;
+  [GroupableItem.ArcParticipants]: ArcParticipant;
+  [GroupableItem.ArcMonsters]: ArcMonster;
+  [GroupableItem.ArcIdeas]: Idea;
+  [GroupableItem.SessionLore]: SessionLore;
+  [GroupableItem.SessionVignettes]: SessionVignette;
+  [GroupableItem.SessionLocations]: SessionLocation;
+  [GroupableItem.SessionNPCs]: SessionNPC;
+  [GroupableItem.SessionMonsters]: SessionMonster;
+  [GroupableItem.SessionItems]: SessionItem;
+  [GroupableItem.SessionPCs]: RelatedPCDetails;
+}: Record<GroupableItem, any>;
 
 /**
  * Configuration for a single item type in the grouped table store
