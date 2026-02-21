@@ -1,5 +1,11 @@
 <template>
-  <div class="primevue-only fcb-table-wrapper" style="display: flex">
+  <div
+    class="primevue-only fcb-table-wrapper"
+    style="display: flex"
+    @dragover="onTableDragover"
+    @drop="onTableDrop"
+    @dragleave="onTableDragleave"
+  >
     <DataTable
       data-key="uuid"
       v-bind="dataTableSortBindings"
@@ -13,7 +19,7 @@
       scrollable
       scroll-height="flex"
       :total-records="transformedData.length"
-      :global-filter-fields="effectiveFilterFields"      
+      :global-filter-fields="effectiveFilterFields"
       :filters="pagination.filters"
       :pt="{
         header: { style: 'border: none' },
@@ -25,7 +31,7 @@
         rowGroupHeader: {
           colspan: totalColumnCount
         },
-        // the ones that are headers still need the left padding to push 
+        // the ones that are headers still need the left padding to push
         //   the collapse button and text past the actions
         rowGroupHeaderCell: {
           colspan: totalColumnCount,
@@ -1037,7 +1043,7 @@
   }
 
   const onDragstartRow = (event: DragEvent, uuid: string) => {
-    if (!event.dataTransfer) 
+    if (!event.dataTransfer)
       return;
 
     reorderDragUuid.value = uuid;
@@ -1051,7 +1057,7 @@
     // Clear the expand timer if it's running
     clearGroupExpandTimer();
     
-    // Set drag data
+    // Clear drag data
     reorderDragUuid.value = null;
   };
 
@@ -1208,7 +1214,7 @@
     }
   };
 
-  /** 
+  /**
    * Handle the drop event on a row
    */
   const onDropRow = (event: DragEvent, uuid: string) => {
@@ -1382,6 +1388,75 @@
     reorderDropTarget.value = null;
   };
 
+
+  ////////////////////////////////
+  // Table-level event handlers (for catching drops in gaps between rows)
+  
+  /**
+   * Handle dragover at table level - finds the row under the cursor
+   */
+  const onTableDragover = (event: DragEvent) => {
+    if (!reorderDragUuid.value) return;
+    
+    // Find the row element under the cursor
+    const row = (event.target as HTMLElement).closest('tr');
+    if (!row) return;
+    
+    // Get the uuid from the row's data attribute or find it in transformedData
+    const rowIndex = row.getAttribute('data-p-index');
+    if (rowIndex === null) return;
+    
+    const rowData = transformedData.value[parseInt(rowIndex)];
+    if (!rowData || rowData.uuid === reorderDragUuid.value) return;
+    if (isPlaceholderRow(rowData.uuid)) return;
+    
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = 'move';
+    
+    // Determine above/below based on mouse position
+    const rect = row.getBoundingClientRect();
+    const midpoint = rect.top + rect.height / 2;
+    reorderDropPosition.value = event.clientY < midpoint ? 'above' : 'below';
+    reorderDropTarget.value = rowData.uuid;
+  };
+  
+  /**
+   * Handle drop at table level - forwards to onDropRow
+   */
+  const onTableDrop = (event: DragEvent) => {
+    if (!reorderDragUuid.value) return;
+    
+    // Find the row element under the cursor
+    const row = (event.target as HTMLElement).closest('tr');
+    if (!row) return;
+    
+    // Get the uuid from the row's data attribute
+    const rowIndex = row.getAttribute('data-p-index');
+    if (rowIndex === null) return;
+    
+    const rowData = transformedData.value[parseInt(rowIndex)];
+    if (!rowData) return;
+    
+    // Forward to onDropRow
+    onDropRow(event, rowData.uuid);
+  };
+  
+  /**
+   * Handle dragleave at table level
+   */
+  const onTableDragleave = (event: DragEvent) => {
+    // Only clear if we're actually leaving the table wrapper
+    const relatedTarget = event.relatedTarget as Node;
+    const tableWrapper = (event.currentTarget as HTMLElement);
+    
+    if (relatedTarget && tableWrapper.contains(relatedTarget)) {
+      return; // Still inside the table
+    }
+    
+    // Clear drop target
+    reorderDropTarget.value = null;
+    clearGroupExpandTimer();
+  };
 
   ////////////////////////////////
   // watchers
