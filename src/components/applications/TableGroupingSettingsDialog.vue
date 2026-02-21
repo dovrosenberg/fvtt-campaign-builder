@@ -31,365 +31,27 @@ Dependencies
     <template #scrollSection>
       <p class="notes">{{ localize('dialogs.tableGrouping.description') }}</p>
       
-      <!-- Settings Section -->
-      <div class="fcb-settings-groups">
+      <div
+        v-for="group in settingGroups"
+        :key="group.key"
+        class="fcb-settings-groups"
+      >
         <h3 class="fcb-settings-group-header">
-          {{ localize('dialogs.tableGrouping.contentTypes.settings') }}
+          {{ localize(group.headerKey) }}
         </h3>
         <div class="fcb-settings-group">
-          <div class="fcb-setting-item">
+          <div
+            v-for="option in group.options"
+            :key="option.settingKey"
+            class="fcb-setting-item"
+          >
             <label class="fcb-setting-label">
               <input
                 type="checkbox"
-                v-model="settings[TableGroupingSetting.SettingJournals]"
+                v-model="settings[option.settingKey]"
                 class="fcb-setting-checkbox"
               />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.journals') }}</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Entries Section -->
-      <div class="fcb-settings-groups">
-        <h3 class="fcb-settings-group-header">
-          {{ localize('dialogs.tableGrouping.contentTypes.entries') }}
-        </h3>
-        <div class="fcb-settings-group">
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.EntryJournals]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.journals') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.EntryCharacters]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.characters') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.EntryLocations]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.locations') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.EntryOrganizations]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.organizations') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.EntryPCs]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.pcs') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.EntryActors]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.actors') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.EntrySessions]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.sessions') }}</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Campaigns Section -->
-      <div class="fcb-settings-groups">
-        <h3 class="fcb-settings-group-header">
-          {{ localize('dialogs.tableGrouping.contentTypes.campaigns') }}
-        </h3>
-        <div class="fcb-settings-group">
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.CampaignJournals]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.journals') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.CampaignPCs]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.pcs') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.CampaignLore]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.lore') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.CampaignIdeas]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.ideas') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.CampaignToDo]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.todo') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.CampaignStoryWebs]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.storyWebs') }}</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Arcs Section -->
-      <div class="fcb-settings-groups">
-        <h3 class="fcb-settings-group-header">
-          {{ localize('dialogs.tableGrouping.contentTypes.arcs') }}
-        </h3>
-        <div class="fcb-settings-group">
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.ArcLore]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.lore') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.ArcVignettes]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.vignettes') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.ArcLocations]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.locations') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.ArcParticipants]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.participants') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.ArcMonsters]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.monsters') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.ArcIdeas]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.ideas') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.ArcStoryWebs]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.storyWebs') }}</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sessions Section -->
-      <div class="fcb-settings-groups">
-        <h3 class="fcb-settings-group-header">
-          {{ localize('dialogs.tableGrouping.contentTypes.sessions') }}
-        </h3>
-        <div class="fcb-settings-group">
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.SessionLore]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.lore') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.SessionVignettes]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.vignettes') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.SessionLocations]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.locations') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.SessionCharacters]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.npcs') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.SessionMonsters]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.monsters') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.SessionItems]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.magicItems') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.SessionPCs]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.pcs') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.SessionStoryWebs]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.storyWebs') }}</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Fronts Section -->
-      <div class="fcb-settings-groups">
-        <h3 class="fcb-settings-group-header">
-          {{ localize('dialogs.tableGrouping.contentTypes.fronts') }}
-        </h3>
-        <div class="fcb-settings-group">
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.FrontCharacters]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.participants') }}</span>
-            </label>
-          </div>
-          <div class="fcb-setting-item">
-            <label class="fcb-setting-label">
-              <input
-                type="checkbox"
-                v-model="settings[TableGroupingSetting.FrontLocations]"
-                class="fcb-setting-checkbox"
-              />
-              <span class="fcb-setting-text">{{ localize('dialogs.tableGrouping.tabs.grimPortents') }}</span>
+              <span class="fcb-setting-text">{{ localize(option.labelKey) }}</span>
             </label>
           </div>
         </div>
@@ -423,6 +85,85 @@ Dependencies
 
   // types
   type TableGroupingSettingsRef = Partial<Record<TableGroupingSetting, boolean>>;
+
+  interface SettingOption {
+    settingKey: TableGroupingSetting;
+    labelKey: string;
+  }
+
+  interface SettingGroup {
+    key: string;
+    headerKey: string;
+    options: SettingOption[];
+  }
+
+  // Static array defining all setting groups and their options
+  const settingGroups: SettingGroup[] = [
+    {
+      key: 'settings',
+      headerKey: 'dialogs.tableGrouping.contentTypes.settings',
+      options: [
+        { settingKey: TableGroupingSetting.SettingJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
+      ],
+    },
+    {
+      key: 'entries',
+      headerKey: 'dialogs.tableGrouping.contentTypes.entries',
+      options: [
+        { settingKey: TableGroupingSetting.EntryJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
+        { settingKey: TableGroupingSetting.EntryCharacters, labelKey: 'dialogs.tableGrouping.tabs.characters' },
+        { settingKey: TableGroupingSetting.EntryLocations, labelKey: 'dialogs.tableGrouping.tabs.locations' },
+        { settingKey: TableGroupingSetting.EntryOrganizations, labelKey: 'dialogs.tableGrouping.tabs.organizations' },
+        { settingKey: TableGroupingSetting.EntryPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
+        { settingKey: TableGroupingSetting.EntryActors, labelKey: 'dialogs.tableGrouping.tabs.actors' },
+        { settingKey: TableGroupingSetting.EntrySessions, labelKey: 'dialogs.tableGrouping.tabs.sessions' },
+      ],
+    },
+    {
+      key: 'campaigns',
+      headerKey: 'dialogs.tableGrouping.contentTypes.campaigns',
+      options: [
+        { settingKey: TableGroupingSetting.CampaignJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
+        { settingKey: TableGroupingSetting.CampaignPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
+        { settingKey: TableGroupingSetting.CampaignLore, labelKey: 'dialogs.tableGrouping.tabs.lore' },
+        { settingKey: TableGroupingSetting.CampaignIdeas, labelKey: 'dialogs.tableGrouping.tabs.ideas' },
+        { settingKey: TableGroupingSetting.CampaignToDos, labelKey: 'dialogs.tableGrouping.tabs.todo' },
+      ],
+    },
+    {
+      key: 'arcs',
+      headerKey: 'dialogs.tableGrouping.contentTypes.arcs',
+      options: [
+        { settingKey: TableGroupingSetting.ArcLore, labelKey: 'dialogs.tableGrouping.tabs.lore' },
+        { settingKey: TableGroupingSetting.ArcVignettes, labelKey: 'dialogs.tableGrouping.tabs.vignettes' },
+        { settingKey: TableGroupingSetting.ArcLocations, labelKey: 'dialogs.tableGrouping.tabs.locations' },
+        { settingKey: TableGroupingSetting.ArcParticipants, labelKey: 'dialogs.tableGrouping.tabs.participants' },
+        { settingKey: TableGroupingSetting.ArcMonsters, labelKey: 'dialogs.tableGrouping.tabs.monsters' },
+        { settingKey: TableGroupingSetting.ArcIdeas, labelKey: 'dialogs.tableGrouping.tabs.ideas' },
+      ],
+    },
+    {
+      key: 'sessions',
+      headerKey: 'dialogs.tableGrouping.contentTypes.sessions',
+      options: [
+        { settingKey: TableGroupingSetting.SessionLore, labelKey: 'dialogs.tableGrouping.tabs.lore' },
+        { settingKey: TableGroupingSetting.SessionVignettes, labelKey: 'dialogs.tableGrouping.tabs.vignettes' },
+        { settingKey: TableGroupingSetting.SessionLocations, labelKey: 'dialogs.tableGrouping.tabs.locations' },
+        { settingKey: TableGroupingSetting.SessionCharacters, labelKey: 'dialogs.tableGrouping.tabs.npcs' },
+        { settingKey: TableGroupingSetting.SessionMonsters, labelKey: 'dialogs.tableGrouping.tabs.monsters' },
+        { settingKey: TableGroupingSetting.SessionItems, labelKey: 'dialogs.tableGrouping.tabs.magicItems' },
+        { settingKey: TableGroupingSetting.SessionPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
+      ],
+    },
+    {
+      key: 'fronts',
+      headerKey: 'dialogs.tableGrouping.contentTypes.fronts',
+      options: [
+        { settingKey: TableGroupingSetting.FrontCharacters, labelKey: 'dialogs.tableGrouping.tabs.participants' },
+        { settingKey: TableGroupingSetting.FrontLocations, labelKey: 'dialogs.tableGrouping.tabs.grimPortents' },
+      ],
+    },
+  ];
 
   ////////////////////////////////
   // props

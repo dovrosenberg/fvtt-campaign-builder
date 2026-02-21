@@ -1,3 +1,7 @@
+import { ref, type ComputedRef, type Ref } from 'vue';
+import type { TableGroup, BaseTableGridRow, GroupableItem } from '@/types';
+import { FCBJournalEntryPage } from '@/classes';
+
 /**
  * Composable for managing grouped table state (rows and groups).
  * Provides a unified way to handle any grouped table's data.
@@ -14,10 +18,6 @@
  * @param itemProperty - The property name for the row data on the entity
  * @param group - The groupable item type
  */
-
-import { ref, type ComputedRef, type Ref } from 'vue';
-import type { TableGroup, BaseTableGridRow, GroupableItem } from '@/types';
-import { FCBJournalEntryPage } from 'src/classes';
 
 export function useGroupedTableState<T extends BaseTableGridRow>(
   currentEntity: Ref<FCBJournalEntryPage<any> | null> | ComputedRef<FCBJournalEntryPage<any>>,

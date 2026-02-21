@@ -15,15 +15,13 @@ export enum TableGroupingSetting {
   CampaignPCs = 'CampaignPCs',
   CampaignLore = 'CampaignLore',
   CampaignIdeas = 'CampaignIdeas',
-  CampaignToDo = 'CampaignToDo',
-  CampaignStoryWebs = 'CampaignStoryWebs',
+  CampaignToDos = 'CampaignToDos',
   ArcLore = 'ArcLore',
   ArcVignettes = 'ArcVignettes',
   ArcLocations = 'ArcLocations',
   ArcParticipants = 'ArcParticipants',
   ArcMonsters = 'ArcMonsters',
   ArcIdeas = 'ArcIdeas',
-  ArcStoryWebs = 'ArcStoryWebs',
   SessionLore = 'SessionLore',
   SessionVignettes = 'SessionVignettes',
   SessionLocations = 'SessionLocations',
@@ -31,7 +29,6 @@ export enum TableGroupingSetting {
   SessionMonsters = 'SessionMonsters',
   SessionItems = 'SessionItems',
   SessionPCs = 'SessionPCs',
-  SessionStoryWebs = 'SessionStoryWebs',
   FrontCharacters = 'FrontCharacters',
   FrontLocations = 'FrontLocations',
 }
@@ -49,15 +46,13 @@ export interface TableGroupingSettings {
   [TableGroupingSetting.CampaignPCs]: boolean;
   [TableGroupingSetting.CampaignLore]: boolean;
   [TableGroupingSetting.CampaignIdeas]: boolean;
-  [TableGroupingSetting.CampaignToDo]: boolean;
-  [TableGroupingSetting.CampaignStoryWebs]: boolean;
+  [TableGroupingSetting.CampaignToDos]: boolean;
   [TableGroupingSetting.ArcLore]: boolean;
   [TableGroupingSetting.ArcVignettes]: boolean;
   [TableGroupingSetting.ArcLocations]: boolean;
   [TableGroupingSetting.ArcParticipants]: boolean;
   [TableGroupingSetting.ArcMonsters]: boolean;
   [TableGroupingSetting.ArcIdeas]: boolean;
-  [TableGroupingSetting.ArcStoryWebs]: boolean;
   [TableGroupingSetting.SessionLore]: boolean;
   [TableGroupingSetting.SessionVignettes]: boolean;
   [TableGroupingSetting.SessionLocations]: boolean;
@@ -65,7 +60,6 @@ export interface TableGroupingSettings {
   [TableGroupingSetting.SessionMonsters]: boolean;
   [TableGroupingSetting.SessionItems]: boolean;
   [TableGroupingSetting.SessionPCs]: boolean;
-  [TableGroupingSetting.SessionStoryWebs]: boolean;
   [TableGroupingSetting.FrontCharacters]: boolean;
   [TableGroupingSetting.FrontLocations]: boolean;
 }

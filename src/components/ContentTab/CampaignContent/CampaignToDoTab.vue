@@ -36,6 +36,7 @@
   import { useGroupedTable } from '@/composables/useGroupedTable';
   import { localize } from '@/utils/game';
   import { formatDate } from '@/utils/misc';
+  import { ModuleSettings, SettingKey, } from '@/settings';
 
   // library components
 
@@ -43,7 +44,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { ToDoItem, ToDoTypes, CampaignTableTypes, BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent, GroupedTableGridRow, GroupableItem } from '@/types';
+  import { ToDoItem, ToDoTypes, CampaignTableTypes, BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent, GroupedTableGridRow, GroupableItem, TableGroupingSetting } from '@/types';
 
   ////////////////////////////////
   // store
