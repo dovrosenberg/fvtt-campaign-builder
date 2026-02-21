@@ -551,11 +551,11 @@ export const arcStore = () => {
     refresh: mainStore.refreshArc,
     groupConfigs: {
       [GroupableItem.Ideas]: {
-        items: computed(() => currentArc.value?.ideas),
+        propertyName: 'ideas',
       },
       // Future group types can be added here:
       // [GroupableItem.lore]: {
-      //   items: computed(() => currentArc.value?.lore || []),
+      //   propertyName: 'lore',
       // },
     },
   });

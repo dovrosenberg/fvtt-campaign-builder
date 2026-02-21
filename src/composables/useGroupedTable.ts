@@ -7,7 +7,6 @@
 
 import { ComputedRef } from 'vue';
 import type { 
-  TableGroup, 
   BaseTableGridRow, 
   GroupedTableGridRow,
   GroupableItem
@@ -25,7 +24,7 @@ export interface GroupedTableConfig<T extends BaseTableGridRow, G extends Groupa
   mapReorderedRows?: (
     reorderedRows: BaseTableGridRow[], 
     originalRows: T[]
-  ) => T[];
+  ) => GroupableItemTypeMap[G][];
 }
 
 export function useGroupedTable<T extends BaseTableGridRow, G extends GroupableItem>(
@@ -38,7 +37,7 @@ export function useGroupedTable<T extends BaseTableGridRow, G extends GroupableI
   } = config;
   
   // Use custom rows if provided, otherwise use store items
-  const rows = customRows || store.items as ComputedRef<T[]>;
+  const rows = customRows || store.items as unknown as ComputedRef<T[]>;
 
   /**
    * Handle row reordering (within or between groups)
@@ -50,7 +49,11 @@ export function useGroupedTable<T extends BaseTableGridRow, G extends GroupableI
       ? mapReorderedRows(reorderedRows, rows.value)
       : defaultMapReorderedRows(reorderedRows, rows.value);
     
-    await store.reorderItems(mappedRows as GroupableItemTypeMap[G][]);
+    if (!mappedRows || mappedRows.length === 0) {
+      return;
+    }
+    
+    await store.reorderItems(mappedRows);
   };
 
   /**
@@ -59,20 +62,20 @@ export function useGroupedTable<T extends BaseTableGridRow, G extends GroupableI
    */
   const defaultMapReorderedRows = (
     reorderedRows: BaseTableGridRow[], 
-    originalRows: T[]
-  ): T[] => {
+    originalRows: GroupableItemTypeMap[G][]
+  ): GroupableItemTypeMap[G][] => {
     return reorderedRows
-      .map((row): T | null => {
+      .map((row): GroupableItemTypeMap[G] | null => {
         const originalRow = originalRows.find(r => r.uuid === row.uuid);
         if (!originalRow) return null;
         
         // Preserve groupId from the reordered row (may have changed if moved between groups)
         const groupId = (row as GroupedTableGridRow).groupId;
         return groupId !== undefined 
-          ? { ...originalRow, groupId } as T
+          ? { ...originalRow, groupId }
           : originalRow;
       })
-      .filter((row): row is T => row !== null);
+      .filter((row): row is GroupableItemTypeMap[G]  => row !== null);
   };
 
   /**

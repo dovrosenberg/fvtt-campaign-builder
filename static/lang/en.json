@@ -340,6 +340,7 @@
     "labels": {
       "add": "Add",
       "newTab": "New Tab",
+      "newGroup": "New Group",
       "saveChanges": "Save Changes",
       "reset": "Reset",
       "cancel": "Cancel",

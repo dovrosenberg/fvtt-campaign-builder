@@ -536,10 +536,10 @@ export const campaignStore = () => {
     refresh: mainStore.refreshCampaign,
     groupConfigs: {
       [GroupableItem.ToDos]: {
-        items: computed(() => (currentCampaign.value?.toDoItems || []) as ToDoItem[]),
+        propertyName: 'toDoItems',
       },
       [GroupableItem.Ideas]: {
-        items: computed(() => (currentCampaign.value?.ideas || []) as Idea[]),
+        propertyName: 'ideas',
       },
     },
   });

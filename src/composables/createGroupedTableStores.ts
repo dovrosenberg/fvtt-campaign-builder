@@ -24,8 +24,9 @@
 import { Ref, ComputedRef, computed, } from 'vue';
 import type { TableGroup } from '@/types/tables';
 import { GroupableItem } from '@/types/documentGroups';
-import type { ToDoItem, Idea } from '@/types';
+import { type ToDoItem, type Idea,UNGROUPED_GROUP_ID } from '@/types';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
+import { localize } from '@/utils/game';
 
 /**
  * Type mapping from GroupableItem to the corresponding item type
@@ -38,16 +39,16 @@ export type GroupableItemTypeMap = {
 /**
  * Configuration for a single item type in the grouped table store
  */
-interface GroupConfig<T extends GroupableItem> {
-  /** The items array ref with proper typing based on itemName */
-  items: Ref<GroupableItemTypeMap[T][]> | ComputedRef<GroupableItemTypeMap[T][]>;
+interface GroupConfig {
+  /** The property name that this table is for on the entity */
+  propertyName: string;
 }
 
 /**
  * Configuration for all groupable item types
  */
 type GroupConfigs = {
-  [K in GroupableItem]: GroupConfig<K>;
+  [K in GroupableItem]?: GroupConfig;
 };
 
 /**
@@ -85,7 +86,7 @@ interface EntityTableStoreConfig<T extends FCBJournalEntryPage<any>> {
   currentEntity: Ref<T | null>;
 
   /** Function to refresh the main entity (ex. mainStore.refreshArc) */
-  refresh: () => void;
+  refresh: () => Promise<void>;
 
   /** group configurations for each item type */
   groupConfigs: GroupConfigs;
@@ -100,67 +101,164 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
   const stores = {} as EntityTableStores;
   
   // Iterate over each GroupableItem enum value
-  for (const itemName of Object.values(GroupableItem)) {
-    const groupConfig = groupConfigs[itemName];
+  for (const itemType of Object.values(GroupableItem)) {
+    const groupConfig = groupConfigs[itemType];
 
     if (!groupConfig) continue;
     
-    const { items } = groupConfig;
+    const { propertyName } = groupConfig;
     
     // Create a properly typed store for each item type
     const store = {
       // Group management
-      addGroup: async (name: string): Promise<TableGroup | null> => {
+
+      /**
+       * Adds a new group to the specified item type
+       * @param name - The name of the new group
+       * @returns The newly created group
+       */
+      addGroup: async (name?: string): Promise<TableGroup | null> => {
         if (!currentEntity.value) return null;
+
+        const newGroup: TableGroup = {
+          groupId: foundry.utils.randomID(),
+          name: name || localize('newGroup'),
+        };
+
+        // Add the new group
+        const groups = currentEntity.value.getGroups(itemType).slice();
+        groups.push(newGroup);
+        currentEntity.value.setGroups(itemType, groups);
         
-        const newGroup = await currentEntity.value.addGroup(itemName, name);
+        await currentEntity.value.save();
         await refresh();
         return newGroup;
       },
 
+      /**
+       * Updates a group's name
+       * @param groupId - The ID of the group to update
+       * @param newName - The new name for the group
+       */
       updateGroup: async (groupId: string, newName: string): Promise<void> => {
         if (!currentEntity.value) return;
-        await currentEntity.value.updateGroup(itemName, groupId, newName);
+
+        const groups = currentEntity.value.getGroups(itemType);
+        if (!groups)
+          return;
+
+        const group = groups.find(g => g.groupId === groupId);
+        if (!group)
+          return;
+
+        group.name = newName;
+
+        await currentEntity.value.save();
         await refresh();
       },
 
+      /**
+       * Deletes a group and moves its items to ungrouped
+       * @param groupId - The ID of the group to delete
+       */
       deleteGroup: async (groupId: string): Promise<void> => {
         if (!currentEntity.value || !groupId) return;
-        await currentEntity.value.deleteGroup(itemName, groupId);
+
+        // Remove the group
+        let groups = currentEntity.value.getGroups(itemType).slice();
+        if (groups) {
+          groups = groups.filter(g => g.groupId !== groupId);
+        }
+
+        // Remove groupId from all items in that group
+        if (currentEntity.value[propertyName]) {
+          const items = currentEntity.value[propertyName] as any[];
+          items.forEach((item) => {
+            if (item && item.groupId === groupId) {
+              item.groupId = null;
+            }
+          });
+        }
+
+        await currentEntity.value.save(); 
         await refresh();
       },
 
+      /**
+       * Reorders groups and updates item ordering to match
+       * @param newOrder - The groups in their new order
+       */
       reorderGroups: async (newOrder: TableGroup[]): Promise<void> => {
         if (!currentEntity.value) return;
-        await currentEntity.value.reorderGroups(itemName, newOrder);
+
+        // filter ungrouped, just in case
+        newOrder = newOrder.filter(g => g.groupId !== UNGROUPED_GROUP_ID);
+        
+        // Update group order
+        currentEntity.value.setGroups(itemType, newOrder);
+
+        // Reorder items to match group order
+        if (currentEntity.value[propertyName]) {
+          const items = currentEntity.value[propertyName] as any[];
+          const reorderedItems: any[] = [];
+          const validGroupIds = new Set(newOrder.map(g => g.groupId));
+
+          // Add ungrouped items at the beginning (and invalid groups)
+          const ungroupedItems = items
+            .filter(item => !item.groupId || item.groupId === UNGROUPED_GROUP_ID || !validGroupIds.has(item.groupId))
+            .map(item => ({ ...item, groupId: null }));
+          reorderedItems.push(...ungroupedItems);
+
+          // Add items for each group in order
+          for (const group of newOrder) {
+            const groupItems = items
+              .filter(item => item.groupId === group.groupId)
+              .map(item => ({ ...item }));
+            reorderedItems.push(...groupItems);
+          }
+
+          currentEntity.value[propertyName] = reorderedItems;
+        }
+
+        await currentEntity.value.save();
         await refresh();
       },
 
       // Item management
       moveItemToGroup: async (itemUuid: string, groupId: string | null): Promise<void> => {
         if (!currentEntity.value) return;
-        const item = items.value.find(i => i.uuid === itemUuid);
+
+        const item = currentEntity.value[propertyName]?.find(i => i.uuid === itemUuid); 
         if (!item) return;
 
         item.groupId = groupId;
         await currentEntity.value.save();
-        refresh();
+        await refresh();
       },
 
-      reorderItems: async (reorderedItems: GroupableItemTypeMap[typeof itemName][]): Promise<void> => {
-        if (!currentEntity.value) return;
-        await currentEntity.value.reorderItems(itemName, reorderedItems);
-        refresh();
+      /**
+       * Reorders items within their groups or between groups
+       * @param reorderedItems - The items in their new order
+       */
+      reorderItems: async (reorderedItems: GroupableItemTypeMap[typeof itemType][]): Promise<void> => {
+        if (!currentEntity.value)
+          return;
+
+        currentEntity.value[propertyName] = reorderedItems.slice();
+        await currentEntity.value.save();
+        await refresh();
       },
+
+      propertyName: propertyName,
 
       // Access to refs - cast to the correct type
-      items: items as Ref<GroupableItemTypeMap[typeof itemName][]> | ComputedRef<GroupableItemTypeMap[typeof itemName][]>,
+      items: computed(() => (currentEntity.value?.[propertyName] || []) as GroupableItemTypeMap[typeof itemType][]),
 
-      groups: computed(() => currentEntity.value?.getGroups(itemName))
-    } as GroupedTableStore<typeof itemName>;
+      groups: computed(() => currentEntity.value?.getGroups(itemType))
+    } as GroupedTableStore<typeof itemType>;
 
     // @ts-ignore - safe because we control the mapping
-    stores[itemName] = store;
+    stores[itemType] = store;
   }
 
   return stores;
