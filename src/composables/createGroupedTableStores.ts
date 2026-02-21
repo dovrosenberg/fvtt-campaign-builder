@@ -27,6 +27,7 @@ import { GroupableItem } from '@/types/documentGroups';
 import { type ToDoItem, type Idea,UNGROUPED_GROUP_ID } from '@/types';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
 import { localize } from '@/utils/game';
+import { FCBDialog } from '@/dialogs';
 
 /**
  * Type mapping from GroupableItem to the corresponding item type
@@ -164,11 +165,16 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
       deleteGroup: async (groupId: string): Promise<void> => {
         if (!currentEntity.value || !groupId) return;
 
+        // confirm
+        if (!(await FCBDialog.confirmDialog('Delete group?', 'Are you sure you want to delete this group? All items will be put in \'Ungrouped\'')))
+          return;
+
         // Remove the group
         let groups = currentEntity.value.getGroups(itemType).slice();
         if (groups) {
           groups = groups.filter(g => g.groupId !== groupId);
         }
+        currentEntity.value.setGroups(itemType, groups);
 
         // Remove groupId from all items in that group
         if (currentEntity.value[propertyName]) {
