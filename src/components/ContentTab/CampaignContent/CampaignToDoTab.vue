@@ -7,7 +7,7 @@
       :filter-fields="[]"
       :add-button-label="localize('labels.campaign.addToDo')"
       :allow-drop-row="false"
-      :grouped="ModuleSettings.get(SettingKey.tableGroupingSettings)?.[TableGroupingSetting.Todos] || false"
+      :grouped="isGrouped"
       :groups="toDoGroups"
       :rows="mappedToDoRows"
       :columns="columns"
@@ -57,6 +57,12 @@
     
   ///////////////////////////////
   // computed
+  const isGrouped = computed(() => {
+    // Access reactive version to create dependency on settings changes
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[TableGroupingSetting.Todos] || false;
+  });
+
   const groupedTable = useGroupedTable<ToDoItem, GroupableItem.ToDos>({
     store: campaignStore.groupStores[GroupableItem.ToDos],
     rows: computed(() => toDoRows.value),

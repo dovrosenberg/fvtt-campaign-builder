@@ -1,3 +1,4 @@
+import { ref } from 'vue';
 import { localize } from '@/utils/game';
 import { moduleId } from './index';
 import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSettingsApplication';
@@ -146,6 +147,10 @@ export type SettingKeyType<K extends SettingKey> =
     never;  
 
 export class ModuleSettings {
+  // Reactive version counter that increments when settings change
+  // This enables Vue reactivity for settings by creating a dependency
+  private static version = ref(0);
+
   // note that this returns the object directly, so if it's an object or array, it's a reference
   public static get<T extends SettingKey>(setting: T): SettingKeyType<T> {
     return game.settings.get(moduleId, setting) as SettingKeyType<T>;
@@ -156,9 +161,21 @@ export class ModuleSettings {
     return foundry.utils.deepClone(ModuleSettings.get(setting));
   }
 
+  /**
+   * Get the reactive version counter.
+   * Call this in computed properties to create a reactive dependency on settings.
+   * When any setting is changed via ModuleSettings.set(), this version will increment
+   * and all computed properties that accessed this will re-evaluate.
+   */
+  public static getReactiveVersion(): number {
+    return this.version.value;
+  }
+
   public static async set<T extends SettingKey>(setting: T, value: SettingKeyType<T>): Promise<void> {
     // @ts-ignore - not sure how to fix the typing
     await game.settings.set(moduleId, setting, value as SettingKeyType<setting>);
+    // Increment version to trigger reactivity in all computed properties that use getReactiveVersion()
+    this.version.value++;
   }
 
   private static registerSetting(settingKey: SettingKey, settingConfig: ClientSettings.RegisterData<string | boolean, 'campaign-builder', any>) {

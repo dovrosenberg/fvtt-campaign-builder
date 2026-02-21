@@ -84,12 +84,15 @@
   const store = computed(() => props.arcMode ? arcStore : campaignStore);
   const ideaRows = computed(() => props.arcMode ? arcIdeaRows.value : campaignIdeaRows.value);
   const ideaGroups = computed(() => props.arcMode ? arcIdeaGroups.value : campaignIdeaGroups.value);
-  const isGrouped = computed(() => (
-    ModuleSettings.get(SettingKey.tableGroupingSettings)?.[
-      props.arcMode ? 
-      TableGroupingSetting.ArcIdeas : 
+  const isGrouped = computed(() => {
+    // Access reactive version to create dependency on settings changes
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[
+      props.arcMode ?
+      TableGroupingSetting.ArcIdeas :
       TableGroupingSetting.CampaignIdeas
-  ] || false));
+  ] || false;
+  });
 
   // Grouped table composable
   const groupedTable = useGroupedTable<Idea, GroupableItem.Ideas>({
