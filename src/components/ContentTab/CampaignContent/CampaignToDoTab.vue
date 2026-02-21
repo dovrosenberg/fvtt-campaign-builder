@@ -60,7 +60,7 @@
   const isGrouped = computed(() => {
     // Access reactive version to create dependency on settings changes
     ModuleSettings.getReactiveVersion();
-    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[TableGroupingSetting.Todos] || false;
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[TableGroupingSetting.CampaignToDos] || false;
   });
 
   const groupedTable = useGroupedTable<ToDoItem, GroupableItem.ToDos>({
