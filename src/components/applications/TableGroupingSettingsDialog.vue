@@ -116,7 +116,6 @@ Dependencies
         { settingKey: TableGroupingSetting.EntryOrganizations, labelKey: 'dialogs.tableGrouping.tabs.organizations' },
         { settingKey: TableGroupingSetting.EntryPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
         { settingKey: TableGroupingSetting.EntryActors, labelKey: 'dialogs.tableGrouping.tabs.actors' },
-        { settingKey: TableGroupingSetting.EntrySessions, labelKey: 'dialogs.tableGrouping.tabs.sessions' },
       ],
     },
     {
@@ -134,6 +133,7 @@ Dependencies
       key: 'arcs',
       headerKey: 'dialogs.tableGrouping.contentTypes.arcs',
       options: [
+        { settingKey: TableGroupingSetting.ArcJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
         { settingKey: TableGroupingSetting.ArcLore, labelKey: 'dialogs.tableGrouping.tabs.lore' },
         { settingKey: TableGroupingSetting.ArcVignettes, labelKey: 'dialogs.tableGrouping.tabs.vignettes' },
         { settingKey: TableGroupingSetting.ArcLocations, labelKey: 'dialogs.tableGrouping.tabs.locations' },
@@ -153,14 +153,6 @@ Dependencies
         { settingKey: TableGroupingSetting.SessionMonsters, labelKey: 'dialogs.tableGrouping.tabs.monsters' },
         { settingKey: TableGroupingSetting.SessionItems, labelKey: 'dialogs.tableGrouping.tabs.magicItems' },
         { settingKey: TableGroupingSetting.SessionPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
-      ],
-    },
-    {
-      key: 'fronts',
-      headerKey: 'dialogs.tableGrouping.contentTypes.fronts',
-      options: [
-        { settingKey: TableGroupingSetting.FrontCharacters, labelKey: 'dialogs.tableGrouping.tabs.participants' },
-        { settingKey: TableGroupingSetting.FrontLocations, labelKey: 'dialogs.tableGrouping.tabs.grimPortents' },
       ],
     },
   ];

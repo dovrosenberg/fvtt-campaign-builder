@@ -1,4 +1,4 @@
-import { GroupableItem, Idea } from '@/types';
+import { GroupableItem, Idea, RelatedJournal } from '@/types';
 import { schemas } from './fields';
 
 const fields = foundry.data.fields;
@@ -51,6 +51,12 @@ export const ArcSchema = {
     new fields.DocumentUUIDField({ required: true, nullable: false }),
     { required: true, nullable: false, initial: [] as string[] }
   ),
+
+  /** related journal entries */
+  journals: new fields.ArrayField(
+    schemas.RelatedJournal(),
+    { required: true, nullable: false, initial: [] as RelatedJournal[] }
+  ), 
 
   /** array of locations */
   locations: new fields.ArrayField(
@@ -117,6 +123,7 @@ export interface ArcDoc extends JournalEntryPage {
     sortOrder: number;
 
     // campaign-like
+    journals: RelatedJournal[]; 
     customFields: Record<string, string>;
     customFieldHeights: Record<string, number>;
     img: string;

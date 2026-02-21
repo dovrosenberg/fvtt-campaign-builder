@@ -8,7 +8,7 @@ import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Session } from './Session';
 import GlobalSettingService from '@/utils/globalSettings';
-import { Idea, TableGroup, DocumentGroups, GroupableItem } from '@/types';
+import { Idea, RelatedJournal, TableGroup, DocumentGroups, GroupableItem } from '@/types';
 
 type ArcDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Arc>;
 
@@ -25,6 +25,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     participants: [],  
     monsters: [],  
     ideas: [],
+    journals: [],
     vignettes: [],
     lore: [],  
     img: '',   
@@ -145,6 +146,15 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
   public set ideas(value: Idea[] | readonly Idea[]) {
     this._clone.system.ideas = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
+
+  public get journals(): RelatedJournal[] {
+    return this._clone.system.journals;
+  }
+
+  public set journals(value: RelatedJournal[] | readonly RelatedJournal[]) {
+    this._clone.system.journals = value.slice();     // we clone it so it can't be edited outside (this is historical)
+  }
+
 
   /** Creates a new idea item and adds to the arc*/
   /** returns the uuid */

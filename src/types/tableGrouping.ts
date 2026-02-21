@@ -10,12 +10,12 @@ export enum TableGroupingSetting {
   EntryOrganizations = 'EntryOrganizations',
   EntryPCs = 'EntryPCs',
   EntryActors = 'EntryActors',
-  EntrySessions = 'EntrySessions',
   CampaignJournals = 'CampaignJournals',
   CampaignPCs = 'CampaignPCs',
   CampaignLore = 'CampaignLore',
   CampaignIdeas = 'CampaignIdeas',
   CampaignToDos = 'CampaignToDos',
+  ArcJournals = 'ArcJournals',
   ArcLore = 'ArcLore',
   ArcVignettes = 'ArcVignettes',
   ArcLocations = 'ArcLocations',
@@ -29,8 +29,6 @@ export enum TableGroupingSetting {
   SessionMonsters = 'SessionMonsters',
   SessionItems = 'SessionItems',
   SessionPCs = 'SessionPCs',
-  FrontCharacters = 'FrontCharacters',
-  FrontLocations = 'FrontLocations',
 }
 
 export interface TableGroupingSettings {
@@ -41,12 +39,12 @@ export interface TableGroupingSettings {
   [TableGroupingSetting.EntryOrganizations]: boolean;
   [TableGroupingSetting.EntryPCs]: boolean;
   [TableGroupingSetting.EntryActors]: boolean;
-  [TableGroupingSetting.EntrySessions]: boolean;
   [TableGroupingSetting.CampaignJournals]: boolean;
   [TableGroupingSetting.CampaignPCs]: boolean;
   [TableGroupingSetting.CampaignLore]: boolean;
   [TableGroupingSetting.CampaignIdeas]: boolean;
   [TableGroupingSetting.CampaignToDos]: boolean;
+  [TableGroupingSetting.ArcJournals]: boolean;
   [TableGroupingSetting.ArcLore]: boolean;
   [TableGroupingSetting.ArcVignettes]: boolean;
   [TableGroupingSetting.ArcLocations]: boolean;
@@ -60,6 +58,4 @@ export interface TableGroupingSettings {
   [TableGroupingSetting.SessionMonsters]: boolean;
   [TableGroupingSetting.SessionItems]: boolean;
   [TableGroupingSetting.SessionPCs]: boolean;
-  [TableGroupingSetting.FrontCharacters]: boolean;
-  [TableGroupingSetting.FrontLocations]: boolean;
 }
