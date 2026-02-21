@@ -100,7 +100,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
   // types
-  import type { WindowTabType, ContentTabDescriptor } from '@/types';
+  import { WindowTabType, ContentTabDescriptor } from '@/types';
   import { Front, } from '@/classes';
   
   ////////////////////////////////
