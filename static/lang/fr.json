@@ -308,7 +308,8 @@
         "tabs": {
           "colors": "Connection Colors",
           "styles": "Connection Styles",
-          "fields": "Fields"
+          "fields": "Fields",
+          "shapeColors": "Couleurs des formes"
         },
         "columns": {
           "name": "Name",
@@ -870,7 +871,8 @@
         "openEntryInNewTab": "Ouvrir l'entrée dans un nouvel onglet",
         "openDangerInNewTab": "Ouvrir le danger dans un nouvel onglet",
         "setColor": "Set Color",
-        "setStyle": "Set Style"
+        "setStyle": "Set Style",
+        "resetToDefault": "Réinitialiser par défaut"
       },
       "addToStoryWeb": "Ajouter à l'histoire Web actuelle",
       "addWithRelationships": "Ajouter avec les relations",

@@ -4,6 +4,8 @@ import { ValidDocType, TableGroup, DocumentGroups, GroupableItem, UNGROUPED_GROU
 import { FCBSetting } from './FCBSetting';
 import { sanitizeHTML } from '@/utils/sanitizeHtml';
 import GlobalSettingService from '@/utils/globalSettings';
+import { useNavigationStore, useStoryWebStore } from '@/applications/stores';
+import { DOCUMENT_TYPES } from '@/documents';
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
@@ -227,7 +229,18 @@ export class FCBJournalEntryPage<
         // reset the doc and clone
         this._doc = retval;
         this._clone = retval.clone({}, { keepId: true });
-      }      
+      }
+
+      // Refresh all panels showing this content to keep them in sync.
+      const navigationStore = useNavigationStore();
+      await navigationStore.refreshContentAcrossPanels(this.uuid);
+
+      // When a non-story-web document changes, regenerate story web graphs that
+      // reference it so they pick up updated entry names, relationships, etc.
+      if (this._doc.type !== DOCUMENT_TYPES.StoryWeb) {
+        const storyWebStore = useStoryWebStore();
+        await storyWebStore.regenerateAllGraphs(this.uuid);
+      }
     } catch (e) {
       throw new Error(`Error updating journal entry page ${this._doc.uuid} ${this._doc.name}: ${e}`);
     }
