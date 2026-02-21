@@ -122,7 +122,7 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
 
         const newGroup: TableGroup = {
           groupId: foundry.utils.randomID(),
-          name: name || localize('newGroup'),
+          name: name || localize('labels.newGroup'),
         };
 
         // Add the new group

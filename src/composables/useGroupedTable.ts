@@ -47,7 +47,7 @@ export function useGroupedTable<T extends BaseTableGridRow, G extends GroupableI
     // Use custom mapper if provided, otherwise use default logic
     const mappedRows = mapReorderedRows
       ? mapReorderedRows(reorderedRows, rows.value)
-      : defaultMapReorderedRows(reorderedRows, rows.value);
+      : defaultMapReorderedRows(reorderedRows, rows.value as unknown as GroupableItemTypeMap[G][]);
     
     if (!mappedRows || mappedRows.length === 0) {
       return;

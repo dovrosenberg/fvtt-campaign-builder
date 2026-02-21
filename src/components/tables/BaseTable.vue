@@ -570,6 +570,8 @@
     /** Dropping something external on a new drop zone */
     (e: 'dropNew', event: DragEvent): void;
     (e: 'setEditingRow', uuid: string): void;
+
+    /** Rows were reordered; param is rows in new order */
     (e: 'reorder', reorderedRows: BaseTableGridRow[]): void;
 
     /** Groups were reordered; param is group IDs in new order */
