@@ -380,10 +380,10 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
       const existingTabs = UserFlags.get(UserFlagKey.tabs, docSettingId) || [];
       
       // Mark all existing tabs as inactive
-      existingTabs.forEach((t: WindowTab) => t.active = false);
+      existingTabs[0].forEach((t: WindowTab) => t.active = false);
       
-      // Add the new tab to the front (it will be active)
-      existingTabs.push(newTab);
+      // Add the new tab to the front of tab 0 (it will be active)
+      existingTabs[0].push(newTab);
       
       // Save the tabs to the target setting
       await UserFlags.set(UserFlagKey.tabs, existingTabs, docSettingId);
