@@ -151,6 +151,35 @@ export class ModuleSettings {
   // This enables Vue reactivity for settings by creating a dependency
   private static version = ref(0);
 
+  // Track if we've registered the hooks
+  private static hookRegistered = false;
+
+  /**
+   * Initialize the reactive settings system by registering hooks for setting changes.
+   * This should be called once during module initialization.
+   */
+  public static initializeReactivity(): void {
+    if (this.hookRegistered) return;
+
+    // Listen for world-scoped setting changes (updateSetting hook only fires for world settings)
+    Hooks.on('updateSetting', (setting: { key: string }) => {
+      // Only react to our module's settings
+      if (setting.key.startsWith(`${moduleId}.`)) {
+        this.version.value++;
+      }
+    });
+
+    // Listen for client-scoped setting changes 
+    Hooks.on('clientSettingChanged', (setting: string ) => {
+      // Only react to our module's settings
+      if (setting.startsWith(`${moduleId}.`)) {
+        this.version.value++;
+      }
+    });
+
+    this.hookRegistered = true;
+  }
+
   // note that this returns the object directly, so if it's an object or array, it's a reference
   public static get<T extends SettingKey>(setting: T): SettingKeyType<T> {
     return game.settings.get(moduleId, setting) as SettingKeyType<T>;
@@ -164,8 +193,8 @@ export class ModuleSettings {
   /**
    * Get the reactive version counter.
    * Call this in computed properties to create a reactive dependency on settings.
-   * When any setting is changed via ModuleSettings.set(), this version will increment
-   * and all computed properties that accessed this will re-evaluate.
+   * When any setting is changed (via ModuleSettings.set() or directly through Foundry),
+   * this version will increment and all computed properties that accessed this will re-evaluate.
    */
   public static getReactiveVersion(): number {
     return this.version.value;
@@ -174,8 +203,7 @@ export class ModuleSettings {
   public static async set<T extends SettingKey>(setting: T, value: SettingKeyType<T>): Promise<void> {
     // @ts-ignore - not sure how to fix the typing
     await game.settings.set(moduleId, setting, value as SettingKeyType<setting>);
-    // Increment version to trigger reactivity in all computed properties that use getReactiveVersion()
-    this.version.value++;
+    // We don't need to increment here because the hooks capture changes
   }
 
   private static registerSetting(settingKey: SettingKey, settingConfig: ClientSettings.RegisterData<string | boolean, 'campaign-builder', any>) {

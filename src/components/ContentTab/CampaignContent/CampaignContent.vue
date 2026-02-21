@@ -147,10 +147,12 @@
   const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
 
   const showToDoTab = computed(() => {
+    ModuleSettings.getReactiveVersion();
     return ModuleSettings.get(SettingKey.enableToDoList);
   });
 
   const showStoryWebTab = computed(() => {
+    ModuleSettings.getReactiveVersion();
     return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 

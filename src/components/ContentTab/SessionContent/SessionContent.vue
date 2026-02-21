@@ -236,6 +236,7 @@
   ////////////////////////////////
   // computed data
   const showStoryWebTab = computed(() => {
+    ModuleSettings.getReactiveVersion();
     return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 

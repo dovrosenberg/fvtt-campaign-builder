@@ -107,20 +107,21 @@
     // Always return all bookmarks initially for measurement
     // The visibility will be controlled by CSS classes
     const allBookmarks = bookmarks.value;
-    
+
+    ModuleSettings.getReactiveVersion();
     // Add session bookmarks at the front if enabled
     if (ModuleSettings.get(SettingKey.sessionBookmark) && sessionBookmarks.value.length > 0) {
       return [...sessionBookmarks.value, ...allBookmarks];
     }
-    
+
     return allBookmarks;
   });
 
   const overflowBookmarks = computed(() => {
     const visible = visibleBookmarks.value;
-    
+
     if (visibleCount.value === 0 || visibleCount.value >= visible.length) return [];
-    
+
     // Return all bookmarks (session + regular) that fall past visibleCount
     return visible.slice(visibleCount.value);
   });
@@ -132,6 +133,7 @@
       return 'fcb-bookmark-hidden';
     }
     // Add special class for session bookmarks
+    ModuleSettings.getReactiveVersion();
     const sessionBookmarksCount = ModuleSettings.get(SettingKey.sessionBookmark) ? sessionBookmarks.value.length : 0;
     if (index < sessionBookmarksCount) {
       return 'fcb-session-bookmark';

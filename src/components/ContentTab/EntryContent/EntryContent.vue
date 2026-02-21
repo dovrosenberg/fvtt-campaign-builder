@@ -332,6 +332,7 @@
       tabs.push({ id: 'scenes', label: localize('labels.scenes') });
     if (topic.value!==Topics.PC)
       tabs.push({ id: 'sessions', label: localize('labels.sessions') });
+    ModuleSettings.getReactiveVersion();
     if (ModuleSettings.get(SettingKey.genericFoundryTab))
       tabs.push({ id: 'foundry', label: localize('labels.tabs.entry.foundry') });
 

@@ -187,6 +187,7 @@
   });
 
   const customFields = computed<CustomFieldDescription[]>(() => {
+    ModuleSettings.getReactiveVersion();
     const customFieldsByType = ModuleSettings.get(SettingKey.customFields);
     return (customFieldsByType?.[props.contentType] || [])
       .filter((f) => !f.deleted)
