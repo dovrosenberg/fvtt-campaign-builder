@@ -9,7 +9,7 @@ import { RollTableSettingsApplication } from '@/applications/settings/RollTableS
 import { StoryWebSettingsApplication } from '@/applications/settings/StoryWebSettingsApplication';
 import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
 import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, } from '@/types';
-import { TableGroupingSetting, TableGroupingSettings } from '@/types/tableGrouping';
+import { TableGroupingSetting } from '@/types/tableGrouping';
 
 export type ImageConfiguration = ApiCustomGenerateImagePostRequestImageConfiguration & {
   descriptionField?: string;

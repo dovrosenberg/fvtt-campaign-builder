@@ -7,7 +7,7 @@
       :filter-fields="[]"
       :add-button-label="localize('labels.campaign.addIdea')"
       :allow-drop-row="false"
-      :grouped="true"
+      :grouped="isGrouped"
       :groups="ideaGroups"
       :rows="mappedIdeaRows"
       :columns="columns"
@@ -39,6 +39,7 @@
   import { useGroupedTable } from '@/composables/useGroupedTable';
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
+  import { TableGroupingSetting } from '@/types';
 
   // library components
 
@@ -83,6 +84,12 @@
   const store = computed(() => props.arcMode ? arcStore : campaignStore);
   const ideaRows = computed(() => props.arcMode ? arcIdeaRows.value : campaignIdeaRows.value);
   const ideaGroups = computed(() => props.arcMode ? arcIdeaGroups.value : campaignIdeaGroups.value);
+  const isGrouped = computed(() => (
+    ModuleSettings.get(SettingKey.tableGroupingSettings)?.[
+      props.arcMode ? 
+      TableGroupingSetting.ArcIdeas : 
+      TableGroupingSetting.CampaignIdeas
+  ] || false));
 
   // Grouped table composable
   const groupedTable = useGroupedTable<Idea, GroupableItem.Ideas>({

@@ -7,7 +7,7 @@
       :filter-fields="[]"
       :add-button-label="localize('labels.campaign.addToDo')"
       :allow-drop-row="false"
-      :grouped="true"
+      :grouped="ModuleSettings.get(SettingKey.tableGroupingSettings)?.[TableGroupingSetting.Todos] || false"
       :groups="toDoGroups"
       :rows="mappedToDoRows"
       :columns="columns"
