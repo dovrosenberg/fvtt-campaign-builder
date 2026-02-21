@@ -9,18 +9,21 @@ export const UNGROUPED_GROUP_ID = '#&#ungrouped#&#';
 /**
  * Enum for all item types that can have groups
  * Using an enum provides better type safety and IDE autocomplete
+ * Note: these are purely for readability and consistency; it's fine to reuse them
+ *    across content types
  */
 export enum GroupableItem {
   ToDos = 'toDoItems',
   Ideas = 'ideas',
-  // Future types can be added here:
-  // lore = 'lore',
-  // vignettes = 'vignettes',
-  // locations = 'locations',
-  // participants = 'participants',
-  // monsters = 'monsters',
-  // npcs = 'npcs',
-  // items = 'items',
+  Journals = 'journals',
+  Lore = 'lore',
+  PCs = 'pcs',
+  Vignettes = 'vignettes',
+  Locations = 'locations',
+  Participants = 'participants',
+  Monsters = 'monsters',
+  NPCs = 'NPCs',
+  Items = 'items',
 }
 
 /**
@@ -32,7 +35,5 @@ export type GroupableItemType = `${GroupableItem}`;
  * Interface for the consolidated groups structure in document schemas
  */
 export interface DocumentGroups {
-  [GroupableItem.ToDos]: TableGroup[];
-  [GroupableItem.Ideas]: TableGroup[];
-  // Future types can be added here as needed
+  [K in GroupableItem]?: TableGroup[];
 }
