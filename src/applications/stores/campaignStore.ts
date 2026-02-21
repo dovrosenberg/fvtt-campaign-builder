@@ -535,11 +535,17 @@ export const campaignStore = () => {
     currentEntity: currentCampaign,
     refresh: mainStore.refreshCampaign,
     groupConfigs: {
-      [GroupableItem.ToDos]: {
+      [GroupableItem.CampaignToDos]: {
         propertyName: 'toDoItems',
       },
-      [GroupableItem.Ideas]: {
+      [GroupableItem.CampaignIdeas]: {
         propertyName: 'ideas',
+      },
+      [GroupableItem.CampaignLore]: {
+        propertyName: 'lore',
+      },
+      [GroupableItem.CampaignPCs]: {
+        propertyName: 'pcs',
       },
     },
   });

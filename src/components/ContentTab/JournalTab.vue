@@ -128,6 +128,7 @@
       pageUuid: page?.uuid || null,
       packId: journal.pack,
       packName: journal.pack ? game.packs?.get(journal.pack)?.title ?? null : null,
+      groupId: null
     };
 
     emit('journals-updated', [...props.initialJournals, newJournalLink]);

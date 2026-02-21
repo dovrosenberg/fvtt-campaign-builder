@@ -8,7 +8,7 @@ import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Session } from './Session';
 import GlobalSettingService from '@/utils/globalSettings';
-import { Idea, RelatedJournal, TableGroup, DocumentGroups, GroupableItem } from '@/types';
+import { Idea, RelatedJournal, TableGroup, GroupableItem } from '@/types';
 
 type ArcDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Arc>;
 
@@ -32,7 +32,13 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     tags: [],
     storyWebs: [],
     groups: {
-      [GroupableItem.Ideas]: [] as TableGroup[],
+      [GroupableItem.ArcIdeas]: [] as TableGroup[],
+      [GroupableItem.ArcJournals]: [] as TableGroup[],
+      [GroupableItem.ArcLore]: [] as TableGroup[],
+      [GroupableItem.ArcLocations]: [] as TableGroup[],
+      [GroupableItem.ArcMonsters]: [] as TableGroup[],
+      [GroupableItem.ArcParticipants]: [] as TableGroup[],
+      [GroupableItem.ArcVignettes]: [] as TableGroup[],
     },
   } as unknown as ArcDocClass['system'];
 
@@ -162,6 +168,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     const item: Idea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
+      groupId: null,
     };
 
     this._clone.system.ideas.push(item);
@@ -248,7 +255,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     if (this._clone.system.locations.find(l=> l.uuid===uuid))
       return;
 
-    this._clone.system.locations.push({ uuid, notes });
+    this._clone.system.locations.push({ uuid, notes, groupId: null });
     await this.save();
   }
 
@@ -280,7 +287,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     if (this._clone.system.participants.find(l=> l.uuid===uuid))
       return;
 
-    this._clone.system.participants.push({uuid, notes});
+    this._clone.system.participants.push({uuid, notes, groupId: null});
 
     await this.save();
   }
@@ -329,6 +336,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     this._clone.system.vignettes.push({
       uuid,
       description: description || '',
+      groupId: null,
     } satisfies ArcVignette);
 
     await this.save();
@@ -355,6 +363,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     this._clone.system.lore.push({
       uuid: uuid,
       description: description,
+      groupId: null,
     });
 
     await this.save();
@@ -390,7 +399,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     if (this._clone.system.monsters.find(l=> l.uuid===uuid))
       return;
 
-    this._clone.system.monsters.push({ uuid, notes });
+    this._clone.system.monsters.push({ uuid, notes, groupId: null });
 
     await this.save();
   }

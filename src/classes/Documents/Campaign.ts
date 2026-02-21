@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { DOCUMENT_TYPES, CampaignLore, frontIndexFields } from '@/documents';
-import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, StoryWebFilterIndex, ToDoItem, ToDoTypes, Idea, TableGroup, DocumentGroups, GroupableItem } from '@/types';
+import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, StoryWebFilterIndex, ToDoItem, ToDoTypes, Idea, TableGroup, GroupableItem } from '@/types';
 import { Entry, Session, FCBSetting, Front, Arc, StoryWeb } from '@/classes';
 import ArcIndexService from '@/utils/arcIndex';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
@@ -30,8 +30,10 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     storyWebIds: [],
     storyWebs: [],
     groups: {
-      [GroupableItem.ToDos]: [] as TableGroup[],
-      [GroupableItem.Ideas]: [] as TableGroup[],
+      [GroupableItem.CampaignToDos]: [] as TableGroup[],
+      [GroupableItem.CampaignIdeas]: [] as TableGroup[],
+      [GroupableItem.CampaignLore]: [] as TableGroup[],
+      [GroupableItem.CampaignPCs]: [] as TableGroup[],
     },
   } as unknown as CampaignDocClass['system'];
   
@@ -411,6 +413,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       journalEntryPageId: journalEntryPageId,
       lockedToSessionId: null,
       lockedToSessionName: null,
+      groupId: null,
     });
 
     await this.save();
@@ -591,6 +594,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     const item: Idea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
+      groupId: null,
     };
 
     this._clone.system.ideas.push(item);

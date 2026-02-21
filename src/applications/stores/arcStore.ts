@@ -550,13 +550,27 @@ export const arcStore = () => {
     currentEntity: currentArc,
     refresh: mainStore.refreshArc,
     groupConfigs: {
-      [GroupableItem.Ideas]: {
+      [GroupableItem.ArcIdeas]: {
         propertyName: 'ideas',
       },
-      // Future group types can be added here:
-      // [GroupableItem.lore]: {
-      //   propertyName: 'lore',
-      // },
+      [GroupableItem.ArcJournals]: {
+        propertyName: 'journals',
+      },
+      [GroupableItem.ArcLore]: {
+        propertyName: 'lore',
+      },
+      [GroupableItem.ArcVignettes]: {
+        propertyName: 'vignettes',
+      },
+      [GroupableItem.ArcLocations]: {
+        propertyName: 'locations',
+      },
+      [GroupableItem.ArcParticipants]: {
+        propertyName: 'participants',
+      },
+      [GroupableItem.ArcMonsters]: {
+        propertyName: 'monsters',
+      },
     },
   });
 

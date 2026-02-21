@@ -395,6 +395,10 @@
     if (!backendAvailable.value) return;
     if (!field.aiEnabled) return;
 
+    // if there's already a value there, confirm that user wants to overwrite
+    if (!(await FCBDialog.confirmDialog('Overwrite field?', `Are you sure you want to overwrite ${field.label} with new text?`)))
+      return;
+
     const key = aiGenerationKey(field);
     if (isGeneratingAi[key]) return;
     isGeneratingAi[key] = true;

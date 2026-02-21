@@ -73,7 +73,6 @@ Dependencies
   // local imports
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings/ModuleSettings';
-  import { TableGroupingSetting } from '@/types/tableGrouping';
   import { tableGroupingSettingsApp } from '@/applications/settings/TableGroupingSettingsApplication';
   import AppWindowService from '@/utils/appWindow';
   import { useMainStore } from '@/applications/stores';
@@ -84,10 +83,10 @@ Dependencies
   import ConfigDialogLayout from '@/components/layout/ConfigDialogLayout.vue';
 
   // types
-  type TableGroupingSettingsRef = Partial<Record<TableGroupingSetting, boolean>>;
+  type TableGroupingSettingsRef = Partial<Record<GroupableItem, boolean>>;
 
   interface SettingOption {
-    settingKey: TableGroupingSetting;
+    settingKey: GroupableItem;
     labelKey: string;
   }
 
@@ -103,56 +102,56 @@ Dependencies
       key: 'settings',
       headerKey: 'dialogs.tableGrouping.contentTypes.settings',
       options: [
-        { settingKey: TableGroupingSetting.SettingJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
+        { settingKey: GroupableItem.SettingJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
       ],
     },
     {
       key: 'entries',
       headerKey: 'dialogs.tableGrouping.contentTypes.entries',
       options: [
-        { settingKey: TableGroupingSetting.EntryJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
-        { settingKey: TableGroupingSetting.EntryCharacters, labelKey: 'dialogs.tableGrouping.tabs.characters' },
-        { settingKey: TableGroupingSetting.EntryLocations, labelKey: 'dialogs.tableGrouping.tabs.locations' },
-        { settingKey: TableGroupingSetting.EntryOrganizations, labelKey: 'dialogs.tableGrouping.tabs.organizations' },
-        { settingKey: TableGroupingSetting.EntryPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
-        { settingKey: TableGroupingSetting.EntryActors, labelKey: 'dialogs.tableGrouping.tabs.actors' },
+        { settingKey: GroupableItem.EntryJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
+        { settingKey: GroupableItem.EntryCharacters, labelKey: 'dialogs.tableGrouping.tabs.characters' },
+        { settingKey: GroupableItem.EntryLocations, labelKey: 'dialogs.tableGrouping.tabs.locations' },
+        { settingKey: GroupableItem.EntryOrganizations, labelKey: 'dialogs.tableGrouping.tabs.organizations' },
+        { settingKey: GroupableItem.EntryPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
+        { settingKey: GroupableItem.EntryActors, labelKey: 'dialogs.tableGrouping.tabs.actors' },
       ],
     },
     {
       key: 'campaigns',
       headerKey: 'dialogs.tableGrouping.contentTypes.campaigns',
       options: [
-        { settingKey: TableGroupingSetting.CampaignJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
-        { settingKey: TableGroupingSetting.CampaignPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
-        { settingKey: TableGroupingSetting.CampaignLore, labelKey: 'dialogs.tableGrouping.tabs.lore' },
-        { settingKey: TableGroupingSetting.CampaignIdeas, labelKey: 'dialogs.tableGrouping.tabs.ideas' },
-        { settingKey: TableGroupingSetting.CampaignToDos, labelKey: 'dialogs.tableGrouping.tabs.todo' },
+        { settingKey: GroupableItem.CampaignJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
+        { settingKey: GroupableItem.CampaignPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
+        { settingKey: GroupableItem.CampaignLore, labelKey: 'dialogs.tableGrouping.tabs.lore' },
+        { settingKey: GroupableItem.CampaignIdeas, labelKey: 'dialogs.tableGrouping.tabs.ideas' },
+        { settingKey: GroupableItem.CampaignToDos, labelKey: 'dialogs.tableGrouping.tabs.todo' },
       ],
     },
     {
       key: 'arcs',
       headerKey: 'dialogs.tableGrouping.contentTypes.arcs',
       options: [
-        { settingKey: TableGroupingSetting.ArcJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
-        { settingKey: TableGroupingSetting.ArcLore, labelKey: 'dialogs.tableGrouping.tabs.lore' },
-        { settingKey: TableGroupingSetting.ArcVignettes, labelKey: 'dialogs.tableGrouping.tabs.vignettes' },
-        { settingKey: TableGroupingSetting.ArcLocations, labelKey: 'dialogs.tableGrouping.tabs.locations' },
-        { settingKey: TableGroupingSetting.ArcParticipants, labelKey: 'dialogs.tableGrouping.tabs.participants' },
-        { settingKey: TableGroupingSetting.ArcMonsters, labelKey: 'dialogs.tableGrouping.tabs.monsters' },
-        { settingKey: TableGroupingSetting.ArcIdeas, labelKey: 'dialogs.tableGrouping.tabs.ideas' },
+        { settingKey: GroupableItem.ArcJournals, labelKey: 'dialogs.tableGrouping.tabs.journals' },
+        { settingKey: GroupableItem.ArcLore, labelKey: 'dialogs.tableGrouping.tabs.lore' },
+        { settingKey: GroupableItem.ArcVignettes, labelKey: 'dialogs.tableGrouping.tabs.vignettes' },
+        { settingKey: GroupableItem.ArcLocations, labelKey: 'dialogs.tableGrouping.tabs.locations' },
+        { settingKey: GroupableItem.ArcParticipants, labelKey: 'dialogs.tableGrouping.tabs.participants' },
+        { settingKey: GroupableItem.ArcMonsters, labelKey: 'dialogs.tableGrouping.tabs.monsters' },
+        { settingKey: GroupableItem.ArcIdeas, labelKey: 'dialogs.tableGrouping.tabs.ideas' },
       ],
     },
     {
       key: 'sessions',
       headerKey: 'dialogs.tableGrouping.contentTypes.sessions',
       options: [
-        { settingKey: TableGroupingSetting.SessionLore, labelKey: 'dialogs.tableGrouping.tabs.lore' },
-        { settingKey: TableGroupingSetting.SessionVignettes, labelKey: 'dialogs.tableGrouping.tabs.vignettes' },
-        { settingKey: TableGroupingSetting.SessionLocations, labelKey: 'dialogs.tableGrouping.tabs.locations' },
-        { settingKey: TableGroupingSetting.SessionCharacters, labelKey: 'dialogs.tableGrouping.tabs.npcs' },
-        { settingKey: TableGroupingSetting.SessionMonsters, labelKey: 'dialogs.tableGrouping.tabs.monsters' },
-        { settingKey: TableGroupingSetting.SessionItems, labelKey: 'dialogs.tableGrouping.tabs.magicItems' },
-        { settingKey: TableGroupingSetting.SessionPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
+        { settingKey: GroupableItem.SessionLore, labelKey: 'dialogs.tableGrouping.tabs.lore' },
+        { settingKey: GroupableItem.SessionVignettes, labelKey: 'dialogs.tableGrouping.tabs.vignettes' },
+        { settingKey: GroupableItem.SessionLocations, labelKey: 'dialogs.tableGrouping.tabs.locations' },
+        { settingKey: GroupableItem.SessionCharacters, labelKey: 'dialogs.tableGrouping.tabs.npcs' },
+        { settingKey: GroupableItem.SessionMonsters, labelKey: 'dialogs.tableGrouping.tabs.monsters' },
+        { settingKey: GroupableItem.SessionItems, labelKey: 'dialogs.tableGrouping.tabs.magicItems' },
+        { settingKey: GroupableItem.SessionPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
       ],
     },
   ];
@@ -174,7 +173,7 @@ Dependencies
   // Initialize all settings to false
   const initializeSettings = () => {
     const allSettings: TableGroupingSettingsRef = {};
-    Object.values(TableGroupingSetting).forEach(key => {
+    Object.values(GroupableItem).forEach(key => {
       allSettings[key] = false;
     });
     settings.value = allSettings;
