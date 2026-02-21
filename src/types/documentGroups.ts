@@ -13,17 +13,26 @@ export const UNGROUPED_GROUP_ID = '#&#ungrouped#&#';
  *    across content types
  */
 export enum GroupableItem {
-  ToDos = 'toDoItems',
-  Ideas = 'ideas',
-  Journals = 'journals',
-  Lore = 'lore',
-  PCs = 'pcs',
-  Vignettes = 'vignettes',
-  Locations = 'locations',
-  Participants = 'participants',
-  Monsters = 'monsters',
-  NPCs = 'NPCs',
-  Items = 'items',
+  SettingJournals = 'settingJournals',
+  CampaignJournals = 'campaignJournals',
+  CampaignPCs = 'campaignPCs',
+  CampaignLore = 'campaignLore',
+  CampaignIdeas = 'campaignIdeas',
+  CampaignToDos = 'campaignToDos',
+  ArcJournals = 'arcJournals',
+  ArcLore = 'arcLore',
+  ArcVignettes = 'arcVignettes',
+  ArcLocations = 'arcLocations',
+  ArcParticipants = 'arcParticipants',
+  ArcMonsters = 'arcMonsters',
+  ArcIdeas = 'arcIdeas',
+  SessionLore = 'sessionLore',
+  SessionVignettes = 'sessionVignettes',
+  SessionLocations = 'sessionLocations',
+  SessionNPCs = 'sessionNPCs',
+  SessionMonsters = 'sessionMonsters',
+  SessionItems = 'sessionItems',
+  SessionPCs = 'sessionPCs',
 }
 
 /**

@@ -2,7 +2,6 @@ import { DOCUMENT_TYPES } from '@/documents/types.js';
 
 export type * from './directory.d.ts';
 export * from './tables';
-export * from './tableGrouping';
 export * from './documentGroups';
 export type * from './hierarchy.d.ts';
 export type * from './global.d.ts';

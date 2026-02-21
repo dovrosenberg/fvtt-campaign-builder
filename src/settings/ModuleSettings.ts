@@ -10,7 +10,6 @@ import { RollTableSettingsApplication } from '@/applications/settings/RollTableS
 import { StoryWebSettingsApplication } from '@/applications/settings/StoryWebSettingsApplication';
 import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
 import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, } from '@/types';
-import { TableGroupingSetting } from '@/types/tableGrouping';
 
 export type ImageConfiguration = ApiCustomGenerateImagePostRequestImageConfiguration & {
   descriptionField?: string;
@@ -131,7 +130,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.storyWebNodeFields ? Partial<Record<StoryWebNodeTypes, string[]>> :
     K extends SettingKey.storyWebCustomNodeColorSchemes ? { id: string; name: string; foregroundColor: string; backgroundColor: string }[] :
     K extends SettingKey.tableGroupingMenu ? never :
-    K extends SettingKey.tableGroupingSettings ? Partial<Record<TableGroupingSetting, boolean>> :
+    K extends SettingKey.tableGroupingSettings ? Record<GroupableItem, boolean> :
     K extends SettingKey.aiImagePrompts ? Record<CustomFieldContentType, string> :
     K extends SettingKey.aiImageConfigurations ? Record<CustomFieldContentType, ImageConfiguration> :
     K extends SettingKey.contentTags ? TagList :
@@ -545,32 +544,33 @@ export class ModuleSettings {
     {
       settingID: SettingKey.tableGroupingSettings,
       default: {
-        [SettingJournals]: false,
-        [EntryJournals]: false,
-        [EntryCharacters]: false,
-        [EntryLocations]: false,
-        [EntryOrganizations]: false,
-        [EntryPCs]: false,
-        [EntryActors]: false,
-        [CampaignJournals]: false,
-        [CampaignPCs]: false,
-        [CampaignLore]: true,
-        [CampaignIdeas]: true,
-        [CampaignToDos]: true,
-        [ArcLore]: true,
-        [ArcVignettes]: false,
-        [ArcLocations]: false,
-        [ArcParticipants]: false,
-        [ArcMonsters]: false,
-        [ArcIdeas]: true
-        [SessionLore]: false,
-        [SessionVignettes]: false,
-        [SessionLocations]: false,
-        [SessionCharacters]: false,
-        [SessionMonsters]: false,
-        [SessionItems]: false,
-        [SessionPCs]: false,
-      },
+        [GroupableItem.SettingJournals]: false,
+        // [GroupableItem.EntryJournals]: false,
+        // [GroupableItem.EntryCharacters]: false,
+        // [GroupableItem.EntryLocations]: false,
+        // [GroupableItem.EntryOrganizations]: false,
+        // [GroupableItem.EntryPCs]: false,
+        // [GroupableItem.EntryActors]: false,
+        [GroupableItem.CampaignJournals]: false,
+        [GroupableItem.CampaignPCs]: false,
+        [GroupableItem.CampaignLore]: true,
+        [GroupableItem.CampaignIdeas]: true,
+        [GroupableItem.CampaignToDos]: true,
+        [GroupableItem.ArcLore]: true,
+        [GroupableItem.ArcVignettes]: false,
+        [GroupableItem.ArcLocations]: false,
+        [GroupableItem.ArcParticipants]: false,
+        [GroupableItem.ArcMonsters]: false,
+        [GroupableItem.ArcJournals]: false,
+        [GroupableItem.ArcIdeas]: true,
+        [GroupableItem.SessionLore]: false,
+        [GroupableItem.SessionVignettes]: false,
+        [GroupableItem.SessionLocations]: false,
+        [GroupableItem.SessionCharacters]: false,
+        [GroupableItem.SessionMonsters]: false,
+        [GroupableItem.SessionItems]: false,
+        [GroupableItem.SessionPCs]: false,
+      } as Record<GroupableItem, boolean>,
       type: Object,
     },
   ];
