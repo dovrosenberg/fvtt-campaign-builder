@@ -32,9 +32,11 @@ export class MigrationV1_9 implements Migration {
 
     const allSettings = ModuleSettings.get(SettingKey.settingIndex) || [];
 
+    // wrap the current window tabs settings in [] to convert to new structure
     for (const user of game.users!) {
       for (const settingIdx of allSettings) {
         try {
+          // @ts-ignore
           const rawTabs = user.getFlag(moduleId, `tabs.${settingIdx.settingId}`) as any;
           if (!rawTabs || !Array.isArray(rawTabs) || rawTabs.length === 0)
             continue;
@@ -44,6 +46,7 @@ export class MigrationV1_9 implements Migration {
             continue;
 
           // Wrap in outer array to create single-panel 2D structure
+          // @ts-ignore
           await user.setFlag(moduleId, `tabs.${settingIdx.settingId}`, [rawTabs]);
           result.migratedCount++;
         } catch (error) {
@@ -66,6 +69,7 @@ export class MigrationV1_9 implements Migration {
         d.flags?.[moduleId]?.campaignBuilderType === DOCUMENT_TYPES.Campaign
       ));
 
+      // migrate todo items to proper capitalization
       for (const campaignDoc of campaignDocs) {
         try {
           const journalEntry = await fromUuid<JournalEntry>(campaignDoc.uuid);
@@ -76,6 +80,7 @@ export class MigrationV1_9 implements Migration {
           const existingToDoItems = (page.system as Record<string, unknown>)?.todoItems;
 
           await page.update({
+            // @ts-ignore
             'system.toDoItems': Array.isArray(existingToDoItems) ? existingToDoItems : []
           });
           result.migratedCount++;

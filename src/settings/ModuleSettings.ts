@@ -562,7 +562,6 @@ export class ModuleSettings {
         [GroupableItem.ArcLocations]: false,
         [GroupableItem.ArcParticipants]: false,
         [GroupableItem.ArcMonsters]: false,
-        [GroupableItem.ArcJournals]: false,
         [GroupableItem.ArcIdeas]: true,
         [GroupableItem.SessionLore]: false,
         [GroupableItem.SessionVignettes]: false,

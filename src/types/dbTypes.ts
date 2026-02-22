@@ -1,5 +1,4 @@
 import { ToDoTypes } from '@/types';
-import { CampaignBuilderApplication } from 'src/applications/CampaignBuilder';
 
 // Database storage types for Arc-related content
 // Note: No base types - each type explicitly declares all fields for clarity
