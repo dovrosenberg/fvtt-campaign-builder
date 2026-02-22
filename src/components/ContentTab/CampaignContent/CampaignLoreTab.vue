@@ -4,7 +4,7 @@
     <BaseTable
       ref="availableLoreRef"
       :actions="actions"
-      :rows="mappedAvailableLoreRows"
+      :rows="availableLoreRows"
       :columns="columns"
       :show-add-button="true"
       :add-button-label="localize('labels.session.addLore')"
@@ -12,10 +12,19 @@
       :allow-drop-row="false"
       :help-text="localize('labels.campaign.loreHelpText')"
       help-link="https://slyflourish.com/sharing_secrets.html"
+
       @add-item="onAddLore"
       @cell-edit-complete="onCellEditComplete"
-      @reorder="onReorderAvailable"
+      @reorder="onReorder"
     />
+      <!-- 
+      :grouped="isGrouped"
+      :groups="loreGroups"
+      @reorder="availableGroupedTable.onReorder"
+      @reorder-group="(items) => groupedTable.onReorderGroup(items, loreGroups)
+      @group-add="availableGroupedTable.onGroupAdd"
+      @group-edit="availableGroupedTable.onGroupEdit"
+      @group-delete="availableGroupedTable.onGroupDelete" -->
 
     <!-- For delivered lore -->
     <div style="font-size: 1.3em; font-weight: bold; margin: 0.5rem 0 -1rem 8px"> 
@@ -23,7 +32,7 @@
     </div>
     <BaseTable
       :actions="deliveredActions"
-      :rows="mappedDeliveredLoreRows"
+      :rows="deliveredLoreRows"
       :columns="deliveredColumns"
       :allow-drop-row="false"
       :allow-delete="true"
@@ -44,7 +53,9 @@
   // local imports
   import { useCampaignStore, } from '@/applications/stores';
   import { CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
+  import { useGroupedTable } from '@/composables/useGroupedTable';
   import { localize } from '@/utils/game'
+  import { ModuleSettings, SettingKey } from '@/settings';
   
   // library components
 	
@@ -52,7 +63,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { BaseTableColumn, CampaignTableTypes, BaseTableGridRow, CampaignLoreDetails, CellEditCompleteEvent } from '@/types';
+  import { BaseTableColumn, CampaignTableTypes, CellEditCompleteEvent, GroupableItem } from '@/types';
   
   ////////////////////////////////
   // props
@@ -63,25 +74,23 @@
   ////////////////////////////////
   // store
   const campaignStore = useCampaignStore();
-  const { availableLoreRows, deliveredLoreRows, allRelatedLoreRows } = inject(CAMPAIGN_DERIVED_STATE_KEY)!;
-  
+  const campaignDerivedState = inject(CAMPAIGN_DERIVED_STATE_KEY, null);
+  const { deliveredLoreRows, allRelatedLoreRows, availableLoreRows, availableLoreGroups } = campaignDerivedState;
+
   ////////////////////////////////
   // data
   const availableLoreRef = ref<any>(null);
 
   ////////////////////////////////
   // computed data
-  const mappedAvailableLoreRows = computed(() => (
-    availableLoreRows.value.map((row) => ({
-      ...row,
-    }))
-  ));
+  // const isGrouped = computed(() => {
+  //   // Access reactive version to create dependency on settings changes
+  //   ModuleSettings.getReactiveVersion();
+  //   return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[GroupableItem.CampaignLore] || false;
+  // });
 
-  const mappedDeliveredLoreRows = computed(() => (
-    deliveredLoreRows.value.map((row) => ({
-      ...row,
-    }))
-  ));
+  // Grouped table composable
+  // const availableGroupedTable = useGroupedTable(campaignStore.groupStores[GroupableItem.CampaignLore]);
 
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
@@ -180,6 +189,10 @@
     }
   }
 
+  const onReorder = async (reorderedRows: CampaignLoreRow[]) => {
+    campaignStore.reorderAvailableLore(reorderedRows);
+  };
+
   /**
    * Finds the lockedToSessionId for a lore row by uuid.
    * @param uuid the lore UUID
@@ -226,12 +239,6 @@
     await campaignStore.moveLoreToArc(uuid, description);
   }
 
-
-  const onReorderAvailable = async (reorderedRows: BaseTableGridRow[]) => {
-    // Reorder using array order 
-    const reorderedLore = reorderedRows.map((row) => availableLoreRows.value.find(lore => lore.uuid === row.uuid) as CampaignLoreDetails);
-    await campaignStore.reorderAvailableLore(reorderedLore);
-  };
 
   ////////////////////////////////
   // watchers

@@ -16,7 +16,7 @@ import {
   SessionTableTypes,
   GroupableItem,
 } from '@/types';
-import { SessionLore, SessionMonster, SessionVignette } from '@/documents';
+import type { SessionLore, SessionMonster, SessionVignette, SessionLocation, SessionNPC, SessionItem } from '@/types/dbTypes';
 
 import { Arc, Entry, Session } from '@/classes';
 

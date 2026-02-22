@@ -17,47 +17,20 @@
  * });
  * 
  * // stores is now strongly typed:
- * // stores[GroupableItem.ToDos].addGroup() // works, items are typed as ToDoItem[]
- * // stores[GroupableItem.Ideas].addGroup() // works, items are typed as Idea[]
+ * // stores[GroupableItem.ToDos].addGroup() // works, items are typed as CampaignToDo[]
+ * // stores[GroupableItem.Ideas].addGroup() // works, items are typed as CampaignIdea[]
  */
 
 import { Ref, ComputedRef, computed, } from 'vue';
 import type { TableGroup } from '@/types/tables';
 import { GroupableItem } from '@/types/documentGroups';
-import { type ToDoItem, type Idea, type CampaignLoreDetails, type RelatedPCDetails, UNGROUPED_GROUP_ID } from '@/types';
+import { 
+  GroupableItemTypeMap,
+  UNGROUPED_GROUP_ID,
+} from '@/types';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
-import type { 
-  ArcLore, ArcVignette, ArcLocation, ArcParticipant, ArcMonster,
-  SessionLore, SessionVignette, SessionLocation, SessionNPC, SessionMonster, SessionItem
-} from '@/documents';
-
-/**
- * Type mapping from GroupableItem to the corresponding item type
- */
-export type GroupableItemTypeMap = {
-  [GroupableItem.SettingJournals]: RelatedJournal;
-  [GroupableItem.CampaignJournals]: RelatedJournal;
-  [GroupableItem.CampaignPCs]: RelatedPCDetails;
-  [GroupableItem.CampaignLore]: CampaignLoreDetails;
-  [GroupableItem.CampaignIdeas]: Idea;
-  [GroupableItem.CampaignToDos]: ToDoItem;
-  [GroupableItem.ArcJournals]: RelatedJournal;
-  [GroupableItem.ArcLore]: ArcLore;
-  [GroupableItem.ArcVignettes]: ArcVignette;
-  [GroupableItem.ArcLocations]: ArcLocation;
-  [GroupableItem.ArcParticipants]: ArcParticipant;
-  [GroupableItem.ArcMonsters]: ArcMonster;
-  [GroupableItem.ArcIdeas]: Idea;
-  [GroupableItem.SessionLore]: SessionLore;
-  [GroupableItem.SessionVignettes]: SessionVignette;
-  [GroupableItem.SessionLocations]: SessionLocation;
-  [GroupableItem.SessionNPCs]: SessionNPC;
-  [GroupableItem.SessionMonsters]: SessionMonster;
-  [GroupableItem.SessionItems]: SessionItem;
-  [GroupableItem.SessionPCs]: RelatedPCDetails;
-}: Record<GroupableItem, any>;
 
 /**
  * Configuration for a single item type in the grouped table store
@@ -82,7 +55,7 @@ export type GroupedTableStore<T extends GroupableItem> = {
   addGroup: (name: string) => Promise<TableGroup | null>;
   updateGroup: (groupId: string, newName: string) => Promise<void>;
   deleteGroup: (groupId: string) => Promise<void>;
-  reorderGroups: (newOrder: TableGroup[]) => Promise<void>;
+  reorderGroups: (newOrder: string[], groups: TableGroup[]) => Promise<void>;
   
   // Item management
   moveItemToGroup: (itemUuid: string, groupId: string | null) => Promise<void>;
@@ -123,7 +96,7 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
   // Create stores for each group type
   const stores = {} as EntityTableStores;
   
-  // Iterate over each GroupableItem enum value
+  // Iterate over each GroupableItem enum value (we do it this way to get the typechecking)
   for (const itemType of Object.values(GroupableItem)) {
     const groupConfig = groupConfigs[itemType];
 
@@ -214,22 +187,29 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
 
       /**
        * Reorders groups and updates item ordering to match
-       * @param newOrder - The groups in their new order
+       * @param newOrder - The uuids of the groups in their new order
        */
-      reorderGroups: async (newOrder: TableGroup[]): Promise<void> => {
+      reorderGroups: async (newOrder: string[], groups: TableGroup[]): Promise<void> => {
         if (!currentEntity.value) return;
 
         // filter ungrouped, just in case
-        newOrder = newOrder.filter(g => g.groupId !== UNGROUPED_GROUP_ID);
+        newOrder = newOrder.filter(g => g !== UNGROUPED_GROUP_ID);
         
+        // create an array with the items based on the new order
+        const reorderedGroups: TableGroup[] = newOrder.map((groupId: string ) => {
+          // find the group and add to reorderedGroups
+          return groups.find((g) => g.groupId === groupId);
+        }).filter((tableGroup): tableGroup is TableGroup => !!tableGroup);
+
+
         // Update group order
-        currentEntity.value.setGroups(itemType, newOrder);
+        currentEntity.value.setGroups(itemType, reorderedGroups);
 
         // Reorder items to match group order
         if (currentEntity.value[propertyName]) {
           const items = currentEntity.value[propertyName] as any[];
           const reorderedItems: any[] = [];
-          const validGroupIds = new Set(newOrder.map(g => g.groupId));
+          const validGroupIds = new Set(newOrder.map(g => g));
 
           // Add ungrouped items at the beginning (and invalid groups)
           const ungroupedItems = items
@@ -238,9 +218,9 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
           reorderedItems.push(...ungroupedItems);
 
           // Add items for each group in order
-          for (const group of newOrder) {
+          for (const groupId of newOrder) {
             const groupItems = items
-              .filter(item => item.groupId === group.groupId)
+              .filter(item => item.groupId === groupId)
               .map(item => ({ ...item }));
             reorderedItems.push(...groupItems);
           }

@@ -9,7 +9,7 @@
       :allow-drop-row="false"
       :grouped="isGrouped"
       :groups="toDoGroups"
-      :rows="mappedToDoRows"
+      :rows="toDoRows"
       :columns="columns"
       :allow-edit="true"
       :edit-item-label="localize('tooltips.editRow')"
@@ -17,7 +17,7 @@
       @add-item="onAddToDoItem"
       @cell-edit-complete="onCellEditComplete"
       @reorder="groupedTable.onReorder"
-      @reorder-group="groupedTable.onReorderGroup"
+      @reorder-group="(items) => groupedTable.onReorderGroup(items, toDoGroups)"
       @group-add="groupedTable.onGroupAdd"
       @group-edit="groupedTable.onGroupEdit"
       @group-delete="groupedTable.onGroupDelete"
@@ -35,7 +35,6 @@
   import { CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { useGroupedTable } from '@/composables/useGroupedTable';
   import { localize } from '@/utils/game';
-  import { formatDate } from '@/utils/misc';
   import { ModuleSettings, SettingKey, } from '@/settings';
 
   // library components
@@ -44,7 +43,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { ToDoItem, ToDoTypes, CampaignTableTypes, BaseTableColumn, BaseTableGridRow, CellEditCompleteEvent, GroupedTableGridRow, GroupableItem, TableGroupingSetting } from '@/types';
+  import { ToDoTypes, CampaignTableTypes, BaseTableColumn, CellEditCompleteEvent, GroupableItem } from '@/types';
 
   ////////////////////////////////
   // store
@@ -60,36 +59,15 @@
   const isGrouped = computed(() => {
     // Access reactive version to create dependency on settings changes
     ModuleSettings.getReactiveVersion();
-    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[TableGroupingSetting.CampaignToDos] || false;
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[GroupableItem.CampaignToDos] || false;
   });
 
-  const groupedTable = useGroupedTable<ToDoItem, GroupableItem.ToDos>({
-    store: campaignStore.groupStores[GroupableItem.ToDos],
-    rows: computed(() => toDoRows.value),
-    mapReorderedRows: (reorderedRows: BaseTableGridRow[], originalRows: ToDoItem[]) => {
-      // Map reordered rows back to ToDoItems, preserving groupId changes
-      return reorderedRows
-        .map((row): ToDoItem | null => {
-          const toDo = originalRows.find(toDo => toDo.uuid === row.uuid);
-          return toDo ? { ...toDo, groupId: (row as GroupedTableGridRow).groupId } : null;
-        })
-        .filter((row): row is ToDoItem => row !== null);
-    },
-  });
+  const groupedTable = useGroupedTable(campaignStore.groupStores[GroupableItem.CampaignToDos]);
 
   const actions = computed(() => [
     { icon: 'fa-trash', callback: (data) => onDeleteToDoItem(data.uuid), tooltip: localize('tooltips.deleteToDo') },
     { icon: 'fa-arrow-left', callback: (data) => onMoveToIdeas(data.uuid), tooltip: localize('tooltips.moveToIdeas') },
   ]);
-
-  const mappedToDoRows = computed(() => (
-    toDoRows.value.map((row) => ({
-      ...row,
-      groupId: row.groupId || null,
-      entry: mapToDoToName(row),
-      lastTouched: row.lastTouched ? formatDate(row.lastTouched) : '', 
-    }))
-  ));
 
   const columns = computed((): BaseTableColumn[] => {
     // add actions    
@@ -105,26 +83,6 @@
   
   ///////////////////////////////
   // methods
-  const mapToDoToName = (toDo: ToDoItem) => {
-    switch (toDo.type) {
-      case ToDoTypes.Manual:
-        return '';
-      case ToDoTypes.Entry:
-        return toDo.linkedText;
-      case ToDoTypes.Lore:
-        return 'Lore';
-      case ToDoTypes.Monster:
-        return 'Monster';
-      case ToDoTypes.Vignette:
-        return 'Vignette'; 
-      case ToDoTypes.Item:
-        return 'Item';
-      case ToDoTypes.GeneratedName:
-        return 'Generated Name';
-      default:
-        return '';
-    }
-  }
 
   ///////////////////////////////
   // event handlers

@@ -9,7 +9,7 @@ import { TableGroupingSettingsApplication } from '@/applications/settings/TableG
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { StoryWebSettingsApplication } from '@/applications/settings/StoryWebSettingsApplication';
 import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
-import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, } from '@/types';
+import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, GroupableItem, } from '@/types';
 
 export type ImageConfiguration = ApiCustomGenerateImagePostRequestImageConfiguration & {
   descriptionField?: string;
@@ -544,18 +544,19 @@ export class ModuleSettings {
     {
       settingID: SettingKey.tableGroupingSettings,
       default: {
-        [GroupableItem.SettingJournals]: false,
+        // [GroupableItem.SettingJournals]: false,
         // [GroupableItem.EntryJournals]: false,
         // [GroupableItem.EntryCharacters]: false,
         // [GroupableItem.EntryLocations]: false,
         // [GroupableItem.EntryOrganizations]: false,
         // [GroupableItem.EntryPCs]: false,
         // [GroupableItem.EntryActors]: false,
-        [GroupableItem.CampaignJournals]: false,
+        // [GroupableItem.CampaignJournals]: false,
         [GroupableItem.CampaignPCs]: false,
         [GroupableItem.CampaignLore]: true,
         [GroupableItem.CampaignIdeas]: true,
         [GroupableItem.CampaignToDos]: true,
+        [GroupableItem.ArcJournals]: false,
         [GroupableItem.ArcLore]: true,
         [GroupableItem.ArcVignettes]: false,
         [GroupableItem.ArcLocations]: false,

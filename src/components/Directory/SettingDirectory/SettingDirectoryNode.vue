@@ -87,13 +87,11 @@
   // computed data
   const showTypesInTree = computed(() => {
     ModuleSettings.getReactiveVersion();
-      console.log('fired');
     return ModuleSettings.get(SettingKey.showTypesInTree);
   });
   
   const displayName = computed(() => {
     if (showTypesInTree.value && props.node.type && props.node.type!==NO_TYPE_STRING) {
-      console.log('updated');
       return `${props.node.name} (${props.node.type})`;
     } else {
       return props.node.name;

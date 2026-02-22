@@ -8,6 +8,9 @@ export const SessionVignetteSchema = () => (
     /** has it been flagged as delivered */
     delivered: new fields.BooleanField({ required: true, nullable: false }),
 
+    /** table group */
+    groupId: new fields.StringField({ required: true, nullable: true, initial: null }),  // optional group ID
+
     /** the vignette description */
     description: new fields.StringField({ required: true, nullable: false, initial: '' }),
   }, { required: true, nullable: false} )

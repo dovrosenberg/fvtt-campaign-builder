@@ -1,18 +1,24 @@
 <template>
   <!-- A table to display/manage PCs -->
   <BaseTable
-    :rows="rows"
+    :rows="pcRows"
     :columns="columns"
     :show-add-button="true"
     :extra-add-text="localize('labels.campaign.addPCDrag')"
     :showFilter="false"
     :allow-drop-row="false"
+    :grouped="isGrouped"
+    :groups="pcGroups"
     :add-button-label="localize('labels.campaign.addPC')"
     :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteRelationship') }]"
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
     @dragover="DragDropService.standardDragover"
-    @reorder="onReorder"
+    @reorder="groupedTable.onReorder"
+    @reorder-group="(items) => groupedTable.onReorderGroup(items, pcGroups)"
+    @group-add="groupedTable.onGroupAdd"
+    @group-edit="groupedTable.onGroupEdit"
+    @group-delete="groupedTable.onGroupDelete"
   />
 
   <RelatedEntryDialog
@@ -31,9 +37,11 @@
 
   // local imports
   import { useCampaignStore, useNavigationStore, } from '@/applications/stores';
+  import { useGroupedTable } from '@/composables/useGroupedTable';
   import { CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { localize } from '@/utils/game';
   import DragDropService from '@/utils/dragDrop'; 
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
 
@@ -42,7 +50,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
   
   // types
-  import { BaseTableColumn, RelatedPCDetails, RelatedEntryDialogModes, Topics, EntryNodeDragData, BaseTableGridRow } from '@/types';
+  import { BaseTableColumn, RelatedEntryDialogModes, Topics, EntryNodeDragData, GroupableItem, CampaignPC } from '@/types';
   import { Entry } from '@/classes';
   
   ////////////////////////////////
@@ -55,7 +63,7 @@
   // store
   const campaignStore = useCampaignStore();
   const navigationStore = useNavigationStore();
-  const { relatedPCRows } = inject(CAMPAIGN_DERIVED_STATE_KEY)!;
+  const { pcRows, pcGroups } = inject(CAMPAIGN_DERIVED_STATE_KEY)!;
 
   ////////////////////////////////
   // data
@@ -68,20 +76,15 @@
 
   ////////////////////////////////
   // computed data
-  interface CampaignPCsGridRow { 
-    uuid: string; 
-    name: string, 
-    actor: string 
-  };
 
-  const rows = computed((): CampaignPCsGridRow[] => (
-    relatedPCRows.value.map((pc: RelatedPCDetails) => ({
-      uuid: pc.uuid, 
-      type: 'PC',
-      name: `${pc.name} (${pc.playerName})`, 
-      actor: pc.name,
-    }))
-  ));
+  const isGrouped = computed(() => {
+    // Access reactive version to create dependency on settings changes
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[GroupableItem.CampaignPCs] || false;
+  });
+
+  // Grouped table composable
+  const groupedTable = useGroupedTable(campaignStore.groupStores[GroupableItem.CampaignPCs]);
 
   // TODO: why are these here instead of in the store like the others?
   // these are here because they can be; this is cleaner than sticking it all in the store
@@ -141,22 +144,15 @@
     if (!entry)
       return;
 
-    const details: RelatedPCDetails = {
+    const details: CampaignPC = {
       uuid: fcbData.childId,
       name: entry.name,
       type: 'PC',
       playerName: entry.playerName,
       actorId: entry.actorId,
+      groupId: null,
     };
     await campaignStore.addPC(details);      
-  };
-
-  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    const reorderedPCs = reorderedRows
-      .map((row) => relatedPCRows.value.find(pc => pc.uuid === row.uuid))
-      .filter((pc): pc is RelatedPCDetails => !!pc);
-
-    await campaignStore.reorderPCs(reorderedPCs);
   };
   
 

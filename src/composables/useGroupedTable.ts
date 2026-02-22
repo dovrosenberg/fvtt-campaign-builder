@@ -5,84 +5,60 @@
  * 
  */
 
-import { ComputedRef } from 'vue';
 import type { 
-  BaseTableGridRow, 
-  GroupedTableGridRow,
-  GroupableItem
+  GroupableItem,
+  GroupableItemTypeMap,
+  GroupableRowTypeMap,
+  TableGroup
 } from '@/types';
-import type { GroupedTableStore, GroupableItemTypeMap } from './createGroupedTableStores';
+import type { GroupedTableStore } from './createGroupedTableStores';
+import { Reactive } from 'vue';
 
-export interface GroupedTableConfig<T extends BaseTableGridRow, G extends GroupableItem> {
-  /** Store for grouped table operations */
-  store: GroupedTableStore<G>;
-  
-  /** Current rows for the table (overrides store.items if provided) */
-  rows?: ComputedRef<T[]>;
-  
-  /** Optional: custom function to map reordered rows back to proper format */
-  mapReorderedRows?: (
-    reorderedRows: BaseTableGridRow[], 
-    originalRows: T[]
-  ) => GroupableItemTypeMap[G][];
-}
-
-export function useGroupedTable<T extends BaseTableGridRow, G extends GroupableItem>(
-  config: GroupedTableConfig<T, G>
+export function useGroupedTable<
+  G extends GroupableItem,
+  RowType extends GroupableRowTypeMap[G] = GroupableRowTypeMap[G],
+  ItemType extends GroupableItemTypeMap[G] = GroupableItemTypeMap[G]
+>(
+  store: Reactive<GroupedTableStore<G>>
 ) {
-  const {
-    store,
-    rows: customRows,
-    mapReorderedRows
-  } = config;
-  
-  // Use custom rows if provided, otherwise use store items
-  const rows = customRows || store.items as unknown as ComputedRef<T[]>;
-
   /**
    * Handle row reordering (within or between groups)
    * @param reorderedRows - The rows in their new order from BaseTable
    */
-  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    // Use custom mapper if provided, otherwise use default logic
-    const mappedRows = mapReorderedRows
-      ? mapReorderedRows(reorderedRows, rows.value)
-      : defaultMapReorderedRows(reorderedRows, rows.value as unknown as GroupableItemTypeMap[G][]);
-    
-    if (!mappedRows || mappedRows.length === 0) {
+  const onReorder = async (reorderedRows: RowType[]) => {
+    if (reorderedRows.length === 0) {
       return;
     }
-    
-    await store.reorderItems(mappedRows);
-  };
+  
+    const items = store.items as unknown as ItemType[];
 
-  /**
-   * Default mapper for reordered rows
-   * Maps reordered rows back to the original row type, preserving groupId
-   */
-  const defaultMapReorderedRows = (
-    reorderedRows: BaseTableGridRow[], 
-    originalRows: GroupableItemTypeMap[G][]
-  ): GroupableItemTypeMap[G][] => {
-    return reorderedRows
-      .map((row): GroupableItemTypeMap[G] | null => {
-        const originalRow = originalRows.find(r => r.uuid === row.uuid);
-        if (!originalRow) return null;
+    // we use the items - just update any groupIds and change the order
+    const reorderedItems = reorderedRows
+      .map((row: RowType): ItemType | null => {
+        const originalItem = items.find(i => i.uuid === row.uuid);
+
+        if (!originalItem) return null;
         
         // Preserve groupId from the reordered row (may have changed if moved between groups)
-        const groupId = (row as GroupedTableGridRow).groupId;
-        return groupId !== undefined 
-          ? { ...originalRow, groupId }
-          : originalRow;
+        const groupId = row.groupId;
+        return groupId 
+          ? { ...originalItem, groupId }
+          : originalItem;
       })
-      .filter((row): row is GroupableItemTypeMap[G]  => row !== null);
+      .filter((item): item is ItemType => !!item);
+
+    await store.reorderItems(reorderedItems);
   };
+
 
   /**
    * Handle group reordering
-   * @param newOrder - The groups in their new order from BaseTable
+   * @param newOrder - The uuids of the new order from BaseTable
    */
-  const onReorderGroup = store.reorderGroups;
+  const onReorderGroup = (reorderedIds: string[], groups: TableGroup[]) => {
+    // need to transform from rows to items
+    store.reorderGroups(reorderedIds, groups);
+  }
 
   /**
    * Handle adding a new group

@@ -9,7 +9,7 @@ export const IdeaSchema = () => (
     text: new fields.StringField({ required: true, nullable: false }),
 
     /** table group */
-    groupId: new fields.StringField({ required: false, nullable: true, initial: null }),  // optional group ID
+    groupId: new fields.StringField({ required: true, nullable: true, initial: null }),  // optional group ID
 
   }, { required: true, nullable: false} )
 );

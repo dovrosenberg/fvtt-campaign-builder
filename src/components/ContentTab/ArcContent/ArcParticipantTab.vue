@@ -1,12 +1,14 @@
 <template>
   <BaseTable 
     :actions="actions"
-    :rows="mappedParticipantRows"
+    :rows="participantRows"
     :columns="columns"  
     :show-add-button="true"
     :add-button-label="localize('labels.arc.addParticipant')" 
     :extra-add-text="localize('labels.arc.addParticipantDrag')"
     :allow-edit="true"
+    :grouped="isGrouped"
+    :groups="participantGroups"
     :help-text="localize('labels.arc.participantHelpText')"
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
@@ -14,7 +16,11 @@
     @dragoverNew="DragDropService.standardDragover"
     @drop-new="onDropNew"
     @cell-edit-complete="onCellEditComplete"
-    @reorder="onReorder"
+    @reorder="groupedTable.onReorder"
+    @reorder-group="(items) => groupedTable.onReorderGroup(items, participantGroups)"
+    @group-add="groupedTable.onGroupAdd"
+    @group-edit="groupedTable.onGroupEdit"
+    @group-delete="groupedTable.onGroupDelete"
   />
   <RelatedItemDialog
     v-model="showParticipantPicker"
@@ -35,11 +41,11 @@
   // local imports
   import { useArcStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useGroupedTable } from '@/composables/useGroupedTable';
   import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
   import { Topics, CellEditCompleteEvent, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
   import DragDropService from '@/utils/dragDrop'; 
-  import { getTopicText } from '@/compendia';
   import { notifyInfo } from '@/utils/notifications';
   import { mapEntryToOption } from '@/utils/misc';
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -51,9 +57,8 @@
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
   
   // types
-  import { BaseTableColumn, BaseTableGridRow, ArcTableTypes } from '@/types';
+  import { BaseTableColumn, ArcTableTypes, GroupableItem, } from '@/types';
   import { Entry } from '@/classes';
-  import { ArcParticipant } from '@/documents';
 
   ////////////////////////////////
   // props
@@ -67,7 +72,7 @@
   ////////////////////////////////
   // store
   const arcStore = useArcStore();
-  const { participantRows } = inject(ARC_DERIVED_STATE_KEY)!;
+  const { participantRows, participantGroups } = inject(ARC_DERIVED_STATE_KEY)!;
   const { currentSetting, currentArc } = useContentState();
   
   ////////////////////////////////
@@ -78,21 +83,14 @@
 
   ////////////////////////////////
   // computed data
-  const mappedParticipantRows = computed(() => {
-    if (!currentSetting.value) 
-      return [];
-
-    // add a field for the topic - we assume they can only be character or org
-    return participantRows.value.map((row) => {
-      const isChar = isEntryCharacter(row.uuid);
-
-      return {
-        ...row,
-        topic: isChar ? Topics.Character : Topics.Organization,
-        type: row.type || (isChar ? getTopicText(Topics.Character) : getTopicText(Topics.Organization))
-      };
-    });
+  const isGrouped = computed(() => {
+    // Access reactive version to create dependency on settings changes
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[GroupableItem.ArcParticipants] || false;
   });
+
+  // Grouped table composable
+  const groupedTable = useGroupedTable(arcStore.groupStores[GroupableItem.ArcParticipants]);
 
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
@@ -127,13 +125,6 @@
 
   ////////////////////////////////
   // methods
-  const isEntryCharacter = (uuid: string) => {
-    if (!currentSetting.value)
-      throw new Error ('No current setting found in ArcParticipantTab.isEntryCharacter()');
-
-    // see if it's in the characters topic
-    return currentSetting.value.topics[Topics.Character]?.entries.some((entry) => entry.uuid === uuid);
-  }
 
   ////////////////////////////////
   // event handlers
@@ -154,20 +145,7 @@
 
     await arcStore.updateParticipantNotes(data.uuid, newValue as string);
   }
-
-  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    const reorderedParticipants = reorderedRows.map((row) => {
-      const participant = participantRows.value.find(p => p.uuid === row.uuid);
-
-      // rows have extra fields we don't want
-      return {
-        uuid: row.uuid,
-        notes: participant?.notes ?? '',
-      } as ArcParticipant;
-    });
-
-    await arcStore.reorderParticipants(reorderedParticipants);
-  };
+  
   
   const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  

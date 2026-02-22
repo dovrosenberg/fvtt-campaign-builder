@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
-import { DOCUMENT_TYPES, CampaignLore, frontIndexFields } from '@/documents';
-import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, StoryWebFilterIndex, ToDoItem, ToDoTypes, Idea, TableGroup, GroupableItem } from '@/types';
+import { DOCUMENT_TYPES, frontIndexFields } from '@/documents';
+import { CampaignLore, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, StoryWebFilterIndex, CampaignToDo, ToDoTypes, TableGroup, GroupableItem,CampaignPC,CampaignIdea } from '@/types';
 import { Entry, Session, FCBSetting, Front, Arc, StoryWeb } from '@/classes';
 import ArcIndexService from '@/utils/arcIndex';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
@@ -447,17 +447,17 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
-  public get toDoItems(): readonly ToDoItem[] {
-    return this._clone.system.toDoItems as ToDoItem[]; 
+  public get toDoItems(): readonly CampaignToDo[] {
+    return this._clone.system.toDoItems as CampaignToDo[]; 
   }
 
-  public set toDoItems(value: ToDoItem[] | readonly ToDoItem[]) {
+  public set toDoItems(value: CampaignToDo[] | readonly CampaignToDo[]) {
     // we clone it so it can't be edited outside (this is historical)
     this._clone.system.toDoItems = value.slice();     
   }
 
   /** Creates a new to-do item and adds to the campaign*/
-  public async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string | null | undefined, sessionUuid?: string, manualDate?: Date): Promise<ToDoItem | null> {
+  public async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string | null | undefined, sessionUuid?: string, manualDate?: Date): Promise<CampaignToDo | null> {
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return null;
 
@@ -480,7 +480,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       entry = await Entry.fromUuid(linkedUuid);
     }
 
-    const item: ToDoItem = {
+    const item: CampaignToDo = {
       uuid: foundry.utils.randomID(),
       lastTouched: manualDate?.toISOString() || new Date().toISOString(),
       manuallyUpdated: false,
@@ -509,11 +509,11 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       return;
 
     // see if one exists for this linked uuid
-    let existingItem = undefined as ToDoItem | undefined;
+    let existingItem = undefined as CampaignToDo | undefined;
     if (linkedUuid) {
-       existingItem = (this._clone.system.toDoItems as ToDoItem[]).find(i => i.linkedUuid === linkedUuid);
+       existingItem = (this._clone.system.toDoItems as CampaignToDo[]).find(i => i.linkedUuid === linkedUuid);
     } else if (sessionUuid) {
-       existingItem = (this._clone.system.toDoItems as ToDoItem[]).find(i => i.sessionUuid === sessionUuid && i.type === type);
+       existingItem = (this._clone.system.toDoItems as CampaignToDo[]).find(i => i.sessionUuid === sessionUuid && i.type === type);
     }
 
     // make sure the type matches
@@ -564,15 +564,16 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     this._clone.system.journals = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
-  public get ideas(): readonly Idea[] {
+  public get ideas(): readonly CampaignIdea[] {
     return this._clone.system.ideas;
   }
 
-  public set ideas(value: Idea[] | readonly Idea[]) {
+  public set ideas(value: CampaignIdea[] | readonly CampaignIdea[]) {
     this._clone.system.ideas = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
-  public get pcs(): RelatedPCDetails[] {
+  public get pcs(): CampaignPC[] {
+    // TODO: this isn't the right type... (CampaignPC) - we need a 2nd type for the db
     return this._clone.system.pcs;
   }
 
@@ -584,14 +585,14 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     this._clone.system.completed = value;
   }
 
-  public set pcs(value: RelatedPCDetails[] | readonly RelatedPCDetails[]) {
+  public set pcs(value: CampaignPC[] | readonly CampaignPC[]) {
     this._clone.system.pcs = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
   /** Creates a new idea item and adds to the campaign*/
   /** returns the uuid */
   public async addIdea(text: string): Promise<string | null> {
-    const item: Idea = {
+    const item: CampaignIdea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
       groupId: null,
@@ -718,10 +719,10 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * Given a filter function, returns all the matching Sessions
    * inside this campaign
    * 
-   * @param {(e: RelatedPCDetails) => boolean} filterFn - The filter function
+   * @param {(e: CampaignPC) => boolean} filterFn - The filter function
    * @returns {Entry[]} The entries that pass the filter
    */
-  public async filterPCs(filterFn: (e: RelatedPCDetails) => boolean): Promise<Entry[]> { 
+  public async filterPCs(filterFn: (e: CampaignPC) => boolean): Promise<Entry[]> { 
     let retval = [] as Entry[];
     for (let i=0; i<this._clone.system.pcs.length; i++) {
       if (filterFn(this._clone.system.pcs[i])) {

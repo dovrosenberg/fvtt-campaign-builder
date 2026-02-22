@@ -5,7 +5,7 @@ export const RelatedPCDetailsSchema = () => (
     /** unique id */
     uuid: new fields.StringField({ required: true, nullable: false }),
 
-    /** name of the PC */
+    /** name of the PC (the player name is on the journal entry name field */
     name: new fields.StringField({ required: true, nullable: false }),
 
     /** type of the PC */
@@ -13,6 +13,9 @@ export const RelatedPCDetailsSchema = () => (
 
     /** uuid of the actor, if assigned */
     actorId: new fields.DocumentUUIDField({ required: true, nullable: true }),
+
+    /** table group */
+    groupId: new fields.StringField({ required: true, nullable: true, initial: null }),  // optional group ID
 
   }, { required: true, nullable: false} )
 );

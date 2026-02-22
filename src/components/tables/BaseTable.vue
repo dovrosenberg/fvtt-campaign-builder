@@ -1577,12 +1577,14 @@
     position: absolute;
     inset: 0;
     z-index: 0;
-    pointer-events: auto;
-    // No background - invisible but captures drag events
+    pointer-events: auto; // Capture drag events
+    // No background - invisible
   }
 
   // Content wrapper positioned with padding to clear the actions area
   .fcb-group-header-content {
+    position: relative;
+    z-index: 1; // Above the overlay - clicks go here instead
     display: inline-block;
     padding-left: 70px; // Clear space for actions
     height: 100%;
@@ -1622,6 +1624,9 @@
       background-color: var(--fcb-color-surface-300);
     }
 
+    .fcb-group-display {
+      cursor: pointer;
+    }
   }
 
   .fcb-group-input {

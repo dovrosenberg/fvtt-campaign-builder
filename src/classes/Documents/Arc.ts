@@ -8,7 +8,7 @@ import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Session } from './Session';
 import GlobalSettingService from '@/utils/globalSettings';
-import { Idea, RelatedJournal, TableGroup, GroupableItem } from '@/types';
+import { RelatedJournal, TableGroup, GroupableItem,ArcIdea } from '@/types';
 
 type ArcDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Arc>;
 
@@ -33,7 +33,6 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     storyWebs: [],
     groups: {
       [GroupableItem.ArcIdeas]: [] as TableGroup[],
-      [GroupableItem.ArcJournals]: [] as TableGroup[],
       [GroupableItem.ArcLore]: [] as TableGroup[],
       [GroupableItem.ArcLocations]: [] as TableGroup[],
       [GroupableItem.ArcMonsters]: [] as TableGroup[],
@@ -145,11 +144,11 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     this._clone.system.endSessionNumber = value;
   }
 
-  public get ideas(): readonly Idea[] {
+  public get ideas(): readonly ArcIdea[] {
     return this._clone.system.ideas;
   }
 
-  public set ideas(value: Idea[] | readonly Idea[]) {
+  public set ideas(value: ArcIdea[] | readonly ArcIdea[]) {
     this._clone.system.ideas = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
@@ -165,7 +164,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
   /** Creates a new idea item and adds to the arc*/
   /** returns the uuid */
   public async addIdea(text: string): Promise<string | null> {
-    const item: Idea = {
+    const item: ArcIdea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
       groupId: null,

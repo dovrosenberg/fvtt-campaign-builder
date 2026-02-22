@@ -1,13 +1,15 @@
 <template>
   <BaseTable 
     :actions="actions"
-    :rows="mappedLocationRows"
+    :rows="locationRows"
     :columns="columns"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLocation')" 
     :extra-add-text="localize('labels.session.addLocationDrag')"
     :allow-drop-row="false"
     :allow-edit="true"
+    :grouped="isGrouped"
+    :groups="locationGroups"
     :help-text="localize('labels.session.locationHelpText')"
     help-link="https://slyflourish.com/designing_fantastic_locations.html"
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
@@ -16,7 +18,11 @@
     @dragover-new="DragDropService.standardDragover"
     @dropNew="onDropNew"
     @cell-edit-complete="onCellEditComplete"
-    @reorder="onReorder"
+    @reorder="groupedTable.onReorder"
+    @reorder-group="(items) => groupedTable.onReorderGroup(items, locationGroups)"
+    @group-add="groupedTable.onGroupAdd"
+    @group-edit="groupedTable.onGroupEdit"
+    @group-delete="groupedTable.onGroupDelete"
   />
   <RelatedEntryDialog
     v-model="showLocationPicker"
@@ -34,6 +40,7 @@
   // local imports
   import { useSessionStore, useArcStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useGroupedTable } from '@/composables/useGroupedTable';
   import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
   import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { localize } from '@/utils/game'
@@ -48,8 +55,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
-  import { BaseTableColumn, Topics, RelatedEntryDialogModes, ArcTableTypes, SessionTableTypes, CellEditCompleteEvent, EntryNodeDragData, BaseTableGridRow, } from '@/types';
-  import { ArcLocation, SessionLocation } from '@/documents';
+  import { BaseTableColumn, Topics, RelatedEntryDialogModes, ArcTableTypes, SessionTableTypes, CellEditCompleteEvent, EntryNodeDragData, GroupableItem, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -72,9 +78,8 @@
   const sessionStore = useSessionStore();
   const arcStore = useArcStore();
   const sessionDerivedState = inject(SESSION_DERIVED_STATE_KEY, null);
-  const sessionLocationRows = computed(() => sessionDerivedState?.relatedLocationRows.value ?? []);
   const arcDerivedState = inject(ARC_DERIVED_STATE_KEY, null);
-  const arcLocationRows = computed(() => arcDerivedState?.locationRows.value ?? []);
+
   const { currentArc } = useContentState();
 
   ////////////////////////////////
@@ -84,14 +89,26 @@
 
   ////////////////////////////////
   // computed data
-  const locationRows = computed(() => props.arcMode ? arcLocationRows.value : sessionLocationRows.value);
+  const derivedState = computed(() => props.arcMode ? arcDerivedState : sessionDerivedState);
+  const locationRows = computed(() => derivedState.value?.locationRows.value ?? []);
+  const locationGroups = computed(() => derivedState.value?.locationGroups.value ?? []);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
 
-  const mappedLocationRows = computed(() => (
-    locationRows.value.map((row) => ({
-      ...row,
-    }))
-  ));
+  const isGrouped = computed(() => {
+    // Access reactive version to create dependency on settings changes
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[
+      props.arcMode ?
+      GroupableItem.ArcLocations :
+      GroupableItem.SessionLocations
+    ] || false;
+  });
+
+  // Grouped table composable
+  const groupedTable = useGroupedTable(
+    (props.arcMode ? arcStore : sessionStore)
+    .groupStores[props.arcMode ? GroupableItem.ArcLocations : GroupableItem.SessionLocations]
+  );
 
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
@@ -200,28 +217,6 @@
     }
 
     await store.value.addLocation(fcbEntry.childId);
-  };
-
-  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    const reorderedLocations = reorderedRows.map((row) => {
-      const location = locationRows.value.find(l => l.uuid === row.uuid);
-
-      // rows have extra fields we don't want
-      if (props.arcMode) {
-        return {
-          uuid: row.uuid,
-          notes: location?.notes ?? '',
-        } as ArcLocation;
-      } else {
-        return {
-          uuid: row.uuid,
-          delivered: location?.delivered ?? false,
-          notes: location?.notes ?? '',
-        } as SessionLocation;
-      }
-    });
-
-    await store.value.reorderLocations(reorderedLocations);
   };
 
   ////////////////////////////////

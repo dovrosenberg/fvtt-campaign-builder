@@ -10,7 +10,7 @@ import { FCBDialog } from '@/dialogs';
 import { createGroupedTableStores } from '@/composables/createGroupedTableStores';
 
 // types
-import { RelatedPCDetails, BaseTableColumn, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea, CampaignTableTypes, TableGroup, GroupableItem } from '@/types';
+import { BaseTableColumn, ToDoTypes, CampaignTableTypes, GroupableItem,CampaignLoreRow,CampaignToDo,CampaignIdea,CampaignPC } from '@/types';
 import { Arc, Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import { notifyWarn } from '@/utils/notifications';
@@ -66,7 +66,7 @@ export const campaignStore = () => {
   ///////////////////////////////
   // actions
   /** add PC to current campaign */
-  const addPC = async (pc: RelatedPCDetails): Promise<void> => {
+  const addPC = async (pc: CampaignPC): Promise<void> => {
     const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
 
     if (!campaign)
@@ -101,7 +101,7 @@ export const campaignStore = () => {
    * Reorders PCs in the campaign (persisting the new array order).
    * @param reorderedPCs the reordered PC array
    */
-  const reorderPCs = async (reorderedPCs: RelatedPCDetails[]): Promise<void> => {
+  const reorderPCs = async (reorderedPCs: CampaignPC[]): Promise<void> => {
     const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
     if (!campaign)
       return;
@@ -260,7 +260,7 @@ export const campaignStore = () => {
   };
 
   /** Add a to-do item to the campaign */
-  const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> => {
+  const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<CampaignToDo | null> => {
     if (!currentCampaign.value)
       return null;
 
@@ -333,7 +333,7 @@ export const campaignStore = () => {
   };
 
   /** Reorder ideas in the campaign */
-  const reorderIdeas = async (reorderedIdeas: Idea[]) => {
+  const reorderIdeas = async (reorderedIdeas: CampaignIdea[]) => {
     if (!currentCampaign.value) return;
 
     currentCampaign.value.ideas = reorderedIdeas;
@@ -351,41 +351,11 @@ export const campaignStore = () => {
   };
 
   /** Reorder to-do items in the campaign */
-  const reorderToDos = async (reorderedToDos: ToDoItem[]) => {
+  const reorderToDos = async (reorderedToDos: CampaignToDo[]) => {
     if (!currentCampaign.value) return;
 
     currentCampaign.value.toDoItems = reorderedToDos;
     await currentCampaign.value.save();
-    await mainStore.refreshCampaign();
-  };
-
-  // ToDo group methods
-  const addToDoGroup = async (name: string): Promise<TableGroup | null> => {
-    if (!currentCampaign.value) return null;
-
-    const newGroup = await currentCampaign.value.addToDoGroup(name);
-    await mainStore.refreshCampaign();
-    return newGroup;
-  };
-
-  const updateToDoGroup = async (groupId: string, newName: string): Promise<void> => {
-    if (!currentCampaign.value) return;
-
-    await currentCampaign.value.updateToDoGroup(groupId, newName);
-    await mainStore.refreshCampaign();
-  };
-
-  const deleteToDoGroup = async (groupId: string): Promise<void> => {
-    if (!currentCampaign.value) return;
-
-    await currentCampaign.value.deleteToDoGroup(groupId);
-    await mainStore.refreshCampaign();
-  };
-
-  const reorderToDoGroups = async (newOrder: TableGroup[]): Promise<void> => {
-    if (!currentCampaign.value) return;
-
-    await currentCampaign.value.reorderToDoGroups(newOrder);
     await mainStore.refreshCampaign();
   };
 
@@ -408,7 +378,7 @@ export const campaignStore = () => {
   };
 
   /** Reorder available (undelivered) lore */
-  const reorderAvailableLore = async (reorderedLore: CampaignLoreDetails[]) => {
+  const reorderAvailableLore = async (reorderedLore: CampaignLoreRow[]) => {
     if (!currentCampaign.value) return;
 
     currentCampaign.value.lore = reorderedLore.map(l => ({

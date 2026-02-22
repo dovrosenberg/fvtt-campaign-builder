@@ -252,7 +252,10 @@ export class FCBJournalEntryPage<
    * @returns The groups array for that item type
    */
   public getGroups(itemType: GroupableItem): readonly TableGroup[] {
-    return this._clone.system.groups?.[itemType] || [];
+    // technically this isn't safe because not all documents have groups (ex. storywebs, fronts)
+    // but itemType mostly protects us, so we're going to ignore it
+    // @ts-ignore
+      return this._clone.system.groups?.[itemType] || [];
   }
 
   /**
@@ -261,9 +264,15 @@ export class FCBJournalEntryPage<
    * @param value - The new groups array
    */
   public setGroups(itemType: GroupableItem, value: TableGroup[] | readonly TableGroup[]): void {
+    // technically this isn't safe because not all documents have groups (ex. storywebs, fronts)
+    // but itemType mostly protects us, so we're going to ignore it
+    // @ts-ignore
     if (!this._clone.system.groups) {
+      // @ts-ignore
       this._clone.system.groups = {} as DocumentGroups;
     }
+
+    // @ts-ignore
     this._clone.system.groups[itemType] = value.slice(); // we clone it so it can't be edited outside (this is historical)
   }
   

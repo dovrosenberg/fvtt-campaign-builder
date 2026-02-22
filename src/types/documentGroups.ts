@@ -13,13 +13,13 @@ export const UNGROUPED_GROUP_ID = '#&#ungrouped#&#';
  *    across content types
  */
 export enum GroupableItem {
-  SettingJournals = 'settingJournals',
-  CampaignJournals = 'campaignJournals',
+  // SettingJournals = 'settingJournals',
+  // CampaignJournals = 'campaignJournals',
   CampaignPCs = 'campaignPCs',
   CampaignLore = 'campaignLore',
   CampaignIdeas = 'campaignIdeas',
   CampaignToDos = 'campaignToDos',
-  ArcJournals = 'arcJournals',
+  // ArcJournals = 'arcJournals',
   ArcLore = 'arcLore',
   ArcVignettes = 'arcVignettes',
   ArcLocations = 'arcLocations',
@@ -44,5 +44,5 @@ export type GroupableItemType = `${GroupableItem}`;
  * Interface for the consolidated groups structure in document schemas
  */
 export interface DocumentGroups {
-  [K in GroupableItem]?: TableGroup[];
+  [K in typeof GroupableItem]?: TableGroup[];
 }

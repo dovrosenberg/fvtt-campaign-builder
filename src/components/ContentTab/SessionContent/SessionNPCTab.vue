@@ -1,12 +1,14 @@
 <template>
   <BaseTable 
     :actions="actions"
-    :rows="mappedNPCRows"
+    :rows="npcRows"
     :columns="columns"  
     :show-add-button="true"
     :add-button-label="localize('labels.session.addNPC')" 
     :extra-add-text="localize('labels.session.addNPCDrag')"
     :allow-edit="true"
+    :grouped="isGrouped"
+    :groups="npcGroups"
     :help-text="localize('labels.session.npcHelpText')"
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
@@ -14,7 +16,11 @@
     @dragoverNew="DragDropService.standardDragover"
     @drop-new="onDropNew"
     @cell-edit-complete="onCellEditComplete"
-    @reorder="onReorder"
+    @reorder="groupedTable.onReorder"
+    @reorder-group="(items) => groupedTable.onReorderGroup(items, npcGroups)"
+    @group-add="groupedTable.onGroupAdd"
+    @group-edit="groupedTable.onGroupEdit"
+    @group-delete="groupedTable.onGroupDelete"
   />
   <RelatedEntryDialog
     v-model="showNPCPicker"
@@ -30,6 +36,7 @@
 
   // local imports
   import { useSessionStore} from '@/applications/stores';
+  import { useGroupedTable } from '@/composables/useGroupedTable';
   import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { Topics, RelatedEntryDialogModes, EntryNodeDragData,} from '@/types';
   import { localize } from '@/utils/game'
@@ -43,8 +50,7 @@
   import RelatedEntryDialog from '@/components/dialogs/RelatedEntryDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, SessionTableTypes, BaseTableColumn, BaseTableGridRow } from '@/types';
-  import { SessionNPC } from '@/documents';
+  import { CellEditCompleteEvent, SessionTableTypes, BaseTableColumn, GroupableItem, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -58,7 +64,7 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const { relatedNPCRows } = inject(SESSION_DERIVED_STATE_KEY)!;
+  const { npcRows, npcGroups } = inject(SESSION_DERIVED_STATE_KEY)!;
   
   ////////////////////////////////
   // data
@@ -66,11 +72,14 @@
 
   ////////////////////////////////
   // computed data
-  const mappedNPCRows = computed(() => (
-    relatedNPCRows.value.map((row) => ({
-      ...row,
-    }))
-  ));
+  const isGrouped = computed(() => {
+    // Access reactive version to create dependency on settings changes
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[GroupableItem.SessionNPCs] || false;
+  });
+
+  // Grouped table composable
+  const groupedTable = useGroupedTable(sessionStore.groupStores[GroupableItem.SessionNPCs]);
 
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
@@ -174,22 +183,6 @@
 
     await sessionStore.addNPC(fcbData.childId);      
   };
-
-  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    const reorderedNPCs = reorderedRows.map((row) => {
-      const npc = relatedNPCRows.value.find(n => n.uuid === row.uuid);
-
-      // rows have extra fields we don't want
-      return {
-        uuid: row.uuid,
-        delivered: npc?.delivered ?? false,
-        notes: npc?.notes ?? '',
-      } as SessionNPC;
-    });
-
-    await sessionStore.reorderNPCs(reorderedNPCs);
-  };
-
 
   ////////////////////////////////
   // watchers

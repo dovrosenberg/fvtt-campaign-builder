@@ -1,7 +1,7 @@
 <template>
   <BaseTable
     :actions="actions"
-    :rows="mappedMonsterRows"
+    :rows="monsterRows"
     :columns="columns"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addMonster')"
@@ -9,6 +9,8 @@
     :allow-drop-row="false"
     :allow-edit="true"
     :draggable-rows="true"
+    :grouped="isGrouped"
+    :groups="monsterGroups"
     :help-text="localize('labels.session.monsterHelpText')"
     help-link="https://slyflourish.com/choose_monsters_based_on_the_story.html"
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
@@ -18,7 +20,11 @@
     @dragoverNew="DragDropService.standardDragover"
     @dragstart="onDragStart"
     @cell-edit-complete="onCellEditComplete"
-    @reorder="onReorder"
+    @reorder="groupedTable.onReorder"
+    @reorder-group="(items) => groupedTable.onReorderGroup(items, monsterGroups)"
+    @group-add="groupedTable.onGroupAdd"
+    @group-edit="groupedTable.onGroupEdit"
+    @group-delete="groupedTable.onGroupDelete"
   />
   <RelatedDocumentsDialog
     v-model="showMonsterPicker"
@@ -35,6 +41,7 @@
   // local imports
   import { useSessionStore, useArcStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useGroupedTable } from '@/composables/useGroupedTable';
   import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
   import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { localize } from '@/utils/game'
@@ -49,8 +56,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, ArcTableTypes, SessionTableTypes, BaseTableColumn, BaseTableGridRow, ArcMonsterDetails, SessionMonsterDetails } from '@/types';
-  import { ArcMonster, SessionMonster } from '@/documents';
+  import { CellEditCompleteEvent, ArcTableTypes, SessionTableTypes, BaseTableColumn, GroupableItem, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -73,9 +79,7 @@
   const sessionStore = useSessionStore();
   const arcStore = useArcStore();
   const sessionDerivedState = inject(SESSION_DERIVED_STATE_KEY, null);
-  const sessionMonsterRows = computed(() => sessionDerivedState?.relatedMonsterRows.value ?? []);
   const arcDerivedState = inject(ARC_DERIVED_STATE_KEY, null);
-  const arcMonsterRows = computed(() => arcDerivedState?.monsterRows.value ?? []);
   const { currentArc } = useContentState();
   
   ////////////////////////////////
@@ -85,14 +89,26 @@
 
   ////////////////////////////////
   // computed data
-  const monsterRows = computed(() => (props.arcMode ? arcMonsterRows.value : sessionMonsterRows.value) as ArcMonsterDetails[] | SessionMonsterDetails[]);
+  const derivedState = computed(() => props.arcMode ? arcDerivedState : sessionDerivedState);
+  const monsterRows = computed(() => derivedState.value?.monsterRows.value ?? []);
+  const monsterGroups = computed(() => derivedState.value?.monsterGroups.value ?? []);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
 
-  const mappedMonsterRows = computed(() => (
-    monsterRows.value.map((row) => ({
-      ...row,
-    }))
-  ));
+  const isGrouped = computed(() => {
+    // Access reactive version to create dependency on settings changes
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[
+      props.arcMode ?
+      GroupableItem.ArcMonsters :
+      GroupableItem.SessionMonsters
+    ] || false;
+  });
+
+  // Grouped table composable
+  const groupedTable = useGroupedTable(
+    (props.arcMode ? arcStore : sessionStore)
+    .groupStores[props.arcMode ? GroupableItem.ArcMonsters : GroupableItem.SessionMonsters]
+  );
   
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
@@ -215,25 +231,6 @@
   const onDragStart = async (event: DragEvent, uuid: string) => {
     await DragDropService.actorDragStart(event, uuid);
   }
-
-  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    const reorderedMonsters = reorderedRows.map((row) => {
-      const monster = monsterRows.value.find(m => m.uuid === row.uuid);
-
-      // rows have extra fields we don't want
-      return props.arcMode ? {
-        uuid: row.uuid,
-        notes: monster!.notes ?? '',
-      } as ArcMonster : {
-        uuid: row.uuid,
-        notes: monster!.notes ?? '',
-        delivered: (monster as SessionMonsterDetails)!.delivered ?? false,
-        number: (monster as SessionMonsterDetails)!.number ?? 0,
-      } as SessionMonster;
-    });
-
-    await store.value.reorderMonsters(reorderedMonsters);
-  };
 
   ////////////////////////////////
   // watchers

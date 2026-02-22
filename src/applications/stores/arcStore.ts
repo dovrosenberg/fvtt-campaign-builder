@@ -2,7 +2,6 @@
 //
 // library imports
 import { storeToRefs, } from 'pinia';
-import { computed } from 'vue';
 
 // local imports
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
@@ -12,7 +11,7 @@ import { createGroupedTableStores } from '@/composables/createGroupedTableStores
 // types
 import {
   BaseTableColumn,
-  Idea,
+  ArcIdea,
   Topics,
   ArcTableTypes,
   GroupableItem,
@@ -526,7 +525,7 @@ export const arcStore = () => {
     return true;
   }
 
-  const reorderIdeas = async (reorderedIdeas: Idea[]) => {
+  const reorderIdeas = async (reorderedIdeas: ArcIdea[]) => {
     if (!currentArc.value) return;
 
     currentArc.value.ideas = reorderedIdeas;
@@ -552,9 +551,6 @@ export const arcStore = () => {
     groupConfigs: {
       [GroupableItem.ArcIdeas]: {
         propertyName: 'ideas',
-      },
-      [GroupableItem.ArcJournals]: {
-        propertyName: 'journals',
       },
       [GroupableItem.ArcLore]: {
         propertyName: 'lore',

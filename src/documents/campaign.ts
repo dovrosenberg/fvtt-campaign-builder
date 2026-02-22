@@ -1,5 +1,4 @@
-import { SessionLore, } from '@/documents/session';
-import { ToDoItem, Idea, RelatedJournal, RelatedPCDetails, SessionBasicIndex, ArcBasicIndex, TableGroup, GroupableItem } from '@/types';
+import { RelatedJournal, SessionBasicIndex, ArcBasicIndex, TableGroup, GroupableItem, CampaignLore, CampaignToDo, CampaignIdea, CampaignPC } from '@/types';
 import { DOCUMENT_TYPES } from './types';
 import { schemas } from './fields';
 
@@ -61,24 +60,33 @@ export const CampaignSchema = {
   // old case - we can remove this once the 1.9 migration is removed
   todoItems: new fields.ArrayField(
     schemas.ToDoItem(), 
-    { required: true, nullable: false, initial: [] as ToDoItem[] }
+    { required: true, nullable: false, initial: [] as CampaignToDo[] }
   ),
   toDoItems: new fields.ArrayField(
     schemas.ToDoItem(), 
-    { required: true, nullable: false, initial: [] as ToDoItem[] }
+    { required: true, nullable: false, initial: [] as CampaignToDo[] }
   ),
 
   /** ideas */
   ideas: new fields.ArrayField(
     schemas.Idea(),
-    { required: true, nullable: false, initial: [] as Idea[] }
+    { required: true, nullable: false, initial: [] as CampaignIdea[] }
   ),
 
   /** consolidated groups structure */
   groups: new fields.SchemaField({
-    [GroupableItem.ToDos]: schemas.GroupArray(),
-    [GroupableItem.Ideas]: schemas.GroupArray(),
-  }, { required: true, nullable: false, initial: { [GroupableItem.ToDos]: [], [GroupableItem.Idea]: [] } }),
+    // [GroupableItem.CampaignJournals]: schemas.GroupArray(),
+    [GroupableItem.CampaignToDos]: schemas.GroupArray(),
+    [GroupableItem.CampaignIdeas]: schemas.GroupArray(),
+    [GroupableItem.CampaignLore]: schemas.GroupArray(),
+    [GroupableItem.CampaignPCs]: schemas.GroupArray(),
+  }, { required: true, nullable: false, initial: {
+    // [GroupableItem.CampaignJournals]: [],
+    [GroupableItem.CampaignToDos]: [],
+    [GroupableItem.CampaignIdeas]: [],
+    [GroupableItem.CampaignLore]: [],
+    [GroupableItem.CampaignPCs]: [],
+  } }),
 
   /** related journal entries */
   journals: new fields.ArrayField(
@@ -89,7 +97,7 @@ export const CampaignSchema = {
   /** related PCs */
   pcs: new fields.ArrayField(
     schemas.RelatedPCDetails(),
-    { required: true, nullable: false, initial: [] as RelatedPCDetails[] }
+    { required: true, nullable: false, initial: [] as CampaignPC[] }
   ),
 
   /** whether the campaign is marked as completed */
@@ -116,11 +124,6 @@ export class CampaignDataModel<
   // }
 }
 
-export type CampaignLore = SessionLore & {
-  lockedToSessionId: string | null;  
-  lockedToSessionName: string | null;  
-}
-
 export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>, 'system'> {
   __type: 'CampaignDoc'; 
 
@@ -136,13 +139,15 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
     storyWebs: string[];
     lore: CampaignLore[];  
     img: string;   
-    toDoItems: ToDoItem[];
-    ideas: Idea[];   
+    toDoItems: CampaignToDo[];
+    ideas: CampaignIdea[];   
     journals: RelatedJournal[]; 
-    pcs: RelatedPCDetails[];
+    pcs: CampaignPC[];
     groups: {
       toDoItems: TableGroup[];
       ideas: TableGroup[];
+      lore: TableGroup[];
+      pcs: TableGroup[];
     };
   };
 }

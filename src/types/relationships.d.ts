@@ -30,6 +30,7 @@ export interface RelatedPCDetails {
   type: string;
   playerName: string;
   actorId: string | null;
+  groupId: string | null;
 }
 
 // ideally we'd use a getter to create the uuid, but these get serialized and it would
@@ -41,5 +42,6 @@ export interface RelatedJournal {
   anchor: { slug: string; name: string; } | null;
   packId: string | null;   // uuid of the parent compendium (null if it's a world entry)
   packName: string | null;
+  groupId: string | null;
 };
 

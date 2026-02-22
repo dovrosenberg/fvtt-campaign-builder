@@ -9,7 +9,7 @@
       :allow-drop-row="false"
       :grouped="isGrouped"
       :groups="ideaGroups"
-      :rows="mappedIdeaRows"
+      :rows="ideaRows"
       :columns="columns"
       :allow-edit="true"
       :edit-item-label="localize('tooltips.editRow')"
@@ -19,7 +19,7 @@
       @add-item="onAddIdea"
       @cell-edit-complete="onCellEditComplete"
       @reorder="groupedTable.onReorder"
-      @reorder-group="groupedTable.onReorderGroup"
+      @reorder-group="(items) => groupedTable.onReorderGroup(items, ideaGroups)"
       @group-add="groupedTable.onGroupAdd"
       @group-edit="groupedTable.onGroupEdit"
       @group-delete="groupedTable.onGroupDelete"
@@ -39,7 +39,6 @@
   import { useGroupedTable } from '@/composables/useGroupedTable';
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { TableGroupingSetting } from '@/types';
 
   // library components
 
@@ -47,7 +46,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
-  import { Idea, BaseTableColumn, BaseTableGridRow, CampaignTableTypes, CellEditCompleteEvent, GroupedTableGridRow, GroupableItem } from '@/types';
+  import { BaseTableColumn, CampaignTableTypes, CellEditCompleteEvent, GroupableItem } from '@/types';
 
   ////////////////////////////////
   // props
@@ -89,31 +88,15 @@
     ModuleSettings.getReactiveVersion();
     return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[
       props.arcMode ?
-      TableGroupingSetting.ArcIdeas :
-      TableGroupingSetting.CampaignIdeas
+      GroupableItem.ArcIdeas :
+      GroupableItem.CampaignIdeas
   ] || false;
   });
 
   // Grouped table composable
-  const groupedTable = useGroupedTable<Idea, GroupableItem.Ideas>({
-    store: props.arcMode ? arcStore.groupStores[GroupableItem.Ideas] : campaignStore.groupStores[GroupableItem.Ideas],
-    rows: ideaRows,
-    mapReorderedRows: (reorderedRows: BaseTableGridRow[], originalRows: Idea[]) => {
-      return reorderedRows
-        .map((row): Idea | null => {
-          const idea = originalRows.find(idea => idea.uuid === row.uuid);
-          return idea ? { ...idea, groupId: (row as GroupedTableGridRow).groupId } : null;
-        })
-        .filter((row): row is Idea => row !== null);
-    },
-  });
-
-  const mappedIdeaRows = computed(() => {
-    return ideaRows.value.map((row: Idea) => ({
-      ...row,
-      groupId: row.groupId || null,
-    }));
-  });
+  const groupedTable = useGroupedTable(
+    props.arcMode ? arcStore.groupStores[GroupableItem.ArcIdeas] : campaignStore.groupStores[GroupableItem.CampaignIdeas]
+  );
 
   const actions = computed(() => {
     return [
