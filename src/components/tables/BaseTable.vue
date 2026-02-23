@@ -152,25 +152,16 @@
           <div class="fcb-group-header-content">
             <!-- Note: slotProps.data is the 1st row in the group -->
             <div
-              v-if="slotProps.data.groupId && editingGroupId !== slotProps.data.groupId"
+              v-if="slotProps.data.groupId && editingGroupId !== slotProps.data.groupId && slotProps.data.groupId !== UNGROUPED_GROUP_ID"
               class="fcb-group-header-actions"
             >
               <div 
-                v-if="slotProps.data.groupId !== UNGROUPED_GROUP_ID"
                 class="fcb-group-header-grip"
                 draggable="true"
                 @dragstart="onDragstartGroup($event, slotProps.data.groupId)"
                 @dragend="onDragendGroup($event)"
               >
                 <i class="fas fa-grip-vertical"></i>
-              </div>
-
-              <!-- spacer for ungrouped group -->
-              <div 
-                v-else
-                class="fcb-group-header-grip"
-                style="width: 8.125px"
-              >
               </div>
               <div>
                 <a
@@ -209,7 +200,7 @@
               <!-- Display mode -->
               <div 
                 v-else
-                class="fcb-group-display"
+                :class="{'fcb-group-display': true, editable: slotProps.data.groupId !== UNGROUPED_GROUP_ID}"
                 @click.stop="setEditingGroup(slotProps.data.groupId)"
               >
                 {{ groups.find(g => g.groupId === slotProps.data.groupId)?.name }}
@@ -1624,7 +1615,7 @@
       background-color: var(--fcb-color-surface-300);
     }
 
-    .fcb-group-display {
+    .fcb-group-display.editable {
       cursor: pointer;
     }
   }
