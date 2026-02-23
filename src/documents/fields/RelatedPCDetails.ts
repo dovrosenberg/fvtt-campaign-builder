@@ -5,9 +5,6 @@ export const RelatedPCDetailsSchema = () => (
     /** unique id */
     uuid: new fields.StringField({ required: true, nullable: false }),
 
-    /** name of the PC (the player name is on the journal entry name field */
-    name: new fields.StringField({ required: true, nullable: false }),
-
     /** type of the PC */
     type: new fields.StringField({ required: true, nullable: false }),
 

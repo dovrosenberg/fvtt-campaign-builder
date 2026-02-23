@@ -74,8 +74,6 @@ export interface SessionNPC {
   groupId: string | null;
 }
 
-export interface SessionPC extends CampaignPC {}
-
 export interface SessionMonster {
   uuid: string;
   delivered: boolean;
@@ -142,9 +140,7 @@ export interface CampaignIdea {
 
 export interface CampaignPC {
   uuid: string;
-  name: string;
   type: string;
-  playerName: string;
   actorId: string | null;
   groupId: string | null;
 }

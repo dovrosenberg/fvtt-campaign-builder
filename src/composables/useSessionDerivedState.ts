@@ -3,7 +3,7 @@
 // are scoped to that panel rather than shared globally.
 
 // library imports
-import { ref, watch, type InjectionKey, type Ref } from 'vue';
+import { computed, watch, type InjectionKey, type Ref } from 'vue';
 
 // local imports
 import { useContentState } from '@/composables/useContentState';
@@ -22,10 +22,13 @@ import {
   SessionItemRow,
   SessionVignetteRow,
   SessionLoreRow,
+  SessionPCRow,
   SessionLocation,
   SessionNPC,
   SessionMonster,
   SessionItem,
+  CampaignPC,
+  CampaignPCRow,
 } from '@/types';
 
 export interface SessionDerivedState {
@@ -41,6 +44,8 @@ export interface SessionDerivedState {
   vignetteGroups: Ref<TableGroup[]>;
   loreRows: Ref<SessionLoreRow[]>;
   loreGroups: Ref<TableGroup[]>;
+  pcRows: Ref<SessionPCRow[]>;
+  pcGroups: Ref<TableGroup[]>;
 }
 
 export const SESSION_DERIVED_STATE_KEY: InjectionKey<SessionDerivedState> = Symbol('sessionDerivedState');
@@ -193,6 +198,40 @@ export function useSessionDerivedState(): SessionDerivedState {
       }
     );
 
+  // PC rows - pulled from campaign, using campaign's groups
+  // Create a computed ref that resolves to the campaign
+  const pcCampaignEntity = computed(() => 
+    currentSession.value?.campaign
+  );
+
+  const { rows: pcRows, groups: pcGroups, refresh: _refreshPCs } = 
+    useGroupedTableState(pcCampaignEntity, 'pcs', GroupableItem.CampaignPCs,
+      async (items: CampaignPC[]): Promise<CampaignPCRow[]> => {
+        // Get the campaign
+        const campaign = currentSession.value?.campaign;
+        
+        if (!campaign)
+          return [];
+
+        const pcs = (await campaign.getPCs()) || [];
+
+        return items.map((item: CampaignPC): CampaignPCRow | null => {
+          const pc = pcs.find((p) => p.uuid === item.uuid);
+          if (!pc) return null;
+
+          return {
+            uuid: item.uuid,
+            groupId: item.groupId || null,
+            type: 'PC',
+            name: `${pc.name} (${pc.playerName})`,
+            actor: pc.name,
+            playerName: pc.playerName,
+            actorId: item.actorId,
+          } as CampaignPCRow;
+        }).filter((row): row is CampaignPCRow => !!row);
+      }
+    );
+
   // watchers to rebuild rows
   watch(() => currentSession.value, async () => {
     await _refreshRowsForTab();
@@ -226,7 +265,7 @@ export function useSessionDerivedState(): SessionDerivedState {
         await _refreshItems();
         break;
       case 'pcs':
-        // handled by campaignDerivedState
+        await _refreshPCs();
         break;
       default:
         break;
@@ -246,5 +285,7 @@ export function useSessionDerivedState(): SessionDerivedState {
     vignetteGroups,
     loreRows,
     loreGroups,
+    pcRows,
+    pcGroups,
   };
 }

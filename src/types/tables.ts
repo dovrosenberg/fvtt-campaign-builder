@@ -6,8 +6,7 @@ import {
   SessionMonster, SessionItem,CampaignPCRow,CampaignLoreRow,CampaignIdeaRow,
   CampaignToDoRow,ArcLoreRow,ArcVignetteRow,ArcLocationRow,ArcParticipantRow,
   ArcMonsterRow,ArcIdeaRow,SessionLoreRow,SessionVignetteRow,SessionLocationRow,
-  SessionNPCRow,SessionMonsterRow,SessionItemRow,SessionPCRow, 
-SessionPC
+  SessionNPCRow,SessionMonsterRow,SessionItemRow,SessionPCRow
 } from './index';
 
 export interface BaseRow {
@@ -161,7 +160,7 @@ export type GroupableItemTypeMap = {
   [GroupableItem.SessionNPCs]: SessionNPC;
   [GroupableItem.SessionMonsters]: SessionMonster;
   [GroupableItem.SessionItems]: SessionItem;
-  [GroupableItem.SessionPCs]: SessionPC;
+  [GroupableItem.SessionPCs]: CampaignPC;  // Sessions use CampaignPC type
 };
 
 /**

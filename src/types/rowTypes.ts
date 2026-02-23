@@ -91,14 +91,6 @@ export interface SessionLoreRow extends GroupedTableGridRow {
   onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;  // UI handler
 }
 
-// SessionPCRow is special - displays data from CampaignPC in the session context
-export interface SessionPCRow extends GroupedTableGridRow {
-  name: string;           // display field - from CampaignPC
-  type: string;           // display field - from CampaignPC
-  playerName: string;     // display field - from CampaignPC
-  actorId: string | null; // display field - from CampaignPC
-}
-
 export interface SessionJournalRow extends GroupedTableGridRow {
   journalName: string;    // display field - from linked Journal
   pageName: string;       // display field - from linked Page + anchor
@@ -140,6 +132,9 @@ export interface CampaignPCRow extends GroupedTableGridRow {
   playerName: string;
   actorId: string | null;
 }
+
+// SessionPCRow is an alias - sessions use the same row type as campaigns
+export type SessionPCRow = CampaignPCRow;
 
 export interface CampaignJournalRow extends GroupedTableGridRow {
   journalName: string;    // display field - from linked Journal

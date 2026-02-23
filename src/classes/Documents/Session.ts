@@ -35,7 +35,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       [GroupableItem.SessionNPCs]: [] as TableGroup[],
       [GroupableItem.SessionMonsters]: [] as TableGroup[],
       [GroupableItem.SessionItems]: [] as TableGroup[],
-      [GroupableItem.SessionPCs]: [] as TableGroup[],
+      // [GroupableItem.SessionPCs]: [] as TableGroup[],  // stored on campaign
     },
   } as unknown as SessionDocClass['system'];
 

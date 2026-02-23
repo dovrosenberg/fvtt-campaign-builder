@@ -39,6 +39,7 @@
   import { useCampaignStore, useNavigationStore, } from '@/applications/stores';
   import { useGroupedTable } from '@/composables/useGroupedTable';
   import { CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
+  import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { localize } from '@/utils/game';
   import DragDropService from '@/utils/dragDrop'; 
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -55,6 +56,12 @@
   
   ////////////////////////////////
   // props
+  const props = defineProps({
+    sessionMode: {
+      type: Boolean,
+      default: false
+    }
+  });
 
   ////////////////////////////////
   // emits
@@ -63,7 +70,23 @@
   // store
   const campaignStore = useCampaignStore();
   const navigationStore = useNavigationStore();
-  const { pcRows, pcGroups } = inject(CAMPAIGN_DERIVED_STATE_KEY)!;
+  
+  // Inject both states
+  const campaignDerivedState = inject(CAMPAIGN_DERIVED_STATE_KEY, null);
+  const sessionDerivedState = inject(SESSION_DERIVED_STATE_KEY, null);
+  
+  // Use session or campaign state based on mode
+  const pcRows = computed(() => 
+    props.sessionMode 
+      ? sessionDerivedState?.pcRows.value ?? [] 
+      : campaignDerivedState?.pcRows.value ?? []
+  );
+
+  const pcGroups = computed(() => 
+    props.sessionMode 
+      ? sessionDerivedState?.pcGroups.value ?? [] 
+      : campaignDerivedState?.pcGroups.value ?? []
+  );
 
   ////////////////////////////////
   // data
@@ -80,10 +103,11 @@
   const isGrouped = computed(() => {
     // Access reactive version to create dependency on settings changes
     ModuleSettings.getReactiveVersion();
+    // Both session and campaign use CampaignPCs setting since they share groups
     return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[GroupableItem.CampaignPCs] || false;
   });
 
-  // Grouped table composable
+  // Grouped table composable - always use campaign store since data lives on campaign
   const groupedTable = useGroupedTable(campaignStore.groupStores[GroupableItem.CampaignPCs]);
 
   // TODO: why are these here instead of in the store like the others?
@@ -121,7 +145,7 @@
 
   // call mutation to remove item from relationship
   const onDeleteItemClick = async function(_id: string) {
-    void campaignStore.deletePC(_id); 
+    void campaignStore.deletePC(_id);  // Always use campaign store - data lives on campaign
   };
 
   const onDropNew = async(event: DragEvent) => {
@@ -146,13 +170,11 @@
 
     const details: CampaignPC = {
       uuid: fcbData.childId,
-      name: entry.name,
       type: 'PC',
-      playerName: entry.playerName,
       actorId: entry.actorId,
       groupId: null,
     };
-    await campaignStore.addPC(details);      
+    await campaignStore.addPC(details);  // Always use campaign store - data lives on campaign
   };
   
 

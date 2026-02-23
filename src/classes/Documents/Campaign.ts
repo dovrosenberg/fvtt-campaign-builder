@@ -573,7 +573,6 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   public get pcs(): CampaignPC[] {
-    // TODO: this isn't the right type... (CampaignPC) - we need a 2nd type for the db
     return this._clone.system.pcs;
   }
 

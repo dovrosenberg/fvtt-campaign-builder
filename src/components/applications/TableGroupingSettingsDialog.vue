@@ -152,7 +152,6 @@ Dependencies
         { settingKey: GroupableItem.SessionNPCs, labelKey: 'dialogs.tableGrouping.tabs.npcs' },
         { settingKey: GroupableItem.SessionMonsters, labelKey: 'dialogs.tableGrouping.tabs.monsters' },
         { settingKey: GroupableItem.SessionItems, labelKey: 'dialogs.tableGrouping.tabs.magicItems' },
-        { settingKey: GroupableItem.SessionPCs, labelKey: 'dialogs.tableGrouping.tabs.pcs' },
       ],
     },
   ];
