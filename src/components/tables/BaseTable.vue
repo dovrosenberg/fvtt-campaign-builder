@@ -279,6 +279,7 @@
           <!-- DRAG HANDLE (FOR DRAGGING ELSEWHERE) -->
           <div v-else-if="field === 'drag'">
             <div
+              v-if="!isPlaceholderRow(data.uuid)"
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
             >
@@ -381,13 +382,13 @@
           </div>
 
           <!-- PLACEHOLDER -->
-          <div v-else-if="colIndex==1 && isPlaceholderRow(data.uuid)">
-            <div 
+          <div v-else-if="colIndex===placeholderColumnIndex && isPlaceholderRow(data.uuid)">
+            <div
               class="fcb-row-wrapper"
             >
               <div>
                 <span>
-                  {{ localize('labels.noResults') }} 
+                  {{ localize('labels.noResults') }}
                 </span>
               </div>
             </div>
@@ -657,6 +658,19 @@
   /** Check if any columns are editable */
   const hasEditableColumns = computed(() => {
     return props.columns.some((col) => col.editable);
+  });
+
+  /**
+   * Find the first text-based column index for placeholder rendering.
+   * This is the first column that is not 'actions', 'drag', or a boolean type.
+   * Used to display "No results" text in empty group placeholders.
+   */
+  const placeholderColumnIndex = computed(() => {
+    return props.columns.findIndex((col) =>
+      col.field !== 'actions' &&
+      col.field !== 'drag' &&
+      col.type !== 'boolean'
+    );
   });
 
   /** Calculate total column count including reorder column if enabled */
@@ -941,7 +955,7 @@
    * - If the caller provides `filterFields`, we use those.
    * - Otherwise, we default to the displayed column fields (excluding special UI-only columns).
    */
-   function deriveFilterFields() {
+  function deriveFilterFields() {
     const NON_FILTERABLE_FIELDS = ['actions', 'drag'];
 
     if (props.filterFields.length > 0) 
