@@ -516,6 +516,32 @@ export const campaignStore = () => {
       },
       [GroupableItem.CampaignPCs]: {
         propertyName: 'pcs',
+        // Computed entity for CampaignPCs that falls back to loading campaign from session
+        // This is needed because when viewing a session, currentCampaign is null,
+        // but PCs are stored on the campaign and need to be editable from the session view
+        entityRef: computed(() => {
+          if (currentCampaign.value) {
+            return currentCampaign.value;
+          }
+          // When viewing a session, load the campaign from the session
+          // Note: This is a synchronous computed, so we can't use async loadCampaign()
+          // Instead, we rely on the campaign being cached on the session object
+          return currentSession.value?.campaign || null;
+        }),
+        // Custom refresh function for PC changes that also refreshes sessions viewing the same campaign
+        // This ensures that when PCs are modified in one panel, any session panel viewing the same
+        // campaign will also be refreshed
+        refresh: async () => {
+          await mainStore.refreshCampaign();
+          
+          // Refresh all sessions that belong to the current campaign
+          // This ensures that when PCs are modified in the campaign panel, any session panel
+          // viewing the same campaign will also be refreshed with the updated PC data
+          const campaignId = currentCampaign.value?.uuid || currentSession.value?.campaignId;
+          if (campaignId) {
+            await navigationStore.refreshSessionsForCampaign(campaignId);
+          }
+        },
       },
     },
   });

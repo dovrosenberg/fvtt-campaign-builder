@@ -38,6 +38,14 @@ import { FCBDialog } from '@/dialogs';
 interface GroupConfig {
   /** The property name that this table is for on the entity */
   propertyName: string;
+  
+  /** Optional alternative entity ref to use instead of the default currentEntity;
+   *    good for things like session PCs where we actually need to pull from the campaign
+   */
+  entityRef?: Ref<FCBJournalEntryPage<any> | null> | ComputedRef<FCBJournalEntryPage<any> | null>;
+  
+  /** Optional custom refresh function to use instead of the default refresh */
+  refresh?: () => Promise<void>;
 }
 
 /**
@@ -102,7 +110,17 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
 
     if (!groupConfig) continue;
     
-    const { propertyName } = groupConfig;
+    const { propertyName, entityRef, refresh: itemRefresh } = groupConfig;
+    
+    // Use the provided entityRef if available, otherwise use the default currentEntity
+    // This allows specific item types (like CampaignPCs) to use a different entity
+    // resolver when the default currentEntity might be null (e.g., when viewing a session)
+    const entity = entityRef || currentEntity;
+    
+    // Use the provided itemRefresh if available, otherwise use the default refresh
+    // This allows specific item types (like CampaignPCs) to use a custom refresh function
+    // that can update multiple panels (e.g., both campaign and session panels)
+    const doRefresh = itemRefresh || refresh;
     
     // Create a properly typed store for each item type
     const store = {
@@ -114,7 +132,9 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
        * @returns The newly created group
        */
       addGroup: async (name?: string): Promise<TableGroup | null> => {
-        if (!currentEntity.value) return null;
+        if (!entity.value) {
+          return null;
+        }
 
         const newGroup: TableGroup = {
           groupId: foundry.utils.randomID(),
@@ -122,12 +142,12 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
         };
 
         // Add the new group
-        const groups = currentEntity.value.getGroups(itemType).slice();
+        const groups = entity.value.getGroups(itemType).slice();
         groups.push(newGroup);
-        currentEntity.value.setGroups(itemType, groups);
+        entity.value.setGroups(itemType, groups);
         
-        await currentEntity.value.save();
-        await refresh();
+        await entity.value.save();
+        await doRefresh();
         return newGroup;
       },
 
@@ -137,9 +157,9 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
        * @param newName - The new name for the group
        */
       updateGroup: async (groupId: string, newName: string): Promise<void> => {
-        if (!currentEntity.value) return;
+        if (!entity.value) return;
 
-        const groups = currentEntity.value.getGroups(itemType);
+        const groups = entity.value.getGroups(itemType);
         if (!groups)
           return;
 
@@ -149,8 +169,8 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
 
         group.name = newName;
 
-        await currentEntity.value.save();
-        await refresh();
+        await entity.value.save();
+        await doRefresh();
       },
 
       /**
@@ -158,22 +178,22 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
        * @param groupId - The ID of the group to delete
        */
       deleteGroup: async (groupId: string): Promise<void> => {
-        if (!currentEntity.value || !groupId) return;
+        if (!entity.value || !groupId) return;
 
         // confirm
         if (!(await FCBDialog.confirmDialog('Delete group?', 'Are you sure you want to delete this group? All items will be put in \'Ungrouped\'')))
           return;
 
         // Remove the group
-        let groups = currentEntity.value.getGroups(itemType).slice();
+        let groups = entity.value.getGroups(itemType).slice();
         if (groups) {
           groups = groups.filter(g => g.groupId !== groupId);
         }
-        currentEntity.value.setGroups(itemType, groups);
+        entity.value.setGroups(itemType, groups);
 
         // Remove groupId from all items in that group
-        if (currentEntity.value[propertyName]) {
-          const items = currentEntity.value[propertyName] as any[];
+        if (entity.value[propertyName]) {
+          const items = entity.value[propertyName] as any[];
           items.forEach((item) => {
             if (item && item.groupId === groupId) {
               item.groupId = null;
@@ -181,8 +201,8 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
           });
         }
 
-        await currentEntity.value.save(); 
-        await refresh();
+        await entity.value.save();
+        await doRefresh();
       },
 
       /**
@@ -190,7 +210,7 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
        * @param newOrder - The uuids of the groups in their new order
        */
       reorderGroups: async (newOrder: string[], groups: TableGroup[]): Promise<void> => {
-        if (!currentEntity.value) return;
+        if (!entity.value) return;
 
         // filter ungrouped, just in case
         newOrder = newOrder.filter(g => g !== UNGROUPED_GROUP_ID);
@@ -203,11 +223,11 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
 
 
         // Update group order
-        currentEntity.value.setGroups(itemType, reorderedGroups);
+        entity.value.setGroups(itemType, reorderedGroups);
 
         // Reorder items to match group order
-        if (currentEntity.value[propertyName]) {
-          const items = currentEntity.value[propertyName] as any[];
+        if (entity.value[propertyName]) {
+          const items = entity.value[propertyName] as any[];
           const reorderedItems: any[] = [];
           const validGroupIds = new Set(newOrder.map(g => g));
 
@@ -225,23 +245,23 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
             reorderedItems.push(...groupItems);
           }
 
-          currentEntity.value[propertyName] = reorderedItems;
+          entity.value[propertyName] = reorderedItems;
         }
 
-        await currentEntity.value.save();
-        await refresh();
+        await entity.value.save();
+        await doRefresh();
       },
 
       // Item management
       moveItemToGroup: async (itemUuid: string, groupId: string | null): Promise<void> => {
-        if (!currentEntity.value) return;
+        if (!entity.value) return;
 
-        const item = currentEntity.value[propertyName]?.find(i => i.uuid === itemUuid); 
+        const item = entity.value[propertyName]?.find(i => i.uuid === itemUuid);
         if (!item) return;
 
         item.groupId = groupId;
-        await currentEntity.value.save();
-        await refresh();
+        await entity.value.save();
+        await doRefresh();
       },
 
       /**
@@ -249,20 +269,20 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
        * @param reorderedItems - The items in their new order
        */
       reorderItems: async (reorderedItems: GroupableItemTypeMap[typeof itemType][]): Promise<void> => {
-        if (!currentEntity.value)
+        if (!entity.value)
           return;
 
-        currentEntity.value[propertyName] = reorderedItems.slice();
-        await currentEntity.value.save();
-        await refresh();
+        entity.value[propertyName] = reorderedItems.slice();
+        await entity.value.save();
+        await doRefresh();
       },
 
       propertyName: propertyName,
 
       // Access to refs - cast to the correct type
-      items: computed(() => (currentEntity.value?.[propertyName] || []) as GroupableItemTypeMap[typeof itemType][]),
+      items: computed(() => (entity.value?.[propertyName] || []) as GroupableItemTypeMap[typeof itemType][]),
 
-      groups: computed(() => currentEntity.value?.getGroups(itemType))
+      groups: computed(() => entity.value?.getGroups(itemType))
     } as GroupedTableStore<typeof itemType>;
 
     // @ts-ignore - safe because we control the mapping

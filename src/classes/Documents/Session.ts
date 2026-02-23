@@ -67,11 +67,12 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
   /**
    * Gets the Campaign associated with the session. If the campaign is already loaded, the promise resolves
    * to the existing campaign; otherwise, it loads the campaign and then resolves to it.
-   * 
+   *
+   * @param forceReload - If true, reloads the campaign from disk even if cached
    * @returns {Promise<Campaign>} A promise to the setting associated with the campaign.
    */
-  public async loadCampaign(): Promise<Campaign> {
-    if (this.campaign)
+  public async loadCampaign(forceReload = false): Promise<Campaign> {
+    if (this.campaign && !forceReload)
       return this.campaign;
 
     this.campaign = await Campaign.fromUuid(this._clone.system.campaignId);
