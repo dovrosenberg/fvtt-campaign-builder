@@ -351,9 +351,13 @@
     const debounceTime = 500;
     clearTimeout(saveDebounceTimer);
 
+    // Capture the content reference at the time the debounce starts,
+    // so we save to the correct document even if the tab switches before the debounce fires
+    const contentToSave = content.value;
+
     saveDebounceTimer = setTimeout(async () => {
       try {
-        await content.value?.save();
+        await contentToSave?.save();
       } catch (e) {
         console.error(e);
         notifyError(localize('applications.customFieldsBlocks.notifications.saveFailed'));

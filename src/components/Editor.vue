@@ -325,12 +325,12 @@
     // For edit-only mode (like in SessionNotes), don't destroy the editor
     if (remove && !props.editOnlyMode) {
       // this also blows up the DOM... don't think we actually need it
-      (toRaw(editor.value) as ProseMirrorEditor)?.destroy();  
+      (toRaw(editor.value) as ProseMirrorEditor)?.destroy();
       editor.value = null;
 
       buttonDisplay.value = '';   // brings the button back
 
-      // bring back the deleted div by resetting 
+      // bring back the deleted div by resetting
       editorVisible.value = false;
       await nextTick();
       editorVisible.value = true;

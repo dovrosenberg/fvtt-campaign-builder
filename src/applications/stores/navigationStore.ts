@@ -550,7 +550,7 @@ export const navigationStore = () => {
 
   /** Used when changing content or tabs. Check for unsaved changes and if
    *  any, prompt the user to save or discard.
-   * 
+   *
    *  @return true if any changes were saved/discarded, false if we need to cancel the switch
    */
   const handleUnsavedChanges = async function (): Promise<boolean> {
