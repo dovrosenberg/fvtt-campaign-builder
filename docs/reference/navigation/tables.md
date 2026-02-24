@@ -33,9 +33,9 @@ Some special content type has extra behavior:
 
 Many tables include a search/filter field in the header. Type in this field to filter the table contents to only show rows that match your search term. The filter searches across all visible columns in the table.
 
-## Working with Groups
+## Working with Groups {#groups}
 
-Many tables support grouping items for better organization. Grouped tables display items organized under collapsible group headers.
+Many tables support grouping items for better organization. Grouped tables display items organized under collapsible group headers.  You can control which tables use a group display in the [Module Settings].
 
 ### Creating Groups
 

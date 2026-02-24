@@ -33,4 +33,5 @@ next:
 - [Roll Table Settings](./roll-table.md) - Configure RollTables for NPC name generation
 - [Content Images](./content-images.md) - Hide/show images on content pages
 - [Story Web Connections](./story-webs.md) - Configure colors and line styles for Story Web connections
+- [Table Grouping](./table-grouping.md) - Enable/disable table grouping for specific content tabs
 
