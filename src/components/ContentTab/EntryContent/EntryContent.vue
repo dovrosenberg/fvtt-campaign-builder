@@ -209,7 +209,10 @@
       v-model="showRecordingDialog"
       :recorder="activeRecorder"
       :stream="activeStream"
+      :mime-type="activeMimeType"
       @stopped="onRecordingStopped"
+      @error="onRecordingError"
+      @cancel="onRecordingCancelled"
     />
   </form>
 </template>
@@ -217,7 +220,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref, watch, provide, } from 'vue';
+  import { computed, ref, watch, provide, onUnmounted, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -317,6 +320,7 @@
   const showRecordingDialog = ref<boolean>(false);
   const activeRecorder = ref<MediaRecorder | null>(null);
   const activeStream = ref<MediaStream | null>(null);
+  const activeMimeType = ref<string>('audio/webm');
 
   ////////////////////////////////
   // computed data
@@ -728,11 +732,12 @@
 
     try {
       // Start recording
-      const { recorder, stream } = await VoiceRecordingService.startRecording();
+      const { recorder, stream, mimeType } = await VoiceRecordingService.startRecording();
       
       // Store references for the dialog
       activeRecorder.value = recorder;
       activeStream.value = stream;
+      activeMimeType.value = mimeType;
 
       // Collect data as it becomes available
       recorder.start();
@@ -755,7 +760,7 @@
 
     try {
       // Upload the recording to Foundry
-      const path = await VoiceRecordingService.uploadRecording(blob, currentEntry.value.name);
+      const path = await VoiceRecordingService.uploadRecording(blob, currentEntry.value.name, activeMimeType.value);
 
       // If path is null, user cancelled the folder selection or upload failed
       if (!path) {
@@ -774,18 +779,59 @@
       showRecordingDialog.value = false;
       activeRecorder.value = null;
       activeStream.value = null;
+      activeMimeType.value = 'audio/webm';
     }
+  };
+
+  /**
+   * Handle recording error from the dialog.
+   */
+  const onRecordingError = (): void => {
+    notifyError(localize('notifications.voiceRecording.uploadFailed'));
+    // Clean up
+    showRecordingDialog.value = false;
+    activeRecorder.value = null;
+    activeStream.value = null;
+    activeMimeType.value = 'audio/webm';
+  };
+
+  /**
+   * Handle recording cancelled (e.g., dialog unmounted while recording).
+   */
+  const onRecordingCancelled = (): void => {
+    // Clean up - no notification needed since this is an intentional cancel
+    showRecordingDialog.value = false;
+    activeRecorder.value = null;
+    activeStream.value = null;
+    activeMimeType.value = 'audio/webm';
+  };
+
+  /**
+   * Cancel any active recording (called on unmount).
+   */
+  const cancelActiveRecording = (): void => {
+    if (activeRecorder.value && activeRecorder.value.state !== 'inactive') {
+      VoiceRecordingService.cancelRecording(activeRecorder.value, activeStream.value);
+    }
+    // Clean up refs
+    activeRecorder.value = null;
+    activeStream.value = null;
+    activeMimeType.value = 'audio/webm';
   };
 
   /**
    * Play the voice recording for the current character.
    */
-  const onPlayVoice = (): void => {
+  const onPlayVoice = async (): Promise<void> => {
     if (!currentEntry.value?.voiceRecordingPath) {
       return;
     }
 
-    VoiceRecordingService.playRecording(currentEntry.value.voiceRecordingPath);
+    try {
+      await VoiceRecordingService.playRecording(currentEntry.value.voiceRecordingPath);
+    } catch (error) {
+      notifyError(localize('notifications.voiceRecording.uploadFailed'));
+    }
   };
 
   /**
@@ -927,6 +973,8 @@
     await refreshEntry();
 
     descriptionHeight.value = currentEntry.value?.getCustomFieldHeight('###description###') || 15;
+
+    cancelActiveRecording();
   });
   
   // see if we want to force a full refresh (ex. when parent changes externally)
@@ -939,6 +987,10 @@
   
   ////////////////////////////////
   // lifecycle events
+  onUnmounted(() => {
+    // Cancel any active recording when component unmounts
+    cancelActiveRecording();
+  });
 
 </script>
 

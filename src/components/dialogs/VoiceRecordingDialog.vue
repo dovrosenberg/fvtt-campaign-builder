@@ -14,10 +14,12 @@
   - modelValue: Boolean to control dialog visibility
   - recorder: MediaRecorder instance for the active recording
   - stream: MediaStream instance to stop tracks when done
- 
+  - mimeType: The MIME type of the recording (default: 'audio/webm')
+
   Emits:
   - update:modelValue: Emitted when dialog visibility changes
   - stopped: Emitted when recording is stopped with the resulting Blob
+  - error: Emitted when recording fails to stop properly
  
   Dependencies:
   - Dialog component for base dialog functionality
@@ -82,6 +84,11 @@
       required: false,
       default: null,
     },
+    mimeType: {
+      type: String,
+      required: false,
+      default: 'audio/webm',
+    },
   });
 
   ////////////////////////////////
@@ -89,6 +96,8 @@
   const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
     (e: 'stopped', blob: Blob): void;
+    (e: 'error'): void;
+    (e: 'cancel'): void;
   }>();
 
   ////////////////////////////////
@@ -129,6 +138,17 @@
     }
   };
 
+
+  const cleanup = (): void => {
+    stopTimer();
+    if (props.recorder && props.recorder.state !== 'inactive') {
+      VoiceRecordingService.cancelRecording(props.recorder, props.stream);
+      emit('cancel');
+    }
+  };
+
+  ////////////////////////////////
+  // event handlers
   /**
    * Handle stop button click - stop recording and emit result.
    */
@@ -139,15 +159,19 @@
 
     stopTimer();
 
-    const blob = await VoiceRecordingService.stopRecording(props.recorder, props.stream);
-    emit('stopped', blob);
-    show.value = false;
-    emit('update:modelValue', false);
+    try {
+      const blob = await VoiceRecordingService.stopRecording(props.recorder, props.stream, props.mimeType);
+      emit('stopped', blob);
+      show.value = false;
+      emit('update:modelValue', false);
+    } catch (error) {
+      console.error('Failed to stop recording:', error);
+      cleanup();
+      show.value = false;
+      emit('update:modelValue', false);
+      emit('error');
+    }
   };
-
-  ////////////////////////////////
-  // event handlers
-  // None (handled inline)
 
   ////////////////////////////////
   // watchers
@@ -156,14 +180,14 @@
     if (newVal) {
       startTimer();
     } else {
-      stopTimer();
+      cleanup();
     }
   });
 
   ////////////////////////////////
   // lifecycle hooks
   onUnmounted(() => {
-    stopTimer();
+      cleanup();
   });
 </script>
 
