@@ -46,8 +46,10 @@ export enum SettingKey {
   subTabsSavePosition = 'subTabsSavePosition', // whether sub-tabs remember their last position
   storyWebAutoArrange = 'storyWebAutoArrange', // whether to enable physics in story webs
   genericFoundryTab = 'genericFoundryTab', // whether to show the generic Foundry tab on entries
+  enableVoiceRecording = 'enableVoiceRecording', // whether voice recording for characters is enabled
 
   // internal only
+  voiceRecordingFolder = 'voiceRecordingFolder', // folder path for voice recordings
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
   isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
@@ -135,7 +137,9 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.emailDefaultSetting ? string :
     K extends SettingKey.emailDefaultCampaign ? string :
     K extends SettingKey.mainWindowBounds ? WindowBounds | null :
-    never;  
+    K extends SettingKey.enableVoiceRecording ? boolean :
+    K extends SettingKey.voiceRecordingFolder ? string :
+    never;
 
 export class ModuleSettings {
   // note that this returns the object directly, so if it's an object or array, it's a reference
@@ -250,6 +254,13 @@ export class ModuleSettings {
       default: true,
       type: Boolean,
     },
+    {
+      settingID: SettingKey.enableVoiceRecording,
+      name: 'settings.enableVoiceRecording',
+      hint: 'settings.enableVoiceRecordingHelp',
+      default: false,
+      type: Boolean,
+    },
   ];
 
   // these are client-specific and displayed in settings
@@ -347,6 +358,11 @@ export class ModuleSettings {
     {
       settingID: SettingKey.rootFolderId,
       default: null,
+      type: String,
+    },
+    {
+      settingID: SettingKey.voiceRecordingFolder,
+      default: 'voice-recordings',
       type: String,
     },
     {

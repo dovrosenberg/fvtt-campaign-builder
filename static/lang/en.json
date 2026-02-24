@@ -83,7 +83,9 @@
       "customFieldsHelp": "Configure additional fields and AI instructions for each content type",
       "storyWebSettings": "Story Web Settings",
       "storyWebSettingsLabel": "Configure Settings",
-      "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs"
+      "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs",
+      "enableVoiceRecording": "Enable Voice Recording",
+      "enableVoiceRecordingHelp": "Allow recording voice samples for characters to help remember voices/accents"
     },
     "applications": {
       "sessionNotes": {
@@ -626,7 +628,14 @@
         "minimumVersionRequired": "Campaign Builder cannot migrate from version {0}. You must first upgrade to version {1} or higher before upgrading to {2}.",
         "cannotOpen": "Campaign Builder cannot be opened because migration failed. Please check the console for details and resolve the migration issue."
       },
-      "documentIndexesRepaired": "All document indexes have been successfully repaired!"
+      "documentIndexesRepaired": "All document indexes have been successfully repaired!",
+      "voiceRecording": {
+        "saved": "Voice recording saved",
+        "deleted": "Voice recording removed",
+        "permissionDenied": "Microphone access denied. Please allow microphone access to record voice.",
+        "notSupported": "Voice recording is not supported in this browser",
+        "uploadFailed": "Failed to upload voice recording"
+      }
     },
     "dialogs": {
       "generateNameDialog": {
@@ -660,6 +669,15 @@
         "generatedDescription": "Generated description",
         "generatePrompt": "Press generate for results",
         "generatePrompt2": "Otherwise, \"Brief Description\" will be used as the new Entry description."
+      },
+      "voiceRecording": {
+        "title": "Voice Recording",
+        "recording": "Recording... Click Stop when finished.",
+        "stop": "Stop",
+        "overwriteTitle": "Overwrite Recording?",
+        "overwriteMessage": "A voice recording already exists. Do you want to replace it?",
+        "deleteTitle": "Delete Recording?",
+        "deleteMessage": "Are you sure you want to delete this voice recording? The file will remain on the server but will no longer be linked to this character."
       },
       "arcManager": {
         "title": "Manage Arcs",
@@ -889,6 +907,11 @@
         "copyToClipboard": "Copy to clipboard",
         "copyLinkToClipboard": "Copy link to clipboard"
       },
+      "voice": {
+        "record": "Record Voice",
+        "play": "Play Voice",
+        "delete": "Delete Recording"
+      },
       "topicFolder": {
         "create": {
           "1": "Create new character",
@@ -984,7 +1007,10 @@
         "species": "If blank, a random species from your Setting will be used for AI generation. Custom entries will be passed to the AI but not added to your species list",
         "longDescriptions": "Generate detailed description or a short summary?",
         "generateImage": "Generate a new image in the background after creating"
-      }
+      },
+      "voiceRecordingExists": "Voice recording exists - click for options",
+      "voiceRecordingNone": "No voice recording - click to record"
+    }
     },
     "tags": {
       "tag": "Tag",

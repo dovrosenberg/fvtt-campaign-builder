@@ -25,6 +25,7 @@ next:
 - **Auto-arrange Story Webs**: If set, as you move items around in a story web diagram, the picture will adjust to try to keep everything clean and visible.  If disabled, you will have to manually position everything, but you can put each item exactly where you want it.
 - **Show Foundry tab on entries**: When enabled, all [^Entries] will have a Foundry tab that can hold any type of Foundry document (scenes, actors, items, etc.). This is particularly useful for users who want to drive their play sessions entirely from Entries (typically Locations), without using the Campaigns/Sessions system. 
 - **Session display format**: By default, the list of [^Sessions] in the [Campaign Directory] shows just the number of the session.  This setting lets you display either the session date or the session name instead.
+- **Enable Voice Recording**: When enabled, a microphone button will appear on [^Characters] that allows you to record, play, and delete voice samples. This helps you remember what voice or accent you used for each character. See [Voice Recording](/reference/world-building/content/character/#voice-recording) for more details.
 
 ## Sub-Menus
 - [Advanced Settings](./advanced-settings.md) - Configure your AI models and "Email to To Do List" settings

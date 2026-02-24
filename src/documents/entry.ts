@@ -37,6 +37,9 @@ export const EntrySchema = {
 
   // Image for the entry
   img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
+
+  // Voice recording for characters
+  voiceRecordingPath: new fields.FilePathField({blank: true, required: false, nullable: true, initial: null, categories: ['AUDIO']}),
 };
 
 type EntrySchemaType = typeof EntrySchema;
@@ -81,7 +84,10 @@ export interface EntryDoc extends JournalEntryPage {
     plotPoints?: string | null;
     magicItems?: string | null; 
 
-    img: string; 
+    img: string;
+
+    // Voice recording for characters
+    voiceRecordingPath?: string | null;
 
     scenes: string[];
     actors: string[];
