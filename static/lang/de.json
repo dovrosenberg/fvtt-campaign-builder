@@ -48,7 +48,7 @@
       "defaultAddToSession": "Standardmäßig 'Zur aktuellen Sitzung hinzufügen'",
       "defaultAddToSessionHelp": "Soll im Abspielmodus das Kontrollkästchen beim Erstellen eines Eintrags standardmäßig aktiviert oder deaktiviert sein?",
       "enableToDoList": "ToDo-Liste aktivieren",
-      "enableToDoListHelp": "Wenn deaktiviert, wird die ToDo-Listen-Funktion ausgeschaltet.",
+      "enableToDoListHelp": "Wenn deaktiviert, wird die To-Do-Liste-Funktion ausgeschaltet.",
       "autoRelationships": "Beziehungen automatisch vorschlagen",
       "autoRelationshipsHelp": "Wenn aktiviert, wird das System automatisch Änderungen an Beziehungen zwischen Einträgen vorschlagen, basierend auf Änderungen, die an der Beschreibung vorgenommen wurden.",
       "keybindings": {
@@ -83,7 +83,10 @@
       "genericFoundryTab": "Zeige Foundry-Tab auf Einträgen",
       "genericFoundryTabHelp": "Wenn aktiviert, haben Einträge einen Foundry-Tab, der jede Art von Foundry-Dokument (Szenen, Schauspieler, Gegenstände, etc.) enthalten kann. Dies ist nützlich, um Spielsitzungen vollständig von Einträgen aus zu steuern, ohne Kampagnen/Sitzungen zu verwenden.",
       "sessionBookmark": "Sitzungs-Lesezeichen anzeigen",
-      "sessionBookmarkHelp": "Wenn aktiviert, wird ein Lesezeichen für die aktuelle Sitzung vorne in der Lesezeichenleiste angezeigt"
+      "sessionBookmarkHelp": "Wenn aktiviert, wird ein Lesezeichen für die aktuelle Sitzung vorne in der Lesezeichenleiste angezeigt",
+      "tableGrouping": "Tabellengruppierungseinstellungen",
+      "tableGroupingLabel": "Tabellengruppierung",
+      "tableGroupingHelp": "Konfigurieren Sie, welche Registerkarten gruppierte Tabellen für jeden Inhaltstyp verwenden"
     },
     "applications": {
       "sessionNotes": {
@@ -567,7 +570,8 @@
       },
       "setting": {
         "setting": "Einstellung"
-      }
+      },
+      "newGroup": "Neue Gruppe"
     },
     "placeholders": {
       "search": "Suche",
@@ -775,6 +779,37 @@
           "failureSummary": "Migration fehlgeschlagen. {migrated} Elemente migriert, {failed} fehlgeschlagen.",
           "errorDetails": "Fehlerdetails",
           "warnings": "Warnungen"
+        }
+      },
+      "tableGrouping": {
+        "title": "Tabellengruppierungseinstellungen",
+        "description": "Wählen Sie, welche Registerkarten gruppierte Tabellen für jeden Inhaltstyp verwenden sollen.",
+        "contentTypes": {
+          "settings": "Einstellungen",
+          "entries": "Einträge",
+          "campaigns": "Kampagnen",
+          "arcs": "Arcs",
+          "sessions": "Sitzungen",
+          "fronts": "Fronten"
+        },
+        "tabs": {
+          "journals": "Zeitschriften",
+          "characters": "Charaktere",
+          "npcs": "NSCs",
+          "locations": "Orte",
+          "organizations": "Organisationen",
+          "pcs": "SCs",
+          "actors": "Schauspieler",
+          "sessions": "Sitzungen",
+          "items": "Gegenstände",
+          "magicItems": "Magische Gegenstände",
+          "monsters": "Monster",
+          "vignettes": "Vignetten",
+          "lore": "Überlieferung",
+          "ideas": "Ideen",
+          "todo": "Aufgaben",
+          "participants": "Teilnehmer",
+          "grimPortents": "Düstere Vorzeichen"
         }
       }
     },

@@ -83,7 +83,10 @@
       "genericFoundryTab": "Afficher l'onglet Foundry sur les entrées",
       "genericFoundryTabHelp": "Lorsqu'il est activé, les entrées auront un onglet Foundry qui peut contenir tout type de document Foundry (scènes, acteurs, objets, etc.). Cela est utile pour animer des sessions de jeu entièrement à partir des entrées sans utiliser de campagnes/sessions.",
       "sessionBookmark": "Afficher le signet de la session",
-      "sessionBookmarkHelp": "Lorsqu'il est activé, un signet pour la session en cours sera affiché en tête de la barre de signets"
+      "sessionBookmarkHelp": "Lorsqu'il est activé, un signet pour la session en cours sera affiché en tête de la barre de signets",
+      "tableGrouping": "Paramètres de regroupement de table",
+      "tableGroupingLabel": "Regroupement de table",
+      "tableGroupingHelp": "Configurer quels onglets utilisent des tables groupées pour chaque type de contenu"
     },
     "applications": {
       "sessionNotes": {
@@ -567,7 +570,8 @@
       },
       "setting": {
         "setting": "Paramètre"
-      }
+      },
+      "newGroup": "Nouveau groupe"
     },
     "placeholders": {
       "search": "Rechercher",
@@ -775,6 +779,37 @@
           "failureSummary": "Échec de la migration. {migrated} éléments migrés, {failed} échoués.",
           "errorDetails": "Détails de l'erreur",
           "warnings": "Avertissements"
+        }
+      },
+      "tableGrouping": {
+        "title": "Paramètres de regroupement de table",
+        "description": "Choisissez quels onglets doivent utiliser des tables groupées pour chaque type de contenu.",
+        "contentTypes": {
+          "settings": "Paramètres",
+          "entries": "Entrées",
+          "campaigns": "Campagnes",
+          "arcs": "Arcs",
+          "sessions": "Sessions",
+          "fronts": "Fronts"
+        },
+        "tabs": {
+          "journals": "Journaux",
+          "characters": "Personnages",
+          "npcs": "PNJ",
+          "locations": "Lieux",
+          "organizations": "Organisations",
+          "pcs": "PJ",
+          "actors": "Acteurs",
+          "sessions": "Sessions",
+          "items": "Objets",
+          "magicItems": "Objets magiques",
+          "monsters": "Monstres",
+          "vignettes": "Vignettes",
+          "lore": "Traditions",
+          "ideas": "Idées",
+          "todo": "À faire",
+          "participants": "Participants",
+          "grimPortents": "Sombres présages"
         }
       }
     },
