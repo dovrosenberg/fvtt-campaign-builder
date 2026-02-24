@@ -4,8 +4,8 @@ prev:
   text: 'Multi-Panel Interface'
   link: './panels'
 next: 
-  text: 'Bookmarks'
-  link: './bookmarks'
+  text: 'Tables'
+  link: './tables'
 ---
 
 # Main Tabs

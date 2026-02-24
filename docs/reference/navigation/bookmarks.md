@@ -1,8 +1,8 @@
 ---
 title: Bookmarks
 prev: 
-  text: 'Tabs'
-  link: './tabs'
+  text: 'Tables'
+  link: './tables'
 next: 
   text: 'Search'
   link: './search'

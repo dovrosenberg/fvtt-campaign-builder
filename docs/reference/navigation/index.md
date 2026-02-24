@@ -15,6 +15,7 @@ Click the links below to learn more about each element of the UI:
 - [Main Content Display](./main-display)
 - [Multi-Panel Interface](./panels)
 - [Tabs](./tabs)
+- [Tables](./tables)
 - [Bookmarks](./bookmarks)
 - [Search](./search)
 - [Tags](./tags)
