@@ -47,19 +47,10 @@ You can also grab and drag the hamburger icon to drag the default token for this
 
 ### Voice Recording {#voice-recording}
 
-> [!NOTE]
-> Voice recording is an optional feature that must be enabled in [Module Settings](/reference/configuration/#voice-recording).
-
 The voice recording feature allows you to record a short voice sample for each Character. This helps you remember what voice or accent you used for each NPC during your games.
 
-#### Enabling Voice Recording
-
-To enable voice recording:
-1. Open Foundry's Game Settings
-2. find "Campaign Builder" in the list
-3. Enable the "Enable Voice Recording" setting
-
-Once enabled, a microphone button will appear in the header of all Character entries, next to the AI generation button.
+> [!NOTE]
+> Voice recording is an optional feature that can be disabled in [Module Settings](/reference/configuration/#voice-recording).
 
 #### Recording a Voice Sample
 
@@ -81,19 +72,6 @@ Once enabled, a microphone button will appear in the header of all Character ent
 
 1. Click the microphone button on a Character entry
 2. Select "Delete Recording" from the menu (only available if a recording exists)
-3. Confirm the deletion when prompted
 
 > [!NOTE]
-> Deleting a recording only removes the link from the Character. The audio file remains on the server. You can manage old recordings through your file system in the `voice-recordings` folder.
-
-#### Recording Indicators
-
-The microphone button changes appearance based on recording status:
-- **White icon**: No recording exists for this Character
-- **Green icon**: A recording exists for this Character
-
-#### File Management
-
-Voice recordings are stored as WebM audio files in the `voice-recordings` folder in your Foundry data directory. File names include the Character name and a timestamp (e.g., `gandalf_2024-01-15t10-30-00.webm`).
-
-Since Foundry VTT does not provide a way to delete files through the interface, you can manage old recordings directly through your file system if needed.
+> Deleting a recording only removes the link from the Character. The audio file remains on the server, as Foundry does not permit file deletion. You will need to manually remove unneeded files if you want to clean up.
