@@ -634,6 +634,15 @@ private async deleteRollTables() : Promise<void> {
         campaign.journals = campaign.journals.filter(j => j.journalUuid !== journalId);
         await campaign.save();
       }
+
+      // remove from any Arcs
+      for (let arcIndex of campaign.arcIndex) {
+        const arc = await Arc.fromUuid(arcIndex.uuid);
+        if (arc && arc.journals.find(j => j.journalUuid === journalId)) {  
+          arc.journals = arc.journals.filter(j => j.journalUuid !== journalId);
+          await arc.save();
+        }
+      }
     }
 
     // remove from any Entries that are linked to it
@@ -643,36 +652,6 @@ private async deleteRollTables() : Promise<void> {
           entry.journals = entry.journals.filter(j => j.journalUuid !== journalId);
           await entry.save();
         }
-      }
-    }
-    const stripLore = async (object: Campaign | Session | Arc) => {
-      let loreUpdated = false;
-      object.lore = object.lore.map(l => {
-        if (l.journalEntryPageId === journalId) {
-          loreUpdated = true;
-          return { ...l, journalEntryPageId: null };
-        }
-        return l;
-      });
-      if (loreUpdated) {
-        await object.save();
-      }
-    };
-
-    // clean up lore references in campaigns, arcs, sessions
-    for (let campaign of Object.values(this.campaigns)) {
-      await stripLore(campaign);
-
-      // clean up lore references in sessions
-      for (let session of await campaign.allSessions()) {
-        await stripLore(session);
-      }
-
-     // clean up lore references in arcs
-      for (let arcIndex of campaign.arcIndex) {
-        const arc = await Arc.fromUuid(arcIndex.uuid);
-        if (arc)
-          await stripLore(arc);
       }
     }
   }
@@ -691,6 +670,15 @@ private async deleteRollTables() : Promise<void> {
         campaign.journals = campaign.journals.filter(j => j.pageUuid !== journalId);
         await campaign.save();
       }
+
+      // remove from any arcs
+      for (let arcIndex of campaign.arcIndex) {
+        const arc = await Arc.fromUuid(arcIndex.uuid);
+        if (arc && arc.journals.find(j => j.pageUuid === journalId)) {  
+          arc.journals = arc.journals.filter(j => j.pageUuid !== journalId);
+          await arc.save();
+        }
+      }
     }
 
     // remove from any Entries that are linked to it
@@ -702,63 +690,7 @@ private async deleteRollTables() : Promise<void> {
         }
       }
     }
-
-    // clean up lore references in campaigns
-    for (let campaign of Object.values(this.campaigns)) {
-      let loreUpdated = false;
-      campaign.lore = campaign.lore.map(l => {
-        if (l.journalEntryPageId === journalId) {
-          loreUpdated = true;
-          return { ...l, journalEntryPageId: null };
-        }
-        return l;
-      });
-      if (loreUpdated) {
-        await campaign.save();
-      }
-    }
-
-    // clean up lore references in sessions
-    for (let campaign of Object.values(this.campaigns)) {
-      const sessions = await campaign.allSessions();
-      for (let session of sessions) {
-        let loreUpdated = false;
-        session.lore = session.lore.map(l => {
-          if (l.journalEntryPageId === journalId) {
-            loreUpdated = true;
-            return { ...l, journalEntryPageId: null };
-          }
-          return l;
-        });
-        if (loreUpdated) {
-          await session.save();
-        }
-      }
-    }
-
-    // clean up lore references in arcs
-    for (let campaign of Object.values(this.campaigns)) {
-      const arcIndexes = campaign.arcIndex;
-      for (let arcIndex of arcIndexes) {
-        let loreUpdated = false;
-        let arc = await Arc.fromUuid(arcIndex.uuid);
-        if (!arc)
-          continue;
-        
-        arc.lore = arc.lore.map(l => {
-          if (l.journalEntryPageId === journalId) {
-            loreUpdated = true;
-            return { ...l, journalEntryPageId: null };
-          }
-          return l;
-        });
-        if (loreUpdated) {
-          await arc.save();
-        }
-      }
-    }
   }
-
 }
 
 /** create a new compendium and the folder structure

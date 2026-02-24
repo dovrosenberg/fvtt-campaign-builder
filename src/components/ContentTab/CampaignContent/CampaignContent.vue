@@ -74,7 +74,7 @@
             <StoryWebsTab mode="campaign" />
           </div>
         </div>
-        <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="todo">
+        <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="toDo">
           <div class="tab-inner">
             <CampaignToDoTab />
           </div>
@@ -147,10 +147,12 @@
   const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
 
   const showToDoTab = computed(() => {
+    ModuleSettings.getReactiveVersion();
     return ModuleSettings.get(SettingKey.enableToDoList);
   });
 
   const showStoryWebTab = computed(() => {
+    ModuleSettings.getReactiveVersion();
     return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 
@@ -168,7 +170,7 @@
     if (showToDoTab.value) {
       const baseLabel = localize('labels.tabs.campaign.toDo');
       const label = openToDoCount.value ? `${baseLabel} (${openToDoCount.value})` : baseLabel;
-      baseTabs.push({ id: 'todo', label });
+      baseTabs.push({ id: 'toDo', label });
     }
 
 

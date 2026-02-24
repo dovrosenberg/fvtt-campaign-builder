@@ -4,8 +4,8 @@ prev:
   text: 'Content Images Menu'
   link: '/reference/configuration/content-images'
 next: 
-  text: ''
-  link: ''
+  text: 'Table Grouping Menu'
+  link: '/reference/configuration/table-grouping'
 ---
 
 # Story Web Configuration Menu

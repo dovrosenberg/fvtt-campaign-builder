@@ -107,8 +107,11 @@
     return children.sort((a, b) => a.name.localeCompare(b.name)) as DirectoryEntryNode[];
   });
 
-  const showTypesInTree = computed(() => ModuleSettings.get(SettingKey.showTypesInTree));
-  
+  const showTypesInTree = computed(() => {
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.showTypesInTree);
+  });
+
   const displayName = computed(() => {
     if (showTypesInTree.value && currentNode.value.type && currentNode.value.type!==NO_TYPE_STRING) {
       return `${currentNode.value.name} (${currentNode.value.type})`;

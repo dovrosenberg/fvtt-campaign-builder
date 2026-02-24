@@ -17,6 +17,9 @@ async function init(): Promise<void> {
   // initialize settings first, so other things can use them
   ModuleSettings.register();
 
+  // Initialize reactive settings system to listen for Foundry setting changes
+  ModuleSettings.initializeReactivity();
+
   // put in place the key bindings
   KeyBindings.register();
 

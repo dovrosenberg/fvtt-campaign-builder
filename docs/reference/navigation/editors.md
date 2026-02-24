@@ -12,7 +12,11 @@ next:
 
 Click the orange pencil to start editing, and the save button (or Control-S) to save.
 
-Every Editor in Campaign Builder has the same basic functionality, which includes the normal formatting options as other Foundry editors, as well as some additional capabilities:
+Every Editor in Campaign Builder has the same basic functionality, which includes the normal formatting options as other Foundry editors, as well as some additional capabilities.
+
+> [!TIP]
+> The features describe here work with both the larged editor boxes like
+> description and custom fields, but also for inline table editors (ex. notes fields).
 
 ## Autocomplete Mentions {#autocomplete-mentions}
 There is a separate module - [Autocomplete Mentions](https://github.com/dovrosenberg/fvtt-autocomplete-mentions) that is not needed but can be highly useful for campaign and world building.  It enables you to type '@' and easily search for the characters, locations, and organizations in your campaign and then insert them as a link in any editor field.  
@@ -52,6 +56,3 @@ For example:
 - If you remove a Location reference from an Arc description, you'll be prompted to remove it from the Arc's Locations table.
 
 This feature can be enabled or disabled via the "Auto-suggest relationships" setting in [Module Settings].
-
-> [!TIP]
-> This feature works with both the main description editors and inline table editors (ex. notes fields).

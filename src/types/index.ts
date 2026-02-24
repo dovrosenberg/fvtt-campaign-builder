@@ -2,7 +2,7 @@ import { DOCUMENT_TYPES } from '@/documents/types.js';
 
 export type * from './directory.d.ts';
 export * from './tables';
-export type * from './relationships.d.ts';
+export * from './documentGroups';
 export type * from './hierarchy.d.ts';
 export type * from './global.d.ts';
 export type * from './species.d.ts';
@@ -11,6 +11,11 @@ export type * from './search.d.ts';
 export type * from './tags.d.ts';
 export type * from './dragDrop.ts';
 export type * from './documentIndices.ts';
+export type * from './relationships.d.ts';
+
+// New centralized type files - import first for use in backward compatibility aliases
+export * from './dbTypes';
+export * from './rowTypes';
 
 // @ts-ignore - need to pull enum
 export * from './generators.ts';
@@ -25,6 +30,14 @@ export * from '@/documents/fields/StoryWebNode';
 
 // get all the ones defined in the schemas
 export type * from '@/documents/fields/index.ts';
+
+// Import types for backward compatibility aliases
+import type { CampaignToDo, CampaignIdea, CampaignPC } from './dbTypes';
+import type { 
+  CampaignLoreRow, SessionLocationRow, SessionNPCRow, SessionItemRow, 
+  SessionMonsterRow, SessionLoreRow, ArcLocationRow, ArcParticipantRow, 
+  ArcMonsterRow, ArcLoreRow, ArcVignetteRow 
+} from './rowTypes';
 
 export enum WindowTabType  {
   NewTab,
@@ -124,25 +137,8 @@ export enum ToDoTypes {
   GeneratedName = 'generatedName'  // generated name
 }
 
-export interface ToDoItem {
-  uuid: string;  // uuid of the to-do item
-  lastTouched: string;  // ISO string
-  manuallyUpdated: boolean;   // has the user edited the text yet
-  linkedUuid: string | null;  // uuid of the linked entry, lore, etc.
-  linkedText: string | null;  // text to display for linked items
-  sessionUuid: string | null; // uuid of the session if it's a session to-do (lore, vignette, monster, item)
-  text: string;
-  type: ToDoTypes;
-}
-
-export interface Idea {
-  uuid: string;  // uuid of the idea item
-  text: string;
-}
-
 export interface BaseTableGridRow extends Record<string, any> { 
   uuid: string; 
-  sortOrder?: number 
 }
 
 export interface SettingIndex {

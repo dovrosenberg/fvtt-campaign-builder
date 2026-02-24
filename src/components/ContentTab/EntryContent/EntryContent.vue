@@ -372,6 +372,7 @@
       tabs.push({ id: 'scenes', label: localize('labels.scenes') });
     if (topic.value!==Topics.PC)
       tabs.push({ id: 'sessions', label: localize('labels.sessions') });
+    ModuleSettings.getReactiveVersion();
     if (ModuleSettings.get(SettingKey.genericFoundryTab))
       tabs.push({ id: 'foundry', label: localize('labels.tabs.entry.foundry') });
 
@@ -921,7 +922,7 @@
   }
   
   .tags-container {
-    // TODO - search for "31" and see todo note about changing this to rem
+    // TODO - search for "31" and see toDo note about changing this to rem
     min-height: 43px; /* Set a fixed minimum height for the tags container */
     position: relative;
   }

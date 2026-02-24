@@ -7,9 +7,10 @@ import { computed } from 'vue';
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
+import { createGroupedTableStores } from '@/composables/createGroupedTableStores';
 
 // types
-import { RelatedPCDetails, BaseTableColumn, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea, CampaignTableTypes} from '@/types';
+import { BaseTableColumn, ToDoTypes, CampaignTableTypes, GroupableItem,CampaignLoreRow,CampaignToDo,CampaignIdea,CampaignPC } from '@/types';
 import { Arc, Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import { notifyWarn } from '@/utils/notifications';
@@ -65,7 +66,7 @@ export const campaignStore = () => {
   ///////////////////////////////
   // actions
   /** add PC to current campaign */
-  const addPC = async (pc: RelatedPCDetails): Promise<void> => {
+  const addPC = async (pc: CampaignPC): Promise<void> => {
     const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
 
     if (!campaign)
@@ -100,7 +101,7 @@ export const campaignStore = () => {
    * Reorders PCs in the campaign (persisting the new array order).
    * @param reorderedPCs the reordered PC array
    */
-  const reorderPCs = async (reorderedPCs: RelatedPCDetails[]): Promise<void> => {
+  const reorderPCs = async (reorderedPCs: CampaignPC[]): Promise<void> => {
     const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
     if (!campaign)
       return;
@@ -259,7 +260,7 @@ export const campaignStore = () => {
   };
 
   /** Add a to-do item to the campaign */
-  const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> => {
+  const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<CampaignToDo | null> => {
     if (!currentCampaign.value)
       return null;
 
@@ -332,7 +333,7 @@ export const campaignStore = () => {
   };
 
   /** Reorder ideas in the campaign */
-  const reorderIdeas = async (reorderedIdeas: Idea[]) => {
+  const reorderIdeas = async (reorderedIdeas: CampaignIdea[]) => {
     if (!currentCampaign.value) return;
 
     currentCampaign.value.ideas = reorderedIdeas;
@@ -350,10 +351,10 @@ export const campaignStore = () => {
   };
 
   /** Reorder to-do items in the campaign */
-  const reorderToDos = async (reorderedToDos: ToDoItem[]) => {
+  const reorderToDos = async (reorderedToDos: CampaignToDo[]) => {
     if (!currentCampaign.value) return;
 
-    currentCampaign.value.todoItems = reorderedToDos;
+    currentCampaign.value.toDoItems = reorderedToDos;
     await currentCampaign.value.save();
     await mainStore.refreshCampaign();
   };
@@ -377,7 +378,7 @@ export const campaignStore = () => {
   };
 
   /** Reorder available (undelivered) lore */
-  const reorderAvailableLore = async (reorderedLore: CampaignLoreDetails[]) => {
+  const reorderAvailableLore = async (reorderedLore: CampaignLoreRow[]) => {
     if (!currentCampaign.value) return;
 
     currentCampaign.value.lore = reorderedLore.map(l => ({
@@ -406,11 +407,11 @@ export const campaignStore = () => {
     await useNavigationStore().updateContentTab('lore');
   }
 
-  // when we click on an entry in the todo list, open it
+  // when we click on an entry in the toDo list, open it
   async function onToDoClick (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
     const uuid = rowData.uuid;
-    // look up the todo item from the campaign
-    const toDo = currentCampaign.value?.todoItems.find(t => t.uuid === uuid);
+    // look up the toDo item from the campaign
+    const toDo = currentCampaign.value?.toDoItems.find(t => t.uuid === uuid);
 
     if (!toDo)
       return;
@@ -422,7 +423,7 @@ export const campaignStore = () => {
         // I don't think we currently link to documents, but just in case
         const document = await fromUuid<foundry.abstract.Document<any, any>>(toDo.linkedUuid);
         if (!document) {
-          notifyWarn(localize('notifications.todoReferenceNotFound'));
+          notifyWarn(localize('notifications.toDoReferenceNotFound'));
           return;
         }
       }
@@ -497,11 +498,59 @@ export const campaignStore = () => {
   };
 
   ///////////////////////////////
+  // Generic grouped table stores
+  
+  // Multi-group store for all grouped items in the campaign
+  const groupStores = createGroupedTableStores({
+    currentEntity: currentCampaign,
+    refresh: mainStore.refreshCampaign,
+    groupConfigs: {
+      [GroupableItem.CampaignToDos]: {
+        propertyName: 'toDoItems',
+      },
+      [GroupableItem.CampaignIdeas]: {
+        propertyName: 'ideas',
+      },
+      [GroupableItem.CampaignLore]: {
+        propertyName: 'lore',
+      },
+      [GroupableItem.CampaignPCs]: {
+        propertyName: 'pcs',
+        // Computed entity for CampaignPCs that falls back to loading campaign from session
+        // This is needed because when viewing a session, currentCampaign is null,
+        // but PCs are stored on the campaign and need to be editable from the session view
+        entityRef: computed(() => {
+          if (currentCampaign.value) {
+            return currentCampaign.value;
+          }
+          // When viewing a session, load the campaign from the session
+          // Note: This is a synchronous computed, so we can't use async loadCampaign()
+          // Instead, we rely on the campaign being cached on the session object
+          return currentSession.value?.campaign || null;
+        }),
+        // Custom refresh function for PC changes that also refreshes sessions viewing the same campaign
+        // This ensures that when PCs are modified in one panel, any session panel viewing the same
+        // campaign will also be refreshed
+        refresh: async () => {
+          await mainStore.refreshCampaign();
+          
+          // Refresh all sessions that belong to the current campaign
+          // This ensures that when PCs are modified in the campaign panel, any session panel
+          // viewing the same campaign will also be refreshed with the updated PC data
+          const campaignId = currentCampaign.value?.uuid || currentSession.value?.campaignId;
+          if (campaignId) {
+            await navigationStore.refreshSessionsForCampaign(campaignId);
+          }
+        },
+      },
+    },
+  });
+
+  ///////////////////////////////
   // return the public interface
   return {
     extraFields,
     availableCampaigns,
-
     addPC,
     deletePC,
     reorderPCs,
@@ -517,6 +566,8 @@ export const campaignStore = () => {
     mergeToDoItem,
     completeToDoItem,
     updateToDoItem,
+
+    groupStores,
     addIdea,
     updateIdea,
     deleteIdea,

@@ -1,8 +1,8 @@
 ---
 title: Arc Lore Tab
 prev: 
-  text: 'Arc Description Tab'
-  link: '/reference/campaign-mgt/content/arc/description'
+  text: 'Arc Journals Tab'
+  link: '/reference/campaign-mgt/content/arc/journals'
 next: 
   text: 'Arc Vignettes Tab'
   link: '/reference/campaign-mgt/content/arc/vignettes'

@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
-import { ValidDocType } from '@/types';
+import { ValidDocType, TableGroup, DocumentGroups, GroupableItem, UNGROUPED_GROUP_ID } from '@/types';
 import { FCBSetting } from './FCBSetting';
 import { sanitizeHTML } from '@/utils/sanitizeHtml';
 import GlobalSettingService from '@/utils/globalSettings';
@@ -244,6 +244,36 @@ export class FCBJournalEntryPage<
     } catch (e) {
       throw new Error(`Error updating journal entry page ${this._doc.uuid} ${this._doc.name}: ${e}`);
     }
+  }
+
+  /**
+   * Universal getter for groups of a specific type
+   * @param itemType - The type of items (e.g., 'ideas', 'toDoItems')
+   * @returns The groups array for that item type
+   */
+  public getGroups(itemType: GroupableItem): readonly TableGroup[] {
+    // technically this isn't safe because not all documents have groups (ex. storywebs, fronts)
+    // but itemType mostly protects us, so we're going to ignore it
+    // @ts-ignore
+      return this._clone.system.groups?.[itemType] || [];
+  }
+
+  /**
+   * Universal setter for groups of a specific type
+   * @param itemType - The type of items (e.g., 'ideas', 'toDoItems')
+   * @param value - The new groups array
+   */
+  public setGroups(itemType: GroupableItem, value: TableGroup[] | readonly TableGroup[]): void {
+    // technically this isn't safe because not all documents have groups (ex. storywebs, fronts)
+    // but itemType mostly protects us, so we're going to ignore it
+    // @ts-ignore
+    if (!this._clone.system.groups) {
+      // @ts-ignore
+      this._clone.system.groups = {} as DocumentGroups;
+    }
+
+    // @ts-ignore
+    this._clone.system.groups[itemType] = value.slice(); // we clone it so it can't be edited outside (this is historical)
   }
   
   

@@ -133,6 +133,7 @@
   });
 
   const frontFolderNode = computed((): DirectoryFrontFolder | null => {
+    ModuleSettings.getReactiveVersion();
     if (ModuleSettings.get(SettingKey.useFronts)) {
       // front is always the first one
       return props.campaignNode.loadedChildren[0] as DirectoryFrontFolder;
@@ -142,6 +143,7 @@
   });
 
   const storyWebFolderNode = computed((): DirectoryStoryWebFolder | null => {
+    ModuleSettings.getReactiveVersion();
     if (!ModuleSettings.get(SettingKey.useStoryWebs)) {
       return null;
     }

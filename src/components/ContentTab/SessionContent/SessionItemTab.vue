@@ -1,13 +1,15 @@
 <template>
   <BaseTable
     :actions="actions"
-    :rows="mappedItemRows"
+    :rows="itemRows"
     :columns="columns"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addItem')"
     :extra-add-text="localize('labels.session.addItemDrag')"
     :allow-edit="true"
     :draggable-rows="true"
+    :grouped="isGrouped"
+    :groups="itemGroups"
     :help-text="localize('labels.session.itemHelpText')"
     help-link="https://slyflourish.com/lazy_magic_items.html"
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
@@ -17,7 +19,11 @@
     @dragoverNew="DragDropService.standardDragover"
     @dragstart="onDragStart"
     @cell-edit-complete="onCellEditComplete"
-    @reorder="onReorder"
+    @reorder="groupedTable.onReorder"
+    @reorder-group="(items) => groupedTable.onReorderGroup(items, itemGroups)"
+    @group-add="groupedTable.onGroupAdd"
+    @group-edit="groupedTable.onGroupEdit"
+    @group-delete="groupedTable.onGroupDelete"
   />
   <RelatedDocumentsDialog
     v-model="showItemPicker"
@@ -32,6 +38,7 @@
 
   // local imports
   import { useSessionStore, } from '@/applications/stores';
+  import { useGroupedTable } from '@/composables/useGroupedTable';
   import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { localize, } from '@/utils/game'
   import DragDropService from '@/utils/dragDrop'; 
@@ -44,8 +51,7 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, SessionTableTypes, BaseTableColumn, BaseTableGridRow } from '@/types';
-  import { SessionItem } from '@/documents';
+  import { CellEditCompleteEvent, SessionTableTypes, BaseTableColumn, GroupableItem } from '@/types';
   
   ////////////////////////////////
   // props
@@ -59,7 +65,7 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const { relatedEntryRows } = inject(SESSION_DERIVED_STATE_KEY)!;
+  const { itemRows, itemGroups } = inject(SESSION_DERIVED_STATE_KEY)!;
   
   ////////////////////////////////
   // data
@@ -67,11 +73,14 @@
 
   ////////////////////////////////
   // computed data
-  const mappedItemRows = computed(() => (
-    relatedEntryRows.value.map((row) => ({
-      ...row,
-    }))
-  ));
+  const isGrouped = computed(() => {
+    // Access reactive version to create dependency on settings changes
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[GroupableItem.SessionItems] || false;
+  });
+
+  // Grouped table composable
+  const groupedTable = useGroupedTable(sessionStore.groupStores[GroupableItem.SessionItems]);
   
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
@@ -175,21 +184,6 @@
   const onDragStart = async (event: DragEvent, uuid: string) => {
     await DragDropService.itemDragStart(event, uuid);
   }
-
-  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    const reorderedItems = reorderedRows.map((row) => {
-      const item = relatedEntryRows.value.find(i => i.uuid === row.uuid);
-
-      // rows have extra fields we don't want
-      return {
-        uuid: row.uuid,
-        delivered: item?.delivered ?? false,
-        notes: item?.notes ?? '',
-      } as SessionItem;
-    });
-
-    await sessionStore.reorderItems(reorderedItems);
-  };
 
   ////////////////////////////////
   // watchers

@@ -1,17 +1,19 @@
-# agents.MD (Windsurf)
+# agents.MD
 
-This repository uses **Windsurf** to work **directly in Vue SFCs and typescript files**. 
 ## Scope
 
-Windsurf is allowed to:
+Agents are is allowed to:
 - Create and modify typescript (.ts) and vue (.vue) files
 - Create and modify co-located component files (types, composables, tests) when needed
 - Refactor for readability, consistency, and performance without changing behavior (unless explicitly requested)
 - Introduce new dependencies without asking
 
-Windsurf is not allowed to:
+Agents are not allowed to:
 - Change public behavior, UX flows, or data contracts without an explicit request
 - Do broad drive-by formatting across unrelated files
+
+## Foundry VTT
+The latest version of the Foundry VTT API is available at https://foundryvtt.com/api/.  This should be used as authoritative reference for all Foundry VTT API questions.  Only the latest version needs to be supported unless specifically noted.
 
 ## Repo conventions
 

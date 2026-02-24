@@ -395,15 +395,15 @@ const exportCampaign = async (
 
   // Todo Items (table format)
   if (ModuleSettings.get(SettingKey.enableToDoList)) {
-    if (campaign.todoItems && campaign.todoItems.length > 0) {
+    if (campaign.toDoItems && campaign.toDoItems.length > 0) {
       markdown += `### To-Do Items\n`;
       markdown += `| Date | Reference | To Do |\n`;
       markdown += `|------|-----------|-------|\n`;
-      for (const todo of campaign.todoItems) {
-        const date = new Date(todo.lastTouched).toLocaleDateString();
-        const reference = todo.linkedText || '';
-        const todoText = cleanText(todo.text, 4);
-        markdown += `| ${date} | ${reference} | ${todoText} |\n`;
+      for (const toDo of campaign.toDoItems) {
+        const date = new Date(toDo.lastTouched).toLocaleDateString();
+        const reference = toDo.linkedText || '';
+        const toDoText = cleanText(toDo.text, 4);
+        markdown += `| ${date} | ${reference} | ${toDoText} |\n`;
       }
       markdown += '\n';
     }

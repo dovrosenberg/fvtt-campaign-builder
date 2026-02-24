@@ -550,7 +550,7 @@ export const navigationStore = () => {
 
   /** Used when changing content or tabs. Check for unsaved changes and if
    *  any, prompt the user to save or discard.
-   * 
+   *
    *  @return true if any changes were saved/discarded, false if we need to cancel the switch
    */
   const handleUnsavedChanges = async function (): Promise<boolean> {
@@ -1179,6 +1179,27 @@ export const navigationStore = () => {
     }
   };
 
+  /**
+   * Refreshes all panels that are viewing a session belonging to the specified campaign.
+   * This is used when campaign data (like PCs) is modified and needs to be reflected
+   * in all session panels that might be viewing that campaign's data.
+   *
+   * @param campaignId - The UUID of the campaign whose sessions should be refreshed
+   */
+  const refreshSessionsForCampaign = async function (campaignId: string): Promise<void> {
+    for (const [_, ps] of _panelStates) {
+      // Check if this panel is viewing a session
+      if (ps.currentContentType.value === WindowTabType.Session && ps.currentSession.value) {
+        // Check if the session belongs to the specified campaign
+        if (ps.currentSession.value.campaignId === campaignId) {
+          // Force reload the campaign and refresh the session
+          await ps.currentSession.value.loadCampaign(true);
+          await ps.refreshSession();
+        }
+      }
+    }
+  };
+
   ///////////////////////////////
   // computed state
 
@@ -1276,5 +1297,6 @@ export const navigationStore = () => {
     moveTabToPanel,
     findTabAcrossPanels,
     refreshContentAcrossPanels,
+    refreshSessionsForCampaign,
   };
 };

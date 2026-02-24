@@ -90,7 +90,7 @@
         </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner">
-            <CampaignPCsTab />
+            <CampaignPCsTab :session-mode="true" />
           </div>
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="npcs">
@@ -236,6 +236,7 @@
   ////////////////////////////////
   // computed data
   const showStoryWebTab = computed(() => {
+    ModuleSettings.getReactiveVersion();
     return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 

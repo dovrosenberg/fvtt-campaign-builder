@@ -2,18 +2,24 @@
   <BaseTable
     ref="sessionTableRef"
     :actions="actions"
-    :rows="mappedLoreRows"
+    :rows="loreRows"
     :columns="columns"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLore')"
     :allow-drop-row="false"
+    :grouped="isGrouped"
+    :groups="loreGroups"
     :help-text="localize('labels.session.loreHelpText')"
     help-link="https://slyflourish.com/sharing_secrets.html"
     :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
     @related-entries-changed="(added, removed) => emit('relatedEntriesChanged', added, removed)"
     @add-item="onAddLore"
     @cell-edit-complete="onCellEditComplete"
-    @reorder="onReorder"
+    @reorder="groupedTable.onReorder"
+    @reorder-group="(items) => groupedTable.onReorderGroup(items, loreGroups)"
+    @group-add="groupedTable.onGroupAdd"
+    @group-edit="groupedTable.onGroupEdit"
+    @group-delete="groupedTable.onGroupDelete"
   />
 </template>
 
@@ -25,6 +31,7 @@
   // local imports
   import { useSessionStore, useArcStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
+  import { useGroupedTable } from '@/composables/useGroupedTable';
   import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
   import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
   import { localize } from '@/utils/game'
@@ -36,8 +43,7 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { ArcTableTypes, SessionTableTypes, CellEditCompleteEvent, BaseTableColumn, BaseTableGridRow, SessionLoreDetails, FoundryDragType } from '@/types';
-  import { SessionLore } from '@/documents';
+  import { ArcTableTypes, SessionTableTypes, CellEditCompleteEvent, BaseTableColumn, GroupableItem } from '@/types';
   
   ////////////////////////////////
   // props
@@ -61,8 +67,10 @@
   const arcStore = useArcStore();
   const sessionDerivedState = inject(SESSION_DERIVED_STATE_KEY, null);
   const sessionLoreRows = computed(() => sessionDerivedState?.loreRows.value ?? []);
+  const sessionLoreGroups = computed(() => sessionDerivedState?.loreGroups.value ?? []);
   const arcDerivedState = inject(ARC_DERIVED_STATE_KEY, null);
   const arcLoreRows = computed(() => arcDerivedState?.loreRows.value ?? []);
+  const arcLoreGroups = computed(() => arcDerivedState?.loreGroups.value ?? []);
   const { currentArc } = useContentState();
   
   ////////////////////////////////
@@ -73,13 +81,24 @@
   ////////////////////////////////
   // computed data
   const loreRows = computed(() => props.arcMode ? arcLoreRows.value : sessionLoreRows.value);
+  const loreGroups = computed(() => props.arcMode ? arcLoreGroups.value : sessionLoreGroups.value);
   const store = computed(() => props.arcMode ? arcStore : sessionStore);
 
-  const mappedLoreRows = computed(() => (
-    loreRows.value.map((row) => ({
-      ...row,
-    }))
-  ));
+  const isGrouped = computed(() => {
+    // Access reactive version to create dependency on settings changes
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[
+      props.arcMode ?
+      GroupableItem.ArcLore :
+      GroupableItem.SessionLore
+    ] || false;
+  });
+
+  // Grouped table composable
+  const groupedTable = useGroupedTable(
+    (props.arcMode ? arcStore : sessionStore)
+    .groupStores[props.arcMode ? GroupableItem.ArcLore : GroupableItem.SessionLore]
+  );
 
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
@@ -208,23 +227,6 @@
     else
       await sessionStore.moveLoreToNext(uuid, description);
   }
-
-  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    // Reorder using array order
-    const reorderedLore = reorderedRows.map((row) => {
-      const lore = loreRows.value.find(lore => lore.uuid === row.uuid) as SessionLoreDetails;
-
-      // rows have extra fields we don't want
-      return { 
-        uuid: lore.uuid,
-        description: lore.description,
-        delivered: lore.delivered,
-        significant: lore.significant,
-        journalEntryPageId: lore.journalEntryPageId,
-      } as SessionLore;
-    });
-    await store.value.reorderLore(reorderedLore);
-  };
 
   ////////////////////////////////
   // watchers

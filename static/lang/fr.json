@@ -83,7 +83,10 @@
       "genericFoundryTab": "Afficher l'onglet Foundry sur les entrées",
       "genericFoundryTabHelp": "Lorsqu'il est activé, les entrées auront un onglet Foundry qui peut contenir tout type de document Foundry (scènes, acteurs, objets, etc.). Cela est utile pour animer des sessions de jeu entièrement à partir des entrées sans utiliser de campagnes/sessions.",
       "sessionBookmark": "Afficher le signet de la session",
-      "sessionBookmarkHelp": "Lorsqu'il est activé, un signet pour la session en cours sera affiché en tête de la barre de signets"
+      "sessionBookmarkHelp": "Lorsqu'il est activé, un signet pour la session en cours sera affiché en tête de la barre de signets",
+      "tableGrouping": "Paramètres de regroupement de table",
+      "tableGroupingLabel": "Regroupement de table",
+      "tableGroupingHelp": "Configurer quels onglets utilisent des tables groupées pour chaque type de contenu"
     },
     "applications": {
       "sessionNotes": {
@@ -428,7 +431,7 @@
         "addPCDrag": "(ou glisser/déposer un PC)",
         "pcs": "PJ",
         "lore": "Tradition",
-        "todo": "À faire",
+        "toDo": "À faire",
         "addToDo": "Créer un nouveau 'À faire'",
         "loreHelpText": "Suivez les grands secrets au niveau de la campagne et les plus petits que vous n'êtes pas prêt à révéler. Cliquez pour en savoir plus de Lazy DM.",
         "ideas": "Idées",
@@ -464,7 +467,7 @@
           "npcs": "PNJs",
           "monsters": "Monstres",
           "magic": "Objets Magiques",
-          "todo": "À faire",
+          "toDo": "À faire",
           "noteBox": "Boîte à notes"
         },
         "front": {
@@ -567,7 +570,8 @@
       },
       "setting": {
         "setting": "Paramètre"
-      }
+      },
+      "newGroup": "Nouveau groupe"
     },
     "placeholders": {
       "search": "Rechercher",
@@ -776,6 +780,37 @@
           "errorDetails": "Détails de l'erreur",
           "warnings": "Avertissements"
         }
+      },
+      "tableGrouping": {
+        "title": "Paramètres de regroupement de table",
+        "description": "Choisissez quels onglets doivent utiliser des tables groupées pour chaque type de contenu.",
+        "contentTypes": {
+          "settings": "Paramètres",
+          "entries": "Entrées",
+          "campaigns": "Campagnes",
+          "arcs": "Arcs",
+          "sessions": "Sessions",
+          "fronts": "Fronts"
+        },
+        "tabs": {
+          "journals": "Journaux",
+          "characters": "Personnages",
+          "npcs": "PNJ",
+          "locations": "Lieux",
+          "organizations": "Organisations",
+          "pcs": "PJ",
+          "actors": "Acteurs",
+          "sessions": "Sessions",
+          "items": "Objets",
+          "magicItems": "Objets magiques",
+          "monsters": "Monstres",
+          "vignettes": "Vignettes",
+          "lore": "Traditions",
+          "ideas": "Idées",
+          "todo": "À faire",
+          "participants": "Participants",
+          "grimPortents": "Sombres présages"
+        }
       }
     },
     "contextMenus": {
@@ -966,7 +1001,7 @@
       },
       "addedToSession": "ajouté à la session",
       "changesSaved": "Modifications enregistrées",
-      "todoReferenceNotFound": "La référence liée pour cet élément à faire n'existe plus.",
+      "toDoReferenceNotFound": "La référence liée pour cet élément à faire n'existe plus.",
       "changesDiscarded": "Modifications annulées",
       "migration": {
         "minimumVersionRequired": "Campaign Builder ne peut pas migrer depuis la version {0}. Vous devez d'abord mettre à niveau vers la version {1} ou supérieure avant de passer à la version {2}.",

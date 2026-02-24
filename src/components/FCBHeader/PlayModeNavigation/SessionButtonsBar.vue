@@ -46,7 +46,7 @@
     { id: 'npcs', label: localize('labels.tabs.session.npcs'), icon: 'fa-user' },
     { id: 'monsters', label: localize('labels.tabs.session.monsters'), icon: 'fa-dragon' },
     { id: 'magic', label: 'Items', icon: 'fa-wand-sparkles' },
-    { id: 'todo', label: localize('labels.tabs.session.todo'), icon: 'fa-check-square' },
+    { id: 'toDo', label: localize('labels.tabs.session.toDo'), icon: 'fa-check-square' },
   ]);
 
   ////////////////////////////////
@@ -69,7 +69,7 @@
       return;
 
     // special case - it's on the campaign
-    if (tabId === 'todo') {
+    if (tabId === 'toDo') {
       // Check if we already have a tab open to that campaign (search all panels)
       const campaignId = currentPlayedCampaign.value.uuid;
       const campaignTab = navigationStore.findTabAcrossPanels(campaignId);

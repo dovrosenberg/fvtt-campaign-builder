@@ -3,33 +3,49 @@
 // are scoped to that panel rather than shared globally.
 
 // library imports
-import { ref, watch, type InjectionKey, type Ref } from 'vue';
+import { computed, watch, type InjectionKey, type Ref } from 'vue';
 
 // local imports
 import { useContentState } from '@/composables/useContentState';
+import { useGroupedTableState } from '@/composables/useGroupedTableState';
 import { Entry } from '@/classes';
 import { localize } from '@/utils/game';
 
 // types
 import {
   Topics,
+  GroupableItem,
+  TableGroup,
+  SessionLocationRow,
+  SessionNPCRow,
+  SessionMonsterRow,
+  SessionItemRow,
+  SessionVignetteRow,
+  SessionLoreRow,
+  SessionPCRow,
+  SessionLocation,
+  SessionNPC,
+  SessionMonster,
+  SessionItem,
+  CampaignPC,
+  CampaignPCRow,
 } from '@/types';
-import type {
-  SessionLocationDetails,
-  SessionItemDetails,
-  SessionNPCDetails,
-  SessionMonsterDetails,
-  SessionLoreDetails,
-} from '@/types';
-import type { SessionVignette } from '@/documents';
 
 export interface SessionDerivedState {
-  relatedLocationRows: Ref<SessionLocationDetails[]>;
-  relatedEntryRows: Ref<SessionItemDetails[]>;
-  relatedNPCRows: Ref<SessionNPCDetails[]>;
-  relatedMonsterRows: Ref<SessionMonsterDetails[]>;
-  vignetteRows: Ref<SessionVignette[]>;
-  loreRows: Ref<SessionLoreDetails[]>;
+  locationRows: Ref<SessionLocationRow[]>;
+  locationGroups: Ref<TableGroup[]>;
+  itemRows: Ref<SessionItemRow[]>;
+  itemGroups: Ref<TableGroup[]>;
+  npcRows: Ref<SessionNPCRow[]>;
+  npcGroups: Ref<TableGroup[]>;
+  monsterRows: Ref<SessionMonsterRow[]>;
+  monsterGroups: Ref<TableGroup[]>;
+  vignetteRows: Ref<SessionVignetteRow[]>;
+  vignetteGroups: Ref<TableGroup[]>;
+  loreRows: Ref<SessionLoreRow[]>;
+  loreGroups: Ref<TableGroup[]>;
+  pcRows: Ref<SessionPCRow[]>;
+  pcGroups: Ref<TableGroup[]>;
 }
 
 export const SESSION_DERIVED_STATE_KEY: InjectionKey<SessionDerivedState> = Symbol('sessionDerivedState');
@@ -43,13 +59,178 @@ export function useSessionDerivedState(): SessionDerivedState {
   // get panel-scoped content refs
   const { currentSession, currentContentTab, currentSetting } = useContentState();
 
-  // table row state
-  const relatedLocationRows = ref<SessionLocationDetails[]>([]);
-  const relatedEntryRows = ref<SessionItemDetails[]>([]);
-  const relatedNPCRows = ref<SessionNPCDetails[]>([]);
-  const relatedMonsterRows = ref<SessionMonsterDetails[]>([]);
-  const vignetteRows = ref<SessionVignette[]>([]);
-  const loreRows = ref<SessionLoreDetails[]>([]);
+  // Use unified grouped table state for grouped tables
+  const { rows: loreRows, groups: loreGroups, refresh: _refreshLore } = 
+    useGroupedTableState(currentSession, 'lore', GroupableItem.SessionLore);
+  const { rows: vignetteRows, groups: vignetteGroups, refresh: _refreshVignettes } = 
+    useGroupedTableState(currentSession, 'vignettes', GroupableItem.SessionVignettes);
+  
+  // Location rows with mapping to display rows
+  const { rows: locationRows, groups: locationGroups, refresh: _refreshLocations } = 
+    useGroupedTableState(currentSession, 'locations', GroupableItem.SessionLocations,
+      async (items: SessionLocation[]): Promise<SessionLocationRow[]> => {
+        if (!currentSession.value || !currentSetting.value)
+          return [];
+        
+        const retval: SessionLocationRow[] = [];
+        const topicFolder = currentSetting.value?.topicFolders[Topics.Location];
+
+        if (!topicFolder)
+          return [];
+
+        for (const item of items) {
+          const entry = await topicFolder.findEntry(item.uuid);
+
+          if (!entry)
+            continue;
+
+          const parentId = await entry.getParentId();
+          const parent = parentId ? await Entry.fromUuid(parentId) : null;
+
+          retval.push({
+            uuid: item.uuid,
+            groupId: item.groupId,
+            delivered: item.delivered,
+            name: entry.name,
+            type: entry.type,
+            parent: parent?.name || '',
+            parentId: parent?.uuid || null,
+            notes: item.notes || '',
+          });
+        }
+
+        return retval;
+      }
+    );
+
+  // NPC rows with mapping to display rows
+  const { rows: npcRows, groups: npcGroups, refresh: _refreshNPCs } = 
+    useGroupedTableState(currentSession, 'npcs', GroupableItem.SessionNPCs,
+      async (items: SessionNPC[]): Promise<SessionNPCRow[]> => {
+        if (!currentSession.value || !currentSetting.value)
+          return [];
+        
+        const retval: SessionNPCRow[] = [];
+        const topicFolder = currentSetting.value?.topicFolders[Topics.Character];
+
+        if (!topicFolder)
+          return [];
+
+        for (const item of items) {
+          const entry = await topicFolder.findEntry(item.uuid);
+
+          if (!entry) continue;
+
+          retval.push({
+            uuid: item.uuid,
+            delivered: item.delivered,
+            name: entry.name,
+            type: entry.type,
+            notes: item.notes || '',
+            groupId: item.groupId,
+          });
+        }
+
+        return retval;
+      }
+    );
+
+  // Monster rows with mapping to display rows
+  const {rows: monsterRows, groups: monsterGroups, refresh: _refreshMonsters} = 
+    useGroupedTableState(currentSession, 'monsters', GroupableItem.SessionMonsters,
+      async (items: SessionMonster[]): Promise<SessionMonsterRow[]> => {
+        if (!currentSession.value)
+          return [];
+        
+        const retval: SessionMonsterRow[] = [];
+
+        for (const item of items) {
+          const entry = await fromUuid<Actor>(item.uuid);
+
+          if (entry) {
+            retval.push({
+              uuid: item.uuid,
+              groupId: item.groupId,
+              delivered: item.delivered,
+              number: item.number,
+              notes: item.notes || '',
+              name: entry.name,
+              dragTooltip: localize('tooltips.dragMonsterFromSession'),
+            });
+          } else {
+            // the actor was deleted - remove it from our session
+            await currentSession.value.deleteMonster(item.uuid);
+          }
+        }
+
+        return retval;
+      }
+    );
+
+  // Item rows with mapping to display rows
+  const { rows: itemRows, groups: itemGroups, refresh: _refreshItems } = 
+    useGroupedTableState(currentSession, 'items', GroupableItem.SessionItems,
+      async (items: SessionItem[]): Promise<SessionItemRow[]> => {
+        if (!currentSession.value)
+          return [];
+        
+        const retval: SessionItemRow[] = [];
+
+        for (const item of items) {
+          const entry = await fromUuid<Item>(item.uuid);
+
+          if (entry) {
+            retval.push({
+              uuid: item.uuid,
+              delivered: item.delivered,
+              name: entry.name,
+              notes: item.notes || '',
+              dragTooltip: localize('tooltips.dragItemFromSession'),
+              groupId: item.groupId,
+            });
+          } else {
+            // the item was deleted - remove it from our session
+            await currentSession.value.deleteItem(item.uuid);
+          }
+        }
+
+        return retval;
+      }
+    );
+
+  // PC rows - pulled from campaign, using campaign's groups
+  // Create a computed ref that resolves to the campaign
+  const pcCampaignEntity = computed(() => 
+    currentSession.value?.campaign
+  );
+
+  const { rows: pcRows, groups: pcGroups, refresh: _refreshPCs } = 
+    useGroupedTableState(pcCampaignEntity, 'pcs', GroupableItem.CampaignPCs,
+      async (items: CampaignPC[]): Promise<CampaignPCRow[]> => {
+        // Get the campaign
+        const campaign = currentSession.value?.campaign;
+        
+        if (!campaign)
+          return [];
+
+        const pcs = (await campaign.getPCs()) || [];
+
+        return items.map((item: CampaignPC): CampaignPCRow | null => {
+          const pc = pcs.find((p) => p.uuid === item.uuid);
+          if (!pc) return null;
+
+          return {
+            uuid: item.uuid,
+            groupId: item.groupId || null,
+            type: 'PC',
+            name: `${pc.name} (${pc.playerName})`,
+            actor: pc.name,
+            playerName: pc.playerName,
+            actorId: item.actorId,
+          } as CampaignPCRow;
+        }).filter((row): row is CampaignPCRow => !!row);
+      }
+    );
 
   // watchers to rebuild rows
   watch(() => currentSession.value, async () => {
@@ -60,188 +241,31 @@ export function useSessionDerivedState(): SessionDerivedState {
     await _refreshRowsForTab();
   });
 
-  // internal refresh functions (moved from sessionStore)
-  /** Refresh location rows from the session */
-  const _refreshLocationRows = async (): Promise<void> => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionLocationDetails[];
-    const topicFolder = currentSetting.value?.topicFolders[Topics.Location];
-
-    if (!topicFolder)
-      throw new Error('Invalid topic folder in useSessionDerivedState._refreshLocationRows()');
-
-    for (const location of currentSession.value?.locations) {
-      const entry = await topicFolder.findEntry(location.uuid);
-
-      if (!entry)
-        continue;
-
-      const parentId = await entry.getParentId();
-      const parent = parentId ? await Entry.fromUuid(parentId) : null;
-
-      if (entry) {
-        retval.push({
-          uuid: location.uuid,
-          delivered: location.delivered,
-          name: entry.name,
-          type: entry.type,
-          parent: parent?.name || '',
-          parentId: parent?.uuid || null,
-          notes: location.notes || '',
-        });
-      }
-    }
-
-    relatedLocationRows.value = retval;
-  };
-
-  /** Refresh NPC rows from the session */
-  const _refreshNPCRows = async (): Promise<void> => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionNPCDetails[];
-    const topicFolder = currentSetting.value?.topicFolders[Topics.Character];
-
-    if (!topicFolder)
-      throw new Error('Invalid topic folder in useSessionDerivedState._refreshNPCRows()');
-
-    for (const npc of currentSession.value?.npcs) {
-      const entry = await topicFolder.findEntry(npc.uuid);
-
-      if (entry) {
-        retval.push({
-          uuid: npc.uuid,
-          delivered: npc.delivered,
-          name: entry.name,
-          type: entry.type,
-          notes: npc.notes || '',
-        });
-      }
-    }
-
-    relatedNPCRows.value = retval;
-  };
-
-  /** Refresh magic item rows from the session */
-  const _refreshItemRows = async (): Promise<void> => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionItemDetails[];
-
-    for (const item of currentSession.value?.items) {
-      const entry = await fromUuid<Item>(item.uuid);
-
-      if (entry) {
-        retval.push({
-          uuid: item.uuid,
-          delivered: item.delivered,
-          name: entry.name,
-          notes: item.notes || '',
-          dragTooltip: localize('tooltips.dragItemFromSession'),
-        });
-      } else {
-        // the item was deleted - remove it from our session
-        await currentSession.value.deleteItem(item.uuid);
-      }
-    }
-
-    relatedEntryRows.value = retval;
-  };
-
-  /** Refresh monster rows from the session */
-  const _refreshMonsterRows = async (): Promise<void> => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionMonsterDetails[];
-
-    for (const monster of currentSession.value?.monsters) {
-      const entry = await fromUuid<Actor>(monster.uuid);
-
-      if (entry) {
-        retval.push({
-          uuid: monster.uuid,
-          delivered: monster.delivered,
-          number: monster.number,
-          notes: monster.notes || '',
-          name: entry.name,
-          dragTooltip: localize('tooltips.dragMonsterFromSession'),
-        });
-      } else {
-        // the actor was deleted - remove it from our session
-        await currentSession.value.deleteMonster(monster.uuid);
-      }
-    }
-
-    relatedMonsterRows.value = retval;
-  };
-
-  /** Refresh vignette rows from the session */
-  const _refreshVignetteRows = async (): Promise<void> => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionVignette[];
-
-    for (const vignette of (currentSession.value?.vignettes || [])) {
-      retval.push({
-        uuid: vignette.uuid,
-        delivered: vignette.delivered,
-        description: vignette.description,
-      });
-    }
-
-    vignetteRows.value = retval;
-  };
-
-  /** Refresh lore rows from the session */
-  const _refreshLoreRows = async (): Promise<void> => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as SessionLoreDetails[];
-
-    for (const lore of currentSession.value?.lore) {
-      retval.push({
-        uuid: lore.uuid,
-        delivered: lore.delivered,
-        significant: lore.significant,
-        description: lore.description,
-      });
-    }
-
-    loreRows.value = retval;
-  };
-
   /** Refresh rows for the currently active tab */
   const _refreshRowsForTab = async (): Promise<void> => {
     switch (currentContentTab.value) {
       case 'notes':
         break;
       case 'lore':
-        await _refreshLoreRows();
+        await _refreshLore();
         break;
       case 'vignettes':
-        await _refreshVignetteRows();
+        await _refreshVignettes();
         break;
       case 'locations':
-        await _refreshLocationRows();
+        await _refreshLocations();
         break;
       case 'npcs':
-        await _refreshNPCRows();
+        await _refreshNPCs();
         break;
       case 'monsters':
-        await _refreshMonsterRows();
+        await _refreshMonsters();
         break;
       case 'magic':
-        await _refreshItemRows();
+        await _refreshItems();
         break;
       case 'pcs':
-        // handled by campaignDerivedState
+        await _refreshPCs();
         break;
       default:
         break;
@@ -249,11 +273,19 @@ export function useSessionDerivedState(): SessionDerivedState {
   };
 
   return {
-    relatedLocationRows,
-    relatedEntryRows,
-    relatedNPCRows,
-    relatedMonsterRows,
+    locationRows,
+    locationGroups,
+    itemRows,
+    itemGroups,
+    npcRows,
+    npcGroups,
+    monsterRows,
+    monsterGroups,
     vignetteRows,
+    vignetteGroups,
     loreRows,
+    loreGroups,
+    pcRows,
+    pcGroups,
   };
 }

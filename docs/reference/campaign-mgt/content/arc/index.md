@@ -31,6 +31,7 @@ The header of an Arc contains:
 Arcs have the following tabs where you can manage their details:
 
 * [Description](./description) – a high-level overview of what the Arc is about
+* [Journals](./journals) – a place to track Foundry journal entries that relate to the Arc. Good for tracking extra images or any other content that you want to keep track of and/or share with the player(s)
 * [Lore](./lore) – Arc-specific secrets, clues, and revelations tied to this portion of the campaign
 * [Vignettes](./vignettes) – Vignettes you are preparing for the arc and can move into the next session when ready
 * [Locations](./locations) – the [^Locations] that appear in this Arc, with Arc-specific notes

@@ -1,13 +1,15 @@
+import { ref } from 'vue';
 import { localize } from '@/utils/game';
 import { moduleId } from './index';
 import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSettingsApplication';
 import { CustomFieldsApplication } from '@/applications/settings/CustomFieldsApplication';
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { ImageSettingsApplication } from '@/applications/settings/ImageSettingsApplication';
+import { TableGroupingSettingsApplication } from '@/applications/settings/TableGroupingSettingsApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { StoryWebSettingsApplication } from '@/applications/settings/StoryWebSettingsApplication';
 import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
-import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, } from '@/types';
+import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, GroupableItem, } from '@/types';
 
 export type ImageConfiguration = ApiCustomGenerateImagePostRequestImageConfiguration & {
   descriptionField?: string;
@@ -22,7 +24,7 @@ export interface ImageVisibility {
   fronts: boolean;
 }
 
- export interface WindowBounds {
+export interface WindowBounds {
    left: number;
    top: number;
    width: number;
@@ -64,7 +66,7 @@ export enum SettingKey {
   APIToken = 'APIToken',
   selectedTextModel = 'selectedTextModel', // selected text generation model
   selectedImageModel = 'selectedImageModel', // selected image generation model
-  useGmailToDos = 'useGmailToDos', // whether to use Gmail for todos
+  useGmailToDos = 'useGmailToDos', // whether to use Gmail for toDos
   emailDefaultSetting = 'emailDefaultWorld', // default setting for email features
   emailDefaultCampaign = 'emailDefaultCampaign', // default campaign for email features
 
@@ -90,6 +92,10 @@ export enum SettingKey {
   storyWebConnectionStyles = 'storyWebConnectionStyles', // predefined styles for edges
   storyWebNodeFields = 'storyWebNodeFields', // selected fields to display in node tooltips by content type
   storyWebCustomNodeColorSchemes = 'storyWebCustomNodeColorSchemes', // predefined color schemes for custom text blocks
+
+  // table grouping settings
+  tableGroupingMenu = 'tableGroupingMenu', // display the table grouping menu
+  tableGroupingSettings = 'tableGroupingSettings', // table grouping settings per content type
 }
 
 export type SettingKeyType<K extends SettingKey> =
@@ -125,6 +131,8 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.storyWebConnectionStyles ? { id: string; name: string; value: string }[] :
     K extends SettingKey.storyWebNodeFields ? Partial<Record<StoryWebNodeTypes, string[]>> :
     K extends SettingKey.storyWebCustomNodeColorSchemes ? { id: string; name: string; foregroundColor: string; backgroundColor: string }[] :
+    K extends SettingKey.tableGroupingMenu ? never :
+    K extends SettingKey.tableGroupingSettings ? Record<GroupableItem, boolean> :
     K extends SettingKey.aiImagePrompts ? Record<CustomFieldContentType, string> :
     K extends SettingKey.aiImageConfigurations ? Record<CustomFieldContentType, ImageConfiguration> :
     K extends SettingKey.contentTags ? TagList :
@@ -142,6 +150,39 @@ export type SettingKeyType<K extends SettingKey> =
     never;
 
 export class ModuleSettings {
+  // Reactive version counter that increments when settings change
+  // This enables Vue reactivity for settings by creating a dependency
+  private static version = ref(0);
+
+  // Track if we've registered the hooks
+  private static hookRegistered = false;
+
+  /**
+   * Initialize the reactive settings system by registering hooks for setting changes.
+   * This should be called once during module initialization.
+   */
+  public static initializeReactivity(): void {
+    if (this.hookRegistered) return;
+
+    // Listen for world-scoped setting changes (updateSetting hook only fires for world settings)
+    Hooks.on('updateSetting', (setting: { key: string }) => {
+      // Only react to our module's settings
+      if (setting.key.startsWith(`${moduleId}.`)) {
+        this.version.value++;
+      }
+    });
+
+    // Listen for client-scoped setting changes 
+    Hooks.on('clientSettingChanged', (setting: string ) => {
+      // Only react to our module's settings
+      if (setting.startsWith(`${moduleId}.`)) {
+        this.version.value++;
+      }
+    });
+
+    this.hookRegistered = true;
+  }
+
   // note that this returns the object directly, so if it's an object or array, it's a reference
   public static get<T extends SettingKey>(setting: T): SettingKeyType<T> {
     return game.settings.get(moduleId, setting) as SettingKeyType<T>;
@@ -152,9 +193,20 @@ export class ModuleSettings {
     return foundry.utils.deepClone(ModuleSettings.get(setting));
   }
 
+  /**
+   * Get the reactive version counter.
+   * Call this in computed properties to create a reactive dependency on settings.
+   * When any setting is changed (via ModuleSettings.set() or directly through Foundry),
+   * this version will increment and all computed properties that accessed this will re-evaluate.
+   */
+  public static getReactiveVersion(): number {
+    return this.version.value;
+  }
+
   public static async set<T extends SettingKey>(setting: T, value: SettingKeyType<T>): Promise<void> {
     // @ts-ignore - not sure how to fix the typing
     await game.settings.set(moduleId, setting, value as SettingKeyType<setting>);
+    // We don't need to increment here because the hooks capture changes
   }
 
   private static registerSetting(settingKey: SettingKey, settingConfig: ClientSettings.RegisterData<string | boolean, 'campaign-builder', any>) {
@@ -225,6 +277,15 @@ export class ModuleSettings {
       icon: 'fa-solid fa-project-diagram',
       permissions: ['SETTINGS_WRITE'],
       type: StoryWebSettingsApplication,
+    },
+    {
+      settingID: SettingKey.tableGroupingMenu,
+      name: 'settings.tableGrouping',
+      label: 'fcb.settings.tableGroupingLabel',   // localized by Foundry
+      hint: 'settings.tableGroupingHelp',
+      icon: 'fa-solid fa-table',
+      permissions: ['SETTINGS_WRITE'],
+      type: TableGroupingSettingsApplication,
     }
   ];
 
@@ -495,6 +556,38 @@ export class ModuleSettings {
         { id: 'default', name: 'Default', foregroundColor: '#1b4b3e', backgroundColor: '#ffffff' },
       ],
       type: Array,
+    },
+    {
+      settingID: SettingKey.tableGroupingSettings,
+      default: {
+        // [GroupableItem.SettingJournals]: false,
+        // [GroupableItem.EntryJournals]: false,
+        // [GroupableItem.EntryCharacters]: false,
+        // [GroupableItem.EntryLocations]: false,
+        // [GroupableItem.EntryOrganizations]: false,
+        // [GroupableItem.EntryPCs]: false,
+        // [GroupableItem.EntryActors]: false,
+        // [GroupableItem.CampaignJournals]: false,
+        [GroupableItem.CampaignPCs]: false,
+        [GroupableItem.CampaignLore]: true,
+        [GroupableItem.CampaignIdeas]: true,
+        [GroupableItem.CampaignToDos]: true,
+        // [GroupableItem.ArcJournals]: false,
+        [GroupableItem.ArcLore]: true,
+        [GroupableItem.ArcVignettes]: false,
+        [GroupableItem.ArcLocations]: false,
+        [GroupableItem.ArcParticipants]: false,
+        [GroupableItem.ArcMonsters]: false,
+        [GroupableItem.ArcIdeas]: true,
+        [GroupableItem.SessionLore]: false,
+        [GroupableItem.SessionVignettes]: false,
+        [GroupableItem.SessionLocations]: false,
+        [GroupableItem.SessionCharacters]: false,
+        [GroupableItem.SessionMonsters]: false,
+        [GroupableItem.SessionItems]: false,
+        // [GroupableItem.SessionPCs]: false,
+      } as Record<GroupableItem, boolean>,
+      type: Object,
     },
   ];
   

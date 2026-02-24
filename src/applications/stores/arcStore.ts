@@ -6,13 +6,15 @@ import { storeToRefs, } from 'pinia';
 // local imports
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
+import { createGroupedTableStores } from '@/composables/createGroupedTableStores';
 
 // types
 import {
   BaseTableColumn,
-  Idea,
+  ArcIdea,
   Topics,
   ArcTableTypes,
+  GroupableItem,
 } from '@/types';
 import { ArcLocation, ArcLore, ArcMonster, ArcParticipant, ArcVignette, } from '@/documents';
 
@@ -483,61 +485,90 @@ export const arcStore = () => {
     mainStore.refreshArc();
   };
 
-     /**
-     * Adds a lore to the arc.
-     * @param description The description for the idea
-     * @returns The UUID of the created idea
-     */
-    const addIdea = async (description = ''): Promise<string | null> => {
-      if (!currentArc.value)
-        throw new Error('Invalid arc in arcStore.addIdea()');
-
-      const ideaUuid = await currentArc.value.addIdea(description);
-      mainStore.refreshArc();
-      return ideaUuid;
-    }
-
-    const updateIdea = async (uuid: string, newText: string): Promise<void> => {
-      if (!currentArc.value)
-        return;
-
-      await currentArc.value.updateIdea(uuid, newText);
-      mainStore.refreshArc();
-    }
-
     /**
-     * Deletes an idea from the arc.
-     * @param uuid - The UUID of the idea to delete.
-     * @returns True if the idea was deleted, false if the user canceled.
-     */
-    const deleteIdea = async (uuid: string): Promise<boolean> => {
-      if (!currentArc.value)
-        return false;
+   * Adds a lore to the arc.
+   * @param description The description for the idea
+   * @returns The UUID of the created idea
+   */
+  const addIdea = async (description = ''): Promise<string | null> => {
+    if (!currentArc.value)
+      throw new Error('Invalid arc in arcStore.addIdea()');
 
-      // confirm
-      if (!(await FCBDialog.confirmDialog('Delete Idea?', 'Are you sure you want to delete this idea?')))
-        return false;
+    const ideaUuid = await currentArc.value.addIdea(description);
+    mainStore.refreshArc();
+    return ideaUuid;
+  }
 
-      await currentArc.value.deleteIdea(uuid);
-      mainStore.refreshArc();
-      return true;
-    }
+  const updateIdea = async (uuid: string, newText: string): Promise<void> => {
+    if (!currentArc.value)
+      return;
 
-    const reorderIdeas = async (reorderedIdeas: Idea[]) => {
-      if (!currentArc.value) return;
+    await currentArc.value.updateIdea(uuid, newText);
+    mainStore.refreshArc();
+  }
 
-      currentArc.value.ideas = reorderedIdeas;
-      await currentArc.value.save();
-      mainStore.refreshArc();
-    };
+  /**
+   * Deletes an idea from the arc.
+   * @param uuid - The UUID of the idea to delete.
+   * @returns True if the idea was deleted, false if the user canceled.
+   */
+  const deleteIdea = async (uuid: string): Promise<boolean> => {
+    if (!currentArc.value)
+      return false;
 
-    const moveIdeaToCampaign = async (uuid: string): Promise<void> => {
-      if (!currentArc.value)
-        return;
+    // confirm
+    if (!(await FCBDialog.confirmDialog('Delete Idea?', 'Are you sure you want to delete this idea?')))
+      return false;
 
-      await currentArc.value.moveIdeaToCampaign(uuid);
-      mainStore.refreshArc();
-    }
+    await currentArc.value.deleteIdea(uuid);
+    mainStore.refreshArc();
+    return true;
+  }
+
+  const reorderIdeas = async (reorderedIdeas: ArcIdea[]) => {
+    if (!currentArc.value) return;
+
+    currentArc.value.ideas = reorderedIdeas;
+    await currentArc.value.save();
+    mainStore.refreshArc();
+  };
+
+  const moveIdeaToCampaign = async (uuid: string): Promise<void> => {
+    if (!currentArc.value)
+      return;
+
+    await currentArc.value.moveIdeaToCampaign(uuid);
+    mainStore.refreshArc();
+  }
+
+  ///////////////////////////////
+  // Generic grouped table stores
+  
+  // Multi-group store for all grouped items in the arc
+  const groupStores = createGroupedTableStores({
+    currentEntity: currentArc,
+    refresh: mainStore.refreshArc,
+    groupConfigs: {
+      [GroupableItem.ArcIdeas]: {
+        propertyName: 'ideas',
+      },
+      [GroupableItem.ArcLore]: {
+        propertyName: 'lore',
+      },
+      [GroupableItem.ArcVignettes]: {
+        propertyName: 'vignettes',
+      },
+      [GroupableItem.ArcLocations]: {
+        propertyName: 'locations',
+      },
+      [GroupableItem.ArcParticipants]: {
+        propertyName: 'participants',
+      },
+      [GroupableItem.ArcMonsters]: {
+        propertyName: 'monsters',
+      },
+    },
+  });
 
   ///////////////////////////////
   // computed state
@@ -616,5 +647,6 @@ export const arcStore = () => {
     updateLoreDescription,
     moveLoreToSession,
     moveLoreToCampaign,
+    groupStores,
   };
 };

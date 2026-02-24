@@ -8,7 +8,7 @@ import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Session } from './Session';
 import GlobalSettingService from '@/utils/globalSettings';
-import { Idea } from '@/types';
+import { RelatedJournal, TableGroup, GroupableItem,ArcIdea } from '@/types';
 
 type ArcDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Arc>;
 
@@ -25,11 +25,20 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     participants: [],  
     monsters: [],  
     ideas: [],
+    journals: [],
     vignettes: [],
     lore: [],  
     img: '',   
     tags: [],
     storyWebs: [],
+    groups: {
+      [GroupableItem.ArcIdeas]: [] as TableGroup[],
+      [GroupableItem.ArcLore]: [] as TableGroup[],
+      [GroupableItem.ArcLocations]: [] as TableGroup[],
+      [GroupableItem.ArcMonsters]: [] as TableGroup[],
+      [GroupableItem.ArcParticipants]: [] as TableGroup[],
+      [GroupableItem.ArcVignettes]: [] as TableGroup[],
+    },
   } as unknown as ArcDocClass['system'];
 
   public campaign: Campaign | null;  // the campaign the front is in (if we don't setup up front, we can load it later)
@@ -135,20 +144,30 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     this._clone.system.endSessionNumber = value;
   }
 
-  public get ideas(): readonly Idea[] {
+  public get ideas(): readonly ArcIdea[] {
     return this._clone.system.ideas;
   }
 
-  public set ideas(value: Idea[] | readonly Idea[]) {
+  public set ideas(value: ArcIdea[] | readonly ArcIdea[]) {
     this._clone.system.ideas = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
+
+  public get journals(): RelatedJournal[] {
+    return this._clone.system.journals;
+  }
+
+  public set journals(value: RelatedJournal[] | readonly RelatedJournal[]) {
+    this._clone.system.journals = value.slice();     // we clone it so it can't be edited outside (this is historical)
+  }
+
 
   /** Creates a new idea item and adds to the arc*/
   /** returns the uuid */
   public async addIdea(text: string): Promise<string | null> {
-    const item: Idea = {
+    const item: ArcIdea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
+      groupId: null,
     };
 
     this._clone.system.ideas.push(item);
@@ -235,7 +254,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     if (this._clone.system.locations.find(l=> l.uuid===uuid))
       return;
 
-    this._clone.system.locations.push({ uuid, notes });
+    this._clone.system.locations.push({ uuid, notes, groupId: null });
     await this.save();
   }
 
@@ -267,7 +286,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     if (this._clone.system.participants.find(l=> l.uuid===uuid))
       return;
 
-    this._clone.system.participants.push({uuid, notes});
+    this._clone.system.participants.push({uuid, notes, groupId: null});
 
     await this.save();
   }
@@ -316,6 +335,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     this._clone.system.vignettes.push({
       uuid,
       description: description || '',
+      groupId: null,
     } satisfies ArcVignette);
 
     await this.save();
@@ -342,6 +362,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     this._clone.system.lore.push({
       uuid: uuid,
       description: description,
+      groupId: null,
     });
 
     await this.save();
@@ -377,7 +398,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     if (this._clone.system.monsters.find(l=> l.uuid===uuid))
       return;
 
-    this._clone.system.monsters.push({ uuid, notes });
+    this._clone.system.monsters.push({ uuid, notes, groupId: null });
 
     await this.save();
   }

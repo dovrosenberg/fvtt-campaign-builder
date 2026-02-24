@@ -7,6 +7,7 @@ import { Campaign } from './Campaign';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import GlobalSettingService from '@/utils/globalSettings';
+import { GroupableItem, TableGroup } from '@/types';
 
 type SessionDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Session>;
 
@@ -27,6 +28,15 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     img: '',   
     tags: [],
     storyWebs: [],
+    groups: {
+      [GroupableItem.SessionLore]: [] as TableGroup[],
+      [GroupableItem.SessionVignettes]: [] as TableGroup[],
+      [GroupableItem.SessionLocations]: [] as TableGroup[],
+      [GroupableItem.SessionNPCs]: [] as TableGroup[],
+      [GroupableItem.SessionMonsters]: [] as TableGroup[],
+      [GroupableItem.SessionItems]: [] as TableGroup[],
+      // [GroupableItem.SessionPCs]: [] as TableGroup[],  // stored on campaign
+    },
   } as unknown as SessionDocClass['system'];
 
   public campaign: Campaign | null;  // the campaign the session is in (if we don't setup up front, we can load it later)
@@ -57,11 +67,12 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
   /**
    * Gets the Campaign associated with the session. If the campaign is already loaded, the promise resolves
    * to the existing campaign; otherwise, it loads the campaign and then resolves to it.
-   * 
+   *
+   * @param forceReload - If true, reloads the campaign from disk even if cached
    * @returns {Promise<Campaign>} A promise to the setting associated with the campaign.
    */
-  public async loadCampaign(): Promise<Campaign> {
-    if (this.campaign)
+  public async loadCampaign(forceReload = false): Promise<Campaign> {
+    if (this.campaign && !forceReload)
       return this.campaign;
 
     this.campaign = await Campaign.fromUuid(this._clone.system.campaignId);
@@ -188,7 +199,8 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this._clone.system.locations.push({
       uuid: uuid,
       delivered: delivered,
-      notes: ''
+      notes: '',
+      groupId: null
     });
 
     await this.save();
@@ -234,7 +246,8 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this._clone.system.npcs.push({
       uuid: uuid,
       delivered: delivered,
-      notes: ''
+      notes: '',
+      groupId: null,
     });
 
     await this.save();
@@ -281,6 +294,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       uuid: uuid,
       description: description,
       delivered: false,
+      groupId: null,
     });
 
     await this.save();
@@ -332,7 +346,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       delivered: false,
       significant: false,
       journalEntryPageId: journalEntryPageId,
-      sortOrder: this._clone.system.lore.length,
+      groupId: null,
     });
 
     await this.save();
@@ -394,6 +408,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       number: number,
       delivered: false,
       notes: '',
+      groupId: null,
     });
 
     await this.save();
@@ -452,6 +467,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       uuid: uuid,
       delivered: false,
       notes: '',
+      groupId: null,
     });
 
     await this.save();

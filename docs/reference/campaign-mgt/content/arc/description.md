@@ -4,8 +4,8 @@ prev:
   text: 'Arc Details'
   link: '/reference/campaign-mgt/content/arc/'
 next: 
-  text: 'Lore Tab'
-  link: '/reference/campaign-mgt/content/arc/lore'
+  text: 'Arc Journals Tab'
+  link: '/reference/campaign-mgt/content/arc/journals'
 ---
 
 # Arc Description Tab

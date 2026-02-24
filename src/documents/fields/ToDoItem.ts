@@ -8,6 +8,7 @@ export const ToDoItemSchema = () => (
     linkedUuid: new fields.StringField({ required: true, nullable: true, initial: null }),  // note: these might be vignette ids, etc. not doc uuid
     linkedText: new fields.StringField({ required: true, nullable: true, initial: null }),
     sessionUuid: new fields.DocumentUUIDField({ required: true, nullable: true, initial: null }),
+    groupId: new fields.StringField({ required: true, nullable: true, initial: null }),  // optional group ID
     text: new fields.StringField({ required: true, nullable: false }),
     type: new fields.StringField({ required: true, nullable: false }),
   }, { required: true, nullable: false} )

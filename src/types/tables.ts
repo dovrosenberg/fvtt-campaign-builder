@@ -1,4 +1,13 @@
 import { DataTableFilterMetaData } from 'primevue';
+import { 
+  BaseTableGridRow,CampaignIdea,CampaignLore,CampaignPC,GroupableItem, 
+  CampaignToDo, ArcIdea, ArcLore, ArcVignette, ArcLocation, ArcParticipant, 
+  ArcMonster, SessionLore, SessionVignette, SessionLocation, SessionNPC, 
+  SessionMonster, SessionItem,CampaignPCRow,CampaignLoreRow,CampaignIdeaRow,
+  CampaignToDoRow,ArcLoreRow,ArcVignetteRow,ArcLocationRow,ArcParticipantRow,
+  ArcMonsterRow,ArcIdeaRow,SessionLoreRow,SessionVignetteRow,SessionLocationRow,
+  SessionNPCRow,SessionMonsterRow,SessionItemRow,SessionPCRow
+} from './index';
 
 export interface BaseRow {
   uuid: string;
@@ -33,6 +42,7 @@ export interface ActionButtonDefinition {
 export interface BaseTableColumn {
   field:string; 
   header: string;
+  group?: string;
   editable?: boolean;
   style?: string;
   sortable?: boolean;
@@ -41,6 +51,15 @@ export interface BaseTableColumn {
   onClick?: (event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) => void | Promise<void>;  // should a specific fn be called when the cell is clicked (also underlines the text)
 };
 
+export interface TableGroup {
+  groupId: string;
+  name: string;
+}
+
+export interface GroupedTableGridRow extends BaseTableGridRow {
+  groupId?: string | null | undefined; // Only for data rows, not groups
+}
+
 export interface PaginationResult<T extends AnyRow> {
   rows: T[];
   rowsAvailable: number;
@@ -48,86 +67,8 @@ export interface PaginationResult<T extends AnyRow> {
 
 export type AnyPaginationResult = PaginationResult<any>;
 
-export interface SessionLocationDetails {
-  uuid: string;   // the location entry
-  name: string;
-  type: string;
-  parent: string;
-  parentId: string | null;
-  notes: string;
-  delivered: boolean;
-}
-export interface ArcLocationDetails {
-  uuid: string;   // the location entry
-  name: string;
-  type: string;
-  parent: string;
-  parentId: string | null;
-  notes: string;
-}
-  
-export interface SessionNPCDetails {
-  uuid: string;   // the character entry
-  name: string;
-  type: string;
-  notes: string;
-  delivered: boolean;
-}
-
-export interface ArcParticipantDetails {
-  uuid: string;   // the character entry
-  name: string;
-  type: string;
-  notes: string;
-}
-
-export interface SessionItemDetails {
-  uuid: string;   // the Item document
-  name: string;
-  delivered: boolean;
-  notes: string;
-  dragTooltip?: string;
-}
-
-export interface SessionMonsterDetails {
-  uuid: string;   // the Actor document
-  name: string;
-  number: number;
-  delivered: boolean;
-  notes: string;
-  dragTooltip?: string;
-}
-
-export interface ArcMonsterDetails {
-  uuid: string;   // the Actor document
-  name: string;
-  notes: string;
-}
-
-export interface SessionLoreDetails {
-  uuid: string;   
-  delivered: boolean;
-  description: string;
-  significant: boolean;
-  onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
-}
-
-export interface ArcLoreDetails {
-  uuid: string;  
-  description: string; 
-  onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
-}
-
-export interface ArcVignetteDetails {
-  uuid: string;
-  description: string;
-}
-
-export interface CampaignLoreDetails extends SessionLoreDetails {
-  /** uuid of the session it came from */
-  lockedToSessionId: string | null;  
-  lockedToSessionName: string | null;  
-}
+// Note: *Details interfaces have been moved to rowTypes.ts with *Row naming convention
+// e.g., SessionLocationDetails -> SessionLocationRow, ArcParticipantDetails -> ArcParticipantRow
 
 export interface RowEditCompleteEvent<T extends Record<string, any>=Record<string, any>> {
   /** the original row */
@@ -196,3 +137,54 @@ export enum CampaignTableTypes {
   Idea,
 }
 
+/**
+ * Type mapping from GroupableItem to the corresponding item type on the document
+ */
+export type GroupableItemTypeMap = {
+  // [GroupableItem.SettingJournals]: RelatedJournal;
+  // [GroupableItem.CampaignJournals]: RelatedJournal;
+  [GroupableItem.CampaignPCs]: CampaignPC;
+  [GroupableItem.CampaignLore]: CampaignLore;
+  [GroupableItem.CampaignIdeas]: CampaignIdea;
+  [GroupableItem.CampaignToDos]: CampaignToDo;
+  // [GroupableItem.ArcJournals]: RelatedJournal;
+  [GroupableItem.ArcLore]: ArcLore;
+  [GroupableItem.ArcVignettes]: ArcVignette;
+  [GroupableItem.ArcLocations]: ArcLocation;
+  [GroupableItem.ArcParticipants]: ArcParticipant;
+  [GroupableItem.ArcMonsters]: ArcMonster;
+  [GroupableItem.ArcIdeas]: ArcIdea;
+  [GroupableItem.SessionLore]: SessionLore;
+  [GroupableItem.SessionVignettes]: SessionVignette;
+  [GroupableItem.SessionLocations]: SessionLocation;
+  [GroupableItem.SessionNPCs]: SessionNPC;
+  [GroupableItem.SessionMonsters]: SessionMonster;
+  [GroupableItem.SessionItems]: SessionItem;
+  [GroupableItem.SessionPCs]: CampaignPC;  // Sessions use CampaignPC type
+};
+
+/**
+ * Type mapping from GroupableItem to the corresponding row type dispayed in tables
+ */
+export type GroupableRowTypeMap = {
+  // [GroupableItem.SettingJournals]: SettingJournalRow;
+  // [GroupableItem.CampaignJournals]: CampaignJournalRow;
+  [GroupableItem.CampaignPCs]: CampaignPCRow;
+  [GroupableItem.CampaignLore]: CampaignLoreRow;
+  [GroupableItem.CampaignIdeas]: CampaignIdeaRow;
+  [GroupableItem.CampaignToDos]: CampaignToDoRow;
+  // [GroupableItem.ArcJournals]: ArcJournalRow;
+  [GroupableItem.ArcLore]: ArcLoreRow;
+  [GroupableItem.ArcVignettes]: ArcVignetteRow;
+  [GroupableItem.ArcLocations]: ArcLocationRow;
+  [GroupableItem.ArcParticipants]: ArcParticipantRow;
+  [GroupableItem.ArcMonsters]: ArcMonsterRow;
+  [GroupableItem.ArcIdeas]: ArcIdeaRow;
+  [GroupableItem.SessionLore]: SessionLoreRow;
+  [GroupableItem.SessionVignettes]: SessionVignetteRow;
+  [GroupableItem.SessionLocations]: SessionLocationRow;
+  [GroupableItem.SessionNPCs]: SessionNPCRow;
+  [GroupableItem.SessionMonsters]: SessionMonsterRow;
+  [GroupableItem.SessionItems]: SessionItemRow;
+  [GroupableItem.SessionPCs]: SessionPCRow;
+};

@@ -1,28 +1,11 @@
-import { Idea } from '@/types';
+import { GroupableItem, RelatedJournal } from '@/types';
+import type { ArcLocation, ArcParticipant, ArcMonster, ArcVignette, ArcLore, ArcIdea } from '@/types/dbTypes';
 import { schemas } from './fields';
 
+// Re-export types for backward compatibility
+export type { ArcLocation, ArcParticipant, ArcMonster, ArcVignette, ArcLore, ArcIdea } from '@/types/dbTypes';
+
 const fields = foundry.data.fields;
-
-export interface ArcRelatedItem {
-  uuid: string;
-  notes: string;
-}
-
-export interface ArcLocation extends ArcRelatedItem {}
-
-export interface ArcParticipant extends ArcRelatedItem {}
-
-export interface ArcMonster extends ArcRelatedItem {}
-
-export interface ArcVignette {
-  uuid: string;
-  description: string;
-}
-
-export interface ArcLore {
-  uuid: string;
-  description: string;
-}
 
 export const ArcSchema = {
   /** the campaign this arc is in */
@@ -51,6 +34,31 @@ export const ArcSchema = {
     new fields.DocumentUUIDField({ required: true, nullable: false }),
     { required: true, nullable: false, initial: [] as string[] }
   ),
+
+  /** consolidated groups structure */
+  groups: new fields.SchemaField({
+    // [GroupableItem.ArcJournals]: schemas.GroupArray(),
+    [GroupableItem.ArcLore]: schemas.GroupArray(),
+    [GroupableItem.ArcVignettes]: schemas.GroupArray(),
+    [GroupableItem.ArcLocations]: schemas.GroupArray(),
+    [GroupableItem.ArcParticipants]: schemas.GroupArray(),
+    [GroupableItem.ArcMonsters]: schemas.GroupArray(),
+    [GroupableItem.ArcIdeas]: schemas.GroupArray(),
+  }, { required: true, nullable: false, initial: {
+    // [GroupableItem.ArcJournals]: [],
+    [GroupableItem.ArcLore]: [],
+    [GroupableItem.ArcVignettes]: [],
+    [GroupableItem.ArcLocations]: [],
+    [GroupableItem.ArcParticipants]: [],
+    [GroupableItem.ArcMonsters]: [],
+    [GroupableItem.ArcIdeas]: [],
+  } }),
+
+  /** related journal entries */
+  journals: new fields.ArrayField(
+    schemas.RelatedJournal(),
+    { required: true, nullable: false, initial: [] as RelatedJournal[] }
+  ), 
 
   /** array of locations */
   locations: new fields.ArrayField(
@@ -85,7 +93,7 @@ export const ArcSchema = {
   /** ideas */
   ideas: new fields.ArrayField(
     schemas.Idea(),
-    { required: true, nullable: false, initial: [] as Idea[] }
+    { required: true, nullable: false, initial: [] as ArcIdea[] }
   ),
 };
 
@@ -112,6 +120,7 @@ export interface ArcDoc extends JournalEntryPage {
     sortOrder: number;
 
     // campaign-like
+    journals: RelatedJournal[]; 
     customFields: Record<string, string>;
     customFieldHeights: Record<string, number>;
     img: string;

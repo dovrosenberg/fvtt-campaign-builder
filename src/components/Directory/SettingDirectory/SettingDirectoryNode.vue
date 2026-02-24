@@ -85,7 +85,10 @@
 
   ////////////////////////////////
   // computed data
-  const showTypesInTree = computed(() => ModuleSettings.get(SettingKey.showTypesInTree));
+  const showTypesInTree = computed(() => {
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.showTypesInTree);
+  });
   
   const displayName = computed(() => {
     if (showTypesInTree.value && props.node.type && props.node.type!==NO_TYPE_STRING) {

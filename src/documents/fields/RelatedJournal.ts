@@ -23,5 +23,8 @@ export const RelatedJournalSchema = () => (
     /** name of the parent compendium (null if it's a world entry) */
     packName: new fields.StringField({ required: true, nullable: true }),
 
+    /** table group */
+    groupId: new fields.StringField({ required: true, nullable: true, initial: null }),  // optional group ID
+
   }, { required: true, nullable: false} )
 );

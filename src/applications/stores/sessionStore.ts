@@ -7,14 +7,16 @@ import { storeToRefs, } from 'pinia';
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import ArcIndexService from '@/utils/arcIndex';
+import { createGroupedTableStores } from '@/composables/createGroupedTableStores';
 
 // types
 import {
   BaseTableColumn,
   ToDoTypes,
-  SessionTableTypes
+  SessionTableTypes,
+  GroupableItem,
 } from '@/types';
-import { SessionLore, SessionMonster, SessionVignette } from '@/documents';
+import type { SessionLore, SessionMonster, SessionVignette, SessionLocation, SessionNPC, SessionItem } from '@/types/dbTypes';
 
 import { Arc, Entry, Session } from '@/classes';
 
@@ -830,6 +832,35 @@ export const sessionStore = () => {
   };
 
   ///////////////////////////////
+  // Generic grouped table stores
+  
+  // Multi-group store for all grouped items in the session
+  const groupStores = createGroupedTableStores({
+    currentEntity: currentSession,
+    refresh: mainStore.refreshSession,
+    groupConfigs: {
+      [GroupableItem.SessionLore]: {
+        propertyName: 'lore',
+      },
+      [GroupableItem.SessionVignettes]: {
+        propertyName: 'vignettes',
+      },
+      [GroupableItem.SessionLocations]: {
+        propertyName: 'locations',
+      },
+      [GroupableItem.SessionNPCs]: {
+        propertyName: 'npcs',
+      },
+      [GroupableItem.SessionMonsters]: {
+        propertyName: 'monsters',
+      },
+      [GroupableItem.SessionItems]: {
+        propertyName: 'items',
+      },
+    },
+  });
+
+  ///////////////////////////////
   // computed state
 
   ///////////////////////////////
@@ -918,5 +949,6 @@ export const sessionStore = () => {
     moveLoreToNext,
     moveLoreToCampaign,
     moveLoreToArc,
+    groupStores,
   };
 };
