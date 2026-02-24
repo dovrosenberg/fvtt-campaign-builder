@@ -318,9 +318,6 @@
       return;
 
     for (const field of customFields.value) {
-      if (!('getCustomField' in content.value)) 
-        debugger;
-
       const current = content.value.getCustomField(field.name);
 
       if (field.fieldType === FieldType.Boolean) {

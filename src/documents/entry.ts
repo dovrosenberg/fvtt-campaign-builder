@@ -39,7 +39,7 @@ export const EntrySchema = {
   img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
 
   // Voice recording for characters
-  voiceRecordingPath: new fields.FilePathField({blank: true, required: false, nullable: true, initial: null, categories: ['AUDIO']}),
+  voiceRecordingPath: new fields.FilePathField({required: false, nullable: true, initial: null, categories: ['AUDIO']}),
 };
 
 type EntrySchemaType = typeof EntrySchema;

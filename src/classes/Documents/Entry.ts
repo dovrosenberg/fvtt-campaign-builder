@@ -100,6 +100,14 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     return this._actor;
   }
   
+  public get voiceRecordingPath(): string | null {
+    return this._clone.system.voiceRecordingPath || null;
+  }
+
+  public set voiceRecordingPath(path: string | null) {
+    this._clone.system.voiceRecordingPath = path;
+  }
+
   // creates a new entry in the proper compendium in the given setting
   // if name is populated will skip the dialog
   static async create(topicFolder: TopicFolder, options: CreateEntryOptions): Promise<Entry | null> 

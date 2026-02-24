@@ -15,6 +15,11 @@ export type ImageConfiguration = ApiCustomGenerateImagePostRequestImageConfigura
   descriptionField?: string;
 };
 
+export interface VoiceRecordingFolderConfig {
+  path: string;
+  source: FilePicker.SourceType;
+}
+
 export interface ImageVisibility {
   settings: boolean;
   entries: boolean;
@@ -146,7 +151,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.emailDefaultCampaign ? string :
     K extends SettingKey.mainWindowBounds ? WindowBounds | null :
     K extends SettingKey.enableVoiceRecording ? boolean :
-    K extends SettingKey.voiceRecordingFolder ? string :
+    K extends SettingKey.voiceRecordingFolder ? VoiceRecordingFolderConfig | null :
     never;
 
 export class ModuleSettings {
@@ -319,7 +324,7 @@ export class ModuleSettings {
       settingID: SettingKey.enableVoiceRecording,
       name: 'settings.enableVoiceRecording',
       hint: 'settings.enableVoiceRecordingHelp',
-      default: false,
+      default: true,
       type: Boolean,
     },
   ];
@@ -423,8 +428,8 @@ export class ModuleSettings {
     },
     {
       settingID: SettingKey.voiceRecordingFolder,
-      default: 'voice-recordings',
-      type: String,
+      default: null,
+      type: Object,
     },
     {
       settingID: SettingKey.autoRefreshRollTables,

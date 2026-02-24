@@ -18,14 +18,15 @@
           @update:model-value="onNameUpdate"
         />
         <button
-          v-if="canGenerate"
-          class="fcb-generate-button"
-          data-testid="entry-generate-button"
-          @click="onGenerateButtonClick"
-          :disabled="generateDisabled"
-          :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"
+          v-if="topic===Topics.Character || topic===Topics.Location"
+          class="fcb-push-to-session-button"
+          data-testid="entry-push-to-session-button"
+          @click="onPushToSessionClick"
+          :disabled="pushButtonDisabled"
+          :title="pushButtonTitle"
+          style="margin-left: 8px;"
         >
-          <i class="fas fa-head-side-virus"></i>
+          <i class="fas fa-share"></i>
         </button>
         <button
           v-if="showVoiceButton"
@@ -38,15 +39,14 @@
           <i class="fas fa-microphone"></i>
         </button>
         <button
-          v-if="topic===Topics.Character || topic===Topics.Location"
-          class="fcb-push-to-session-button"
-          data-testid="entry-push-to-session-button"
-          @click="onPushToSessionClick"
-          :disabled="pushButtonDisabled"
-          :title="pushButtonTitle"
-          style="margin-left: 8px;"
+          v-if="canGenerate"
+          class="fcb-generate-button"
+          data-testid="entry-generate-button"
+          @click="onGenerateButtonClick"
+          :disabled="generateDisabled"
+          :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"
         >
-          <i class="fas fa-share"></i>
+          <i class="fas fa-head-side-virus"></i>
         </button>
       </header>
       <div class="flexrow tags-container">
@@ -682,6 +682,13 @@
         disabled: !hasRecording,
         onClick: () => onDeleteVoice(),
       },
+      {
+        icon: 'fa-folder-open',
+        iconFontClass: 'fas',
+        label: localize('contextMenus.voice.changeFolder'),
+        disabled: false,
+        onClick: () => onChangeVoiceFolder(),
+      },
     ];
 
     ContextMenu.showContextMenu({
@@ -698,6 +705,13 @@
    */
   const onRecordVoice = async (): Promise<void> => {
     if (!currentEntry.value) {
+      return;
+    }
+
+    // Ensure folder is configured before starting recording
+    const folder = await VoiceRecordingService.ensureFolderConfigured();
+    if (!folder) {
+      // User cancelled folder selection
       return;
     }
 
@@ -742,6 +756,11 @@
     try {
       // Upload the recording to Foundry
       const path = await VoiceRecordingService.uploadRecording(blob, currentEntry.value.name);
+
+      // If path is null, user cancelled the folder selection or upload failed
+      if (!path) {
+        return;
+      }
 
       // Save the path to the entry
       currentEntry.value.voiceRecordingPath = path;
@@ -791,6 +810,13 @@
     await currentEntry.value.save();
 
     notifyInfo(localize('notifications.voiceRecording.deleted'));
+  };
+
+  /**
+   * Change the voice recording folder.
+   */
+  const onChangeVoiceFolder = async (): Promise<void> => {
+    await VoiceRecordingService.selectFolder();
   };
 
   

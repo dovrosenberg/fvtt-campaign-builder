@@ -1,4 +1,7 @@
-import { ModuleSettings, SettingKey } from '@/settings';
+import { ModuleSettings, SettingKey, VoiceRecordingFolderConfig } from '@/settings';
+import { localize } from '@/utils/game';
+
+const FilePicker = foundry.applications.apps.FilePicker;
 
 /**
  * Service for managing voice recordings for character entries.
@@ -11,8 +14,8 @@ const VoiceRecordingService = {
    * @returns true if MediaRecorder API is available, false otherwise
    */
   isRecordingSupported: (): boolean => {
-    return typeof navigator !== 'undefined' && 
-           typeof navigator.mediaDevices !== 'undefined' && 
+    return typeof navigator !== 'undefined' &&
+           typeof navigator.mediaDevices !== 'undefined' &&
            typeof MediaRecorder !== 'undefined';
   },
 
@@ -38,26 +41,27 @@ const VoiceRecordingService = {
    * @param stream - The active MediaStream to stop tracks on
    * @returns Promise resolving to the audio Blob
    */
-  stopRecording: (recorder: MediaRecorder, stream: MediaStream): Promise<Blob> => {
-    return new Promise((resolve) => {
-      const chunks: Blob[] = [];
-      
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunks.push(event.data);
-        }
-      };
-      
+  stopRecording: async (recorder: MediaRecorder, stream: MediaStream): Promise<Blob> => {
+    const chunks: Blob[] = [];
+    
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunks.push(event.data);
+      }
+    };
+    
+    const blob = await new Promise<Blob>((resolve) => {
       recorder.onstop = () => {
         // Stop all tracks to release the microphone
         stream.getTracks().forEach(track => track.stop());
         
-        const blob = new Blob(chunks, { type: 'audio/webm' });
-        resolve(blob);
+        resolve(new Blob(chunks, { type: 'audio/webm' }));
       };
       
       recorder.stop();
     });
+    
+    return blob;
   },
 
   /**
@@ -81,23 +85,91 @@ const VoiceRecordingService = {
   },
 
   /**
+   * Check if a voice recording folder has been configured.
+   * @returns true if a folder path has been set, false otherwise
+   */
+  hasFolderConfigured: (): boolean => {
+    const config = ModuleSettings.get(SettingKey.voiceRecordingFolder);
+    return !!(config?.path);
+  },
+
+  /**
+   * Open a directory picker to select the voice recording folder.
+   * @returns Promise resolving to true if a folder was selected, false otherwise
+   */
+  selectFolder: async (): Promise<boolean> => {
+    const result = await new Promise<{ path: string; source: FilePicker.SourceType } | null>((resolve) => {
+      const currentConfig = ModuleSettings.get(SettingKey.voiceRecordingFolder);
+      const fp = new FilePicker.implementation({
+        window: {
+          title: localize('dialogs.voiceRecording.selectFolderTitle'),
+        }
+      });
+
+      fp.type = 'folder';
+      fp.activeSource = currentConfig?.source || 'data';
+      fp.callback = (path: string, picker: FilePicker) => {
+        // picker.source is the selected source
+        resolve({ path, source: picker.activeSource });
+      };
+      fp.browse(currentConfig?.path);
+    });
+
+    if (result) {
+      await ModuleSettings.set(SettingKey.voiceRecordingFolder, result);
+      return true;
+    } else {
+      return false;
+    }
+  },
+
+  /**
+   * Ensure a folder is configured before uploading. Prompts user if not set.
+   * @returns Promise resolving to the folder config, or null if cancelled
+   */
+  ensureFolderConfigured: async (): Promise<VoiceRecordingFolderConfig | null> => {
+    let config = ModuleSettings.get(SettingKey.voiceRecordingFolder);
+    
+    if (!config?.path) {
+      // Prompt user to select a folder
+      const selected = await VoiceRecordingService.selectFolder();
+      if (!selected) {
+        return null;
+      }
+      config = ModuleSettings.get(SettingKey.voiceRecordingFolder);
+    }
+    
+    return config;
+  },
+
+  /**
    * Upload an audio blob to Foundry's file system.
    * @param blob - The audio data to upload
    * @param entryName - The name of the character entry (for filename generation)
-   * @returns Promise resolving to the file path of the uploaded recording
-   * @throws Error if upload fails
+   * @returns Promise resolving to the file path of the uploaded recording, or null if cancelled or failed
    */
-  uploadRecording: async (blob: Blob, entryName: string): Promise<string> => {
-    const folder = ModuleSettings.get(SettingKey.voiceRecordingFolder) || 'voice-recordings';
+  uploadRecording: async (blob: Blob, entryName: string): Promise<string | null> => {
+    // Ensure folder is configured
+    const config = await VoiceRecordingService.ensureFolderConfigured();
+    if (!config) {
+      return null;
+    }
+    
     const filename = VoiceRecordingService.generateFilename(entryName);
     
     // Create a File object from the Blob
     const file = new File([blob], filename, { type: 'audio/webm' });
     
     // Upload using Foundry's FilePicker upload functionality
-    const result = await FilePicker.upload('data', folder, file, {}, { notify: false });
+    const result = await FilePicker.upload(config.source, config.path, file, {}, { notify: false });
     
-    return result.path;
+    // Check if upload was successful and return the path
+    // Foundry returns false on failure, or a SuccessResponse object with status, path, and message
+    if (result && result.status==='success') {
+      return result.path;
+    }
+    
+    return null;
   },
 
   /**

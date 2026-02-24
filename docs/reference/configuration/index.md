@@ -14,6 +14,7 @@ next:
 - **Hide missing backend warning**: If you're planning not to use the [Advanced Features], turn this on to avoid being warned about it every time to open the main window.  
 - **Use fronts**: Turn on/off whether to use [Fronts]. Disabling them removes the "Fronts" folder from campaigns, but won't impact any Fronts you've already created (i.e. if you turn it back on in the future, they'll come back).
 - **Use story webs**: Turn on/off whether to use [Story Webs]. Disabling them removes the "Story Webs" folder from campaigns, but won't impact any Story Webs you've already created (i.e. if you turn it back on in the future, they'll come back).
+- **Enable Voice Recording**: When enabled, a microphone button will appear on [^Characters] that allows you to record, play, and delete voice samples. This helps you remember what voice or accent you used for each character. See [Voice Recording](/reference/world-building/content/character/#voice-recording) for more details.
 - **Show types in Setting tree**: If set, when the Setting directory isn't grouped by type, it will instead show the type of each [^Entry] in the tree next to its name.
 - **Sidebar starts collapsed**: If set, the directory sidebar will be collapsed when you open the main window.  
 - **Display pop-up session notes**: If set, when you enter "Play Mode", a separate session notes window will automatically popup to make it easier to take notes mid-session.
@@ -25,7 +26,6 @@ next:
 - **Auto-arrange Story Webs**: If set, as you move items around in a story web diagram, the picture will adjust to try to keep everything clean and visible.  If disabled, you will have to manually position everything, but you can put each item exactly where you want it.
 - **Show Foundry tab on entries**: When enabled, all [^Entries] will have a Foundry tab that can hold any type of Foundry document (scenes, actors, items, etc.). This is particularly useful for users who want to drive their play sessions entirely from Entries (typically Locations), without using the Campaigns/Sessions system. 
 - **Session display format**: By default, the list of [^Sessions] in the [Campaign Directory] shows just the number of the session.  This setting lets you display either the session date or the session name instead.
-- **Enable Voice Recording**: When enabled, a microphone button will appear on [^Characters] that allows you to record, play, and delete voice samples. This helps you remember what voice or accent you used for each character. See [Voice Recording](/reference/world-building/content/character/#voice-recording) for more details.
 
 ## Sub-Menus
 - [Advanced Settings](./advanced-settings.md) - Configure your AI models and "Email to To Do List" settings
