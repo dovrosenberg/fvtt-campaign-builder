@@ -177,12 +177,12 @@ const DirectoryScrollService = {
 
   /**
    * Scrolls to a campaign in the campaign directory tree.
-   * 
+   *
    * @returns A promise that resolves when the scroll operation is complete
    */
   scrollToCampaign: async (): Promise<void> => {
-    // Find and scroll to the campaign element using the active class
-    await DirectoryScrollService.scrollToElement('.fcb-campaign-folder.active');
+    // Find and scroll to the campaign element using the active class on the node-name span
+    await DirectoryScrollService.scrollToElement('.node-name.active');
   },
 
   /**
