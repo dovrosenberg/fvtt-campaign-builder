@@ -52,6 +52,13 @@ export interface ArcJournal {
 
 // Database storage types for Session-related content
 // Note: No base types - each type explicitly declares all fields for clarity
+export type SessionRelatedItem = 
+  SessionLocation | 
+  SessionItem | 
+  SessionNPC | 
+  SessionMonster | 
+  SessionVignette | 
+  SessionLore;
 
 export interface SessionLocation {
   uuid: string;

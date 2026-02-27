@@ -6,6 +6,7 @@
 - Fixed issue where the tag list didn't show the autocomplete dropdown with available tags.
 - Tags are now per-Setting instead of global across the entire application.
 - Tag autocomplete list colors are now better in dark mode. 
+- Fixed tag partial matching so entries with either "Good" and "Good Guys" as a tag were both showing when viewing the tag list for either
 
 ## 1.9.0 - Some big quality of life feature requests
 ![](https://img.shields.io/badge/release%20date-February%2027%2C%202026-blue)

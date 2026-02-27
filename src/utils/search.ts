@@ -2,7 +2,7 @@ import MiniSearch from 'minisearch';
 import { Entry, Session, FCBSetting, Arc, Front, FCBJournalEntryPage } from '@/classes';
 import { CustomFieldContentType, Topics, ValidTopic, } from '@/types';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { ArcLore, ArcVignette, SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
+import { ArcLore, ArcVignette, SessionLore, SessionVignette, SessionRelatedItem } from '@/documents';
 import { useMainStore } from '@/applications/stores';
 import { getTopicText } from '@/compendia';
 
@@ -492,14 +492,19 @@ class SearchService {
     
     // Search for the tag in the tags field using MiniSearch
     // We need to search for the exact tag, so we'll use a prefix search on tags:
+    // But note: it tokenizes by space so "good" and "good guys" will both match
+    //    each other
     const results = this._searchIndex.search(tag, { 
       fields: ['tags'],
       prefix: false,
       fuzzy: false,
     });
         
-    // Map to FCBSearchResult format
-    return results.map(sr => ({
+    // Map to FCBSearchResult format and filter out ones that aren't
+    //    and exact match
+    return results
+    .filter(sr => sr.tags.toLowerCase().trim()===tag.toLowerCase().trim())
+    .map(sr => ({
       uuid: sr.id,
       name: sr.name,
       resultType: sr.resultType,
