@@ -106,6 +106,10 @@ export default defineConfig(({ mode }) => {
               if (selector.includes('.fcb ')) {
                 return selector;
               }
+              // Skip selectors for our custom dropdown class - these render at body level
+              if (selector.includes('.fcb-tagify-dropdown')) {
+                return selector;
+              }
               // Only prefix Tagify-related selectors and tags-input
               if (selector.includes('tagify') || selector.includes('.tag') || selector.includes('[data-tagify]') || selector.includes('tags-input')) {
                 return `${prefix} ${selector}`;

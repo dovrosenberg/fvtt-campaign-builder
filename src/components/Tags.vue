@@ -236,6 +236,7 @@
           position: 'text',
           searchKeys: ['value'],
           tabKey: true,
+          classname: 'fcb-tagify-dropdown',  // Custom class for scoping dropdown styles
         },
         transformTag: transformTag,
         callbacks: {
@@ -244,7 +245,7 @@
           click: (e) => { onTagClick(e); },
         }
       });
-      
+
       // Mark as initialized after Tagify has been created
       isInitialized.value = true;
     }, 100);
@@ -295,5 +296,37 @@
 
   .fcb .tags-wrapper.uninitialized {
     visibility: hidden;
+  }
+</style>
+
+<style lang="scss">
+  // Dropdown styles for .fcb-tagify-dropdown class
+  // These styles are NOT prefixed with .fcb because the dropdown renders at body level
+  // We use the custom classname 'fcb-tagify-dropdown' to scope these styles to our dropdown only
+  .fcb-tagify-dropdown {
+    display: block;
+    position: absolute;
+    z-index: 9999;
+    background: var(--fcb-list-background, #fff);
+    border: 1px solid var(--fcb-control-border, #ddd);
+    border-radius: 3px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    
+    .tagify__dropdown__wrapper {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .tagify__dropdown__item {
+      padding: 6px 10px;
+      cursor: pointer;
+      color: var(--fcb-text, #000);
+      
+      &:hover, &--active {
+        background-color: var(--fcb-list-highlight-bg
+         #e0e0e0);
+        color: var(--fcb-list-highlight-text, #000);
+      }
+    }
   }
 </style>
