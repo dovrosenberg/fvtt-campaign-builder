@@ -13,10 +13,10 @@ export class MigrationV1_9_1 implements Migration {
   public readonly targetVersion = '1.9.1';
   public readonly description = 'Moves tags from module settings to individual settings';
 
-  private _context: MigrationContext;
+  // private _context: MigrationContext;
 
   constructor(_context: MigrationContext) {
-    this._context = _context;
+    // this._context = _context;
   }
 
   /**
@@ -52,7 +52,6 @@ export class MigrationV1_9_1 implements Migration {
       });
 
       // Filter to only documents that have tags
-      debugger;
       const tagDocs = allDocumentsIndex.filter((d: any) => 
         tagDocumentTypes.includes(d.flags?.[moduleId]?.campaignBuilderType)
       );

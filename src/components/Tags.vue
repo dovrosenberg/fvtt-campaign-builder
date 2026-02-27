@@ -24,6 +24,8 @@
   // local components
 
   // types
+  import { SettingTags } from "@/types";
+
   interface TagEventData {
     __tagId: string;
     __isValid: boolean | string;
