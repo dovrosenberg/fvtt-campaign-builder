@@ -19,7 +19,6 @@
         <Tags
           v-if="currentSession"
           v-model="currentSession.tags"
-          :tag-setting="SettingKey.contentTags"
           @tag-added="onTagChange"
           @tag-removed="onTagChange"
           @tag-click="onTagClick"

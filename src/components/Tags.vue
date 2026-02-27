@@ -12,10 +12,11 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, onBeforeUnmount, PropType, ref, watch } from "vue";
+  import { onMounted, onBeforeUnmount, PropType, ref, watch, computed } from "vue";
+  import { storeToRefs } from 'pinia';
 
   // local imports
-  import { ModuleSettings, SettingKey } from "@/settings";
+  import { useMainStore } from "@/applications/stores";
 
   // library components
   import Tagify from "@yaireo/tagify"
@@ -43,10 +44,6 @@
       type: Array as PropType<string[]>,
       required: true,
     },
-    tagSetting: {   // key of setting to pull tag counts from 
-      type: String as PropType<SettingKey.contentTags>,
-      required: true,
-    },
   });
 
 
@@ -61,6 +58,8 @@
 
   ////////////////////////////////
   // store
+  const mainStore = useMainStore();
+  const { currentSetting } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -71,6 +70,7 @@
 
   ////////////////////////////////
   // computed data
+  const tagList = computed(() => currentSetting.value?.tags || {} as SettingTags);
 
   ////////////////////////////////
   // methods
@@ -78,8 +78,11 @@
 
   // generate a random color
   const transformTag = ( tagData: TagData ) => {
+    if (!tagList.value)
+      return;
+
     // see if there's a color
-    tagData.color = ModuleSettings.get(props.tagSetting)[tagData.value]?.color;
+    tagData.color = tagList.value[tagData.value]?.color;
     
     // only change it if it doesn't already have a color
     if (!tagData.color) {
@@ -94,10 +97,9 @@
   }
 
   const getWhitelist = (): string[] => {
-    const tagList = ModuleSettings.get(props.tagSetting);
     const whitelist = [] as string[];
-    for (const tag in tagList) {
-      if (tagList[tag].count > 0)  // make sure count > 0
+    for (const tag in tagList.value) {
+      if (tagList.value[tag].count > 0)  // make sure count > 0
         whitelist.push(tag);
     }
 
@@ -116,22 +118,16 @@
     if (currentValue.value.includes(value))  
       return;
  
-    if (!tagify.value)
+    if (!tagify.value || !currentSetting.value)
       return;
 
     // see if it's valid (which includes checking for duplicates)
     if (tagInfo.__isValid !== true) 
       return;
 
-    // add to the setting
-    const tagList = ModuleSettings.get(props.tagSetting);
-
-    tagList[value] = {
-      count: (tagList[value]?.count || 0) + 1,
-      color: color || undefined
-    };
-
-    await ModuleSettings.set(props.tagSetting, tagList);
+    // add to the setting's tags
+    currentSetting.value.addTag(value, color || null);
+    await currentSetting.value.save();
 
     // trigger reactivity - map to just the string values
     currentValue.value = tagify.value.value.map((t) => t.value);
@@ -148,24 +144,16 @@
     const tagInfo = event.detail.data as TagEventData;
     const value = tagInfo.value;
 
-    if (!tagify.value)
+    if (!tagify.value || !currentSetting.value)
       return;
 
     // see if it's valid (which it should be when removing, but just in case
     if (tagInfo.__isValid !== true) 
       return;
 
-    // reduce the setting count and remove if this was the last use
-    const tagList = ModuleSettings.get(props.tagSetting);
-    tagList[value] = {
-      ...tagList[value],
-      count: (tagList[value].count || 1) - 1,
-    };
-
-    if (!tagList[value].count) 
-      delete tagList[value];
-
-    await ModuleSettings.set(props.tagSetting, tagList);
+    // Save to the setting
+    currentSetting.value.removeTag(value);
+    await currentSetting.value.save();
 
     // update the whitelist
     tagify.value.whitelist = getWhitelist();
@@ -206,10 +194,9 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(() => {
-    const tagList = ModuleSettings.get(props.tagSetting);
     const whitelist = [] as string[];
-    for (const tag in tagList) {
-      if (tagList[tag].count > 0)  // make sure count > 0
+    for (const tag in tagList.value) {
+      if (tagList.value[tag].count > 0)  // make sure count > 0
         whitelist.push(tag);
     }
 
@@ -323,8 +310,7 @@
       color: var(--fcb-text, #000);
       
       &:hover, &--active {
-        background-color: var(--fcb-list-highlight-bg
-         #e0e0e0);
+        background-color: var(--fcb-list-highlight-bg, #e0e0e0);
         color: var(--fcb-list-highlight-text, #000);
       }
     }

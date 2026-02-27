@@ -11,7 +11,7 @@ import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Docume
 import { entryIndexFields, NameStyleExamples, } from '@/documents';
 import CleanKeysService from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
-import { ArcBasicIndex, CampaignBasicIndex, EntryFilterIndex, Hierarchy, RelatedJournal, TopicBasicIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';
+import { ArcBasicIndex, CampaignBasicIndex, EntryFilterIndex, Hierarchy, RelatedJournal, TopicBasicIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord,SettingTags,SettingTag } from '@/types';
 import GlobalSettingService from '@/utils/globalSettings';
 
 type SettingCompendium = CompendiumCollection<'JournalEntry'>;
@@ -39,7 +39,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     nameStyles: [],   
     rollTableConfig: null,   
     nameStyleExamples: { genre: '', settingFeeling: '', examples: [] },   
-    journals: [], 
+    journals: [],
+    tags: {} as SettingTags,
   } as unknown as SettingDocClass['system'];
   
   // JournalEntries
@@ -188,6 +189,32 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public set journals(value: RelatedJournal[]) {
     (this._clone.system.journals as RelatedJournal[]) = value;
   } 
+
+  public get tags(): SettingTags {
+    return this._clone.system.tags;
+  }
+
+  public set tags(value: SettingTags) {
+    this._clone.system.tags = value;
+  }
+
+  public addTag(tagName: string, color: string | null = null): void {
+    const newTag = {
+      count: (this.tags[tagName]?.count || 0) +1,
+      color: this.tags[tagName]?.color || color,
+    };
+
+    this.tags[tagName] = newTag;
+  }
+
+  public removeTag(tagName: string): void {
+    if (this.tags[tagName]) {
+      if (this.tags[tagName].count > 1)
+        this.tags[tagName].count--;
+      else
+        delete this.tags[tagName];
+    }
+  }
 
 
   /**

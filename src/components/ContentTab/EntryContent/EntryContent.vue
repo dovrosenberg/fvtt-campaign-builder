@@ -53,7 +53,6 @@
         <Tags
           v-if="currentEntry"
           v-model="currentEntry.tags"
-          :tag-setting="SettingKey.contentTags"
           @tag-added="onTagChange"
           @tag-removed="onTagChange"
           @tag-click="onTagClick"

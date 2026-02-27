@@ -1,4 +1,4 @@
-import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopicRecord, } from '@/types';
+import { Hierarchy, RelatedJournal, SettingGeneratorConfig, SettingTags, Topics, ValidTopicRecord, } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 import { DOCUMENT_TYPES, } from './types';
 import CleanKeysService from '@/utils/cleanKeys';
@@ -71,6 +71,16 @@ export const SettingSchema = {
     schemas.RelatedJournal(),
     { required: true, nullable: false, initial: [] as RelatedJournal[] }
   ), 
+
+  /** tags for all the content in the setting - shared across content types */
+  tags: new fields.TypedObjectField(
+    new fields.SchemaField({
+        count: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
+        color: new fields.StringField({ required: true, nullable: true, initial: null }),
+      }, { required: true, nullable: false }
+    ),
+    { required: true, nullable: false, initial: {} as SettingTags }
+  ),
 };
 
 type SchemaType = typeof SettingSchema;
@@ -86,6 +96,7 @@ export class SettingDataModel<
   override prepareBaseData(): void {
     this.hierarchies = CleanKeysService.cleanKeysOnLoad(this.hierarchies);
     this.expandedIds = CleanKeysService.cleanKeysOnLoad(this.expandedIds);
+    this.tags = CleanKeysService.cleanKeysOnLoad(this.tags);
   }
 }
 
@@ -113,5 +124,6 @@ export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_T
     journals: RelatedJournal[]; 
     customFields: Record<string, string>;
     customFieldHeights: Record<string, number>;
+    tags: SettingTags;
   };
 }

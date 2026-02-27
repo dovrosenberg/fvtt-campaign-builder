@@ -19,7 +19,6 @@
         <Tags
           v-if="currentFront"
           v-model="currentFront.tags"
-          :tag-setting="SettingKey.contentTags"
           @tag-added="onTagChange"
           @tag-removed="onTagChange"
           @tag-click="onTagClick"
