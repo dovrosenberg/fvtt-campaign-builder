@@ -1,6 +1,6 @@
 # Change Log
 ## 1.9.1 - Tag tweaks
-![](https://img.shields.io/badge/release%20date-February%20____%2C%202026-blue)
+![](https://img.shields.io/badge/release%20date-February%2027%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.1/module.zip)
 
 - Fixed issue where the tag list didn't show the autocomplete dropdown with available tags.
