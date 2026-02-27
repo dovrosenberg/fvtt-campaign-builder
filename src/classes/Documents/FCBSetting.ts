@@ -488,6 +488,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     // convert unsafe keys
     data.system.hierarchies = CleanKeysService.cleanKeysOnSave(data.system.hierarchies);
     data.system.expandedIds = CleanKeysService.cleanKeysOnSave(data.system.expandedIds);
+    data.system.tags = CleanKeysService.cleanKeysOnSave(data.system.tags);
   }
   
   public async save() {
