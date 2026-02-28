@@ -165,7 +165,7 @@ Dependencies
   const selectedFile = ref<File | null>(null);
   const selectedFileName = ref('');
   const fileInput = ref<HTMLInputElement | null>(null);
-  const selectedExportMode = ref<ExportMode>(ExportMode.ALL);
+  const selectedExportMode = ref<ExportMode>(ExportMode.SETTINGS_ONLY);
 
   ////////////////////////////////
   // computed data
