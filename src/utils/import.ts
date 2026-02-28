@@ -66,9 +66,11 @@ export async function importModuleJson(
   onProgress?.(localize('applications.importExport.validatingData'), 8);
   validateExportDataForImport(data);
 
-  // Delete all existing settings
+  // Delete only settings that match the imported ones (by name)
   onProgress?.(localize('applications.importExport.deletingExisting'), 10);
-  await deleteAllSettings();
+  if (data.settings) {
+    await deleteMatchingSettings(data.settings);
+  }
 
   // Create import context with UUID mapping and original data storage
   const context: ImportContext = {
@@ -190,6 +192,44 @@ function validateExportData(data: unknown): boolean {
   }
 
   return true;
+}
+
+/**
+ * Delete only existing FCB settings whose IDs match the imported settings.
+ * This allows settings not in the import to remain untouched.
+ *
+ * @param importedSettings - The settings being imported
+ */
+async function deleteMatchingSettings(importedSettings: SettingExportData[]): Promise<void> {
+  const settingIndex = ModuleSettings.get(SettingKey.settingIndex);
+  const importedIds = new Set(importedSettings.map(s => s.uuid));
+
+  // Find settings to delete (those whose IDs match imported ones)
+  const settingsToDelete: { index: number; settingId: string }[] = [];
+  for (let i = 0; i < settingIndex.length; i++) {
+    const settingInfo = settingIndex[i];
+    if (importedIds.has(settingInfo.settingId)) {
+      settingsToDelete.push({ index: i, settingId: settingInfo.settingId });
+    }
+  }
+
+  // Delete in reverse order to avoid index issues
+  for (let i = settingsToDelete.length - 1; i >= 0; i--) {
+    const { settingId } = settingsToDelete[i];
+    const setting = await FCBSetting.fromUuid(settingId);
+    if (setting) {
+      await setting.delete();
+    }
+  }
+
+  // Update the setting index to remove deleted entries
+  const updatedIndex = settingIndex.filter((_: { settingId: string }, index: number) => 
+    !settingsToDelete.some(s => s.index === index)
+  );
+  await ModuleSettings.set(SettingKey.settingIndex, updatedIndex);
+
+  // Clear global cache for deleted settings
+  GlobalSettingService.clearAll();
 }
 
 /**
