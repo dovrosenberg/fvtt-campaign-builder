@@ -30,7 +30,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     this.campaign = campaign || null;
   }
 
-  static override async fromUuid<
+  static override async foundry.utils.fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
   >(this: T, storyWebId: string): Promise<InstanceType<T> | null> {
     const storyWeb = await super.fromUuid(storyWebId) as unknown as (StoryWeb | null);

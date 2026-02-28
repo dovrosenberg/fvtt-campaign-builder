@@ -53,7 +53,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     this.campaign = campaign || null;
   }
 
-  static override async fromUuid<
+  static override async foundry.utils.fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
   > (this: T, arcId: string): Promise<InstanceType<T> | null> { 
       const arc = await super.fromUuid(arcId) as unknown as (Arc | null);

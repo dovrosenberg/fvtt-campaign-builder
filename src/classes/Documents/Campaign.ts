@@ -37,7 +37,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     },
   } as unknown as CampaignDocClass['system'];
   
-  public static override async fromUuid<
+  public static override async foundry.utils.fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
   > (this: T, uuid: string): Promise<InstanceType<T> | null> { 
     const campaign = await super.fromUuid(uuid) as unknown as (Campaign | null);

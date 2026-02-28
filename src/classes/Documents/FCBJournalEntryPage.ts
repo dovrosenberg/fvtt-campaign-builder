@@ -199,12 +199,12 @@ export class FCBJournalEntryPage<
   }
 
   /** takes the uuid of the wrapper entry */
-  static async fromUuid<
+  static async foundry.utils.fromUuid<
     DocType extends ValidDocType,
     DocClass extends JournalEntryPage<DocType>,
     T extends FCBJournalEntryPageStatic<DocType, DocClass>
   > (this: T, uuid: string): Promise<InstanceType<T> | null> {
-    const entry = await fromUuid<JournalEntry>(uuid) as JournalEntry | undefined;
+    const entry = await foundry.utils.fromUuid<JournalEntry>(uuid) as JournalEntry | undefined;
     
     if (!entry || entry.documentName !== 'JournalEntry' || !entry.pages || entry.pages.contents.length !== 1)
       return null;

@@ -142,7 +142,7 @@ export function useEntryDerivedState(): EntryDerivedState {
 
         const actorList = [] as RelatedDocumentDetails[];
         for (let i = 0; i < currentEntry.value.actors.length; i++) {
-          const actor = await fromUuid<Actor>(currentEntry.value.actors[i]);
+          const actor = await foundry.utils.fromUuid<Actor>(currentEntry.value.actors[i]);
           if (!actor)
             continue;
 

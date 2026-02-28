@@ -31,7 +31,7 @@ export class RootFolder {
       // no setting - create a new one
       folder = await RootFolder.create();
     } else { 
-      const doc = await fromUuid<RootFolderDoc>(rootFolderId);
+      const doc = await foundry.utils.fromUuid<RootFolderDoc>(rootFolderId);
 
       if (doc)
         folder = new RootFolder(doc);

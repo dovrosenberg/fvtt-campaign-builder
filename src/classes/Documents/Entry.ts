@@ -47,7 +47,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
 
   
   // does not set the parent topic
-  static override async fromUuid<
+  static override async foundry.utils.fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
   > (this: T, entryId: string): Promise<InstanceType<T> | null> {
     const entry = await super.fromUuid(entryId) as unknown as (Entry | null);
@@ -85,7 +85,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     else if (!this._clone.system.actorId)
       return null;
 
-    this._actor = await fromUuid<Actor>(this._clone.system.actorId);
+    this._actor = await foundry.utils.fromUuid<Actor>(this._clone.system.actorId);
 
     if (!this._actor) {
       this.actorId = '';  // clean up if the actor is gone

@@ -596,7 +596,7 @@ export const sessionStore = () => {
 
     await currentSession.value.markItemDelivered(uuid, delivered);
 
-    const entry = await fromUuid<Item>(uuid);
+    const entry = await foundry.utils.fromUuid<Item>(uuid);
 
     let campaign;
     if (entry)
@@ -709,7 +709,7 @@ export const sessionStore = () => {
 
     await currentSession.value.markMonsterDelivered(uuid, delivered);
 
-    const entry = await fromUuid<Actor>(uuid);
+    const entry = await foundry.utils.fromUuid<Actor>(uuid);
 
     let campaign;
     if (entry)
@@ -868,7 +868,7 @@ export const sessionStore = () => {
 
   // when we click on an item, open it
   async function onItemClick (_event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
-    const item = await fromUuid<Item>(rowData.uuid);
+    const item = await foundry.utils.fromUuid<Item>(rowData.uuid);
 
     if (item)
       item.sheet?.render(true);
@@ -876,7 +876,7 @@ export const sessionStore = () => {
 
   // when we click on a monster, open it
   async function onMonsterClick (_event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) {
-    const monster = await fromUuid<Actor>(rowData.uuid);
+    const monster = await foundry.utils.fromUuid<Actor>(rowData.uuid);
 
     if (monster)
       monster.sheet?.render(true);

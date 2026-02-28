@@ -51,7 +51,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this.campaign = campaign || null;
   }
 
-  static override async fromUuid<
+  static override async foundry.utils.fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
   > (this: T, sessionId: string): Promise<InstanceType<T> | null> { 
       const session = await super.fromUuid(sessionId) as unknown as (Session | null);

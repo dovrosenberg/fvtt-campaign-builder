@@ -50,7 +50,7 @@ Any links to non-Campaign Builder Foundry documents (actors, scenes, items, etc.
 5. Once complete, Foundry will automatically reload
 
 ::: danger Danger!
-Importing will **DELETE ALL existing Campaign Builder content** in the current world before creating the imported content. This action cannot be undone.
+Importing will **delete only the Settings that match by UUID** with the imported data. Other Settings that don't match will be preserved. This action cannot be undone.
 
 Make sure to export your current data first if you want to preserve it.
 :::

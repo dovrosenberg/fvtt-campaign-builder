@@ -158,7 +158,7 @@
       }
       
       // Load the roll table
-      rollTable.value = await fromUuid<RollTable>(tableUuid);
+      rollTable.value = await foundry.utils.fromUuid<RollTable>(tableUuid);
       
       if (!rollTable.value)
         throw new Error('Invalid uuid in GenerateNameDialog.drawOptions()');

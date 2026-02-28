@@ -49,7 +49,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   /** these are the the class objects - see topics for just the flattened system data */
   public topicFolders: ValidTopicRecord<TopicFolder> = {};  // we load them when we load the setting (using populate()), so we assume it's never empty
     
-  static override async fromUuid<
+  static override async foundry.utils.fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
   > (this: T, settingId: string): Promise<InstanceType<T> | null> { 
     const setting = await super.fromUuid(settingId) as unknown as (FCBSetting | null);
@@ -562,7 +562,7 @@ private async deleteRollTables() : Promise<void> {
 
   // first delete all the rollTables
   for (const tableUuid of Object.values(config.rollTables)) {
-    const table = await fromUuid<RollTable>(tableUuid);
+    const table = await foundry.utils.fromUuid<RollTable>(tableUuid);
     if (table) {
       await table.delete();
     }

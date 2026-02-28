@@ -279,7 +279,7 @@ export class MigrationV1_8 implements Migration {
 
         for (const doc of relevantDocs) {
           try {
-            const journalEntry = await fromUuid<JournalEntry>(doc.uuid);
+            const journalEntry = await foundry.utils.fromUuid<JournalEntry>(doc.uuid);
             if (!journalEntry || !journalEntry.pages || journalEntry.pages.contents.length !== 1) {
               continue;
             }

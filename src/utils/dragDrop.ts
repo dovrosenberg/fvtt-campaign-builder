@@ -122,7 +122,7 @@ const DragDropService = {
 
     try {
       // Get the actor document using fromUuid
-      const actor = await fromUuid<Actor>(uuid);
+      const actor = await foundry.utils.fromUuid<Actor>(uuid);
 
       if (actor) {
         // Set the drag data using the actor's toDragData method
@@ -176,7 +176,7 @@ const DragDropService = {
 
     try {
       // Get the Item document using fromUuid
-      const item = await fromUuid<Item>(uuid);
+      const item = await foundry.utils.fromUuid<Item>(uuid);
 
       if (item) {
         event.dataTransfer.setData("text/plain", JSON.stringify(item.toDragData()));
