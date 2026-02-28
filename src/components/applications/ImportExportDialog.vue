@@ -170,9 +170,9 @@ Dependencies
   ////////////////////////////////
   // computed data
   const exportModeOptions = [
-    { value: ExportMode.ALL, label: localize('applications.importExport.exportModeAll') },
-    { value: ExportMode.CONFIGURATION_ONLY, label: localize('applications.importExport.exportModeConfiguration') },
     { value: ExportMode.SETTINGS_ONLY, label: localize('applications.importExport.exportModeSettings') },
+    { value: ExportMode.CONFIGURATION_ONLY, label: localize('applications.importExport.exportModeConfiguration') },
+    { value: ExportMode.ALL, label: localize('applications.importExport.exportModeAll') },
   ];
 
   ////////////////////////////////
