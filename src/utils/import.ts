@@ -81,6 +81,8 @@ export async function importModuleJson(
   };
 
   // Import module settings (remapped to remove old setting UUIDs)
+  // Note: We import settings first, but UUIDs in settings like emailDefaultSetting/emailDefaultCampaign
+  // will be remapped later after the UUID map is populated
   if (data.moduleSettings) {
     onProgress?.(localize('applications.importExport.importingSettings'), 15);
     await importModuleSettings(data.moduleSettings);
@@ -108,6 +110,9 @@ export async function importModuleJson(
       // Remap all UUIDs in all documents using original data
       onProgress?.(localize('applications.importExport.remappingUuids'), 95);
       await remapAllDocumentUuids(context);
+
+      // Remap UUIDs in module settings that reference documents
+      await remapModuleSettingsUuids(context);
     }
 
     onProgress?.(localize('applications.importExport.importComplete'), 100);
@@ -204,6 +209,35 @@ async function importModuleSettings(settings: Record<string, unknown>): Promise<
     } catch {
       // Setting may not exist or have type mismatch
       console.warn(`Failed to import setting: ${key}`);
+    }
+  }
+}
+
+/**
+ * Remap UUIDs in module settings that reference FCB documents.
+ * This handles settings like emailDefaultSetting and emailDefaultCampaign
+ * which store document UUIDs that need to be updated after import.
+ *
+ * @param context - Import context with UUID map
+ */
+async function remapModuleSettingsUuids(context: ImportContext): Promise<void> {
+  // Settings that contain document UUIDs requiring remapping
+  const UUID_SETTINGS: SettingKey[] = [
+    SettingKey.emailDefaultSetting,
+    SettingKey.emailDefaultCampaign,
+  ];
+
+  for (const settingKey of UUID_SETTINGS) {
+    const currentValue = ModuleSettings.get(settingKey);
+    if (!currentValue) continue;
+
+    // Remap the UUID if it exists in the map
+    const remappedValue = context.uuidMap.get(currentValue as string);
+    if (remappedValue) {
+      await ModuleSettings.set(settingKey, remappedValue);
+    } else {
+      // The UUID doesn't exist in the new world - clear the setting
+      await ModuleSettings.set(settingKey, '');
     }
   }
 }
