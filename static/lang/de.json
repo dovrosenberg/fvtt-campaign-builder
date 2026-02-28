@@ -88,7 +88,10 @@
       "tableGroupingLabel": "Tabellengruppierung",
       "tableGroupingHelp": "Konfigurieren Sie, welche Registerkarten gruppierte Tabellen für jeden Inhaltstyp verwenden",
       "enableVoiceRecording": "Sprachaufnahme aktivieren",
-      "enableVoiceRecordingHelp": "Erlaube das Aufzeichnen von Sprachproben für Charaktere, um Stimmen/Akzente besser zu merken"
+      "enableVoiceRecordingHelp": "Erlaube das Aufzeichnen von Sprachproben für Charaktere, um Stimmen/Akzente besser zu merken",
+      "importExport": "Moduldaten importieren/exportieren",
+      "importExportLabel": "Moduldaten importieren/exportieren",
+      "importExportHelp": "Alle Moduldaten in eine Datei exportieren oder aus einem vorherigen Export importieren"
     },
     "applications": {
       "sessionNotes": {
@@ -333,6 +336,41 @@
           "duplicateStyleIds": "Stil-IDs müssen eindeutig sein",
           "duplicateCustomColorSchemeIds": "Benutzerdefinierte Farbschema-IDs müssen eindeutig sein"
         }
+      },
+      "importExport": {
+        "title": "Moduldaten importieren/exportieren",
+        "exportTitle": "Moduldaten exportieren",
+        "importTitle": "Moduldaten importieren",
+        "exportDescription": "Alle FCB-Einstellungen und Inhalte in eine JSON-Datei exportieren, die in eine andere Foundry-Welt importiert werden kann.",
+        "importDescription": "FCB-Daten aus einer zuvor exportierten JSON-Datei importieren. Dies wird alle vorhandenen FCB-Inhalte ersetzen.",
+        "exportButton": "Daten exportieren",
+        "importButton": "Daten importieren",
+        "exportModeLabel": "Exportmodus",
+        "exportModeAll": "Alles exportieren",
+        "exportModeConfiguration": "Nur Konfiguration",
+        "exportModeSettings": "Nur Einstellungen",
+        "exportStarting": "Export wird gestartet...",
+        "exportComplete": "Moduldaten erfolgreich exportiert",
+        "exportFailed": "Moduldaten konnten nicht exportiert werden",
+        "importStarting": "Import wird gestartet...",
+        "importComplete": "Moduldaten erfolgreich importiert. Neuladen...",
+        "importFailed": "Moduldaten konnten nicht importiert werden",
+        "importWarning": "Der Import ersetzt alle vorhandenen FCB-Einstellungen mit übereinstimmenden IDs. Andere Einstellungen bleiben unberührt. Dies kann nicht rückgängig gemacht werden.",
+        "importWarningConfig": "Der Import der Konfiguration wird die Moduleinstellungen aktualisieren, ohne den FCB-Inhalt zu beeinflussen.",
+        "importConfirmTitle": "Import bestätigen",
+        "importConfirm": "Dies wird alle vorhandenen FCB-Einstellungen mit übereinstimmenden IDs ersetzen. Andere Einstellungen bleiben unberührt. Fortfahren?",
+        "importConfirmConfig": "Dies wird die Moduleinstellungen aktualisieren. Fortfahren?",
+        "invalidFile": "Ungültiges Exportdateiformat",
+        "selectFile": "Exportdatei auswählen...",
+        "collectingSettings": "Moduleinstellungen werden gesammelt...",
+        "exportingSetting": "Einstellung wird exportiert",
+        "creatingFile": "Exportdatei wird erstellt...",
+        "readingFile": "Importdatei wird gelesen...",
+        "validatingData": "Importdaten werden validiert...",
+        "deletingExisting": "Vorhandene Inhalte werden gelöscht...",
+        "importingSettings": "Moduleinstellungen werden importiert...",
+        "importingSetting": "Einstellung wird importiert",
+        "remappingUuids": "Dokumentenreferenzen werden neu zugeordnet..."
       }
     },
     "help": {
@@ -968,7 +1006,11 @@
         },
         "2": "Kampagne",
         "3": "Sitzung",
-        "4": "Einstellung"
+        "4": "Einstellung",
+        "5": "Vorderseite",
+        "6": "Bogen",
+        "7": "Geschichten-Netz",
+        "8": "Tag-Ergebnisse"
       },
       "dragActorFromEntry": "In Szene ziehen",
       "addToASession": "Zu einer Sitzung hinzufügen",

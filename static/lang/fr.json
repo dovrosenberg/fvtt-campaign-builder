@@ -88,7 +88,10 @@
       "tableGroupingLabel": "Regroupement de table",
       "tableGroupingHelp": "Configurer quels onglets utilisent des tables groupées pour chaque type de contenu",
       "enableVoiceRecording": "Activer l'enregistrement vocal",
-      "enableVoiceRecordingHelp": "Autoriser l'enregistrement d'échantillons vocaux pour les personnages afin d'aider à se souvenir des voix/accents"
+      "enableVoiceRecordingHelp": "Autoriser l'enregistrement d'échantillons vocaux pour les personnages afin d'aider à se souvenir des voix/accents",
+      "importExport": "Importer/Exporter les données du module",
+      "importExportLabel": "Importer/Exporter les données du module",
+      "importExportHelp": "Exporter toutes les données du module vers un fichier ou importer depuis un export précédent"
     },
     "applications": {
       "sessionNotes": {
@@ -333,6 +336,41 @@
           "duplicateStyleIds": "Les identifiants de style doivent être uniques",
           "duplicateCustomColorSchemeIds": "Les identifiants de schéma de couleur personnalisé doivent être uniques"
         }
+      },
+      "importExport": {
+        "title": "Importer/Exporter les données du module",
+        "exportTitle": "Exporter les données du module",
+        "importTitle": "Importer les données du module",
+        "exportDescription": "Exporter tous les paramètres et contenus FCB vers un fichier JSON qui peut être importé dans un autre monde Foundry.",
+        "importDescription": "Importer les données FCB à partir d'un fichier JSON précédemment exporté. Cela remplacera tout le contenu FCB existant.",
+        "exportButton": "Exporter les données",
+        "importButton": "Importer les données",
+        "exportModeLabel": "Mode d'exportation",
+        "exportModeAll": "Tout exporter",
+        "exportModeConfiguration": "Configuration uniquement",
+        "exportModeSettings": "Paramètres uniquement",
+        "exportStarting": "Démarrage de l'exportation...",
+        "exportComplete": "Données du module exportées avec succès",
+        "exportFailed": "Échec de l'exportation des données du module",
+        "importStarting": "Démarrage de l'importation...",
+        "importComplete": "Données du module importées avec succès. Rechargement...",
+        "importFailed": "Échec de l'importation des données du module",
+        "importWarning": "L'importation remplacera tous les paramètres FCB existants ayant des identifiants correspondants. Les autres paramètres resteront inchangés. Cela ne peut pas être annulé.",
+        "importWarningConfig": "L'importation de la configuration mettra à jour les paramètres du module sans affecter le contenu FCB.",
+        "importConfirmTitle": "Confirmer l'importation",
+        "importConfirm": "Cela remplacera tous les paramètres FCB existants avec des identifiants correspondants. Les autres paramètres resteront inchangés. Continuer ?",
+        "importConfirmConfig": "Cela mettra à jour les paramètres de configuration du module. Continuer ?",
+        "invalidFile": "Format de fichier d'exportation invalide",
+        "selectFile": "Sélectionner le fichier d'exportation...",
+        "collectingSettings": "Collecte des paramètres du module...",
+        "exportingSetting": "Exportation du paramètre",
+        "creatingFile": "Création du fichier d'exportation...",
+        "readingFile": "Lecture du fichier d'importation...",
+        "validatingData": "Validation des données d'importation...",
+        "deletingExisting": "Suppression du contenu existant...",
+        "importingSettings": "Importation des paramètres du module...",
+        "importingSetting": "Importation du paramètre",
+        "remappingUuids": "Remappage des références de documents..."
       }
     },
     "help": {
@@ -968,7 +1006,11 @@
         },
         "2": "Campagne",
         "3": "Session",
-        "4": "Paramètre"
+        "4": "Paramètre",
+        "5": "Avant",
+        "6": "Arc",
+        "7": "Toile de l'histoire",
+        "8": "Résultats des tags"
       },
       "dragActorFromEntry": "Glisser vers la scène",
       "addToASession": "Ajouter à une session",
