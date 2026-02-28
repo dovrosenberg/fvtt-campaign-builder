@@ -129,7 +129,7 @@ function remapAllUuidsInString(text: string, uuidMap: Map<string, string>): stri
  * @returns The object with remapped UUID references
  */
 export function remapUuidsInObject(obj: unknown, uuidMap: Map<string, string>): unknown {
-  if (!obj) return obj;
+  if (obj == null) return obj;
 
   // Handle strings - find and remap all UUIDs within
   if (typeof obj === 'string') {
