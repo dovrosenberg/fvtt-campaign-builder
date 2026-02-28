@@ -662,9 +662,6 @@ async function remapAllDocumentUuids(context: ImportContext): Promise<void> {
               context.uuidMap
             ) as Record<string, unknown>;
 
-            // Validate remapped relationships - throw error if invalid data found
-            validateRelationshipsInSystem(remappedEntrySystem, entry.name || 'unknown');
-
             // Apply text content
             if (originalEntryData.description) {
               entry.description = remapUuidsInObject(originalEntryData.description, context.uuidMap) as string;
@@ -816,58 +813,6 @@ async function remapAllDocumentUuids(context: ImportContext): Promise<void> {
           }
 
           await updateDocumentSystemData(storyWeb, remappedStoryWebSystem);
-        }
-      }
-    }
-  }
-}
-
-
-/**
- * Validate relationships in a system data object.
- *
- * @param system - The system data to validate
- * @param documentName - Name of the document for error messages
- * @throws Error if invalid relationship data is found
- */
-function validateRelationshipsInSystem(system: Record<string, unknown>, documentName: string): void {
-  if (!system.relationships || typeof system.relationships !== 'object') {
-    return;
-  }
-
-  const relationships = system.relationships as ValidTopicRecord<Record<string, RelatedEntryDetails<any, any>>>;
-  const validTopicKeys = ['1', '2', '3', '4']; // Topics.Character=1, Location=2, Organization=3, PC=4
-
-  for (const [topicKey, entries] of Object.entries(relationships)) {
-    // Validate topic key is valid
-    if (!validTopicKeys.includes(topicKey)) {
-      throw new Error(
-        `Import validation failed for "${documentName}": Invalid topic key "${topicKey}" in relationships. ` +
-        `Expected one of: ${validTopicKeys.join(', ')}. The export file may be corrupted.`
-      );
-    }
-
-    if (!entries || typeof entries !== 'object') {
-      continue;
-    }
-
-    for (const [entryUuid, details] of Object.entries(entries)) {
-      // Check if the key UUID is valid
-      if (!foundry.utils.parseUuid(entryUuid)) {
-        throw new Error(
-          `Import validation failed for "${documentName}": Invalid relationship key UUID "${entryUuid}" in topic "${topicKey}". ` +
-          `The export file may be corrupted.`
-        );
-      }
-
-      // Check if the details object has valid required fields
-      if (details && typeof details === 'object') {
-        // Check uuid field
-        if (!foundry.utils.parseUuid(details.uuid)) {
-          throw new Error(
-            `Import validation failed for "${documentName}": Invalid relationship uuid field "${details.uuid}" in topic "${topicKey}". ` +
-            `The export file may be corrupted.`
-          );
         }
       }
     }
