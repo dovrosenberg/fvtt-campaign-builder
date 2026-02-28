@@ -189,6 +189,14 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
   public set journals(value: RelatedJournal[]) {
     (this._clone.system.journals as RelatedJournal[]) = value;
+  }
+
+  public get timelines(): TimelineConfig[] {
+    return this._clone.system.timelines || [];
+  }
+
+  public set timelines(value: TimelineConfig[]) {
+    this._clone.system.timelines = value;
   } 
 
   public get tags(): SettingTags {

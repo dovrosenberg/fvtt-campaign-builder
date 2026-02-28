@@ -1,4 +1,4 @@
-import { GroupableItem } from '@/types';
+import { GroupableItem, TimelineConfig } from '@/types';
 import type { 
   SessionLocation, 
   SessionItem, 
@@ -8,16 +8,6 @@ import type {
   SessionLore 
 } from '@/types/dbTypes';
 import { schemas } from './fields';
-
-// Re-export types for backward compatibility
-export type { 
-  SessionLocation, 
-  SessionItem, 
-  SessionNPC, 
-  SessionMonster, 
-  SessionVignette, 
-  SessionLore 
-} from '@/types/dbTypes';
 
 const fields = foundry.data.fields;
 
@@ -86,6 +76,12 @@ export const SessionSchema = {
     { required: true, nullable: false, initial: [] as string[] }
   ),
 
+  /** timelines */
+  timelines: new fields.ArrayField(
+    schemas.TimelineConfig(),
+    { required: true, nullable: false, initial: [] as TimelineConfig[] }
+  ),
+
   /** consolidated groups structure */
   groups: new fields.SchemaField({
     [GroupableItem.SessionLore]: schemas.GroupArray(),
@@ -132,6 +128,7 @@ export interface SessionDoc extends JournalEntryPage {
     monsters: SessionMonster[];
     vignettes: SessionVignette[];
     lore: SessionLore[];
+    timelines: TimelineConfig[];
     img: string;
     tags: string[];
     storyWebs: string[];

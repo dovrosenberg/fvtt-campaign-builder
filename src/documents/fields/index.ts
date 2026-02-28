@@ -27,6 +27,7 @@ import { ArcVignetteSchema } from './ArcVignette';
 import { StoryWebNodeSchema } from './StoryWebNode';
 import { StoryWebEdgeSchema } from './StoryWebEdge';
 import { GroupArraySchema } from './GroupArray';
+import { TimelineConfigSchema } from './TimelineConfig';
 
 export type * from './Danger';
 export type * from './StoryWebNode';
@@ -63,5 +64,6 @@ export const schemas = {
   StoryWebNode: StoryWebNodeSchema,
   StoryWebEdge: StoryWebEdgeSchema,
   GroupArray: GroupArraySchema,
+  TimelineConfig: TimelineConfigSchema,
 }
 

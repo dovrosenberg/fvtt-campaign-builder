@@ -79,6 +79,14 @@
             <CampaignToDoTab />
           </div>
         </div>
+        <div v-if="showTimelineTab" class="tab flexcol" data-group="primary" data-tab="timeline">
+          <div class="tab-inner">
+            <TimelineTab
+              :document-uuid="currentCampaign?.uuid || ''"
+              :content-type="WindowTabType.Campaign"
+            />
+          </div>
+        </div>
       </ContentTabStrip> 
     </div>
   </form>	 
@@ -113,6 +121,7 @@
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
+  import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
 
   // types
   import { CustomFieldContentType, RelatedJournal, WindowTabType, } from '@/types';
@@ -156,6 +165,11 @@
     return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 
+  const showTimelineTab = computed(() => {
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.useTimeline);
+  });
+
   const openToDoCount = computed(() => toDoRows.value.length);
 
   const tabs = computed(() => {
@@ -176,6 +190,10 @@
 
     if (showStoryWebTab.value) {
       baseTabs.push({ id: 'storyWebs', label: localize('contentFolders.storyWebs') });
+    }
+
+    if (showTimelineTab.value) {
+      baseTabs.push({ id: 'timeline', label: localize('labels.tabs.campaign.timeline') });
     }
 
     return baseTabs;

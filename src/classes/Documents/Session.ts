@@ -140,11 +140,19 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
   }
 
   get storyWebs(): string[] {
-    return (this._clone.system as any).storyWebs || [];
+    return this._clone.system.storyWebs || [];
   }
 
   set storyWebs(value: string[] | readonly string[]) {
-    (this._clone.system as any).storyWebs = value.slice();
+    this._clone.system.storyWebs = value.slice();
+  }
+
+  get timelines(): TimelineConfig[] {
+    return this._clone.system.timelines || [];
+  }
+
+  set timelines(value: TimelineConfig[]) {
+    this._clone.system.timelines = value;
   }
 
   get description(): string {

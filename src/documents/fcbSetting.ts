@@ -3,7 +3,7 @@ import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 import { DOCUMENT_TYPES, } from './types';
 import CleanKeysService from '@/utils/cleanKeys';
 import { schemas } from './fields';
-import { TopicBasicIndex, CampaignBasicIndex } from '@/types';
+import { TopicBasicIndex, CampaignBasicIndex, TimelineConfig } from '@/types';
 
 const fields = foundry.data.fields;
 export const SettingSchema = {
@@ -72,6 +72,12 @@ export const SettingSchema = {
     { required: true, nullable: false, initial: [] as RelatedJournal[] }
   ), 
 
+  /** timelines */
+  timelines: new fields.ArrayField(
+    schemas.TimelineConfig(),
+    { required: true, nullable: false, initial: [] as TimelineConfig[] }
+  ),
+
   /** tags for all the content in the setting - shared across content types */
   tags: new fields.TypedObjectField(
     new fields.SchemaField({
@@ -119,6 +125,7 @@ export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_T
     settingFeeling: string;   
     img: string;   
     nameStyles: number[];   
+    timelines: TimelineConfig[];
     rollTableConfig: SettingGeneratorConfig | null;   
     nameStyleExamples: NameStyleExamples;   
     journals: RelatedJournal[]; 

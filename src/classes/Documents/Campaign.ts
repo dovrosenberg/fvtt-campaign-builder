@@ -118,6 +118,14 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     this._clone.system.storyWebs = value.slice();
   }
 
+  public get timelines(): TimelineConfig[] {
+    return this._clone.system.timelines || [];
+  }
+
+  public set timelines(value: TimelineConfig[]) {
+    this._clone.system.timelines = value;
+  }
+
   /** connect the session to the end of the campaign; need to add to setting separately */
   public async addSession(session: Session): Promise<void> {
     const newSession = {

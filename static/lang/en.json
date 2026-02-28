@@ -576,8 +576,8 @@
         "textSearch": "Search",
         "textSearchPlaceholder": "Search events...",
         "categories": "Categories",
+        "selectCategories": "Select categories...",
         "gmOnly": "GM Only",
-        "applyFilters": "Apply",
         "resetFilters": "Reset",
         "noFilters": "No filters"
       },

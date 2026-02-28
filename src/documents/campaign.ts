@@ -1,4 +1,4 @@
-import { RelatedJournal, SessionBasicIndex, ArcBasicIndex, TableGroup, GroupableItem, CampaignLore, CampaignToDo, CampaignIdea, CampaignPC } from '@/types';
+import { RelatedJournal, SessionBasicIndex, ArcBasicIndex, TableGroup, GroupableItem, CampaignLore, CampaignToDo, CampaignIdea, CampaignPC, TimelineConfig } from '@/types';
 import { DOCUMENT_TYPES } from './types';
 import { schemas } from './fields';
 
@@ -73,6 +73,12 @@ export const CampaignSchema = {
     { required: true, nullable: false, initial: [] as CampaignIdea[] }
   ),
 
+  /** timelines */
+  timelines: new fields.ArrayField(
+    schemas.TimelineConfig(),
+    { required: true, nullable: false, initial: [] as TimelineConfig[] }
+  ),
+  
   /** consolidated groups structure */
   groups: new fields.SchemaField({
     // [GroupableItem.CampaignJournals]: schemas.GroupArray(),
@@ -141,6 +147,7 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
     img: string;   
     toDoItems: CampaignToDo[];
     ideas: CampaignIdea[];   
+    timelines: TimelineConfig[];
     journals: RelatedJournal[]; 
     pcs: CampaignPC[];
     groups: {

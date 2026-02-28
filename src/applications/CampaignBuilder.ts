@@ -7,6 +7,8 @@ const { DocumentSheetV2 } = foundry.applications.api;
 
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import '@yaireo/tagify/dist/tagify.css';
+import 'vis-timeline/styles/vis-timeline-graph2d.css';
+
 import { theme } from '@/components/styles/primeVue';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { DOCUMENT_TYPES } from '@/documents';

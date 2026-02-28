@@ -341,6 +341,14 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     this._clone.system.journals = value;
   }
 
+  public get timelines(): TimelineConfig[] {
+    return this._clone.system.timelines || [];
+  }
+
+  public set timelines(value: TimelineConfig[]) {
+    this._clone.system.timelines = value;
+  }
+
   public async getParentId(): Promise<string | null> {
     const setting = await this.getSetting();
     return getParentId(setting, this);

@@ -5,16 +5,22 @@
 /** Filters for timeline events */
 export interface TimelineFilters {
   /** Event categories to show (empty = all) */
-  categories?: string[];
+  categories: string[];
 
   /** Text search filter - matches against name and content */
-  textSearch?: string;
+  textSearch: string;
 
   /** Show GM-only events only */
-  gmOnly?: boolean;
+  gmOnly: boolean;
 
   /** Show events referencing this UUID */
-  referencedUuid?: string;
+  referencedUuid: string;
+
+  /** Visible date range for timeline (persisted across sessions) */
+  visibleRange?: {
+    start: string;  // ISO date string
+    end: string;    // ISO date string
+  };
 }
 
 /** Configuration for a single timeline */
