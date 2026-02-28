@@ -51,13 +51,13 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     
   static override async fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
-  > (this: T, settingId: string): Promise<InstanceType<T> | null> { 
+  > (this: T, settingId: string, skipRollTables = false): Promise<InstanceType<T> | null> { 
     const setting = await super.fromUuid(settingId) as unknown as (FCBSetting | null);
     
     if (!setting)
       return null;
 
-    await setting.populate();
+    await setting.populate(skipRollTables);
 
     return setting as InstanceType<T>;
   }
@@ -277,6 +277,51 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   // alias for uuid
   public get settingId(): string {
     return this.uuid;
+  }
+
+  /**
+   * Create a new setting for import, preserving the original JournalEntry ID.
+   * This is used during import to maintain UUID references across worlds.
+   * 
+   * @param {string} compendiumId - The compendium ID to use (empty string to create new)
+   * @param {string} name - The name of the setting
+   * @param {string} journalEntryId - The JournalEntry ID to preserve
+   * @returns The new setting with the preserved JournalEntry ID, or null on failure
+   */
+  public static async createForImport(compendiumId: string, name: string, journalEntryId: string): Promise<FCBSetting | null> {
+    if (!journalEntryId) {
+      throw new Error(`JournalEntry ID is required in FCBSetting.createForImport`);
+    }
+
+    // Create a new compendium if not provided
+    if (!compendiumId) {
+      compendiumId = await createCompendium(name);
+      if (!compendiumId) {
+        throw new Error('Failed to create compendium in FCBSetting.createForImport()');
+      }
+    }
+
+    const newSetting = await super._create(compendiumId, name, '', {}, { journalEntryId }) as unknown as FCBSetting | null;
+
+    if (!newSetting)
+      return null;
+      
+    // add to index
+    const indexes = ModuleSettings.get(SettingKey.settingIndex);
+    indexes.push({
+      name: name,
+      settingId: newSetting.uuid,
+      packId: compendiumId,
+    });
+    await ModuleSettings.set(SettingKey.settingIndex, indexes);
+    
+    // add to master list
+    GlobalSettingService.updateGlobalSetting(newSetting);
+
+    // Skip roll tables and validation for import - will be set up later
+    await newSetting.populate(true);
+
+    return newSetting;
   }
 
   /**

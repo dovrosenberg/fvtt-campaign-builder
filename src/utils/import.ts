@@ -7,7 +7,7 @@
 import { localize } from '@/utils/game';
 import { ModuleSettings, SettingKey } from '@/settings/ModuleSettings';
 import { FCBSetting, Campaign, Session, Arc, Front, StoryWeb, Entry,FCBJournalEntryPage } from '@/classes';
-import { RelatedEntryDetails, Topics, ValidDocType, ValidTopic, ValidTopicRecord } from '@/types';
+import { RelatedEntryDetails, Topics, ValidDocType, ValidTopic, ValidTopicRecord, SettingGeneratorConfig } from '@/types';
 import GlobalSettingService from '@/utils/globalSettings';
 import {
   ModuleExportData,
@@ -66,17 +66,23 @@ export async function importModuleJson(
   onProgress?.(localize('applications.importExport.validatingData'), 8);
   validateExportDataForImport(data);
 
-  // Delete only settings that match the imported ones (by name)
+  // Delete settings that match the imported ones (by JournalEntry ID)
   onProgress?.(localize('applications.importExport.deletingExisting'), 10);
+  let entryIdsToPreserve = new Set<string>();
+  let existingRollTableConfigs = new Map<string, SettingGeneratorConfig | null>();
   if (data.settings) {
-    await deleteMatchingSettings(data.settings);
+    const result = await clearMatchingSettings(data.settings);
+    entryIdsToPreserve = result.entryIdsToPreserve;
+    existingRollTableConfigs = result.existingRollTableConfigs;
   }
 
-  // Create import context with UUID mapping and original data storage
+  // Create import context with UUID mapping, original data storage, and entry IDs to preserve
   const context: ImportContext = {
     uuidMap: new Map<string, string>(),
     reverseUuidMap: new Map<string, string>(),
     originalData: new Map<string, DocumentExportData>(),
+    entryIdsToPreserve,
+    existingRollTableConfigs,
   };
 
   // Import module settings (remapped to remove old setting UUIDs)
@@ -195,64 +201,65 @@ function validateExportData(data: unknown): boolean {
 }
 
 /**
- * Delete only existing FCB settings whose IDs match the imported settings.
- * This allows settings not in the import to remain untouched.
+ * Delete existing FCB settings whose JournalEntry IDs match the imported settings.
+ * This allows settings to be overwritten by subsequent imports from the same source.
  *
  * @param importedSettings - The settings being imported
+ * @returns Set of JournalEntry IDs to preserve when creating new settings
  */
-async function deleteMatchingSettings(importedSettings: SettingExportData[]): Promise<void> {
+async function clearMatchingSettings(importedSettings: SettingExportData[]): Promise<{ entryIdsToPreserve: Set<string>; existingRollTableConfigs: Map<string, SettingGeneratorConfig | null> }> {
   const settingIndex = ModuleSettings.get(SettingKey.settingIndex);
-  const importedIds = new Set(importedSettings.map(s => s.uuid));
+  const entryIdsToPreserve = new Set<string>();
+  const existingRollTableConfigs = new Map<string, SettingGeneratorConfig | null>();
 
-  // Find settings to delete (those whose IDs match imported ones)
-  const settingsToDelete: { index: number; settingId: string }[] = [];
-  for (let i = 0; i < settingIndex.length; i++) {
-    const settingInfo = settingIndex[i];
-    if (importedIds.has(settingInfo.settingId)) {
-      settingsToDelete.push({ index: i, settingId: settingInfo.settingId });
+  // Build a set of JournalEntry IDs from the import
+  // This allows matching across different worlds/compendiums
+  for (const s of importedSettings) {
+    // Extract JournalEntry ID from UUID (format: Compendium.world.xxx.JournalEntry.ENTRY_ID)
+    const uuidParts = s.uuid.split('.');
+    const entryId = uuidParts[uuidParts.length - 1]; // Last part is the JournalEntry ID
+    if (entryId) {
+      entryIdsToPreserve.add(entryId);
     }
   }
 
-  // Delete in reverse order to avoid index issues
-  for (let i = settingsToDelete.length - 1; i >= 0; i--) {
-    const { settingId } = settingsToDelete[i];
-    const setting = await FCBSetting.fromUuid(settingId);
-    if (setting) {
-      await setting.delete();
-    }
-  }
-
-  // Update the setting index to remove deleted entries
-  const updatedIndex = settingIndex.filter((_: { settingId: string }, index: number) => 
-    !settingsToDelete.some(s => s.index === index)
-  );
-  await ModuleSettings.set(SettingKey.settingIndex, updatedIndex);
-
-  // Clear global cache for deleted settings
-  GlobalSettingService.clearAll();
-}
-
-/**
- * Delete all existing FCB settings.
- */
-async function deleteAllSettings(): Promise<void> {
-  const settingIndex = ModuleSettings.get(SettingKey.settingIndex);
-
-  // Delete in reverse order to avoid index issues
+  // Find and delete settings whose JournalEntry IDs match imported ones
   for (let i = settingIndex.length - 1; i >= 0; i--) {
     const settingInfo = settingIndex[i];
-    const setting = await FCBSetting.fromUuid(settingInfo.settingId);
-    if (setting) {
-      await setting.delete();
+    // Extract JournalEntry ID from current setting UUID
+    const currentParts = settingInfo.settingId.split('.');
+    const currentEntryId = currentParts[currentParts.length - 1];
+    
+    if (entryIdsToPreserve.has(currentEntryId)) {
+      // Capture the roll table config before deletion
+      const setting = await FCBSetting.fromUuid(settingInfo.settingId, true);  // skip roll tables during import
+      if (setting) {
+        existingRollTableConfigs.set(currentEntryId, setting.rollTableConfig);
+        
+        // Delete the compendium directly (not setting.delete() which would delete roll tables)
+        const compendium = setting.compendium;
+        if (compendium) {
+          await compendium.deleteCompendium();
+        }
+        
+        // Remove from global cache
+        GlobalSettingService.removeGlobalSetting(settingInfo.settingId);
+      }
+      
+      // Remove from setting index
+      settingIndex.splice(i, 1);
     }
   }
 
-  // Clear the index
-  await ModuleSettings.set(SettingKey.settingIndex, []);
+  // Update the setting index
+  await ModuleSettings.set(SettingKey.settingIndex, settingIndex);
 
   // Clear global cache
   GlobalSettingService.clearAll();
+  
+  return { entryIdsToPreserve, existingRollTableConfigs };
 }
+
 
 /**
  * Import module settings from export data.
@@ -286,20 +293,27 @@ async function importModuleSettings(settings: Record<string, unknown>): Promise<
 
 /**
  * Import a single setting and all its documents.
+ * If the setting existed before and its compendium was cleared, reuses the compendium
+ * and preserves the original UUID.
  *
  * @param settingData - The setting data to import
- * @param context - Import context with UUID map and original data storage
+ * @param context - Import context with UUID map, original data storage, and compendium map
  */
 async function importSetting(
   settingData: SettingExportData,
   context: ImportContext
 ): Promise<void> {
-  // Create the setting document
-  const setting = await FCBSetting.create(false, settingData.name, '', true);
+  // Extract JournalEntry ID from the import UUID
+  const uuidParts = settingData.uuid.split('.');
+  const entryId = uuidParts[uuidParts.length - 1];
+  
+  // Always preserve the JournalEntry ID from the export
+  // This ensures consistent UUIDs across imports
+  const setting = await FCBSetting.createForImport('', settingData.name, entryId);
   if (!setting) {
     throw new Error(`Failed to create setting: ${settingData.name}`);
   }
-
+  
   // Map the old setting UUID to the new one
   context.uuidMap.set(settingData.uuid, setting.uuid);
   context.reverseUuidMap.set(setting.uuid, settingData.uuid);
@@ -625,7 +639,7 @@ async function remapAllDocumentUuids(context: ImportContext): Promise<void> {
   const settingIndex = ModuleSettings.get(SettingKey.settingIndex);
 
   for (const settingInfo of settingIndex) {
-    const setting = await FCBSetting.fromUuid(settingInfo.settingId);
+    const setting = await FCBSetting.fromUuid(settingInfo.settingId, true);  // skip roll tables during import
     if (!setting) continue;
 
     // Find the original setting data using the reverse map
@@ -662,6 +676,50 @@ async function remapAllDocumentUuids(context: ImportContext): Promise<void> {
           remappedSettingSystem.expandedIds as Record<string, unknown>,
           context.uuidMap
         );
+      }
+
+      // Handle rollTableConfig - prefer existing roll tables from the previous setting
+      // Extract the entry ID to look up existing roll table config
+      const settingUuidParts = setting.uuid.split('.');
+      const settingEntryId = settingUuidParts[settingUuidParts.length - 1];
+      const existingRollTableConfig = context.existingRollTableConfigs.get(settingEntryId);
+      
+      if (existingRollTableConfig?.rollTables) {
+        // Validate that the roll tables still exist
+        let allTablesExist = true;
+        for (const tableUuid of Object.values(existingRollTableConfig.rollTables)) {
+          const table = await foundry.utils.fromUuid<RollTable>(tableUuid as string);
+          if (!table) {
+            allTablesExist = false;
+            break;
+          }
+        }
+        
+        if (allTablesExist) {
+          // Use the existing roll table config - the roll tables still exist in the world
+          remappedSettingSystem.rollTableConfig = existingRollTableConfig;
+        } else {
+          remappedSettingSystem.rollTableConfig = null;
+        }
+      } else if (remappedSettingSystem.rollTableConfig) {
+        // No existing config, check if imported roll tables exist in this world
+        const config = remappedSettingSystem.rollTableConfig as { rollTables?: Record<string, string> };
+        if (config.rollTables) {
+          // Check if any of the roll tables exist
+          let hasValidRollTables = false;
+          for (const uuid of Object.values(config.rollTables)) {
+            const table = await foundry.utils.fromUuid<RollTable>(uuid);
+            if (table) {
+              hasValidRollTables = true;
+              break;
+            }
+          }
+          if (!hasValidRollTables) {
+            remappedSettingSystem.rollTableConfig = null;
+          }
+        } else {
+          remappedSettingSystem.rollTableConfig = null;
+        }
       }
 
       // Update the setting document

@@ -42,8 +42,8 @@ const NameGeneratorsService = {
     let settingGeneratorConfig: SettingGeneratorConfig | null = setting.rollTableConfig;
 
     // if we have a config, make sure the folderId still existed
+    // the folderId would change if the folder got deleted and recreated
     if (settingGeneratorConfig) {
-      // the folderId would change if the folder got deleted and recreated
       if (settingGeneratorConfig.folderId !== folderId) {
         settingGeneratorConfig.folderId = folderId;
         settingGeneratorConfig.rollTables = {} as Record<GeneratorType, string>;

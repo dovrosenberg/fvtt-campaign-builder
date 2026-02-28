@@ -5,6 +5,8 @@
  * import and export operations.
  */
 
+import type { SettingGeneratorConfig } from '@/types';
+
 /** Current export format version */
 export const EXPORT_VERSION = '1.0.0';
 
@@ -286,6 +288,10 @@ export interface ImportContext {
   reverseUuidMap: Map<string, string>;
   /** Original document data keyed by old UUID */
   originalData: Map<string, DocumentExportData>;
+  /** JournalEntry IDs to preserve when creating settings (for cross-world imports) */
+  entryIdsToPreserve: Set<string>;
+  /** Roll table configs from existing settings, keyed by JournalEntry ID */
+  existingRollTableConfigs: Map<string, SettingGeneratorConfig | null>;
 }
 
 /** Setting export data structure */

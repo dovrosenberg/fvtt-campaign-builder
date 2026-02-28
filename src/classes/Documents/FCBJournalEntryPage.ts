@@ -322,13 +322,16 @@ export class FCBJournalEntryPage<
    * 
    * @param {string} compendiumId - The compendium to create the content in. 
    * @param {string} name - The name of the content 
+   * @param {string} folderName - The folder name to put the content in
+   * @param {Record<string, unknown>} initialData - Initial data to merge with defaults
+   * @param {{ journalEntryId?: string }} options - Optional JournalEntry ID to use (for import)
    * @returns A promise that resolves when the page has been created with either the page or null for failure
    */
   protected static async _create<
     DocType extends ValidDocType,
     DocClass extends JournalEntryPage<DocType>,
     T extends FCBJournalEntryPageStatic<DocType, DocClass>
-  > (this: T, compendiumId: string, name: string, folderName: string, initialData: Record<string, unknown> = {}): Promise<InstanceType<T> | null> {
+  > (this: T, compendiumId: string, name: string, folderName: string, initialData: Record<string, unknown> = {}, options?: { journalEntryId?: string }): Promise<InstanceType<T> | null> {
     // find the folder it goes in 
     const pack = game.packs.get(compendiumId);
 
@@ -355,7 +358,7 @@ export class FCBJournalEntryPage<
       }
     }
 
-    const options = { 
+    const journalOptions: Record<string, unknown> = { 
       name,
       folder: folder?.id ? folder.id : undefined,
       flags: {
@@ -369,8 +372,14 @@ export class FCBJournalEntryPage<
       }
     };
 
+    // If a specific JournalEntry ID is provided, use it (for import to preserve UUIDs)
+    if (options?.journalEntryId) {
+      journalOptions._id = options.journalEntryId;
+    }
+
     // create a wrapping journal entry for the content with flag set during creation
-    const journalEntry = await JournalEntry.create(options, { pack: compendiumId });
+    // Use keepId: true to preserve the provided _id
+    const journalEntry = await JournalEntry.create(journalOptions, { pack: compendiumId, keepId: !!options?.journalEntryId });
   
     if (!journalEntry)
       throw new Error('Couldn\'t create new journal entry');
