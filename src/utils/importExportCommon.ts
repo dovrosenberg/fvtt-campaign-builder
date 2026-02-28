@@ -158,9 +158,13 @@ export function remapUuidsInObject(obj: unknown, uuidMap: Map<string, string>): 
 }
 
 /**
- * Remap an object key that may be a direct UUID or a danger node composite key.
- * Danger node keys have the format "frontUuid|dangerIndex" where the frontUuid
- * portion needs to be remapped.
+ * Remap an object key that may be a direct UUID, a danger node composite key,
+ * or an edge style composite key.
+ * 
+ * Handles three formats:
+ * 1. Direct UUID: "Compendium.world.xxx.JournalEntryPage.yyy"
+ * 2. Danger node: "frontUuid|dangerIndex" (single UUID before pipe)
+ * 3. Edge style: "edgeType:uuidA|uuidB" (two UUIDs after colon, separated by pipe)
  *
  * @param key - The key to remap
  * @param uuidMap - Map of old UUIDs to new UUIDs
@@ -170,6 +174,25 @@ function remapObjectKey(key: string, uuidMap: Map<string, string>): string {
   // First try direct UUID match
   if (uuidMap.has(key)) {
     return uuidMap.get(key) || key;
+  }
+
+  // Check for edge style format: "edgeType:uuidA|uuidB"
+  // Edge types are: manual, relationship, danger
+  const edgeMatch = key.match(/^(manual|relationship|danger):([^|]+)\|(.+)$/);
+  if (edgeMatch) {
+    const edgeType = edgeMatch[1];
+    const uuidA = edgeMatch[2];
+    const uuidB = edgeMatch[3];
+    const remappedA = uuidMap.get(uuidA) || uuidA;
+    const remappedB = uuidMap.get(uuidB) || uuidB;
+    
+    // Only return remapped key if at least one UUID was remapped
+    if (remappedA !== uuidA || remappedB !== uuidB) {
+      // Maintain sorted order as per getEdgeUuid
+      const sorted = [remappedA, remappedB].sort();
+      return `${edgeType}:${sorted[0]}|${sorted[1]}`;
+    }
+    return key;
   }
 
   // Check if this is a danger node key (format: frontUuid|dangerIndex)
@@ -212,9 +235,13 @@ export function remapRecordKeys<T>(
 }
 
 /**
- * Remap a single key that may be a direct UUID or a danger node composite key.
- * Danger node keys have the format "frontUuid|dangerIndex" where the frontUuid
- * portion needs to be remapped.
+ * Remap a single key that may be a direct UUID, a danger node composite key,
+ * or an edge style composite key.
+ * 
+ * Handles three formats:
+ * 1. Direct UUID: "Compendium.world.xxx.JournalEntryPage.yyy"
+ * 2. Danger node: "frontUuid|dangerIndex" (single UUID before pipe)
+ * 3. Edge style: "edgeType:uuidA|uuidB" (two UUIDs after colon, separated by pipe)
  *
  * @param key - The key to remap
  * @param uuidMap - Map of old UUIDs to new UUIDs
@@ -224,6 +251,25 @@ function remapKey(key: string, uuidMap: Map<string, string>): string {
   // First try direct UUID match
   if (uuidMap.has(key)) {
     return uuidMap.get(key) || key;
+  }
+
+  // Check for edge style format: "edgeType:uuidA|uuidB"
+  // Edge types are: manual, relationship, danger
+  const edgeMatch = key.match(/^(manual|relationship|danger):([^|]+)\|(.+)$/);
+  if (edgeMatch) {
+    const edgeType = edgeMatch[1];
+    const uuidA = edgeMatch[2];
+    const uuidB = edgeMatch[3];
+    const remappedA = uuidMap.get(uuidA) || uuidA;
+    const remappedB = uuidMap.get(uuidB) || uuidB;
+    
+    // Only return remapped key if at least one UUID was remapped
+    if (remappedA !== uuidA || remappedB !== uuidB) {
+      // Maintain sorted order as per getEdgeUuid
+      const sorted = [remappedA, remappedB].sort();
+      return `${edgeType}:${sorted[0]}|${sorted[1]}`;
+    }
+    return key;
   }
 
   // Check if this is a danger node key (format: frontUuid|dangerIndex)

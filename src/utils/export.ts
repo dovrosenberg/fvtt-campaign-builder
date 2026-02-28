@@ -213,7 +213,7 @@ async function collectSettingData(setting: FCBSetting): Promise<SettingExportDat
         const storyWeb = await StoryWeb.fromUuid(storyWebId);
         if (storyWeb) {
           // Get and clean the system data to remove invalid positions
-          addToDocuments(data.documents.storyWebs, storyWeb, cleanInvalidPositions);
+          addToDocuments(data.documents.storyWebs, storyWeb, (data) => data);
         }
       }
     }
@@ -342,34 +342,6 @@ function cleanInvalidRelationships(system: Record<string, unknown>): Record<stri
   }
 
   return { ...system, relationships: cleanedRelationships };
-}
-
-/**
- * Clean invalid positions from story web system data.
- * Removes position entries that reference invalid UUIDs or have invalid coordinates.
- *
- * @param system - The system data to clean
- * @returns The cleaned system data
- */
-function cleanInvalidPositions(system: Record<string, unknown>): Record<string, unknown> {
-  if (!system.positions || typeof system.positions !== 'object') {
-    return system;
-  }
-
-  const cleanedPositions: Record<string, unknown> = {};
-  const positions = system.positions as Record<string, unknown>;
-
-  for (const [uuid, coords] of Object.entries(positions)) {
-    // Check if the key UUID is valid - we assume if valid it's an FCB doc
-    if (!foundry.utils.parseUuid(uuid)) {
-      console.warn(`Export: Removing position with invalid UUID: ${uuid}`);
-      continue;
-    }
-
-    cleanedPositions[uuid] = coords;
-  }
-
-  return { ...system, positions: cleanedPositions };
 }
 
 export default {
