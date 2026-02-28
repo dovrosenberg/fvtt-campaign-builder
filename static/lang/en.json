@@ -74,6 +74,8 @@
       "useFrontsHelp": "Turn on campaign \"front\" functionality.",
       "useStoryWebs": "Use Story Webs",
       "useStoryWebsHelp": "Turn on campaign \"story web\" functionality.",
+      "useTimeline": "Use Timeline",
+      "useTimelineHelp": "Turn on timeline functionality (requires Calendaria module).",
       "subTabsSavePosition": "Sub-tabs save position",
       "subTabsSavePositionHelp": "When enabled, every tab will remember which interior sub-tab was open and return to it when you re-open that tab. When disabled, tabs will always revert to the first one (usually description).",
       "storyWebAutoArrange": "Auto-arrange story webs",
@@ -569,6 +571,16 @@
       "setting": {
         "setting": "Setting"
       },
+      "timeline": {
+        "loading": "Loading timeline...",
+        "textSearch": "Search",
+        "textSearchPlaceholder": "Search events...",
+        "categories": "Categories",
+        "gmOnly": "GM Only",
+        "applyFilters": "Apply",
+        "resetFilters": "Reset",
+        "noFilters": "No filters"
+      },
       "groupTree": "Group tree by type",
       "tabs": {
         "entry": {
@@ -582,7 +594,8 @@
           "pcs": "PCs",
           "lore": "Lore",
           "toDo": "To-Do",
-          "ideas": "Ideas"
+          "ideas": "Ideas",
+          "timeline": "Timeline"
         },
         "front": {
           "createNewDanger": "Create new Danger"

@@ -7,7 +7,7 @@ import { Campaign } from './Campaign';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import GlobalSettingService from '@/utils/globalSettings';
-import { GroupableItem, TableGroup } from '@/types';
+import { GroupableItem, TableGroup, TimelineConfig, } from '@/types';
 
 type SessionDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Session>;
 
@@ -28,6 +28,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     img: '',   
     tags: [],
     storyWebs: [],
+    timelines: [] as TimelineConfig[],
     groups: {
       [GroupableItem.SessionLore]: [] as TableGroup[],
       [GroupableItem.SessionVignettes]: [] as TableGroup[],

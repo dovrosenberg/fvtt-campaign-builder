@@ -8,7 +8,7 @@ import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Session } from './Session';
 import GlobalSettingService from '@/utils/globalSettings';
-import { RelatedJournal, TableGroup, GroupableItem,ArcIdea } from '@/types';
+import { RelatedJournal, TableGroup, GroupableItem,ArcIdea, TimelineConfig, } from '@/types';
 
 type ArcDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Arc>;
 
@@ -31,6 +31,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     img: '',   
     tags: [],
     storyWebs: [],
+    timelines: [] as TimelineConfig[],
     groups: {
       [GroupableItem.ArcIdeas]: [] as TableGroup[],
       [GroupableItem.ArcLore]: [] as TableGroup[],

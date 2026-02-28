@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { DOCUMENT_TYPES, frontIndexFields } from '@/documents';
-import { CampaignLore, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, StoryWebFilterIndex, CampaignToDo, ToDoTypes, TableGroup, GroupableItem,CampaignPC,CampaignIdea } from '@/types';
+import { CampaignLore, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, StoryWebFilterIndex, CampaignToDo, ToDoTypes, TableGroup, GroupableItem,CampaignPC,CampaignIdea, TimelineConfig, } from '@/types';
 import { Entry, Session, FCBSetting, Front, Arc, StoryWeb } from '@/classes';
 import ArcIndexService from '@/utils/arcIndex';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
@@ -29,6 +29,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     frontIds: [],
     storyWebIds: [],
     storyWebs: [],
+    timelines: [] as TimelineConfig[],
     groups: {
       [GroupableItem.CampaignToDos]: [] as TableGroup[],
       [GroupableItem.CampaignIdeas]: [] as TableGroup[],

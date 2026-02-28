@@ -11,7 +11,7 @@ import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Docume
 import { entryIndexFields, NameStyleExamples, } from '@/documents';
 import CleanKeysService from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
-import { ArcBasicIndex, CampaignBasicIndex, EntryFilterIndex, Hierarchy, RelatedJournal, TopicBasicIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord,SettingTags,SettingTag } from '@/types';
+import { ArcBasicIndex, CampaignBasicIndex, EntryFilterIndex, Hierarchy, RelatedJournal, TopicBasicIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord,SettingTags,SettingTag, TimelineConfig, } from '@/types';
 import GlobalSettingService from '@/utils/globalSettings';
 
 type SettingCompendium = CompendiumCollection<'JournalEntry'>;
@@ -41,6 +41,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     nameStyleExamples: { genre: '', settingFeeling: '', examples: [] },   
     journals: [],
     tags: {} as SettingTags,
+    timelines: [] as TimelineConfig[],
   } as unknown as SettingDocClass['system'];
   
   // JournalEntries

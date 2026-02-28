@@ -1,5 +1,5 @@
 import { DOCUMENT_TYPES, } from '@/documents';
-import { RelatedJournal, RelatedEntryDetails, ValidTopic, Topics, ToDoTypes, ValidTopicRecord, } from '@/types';
+import { RelatedJournal, RelatedEntryDetails, ValidTopic, Topics, ToDoTypes, ValidTopicRecord, TimelineConfig, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder,  } from '@/classes';
@@ -41,6 +41,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     img: '',
     customFields: {},
     customFieldHeights: {},
+    timelines: [] as TimelineConfig[],
   } as unknown as EntryDocClass['system'];
 
   private _actor: Actor | null;  // for pcs

@@ -51,6 +51,7 @@ export enum SettingKey {
   showTypesInTree = 'showTypesInTree', // show the type of the entry in the hierarchy tree
   useFronts = 'useFronts', // allow creation and viewing of fronts
   useStoryWebs = 'useWebs', // allow creation and viewing of story webs; name for backward compatibility
+  useTimeline = 'useTimeline', // allow creation and viewing of timelines
   subTabsSavePosition = 'subTabsSavePosition', // whether sub-tabs remember their last position
   storyWebAutoArrange = 'storyWebAutoArrange', // whether to enable physics in story webs
   genericFoundryTab = 'genericFoundryTab', // whether to show the generic Foundry tab on entries
@@ -118,6 +119,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.showTypesInTree ? boolean :
     K extends SettingKey.useFronts ? boolean :
     K extends SettingKey.useStoryWebs ? boolean :
+    K extends SettingKey.useTimeline ? boolean :
     K extends SettingKey.subTabsSavePosition ? boolean :
     K extends SettingKey.storyWebAutoArrange ? boolean :
     K extends SettingKey.genericFoundryTab ? boolean :
@@ -321,7 +323,7 @@ export class ModuleSettings {
       settingID: SettingKey.useFronts,
       name: 'settings.useFronts',
       hint: 'settings.useFrontsHelp',
-      requiresReload: true,
+      requiresReload: false,
       default: true,
       type: Boolean,
     },
@@ -329,7 +331,15 @@ export class ModuleSettings {
       settingID: SettingKey.useStoryWebs,
       name: 'settings.useStoryWebs',
       hint: 'settings.useStoryWebsHelp',
-      requiresReload: true,
+      requiresReload: false,
+      default: true,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.useTimeline,
+      name: 'settings.useTimeline',
+      hint: 'settings.useTimelineHelp',
+      requiresReload: false,
       default: true,
       type: Boolean,
     },
