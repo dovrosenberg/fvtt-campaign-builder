@@ -14,8 +14,9 @@ This menu allows you to configure the visual appearance of various parts of your
 
 See [Story Web Connection Styles](/reference/campaign-mgt/content/storyWeb/index#connection-colors-and-styles) for more information on using connection colors/styles in Story Webs.
 
-> [!NOTE]
-> No changes are saved in this dialog until you hit "Save Changes". You can use the "Reset" button to revert any unsaved changes.
+::: info
+No changes are saved in this dialog until you hit "Save Changes". You can use the "Reset" button to revert any unsaved changes.
+:::
 
 ## Connection Colors Tab
 

@@ -31,6 +31,8 @@ const NameGeneratorsService = {
       return;
     }
 
+    let needToSave = false;
+
     initializationInProgress = true;
 
     // Get or create the folder for roll tables for this setting
@@ -40,11 +42,12 @@ const NameGeneratorsService = {
     let settingGeneratorConfig: SettingGeneratorConfig | null = setting.rollTableConfig;
 
     // if we have a config, make sure the folderId still existed
+    // the folderId would change if the folder got deleted and recreated
     if (settingGeneratorConfig) {
-      // the folderId would change if the folder got deleted and recreated
       if (settingGeneratorConfig.folderId !== folderId) {
         settingGeneratorConfig.folderId = folderId;
         settingGeneratorConfig.rollTables = {} as Record<GeneratorType, string>;
+        needToSave = true;
       }
     } else {
       // create a new config
@@ -52,6 +55,7 @@ const NameGeneratorsService = {
         rollTables: {} as Record<GeneratorType, string>,
         folderId: folderId,
       };
+      needToSave = true;
     }
     
     // Ensure all generator types have a roll table
@@ -59,7 +63,7 @@ const NameGeneratorsService = {
       // Check if we already have a table for this type
       if (settingGeneratorConfig.rollTables[type]) {
         // Verify the table still exists and is the right type
-        const table = await fromUuid<RollTable>(settingGeneratorConfig.rollTables[type]);
+        const table = await foundry.utils.fromUuid<RollTable>(settingGeneratorConfig.rollTables[type]);
         if (table && table.getFlag(moduleId, RollTableFlagKey.type) === type) {
           continue; // Table exists and is valid, skip to next type
         }
@@ -69,14 +73,17 @@ const NameGeneratorsService = {
       const table = await createSettingRollTable(type, folderId, setting);
       
       // Store the table ID in the mapping
-      if (table)
+      if (table) {
         settingGeneratorConfig.rollTables[type] = table.uuid;
+        needToSave = true;
+      }
     }
     
     // Save the setting generator config
-    setting.rollTableConfig = settingGeneratorConfig;
-    await setting.save();
-
+    if (needToSave) {
+      setting.rollTableConfig = settingGeneratorConfig;
+      await setting.save();
+    }
     initializationInProgress = false;
   },
 
@@ -166,7 +173,7 @@ const NameGeneratorsService = {
     let alerted = false;
     
     for (const key in config.rollTables) {
-      const table = await fromUuid<RollTable>(config.rollTables[key]);
+      const table = await foundry.utils.fromUuid<RollTable>(config.rollTables[key]);
       if (table) {
         if (empty && table.results.size > 0) {
           await table.deleteEmbeddedDocuments("TableResult", table.results.map(r => r.id || ''));
@@ -240,7 +247,7 @@ const NameGeneratorsService = {
 
     // Update each roll table name
     for (const [type, tableUuid] of Object.entries(config.rollTables)) {
-      const table = await fromUuid<RollTable>(tableUuid);
+      const table = await foundry.utils.fromUuid<RollTable>(tableUuid);
       if (table) {
         const newName = `${setting.name} - ${type.charAt(0).toUpperCase() + type.slice(1)} Generator`;
         await table.update({

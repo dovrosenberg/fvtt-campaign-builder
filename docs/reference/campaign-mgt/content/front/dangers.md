@@ -78,5 +78,6 @@ As you play, you can check off grim portents as they occur, reflecting how the F
 
 You can drag rows up and down to change the order in which the grim portents appear.
 
-> [!TIP]
-> Front description, motivation and the Grim Portent table support [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters or Organizations in any of these, you'll be prompted to add or remove them from the Participants table.
+::: info TIP
+Front description, motivation and the Grim Portent table support [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters or Organizations in any of these, you'll be prompted to add or remove them from the Participants table.
+:::

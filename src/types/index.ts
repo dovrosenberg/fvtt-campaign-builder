@@ -31,14 +31,6 @@ export * from '@/documents/fields/StoryWebNode';
 // get all the ones defined in the schemas
 export type * from '@/documents/fields/index.ts';
 
-// Import types for backward compatibility aliases
-import type { CampaignToDo, CampaignIdea, CampaignPC } from './dbTypes';
-import type { 
-  CampaignLoreRow, SessionLocationRow, SessionNPCRow, SessionItemRow, 
-  SessionMonsterRow, SessionLoreRow, ArcLocationRow, ArcParticipantRow, 
-  ArcMonsterRow, ArcLoreRow, ArcVignetteRow 
-} from './rowTypes';
-
 export enum WindowTabType  {
   NewTab,
   Entry,

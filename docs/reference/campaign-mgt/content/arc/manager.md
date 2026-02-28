@@ -42,8 +42,9 @@ The Arc Manager will ensure that every session covered by exactly one Arc and th
 
 If you get stuck trying to make the changes you want, it can be helpful to set Arcs to empty and then in a second pass set the ranges.
 
-> [!TIP]
-> New arcs can be used as future placeholders even if they do not yet cover any sessions.  This allows you to build out the basic structure well before you get to that part of the campaign.
+::: info TIPl
+New arcs can be used as future placeholders even if they do not yet cover any sessions.  This allows you to build out the basic structure well before you get to that part of the campaign.
+:::
 
 ## Deleting Arcs
 

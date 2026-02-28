@@ -33,8 +33,9 @@ This is where you enter your "Strong Start", fleshing out how you intend to begi
 
 See [Editors] for more info on capabilities of Editor boxes.
 
-> [!NOTE]
-> The strong start is shown above the notes area when you first create a session, but once you've played the session (i.e. once you create another session entry later than it), it moves below the notes for convenience.
+::: info
+The strong start is shown above the notes area when you first create a session, but once you've played the session (i.e. once you create another session entry later than it), it moves below the notes for convenience.
+:::
 
 ## Session notes area
 This is where you enter the Session notes. 

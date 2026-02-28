@@ -11,8 +11,9 @@ next:
 
 ![Front content](/assets/images/front-content.webp)
 
-> [!INFO]
-> Fronts are an optional feature and can be disabled in the [Module Settings].
+::: info
+Fronts are an optional feature and can be disabled in the [Module Settings].
+:::
 
 Fronts provide a way to track long‑term threats and storylines in your [^Campaign]. Each front gathers one or more [^Dangers] (major threats), the people and factions involved, and the grim portents that show how the Danger advances over time.
 

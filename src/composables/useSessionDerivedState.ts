@@ -145,7 +145,7 @@ export function useSessionDerivedState(): SessionDerivedState {
         const retval: SessionMonsterRow[] = [];
 
         for (const item of items) {
-          const entry = await fromUuid<Actor>(item.uuid);
+          const entry = await foundry.utils.fromUuid<Actor>(item.uuid);
 
           if (entry) {
             retval.push({
@@ -177,7 +177,7 @@ export function useSessionDerivedState(): SessionDerivedState {
         const retval: SessionItemRow[] = [];
 
         for (const item of items) {
-          const entry = await fromUuid<Item>(item.uuid);
+          const entry = await foundry.utils.fromUuid<Item>(item.uuid);
 
           if (entry) {
             retval.push({

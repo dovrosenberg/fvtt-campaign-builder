@@ -71,7 +71,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
         const tableUuid = testSetting.rollTableConfig?.rollTables[type];
         expect(tableUuid).to.be.a('string');
         
-        const table = await fromUuid<RollTable>(tableUuid);
+        const table = await foundry.utils.fromUuid<RollTable>(tableUuid);
         expect(table).to.not.be.null;
         expect(table?.getFlag(moduleId, RollTableFlagKey.type)).to.equal(type);
       }
@@ -96,7 +96,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       
       // Delete one table
       const npcTableUuid = testSetting.rollTableConfig?.rollTables[GeneratorType.NPC];
-      const npcTable = await fromUuid<RollTable>(npcTableUuid);
+      const npcTable = await foundry.utils.fromUuid<RollTable>(npcTableUuid);
       await npcTable?.delete();
 
       // Initialize again
@@ -106,7 +106,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       const newNpcTableUuid = testSetting.rollTableConfig?.rollTables[GeneratorType.NPC];
       expect(newNpcTableUuid).to.not.equal(npcTableUuid);
       
-      const newNpcTable = await fromUuid<RollTable>(newNpcTableUuid);
+      const newNpcTable = await foundry.utils.fromUuid<RollTable>(newNpcTableUuid);
       expect(newNpcTable).to.not.be.null;
     });
   });
@@ -118,7 +118,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       // Create a test table
       await NameGeneratorsService.initializeSettingRollTables(testSetting);
       const tableUuid = testSetting.rollTableConfig?.rollTables[GeneratorType.NPC];
-      testTable = (await fromUuid<RollTable>(tableUuid))!;
+      testTable = (await foundry.utils.fromUuid<RollTable>(tableUuid))!;
     });
 
     it('should throw error when backend is not available', async () => {
@@ -184,7 +184,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       // Mark some results as drawn in each table
       for (const type of Object.values(GeneratorType)) {
         const tableUuid = testSetting.rollTableConfig?.rollTables[type];
-        const table = (await fromUuid<RollTable>(tableUuid))!;
+        const table = (await foundry.utils.fromUuid<RollTable>(tableUuid))!;
         const results = Array.from(table.results.values());
         if (results.length > 0) {
           await table.updateEmbeddedDocuments('TableResult', [
@@ -201,7 +201,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       // Check that all drawn results were replaced
       for (const type of Object.values(GeneratorType)) {
         const tableUuid = testSetting.rollTableConfig?.rollTables[type];
-        const table = (await fromUuid<RollTable>(tableUuid))!;
+        const table = (await foundry.utils.fromUuid<RollTable>(tableUuid))!;
         const results = Array.from(table.results.values());
         if (results.length > 0) {
           expect(results.every(r => !r.drawn)).to.be.true;
@@ -219,7 +219,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       // All tables should be empty
       for (const type of Object.values(GeneratorType)) {
         const tableUuid = testSetting.rollTableConfig?.rollTables[type];
-        const table = (await fromUuid<RollTable>(tableUuid))!;
+        const table = (await foundry.utils.fromUuid<RollTable>(tableUuid))!;
         expect(table.results.size).to.equal(0);
       }
     });
@@ -248,7 +248,7 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       // Check table names
       for (const type of Object.values(GeneratorType)) {
         const tableUuid = config?.rollTables[type];
-        const table = await fromUuid<RollTable>(tableUuid);
+        const table = await foundry.utils.fromUuid<RollTable>(tableUuid);
         expect(table?.name).to.include(newName);
         expect(table?.description).to.include(newName);
       }
@@ -272,9 +272,9 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
     it('should refresh tables for all settings', async () => {
       // Mark some results as drawn
       const table1Uuid = testSetting.rollTableConfig?.rollTables[GeneratorType.NPC];
-      const table1 = (await fromUuid<RollTable>(table1Uuid))!;
+      const table1 = (await foundry.utils.fromUuid<RollTable>(table1Uuid))!;
       const table2Uuid = secondSetting.rollTableConfig?.rollTables[GeneratorType.NPC];
-      const table2 = (await fromUuid<RollTable>(table2Uuid))!;
+      const table2 = (await foundry.utils.fromUuid<RollTable>(table2Uuid))!;
 
       await table1.updateEmbeddedDocuments('TableResult', [
         { _id: Array.from(table1.results.values())[0].id, drawn: true }

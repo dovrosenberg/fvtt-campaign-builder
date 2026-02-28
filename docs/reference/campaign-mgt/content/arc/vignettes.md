@@ -28,8 +28,9 @@ The actions column supports:
   - **Edit** - Opens the vignette text box for inline editing. You can also click on the vignette text to do the same. Press Enter to save or Escape to cancel. Shift-Enter within the text box to insert a new line.
   - **Move to next session** - Moves the vignette into the current Session (so you can run it in play), and removes it from the Arc list.  
 
-  > [!NOTE]
-  > Move/copy to next session buttons on the various Arc tabs push to the latest Session in the Campaign - *even if it's in a different arc*
+  ::: warning CAUTION
+  Move/copy to next session buttons on the various Arc tabs push to the latest Session in the Campaign - *even if it's in a different arc*
+  :::
 
 ### Related Entry Tracking
 This table supports [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters, Organizations, or Locations in vignette descriptions, you'll be prompted to update the Arc's Participants and Locations tables accordingly.

@@ -19,8 +19,9 @@ Selecting to generate an image will start image generation in the background.  W
 
 Feel free to do anything in the meantime while you're waiting - it will all happen in the background.  Closing Foundry (or the browser window) before it's done will break it, however.
 
-> [!INFO]
-> Image generation works best with detailed descriptions of the Entry you're trying to create an image for.  The AI will also take into account the Setting [genre and world feeling](/reference/world-building/content/setting/), the hierarchy (i.e. it understands if a city falls inside the broader context of a country it knows about), and your definitions of your species (for characters).  The more details it has, the better it works.
+::: info
+Image generation works best with detailed descriptions of the Entry you're trying to create an image for.  The AI will also take into account the Setting [genre and world feeling](/reference/world-building/content/setting/), the hierarchy (i.e. it understands if a city falls inside the broader context of a country it knows about), and your definitions of your species (for characters).  The more details it has, the better it works.
+:::
 
 ## Image generation time and cost {#image-time}
 

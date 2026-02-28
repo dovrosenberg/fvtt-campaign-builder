@@ -10,6 +10,7 @@ import { cleanUuidReferencesInText, resolveUuidNameSync } from '@/utils/clipboar
 import { htmlToMarkdown } from '@/utils/sanitizeHtml';
 import { ModuleSettings, SettingKey } from '@/settings';
 import ZipFileService from '@/utils/zipFiles';
+import { downloadFile, downloadBlob } from '@/utils/fileDownload';
 
 /**
  * Exports an entire setting to a markdown file with story web images in a zip archive.
@@ -65,13 +66,8 @@ const exportSettingMarkdown = async (settingId: string): Promise<void> => {
     const markdownContent = await generateSettingMarkdown(setting);
 
     // Download just the markdown file
-    const markdownBlob = new Blob([markdownContent], { type: 'text/markdown' });
-    const markdownUrl = URL.createObjectURL(markdownBlob);
-    const markdownLink = document.createElement('a');
-    markdownLink.href = markdownUrl;
-    markdownLink.download = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
-    markdownLink.click();
-    URL.revokeObjectURL(markdownUrl);
+    const filename = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
+    downloadFile(markdownContent, filename, 'text/markdown');
 
     ui.notifications.info(localize('notifications.export.complete'));
   } catch (error) {
@@ -933,14 +929,9 @@ const createAndDownloadZip = async (
     // Create ZIP file
     const zipData = await ZipFileService.createZipData(files);
     
-    // Download immediately using blob URL
-    const blob = new Blob([zipData], { type: 'application/zip' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.zip`;
-    link.click();
-    URL.revokeObjectURL(url);
+    // Download the ZIP file
+    const filename = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.zip`;
+    downloadFile(zipData, filename, 'application/zip');
     
   } catch (error) {
     console.error('Error creating zip file:', error);
@@ -961,24 +952,14 @@ const downloadFilesSeparately = async (
   storyWebImages: Array<{ name: string; data: Blob }>
 ): Promise<void> => {
   // Download markdown file
-  const markdownBlob = new Blob([markdownContent], { type: 'text/markdown' });
-  const markdownUrl = URL.createObjectURL(markdownBlob);
-  const markdownLink = document.createElement('a');
-  markdownLink.href = markdownUrl;
-  markdownLink.download = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
-  markdownLink.click();
-  URL.revokeObjectURL(markdownUrl);
+  const markdownFilename = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
+  downloadFile(markdownContent, markdownFilename, 'text/markdown');
 
   // Download images with a small delay between each
   for (let i = 0; i < storyWebImages.length; i++) {
     const image = storyWebImages[i];
     setTimeout(() => {
-      const url = URL.createObjectURL(image.data);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = image.name;
-      link.click();
-      URL.revokeObjectURL(url);
+      downloadBlob(image.data, image.name);
     }, i * 100); // 100ms delay between downloads
   }
 };

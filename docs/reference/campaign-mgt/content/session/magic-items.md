@@ -17,11 +17,13 @@ This tab provides:
 ## Adding Magic Items
 Click "Add Magic Item" to create a new Magic Item entry.  You will be prompted to search for an existing Foundry item.
 
-> [!Note]
-> When searching for an item, it currently only looks in the Foundry world - not in compendiums.  
+::: info 
+When searching for an item, it currently only looks in the Foundry world - not in compendiums.  
+:::
 
-> [!WARNING]
-> Deleting from Foundry an item that is associated with a Session as a Magic Item will completely remove the Magic Item from the Session, even if it had previously been marked as delivered.
+::: warning
+Deleting from Foundry an item that is associated with a Session as a Magic Item will completely remove the Magic Item from the Session, even if it had previously been marked as delivered.
+:::
 
 ## The Magic Item list
 This list contains the individual Magic Items.  For each Magic Item, you can see its name and a notes field you can use to track things like how you intend to use them

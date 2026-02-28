@@ -88,7 +88,10 @@
       "enableVoiceRecordingHelp": "Allow recording voice samples for characters to help remember voices/accents",
       "tableGrouping": "Table Grouping Settings",
       "tableGroupingLabel": "Table Grouping",
-      "tableGroupingHelp": "Configure which tabs use grouped tables for each content type"
+      "tableGroupingHelp": "Configure which tabs use grouped tables for each content type",
+      "importExport": "Import/Export Module Data",
+      "importExportLabel": "Import/Export Module Data",
+      "importExportHelp": "Export all module data to a file or import from a previous export"
     },
     "applications": {
       "sessionNotes": {
@@ -333,6 +336,41 @@
           "generatedName":"Generated Name",
           "generatedDescription": "Generated Description"
         }
+      },
+      "importExport": {
+        "title": "Import/Export Module Data",
+        "exportTitle": "Export Module Data",
+        "importTitle": "Import Module Data",
+        "exportDescription": "Export all FCB settings and content to a JSON file that can be imported into another Foundry world.",
+        "importDescription": "Import FCB data from a previously exported JSON file. This will replace all existing FCB content.",
+        "exportButton": "Export Data",
+        "importButton": "Import Data",
+        "exportModeLabel": "Export Mode",
+        "exportModeAll": "Export All",
+        "exportModeConfiguration": "Configuration Only",
+        "exportModeSettings": "Settings Only",
+        "exportStarting": "Starting export...",
+        "exportComplete": "Module data exported successfully",
+        "exportFailed": "Failed to export module data",
+        "importStarting": "Starting import...",
+        "importComplete": "Module data imported successfully. Reloading...",
+        "importFailed": "Failed to import module data",
+        "importWarning": "Importing will replace any existing FCB settings that have matching IDs. Other settings will remain untouched. This cannot be undone.",
+        "importWarningConfig": "Importing configuration will update module settings without affecting FCB content.",
+        "importConfirmTitle": "Confirm Import",
+        "importConfirm": "This will replace any existing FCB settings with matching IDs. Other settings will remain untouched. Continue?",
+        "importConfirmConfig": "This will update module configuration settings. Continue?",
+        "invalidFile": "Invalid export file format",
+        "selectFile": "Select export file...",
+        "collectingSettings": "Collecting module settings...",
+        "exportingSetting": "Exporting setting",
+        "creatingFile": "Creating export file...",
+        "readingFile": "Reading import file...",
+        "validatingData": "Validating import data...",
+        "deletingExisting": "Deleting existing content...",
+        "importingSettings": "Importing module settings...",
+        "importingSetting": "Importing setting",
+        "remappingUuids": "Remapping document references..."
       }
     },
     "help": {
@@ -1033,7 +1071,11 @@
         },
         "2": "Campaign",
         "3": "Session",
-        "4": "Setting"
+        "4": "Setting",
+        "5": "Front",
+        "6": "Arc",
+        "7": "Story Web",
+        "8": "Tag Results"
       },
       "createEntry": {
         "addToCurrentSession": "Add to current session",

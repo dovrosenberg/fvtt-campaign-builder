@@ -856,7 +856,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @returns Promise that returns after the update
    */
   public async save(): Promise<void> {
-    // we attempt to save first - because if it fails, we don't 
+    // we attempt to save first - because if it fails, we don't
     //    want to adjust anything else
     const justCompleted = this._clone.system.completed && !this._doc?.system.completed;
     const justActive = !this._clone.system.completed && this._doc?.system.completed;

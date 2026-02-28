@@ -14,8 +14,9 @@ The top right corner of the window's title bar has the search box.
 
 Clicking a search result opens it in a new tab.
 
-> [!NOTE]
-> Search terms are not case sensitive.  
+::: info TIP
+Search terms are not case sensitive.
+:::
 
 ## Searching Individual Entities
 
@@ -69,8 +70,9 @@ Finally, the search box also searches across Sessions - but in a subtlely differ
 
 Only delivered items are searched because this provides a really easy way to answer things like "what session was that when we fought the Goblin King?"  If you had attached the Goblin King to multiple sessions, but he ended up not appearing in all of them, this will find where he actually appeared.
 
-> [!NOTE]
-> A side effect of this is that things in the [^Current Session] likely won't be found (since they aren't delivered yet).  But you should have a pretty good idea of what's being used in the Current Session, and you can easily pull it up in any case.
+::: warning
+A side effect of this is that things in the [^Current Session] likely won't be found (since they aren't delivered yet).  But you should have a pretty good idea of what's being used in the Current Session, and you can easily pull it up in any case.
+:::
 
 ## Searching Tags
 If your search text matches one or more tags, the matching tags will appear at the top of the search results, along with the number of entities with that tag.  Clicking this "tag" result will open the corresponding [tag list](/reference/navigation/tags#tag-list)

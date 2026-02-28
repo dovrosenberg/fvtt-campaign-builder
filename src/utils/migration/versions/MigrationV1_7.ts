@@ -61,7 +61,7 @@ export class MigrationV1_7 implements Migration {
           // see if there's no page - these were deleted poorly in a prior release
           if (!doc.pages || doc.pages.length===0) {
             // delete it properly 
-            const fullDoc = await fromUuid<JournalEntry>(doc.uuid);
+            const fullDoc = await foundry.utils.fromUuid<JournalEntry>(doc.uuid);
             if (fullDoc)
               await fullDoc.delete();
           }

@@ -14,9 +14,9 @@ When you first open the module, you'll be prompted to create your first [^Settin
 
 You can have more than one [^Campaign] in a given Setting, and they share all of the same Characters, Locations, etc. (but also cannot reference into a Setting other than the one they are in).
 
-> [!NOTE]
-> There's currently no way to move a Setting between Foundry worlds.  If you have a use case for that, let's talk.*
-
+::: info NOTE
+You can move a Setting between Foundry worlds using the [Import/Export feature](/reference/configuration/import-export).
+:::
 
 ## World Building
 World building primarily takes place in the [^Setting Directory], found in the upper part of the Directory Sidebar.  The key steps to get you started are:
@@ -33,8 +33,9 @@ That's basically it - everything else is optional.  Some other things you'll lik
   * Click on the image box to assign an image
   * Add relationships to other entries on the other tabs 
 
-> [!NOTE]
-> Don't like the default fields on your Entries (or Setting, Campaigns, Sessions, or Fronts)?  You can [customize them](/reference/configuration/custom-fields) to your liking in [Module Settings].
+::: info TIP
+Don't like the default fields on your Entries (or Setting, Campaigns, Sessions, or Fronts)?  You can [customize them](/reference/configuration/custom-fields) to your liking in [Module Settings].
+:::
 
 Check out the [World Building Guide](/guide/world-building/) for more information.
 

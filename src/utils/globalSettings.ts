@@ -50,6 +50,13 @@ const GlobalSettingService = {
 
   removeGlobalSetting: (settingId: string) => {
     delete globalSettings[settingId];
+  },
+
+  /**
+   * Clear all cached settings. Used during import to reset the cache.
+   */
+  clearAll: () => {
+    globalSettings = {};
   }
 };
 

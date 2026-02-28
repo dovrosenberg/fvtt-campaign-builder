@@ -139,8 +139,9 @@ You can also create a new location right from the session screen by clicking "Cr
 
 ![Add Location Dialog](/assets/images/add-location.webp)
 
-> [!TIP]
-> You can drag/drop anything from either the [^Setting Directory] or the [^Campaign Directory] onto a Foundry scene to create a map note that will open that piece of content directly in Campaign Builder.  This can be particularly useful for things like putting Location descriptions on the map.  Clicking the note then opens the Location entry, providing quick access to any other related content. 
+::: info TIP
+You can drag/drop anything from either the [^Setting Directory] or the [^Campaign Directory] onto a Foundry scene to create a map note that will open that piece of content directly in Campaign Builder.  This can be particularly useful for things like putting Location descriptions on the map.  Clicking the note then opens the Location entry, providing quick access to any other related content.
+:::
 
 ### 5. NPCs
 Characters that might appear in the upcoming session.  NPCs are [Characters](/reference/world-building/content/character/) in your Setting.

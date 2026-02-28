@@ -8,6 +8,7 @@ import { ImageSettingsApplication } from '@/applications/settings/ImageSettingsA
 import { TableGroupingSettingsApplication } from '@/applications/settings/TableGroupingSettingsApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { StoryWebSettingsApplication } from '@/applications/settings/StoryWebSettingsApplication';
+import { ImportExportApplication } from '@/applications/settings/ImportExportApplication';
 import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
 import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, GroupableItem, } from '@/types';
 
@@ -101,6 +102,9 @@ export enum SettingKey {
   // table grouping settings
   tableGroupingMenu = 'tableGroupingMenu', // display the table grouping menu
   tableGroupingSettings = 'tableGroupingSettings', // table grouping settings per content type
+
+  // import/export menu
+  importExportMenu = 'importExportMenu', // display the import/export menu
 }
 
 export type SettingKeyType<K extends SettingKey> =
@@ -291,6 +295,15 @@ export class ModuleSettings {
       icon: 'fa-solid fa-table',
       permissions: ['SETTINGS_WRITE'],
       type: TableGroupingSettingsApplication,
+    },
+    {
+      settingID: SettingKey.importExportMenu,
+      name: 'settings.importExport',
+      label: 'fcb.settings.importExportLabel',   // localized by Foundry
+      hint: 'settings.importExportHelp',
+      icon: 'fa-solid fa-file-import',
+      permissions: ['SETTINGS_WRITE'],
+      type: ImportExportApplication,
     }
   ];
 

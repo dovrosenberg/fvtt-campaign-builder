@@ -17,8 +17,9 @@ There are two sections to the dialog:
 ## Sample Names
 The top section of the dialog shows a list of sample names for each style, based on the [^Setting] genre and feeling.  If you want to get more specific, you might try including in the world feeling detail
 
-> [!INFO]
-> If you have updated the ^Setting genre or feeling since last opening this dialog, it may take a bit to generate the new samples. 
+::: info
+If you have updated the ^Setting genre or feeling since last opening this dialog, it may take a bit to generate the new samples.
+:::
 
 ## Checkboxes
 Simply check the boxes to enable the name styles you want to use.  Names will be generated randomly from across the selected styles.

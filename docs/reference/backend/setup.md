@@ -12,8 +12,9 @@ The backend is at https://github.com/dovrosenberg/fvtt-fcb-backend.
 
 Setting it up is pretty straightforward but requires some basic comfort with command-line scripts (you don't need to create any - just edit and run).
 
-> [!INFO]
-> You can connect the Campaign Builder module in multiple Foundry worlds (even on multiple Foundry servers) to the same backend if you want.  The only thing to note is that all generated images will be stored in the same output directory, so anyone with access from any of those different worlds will be able to see them all (unless you actively manage the directory and move things out).
+::: warning TIP WITH CAUTION
+You can connect the Campaign Builder module in multiple Foundry worlds (even on multiple Foundry servers) to the same backend if you want.  The only thing to note is that all generated images will be stored in the same output directory, so anyone with access from any of those different worlds will be able to see them all (unless you actively manage the directory and move things out).
+:::
 
 ## Requirements 
 The backend script supports Ubuntu/Debian (including WSL), MacOS (requires Homebrew), and Windows (requires Powershell).  Note: It has not been well-tested in Powershell.  I recommend using WSL for Windows if possible, but if you do use Powershell, [file an issue] or post on the [Discord server] if you run into trouble.  
@@ -21,8 +22,9 @@ The backend script supports Ubuntu/Debian (including WSL), MacOS (requires Homeb
 Everything runs in the cloud, so there aren't any particular hardware requirements.  You will need to create accounts at Google Cloud, OpenAI, and Replicate.com.
 
 ## Prerequisites 
-> [!INFO]
-> You'll only need to do this section one time - not for every update
+::: info
+You'll only need to do this section one time - not for every update
+:::
 
 You'll need to do this step before you can deploy the backend.
 
@@ -76,9 +78,10 @@ There are lot of steps here, but if you follow the directions below, it should b
       ```
   
 ## Set environment variables
-> [!INFO]
-> You generally only need to do this once, but you will need to update the file (step 2) if you ever change any of your tokens.
-  
+::: info
+You generally only need to do this once, but you will need to update the file (step 2) if you ever change any of your tokens.
+:::
+
 1. Run this to download a template variable file.  Run it from the directory where you downloaded the key file in step 4 above.
     ```sh
     curl -sSL https://github.com/dovrosenberg/fvtt-fcb-backend/releases/latest/download/env.template -o .env
@@ -87,15 +90,18 @@ There are lot of steps here, but if you follow the directions below, it should b
 2. Edit the newly created .env file (in your favorite editor) to put in the needed settings (explained in detail in the comments in the .env file).
       
 ## Deploy the backend {#deploy}
-> [!INFO]
-> You'll do this step the first time and then whenever you want to upgrade to a new release of this backend
+::: info
+You'll do this step the first time and then whenever you want to upgrade to a new release of this backend
+:::
 
 ### Run the deploy script
-> [!NOTE]
-> This step might take a few minutes to run - especially after the line around Setting IAM Policy.
-> You may also see a warning: *Your active project does not match the quota project in your local Application Default Credentials file. This might result in unexpected quota issues.*  
-> 
-> You can safely ignore this.
+::: info
+This step might take a few minutes to run - especially after the line around Setting IAM Policy.
+
+You may also see a warning: *Your active project does not match the quota project in your local Application Default Credentials file. This might result in unexpected quota issues.*  
+ 
+You can safely ignore this.
+:::
 
 #### For Ubuntu/Debian/WSL (recommended for Windows) or MacOS
   - Run the following in your terminal (in MacOS, this requires Homebrew):
@@ -115,8 +121,9 @@ There are lot of steps here, but if you follow the directions below, it should b
     ```
 
 ### Setup Foundry
-> [!INFO]
-> Every time you deploy, the URL may change, and the token **will** change.
+::: info
+Every time you deploy, the URL may change, and the token **will** change.
+:::
 
 When you complete the deploy step above, the script will output at the end a URL and an API token.  These are unique to you and shouldn't be shared.  In theory, anyone who has them could use the API to generate text/images via your accounts (though they can't directly access your Google/OpenAI/Replicate accounts).  
 
@@ -127,8 +134,9 @@ Those aren't real values, so don't get any ideas.
 
 Copy these values from your script's output and paste them into the [Module Settings] (GM-only) in Foundry to make the connection.
 
-> [!INFO]
-> If you ever need to find these values again without re-deploying (ex. to add to a different Foundry world), you can find them at https://console.cloud.google.com/run?project=fcb-backend (click on the 'fcb-backend', then 'revisions' then the latest revision to see the token under 'environment variables' on the right)
+::: info
+If you ever need to find these values again without re-deploying (ex. to add to a different Foundry world), you can find them at https://console.cloud.google.com/run?project=fcb-backend (click on the 'fcb-backend', then 'revisions' then the latest revision to see the token under 'environment variables' on the right)
+:::
 
 ## Adding email support (optional)
 See [Email Functionality Setup](/reference/backend/email) to enable this functionality.

@@ -59,8 +59,9 @@ To delete a group:
 1. Click the trash icon in the group header
 2. Confirm the deletion when prompted
 
-> [!NOTE]
-> Deleting a group does not delete the items within it. Items in a deleted group will be moved to the "Ungrouped" section.
+::: info
+Deleting a group does not delete the items within it. Items in a deleted group will be moved to the "Ungrouped" section.
+:::
 
 ### Collapsing and Expanding Groups
 

@@ -1,26 +1,32 @@
 # Change Log
+## 1.9.2 - Import/Export
+![](https://img.shields.io/badge/release%20date-February%2028%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.2/module.zip)
+
+- You can now export all of your settings and configuration and then import it into a different Foundry world.  This is done from the module configuration screen. Any links to Foundry content (actors, items, etc.), though, will be broken ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/configuration/import-export)).
+
 ## 1.9.1 - Tag tweaks
 ![](https://img.shields.io/badge/release%20date-February%2027%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.1/module.zip)
 
-- Fixed issue where the tag list didn't show the autocomplete dropdown with available tags.
-- Tags are now per-Setting instead of global across the entire application.
+- Tags are now per-Setting instead of global across the entire application ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/tags)).
 - Tag autocomplete list colors are now better in dark mode. 
 - Fixed tag partial matching so entries with either "Good" and "Good Guys" as a tag were both showing when viewing the tag list for either
+- Fixed issue where the tag list didn't show the autocomplete dropdown with available tags.
 
 ## 1.9.0 - Some big quality of life feature requests
 ![](https://img.shields.io/badge/release%20date-February%2027%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.0/module.zip)
 
-- Added the ability to split the main content area into multiple panes, so you can view multiple entries side by side.
+- Added the ability to split the main content area into multiple panes, so you can view multiple entries side by side ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/panels)).
    - Anywhere you could hold "Control" to open a link in a new tab, you can now also hold "Alt" to open it in a different panel than the current one (i.e. open next to the content you're currently looking at).
-- You can now create color schemes to apply to any node in story webs.
-- You can now export a story web as a .PNG file from the directory context menu.
-- You can now adjust the size of all custom field editors using the grabber in the lower-right corner.  This size can be set differently for each piece of content.  If you want to change the default size for a particular field, you can still do that in the module settings.
-- Arcs now have a journals tab
-- You can now record a voice clip on character entries.  This is an easy way to quickly pull up what accent/voice you used for each character.
-- You can now export a full setting as either a .MD file or a .ZIP file (the .MD plus all the story web .PNGs)from the directory context menu.  This is handy for reviewing in another interface or for feeding to an LLM to ask it questions about the setting/campaign.
-- Many tables can now be put into "grouped" mode, which allows you to create groups of rows and collapse/expand them.  This is particularly useful for large lists like lore, ideas, and to-do items, but is available other places, too.  There is a new config dialog that lets you specify where you want to use this vs. the normal style.
+- You can now create color schemes to apply to any node in story webs ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/configuration/story-webs)).
+- You can now export a story web as a .PNG file from the directory context menu ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/storyWeb)).
+- You can now adjust the size of all custom field editors using the grabber in the lower-right corner.  This size can be set differently for each piece of content.  If you want to change the default size for a particular field, you can still do that in the module settings ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/editors#resizing)).
+- Arcs now have a journals tab ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/arc/journals))
+- You can now record a voice clip on character entries.  This is an easy way to quickly pull up what accent/voice you used for each character ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/world-building/content/character#voice-recording)).
+- You can now export a full setting as either a .md file or a .zip file (the .md plus all the story web .png's)from the directory context menu.  This is handy for reviewing in another interface or for feeding to an LLM to ask it questions about the setting/campaign ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/sidebar.html#context-menus)).
+- Many tables can now be put into "grouped" mode, which allows you to create groups of rows and collapse/expand them.  This is particularly useful for large lists like lore, ideas, and to-do items, but is available other places, too.  There is a new config dialog that lets you specify where you want to use this vs. the normal style ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/tables#groups)).
 - Various settings that turn functionality on/off (ex. show types in tree and use to-do list) now are now reflected immediately in the app window, without needing to refresh the browser.
 - Fixed issue with drag/drop of rows not working properly on very long tables.
 - Fixed conflict with Pathfinder 2e that was causing tags to show white (ex. traits)
@@ -30,26 +36,25 @@
 ![](https://img.shields.io/badge/release%20date-February%205%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.6/module.zip)
 
-- You can now change the style of story web connections between custom text and dangers.
+- You can now change the style of story web connections between custom text and dangers ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/storyWeb#connection-colors-and-styles)).
 - When copying text to the clipboard from a table text box or an editor, UUIDs will no longer be dropped and instead will be copied as the name of the document/entity.
 - Similarly, copying text with bullet or numbered lists will now include the bullets/numbers in the copied text when you paste it.
-- Connecting two entries in a story web now lets you add a relationship label.
-- When adding a danger to a story web, now uses a dropdown instead of a typeahead, so you don't have to remember what it's named.
+- Connecting two entries in a story web now lets you add a relationship label ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/storyWeb#connection-labels)).
+- When adding a danger to a story web, now uses a dropdown instead of a typeahead, so you don't have to remember what it's named ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/storyWeb#adding-fronts-and-dangers)).
 - Removed the journals column from the lore/entries tab to simplify the interface.  Journal references that were previously in the journals column will be added to the description field when the module is updated.
 
 ## 1.8.5 - More robust journal lists
 ![](https://img.shields.io/badge/release%20date-February%201%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.5/module.zip)
 
-- Links to journal entry sections (i.e. headers inside of a page) that are put into editors now properly open to the right part of the page.
-- You can now drop a link to a journal entry page section header into an editor and will properly link to the header instead of just the page.
-- You can now drag a journal entry page section header into the journals tab for Entries, Campaigns, and Settings, and it will then link directly to that section. 
+- You can now type or drop a link to a journal entry page section header into an editor and will properly link to the header instead of just the page ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/editors#drag-and-drop)).
+- You can now drag a journal entry page section header into the journals tab for Entries, Campaigns, and Settings, and it will then link directly to that section ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/world-building/content/entry/journals)). 
 
 ## 1.8.4 - Story web updates
 ![](https://img.shields.io/badge/release%20date-January%2029%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.4/module.zip)
 
-- You can now right click on a story web to "duplicate" it - useful for complex webs where you might want to do variations or use a master one to then trim pieces out.
+- You can now right click on a story web to "duplicate" it - useful for complex webs where you might want to do variations or use a master one to then trim pieces out ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/storyWeb#duplicating-a-story-web)).
 - Story webs no longer keep resetting the zoom level as you make changes
 
 ## 1.8.3 - Bug fix
@@ -68,8 +73,8 @@
 ![](https://img.shields.io/badge/release%20date-January%2010%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.8.1/module.zip)
 
-- Added Vignettes to Arcs
-- You can now manually reorder most tables, making it easier to (for example) group monster lists together by encounter
+- Added Vignettes to Arcs ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/arc/vignettes))
+- You can now manually reorder most tables, making it easier to (for example) group monster lists together by encounter ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/tables#reordering-items))
 - Fixed an issue where the new "current session" bookmark wasn't refreshing when a new session is created.
 - "Move to last Session" for items on Arcs now moves the item to the last Session in the Campaign, even if it's on a different Arc. This way if you have leftover items on an old Arc you can easily get them into your more recent play area. 
 - The search boxes to filter results on tables now work consistently.
@@ -84,19 +89,19 @@
 > **NOTE:**
 > IF YOU ARE USING THE BACKEND, THIS VERSION REQUIRES YOU TO UPDATE IT TO THE MOST RECENT VERSION.
 
-- The fields on the description tabs are now customizable!  This applies to Settings, Characters, Organizations, Locations, Campaigns, Arcs, Sessions, and Fronts.  Each one can have its own list of fields you want - text fields, full editors, drop-downs, and checkboxes.
+- The fields on the description tabs are now customizable!  This applies to Settings, Characters, Organizations, Locations, Campaigns, Arcs, Sessions, and Fronts.  Each one can have its own list of fields you want - text fields, full editors, drop-downs, and checkboxes ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/configuration/custom-fields)).
 - Every field that used to be present on these tabs (other than the base descriptions/notes) has now been converted to a custom field, so you can delete/hide them if you want. 
-- AI generation has been completely reworked.  Every custom field (including in Campaigns, Sessions, Fronts, etc.) can now be generated by AI, and you can define custom prompts and other configuration. Default AI generation configuration has been setup to closely match however you had it configured in the prior version, and the [documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/configuration/custom-fields.html) contains more info on adjusting it.
-- Similarly, you now have complete control over AI image generation - from specifying which field has the description to use to specifying framing, image styles, and more.  
-- You can now click on any tag to open a list of all the entities that share that tag.  Searches will also now match against tags directly, allowing you to quickly get to this screen.
-- On a related note, tags are now shared between entries, sessions, arcs, and fronts - making it easier to use a single tag to carry a thread across all of them.
-- There is a new "Foundry" tab available on Entries.  You will need to turn it on in the module settings, as it is off by default.  This allows you to link ANY foundry document (Scenes, Actors, Items, RollTables, Playlists, etc.) to the entry.  This is particularly useful for users who want to drive their play sessions entirely from entries (typically Locations) without using the Campaigns/Sessions system.  
-- You can now add manual notes to locations, NPC, magic items, and monsters on sessions.
-- You can now generate images for settings, campaigns, arcs, sessions, and fronts.
-- You can now drag Settings, Entries, Campaigns, Arcs, Sessions, Fronts and Story Webs from the directory onto a Foundry scene to create a Map Note that will then directly open the content in Campaign Builder.
-- You can now drag/drop a Front onto a Story Web and it will add all of the Front's Dangers to the Story Web.  Hold control to also get all of each Danger's participants.  Similarly, you can right click on a Front in the directory to have menu options to do that.
-- You can now put UUID links in any long text field in a table (ex. vignettes, the new notes on monsters/NPCs, etc.).  You can also type/paste in URLs and you can use shift-Enter to insert new lines into the text.  Links will be checked for changes and you're able to have connections automatically managed to the (ex. add a link to a character in a Vignette and you'll be prompted to automatically add it to the NPC's list on the Session).
-- There is a new setting for 'Display Session bookmark'.  When enabled, there will always be a bookmark for the current Session at the front of the bookmark list.
+- AI generation has been completely reworked.  Every custom field (including in Campaigns, Sessions, Fronts, etc.) can now be generated by AI, and you can define custom prompts and other configuration. Default AI generation configuration has been setup to closely match however you had it configured in the prior version, and the [documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/configuration/custom-fields#ai-configuration-dialog) contains more info on adjusting it.
+- Similarly, you now have complete control over AI image generation - from specifying which field has the description to use to specifying framing, image styles, and more ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/world-building/image-generation)).  
+- You can now click on any tag to open a list of all the entities that share that tag.  Searches will also now match against tags directly, allowing you to quickly get to this screen ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/tags#tag-list)).
+- On a related note, tags are now shared between entries, sessions, arcs, and fronts - making it easier to use a single tag to carry a thread across all of them ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/tags)).
+- There is a new "Foundry" tab available on Entries.  You will need to turn it on in the module settings, as it is off by default.  This allows you to link ANY foundry document (Scenes, Actors, Items, RollTables, Playlists, etc.) to the entry.  This is particularly useful for users who want to drive their play sessions entirely from entries (typically Locations) without using the Campaigns/Sessions system ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/world-building/content/entry/generic-foundry)).  
+- You can now add manual notes to locations, NPC, magic items, and monsters on sessions ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/session)).
+- You can now generate images for settings, campaigns, arcs, sessions, and fronts ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/world-building/image-generation)).
+- You can now drag Settings, Entries, Campaigns, Arcs, Sessions, Fronts and Story Webs from the directory onto a Foundry scene to create a Map Note that will then directly open the content in Campaign Builder ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/sidebar)).
+- You can now drag/drop a Front onto a Story Web and it will add all of the Front's Dangers to the Story Web.  Hold control to also get all of each Danger's participants.  Similarly, you can right click on a Front in the directory to have menu options to do that ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/storyWeb#adding-fronts-and-dangers)).
+- You can now put UUID links in any long text field in a table (ex. vignettes, the new notes on monsters/NPCs, etc.).  You can also type/paste in URLs and you can use shift-Enter to insert new lines into the text.  Links will be checked for changes and you're able to have connections automatically managed to the (ex. add a link to a character in a Vignette and you'll be prompted to automatically add it to the NPC's list on the Session) ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/editors#related-entry-tracking)).
+- There is a new setting for 'Display Session bookmark'.  When enabled, there will always be a bookmark for the current Session at the front of the bookmark list ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/bookmarks)).
 
 Bug fixes:
 - When creating connections in a Story Web, entities that aren't valid connections no longer light up to show they are invalid.

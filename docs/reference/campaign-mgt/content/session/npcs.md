@@ -27,10 +27,11 @@ Click on the notes field to edit it.  Press Enter to save or Escape to cancel. S
 ### Moveable
 You can reorder the NPC list by dragging the handle on the left side of each row to move rows up and down.
 
-> [!TIP]
-> When your players encounter an NPC, click on it to open up the details page, where you can get information for describing it.  From there, you can then use the [Actors tab](/reference/world-building/content/character/#actors) to immediately find an associated actors and open their character sheets or drag them right onto the scene in Foundry.
->
-> You can also right-click on the Characters's image to push it to chat for the players.
+::: info TIP
+When your players encounter an NPC, click on it to open up the details page, where you can get information for describing it.  From there, you can then use the [Actors tab](/reference/world-building/content/character/#actors) to immediately find an associated actors and open their character sheets or drag them right onto the scene in Foundry.
+
+You can also right-click on the Characters's image to push it to chat for the players.
+:::
 
 ### Character Actions
 The actions column lets you take several actions with the Character entries:

@@ -17,11 +17,13 @@ This tab provides:
 ## Adding Monsters
 Click "Add Monster" to create a new Monster entry.  You will be prompted to search for an existing Actor.  
 
-> [!Note]
-> When searching for an actor, it currently only looks in the Foundry world - not in compendiums.  
+::: info
+When searching for an actor, it currently only looks in the Foundry world - not in compendiums.  
+:::
 
-> [!WARNING]
-> Deleting from Foundry an actor that is associated with a Session as a Monster will completely remove the Monster from the Session, even if it had previously been marked as delivered.
+::: warning
+Deleting from Foundry an actor that is associated with a Session as a Monster will completely remove the Monster from the Session, even if it had previously been marked as delivered.
+:::
 
 You can also drag/drop an actor from a the world, a compendium, or other modules like search tools that allow for drag and drop.
 

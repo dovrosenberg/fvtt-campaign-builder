@@ -85,13 +85,13 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
   
   // creates a new session in the proper campaign
   // puts it at end of last arc
-  static async create(campaign: Campaign, name = ''): Promise<Session | null> 
+  static async create(campaign: Campaign, name = ''): Promise<Session | null>
   {
     let nameToUse: string | null = name;
 
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`); 
-    }  
+      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`);
+    }
     
     // if name is null, then we cancelled the dialog
     if (!nameToUse)
@@ -101,7 +101,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     const sessionNumber = campaign.currentSessionNumber==null ? 0 : campaign.currentSessionNumber + 1;
 
     const session = await super._create(
-      campaign.compendiumId, 
+      campaign.compendiumId,
       nameToUse,
       localize('contentFolders.sessions'),
       { system: { campaignId: campaign.uuid, number: sessionNumber }}
@@ -516,10 +516,24 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     }
   }
 
+  // Flag to skip renumbering during import operations
+  private static _skipRenumbering = false;
+
+  /**
+   * Set whether to skip session renumbering during save operations.
+   * This should be set to true during import operations to prevent
+   * recursive save loops when importing multiple sessions.
+   *
+   * @param skip - Whether to skip renumbering
+   */
+  public static setSkipRenumbering(skip: boolean): void {
+    Session._skipRenumbering = skip;
+  }
+
   // used to set arbitrary properties on the entryDoc
   /**
    * Updates a session in the database
-   * 
+   *
    * @returns A promise that resolves after the update
    */
   public async save(): Promise<void> {
@@ -528,21 +542,23 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     if (!campaign)
       throw new Error('Invalid campaign in Session.save()');
     
-    // Handle session renumbering if needed
-    const sessions = campaign.sessionIndex.sort((a, b) => a.number - b.number);
-    const currentNumberedSession = sessions.findIndex(s => s.number === this.number && s.uuid !== this.uuid);
+    // Handle session renumbering if needed (skip during import to prevent recursive loops)
+    if (!Session._skipRenumbering) {
+      const sessions = campaign.sessionIndex.sort((a, b) => a.number - b.number);
+      const currentNumberedSession = sessions.findIndex(s => s.number === this.number && s.uuid !== this.uuid);
 
-    if (currentNumberedSession !== -1) {
-      // Need to re-number everything after this one
-      // Go backward because otherwise these saves will kickoff a cascade of changes
-      for (let i = sessions.length - 1; i >= currentNumberedSession; i--) {
-        if (sessions[i].uuid !== this.uuid) {
-          const session = await Session.fromUuid(sessions[i].uuid); 
-          if (!session)
-            throw new Error('Invalid session in Session.save()');
+      if (currentNumberedSession !== -1) {
+        // Need to re-number everything after this one
+        // Go backward because otherwise these saves will kickoff a cascade of changes
+        for (let i = sessions.length - 1; i >= currentNumberedSession; i--) {
+          if (sessions[i].uuid !== this.uuid) {
+            const session = await Session.fromUuid(sessions[i].uuid);
+            if (!session)
+              throw new Error('Invalid session in Session.save()');
 
-          session.number++;
-          await session.save(); // This will recursively update campaign
+            session.number++;
+            await session.save(); // This will recursively update campaign
+          }
         }
       }
     }
@@ -554,7 +570,10 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this._updateSessionIndexInCampaign(campaign);
     
     // Adjust arc boundaries if needed (saves arcs but not the campaign)
-    await campaign.updateArcsForNewSessionNumber(this.number);
+    // Skip during import to prevent cascading saves
+    if (!Session._skipRenumbering) {
+      await campaign.updateArcsForNewSessionNumber(this.number);
+    }
     
     // Reset current session if needed (doesn't save)
     campaign.resetCurrentSession();

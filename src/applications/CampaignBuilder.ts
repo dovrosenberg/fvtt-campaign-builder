@@ -329,7 +329,7 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     const originalUuid = doc.getFlag(moduleId, JournalEntryFlagKey.originalUuid) as string | undefined;
     if (originalUuid && originalUuid !== incomingDoc.uuid) {
       // This is a world copy, load the original compendium entry instead
-      const originalDoc = await fromUuid<JournalEntry>(originalUuid);
+      const originalDoc = await foundry.utils.fromUuid<JournalEntry>(originalUuid);
       if (originalDoc) {
         doc = originalDoc;
       }

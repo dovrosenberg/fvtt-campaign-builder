@@ -85,7 +85,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     else if (!this._clone.system.actorId)
       return null;
 
-    this._actor = await fromUuid<Actor>(this._clone.system.actorId);
+    this._actor = await foundry.utils.fromUuid<Actor>(this._clone.system.actorId);
 
     if (!this._actor) {
       this.actorId = '';  // clean up if the actor is gone

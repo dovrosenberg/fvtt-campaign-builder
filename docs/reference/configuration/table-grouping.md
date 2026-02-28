@@ -3,6 +3,9 @@ title: Table Grouping Settings
 prev: 
   text: 'Story Web Connections'
   link: './story-webs'
+next:
+  text: 'Import/Export'
+  link: './import-export'
 ---
 # Table Grouping Settings
 
@@ -47,8 +50,9 @@ When table grouping is disabled:
 - No grouping controls are shown
 - Existing groups are hidden (but not deleted - they'll reappear if grouping is re-enabled)
 
-> [!TIP]
-> If you don't need the organization that grouping provides, disabling it can simplify the interface and save screen space.
+::: info TIP
+If you don't need the organization that grouping provides, disabling it can simplify the interface and save screen space.
+:::
 
 
 **PCs** - Group player characters in the Campaign details
@@ -84,5 +88,6 @@ When table grouping is disabled:
 - No grouping controls are shown
 - Existing groups are hidden (but not deleted - they'll reappear if grouping is re-enabled)
 
-> [!TIP]
-> If you don't need the organization that grouping provides, disabling it can simplify the interface and save screen space.
+::: info TIP
+If you don't need the organization that grouping provides, disabling it can simplify the interface and save screen space.
+:::

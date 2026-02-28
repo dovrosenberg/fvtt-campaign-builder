@@ -79,8 +79,8 @@
   // methods
   async function updateTableRows() {
     tableRows.value = await Promise.all(props.initialJournals.map(async (journal) => {
-      const journalDoc = await fromUuid<JournalEntry>(journal.journalUuid);
-      const pageDoc = journal.pageUuid ? await fromUuid<JournalEntryPage>(journal.pageUuid) : null;
+      const journalDoc = await foundry.utils.fromUuid<JournalEntry>(journal.journalUuid);
+      const pageDoc = journal.pageUuid ? await foundry.utils.fromUuid<JournalEntryPage>(journal.pageUuid) : null;
       const pageType = pageDoc?.type ? game.i18n.localize(CONFIG.JournalEntryPage.typeLabels[pageDoc.type]) : '';
       return {
         uuid: journal.uuid,
@@ -96,7 +96,7 @@
 
   /** adds a journal or page (determined by uuid) to the array and emits the change*/
   const addJournal = async (documentUuid: string, anchor: {slug: string; name: string} | null = null): Promise<void> => {
-    const doc = await fromUuid<JournalEntry | JournalEntryPage>(documentUuid);
+    const doc = await foundry.utils.fromUuid<JournalEntry | JournalEntryPage>(documentUuid);
     if (!doc) return;
     
     if (!['JournalEntry', 'JournalEntryPage'].includes(doc.documentName)) {
@@ -140,13 +140,13 @@
   };
 
   const onJournalClick = async (_event: MouseEvent, data: Record<string, unknown> & { uuid: string; }) => {
-    const journal = await fromUuid<JournalEntry>(data.journalUuid as string);
+    const journal = await foundry.utils.fromUuid<JournalEntry>(data.journalUuid as string);
     // @ts-ignore - fvtt types aren't working
     await journal?.sheet?.render({force: true});
   };
 
   const onPageClick = async (_event: MouseEvent, data: Record<string, unknown> & { uuid: string; }) => {
-    const page = await fromUuid<JournalEntryPage>(data.pageUuid as string);
+    const page = await foundry.utils.fromUuid<JournalEntryPage>(data.pageUuid as string);
     // we have to use the parent because the page can't handle the anchor on its own
     // @ts-ignore - fvtt types aren't working
     await page?.parent?.sheet?.render({force: true, pageId: page.id, anchor: data.anchor});

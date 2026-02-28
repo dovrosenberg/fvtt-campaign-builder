@@ -33,9 +33,9 @@ The actions column lets you take several actions with the Lore entries:
   - **Move to campaign** - This moves the Lore up to the [Campaign Lore](/reference/campaign-mgt/content/campaign/lore) list.  You can do this for lore that you've decided to handle in a future Arc.
   - **Move to next session** - This moves the Lore to the next Session.  You would typically do this after a Session for Lore that you didn't deliver but still want to.  If a next Session doesn't exist, it will create one.
 
-  > [!NOTE]
-  > Move/copy to next session buttons on the various Arc tabs push to the latest Session in the Campaign - *even if it's in a different arc*
-
+  ::: warning CAUTION
+  Move/copy to next session buttons on the various Arc tabs push to the latest Session in the Campaign - *even if it's in a different arc*
+  :::
 
 ### Related Entry Tracking
 This table supports [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters, Organizations, or Locations in lore descriptions, you'll be prompted to update the Arc's Participants and Locations tables accordingly. 

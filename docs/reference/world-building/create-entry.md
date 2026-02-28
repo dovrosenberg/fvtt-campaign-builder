@@ -12,8 +12,9 @@ next:
 
 The Create Entry dialog is where you can create a new [^Entry].  
 
-> [!Note]
-> When creating a PC, you'll simply be prompted for the player name.  You can then [link the actor](/reference/world-building/content/pc/#connection-to-actors) to the PC to set name and image.
+::: info
+When creating a PC, you'll simply be prompted for the player name.  You can then [link the actor](/reference/world-building/content/pc/#connection-to-actors) to the PC to set name and image.
+:::
 
 ## Fields
 There are several fields you can (optionally) fill in:
@@ -22,8 +23,9 @@ There are several fields you can (optionally) fill in:
 - **Parent** ([^Location], [^Organization] only) - The parent of the Entry.  This is optional.  Typing in the box will search for matching Locations/Organizations.
 - **Species** ([^Character] only) - The species of the Entry.  This is optional.  Typing in the box will search for matching Species.
 
-> [!Info]
-> You can enter a custom species in the box, or even a description (ex. "A blakhduq, which looks like an overgrown duck with demon horns").  This will then be used for description generation, but the species will not be added to the master list or set on the Entry.  
+::: info
+You can enter a custom species in the box, or even a description (ex. "A blakhduq, which looks like an overgrown duck with demon horns").  This will then be used for description generation, but the species will not be added to the master list or set on the Entry.
+:::
 
 - **Description** - The description of the Entry.  This is optional, but highly recommended if you plan to generate an image or description ([Advanced Feature]).  The description can be a very brief description or just a list of characteristics.  Any information contained in the description will be included in the generated version (if it fits). 
 

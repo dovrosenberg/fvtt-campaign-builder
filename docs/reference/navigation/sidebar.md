@@ -19,8 +19,9 @@ Anything represented as a folder can be opened/closed by clicking the folder ico
 
 ![Directory sidebar](/assets/images/directory-sidebar.webp)
 
-> [!TIP]
-> You can drag/drop anything from either the [^Setting Directory] or the [^Campaign Directory] onto a Foundry scene to create a map note that will open that piece of content directly in Campaign Builder.  This can be particularly useful for things like putting Location descriptions on the map.  Clicking the note then opens the Location entry, providing quick access to any other related content.
+::: info TIP
+You can drag/drop anything from either the [^Setting Directory] or the [^Campaign Directory] onto a Foundry scene to create a map note that will open that piece of content directly in Campaign Builder.  This can be particularly useful for things like putting Location descriptions on the map.  Clicking the note then opens the Location entry, providing quick access to any other related content.
+:::
 
 ## The Setting Directory {#setting-directory}
 The top half of the directory sidebar is the Setting directory.  Also known as the Entry directory, this is where you can find all the entries (Character, Locations, and Organizations) of your worlds.
@@ -50,16 +51,18 @@ Right-clicking on items in the Entry tree provides additional options depending 
 2. Topics - [Create a new Entry](/reference/world-building/create-entry) in that Topic
 3. Entries - Delete the Entry
 
-> [!INFO]
-> Exporting a Setting creates a markdown (.MD) file with all of the details for the Setting, all Entries, and all Campaigns (including all Fronts, Arcs, and Sessions).  This is useful for reviewing everything in a different platform, or for providing to an LLM to enable it to answer questions about the Setting/Campaign.
+::: info
+Exporting a Setting creates a markdown (.MD) file with all of the details for the Setting, all Entries, and all Campaigns (including all Fronts, Arcs, and Sessions).  This is useful for reviewing everything in a different platform, or for providing to an LLM to enable it to answer questions about the Setting/Campaign.
+:::
 
 ### Group by type {#group-by-type}
 Using the "Group tree by type" checkbox at the top of the sidebar, you can choose to organize the entries by [^Type] instead of Topic.  This will eliminate the Hierarchy representation and instead show all the Entries grouped by their Types.  Entries without a Type will not be shown.
 
 ![Group by type tree](/assets/images/group-by-type.webp)
 
-> [!NOTE]
-> Characters in setting directory now group by type regardless of whether the overall tree is grouped by type or not.  Since they don't have a hierarchy, this makes it much easier to find them when you have a long list.
+::: info
+Characters in setting directory now group by type regardless of whether the overall tree is grouped by type or not.  Since they don't have a hierarchy, this makes it much easier to find them when you have a long list.
+:::
 
 ### Filtering
 Typing text in the "Filter" box at the top of the sidebar filters the Entry tree to only show:
@@ -95,5 +98,6 @@ Right-clicking on items in the Campaign tree provides additional options dependi
 - Removes it from the default "email-to" campaign list in [Module Setings]
 - Does not show in the campaign-selector dropdown when in play mode
 
-> [!NOTE]
-> You can't change the completed status of a campaign while in play mode.  
+::: info
+You can't change the completed status of a campaign while in play mode.
+:::  

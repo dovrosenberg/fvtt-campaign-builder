@@ -226,7 +226,7 @@
       return;
 
     if (data.type==='Actor' && data.uuid) {
-      const actor = await fromUuid<Actor>(data.uuid);
+      const actor = await foundry.utils.fromUuid<Actor>(data.uuid);
       if (!actor)
         return;
       

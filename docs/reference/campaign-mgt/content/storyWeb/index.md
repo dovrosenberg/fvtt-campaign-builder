@@ -12,8 +12,9 @@ next:
 
 ![Story Web content](/assets/images/story-web-content.webp)
 
-> [!INFO]
-> Story Webs are an optional feature and can be disabled in the [Module Settings].
+::: info
+Story Webs are an optional feature and can be disabled in the [Module Settings].
+:::
 
 Story Webs provide a visual way to explore and manage relationships between entries in your [^Settings] and [^Campaigns]. These interactive graphs let you see connections between characters, locations, organizations, PCs, and Fronts/Dangers at a glance, making it easy to understand the complex web of relationships in your story.
 

@@ -421,7 +421,7 @@ export const campaignStore = () => {
       const entry = await Entry.fromUuid(toDo.linkedUuid);
       if (!entry) {
         // I don't think we currently link to documents, but just in case
-        const document = await fromUuid<foundry.abstract.Document<any, any>>(toDo.linkedUuid);
+        const document = await foundry.utils.fromUuid<foundry.abstract.Document<any, any>>(toDo.linkedUuid);
         if (!document) {
           notifyWarn(localize('notifications.toDoReferenceNotFound'));
           return;

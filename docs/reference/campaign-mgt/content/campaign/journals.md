@@ -13,8 +13,9 @@ next:
 
 The Journals tab allows you to associate any number of Foundry journal entries with the Entry.  This is useful for tracking extra images or any other content that you want to keep track of and/or share with the player(s).
 
-> [!NOTE]
-> Deleting a journal entry in Foundry that is attached to an Entry will automatically and safely remove it from the Entry.
+::: info
+Deleting a journal entry in Foundry that is attached to an Entry will automatically and safely remove it from the Entry.
+:::
 
 #### Adding Journals
 Click "Add journal" to select a Foundry journal entry or a single page from a journal entry and connect it to the Entry.

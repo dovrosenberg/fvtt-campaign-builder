@@ -30,8 +30,9 @@ You can manage the list of species for your Settings in the [Module Settings](/r
 
 On the Actors tab, you can associate your Character with one or more actors from Foundry.  Having more than one may be helpful if you have different character sheets for this Character at different points in time, or perhaps a transformed/polymorphed version, etc. Since your key Characters will be tied to the [^Current Session], you can access any of them with just a couple clicks.
 
-> [!NOTE]
-> Deleting an actor in Foundry that is attached to a Character will automatically and safely remove it from the Character.
+::: info
+Deleting an actor in Foundry that is attached to a Character will automatically and safely remove it from the Character.
+:::
 
 #### Adding actors
 Click "Add actor" to select a Foundry actor and connect it to the Character.
@@ -49,8 +50,9 @@ You can also grab and drag the hamburger icon to drag the default token for this
 
 The voice recording feature allows you to record a short voice sample for each Character. This helps you remember what voice or accent you used for each NPC during your games.
 
-> [!NOTE]
-> Voice recording is an optional feature that can be disabled in [Module Settings](/reference/configuration/#voice-recording).
+::: info
+Voice recording is an optional feature that can be disabled in [Module Settings](/reference/configuration/#voice-recording).
+:::
 
 #### Recording a Voice Sample
 
@@ -73,5 +75,6 @@ The voice recording feature allows you to record a short voice sample for each C
 1. Click the microphone button on a Character entry
 2. Select "Delete Recording" from the menu (only available if a recording exists)
 
-> [!NOTE]
-> Deleting a recording only removes the link from the Character. The audio file remains on the server, as Foundry does not permit file deletion. You will need to manually remove unneeded files if you want to clean up.
+::: warning
+Deleting a recording only removes the link from the Character. The audio file remains on the server, as Foundry does not permit file deletion. You will need to manually remove unneeded files if you want to clean up.
+:::

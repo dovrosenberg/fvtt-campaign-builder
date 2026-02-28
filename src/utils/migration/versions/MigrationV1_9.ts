@@ -72,7 +72,7 @@ export class MigrationV1_9 implements Migration {
       // migrate todo items to proper capitalization
       for (const campaignDoc of campaignDocs) {
         try {
-          const journalEntry = await fromUuid<JournalEntry>(campaignDoc.uuid);
+          const journalEntry = await foundry.utils.fromUuid<JournalEntry>(campaignDoc.uuid);
           if (!journalEntry || !journalEntry.pages || journalEntry.pages.contents.length !== 1)
             continue;
 

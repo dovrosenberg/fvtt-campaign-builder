@@ -17,8 +17,9 @@ You can edit the notes in the popup window, just as if you were editing them on 
 
 Whenever you save the notes while in [^Play Mode], it will sync the popup with the Notes tab.  
 
-> [!DANGER]
-> If you are editing in both the popup and the Notes tab make sure you save every time you switch back and forth. Otherwise any unsaved changes in the one you're not currently working in will be lost when you save the other.  
+::: danger
+If you are editing in both the popup and the Notes tab make sure you save every time you switch back and forth. Otherwise any unsaved changes in the one you're not currently working in will be lost when you save the other.  
+:::
 
 ## Disabling the popup
 You can disable the popup by unchecking the "Display 'pop-up' session notes" in the [Module Settings].

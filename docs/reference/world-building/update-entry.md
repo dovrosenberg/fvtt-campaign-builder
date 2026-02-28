@@ -13,8 +13,9 @@ next:
 
 The Update Entry dialog is where you can update an existing [^Entry] using AI.  
 
-> [!NOTE]
-> To update an Entry manually, just edit it on the [Entry description tab](/reference/world-building/content/entry/description).
+::: info
+To update an Entry manually, just edit it on the [Entry description tab](/reference/world-building/content/entry/description).
+:::
 
 ## Fields
 There are several fields you can (optionally) fill in:

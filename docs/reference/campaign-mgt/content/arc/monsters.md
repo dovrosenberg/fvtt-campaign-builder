@@ -18,8 +18,9 @@ This tab provides:
 ## Adding Monsters
 Click "Add Monster" to create a new Monster entry.  You will be prompted to search for an existing Actor.  
 
-> [!Note]
-> When searching for an actor, it currently only looks in the Foundry world - not in compendiums.  
+::: info
+When searching for an actor, it currently only looks in the Foundry world - not in compendiums.  
+:::
 
 You can also drag/drop an actor from a the world, a compendium, or other modules like search tools that allow for drag and drop.
 
@@ -39,8 +40,9 @@ The actions column lets you take several actions with the Monster entries:
   - **Edit** - Opens the notes field for editing.  Press Enter to save or Escape to cancel. Shift-Enter within the notes text box to insert a new line.
   - **Copy to next session** - This makes a copy of the Monster on the next Session.  It doesn't remove it from the Arc in case you want to use it again later.
 
-  > [!NOTE]
-  > Move/copy to next session buttons on the various Arc tabs push to the latest Session in the Campaign - *even if it's in a different arc*
+  ::: warning CAUTION
+  Move/copy to next session buttons on the various Arc tabs push to the latest Session in the Campaign - *even if it's in a different arc*
+  :::
 
 ### Related Entry Tracking
 This table supports [Related Entry Tracking](/reference/navigation/editors#related-entry-tracking). When you add or remove references to Characters, Organizations, or Locations in monster notes, you'll be prompted to update the Arc's Participants and Locations tables accordingly.  

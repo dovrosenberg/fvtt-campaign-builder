@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
-import { ValidDocType, TableGroup, DocumentGroups, GroupableItem, UNGROUPED_GROUP_ID } from '@/types';
+import { ValidDocType, TableGroup, DocumentGroups, GroupableItem, } from '@/types';
 import { FCBSetting } from './FCBSetting';
 import { sanitizeHTML } from '@/utils/sanitizeHtml';
 import GlobalSettingService from '@/utils/globalSettings';
@@ -51,6 +51,46 @@ export class FCBJournalEntryPage<
 
   public get raw(): DocClass {
     return this._doc;
+  }
+
+  /**
+   * Get the system data object for direct manipulation.
+   * Used during import to set remapped data before calling save().
+   * 
+   * @returns The system data object as a Foundry DataModel
+   */
+  public get systemData(): JournalEntryPage.CreateData<DocType>['system'] {
+    // make sure that we use the current values - not "source" because we
+    //   we don't want the save transformations applied
+    return this._clone.system.toObject(false);  
+  }
+
+  /**
+   * Set the entire system data object.
+   * Used during import to replace all system data with remapped data.
+   * After setting, call save() to persist the changes.
+   */
+  public async setSystemData(value: DocClass['system'] | Record<string, unknown>) {
+    // Create a data object from the clone and apply the new system data
+    const data = this._clone.toObject(false);
+    data.system = value;
+    
+    // Transform UUID keys with dots to #&# before saving (prevents Foundry from
+    // treating dots as path separators in expandObject)
+    this._prepData(data as DocClass);
+    
+    // we need to convert system back to a data model and get _doc updated, too
+    // @ts-ignore - I couldn't figure out the right type of raw system
+    const retval = await toRaw(this._doc)?.update({system: data.system}, { recursive: false, render: false })  as DocClass | undefined;
+
+    // no update done
+    if (!retval) {
+      throw new Error(`Failed to update system data for ${this._doc.uuid}`);
+    } else {
+      // reset the doc and clone
+      this._doc = retval;
+      this._clone = retval.clone({}, { keepId: true });
+    }
   }
 
   public get customFields(): Readonly<Record<string, string | boolean>> {
@@ -164,7 +204,7 @@ export class FCBJournalEntryPage<
     DocClass extends JournalEntryPage<DocType>,
     T extends FCBJournalEntryPageStatic<DocType, DocClass>
   > (this: T, uuid: string): Promise<InstanceType<T> | null> {
-    const entry = await fromUuid<JournalEntry>(uuid) as JournalEntry | undefined;
+    const entry = await foundry.utils.fromUuid<JournalEntry>(uuid) as JournalEntry | undefined;
     
     if (!entry || entry.documentName !== 'JournalEntry' || !entry.pages || entry.pages.contents.length !== 1)
       return null;
@@ -198,9 +238,9 @@ export class FCBJournalEntryPage<
       throw new Error(`Invalid journal entry page in FCBJournalEntryPage.save() ${this.uuid}`);
   
     try {
-      // get the db-safe copy of the data     
+      // get the db-safe copy of the data
       // we do this so anything with a reference into _clone doesn't
-      //   break if there's a timing issue 
+      //   break if there's a timing issue
       const data = this._clone.toObject(false);
       this._prepData(data as DocClass);
 
@@ -282,13 +322,16 @@ export class FCBJournalEntryPage<
    * 
    * @param {string} compendiumId - The compendium to create the content in. 
    * @param {string} name - The name of the content 
+   * @param {string} folderName - The folder name to put the content in
+   * @param {Record<string, unknown>} initialData - Initial data to merge with defaults
+   * @param {{ journalEntryId?: string }} options - Optional JournalEntry ID to use (for import)
    * @returns A promise that resolves when the page has been created with either the page or null for failure
    */
   protected static async _create<
     DocType extends ValidDocType,
     DocClass extends JournalEntryPage<DocType>,
     T extends FCBJournalEntryPageStatic<DocType, DocClass>
-  > (this: T, compendiumId: string, name: string, folderName: string, initialData: Record<string, unknown> = {}): Promise<InstanceType<T> | null> {
+  > (this: T, compendiumId: string, name: string, folderName: string, initialData: Record<string, unknown> = {}, options?: { journalEntryId?: string }): Promise<InstanceType<T> | null> {
     // find the folder it goes in 
     const pack = game.packs.get(compendiumId);
 
@@ -315,7 +358,7 @@ export class FCBJournalEntryPage<
       }
     }
 
-    const options = { 
+    const journalOptions: Record<string, unknown> = { 
       name,
       folder: folder?.id ? folder.id : undefined,
       flags: {
@@ -329,8 +372,14 @@ export class FCBJournalEntryPage<
       }
     };
 
+    // If a specific JournalEntry ID is provided, use it (for import to preserve UUIDs)
+    if (options?.journalEntryId) {
+      journalOptions._id = options.journalEntryId;
+    }
+
     // create a wrapping journal entry for the content with flag set during creation
-    const journalEntry = await JournalEntry.create(options, { pack: compendiumId });
+    // Use keepId: true to preserve the provided _id
+    const journalEntry = await JournalEntry.create(journalOptions, { pack: compendiumId, keepId: !!options?.journalEntryId });
   
     if (!journalEntry)
       throw new Error('Couldn\'t create new journal entry');

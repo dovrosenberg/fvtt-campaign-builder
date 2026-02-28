@@ -13,8 +13,9 @@ next:
 
 The Journals tab allows you to associate any number of Foundry journal entries with the Arc. This is useful for tracking extra images or any other content that you want to keep track of and/or share with the player(s).
 
-> [!NOTE]
-> Deleting a journal entry in Foundry that is attached to an Arc will automatically and safely remove it from the Arc.
+::: info
+Deleting a journal entry in Foundry that is attached to an Arc will automatically and safely remove it from the Arc.
+:::
 
 #### Adding Journals
 Click "Add journal" to select a Foundry journal entry or a single page from a journal entry and connect it to the Arc.
