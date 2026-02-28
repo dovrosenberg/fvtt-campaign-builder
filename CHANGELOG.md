@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/release%20date-February%2028%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.2/module.zip)
 
-- You can also export all of your settings and configuration and then import it into a different Foundry world.  Any links to Foundry content (actors, items, etc.), though, will be broken ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/configuration/import-export)).
+- You can now export all of your settings and configuration and then import it into a different Foundry world.  This is done from the module configuration screen. Any links to Foundry content (actors, items, etc.), though, will be broken ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/configuration/import-export)).
 
 ## 1.9.1 - Tag tweaks
 ![](https://img.shields.io/badge/release%20date-February%2027%2C%202026-blue)
