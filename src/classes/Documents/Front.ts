@@ -33,7 +33,7 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
     this.campaign = campaign || null;
   }
 
-  static override async foundry.utils.fromUuid<
+  static override async fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
   > (this: T, frontId: string): Promise<InstanceType<T> | null> { 
       const front = await super.fromUuid(frontId) as unknown as (Front | null);

@@ -199,7 +199,7 @@ export class FCBJournalEntryPage<
   }
 
   /** takes the uuid of the wrapper entry */
-  static async foundry.utils.fromUuid<
+  static async fromUuid<
     DocType extends ValidDocType,
     DocClass extends JournalEntryPage<DocType>,
     T extends FCBJournalEntryPageStatic<DocType, DocClass>
