@@ -43,11 +43,6 @@ export async function importModuleJson(
     throw new Error(localize('applications.importExport.invalidFile'));
   }
 
-  // Validate the file structure
-  if (!validateExportData(data)) {
-    throw new Error(localize('applications.importExport.invalidFile'));
-  }
-
   // Determine export mode (default to ALL for backwards compatibility)
   const exportMode = data.exportMode ?? ExportMode.ALL;
 
@@ -64,7 +59,7 @@ export async function importModuleJson(
   // For ALL and SETTINGS_ONLY modes, validate and import full data
   // Validate all data before making any changes
   onProgress?.(localize('applications.importExport.validatingData'), 8);
-  validateExportDataForImport(data);
+  // do nothing for now
 
   // Delete settings that match the imported ones (by JournalEntry ID)
   onProgress?.(localize('applications.importExport.deletingExisting'), 10);
@@ -120,84 +115,6 @@ export async function importModuleJson(
     // Always re-enable renumbering after import (even on error)
     Session.setSkipRenumbering(false);
   }
-}
-
-/**
- * Validate export data structure.
- *
- * @param data - The data to validate
- * @returns True if valid
- */
-function validateExportData(data: unknown): boolean {
-  if (!data || typeof data !== 'object') 
-    return false;
-  
-  const d = data as Record<string, unknown>;
-
-  // Check required fields
-  if (
-    (typeof d.version !== 'string') ||
-    (typeof d.exportedAt !== 'string')
-  ) 
-    return false;
-
-  // Validate export mode if present
-  if (d.exportMode !== undefined && !Object.values(ExportMode).includes(d.exportMode as ExportMode)) {
-    return false;
-  }
-
-  // For CONFIGURATION_ONLY mode, only moduleSettings is required
-  const exportMode = d.exportMode as ExportMode | undefined;
-  if (exportMode === ExportMode.CONFIGURATION_ONLY) {
-    return typeof d.moduleSettings === 'object';
-  }
-
-  // For ALL and SETTINGS_ONLY modes, validate full structure
-  if (typeof d.moduleSettings !== 'object' && d.moduleSettings !== null) 
-    return false;
-  
-  if (!Array.isArray(d.settings) && d.settings !== null)
-    return false;
-
-  const valid = (collection: DocumentExportData[]): boolean => {
-    for (const doc of collection) {
-      if (
-        (typeof doc !== 'object') || 
-        (typeof doc.name !== 'string') ||
-        (typeof doc.description !== 'string' && doc.description !== null) ||
-        (typeof doc.uuid !== 'string') ||
-        (typeof doc.system !== 'object')
-      )
-        return false;
-    }
-
-    return true;
-  }
-
-  if (d.settings) {
-    for (const setting of d.settings as SettingExportData[]) {
-      if (
-        !setting ||
-        typeof setting !== 'object' ||
-        typeof setting.name !== 'string' ||
-        typeof setting.description !== 'string' ||
-        typeof setting.uuid !== 'string' ||
-        typeof setting.documents !== 'object'
-      ) 
-        return false;
-      else if (
-        !valid(setting.documents.entries) ||
-        !valid(setting.documents.campaigns) ||
-        !valid(setting.documents.sessions) ||
-        !valid(setting.documents.arcs) ||
-        !valid(setting.documents.fronts) ||
-        !valid(setting.documents.storyWebs) 
-      )
-        return false;
-    }
-  }
-
-  return true;
 }
 
 /**
@@ -905,29 +822,6 @@ async function remapAllDocumentUuids(context: ImportContext): Promise<void> {
   }
 }
 
-/**
- * Validate all data in the export before importing.
- * This checks all relationships and UUID references to ensure they are valid.
- * Throws an error at the first sign of invalid data.
- *
- * @param data - The export data to validate
- * @throws Error if any invalid data is found
- */
-function validateExportDataForImport(data: ModuleExportData): void {
-  // Skip validation if no settings data
-  if (!data.settings) return;
-
-  for (const settingData of data.settings) {
-    // Validate entries
-    for (const entryData of settingData.documents.entries) {
-      validateRelationshipsInSystem(entryData.system, `Entry "${entryData.name}"`);
-    }
-    // Validate story webs
-    for (const storyWebData of settingData.documents.storyWebs) {
-      validatePositionsInSystem(storyWebData.system, `Story Web "${storyWebData.name}"`);
-    }
-  }
-}
 
 /**
  * Validate relationships in a system data object.
@@ -976,31 +870,6 @@ function validateRelationshipsInSystem(system: Record<string, unknown>, document
           );
         }
       }
-    }
-  }
-}
-
-/**
- * Validate positions in a story web system data object.
- *
- * @param system - The system data to validate
- * @param documentName - Name of the document for error messages
- * @throws Error if invalid position data is found
- */
-function validatePositionsInSystem(system: Record<string, unknown>, documentName: string): void {
-  if (!system.positions || typeof system.positions !== 'object') {
-    return;
-  }
-
-  const positions = system.positions as Record<string, unknown>;
-
-  for (const uuid of Object.keys(positions)) {
-    // Check if the key UUID is valid
-    if (!foundry.utils.parseUuid(uuid)) {
-      throw new Error(
-        `Import validation failed for "${documentName}": Invalid position UUID "${uuid}". ` +
-        `The export file may be corrupted.`
-      );
     }
   }
 }
