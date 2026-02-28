@@ -8,9 +8,14 @@ prev:
 
 The Import/Export feature allows you to backup all your FCB content and settings, or transfer them to another Foundry world. 
 
-::: caution
+::: warning Caution
 Any links to non-Campaign Builder Foundry content will be broken if you import into a new world.  This means all of your links to scenes, actors, items, journal entries, will not transition.
 :::
+
+::: warning Experimental
+This feature is still experimental.  There are no known issues, but please backup your world before trying it.
+:::
+
 
 
 ## Accessing Import/Export
@@ -50,8 +55,13 @@ Any links to non-Campaign Builder Foundry documents (actors, scenes, items, etc.
 5. Once complete, Foundry will automatically reload
 
 ::: danger Danger!
-Importing will **delete only the Settings that match by UUID** with the imported data. Other Settings that don't match will be preserved. This action cannot be undone.
+Importing a setting with a UUID that matches an existing one will **delete completely overwrite that setting** with the imported data. Other Settings that don't match will be preserved. This action cannot be undone.
 
-Make sure to export your current data first if you want to preserve it.
+Make sure to export your current data first or backup your world if you want to preserve it.
 :::
 
+::: info Create your own
+It is possible to create your own import file to create a setting from scratch.  Some users have experimented with using an LLM to generate import files.  [This file](/reference/configuration/llm-import-format) contains detailed formatting instructions for the import file that can be useful to provde an LLM if you are asking it to do this.
+
+No guarantees or warranties for attempting to import something you create. (Disclaimer: there aren't any for anything else in the module - but especially not for this). 
+:::
