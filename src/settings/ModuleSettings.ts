@@ -243,7 +243,6 @@ export class ModuleSettings {
       label: 'fcb.settings.advancedLabel',   // localized by Foundry
       hint: 'settings.advancedHelp',
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
-      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: AdvancedSettingsApplication,
     },
     {
@@ -252,7 +251,6 @@ export class ModuleSettings {
       label: 'fcb.settings.customFieldsLabel',   // localized by Foundry
       hint: 'settings.customFieldsHelp',
       icon: 'fas fa-list',
-      permissions: ['SETTINGS_WRITE'],
       type: CustomFieldsApplication,
     },
     {
@@ -261,7 +259,6 @@ export class ModuleSettings {
       label: 'fcb.settings.speciesListLabel',   // localized by Foundry
       hint: 'settings.speciesListHelp',
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
-      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: SpeciesListApplication,
     },
     {
@@ -270,7 +267,6 @@ export class ModuleSettings {
       label: 'fcb.settings.rollTableSettingsLabel',   // localized by Foundry
       hint: 'settings.rollTableSettingsHelp',
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
-      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: RollTableSettingsApplication,
     },
     {
@@ -279,7 +275,6 @@ export class ModuleSettings {
       label: 'fcb.settings.imagesLabel',   // localized by Foundry
       hint: 'settings.imagesHelp',
       icon: 'fas fa-image',               // A Font Awesome icon used in the submenu button
-      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: ImageSettingsApplication,
     },
     {
@@ -288,7 +283,6 @@ export class ModuleSettings {
       label: 'fcb.settings.storyWebSettingsLabel',   // localized by Foundry
       hint: 'settings.storyWebSettingsHelp',
       icon: 'fa-solid fa-project-diagram',
-      permissions: ['SETTINGS_WRITE'],
       type: StoryWebSettingsApplication,
     },
     {
@@ -297,7 +291,6 @@ export class ModuleSettings {
       label: 'fcb.settings.tableGroupingLabel',   // localized by Foundry
       hint: 'settings.tableGroupingHelp',
       icon: 'fa-solid fa-table',
-      permissions: ['SETTINGS_WRITE'],
       type: TableGroupingSettingsApplication,
     },
     {
@@ -306,7 +299,6 @@ export class ModuleSettings {
       label: 'fcb.settings.importExportLabel',   // localized by Foundry
       hint: 'settings.importExportHelp',
       icon: 'fa-solid fa-file-import',
-      permissions: ['SETTINGS_WRITE'],
       type: ImportExportApplication,
     }
   ];

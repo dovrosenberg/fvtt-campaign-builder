@@ -83,7 +83,7 @@
           <div class="tab-inner">
             <TimelineTab
               :document-uuid="currentCampaign?.uuid || ''"
-              :content-type="WindowTabType.Campaign"
+              :window-tab-type="WindowTabType.Campaign"
             />
           </div>
         </div>

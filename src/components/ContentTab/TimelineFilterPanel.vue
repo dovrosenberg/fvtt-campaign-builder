@@ -12,8 +12,7 @@ Responsibilities
 - Apply filters immediately on change
 
 Props
-- filters: TimelineFilters, current filter values
-- availableCategories: string[], list of available categories
+- None
 
 Emits
 - updateFilters: TimelineFilters, emitted when any filter changes
@@ -23,73 +22,87 @@ Slots
 
 Dependencies
 - Stores: None
-- Composables: None
+- Composables: useTimelineState
 - Services/API: None
 
 -->
 
 <template>
-  <div class="filter-panel-content">
-    <!-- Text Search -->
-    <div class="filter-group">
-      <label class="filter-label">{{ localize('labels.timeline.textSearch') }}</label>
-      <InputText
-        v-model="localFilters.textSearch"
-        :placeholder="localize('labels.timeline.textSearchPlaceholder')"
-        class="filter-input"
-        @input="onTextSearchInput"
-      />
+  <div class="timeline-header">
+    <div class="filter-header flexrow" @click="onTogglePanel">
+      <div class="filter-summary flexrow">
+        <i class="fas fa-filter"></i>
+        <span class="filter-text">{{ filterSummary }}</span>
+      </div>
+      <i :class="['fas', isFilterPanelExpanded ? 'fa-chevron-up' : 'fa-chevron-down', 'toggle-icon']"></i>
     </div>
 
-    <!-- Categories -->
-    <div class="filter-group">
-      <label class="filter-label">{{ localize('labels.timeline.categories') }}</label>
-      <MultiSelect
-        v-model="localFilters.categories"
-        :options="availableCategories"
-        :placeholder="localize('labels.timeline.selectCategories')"
-        :show-toggle-all="false"
-        class="filter-input"
-        display="chip"
-        @change="onCategoryChange"
-      />
-    </div>
+    <!-- Expandable Filter Panel -->
+    <div v-if="isFilterPanelExpanded" class="filter-panel">
+      <div class="filter-panel-content">
+        <!-- Text Search -->
+        <div class="filter-group">
+          <label class="filter-label">{{ localize('labels.timeline.textSearch') }}</label>
+          <InputText
+            v-model="filters.textSearch"
+            :placeholder="localize('labels.timeline.textSearchPlaceholder')"
+            class="filter-input"
+            @input="onTextSearchInput"
+          />
+        </div>
 
-    <!-- GM Only -->
-    <div class="filter-group">
-      <label class="checkbox-label">
-        <Checkbox
-          v-model="localFilters.gmOnly"
-          :binary="true"
-          inputId="gm-only"
-          @change="onGmOnlyChange"
-        />
-        <span>{{ localize('labels.timeline.gmOnly') }}</span>
-      </label>
-    </div>
+        <!-- Categories -->
+        <div class="filter-group">
+          <label class="filter-label">{{ localize('labels.timeline.categories') }}</label>
+          <MultiSelect
+            v-model="filters.categories"
+            :options="availableCategories"
+            :placeholder="localize('labels.timeline.selectCategories')"
+            :show-toggle-all="false"
+            class="filter-input"
+            display="chip"
+            @change="onCategoryChange"
+          />
+        </div>
 
-    <!-- Action Buttons -->
-    <div class="filter-actions">
-      <Button
-        :label="localize('labels.timeline.resetFilters')"
-        icon="fas fa-undo"
-        severity="secondary"
-        @click="onResetClick"
-        size="small"
-        outlined
-      />
+        <!-- GM Only -->
+        <div class="filter-group">
+          <label class="checkbox-label">
+            <Checkbox
+              v-model="filters.gmOnly"
+              :binary="true"
+              inputId="gm-only"
+              @change="onGmOnlyChange"
+            />
+            <span>{{ localize('labels.timeline.gmOnly') }}</span>
+          </label>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="filter-actions">
+          <Button
+            :label="localize('labels.timeline.resetFilters')"
+            icon="fas fa-undo"
+            severity="secondary"
+            @click="onResetClick"
+            size="small"
+            outlined
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch } from 'vue';
+  import { computed } from 'vue';
   import { debounce } from 'lodash';
 
   // local imports
   import { localize } from '@/utils/game';
   import { TimelineFilters, } from '@/types';
+  import { useTimelineState } from '@/composables/useTimelineState';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -102,16 +115,6 @@ Dependencies
 
   ////////////////////////////////
   // props
-  const props = defineProps({
-    filters: {
-      type: Object as () => TimelineFilters,
-      required: true,
-    },
-    availableCategories: {
-      type: Array as () => string[],
-      required: true,
-    },
-  });
 
   ////////////////////////////////
   // emits
@@ -125,30 +128,66 @@ Dependencies
 
   ////////////////////////////////
   // data
-  const localFilters = ref<TimelineFilters>({
-    categories: [],
-    textSearch: '',
-    gmOnly: false,
-    referencedUuid: '',
-  });
+  const timelineState = useTimelineState();
+  const {
+    filters,
+    isFilterPanelExpanded,
+    availableCategories,
+  } = timelineState;
+
 
   ////////////////////////////////
   // computed data
-  // (none)
+
+  // computed filter summary
+
+  /**
+   * Generate a summary of active filters.
+   * @returns Human-readable filter summary
+   */
+  const filterSummary = computed(() => {
+    const parts: string[] = [];
+
+    if (filters.value.categories && filters.value.categories.length > 0) {
+      parts.push(`Categories: ${filters.value.categories.join(', ')}`);
+    }
+
+    if (filters.value.textSearch) {
+      parts.push(`Search: "${filters.value.textSearch}"`);
+    }
+
+    if (filters.value.gmOnly) {
+      parts.push('GM Only');
+    }
+
+    if (filters.value.referencedUuid) {
+      parts.push('Has Reference');
+    }
+
+    return parts.length > 0 ? parts.join(' | ') : 'No filters';
+  });
+
 
   ////////////////////////////////
   // methods
-  // (none)
-
-  ////////////////////////////////
-  // event handlers
 
   /**
    * Emit filter changes to parent.
    */
   const emitFilterChange = (): void => {
-    emit('updateFilters', { ...localFilters.value });
+    emit('updateFilters', { ...filters.value });
   };
+
+  ////////////////////////////////
+  // event handlers
+
+  /**
+   * Handle filter panel toggle.
+   */
+  const onTogglePanel = (): void => {
+    isFilterPanelExpanded.value = !isFilterPanelExpanded.value;
+  };
+
 
   /**
    * Debounced emit for text search to avoid excessive updates.
@@ -180,30 +219,20 @@ Dependencies
    * Handle reset button click.
    */
   const onResetClick = (): void => {
-    localFilters.value = {
+    filters.value = {
       categories: [],
       textSearch: '',
       gmOnly: false,
       referencedUuid: '',
     };
-    emit('updateFilters', localFilters.value);
+    emit('updateFilters', filters.value);
   };
 
   ////////////////////////////////
   // watchers
 
-  // Sync localFilters with props.filters when they change from outside
-  watch(
-    () => props.filters,
-    (newFilters) => {
-      localFilters.value = { ...newFilters };
-    },
-    { immediate: true, deep: true }
-  );
-
   ////////////////////////////////
   // lifecycle hooks
-  // (none)
 </script>
 
 <style lang="scss" scoped>
