@@ -22,6 +22,11 @@ async function ready(): Promise<void> {
   // This prevents circular dependency issues and ensures Vue DevTools works
   await vueHost.ensureMounted();
   
+  // Detect if Calendaria module is present and store the result
+  const calendariaModule = game.modules.get('calendaria');
+  const isCalendariaAvailable = calendariaModule?.active ?? false;
+  await ModuleSettings.set(SettingKey.calendariaAvailable, isCalendariaAvailable);
+  
   // Mount the external API
   const module = game.modules.get(moduleId);
   // @ts-ignore
