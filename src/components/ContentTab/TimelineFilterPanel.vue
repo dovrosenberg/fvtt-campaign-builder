@@ -115,6 +115,7 @@ Dependencies
   // local components
 
   // types
+  // (none)
 
   ////////////////////////////////
   // props

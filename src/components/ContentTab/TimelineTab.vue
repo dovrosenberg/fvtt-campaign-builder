@@ -57,6 +57,9 @@ Dependencies
   import { useContentState } from '@/composables/useContentState';
   import { CalendariaNote, TimelineConfig, TimelineFilters, TimelineItem, WindowTabType, TIMELINE_DEFAULT, TIMELINE_DEFAULT_FILTERS, DeepPartial } from '@/types';
   import MockCalendariaService from '@/utils/mockCalendaria';
+  import CalendarAdapter from '@/utils/calendar/calendarAdapter';
+  import CalendarTimeAxis from '@/utils/calendar/calendarTimeAxis';
+  import calendariaMomentFactory from '@/utils/calendar/calendariaMoment';
 
   // local components
   import TimelineFilterPanel from './TimelineFilterPanel.vue';
@@ -128,16 +131,12 @@ Dependencies
   // methods
 
   /**
-   * Convert Calendaria date components to a JavaScript Date.
+   * Convert Calendaria date components to a JavaScript Date using the active calendar.
    * @param date - Calendaria date components
    * @returns JavaScript Date object
    */
   const calendariaDateToDate = (date: CalendariaDate): Date => {
-    return new Date(
-      date.year,
-      date.month,
-      date.dayOfMonth,
-    );
+    return CalendarAdapter.calendariaDateToJSDate(date);
   };
 
   /**
@@ -246,14 +245,13 @@ Dependencies
       const { Timeline } = await import('vis-timeline');
 
       // Determine initial visible range - use persisted range or default
-      // TODO: need to figure out how to decide initial range the first time
-      // TODO: will need to rework all this to a normalized calendaria date
+      // Uses CalendarAdapter for calendar-aware date conversion
       const initialStart = filters.value.visibleRange
-        ? new Date(filters.value.visibleRange.start.year, filters.value.visibleRange.start.month, filters.value.visibleRange.start.dayOfMonth)
-        : new Date(1492, 0, 1);
+        ? calendariaDateToDate(filters.value.visibleRange.start)
+        : calendariaDateToDate({ year: 1492, month: 0, dayOfMonth: 1 });
       const initialEnd = filters.value.visibleRange
-        ? new Date(filters.value.visibleRange.end.year, filters.value.visibleRange.end.month, filters.value.visibleRange.end.dayOfMonth)
-        : new Date(1493, 0, 1);
+        ? calendariaDateToDate(filters.value.visibleRange.end)
+        : calendariaDateToDate({ year: 1493, month: 0, dayOfMonth: 1 });
 
       // get notes from Calendaria (mock for POC)
       // Use a wide date range to get all notes
@@ -266,6 +264,17 @@ Dependencies
       // Convert to timeline items
       const items = notesToTimelineItems(filteredNotes);
 
+      // Generate calendar month background items to show calendar structure
+      const monthBackgroundItems = CalendarTimeAxis.generateMonthBackgroundItems(initialStart, initialEnd);
+      
+      // Combine regular items with background items
+      const allItems = [...monthBackgroundItems, ...items];
+      
+      // Get snap function for the current zoom level
+      const zoomLevels = CalendarAdapter.getZoomLevels();
+      const defaultZoomLevel = zoomLevels.length > 0 ? zoomLevels[zoomLevels.length - 1] : null;
+      const snapUnit = defaultZoomLevel?.snapUnit ?? 'day';
+      
       // Timeline options - vis-timeline can accept a plain array instead of DataSet
       const options = {
         verticalScroll: true,
@@ -277,41 +286,29 @@ Dependencies
         // Use persisted visible range or default
         start: initialStart,
         end: initialEnd,
+        // Inject calendar-aware moment factory for tick placement and formatting
+        moment: calendariaMomentFactory,
         margin: {
           item: {
             horizontal: 10,
             vertical: 5,
           },
         },
-        format: {
-          minorLabels: {
-            weekday: 'ddd D',
-            day: 'D',
-            week: 'w',
-            month: 'MMM',
-            year: 'YYYY',
-          },
-          majorLabels: {
-            weekday: 'MMMM YYYY',
-            day: 'MMMM YYYY',
-            week: 'MMMM YYYY',
-            month: 'YYYY',
-            year: '',
-          },
-        },
+        // Enable snapping to calendar units for drag/resize
+        snap: CalendarAdapter.createSnapFunction(snapUnit),
       };
 
       timelineInstance.value = new Timeline(
         timelineRef.value,
-        items,
+        allItems,
         options
       );
 
       // Listen to range change events to persist view state
       timelineInstance.value.on('rangechanged', (properties: { start: Date; end: Date }) => {
-        // TODO: we need to convert this back to a calendaria date
-        const start = {year: properties.start.getFullYear(), month: properties.start.getMonth(), dayOfMonth: properties.start.getDate()};
-        const end = {year: properties.end.getFullYear(), month: properties.end.getMonth(), dayOfMonth: properties.end.getDate()};
+        // Convert JS Dates back to Calendaria dates using the active calendar
+        const start = CalendarAdapter.jsDateToCalendariaDate(properties.start);
+        const end = CalendarAdapter.jsDateToCalendariaDate(properties.end);
         updateVisibleRange(start, end);
       });
     } catch (error) {
@@ -474,5 +471,24 @@ Dependencies
   min-height: 300px;
   height: 100%;
   background-color: var(--fcb-background);
+}
+
+// Calendar month background styling
+:deep(.calendar-month-even) {
+  background-color: rgba(var(--fcb-primary-rgb, 100, 149, 237), 0.05);
+  border-left: 1px solid rgba(var(--fcb-primary-rgb, 100, 149, 237), 0.2);
+}
+
+:deep(.calendar-month-odd) {
+  background-color: transparent;
+  border-left: 1px solid rgba(var(--fcb-primary-rgb, 100, 149, 237), 0.1);
+}
+
+:deep(.calendar-year-even) {
+  background-color: rgba(var(--fcb-primary-rgb, 100, 149, 237), 0.03);
+}
+
+:deep(.calendar-year-odd) {
+  background-color: transparent;
 }
 </style>

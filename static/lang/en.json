@@ -579,7 +579,9 @@
         "selectCategories": "Select categories...",
         "gmOnly": "GM Only",
         "resetFilters": "Reset",
-        "noFilters": "No filters"
+        "noFilters": "No filters",
+        "calendar": "Calendar",
+        "selectCalendar": "Select calendar..."
       },
       "groupTree": "Group tree by type",
       "tabs": {

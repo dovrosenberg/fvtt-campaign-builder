@@ -13,6 +13,7 @@ export type * from './dragDrop.ts';
 export type * from './documentIndices.ts';
 export type * from './relationships.d.ts';
 export * from './timeline';
+export * from './calendar';
 
 // New centralized type files - import first for use in backward compatibility aliases
 export * from './dbTypes';
