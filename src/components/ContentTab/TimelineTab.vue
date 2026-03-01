@@ -6,12 +6,10 @@ Purpose
 
 Responsibilities
 - Render the timeline visualization using vis-timeline
-- Provide collapsible filter panel in the header
-- Display filter summary when panel is collapsed
+- Manage timeline state and filters
 - Handle filter changes and timeline refresh
 
 Props
-- documentUuid: string, UUID of the document this timeline belongs to
 - windowTabType: WindowTabType, type of document (Campaign, Arc, Session, Entry, Setting)
 
 Emits
@@ -22,8 +20,8 @@ Slots
 
 Dependencies
 - Stores: None
-- Composables: useTimelineState
-- Services/API: MockCalendariaService (via useTimelineState)
+- Composables: useContentState
+- Services/API: MockCalendariaService
 
 -->
 
@@ -32,7 +30,10 @@ Dependencies
 
     <TimelineFilterPanel
       :filters="filters"
+      :is-filter-panel-expanded="isFilterPanelExpanded"
       :available-categories="availableCategories"
+      @update-filters="onUpdateFilters"
+      @toggle-panel="onTogglePanel"
     />
 
     <!-- Timeline Container -->
@@ -48,27 +49,21 @@ Dependencies
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, onMounted, onUnmounted, watch, PropType } from 'vue';
+  import { ref, onMounted, computed, onUnmounted, watch, PropType } from 'vue';
+  import type { Timeline } from 'vis-timeline';
 
   // local imports
   import { localize } from '@/utils/game';
-  import { useTimelineState } from '@/composables/useTimelineState';
   import { useContentState } from '@/composables/useContentState';
-  import { TimelineFilters, TimelineConfig, WindowTabType } from '@/types';
+  import { CalendariaNote, TimelineConfig, TimelineFilters, TimelineItem, WindowTabType, TIMELINE_DEFAULT, TIMELINE_DEFAULT_FILTERS, DeepPartial } from '@/types';
+  import MockCalendariaService from '@/utils/mockCalendaria';
 
   // local components
   import TimelineFilterPanel from './TimelineFilterPanel.vue';
 
-  // types
-  import { TIMELINE_DEFAULT_FILTERS } from '@/types';
-
   ////////////////////////////////
   // props
   const props = defineProps({
-    documentUuid: {
-      type: String,
-      required: true,
-    },
     windowTabType: {
       type: Number as PropType<WindowTabType>,
       required: true,
@@ -87,7 +82,27 @@ Dependencies
   // data
   const timelineRef = ref<HTMLElement | null>(null);
 
+  // Timeline state
+  const isTimelineLoading = ref<boolean>(false);
+  const isFilterPanelExpanded = ref<boolean>(false);
+
+  ////////////////////////////////
+  // computed data
+  const availableCategories = computed(() => MockCalendariaService.getCategories());
+
+  const filters = computed(() => currentTimeline.value?.filters ?? TIMELINE_DEFAULT_FILTERS);
+
+  const currentTimeline = computed((): Timeline | null => {
+    const doc = document()?.value;
+    if (!doc) {
+      return null;
+    }
+
+    return doc.timeline;
+  });
+
   // Get the document based on content type
+  // returns refs
   const document = () => {
     switch (props.windowTabType) {
       case WindowTabType.Campaign:
@@ -105,40 +120,228 @@ Dependencies
     }
   };
 
-  // Get initial config from document's timelines array (find by documentUuid or use first)
-  const initialConfig = computed((): TimelineConfig | undefined => {
-    const doc = document()?.value;
-    if (!doc?.timelines?.length) {
-      return undefined;
-    }
-    // Find config for this document, or use first one
-    return doc.timelines.find((t: TimelineConfig) => t.filters.visibleRange) || doc.timelines[0];
-  });
-
-  const timelineState = useTimelineState();
-
-  // Destructure reactive state from timelineState
-  const {
-    isTimelineLoading,
-    filters,
-    availableCategories,
-  } = timelineState;
-
-  ////////////////////////////////
-  // computed data
-  // (none)
-
   ////////////////////////////////
   // methods
-  // (none)
+
+  /**
+   * Convert Calendaria date components to a JavaScript Date.
+   * @param date - Calendaria date components
+   * @returns JavaScript Date object
+   */
+  const calendariaDateToDate = (date: { year: number; month: number; dayOfMonth: number; hour?: number; minute?: number }): Date => {
+    return new Date(
+      date.year,
+      date.month,
+      date.dayOfMonth,
+      date.hour ?? 0,
+      date.minute ?? 0
+    );
+  };
+
+  /**
+   * Filter notes based on the current filter criteria.
+   * @param notes - Array of Calendaria notes
+   * @param filterCriteria - Filter criteria
+   * @returns Filtered notes
+   */
+  const filterNotes = (notes: CalendariaNote[], filterCriteria: TimelineFilters): CalendariaNote[] => {
+    return notes.filter(note => {
+      // Category filter
+      if (filterCriteria.categories && filterCriteria.categories.length > 0) {
+        if (!filterCriteria.categories.some(cat => note.categories.includes(cat))) {
+          return false;
+        }
+      }
+
+      // Text search filter
+      if (filterCriteria.textSearch) {
+        const searchLower = filterCriteria.textSearch.toLowerCase();
+        const nameMatch = note.name.toLowerCase().includes(searchLower);
+        const contentMatch = note.content.toLowerCase().includes(searchLower);
+        if (!nameMatch && !contentMatch) {
+          return false;
+        }
+      }
+
+      // GM-only filter
+      if (filterCriteria.gmOnly && !note.gmOnly) {
+        return false;
+      }
+
+      // Referenced UUID filter - regex match on content
+      if (filterCriteria.referencedUuid) {
+        const uuidPattern = new RegExp(`@UUID\\[${filterCriteria.referencedUuid}\\]`, 'i');
+        if (!uuidPattern.test(note.content)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  };
+
+  /**
+   * Convert Calendaria notes to vis-timeline items.
+   * @param notes - Array of Calendaria notes
+   * @returns Array of timeline items
+   */
+  const notesToTimelineItems = (notes: CalendariaNote[]): TimelineItem[] => {
+    return notes.map(note => ({
+      id: note.id,
+      content: `<i class="${note.icon}" style="margin-right: 4px;"></i>${note.name}`,
+      start: calendariaDateToDate(note.startDate),
+      end: note.endDate ? calendariaDateToDate(note.endDate) : undefined,
+      type: note.endDate ? 'range' : 'point',
+      className: `timeline-event`,
+      style: `background-color: ${note.color}; border-color: ${note.color};`,
+    }));
+  };
+
+
+  /**
+   * Update the visible range in filters when the timeline view changes.
+   * @param start - Start date of visible range
+   * @param end - End date of visible range
+   */
+  let rangeDebounceTimer: NodeJS.Timeout | undefined;
+
+  const updateVisibleRange = (start: Date, end: Date): Promise<void> => {
+    // this needs to be debounced to prevent excessive updates
+    clearTimeout(rangeDebounceTimer);
+
+    rangeDebounceTimer = setTimeout(() => {
+      void saveTimelineConfig({filters: {
+        visibleRange: {
+          start: start.toISOString(),
+          end: end.toISOString(),
+        },
+      }});
+    }, 500);    
+  };
+
+  /**
+   * Generate the timeline from current notes and filters.
+   */
+  const generateTimeline = async (): Promise<void> => {
+    if (!timelineRef.value) {
+      return;
+    }
+
+    if (isTimelineLoading.value) {
+      return;
+    }
+
+    // destroy the old timeline to prevent memory leaks
+    if (currentTimeline.value) {
+      currentTimeline.value.destroy();
+      currentTimeline.value = null;
+    }
+
+    isTimelineLoading.value = true;
+
+    try {
+      // dynamically import vis-timeline (CSS is bundled via vite config)
+      const { Timeline } = await import('vis-timeline');
+
+      // get notes from Calendaria (mock for POC)
+      // Use a wide date range to get all notes
+      const allNotes = MockCalendariaService.getRecurrentNotesInRange(
+        { year: 1490, month: 0, dayOfMonth: 1 },
+        { year: 1500, month: 11, dayOfMonth: 31 }
+      );
+
+      // Apply filters
+      const filteredNotes = filterNotes(allNotes, filters.value);
+
+      // Convert to timeline items
+      const items = notesToTimelineItems(filteredNotes);
+
+      // Determine initial visible range - use persisted range or default
+      const initialStart = filters.value.visibleRange?.start
+        ? new Date(filters.value.visibleRange.start)
+        : new Date(1492, 0, 1);
+      const initialEnd = filters.value.visibleRange?.end
+        ? new Date(filters.value.visibleRange.end)
+        : new Date(1493, 0, 1);
+
+      // Timeline options - vis-timeline can accept a plain array instead of DataSet
+      const options = {
+        verticalScroll: true,
+        horizontalScroll: true,
+        zoomable: true,
+        moveable: true,
+        orientation: { axis: 'bottom' },
+        height: '100%',
+        // Use persisted visible range or default
+        start: initialStart,
+        end: initialEnd,
+        margin: {
+          item: {
+            horizontal: 10,
+            vertical: 5,
+          },
+        },
+        format: {
+          minorLabels: {
+            weekday: 'ddd D',
+            day: 'D',
+            week: 'w',
+            month: 'MMM',
+            year: 'YYYY',
+          },
+          majorLabels: {
+            weekday: 'MMMM YYYY',
+            day: 'MMMM YYYY',
+            week: 'MMMM YYYY',
+            month: 'YYYY',
+            year: '',
+          },
+        },
+      };
+
+      currentTimeline.value = new Timeline(
+        timelineRef.value,
+        items,
+        options
+      );
+
+      // Listen to range change events to persist view state
+      currentTimeline.value.on('rangechanged', (properties: { start: Date; end: Date }) => {
+        updateVisibleRange(properties.start, properties.end);
+      });
+    } catch (error) {
+      isTimelineLoading.value = false;
+      throw error;
+    }
+
+    isTimelineLoading.value = false;
+  };
 
   ////////////////////////////////
   // event handlers
 
   /**
-   * Save the current timeline config to the document.
+   * Handle filter updates from the filter panel.
+   * @param newFilters - The updated filters
    */
-  const saveTimelineConfig = async (): Promise<void> => {
+  const onUpdateFilters = async (newFilters: TimelineFilters): Promise<void> => {
+    await saveTimelineConfig({filters: newFilters});
+    await generateTimeline();
+  };
+
+  /**
+   * Handle filter panel toggle.
+   */
+  const onTogglePanel = (): void => {
+    isFilterPanelExpanded.value = !isFilterPanelExpanded.value;
+  };
+
+  /**
+   * Save the current timeline config to the document.
+   * For anything not provided, uses the current value in the document, 
+   *    or the default if there's nothing in the document either.
+   */
+  const saveTimelineConfig = async (config: DeepPartial<TimelineConfig>): Promise<void> => {
     const doc = document()?.value;
     if (!doc) {
       return;
@@ -146,52 +349,46 @@ Dependencies
 
     // Update or add the config in the timelines array
     // For now, just store one timeline per document (first one)
-    const timeline: TimelineConfig = { 
+    const newConfig = {
+      ...TIMELINE_DEFAULT,
+      ...(doc.timelines[0] ?? {}),
+      ...config,
       filters: {
-        ...TIMELINE_DEFAULT_FILTERS, 
-        ...filters.value,
-      },
+        ...TIMELINE_DEFAULT_FILTERS,
+        ...(doc.timelines[0]?.filters ?? {}),
+        ...(config.filters ?? {}),
+      } 
     };
-    doc.timelines = [timeline];
+
+    doc.timelines = [newConfig];
 
     await doc.save();
-    await refreshTimeline();
   };
 
 
   ////////////////////////////////
   // watchers
 
-  // Save filters when visible range changes (from zoom/pan)
-  let saveDebounceTimer: NodeJS.Timeout | undefined;
-  watch(
-    () => filters.value.visibleRange,
-    () => {
-      // Debounce saves to avoid excessive writes
-      clearTimeout(saveDebounceTimer);
-      saveDebounceTimer = setTimeout(() => {
-        saveTimelineConfig();
-      }, 500);
-    },
-    { deep: true }
-  );
-
   ////////////////////////////////
   // lifecycle hooks
 
-  onMounted(() => {
+  onMounted(async () => {
     if (timelineRef.value) {
       // Ensure the container has dimensions before initializing
       requestAnimationFrame(() => {
         if (timelineRef.value) {
-          timelineState.setContainer(timelineRef.value);
+          generateTimeline();
         }
       });
     }
   });
 
   onUnmounted(() => {
-    timelineState.setContainer(null);
+    // Destroy timeline to prevent memory leaks
+    if (currentTimeline.value) {
+      currentTimeline.value.destroy();
+      currentTimeline.value = null;
+    }
   });
 </script>
 
@@ -274,3 +471,4 @@ Dependencies
   background-color: var(--fcb-background);
 }
 </style>
+
