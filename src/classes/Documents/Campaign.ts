@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { DOCUMENT_TYPES, frontIndexFields } from '@/documents';
-import { CampaignLore, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, StoryWebFilterIndex, CampaignToDo, ToDoTypes, TableGroup, GroupableItem,CampaignPC,CampaignIdea, TimelineConfig, } from '@/types';
+import { CampaignLore, RelatedJournal, SessionFilterIndex, FrontFilterIndex, SessionBasicIndex, ArcBasicIndex, StoryWebFilterIndex, CampaignToDo, ToDoTypes, TableGroup, GroupableItem, CampaignPC, CampaignIdea, TimelineConfig, TIMELINE_DEFAULT, } from '@/types';
 import { Entry, Session, FCBSetting, Front, Arc, StoryWeb } from '@/classes';
 import ArcIndexService from '@/utils/arcIndex';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
@@ -29,7 +29,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     frontIds: [],
     storyWebIds: [],
     storyWebs: [],
-    timelines: [] as TimelineConfig[],
+    timelines: TIMELINE_DEFAULT,
     groups: {
       [GroupableItem.CampaignToDos]: [] as TableGroup[],
       [GroupableItem.CampaignIdeas]: [] as TableGroup[],
@@ -119,7 +119,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   public get timelines(): TimelineConfig[] {
-    return this._clone.system.timelines || [];
+    return this._clone.system.timelines || TIMELINE_DEFAULT;
   }
 
   public set timelines(value: TimelineConfig[]) {
@@ -411,7 +411,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   // returns the uuid
-  public async addLore(description: string, journalEntryPageId: string | null = null): Promise<string> {
+  public async addLore(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 
     this._clone.system.lore.push({
@@ -419,10 +419,9 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       description: description,
       delivered: false,
       significant: true,
-      journalEntryPageId: journalEntryPageId,
+      journalEntryPageId: null,
       lockedToSessionId: null,
       lockedToSessionName: null,
-      groupId: null,
     });
 
     await this.save();

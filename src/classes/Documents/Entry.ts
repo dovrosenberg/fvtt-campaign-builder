@@ -1,5 +1,5 @@
 import { DOCUMENT_TYPES, } from '@/documents';
-import { RelatedJournal, RelatedEntryDetails, ValidTopic, Topics, ToDoTypes, ValidTopicRecord, TimelineConfig, } from '@/types';
+import { RelatedJournal, RelatedEntryDetails, ValidTopic, Topics, ToDoTypes, ValidTopicRecord, TimelineConfig, TIMELINE_DEFAULT, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder,  } from '@/classes';
@@ -41,7 +41,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     img: '',
     customFields: {},
     customFieldHeights: {},
-    timelines: [] as TimelineConfig[],
+    timelines: TIMELINE_DEFAULT,
   } as unknown as EntryDocClass['system'];
 
   private _actor: Actor | null;  // for pcs
@@ -168,7 +168,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
       entryItem.name = entry.name;
     }
 
-    // if there's no parent, add it to topnodes
+    // if there's no parent, add it to topNodes
     if (!options.parentId) {
       topicFolder.topNodes = [...topicFolder.topNodes, entry.uuid];
     }
@@ -342,7 +342,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   }
 
   public get timelines(): TimelineConfig[] {
-    return this._clone.system.timelines || [];
+    return this._clone.system.timelines || TIMELINE_DEFAULT;
   }
 
   public set timelines(value: TimelineConfig[]) {

@@ -12,6 +12,7 @@ import { frontStore } from './frontStore';
 import { storyWebStore } from './storyWebStore';
 import { arcStore } from './arcStore';
 import { backendStore } from './backendStore';
+import { timelineStore } from './timelineStore';
 
 export const useMainStore = defineStore('main', mainStore);
 export const useNavigationStore = defineStore('navigation', navigationStore);
@@ -25,6 +26,7 @@ export const useStoryWebStore = defineStore('storyWeb', storyWebStore);
 export const useArcStore = defineStore('arc', arcStore);
 export const useBackendStore = defineStore('backend', backendStore);
 export const useCampaignStore = defineStore('campaign', campaignStore);
+export const useTimelineStore = defineStore('timeline', timelineStore);
 
 // global pinia instance
 const pinia = createPinia();

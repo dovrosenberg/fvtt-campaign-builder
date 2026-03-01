@@ -16,12 +16,24 @@ export interface TimelineFilters {
   /** Show events referencing this UUID */
   referencedUuid: string;
 
-  /** Visible date range for timeline (persisted across sessions) */
+  /** Visible date range for timeline  */
   visibleRange?: {
     start: string;  // ISO date string
     end: string;    // ISO date string
   };
 }
+
+export const TIMELINE_DEFAULT_FILTERS: TimelineFilters = {
+  categories: [],
+  textSearch: '',
+  gmOnly: false,
+  referencedUuid: '',
+  visibleRange: undefined,
+} as const;
+
+export const TIMELINE_DEFAULT: TimelineConfig = {
+  filters: TIMELINE_DEFAULT_FILTERS,
+} as const;
 
 /** Configuration for a single timeline */
 export interface TimelineConfig {
