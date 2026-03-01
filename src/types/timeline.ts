@@ -17,23 +17,29 @@ export interface TimelineFilters {
   referencedUuid: string;
 
   /** Visible date range for timeline  */
-  visibleRange?: {
-    start: string;  // ISO date string
-    end: string;    // ISO date string
-  };
+  visibleRange: {
+    start: CalendariaDate;
+    end: CalendariaDate;
+  } | null;
 }
 
 export const TIMELINE_DEFAULT_FILTERS: TimelineFilters = {
-  categories: [],
+  categories: [] as string[],
   textSearch: '',
   gmOnly: false,
   referencedUuid: '',
-  visibleRange: undefined,
+  visibleRange: null,
 } as const;
 
 export const TIMELINE_DEFAULT: TimelineConfig = {
   filters: TIMELINE_DEFAULT_FILTERS,
 } as const;
+
+export type CalendariaDate = {
+  year: number;
+  month: number;
+  dayOfMonth: number;
+}
 
 /** Configuration for a single timeline */
 export interface TimelineConfig {
@@ -58,22 +64,10 @@ export interface CalendariaNote {
   content: string;
 
   /** Start date components */
-  startDate: {
-    year: number;
-    month: number;  // 0-indexed
-    dayOfMonth: number;
-    hour?: number;
-    minute?: number;
-  };
+  startDate: CalendariaDate;
 
   /** End date components (for range events) */
-  endDate?: {
-    year: number;
-    month: number;
-    dayOfMonth: number;
-    hour?: number;
-    minute?: number;
-  };
+  endDate?: CalendariaDate;
 
   /** Event categories */
   categories: string[];

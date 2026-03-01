@@ -32,6 +32,10 @@ export * from '@/documents/fields/StoryWebNode';
 // get all the ones defined in the schemas
 export type * from '@/documents/fields/index.ts';
 
+export type DeepPartial<T> = T extends object ? {
+    [P in keyof T]?: DeepPartial<T[P]>;
+} : T;
+
 export enum WindowTabType  {
   NewTab,
   Entry,

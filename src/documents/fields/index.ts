@@ -12,6 +12,7 @@ import { SessionLoreSchema } from './SessionLore';
 import { SessionLocationSchema } from './SessionLocation';
 import { TagsSchema } from './Tags';
 import { TopicSchema } from './Topic';
+import { CalendariaDateSchema } from './CalendariaDate';
 import { TopicBasicIndexSchema } from './TopicBasicIndex';
 import { RelationshipsSchema, RelatedEntryDetailsSchema } from './Relationships';
 import { EntryBasicIndexSchema } from './EntryBasicIndex';
@@ -65,5 +66,6 @@ export const schemas = {
   StoryWebEdge: StoryWebEdgeSchema,
   GroupArray: GroupArraySchema,
   TimelineConfig: TimelineConfigSchema,
+  CalendariaDate: CalendariaDateSchema,
 }
 

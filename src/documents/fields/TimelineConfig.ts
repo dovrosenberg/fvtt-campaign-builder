@@ -1,3 +1,5 @@
+import { CalendariaDateSchema } from './CalendariaDate';
+
 const fields = foundry.data.fields;
 
 export const TimelineConfigSchema = () => (
@@ -6,11 +8,15 @@ export const TimelineConfigSchema = () => (
     filters: new fields.SchemaField({
       categories: new fields.ArrayField(
         new fields.StringField({ required: true, nullable: false }), 
-        { required: true, nullable: false }
+        { required: true, nullable: false, initial: [] as string[] }
       ),
       textSearch: new fields.StringField({ required: true, nullable: false, initial: '' }),
       gmOnly: new fields.BooleanField({ required: true, nullable: false, initial: false }),
       referencedUuid: new fields.StringField({ required: true, nullable: false, initial: '' }),
+      visibleRange: new fields.SchemaField({
+        start: CalendariaDateSchema(),
+        end: CalendariaDateSchema(),
+      }, { required: true, nullable: true, initial: null }),
     }, { required: true, nullable: false }),
   }, { required: true, nullable: false} )
 );

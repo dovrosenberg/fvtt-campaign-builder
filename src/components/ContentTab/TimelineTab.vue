@@ -61,6 +61,9 @@ Dependencies
   // local components
   import TimelineFilterPanel from './TimelineFilterPanel.vue';
 
+  // types
+  import { CalendariaDate } from '@/types';
+
   ////////////////////////////////
   // props
   const props = defineProps({
@@ -85,25 +88,26 @@ Dependencies
   // Timeline state
   const isTimelineLoading = ref<boolean>(false);
   const isFilterPanelExpanded = ref<boolean>(false);
+  const timelineInstance = ref<Timeline | null>(null);
 
   ////////////////////////////////
   // computed data
   const availableCategories = computed(() => MockCalendariaService.getCategories());
 
-  const filters = computed(() => currentTimeline.value?.filters ?? TIMELINE_DEFAULT_FILTERS);
+  const filters = computed(() => currentTimelineConfig.value?.filters ?? TIMELINE_DEFAULT_FILTERS);
 
-  const currentTimeline = computed((): Timeline | null => {
-    const doc = document()?.value;
+  const currentTimelineConfig = computed((): TimelineConfig | null => {
+    const doc = currentDocument()?.value;
     if (!doc) {
       return null;
     }
 
-    return doc.timeline;
+    return doc.timelines[0] || TIMELINE_DEFAULT;
   });
 
   // Get the document based on content type
   // returns refs
-  const document = () => {
+  const currentDocument = () => {
     switch (props.windowTabType) {
       case WindowTabType.Campaign:
         return currentCampaign;
@@ -128,13 +132,11 @@ Dependencies
    * @param date - Calendaria date components
    * @returns JavaScript Date object
    */
-  const calendariaDateToDate = (date: { year: number; month: number; dayOfMonth: number; hour?: number; minute?: number }): Date => {
+  const calendariaDateToDate = (date: CalendariaDate): Date => {
     return new Date(
       date.year,
       date.month,
       date.dayOfMonth,
-      date.hour ?? 0,
-      date.minute ?? 0
     );
   };
 
@@ -205,15 +207,15 @@ Dependencies
    */
   let rangeDebounceTimer: NodeJS.Timeout | undefined;
 
-  const updateVisibleRange = (start: Date, end: Date): Promise<void> => {
+  const updateVisibleRange = (start: CalendariaDate, end: CalendariaDate): void => {
     // this needs to be debounced to prevent excessive updates
     clearTimeout(rangeDebounceTimer);
 
     rangeDebounceTimer = setTimeout(() => {
       void saveTimelineConfig({filters: {
         visibleRange: {
-          start: start.toISOString(),
-          end: end.toISOString(),
+          start: start,
+          end: end,
         },
       }});
     }, 500);    
@@ -232,9 +234,9 @@ Dependencies
     }
 
     // destroy the old timeline to prevent memory leaks
-    if (currentTimeline.value) {
-      currentTimeline.value.destroy();
-      currentTimeline.value = null;
+    if (timelineInstance.value) {
+      timelineInstance.value.destroy();
+      timelineInstance.value = null;
     }
 
     isTimelineLoading.value = true;
@@ -243,26 +245,26 @@ Dependencies
       // dynamically import vis-timeline (CSS is bundled via vite config)
       const { Timeline } = await import('vis-timeline');
 
+      // Determine initial visible range - use persisted range or default
+      // TODO: need to figure out how to decide initial range the first time
+      // TODO: will need to rework all this to a normalized calendaria date
+      const initialStart = filters.value.visibleRange
+        ? new Date(filters.value.visibleRange.start.year, filters.value.visibleRange.start.month, filters.value.visibleRange.start.dayOfMonth)
+        : new Date(1492, 0, 1);
+      const initialEnd = filters.value.visibleRange
+        ? new Date(filters.value.visibleRange.end.year, filters.value.visibleRange.end.month, filters.value.visibleRange.end.dayOfMonth)
+        : new Date(1493, 0, 1);
+
       // get notes from Calendaria (mock for POC)
       // Use a wide date range to get all notes
-      const allNotes = MockCalendariaService.getRecurrentNotesInRange(
-        { year: 1490, month: 0, dayOfMonth: 1 },
-        { year: 1500, month: 11, dayOfMonth: 31 }
-      );
+      // TODO: rework this
+      const allNotes = MockCalendariaService.getRecurrentNotesInRange({year: 0, month:0, dayOfMonth: 0}, {year: 0, month:0, dayOfMonth: 0});
 
       // Apply filters
       const filteredNotes = filterNotes(allNotes, filters.value);
 
       // Convert to timeline items
       const items = notesToTimelineItems(filteredNotes);
-
-      // Determine initial visible range - use persisted range or default
-      const initialStart = filters.value.visibleRange?.start
-        ? new Date(filters.value.visibleRange.start)
-        : new Date(1492, 0, 1);
-      const initialEnd = filters.value.visibleRange?.end
-        ? new Date(filters.value.visibleRange.end)
-        : new Date(1493, 0, 1);
 
       // Timeline options - vis-timeline can accept a plain array instead of DataSet
       const options = {
@@ -299,15 +301,18 @@ Dependencies
         },
       };
 
-      currentTimeline.value = new Timeline(
+      timelineInstance.value = new Timeline(
         timelineRef.value,
         items,
         options
       );
 
       // Listen to range change events to persist view state
-      currentTimeline.value.on('rangechanged', (properties: { start: Date; end: Date }) => {
-        updateVisibleRange(properties.start, properties.end);
+      timelineInstance.value.on('rangechanged', (properties: { start: Date; end: Date }) => {
+        // TODO: we need to convert this back to a calendaria date
+        const start = {year: properties.start.getFullYear(), month: properties.start.getMonth(), dayOfMonth: properties.start.getDate()};
+        const end = {year: properties.end.getFullYear(), month: properties.end.getMonth(), dayOfMonth: properties.end.getDate()};
+        updateVisibleRange(start, end);
       });
     } catch (error) {
       isTimelineLoading.value = false;
@@ -342,7 +347,7 @@ Dependencies
    *    or the default if there's nothing in the document either.
    */
   const saveTimelineConfig = async (config: DeepPartial<TimelineConfig>): Promise<void> => {
-    const doc = document()?.value;
+    const doc = currentDocument()?.value;
     if (!doc) {
       return;
     }
@@ -351,11 +356,11 @@ Dependencies
     // For now, just store one timeline per document (first one)
     const newConfig = {
       ...TIMELINE_DEFAULT,
-      ...(doc.timelines[0] ?? {}),
+      ...(doc.timelines[0] ?? TIMELINE_DEFAULT),
       ...config,
       filters: {
         ...TIMELINE_DEFAULT_FILTERS,
-        ...(doc.timelines[0]?.filters ?? {}),
+        ...(doc.timelines[0]?.filters ?? TIMELINE_DEFAULT_FILTERS),
         ...(config.filters ?? {}),
       } 
     };
@@ -385,9 +390,9 @@ Dependencies
 
   onUnmounted(() => {
     // Destroy timeline to prevent memory leaks
-    if (currentTimeline.value) {
-      currentTimeline.value.destroy();
-      currentTimeline.value = null;
+    if (timelineInstance.value) {
+      timelineInstance.value.destroy();
+      timelineInstance.value = null;
     }
   });
 </script>
@@ -471,4 +476,3 @@ Dependencies
   background-color: var(--fcb-background);
 }
 </style>
-
