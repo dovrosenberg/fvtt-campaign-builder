@@ -18,6 +18,7 @@
     "parsemirror",
     "progressspinner",
     "prosemirror",
+    "rangechanged",
     "Roleplay",
     "SHADOWROOT",
     "splitterpanel",
@@ -26,7 +27,8 @@
     "tinymce",
     "toggleswitch",
     "Undrawn",
-    "Unmark"
+    "Unmark",
+    "zoomable"
   ],
   "zencoder.enableRepoIndexing": true,
   "cSpell.ignoreWords": [

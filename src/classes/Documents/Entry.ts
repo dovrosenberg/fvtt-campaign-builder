@@ -429,7 +429,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     
     await super._delete(skipDelete);
 
-    // remove from master entry index and topnodes    
+    // remove from master entry index and topNodes    
     topicFolder.entryIndex = topicFolder.entryIndex.filter((e)=> e.uuid !== uuid);
     topicFolder.topNodes = topicFolder.topNodes.filter((node) => node !== uuid);
     await topicFolder.save();
