@@ -57,7 +57,6 @@ Dependencies
   import { useContentState } from '@/composables/useContentState';
   import { CalendariaNote, TimelineConfig, TimelineFilters, TimelineItem, WindowTabType, TIMELINE_DEFAULT, TIMELINE_DEFAULT_FILTERS, DeepPartial } from '@/types';
   import CalendarAdapter from '@/utils/calendar/calendarAdapter';
-  import CalendarTimeAxis from '@/utils/calendar/calendarTimeAxis';
   import calendariaMomentFactory from '@/utils/calendar/calendariaMoment';
 
   // local components
@@ -94,7 +93,7 @@ Dependencies
 
   ////////////////////////////////
   // computed data
-  const availableCategories = computed(() => CalendarAdapter.getCategories().map(cat=>cat.label));
+  const availableCategories = computed(() => CalendarAdapter.getCategories().map(cat=>cat.id));
 
   const filters = computed(() => currentTimelineConfig.value?.filters ?? TIMELINE_DEFAULT_FILTERS);
 
@@ -236,34 +235,48 @@ Dependencies
 
       // Determine initial visible range - use persisted range or default
       // Uses CalendarAdapter for calendar-aware date conversion
+      // Default to ±50 years around current game date to match mock data range
+      const currentDate = CalendarAdapter.getCurrentDate();
+      const currentYear = currentDate.year;
+      
       const initialStart = filters.value.visibleRange
         ? CalendarAdapter.calendariaToJS(filters.value.visibleRange.start)
-        : CalendarAdapter.calendariaToJS({ year: 1492, month: 0, dayOfMonth: 1 });
+        : CalendarAdapter.calendariaToJS({ year: currentYear - 50, month: 0, dayOfMonth: 0 });
       const initialEnd = filters.value.visibleRange
         ? CalendarAdapter.calendariaToJS(filters.value.visibleRange.end)
-        : CalendarAdapter.calendariaToJS({ year: 1493, month: 0, dayOfMonth: 1 });
+        : CalendarAdapter.calendariaToJS({ year: currentYear + 50, month: 0, dayOfMonth: 0 });
 
       // get notes from Calendaria
-      // Use a wide date range to get all notes
-      const allNotes = CalendarAdapter.getNotesInRange({year: 0, month:0, dayOfMonth: 0}, {year: 2000, month:0, dayOfMonth: 0});
+      // Use a wide date range centered on current date to get all relevant notes
+      const allNotes = CalendarAdapter.getNotesInRange(
+        { year: currentYear - 100, month: 0, dayOfMonth: 0 }, 
+        { year: currentYear + 100, month: 0, dayOfMonth: 0 }
+      );
 
       // Apply filters
       const filteredNotes = filterNotes(allNotes, filters.value);
 
       // Convert to timeline items
       const items = notesToTimelineItems(filteredNotes);
-
-      // Generate calendar month background items to show calendar structure
-      const monthBackgroundItems = CalendarTimeAxis.generateMonthBackgroundItems(initialStart, initialEnd);
       
-      // Combine regular items with background items
-      const allItems = [...monthBackgroundItems, ...items];
-      
+      // Debug: log item date range
+      if (items.length > 0) {
+        const itemDates = items.map(i => i.start.getTime());
+        const minItem = Math.min(...itemDates);
+        const maxItem = Math.max(...itemDates);
+        console.log('Timeline items:', items.length, 'date range:', new Date(minItem), '-', new Date(maxItem));
+        console.log('Visible range:', initialStart, '-', initialEnd);
+        console.log('Sample item:', items[0]);
+      }
+            
       // Get snap function for the current zoom level
       const zoomLevels = CalendarAdapter.getZoomLevels();
       const defaultZoomLevel = zoomLevels.length > 0 ? zoomLevels[zoomLevels.length - 1] : null;
       const snapUnit = defaultZoomLevel?.snapUnit ?? 'day';
       
+      // Get the JS date for the "current date" line marker
+      const currentDateJs = CalendarAdapter.calendariaToJS(currentDate);
+
       // Timeline options - vis-timeline can accept a plain array instead of DataSet
       const options = {
         verticalScroll: true,
@@ -286,14 +299,26 @@ Dependencies
         },
         // Enable snapping to calendar units for drag/resize
         snap: CalendarAdapter.createSnapFunction(snapUnit),
+
+        // Disable default current time line (uses real-world time, not game time)
+        showCurrentTime: false,
+
+        // zoomMin = 1 day
+        zoomMin: 1000*60*60*24,
+
+        // zoomMax = ~1 million years (should probably tie to eras)
+        zoomMax: 1000*60*60*24*365*1000000,
       };
 
       timelineInstance.value = new Timeline(
         timelineRef.value,
-        allItems,
-        [],
+        items,
         options
       );
+
+      // Add custom time marker at the Calendaria current date (game world time)
+      timelineInstance.value.addCustomTime(currentDateJs, 'currentDate');
+      timelineInstance.value.setCustomTimeTitle('Current Date', 'currentDate');
 
       // Listen to range change events to persist view state
       timelineInstance.value.on('rangechanged', (properties: { start: Date; end: Date }) => {
@@ -483,22 +508,4 @@ Dependencies
   background-color: var(--fcb-background);
 }
 
-// Calendar month background styling
-:deep(.calendar-month-even) {
-  background-color: rgba(var(--fcb-primary-rgb, 100, 149, 237), 0.05);
-  border-left: 1px solid rgba(var(--fcb-primary-rgb, 100, 149, 237), 0.2);
-}
-
-:deep(.calendar-month-odd) {
-  background-color: transparent;
-  border-left: 1px solid rgba(var(--fcb-primary-rgb, 100, 149, 237), 0.1);
-}
-
-:deep(.calendar-year-even) {
-  background-color: transparent;
-}
-
-:deep(.calendar-year-odd) {
-  background-color: transparent;
-}
 </style>

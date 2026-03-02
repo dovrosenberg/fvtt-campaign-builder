@@ -4,6 +4,7 @@
  */
 
 import { CalendariaNote, CalendariaDate } from '@/types';
+import CalendarAdapter from './calendarAdapter';
 
 /** Categories for mock notes */
 const CATEGORIES = [
@@ -175,25 +176,31 @@ const generateRandomDate = (minYear: number, maxYear: number): CalendariaDate =>
   return {
     year: randomInt(minYear, maxYear),
     month: randomInt(0, 11), // 0-11 for Gregorian
-    dayOfMonth: randomInt(1, 28), // Safe day range
+    dayOfMonth: randomInt(0, 27), // 0-indexed day (0-27 for 28-day months)
   };
 };
 
+
 /**
  * Generate mock notes for the timeline.
- * Creates approximately 50 notes with dates between 1800-1900.
+ * Creates approximately 50 notes with dates centered around the current game date.
  * @returns Array of mock CalendariaNote objects
  */
 export const generateMockNotes = (): CalendariaNote[] => {
   const notes: CalendariaNote[] = [];
   let noteId = 1;
 
-  // Generate ~50 notes spread across categories
+  // Get current game date to center notes around it
+  const currentDate = CalendarAdapter.getCurrentDate();
+  const currentYear = currentDate.year;
+
+  // Generate ~50 notes spread across categories, within ±50 years of current date
   const notesPerCategory = 6; // 8 categories * 6 = 48 notes
 
   for (const category of CATEGORIES) {
     for (let i = 0; i < notesPerCategory; i++) {
-      const startDate = generateRandomDate(1800, 1899);
+      // Generate dates within ±50 years of current game date
+      const startDate = generateRandomDate(currentYear - 50, currentYear + 50);
       const hasEndDate = Math.random() > 0.6; // ~40% have end dates
 
       // Generate end date 1-30 days after start (for range events)
@@ -204,14 +211,16 @@ export const generateMockNotes = (): CalendariaNote[] => {
         const startDay = startDate.dayOfMonth;
 
         // Simple end date calculation (add 1-30 days)
+        // dayOfMonth is 0-indexed, so valid range is 0-30 for 31-day months
         let endDay = startDay + randomInt(1, 30);
         let endMonth = startMonth;
         let endYear = startYear;
 
         // Handle month/year overflow (simplified)
-        const daysInMonth = 31; // Using max for simplicity
-        if (endDay > daysInMonth) {
-          endDay -= daysInMonth;
+        // For 0-indexed days, max valid value is 30 (for 31-day month)
+        const maxDayInMonth = 30; // 0-indexed max (31 days = 0-30)
+        if (endDay > maxDayInMonth) {
+          endDay -= (maxDayInMonth + 1); // Subtract 31 days (0-30 range)
           endMonth += 1;
         }
         if (endMonth > 11) {

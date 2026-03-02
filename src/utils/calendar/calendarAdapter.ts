@@ -233,9 +233,9 @@ export const CalendarAdapter = {
    * @returns Array of category definitions
    */
   getCategories: (): CalendariaCategory[] => {
-    const api = requireCalendariaApi();
-
-    return api.getCategories();
+    // const api = requireCalendariaApi();
+    // return api.getCategories();
+    return mockCalendariaService.getCategories();
   },
 
   /**
