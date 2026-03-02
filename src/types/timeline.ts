@@ -2,6 +2,8 @@
  * Types for timeline functionality.
  */
 
+import { CalendariaDate } from './calendar';
+
 /** Filters for timeline events */
 export interface TimelineFilters {
   /** Event categories to show (empty = all) */
@@ -63,14 +65,14 @@ export interface CalendariaNote {
   /** End date components (for range events) */
   endDate?: CalendariaDate;
 
-  /** Event categories */
-  categories: string[];
+  /** Event category */
+  category: string;
 
-  /** Color for the event */
-  color: string;
-
-  /** Icon/emblem class */
+  /** Icon class for display */
   icon: string;
+
+  /** Color for timeline item */
+  color: string;
 
   /** Is this GM-only */
   gmOnly: boolean;

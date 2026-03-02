@@ -94,7 +94,7 @@ Dependencies
 
   ////////////////////////////////
   // computed data
-  const availableCategories = computed(() => CalendarAdapter.getCategories());
+  const availableCategories = computed(() => CalendarAdapter.getCategories().map(cat=>cat.label));
 
   const filters = computed(() => currentTimelineConfig.value?.filters ?? TIMELINE_DEFAULT_FILTERS);
 
@@ -130,15 +130,6 @@ Dependencies
   // methods
 
   /**
-   * Convert Calendaria date components to a JavaScript Date using the active calendar.
-   * @param date - Calendaria date components
-   * @returns JavaScript Date object
-   */
-  const calendariaDateToDate = (date: CalendariaDate): Date => {
-    return CalendarAdapter.calendariaDateToJSDate(date);
-  };
-
-  /**
    * Filter notes based on the current filter criteria.
    * @param notes - Array of Calendaria notes
    * @param filterCriteria - Filter criteria
@@ -148,7 +139,7 @@ Dependencies
     return notes.filter(note => {
       // Category filter
       if (filterCriteria.categories && filterCriteria.categories.length > 0) {
-        if (!filterCriteria.categories.some(cat => note.categories.includes(cat))) {
+        if (!filterCriteria.categories.includes(note.category)) {
           return false;
         }
       }
@@ -189,8 +180,8 @@ Dependencies
     return notes.map(note => ({
       id: note.id,
       content: `<i class="${note.icon}" style="margin-right: 4px;"></i>${note.name}`,
-      start: calendariaDateToDate(note.startDate),
-      end: note.endDate ? calendariaDateToDate(note.endDate) : undefined,
+      start: CalendarAdapter.calendariaToJS(note.startDate),
+      end: note.endDate ? CalendarAdapter.calendariaToJS(note.endDate) : undefined,
       type: note.endDate ? 'range' : 'point',
       className: `timeline-event`,
       style: `background-color: ${note.color}; border-color: ${note.color};`,
@@ -246,16 +237,15 @@ Dependencies
       // Determine initial visible range - use persisted range or default
       // Uses CalendarAdapter for calendar-aware date conversion
       const initialStart = filters.value.visibleRange
-        ? calendariaDateToDate(filters.value.visibleRange.start)
-        : calendariaDateToDate({ year: 1492, month: 0, dayOfMonth: 1 });
+        ? CalendarAdapter.calendariaToJS(filters.value.visibleRange.start)
+        : CalendarAdapter.calendariaToJS({ year: 1492, month: 0, dayOfMonth: 1 });
       const initialEnd = filters.value.visibleRange
-        ? calendariaDateToDate(filters.value.visibleRange.end)
-        : calendariaDateToDate({ year: 1493, month: 0, dayOfMonth: 1 });
+        ? CalendarAdapter.calendariaToJS(filters.value.visibleRange.end)
+        : CalendarAdapter.calendariaToJS({ year: 1493, month: 0, dayOfMonth: 1 });
 
-      // get notes from Calendaria (mock for POC)
+      // get notes from Calendaria
       // Use a wide date range to get all notes
-      // TODO: rework this
-      const allNotes = MockCalendariaService.getRecurrentNotesInRange({year: 0, month:0, dayOfMonth: 0}, {year: 0, month:0, dayOfMonth: 0});
+      const allNotes = CalendarAdapter.getNotesInRange({year: 0, month:0, dayOfMonth: 0}, {year: 2000, month:0, dayOfMonth: 0});
 
       // Apply filters
       const filteredNotes = filterNotes(allNotes, filters.value);
@@ -286,7 +276,8 @@ Dependencies
         start: initialStart,
         end: initialEnd,
         // Inject calendar-aware moment factory for tick placement and formatting
-        moment: calendariaMomentFactory,
+        // Type assertion needed: vis-timeline expects Moment but CalendariaMoment is runtime-compatible
+        moment: calendariaMomentFactory as never,
         margin: {
           item: {
             horizontal: 10,
@@ -300,14 +291,15 @@ Dependencies
       timelineInstance.value = new Timeline(
         timelineRef.value,
         allItems,
+        [],
         options
       );
 
       // Listen to range change events to persist view state
       timelineInstance.value.on('rangechanged', (properties: { start: Date; end: Date }) => {
         // Convert JS Dates back to Calendaria dates using the active calendar
-        const start = CalendarAdapter.jsDateToCalendariaDate(properties.start);
-        const end = CalendarAdapter.jsDateToCalendariaDate(properties.end);
+        const start = CalendarAdapter.jsToCalendaria(properties.start);
+        const end = CalendarAdapter.jsToCalendaria(properties.end);
         updateVisibleRange(start, end);
       });
     } catch (error) {
@@ -350,15 +342,34 @@ Dependencies
 
     // Update or add the config in the timelines array
     // For now, just store one timeline per document (first one)
-    const newConfig = {
+    const existingFilters = doc.timelines[0]?.filters ?? TIMELINE_DEFAULT_FILTERS;
+    const newFilters = config.filters;
+    
+    // Filter out undefined values from categories array if present
+    const inputCategories = newFilters?.categories?.filter((c): c is string => c != null);
+    
+    // Only use visibleRange if it has both start and end fully defined
+    const inputVisibleRange = newFilters?.visibleRange;
+    const validVisibleRange = inputVisibleRange?.start && inputVisibleRange?.end &&
+      inputVisibleRange.start.year != null && inputVisibleRange.start.month != null && inputVisibleRange.start.dayOfMonth != null &&
+      inputVisibleRange.end.year != null && inputVisibleRange.end.month != null && inputVisibleRange.end.dayOfMonth != null
+      ? {
+          start: { year: inputVisibleRange.start.year, month: inputVisibleRange.start.month, dayOfMonth: inputVisibleRange.start.dayOfMonth },
+          end: { year: inputVisibleRange.end.year, month: inputVisibleRange.end.month, dayOfMonth: inputVisibleRange.end.dayOfMonth },
+        }
+      : existingFilters.visibleRange;
+    
+    const newConfig: TimelineConfig = {
       ...TIMELINE_DEFAULT,
       ...(doc.timelines[0] ?? TIMELINE_DEFAULT),
       ...config,
       filters: {
-        ...TIMELINE_DEFAULT_FILTERS,
-        ...(doc.timelines[0]?.filters ?? TIMELINE_DEFAULT_FILTERS),
-        ...(config.filters ?? {}),
-      } 
+        categories: inputCategories ?? existingFilters.categories,
+        textSearch: newFilters?.textSearch ?? existingFilters.textSearch,
+        gmOnly: newFilters?.gmOnly ?? existingFilters.gmOnly,
+        referencedUuid: newFilters?.referencedUuid ?? existingFilters.referencedUuid,
+        visibleRange: validVisibleRange,
+      },
     };
 
     doc.timelines = [newConfig];

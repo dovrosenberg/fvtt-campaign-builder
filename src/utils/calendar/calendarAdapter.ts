@@ -3,7 +3,8 @@
  * Bridges the gap between arbitrary calendar systems and vis-timeline's JS Date-based API.
  */
 
-import type { CalendariaDate, CalendarZoomLevel, CalendarTimeUnit, CalendariaCategory, CalendariaAPI, CalendariaCalendar } from '@/types';
+import type { CalendariaDate, CalendarZoomLevel, CalendarTimeUnit, CalendariaCategory, CalendariaAPI, CalendariaCalendar, CalendariaNote } from '@/types';
+import mockCalendariaService from './mockCalendariaService';
 
 /**
  * Get the Calendaria API, throwing if not available.
@@ -141,13 +142,20 @@ export const CalendarAdapter = {
     return CalendarAdapter.getZoomLevels()[0];
   },
 
+  getNotesInRange(startDate: CalendariaDate, endDate: CalendariaDate): CalendariaNote[] {
+    // const api = requireCalendariaApi();
+    
+    return mockCalendariaService.getRecurrentNotesInRange(startDate, endDate);
+    // return api.getNotesInRange(startDate, endDate);
+  },
+
   /**
    * Get the number of days in a specific month.
    * @param year - Needed to check for leap year
    * @param month - Month index
    * @returns Number of days in the month
    */
-  daysInMonth: (year: number, month: number): number => {
+  daysInMonth: (_year: number, month: number): number => {
     // TODO: how do i figure out if it's a leapyear
     const isLeapYear = false;
     const api = requireCalendariaApi();
@@ -157,7 +165,7 @@ export const CalendarAdapter = {
     if (!cal)
       throw new Error('No active calendar in CalendarAdapter.daysInMonth');
 
-    const monthDef = cal.months[month];
+    const monthDef = cal.months.values[month];
     if (!monthDef)
       throw new Error('No month definition in CalendarAdapter.daysInMonth');
 

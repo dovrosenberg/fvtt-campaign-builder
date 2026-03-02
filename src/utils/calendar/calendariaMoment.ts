@@ -598,8 +598,8 @@ class CalendariaMoment {
  * Factory function compatible with vis-timeline's moment option.
  * Usage: options.moment = calendariaMomentFactory
  */
-const calendariaMomentFactory = (input?: Date | number | string | CalendariaMoment): CalendariaMoment => {
-  return CalendariaMoment.create(input);
+const calendariaMomentFactory = (input?: Date | number | string | CalendariaMoment | null): CalendariaMoment => {
+  return CalendariaMoment.create(input ?? undefined);
 };
 
 // Add static methods to the factory
