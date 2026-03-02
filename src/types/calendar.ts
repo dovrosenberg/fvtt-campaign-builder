@@ -3,22 +3,6 @@
  * These represent arbitrary calendar systems (not just Gregorian).
  */
 
-/** A specific date in a calendar system */
-export interface CalendarDate {
-  /** Year in the calendar system */
-  year: number;
-  /** Month index (0-based) */
-  month: number;
-  /** Day of month (1-based) */
-  day: number;
-  /** Optional hour (0-23) */
-  hour?: number;
-  /** Optional minute (0-59) */
-  minute?: number;
-  /** Optional second (0-59) */
-  second?: number;
-}
-
 /** Month definition in a calendar */
 export interface CalendarMonth {
   /** Month index (0-based) */
@@ -92,23 +76,10 @@ export interface CalendarDefinition {
   leapDays?: number;
 }
 
-/** 
- * Normalized date representation for internal calculations.
- * Uses absolute day count from a reference epoch.
- */
-export interface NormalizedDate {
-  /** Absolute day number from calendar epoch */
-  absoluteDay: number;
-  /** Fraction of day (0-1) for time precision */
-  dayFraction: number;
-  /** Reference calendar ID */
-  calendarId: string;
-}
-
 /** Result of date arithmetic */
 export interface DateArithmeticResult {
   /** The resulting calendar date */
-  date: CalendarDate;
+  date: CalendariaDate;
   /** Whether the result crossed a year boundary */
   crossedYear: boolean;
   /** Whether the result crossed a month boundary */
@@ -122,7 +93,7 @@ export interface TimeAxisTick {
   /** JS Date for vis-timeline compatibility */
   date: Date;
   /** Calendar date representation */
-  calendarDate: CalendarDate;
+  calendarDate: CalendariaDate;
   /** Formatted label for this tick */
   label: string;
   /** Whether this is a major tick (year/month boundary) */
@@ -145,12 +116,25 @@ export interface TimeAxisFormatConfig {
   showYear: boolean;
 }
 
+export type CalendariaDate = {
+  year: number;
+  month: number;
+  dayOfMonth: number;
+}
+
+export type CalendariaCategory = {
+  id: string;
+  label: string;
+  color: string;
+  icon: string;
+}
+
 /** Calendar-aware date range */
 export interface CalendarDateRange {
   /** Start of range */
-  start: CalendarDate;
+  start: CalendariaDate;
   /** End of range */
-  end: CalendarDate;
+  end: CalendariaDate;
   /** Calendar ID */
   calendarId: string;
 }
@@ -171,4 +155,93 @@ export interface CalendarDuration {
   minutes?: number;
   /** Number of seconds */
   seconds?: number;
+}
+
+/** Calendaria calendar object returned by getActiveCalendar() */
+export interface CalendariaCalendar {
+  days: {
+    daysPerYear: number;
+    values: Array<{
+      name: string;
+      abbreviation: string;
+      ordinal: number;
+      isRestDay: boolean;
+    }>;
+  };
+
+  months: Array<{
+    name: string;
+    abbreviation: string;
+    ordinal: number;
+    days: number;
+    leapDays?: number;
+    startingWeekday?: number;
+    type?: string;
+    weekdays?: Array<number>;
+  }>;
+
+  weeks: {
+    enabled: boolean;
+    names: string[];
+    perMonth?: number;
+    type: string;
+  };
+}
+
+/** Calendaria date-time with time components */
+export interface CalendariaDateTime extends CalendariaDate {
+  /** Hour (0-23) */
+  hour: number;
+  /** Minute (0-59) */
+  minute: number;
+  /** Second (0-59) */
+  second: number;
+}
+
+/** Calendaria API interface - methods used from requireCalendariaApi() */
+export interface CalendariaAPI {
+  /** Convert a Calendaria date to a timestamp (seconds) */
+  dateToTimestamp: (date: CalendariaDate) => number;
+
+  /** Convert a timestamp (seconds) to a Calendaria date */
+  timestampToDate: (timestamp: number) => CalendariaDate;
+
+  /** Format a date using a format string or preset */
+  formatDate: (date: CalendariaDate | null, formatOrPreset: string) => string;
+
+  /** Get the currently active calendar */
+  getActiveCalendar: () => CalendariaCalendar | null;
+
+  /** Get all available categories for timeline notes */
+  getCategories: () => CalendariaCategory[];
+
+  /** Get all available calendars */
+  getAllCalendars: () => Map<string, CalendarDefinition>;
+
+  /** Get a specific calendar by ID */
+  getCalendar: (id: string) => CalendarDefinition | null;
+
+  /** Calculate number of days between two dates */
+  daysBetween: (start: CalendariaDate, end: CalendariaDate) => number;
+
+  /** Calculate number of months between two dates */
+  monthsBetween: (start: CalendariaDate, end: CalendariaDate) => number;
+
+  /** Calculate number of years between two dates */
+  yearsBetween: (start: CalendariaDate, end: CalendariaDate) => number;
+
+  /** Add years to a date */
+  addYears: (date: CalendariaDate, years: number) => CalendariaDate;
+
+  /** Add months to a date */
+  addMonths: (date: CalendariaDate, months: number) => CalendariaDate;
+
+  /** Add days to a date */
+  addDays: (date: CalendariaDate, days: number) => CalendariaDate;
+
+  /** Get the current date-time */
+  getCurrentDateTime: () => CalendariaDateTime;
+
+  /** Get the day of week index (0-based) for a date */
+  dayOfWeek: (date: CalendariaDate) => number;
 }

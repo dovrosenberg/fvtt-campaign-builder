@@ -21,7 +21,7 @@ Slots
 Dependencies
 - Stores: None
 - Composables: useContentState
-- Services/API: MockCalendariaService
+- Services/API: CalendarAdapter
 
 -->
 
@@ -49,14 +49,13 @@ Dependencies
 
 <script setup lang="ts">
   // library imports
-  import { ref, onMounted, computed, onUnmounted, watch, PropType } from 'vue';
+  import { ref, onMounted, computed, onUnmounted, PropType } from 'vue';
   import type { Timeline } from 'vis-timeline';
 
   // local imports
   import { localize } from '@/utils/game';
   import { useContentState } from '@/composables/useContentState';
   import { CalendariaNote, TimelineConfig, TimelineFilters, TimelineItem, WindowTabType, TIMELINE_DEFAULT, TIMELINE_DEFAULT_FILTERS, DeepPartial } from '@/types';
-  import MockCalendariaService from '@/utils/mockCalendaria';
   import CalendarAdapter from '@/utils/calendar/calendarAdapter';
   import CalendarTimeAxis from '@/utils/calendar/calendarTimeAxis';
   import calendariaMomentFactory from '@/utils/calendar/calendariaMoment';
@@ -95,7 +94,7 @@ Dependencies
 
   ////////////////////////////////
   // computed data
-  const availableCategories = computed(() => MockCalendariaService.getCategories());
+  const availableCategories = computed(() => CalendarAdapter.getCategories());
 
   const filters = computed(() => currentTimelineConfig.value?.filters ?? TIMELINE_DEFAULT_FILTERS);
 
@@ -485,7 +484,7 @@ Dependencies
 }
 
 :deep(.calendar-year-even) {
-  background-color: rgba(var(--fcb-primary-rgb, 100, 149, 237), 0.03);
+  background-color: transparent;
 }
 
 :deep(.calendar-year-odd) {

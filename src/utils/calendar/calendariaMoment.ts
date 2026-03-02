@@ -2,7 +2,7 @@
  * CalendariaMoment - A moment-like wrapper for arbitrary calendar systems.
  * 
  * This implements the minimal moment.js API surface that vis-timeline requires,
- * delegating all operations to the active calendar system via MockCalendariaService.
+ * delegating all operations to the active calendar system via CalendarAdapter.
  * 
  * When injected via `options.moment`, vis-timeline will:
  * - Place ticks at calendar month/year boundaries (not Gregorian)
@@ -10,34 +10,20 @@
  * - Step by calendar-aware units
  */
 
-import MockCalendariaService from '@/utils/mockCalendaria';
-import type { CalendarDate, CalendarTimeUnit, NormalizedDate } from '@/types';
+import { CalendarAdapter } from '@/utils/calendar';
+import type { CalendariaDate, CalendarTimeUnit, } from '@/types';
 
 /**
  * A moment-like object backed by Calendaria calendar system.
  */
 class CalendariaMoment {
-  private normalized: NormalizedDate;
-  private _calendarDate: CalendarDate | null = null;
+  private _calendariaDate: CalendariaDate;
 
   /**
-   * Create a CalendariaMoment from a normalized date.
+   * Create a CalendariaMoment from a date.
    */
-  private constructor(normalized: NormalizedDate) {
-    this.normalized = normalized;
-  }
-
-  /**
-   * Get the calendar date (lazy-loaded).
-   */
-  private get calendarDate(): CalendarDate {
-    if (!this._calendarDate) {
-      this._calendarDate = MockCalendariaService.denormalizeDate(
-        this.normalized.calendarId,
-        this.normalized
-      );
-    }
-    return this._calendarDate;
+  private constructor(date: CalendariaDate) {
+    this._calendariaDate = date;
   }
 
   // ==================== Factory Methods ====================
@@ -47,13 +33,10 @@ class CalendariaMoment {
    * This is the main entry point used by vis-timeline.
    */
   static create(input?: Date | number | string | CalendariaMoment): CalendariaMoment {
-    const calendarId = MockCalendariaService.getActiveCalendar().id;
-    
     if (input == null) {
-      // Current time
-      const now = new Date();
-      const normalized = MockCalendariaService.jsDateToNormalized(calendarId, now);
-      return new CalendariaMoment(normalized);
+      // Current date
+      const currentDate = CalendarAdapter.getCurrentDate();
+      return new CalendariaMoment(currentDate);
     }
     
     if (input instanceof CalendariaMoment) {
@@ -61,33 +44,24 @@ class CalendariaMoment {
     }
     
     if (input instanceof Date) {
-      const normalized = MockCalendariaService.jsDateToNormalized(calendarId, input);
-      return new CalendariaMoment(normalized);
+      return new CalendariaMoment(CalendarAdapter.jsToCalendaria(input));
     }
     
     if (typeof input === 'number') {
       // Timestamp in milliseconds
       const jsDate = new Date(input);
-      const normalized = MockCalendariaService.jsDateToNormalized(calendarId, jsDate);
-      return new CalendariaMoment(normalized);
+      return new CalendariaMoment(CalendarAdapter.jsToCalendaria(jsDate));
     }
     
     if (typeof input === 'string') {
       // Parse ISO string
       const jsDate = new Date(input);
-      const normalized = MockCalendariaService.jsDateToNormalized(calendarId, jsDate);
-      return new CalendariaMoment(normalized);
+      return new CalendariaMoment(CalendarAdapter.jsToCalendaria(jsDate));
     }
     
     // Fallback to now
-    return CalendariaMoment.create(new Date());
-  }
-
-  /**
-   * Create from a normalized date directly.
-   */
-  static fromNormalized(normalized: NormalizedDate): CalendariaMoment {
-    return new CalendariaMoment({ ...normalized });
+    const currentDate = CalendarAdapter.getCurrentDate();
+    return new CalendariaMoment(currentDate);
   }
 
   // ==================== Core Methods ====================
@@ -96,21 +70,25 @@ class CalendariaMoment {
    * Get the millisecond timestamp value.
    */
   valueOf(): number {
-    return MockCalendariaService.normalizedToJSDate(this.normalized).getTime();
+    return CalendarAdapter.calendariaToJS(this._calendariaDate).getTime();
   }
 
   /**
    * Convert to JavaScript Date.
    */
   toDate(): Date {
-    return MockCalendariaService.normalizedToJSDate(this.normalized);
+    return CalendarAdapter.calendariaToJS(this._calendariaDate);
   }
 
   /**
    * Create a copy.
    */
   clone(): CalendariaMoment {
-    return new CalendariaMoment({ ...this.normalized });
+    if (!this._calendariaDate) {
+      throw new Error('Cannot clone an empty CalendariaMoment');
+    } else {
+      return new CalendariaMoment({ ...this._calendariaDate });
+    }
   }
 
   /**
@@ -143,16 +121,30 @@ class CalendariaMoment {
   // ==================== Getters ====================
 
   /**
+   * Get the week in the calendar system.
+   * When called with an argument, sets the year and returns this for chaining.
+   */
+  week(): number | CalendariaMoment {
+    if (!this._calendariaDate) {
+      throw new Error('Cannot get week() on invalid CalendariaMoment');
+    }
+
+    return parseInt(CalendarAdapter.formatDate(this._calendariaDate, 'w'));
+  }
+
+  /**
    * Get or set the year in the calendar system.
    * When called with an argument, sets the year and returns this for chaining.
    */
   year(value?: number): number | CalendariaMoment {
-    if (value === undefined) {
-      return this.calendarDate.year;
+    if (!this._calendariaDate) {
+      throw new Error('Cannot get/set year() on invalid CalendariaMoment');
     }
-    const cal = this.calendarDate;
-    cal.year = value;
-    this._renormalize(cal);
+
+    if (value === undefined) {
+      return this._calendariaDate.year;
+    }
+    this._calendariaDate.year = value;
     return this;
   }
 
@@ -161,12 +153,14 @@ class CalendariaMoment {
    * When called with an argument, sets the month and returns this for chaining.
    */
   month(value?: number): number | CalendariaMoment {
-    if (value === undefined) {
-      return this.calendarDate.month;
+    if (!this._calendariaDate) {
+      throw new Error('Cannot get/set month() on invalid CalendariaMoment');
     }
-    const cal = this.calendarDate;
-    cal.month = value;
-    this._renormalize(cal);
+
+    if (value === undefined) {
+      return this._calendariaDate.month;
+    }
+    this._calendariaDate.month = value;
     return this;
   }
 
@@ -175,86 +169,115 @@ class CalendariaMoment {
    * When called with an argument, sets the day and returns this for chaining.
    */
   date(value?: number): number | CalendariaMoment {
-    if (value === undefined) {
-      return this.calendarDate.day;
+    if (!this._calendariaDate) {
+      throw new Error('Cannot get/set date() on invalid CalendariaMoment');
     }
-    const cal = this.calendarDate;
-    cal.day = value;
-    this._renormalize(cal);
+
+    if (value === undefined) {
+      return this._calendariaDate.dayOfMonth + 1;
+    }
+    this._calendariaDate.dayOfMonth = value - 1;
     return this;
   }
 
   /**
    * Get or set the weekday (0-indexed, where 0 is first day of week).
    * When called with an argument, sets the weekday and returns this for chaining.
+   * Positive value moves to next matching day, negative moves to last matching day
+   * 0 moves forward
+   * Note: doesn't support going forward/back a full week or more; will 
+   *    need to watch if that causes issues
    */
   weekday(value?: number): number | CalendariaMoment {
     if (value === undefined) {
-      return MockCalendariaService.getWeekday(this.normalized.calendarId, this.calendarDate);
+      return parseInt(CalendarAdapter.formatDate(this._calendariaDate, 'e'));
     }
-    // Set weekday by adjusting the day - clone first to avoid mutation issues
-    const currentWeekday = MockCalendariaService.getWeekday(this.normalized.calendarId, this.calendarDate);
-    const diff = (value as number) - currentWeekday;
-    // Mutate this and return (moment.js behavior)
-    this.add(diff, 'day');
+
+    if (Math.abs(value) >=7)
+      console.warn(`calendariaMoment.weekday() was passed a large value: ${value}. This is an issue if weeks aren't that long`);
+
+    // we're just going to move until we get there
+    let result = this._calendariaDate;
+    while (parseInt(CalendarAdapter.formatDate(result, 'e')) !== value) {
+      if (value >= 0)
+        CalendarAdapter.addDays(this._calendariaDate, 1);
+      if (value < 0)
+        CalendarAdapter.addDays(this._calendariaDate, 1);
+    }
+
+    this._calendariaDate = result;
     return this;
   }
 
   /**
-   * Get or set the hour (0-23).
+   * Get or set the hour (0-23).  But not really, since we only track date
    * When called with an argument, sets the hour and returns this for chaining.
    */
   hours(value?: number): number | CalendariaMoment {
-    if (value === undefined) {
-      return this.calendarDate.hour ?? 0;
+    if (!this._calendariaDate) {
+      throw new Error('Cannot get/set hours() on invalid CalendariaMoment');
     }
-    const cal = this.calendarDate;
-    cal.hour = value;
-    this._renormalize(cal);
+
+    if (value === undefined) {
+      return 0;
+    }
+
+    // don't set anything
+
     return this;
   }
 
   /**
-   * Get or set the minute (0-59).
+   * Get or set the minute (0-59). But not really, since we only track date
    * When called with an argument, sets the minute and returns this for chaining.
    */
   minutes(value?: number): number | CalendariaMoment {
-    if (value === undefined) {
-      return this.calendarDate.minute ?? 0;
+    if (!this._calendariaDate) {
+      throw new Error('Cannot get/set minutes() on invalid CalendariaMoment');
     }
-    const cal = this.calendarDate;
-    cal.minute = value;
-    this._renormalize(cal);
+
+    if (value === undefined) {
+      return 0;
+    }
+
+    // don't set anything
+    
     return this;
   }
 
   /**
-   * Get or set the second (0-59).
+   * Get or set the second (0-59). But not really, since we only track date
    * When called with an argument, sets the second and returns this for chaining.
    */
   seconds(value?: number): number | CalendariaMoment {
-    if (value === undefined) {
-      return this.calendarDate.second ?? 0;
+    if (!this._calendariaDate) {
+      throw new Error('Cannot get/set seconds() on invalid CalendariaMoment');
     }
-    const cal = this.calendarDate;
-    cal.second = value;
-    this._renormalize(cal);
+
+    if (value === undefined) {
+      return 0;
+    }
+
+    // don't set anything
+    
     return this;
   }
 
   /**
-   * Get or set the millisecond (0-999).
+   * Get or set the millisecond (0-999).  But not really, since we only track date
    * When called with an argument, sets the millisecond and returns this for chaining.
    */
   milliseconds(value?: number): number | CalendariaMoment {
-    const msPerDay = 86400000;
-    if (value === undefined) {
-      return Math.round(this.normalized.dayFraction * msPerDay) % 1000;
+    if (!this._calendariaDate) {
+      throw new Error('Cannot get/set milliseconds() on invalid CalendariaMoment');
     }
-    // Adjust dayFraction
-    const currentMs = this.normalized.dayFraction * msPerDay;
-    const newMs = Math.floor(currentMs / 1000) * 1000 + value;
-    this.normalized.dayFraction = newMs / msPerDay;
+
+    if (value === undefined) {
+      return 0;
+    }
+
+    // don't set anything
+    
     return this;
   }
 
@@ -262,9 +285,7 @@ class CalendariaMoment {
    * Get the day of year (1-indexed).
    */
   dayOfYear(): number {
-    const yearStart: CalendarDate = { year: this.calendarDate.year, month: 0, day: 1 };
-    const yearStartNorm = MockCalendariaService.normalizeDate(this.normalized.calendarId, yearStart);
-    return this.normalized.absoluteDay - yearStartNorm.absoluteDay + 1;
+    return CalendarAdapter.dayOfYear(this._calendariaDate);
   }
 
   // ==================== Additional Setters ====================
@@ -324,23 +345,29 @@ class CalendariaMoment {
    * Add time to this moment.
    */
   add(amount: number, unit: string): CalendariaMoment {
-    const before = this.valueOf();
-
     const calendarUnit = this._toCalendarUnit(unit);
-    const result = MockCalendariaService.addDuration(
-      this.normalized.calendarId,
-      this.calendarDate,
-      { [calendarUnit]: amount }
-    );
 
-    const after = this.valueOf();
-    if (amount > 0 && after <= before) {
-      throw new Error(`Add: ${amount} ${unit}`);
+    switch (calendarUnit) {
+      case 'year':
+        this._calendariaDate = CalendarAdapter.addYears(this._calendariaDate, amount);
+        break;
+      case 'month':
+        this._calendariaDate = CalendarAdapter.addMonths(this._calendariaDate, amount);
+        break;
+      case 'day':
+        this._calendariaDate = CalendarAdapter.addDays(this._calendariaDate, amount);
+        break;
+      case 'hour':
+      case 'minute':
+      case 'second':
+      case 'millisecond':
+        // for now, we don't support these
+        break;
+
+      default:
+        throw new Error(`Unknown unit: ${unit}`);
     }
-    if (amount < 0 && after >= before) {
-      throw new Error(`Add neg: ${amount} ${unit}`);
-    }
-    this._renormalize(result);
+
     return this;
   }
 
@@ -354,7 +381,7 @@ class CalendariaMoment {
   /**
    * Get the difference between this and another moment.
    */
-  diff(other: CalendariaMoment, unit?: string, asFloat?: boolean): number {
+  diff(other: CalendariaMoment, unit?: string, /*asFloat?: boolean*/): number {
     const diffMs = this.valueOf() - other.valueOf();
     
     if (!unit) {
@@ -362,49 +389,33 @@ class CalendariaMoment {
     }
     
     const calendarUnit = this._toCalendarUnit(unit);
-    const calendar = MockCalendariaService.getCalendar(this.normalized.calendarId);
-    const monthsPerYear = calendar?.months.length ?? 12;
-    const daysPerWeek = calendar?.week.days ?? 7;
-    
+    const otherDate = other._calendariaDate;
+
     // Convert ms to the appropriate unit
     switch (calendarUnit) {
       case 'year': {
-        const thisYear = this.year() as number;
-        const otherYear = other.year() as number;
-        const years = thisYear - otherYear;
-        return asFloat ? years : Math.round(years);
+        return -CalendarAdapter.yearsBetween(this._calendariaDate, otherDate);
       }
       case 'month': {
-        const thisYear = this.year() as number;
-        const otherYear = other.year() as number;
-        const thisMonth = this.month() as number;
-        const otherMonth = other.month() as number;
-        const months = (thisYear - otherYear) * monthsPerYear + 
-                       (thisMonth - otherMonth);
-        return asFloat ? months : Math.round(months);
+        return -CalendarAdapter.monthsBetween(this._calendariaDate, otherDate);
       }
       case 'week': {
-        const weeks = diffMs / (daysPerWeek * 86400000);
-        return asFloat ? weeks : Math.round(weeks);
+        throw new Error('I guess we need to support weeks')
       }
       case 'day': {
-        const days = diffMs / 86400000;
-        return asFloat ? days : Math.round(days);
+        return -CalendarAdapter.daysBetween(this._calendariaDate, otherDate);
       }
       case 'hour': {
-        const hours = diffMs / 3600000;
-        return asFloat ? hours : Math.round(hours);
+        throw new Error('I guess we need to support hours')
       }
       case 'minute': {
-        const minutes = diffMs / 60000;
-        return asFloat ? minutes : Math.round(minutes);
+        throw new Error('I guess we need to support minutes')
       }
       case 'second': {
-        const seconds = diffMs / 1000;
-        return asFloat ? seconds : Math.round(seconds);
+        throw new Error('I guess we need to support seconds')
       }
       case 'millisecond': {
-        return asFloat ? diffMs : Math.round(diffMs);
+        throw new Error('I guess we need to support milliseconds')
       }
       default:
         return diffMs;
@@ -418,12 +429,11 @@ class CalendariaMoment {
    */
   startOf(unit: string): CalendariaMoment {
     const calendarUnit = this._toCalendarUnit(unit);
-    const result = MockCalendariaService.snapToStart(
-      this.normalized.calendarId,
-      this.calendarDate,
+    this._calendariaDate = CalendarAdapter.snapToStart(
+      this._calendariaDate,
       calendarUnit
     );
-    this._renormalize(result);
+
     return this;
   }
 
@@ -432,12 +442,11 @@ class CalendariaMoment {
    */
   endOf(unit: string): CalendariaMoment {
     const calendarUnit = this._toCalendarUnit(unit);
-    const result = MockCalendariaService.snapToEnd(
-      this.normalized.calendarId,
-      this.calendarDate,
+    this._calendariaDate = CalendarAdapter.snapToEnd(
+      this._calendariaDate,
       calendarUnit
     );
-    this._renormalize(result);
+
     return this;
   }
 
@@ -464,27 +473,15 @@ class CalendariaMoment {
         return this.year() === otherMoment.year();
       case 'month':
         return this.year() === otherMoment.year() && this.month() === otherMoment.month();
-      case 'week': {
-        const calendar = MockCalendariaService.getCalendar(this.normalized.calendarId);
-        const daysPerWeek = calendar?.week.days ?? 7;
-        const thisWeek = Math.floor(this.normalized.absoluteDay / daysPerWeek);
-        const otherWeek = Math.floor(otherMoment.normalized.absoluteDay / daysPerWeek);
-        return thisWeek === otherWeek;
-      }
+      case 'week': 
+        return this.year() === otherMoment.year() && this.week() === otherMoment.week();
+      // these are all the same since we don't track time
       case 'day':
-        return this.normalized.absoluteDay === otherMoment.normalized.absoluteDay;
       case 'hour':
-        return this.normalized.absoluteDay === otherMoment.normalized.absoluteDay &&
-               this.hours() === otherMoment.hours();
       case 'minute':
-        return this.normalized.absoluteDay === otherMoment.normalized.absoluteDay &&
-               this.hours() === otherMoment.hours() &&
-               this.minutes() === otherMoment.minutes();
       case 'second':
-        return this.normalized.absoluteDay === otherMoment.normalized.absoluteDay &&
-               this.hours() === otherMoment.hours() &&
-               this.minutes() === otherMoment.minutes() &&
-               this.seconds() === otherMoment.seconds();
+        return CalendarAdapter.calendariaToAbsolute(this._calendariaDate) ===
+          CalendarAdapter.calendariaToAbsolute(otherMoment._calendariaDate);
       default:
         return this.valueOf() === otherMoment.valueOf();
     }
@@ -526,68 +523,15 @@ class CalendariaMoment {
 
   /**
    * Format this moment using moment.js-style format strings.
-   * Supports: YYYY, YY, MMMM, MMM, MM, M, DDDD, DDD, DD, D, dddd, ddd, dd, d,
-   *           HH, H, hh, h, mm, m, ss, s, A, a
+   * Supports: whatever calendaria does... some may not match
+   *    ISO - will have to watch and correct as needed
    */
   format(fmt?: string): string {
     if (!fmt) {
-      return this.toDate().toISOString();
+      return CalendarAdapter.formatDate(this._calendariaDate, 'ordinalEra');
     }
     
-    const calendar = MockCalendariaService.getCalendar(this.normalized.calendarId);
-    const cal = this.calendarDate;
-    const monthDef = calendar?.months[cal.month];
-    const weekdayIdx = this.weekday();
-    
-    // Replace format tokens
-    let result = fmt;
-    
-    // Year
-    result = result.replace(/YYYY/g, String(cal.year));
-    result = result.replace(/YY/g, String(cal.year).slice(-2));
-    
-    // Month
-    result = result.replace(/MMMM/g, monthDef?.name ?? 'Unknown');
-    result = result.replace(/MMM/g, monthDef?.shortName ?? String(cal.month + 1));
-    result = result.replace(/MM/g, String(cal.month + 1).padStart(2, '0'));
-    result = result.replace(/M(?=[^M]|$)/g, String(cal.month + 1));
-    
-    // Day of month
-    const dayOfYearVal = this.dayOfYear();
-    result = result.replace(/DDDD/g, String(dayOfYearVal).padStart(3, '0'));
-    result = result.replace(/DDD/g, String(dayOfYearVal));
-    result = result.replace(/DD/g, String(cal.day).padStart(2, '0'));
-    result = result.replace(/D(?=[^D]|$)/g, String(cal.day));
-    
-    // Weekday
-    const weekdayIdxNum = weekdayIdx as number;
-    result = result.replace(/dddd/g, calendar?.week.dayNames[weekdayIdxNum] ?? 'Unknown');
-    result = result.replace(/ddd/g, calendar?.week.dayShortNames[weekdayIdxNum] ?? 'Unk');
-    result = result.replace(/dd/g, calendar?.week.dayShortNames[weekdayIdxNum]?.slice(0, 2) ?? 'Un');
-    result = result.replace(/d(?=[^d]|$)/g, String(weekdayIdx));
-    
-    // Hour
-    const hour24 = cal.hour ?? 0;
-    const hour12 = hour24 % 12 || 12;
-    result = result.replace(/HH/g, String(hour24).padStart(2, '0'));
-    result = result.replace(/H(?=[^H]|$)/g, String(hour24));
-    result = result.replace(/hh/g, String(hour12).padStart(2, '0'));
-    result = result.replace(/h(?=[^h]|$)/g, String(hour12));
-    
-    // Minute
-    result = result.replace(/mm/g, String(cal.minute ?? 0).padStart(2, '0'));
-    result = result.replace(/m(?=[^m]|$)/g, String(cal.minute ?? 0));
-    
-    // Second
-    result = result.replace(/ss/g, String(cal.second ?? 0).padStart(2, '0'));
-    result = result.replace(/s(?=[^s]|$)/g, String(cal.second ?? 0));
-    
-    // AM/PM
-    const ampm = hour24 < 12 ? 'AM' : 'PM';
-    result = result.replace(/A/g, ampm);
-    result = result.replace(/a/g, ampm.toLowerCase());
-    
-    return result;
+    return CalendarAdapter.formatDate(this._calendariaDate, fmt);
   }
 
   // ==================== Utility ====================
@@ -623,17 +567,6 @@ class CalendariaMoment {
       'milliseconds': 'millisecond',
     };
     return unitMap[unit] ?? 'day';
-  }
-
-  /**
-   * Re-normalize after modifying calendar date.
-   */
-  private _renormalize(calDate: CalendarDate): void {
-    this._calendarDate = null;
-    this.normalized = MockCalendariaService.normalizeDate(
-      this.normalized.calendarId,
-      calDate
-    );
   }
 
   // ==================== Static Methods ====================

@@ -8,8 +8,7 @@
  */
 
 import CalendarAdapter from './calendarAdapter';
-import MockCalendariaService from '@/utils/mockCalendaria';
-import type { CalendarDate, CalendarDefinition, CalendarTimeUnit, NormalizedDate } from '@/types';
+import type { CalendariaDate, CalendarTimeUnit, } from '@/types';
 
 /**
  * Represents a tick mark on the time axis.
@@ -63,14 +62,14 @@ const CalendarTimeAxis = {
    * @returns Array of background items for vis-timeline
    */
   generateMonthBackgroundItems: (start: Date, end: Date): CalendarBackgroundItem[] => {
-    const calendar = CalendarAdapter.getActiveCalendarDefinition();
-    const calendarId = CalendarAdapter.getActiveCalendarId();
+    const cal = CalendarAdapter.getActiveCalendar();
+
     const items: CalendarBackgroundItem[] = [];
     
-    const startCalDate = CalendarAdapter.jsDateToCalendarDate(start);
-    const endCalDate = CalendarAdapter.jsDateToCalendarDate(end);
+    const startCalDate = CalendarAdapter.jsToCalendaria(start);
+    const endCalDate = CalendarAdapter.jsToCalendaria(end);
     
-    const monthCount = calendar.months.length;
+    const monthCount = cal.months.length;
     let itemIndex = 0;
     
     for (let year = startCalDate.year; year <= endCalDate.year; year++) {
@@ -79,17 +78,13 @@ const CalendarTimeAxis = {
       
       for (let month = startMonth; month <= endMonth; month++) {
         // Check for leap year adjustments if applicable
-        const actualDays = CalendarTimeAxis.getDaysInMonth(calendarId, year, month);
+        const actualDays = CalendarAdapter.daysInMonth(year, month);
         
-        const monthStart: CalendarDate = { year, month, day: 1 };
-        const monthEnd: CalendarDate = { year, month, day: actualDays };
+        const monthStart: CalendariaDate = { year, month, dayOfMonth: 0 };
+        const monthEnd: CalendariaDate = { year, month, dayOfMonth: actualDays - 1 };
         
-        const jsStart = MockCalendariaService.normalizedToJSDate(
-          MockCalendariaService.normalizeDate(calendarId, monthStart)
-        );
-        const jsEnd = MockCalendariaService.normalizedToJSDate(
-          MockCalendariaService.normalizeDate(calendarId, monthEnd)
-        );
+        const jsStart = CalendarAdapter.calendariaToJS(monthStart);
+        const jsEnd = CalendarAdapter.calendariaToJS(monthEnd);
         
         // Alternate background colors for visual distinction
         const isEvenMonth = month % 2 === 0;
@@ -115,25 +110,19 @@ const CalendarTimeAxis = {
    * @returns Array of background items for vis-timeline
    */
   generateYearBackgroundItems: (start: Date, end: Date): CalendarBackgroundItem[] => {
-    const calendar = CalendarAdapter.getActiveCalendarDefinition();
-    const calendarId = CalendarAdapter.getActiveCalendarId();
     const items: CalendarBackgroundItem[] = [];
     
-    const startCalDate = CalendarAdapter.jsDateToCalendarDate(start);
-    const endCalDate = CalendarAdapter.jsDateToCalendarDate(end);
+    const startCalDate = CalendarAdapter.jsToCalendaria(start);
+    const endCalDate = CalendarAdapter.jsToCalendaria(end);
     
     let itemIndex = 0;
     
     for (let year = startCalDate.year; year <= endCalDate.year; year++) {
-      const yearStart: CalendarDate = { year, month: 0, day: 1 };
-      const yearEnd: CalendarDate = { year, month: calendar.months.length - 1, day: 31 };
+      const yearStart: CalendariaDate = { year, month: 0, dayOfMonth: 0 };
+      const yearEnd: CalendariaDate = CalendarAdapter.snapToEnd(yearStart, 'year');
       
-      const jsStart = MockCalendariaService.normalizedToJSDate(
-        MockCalendariaService.normalizeDate(calendarId, yearStart)
-      );
-      const jsEnd = MockCalendariaService.normalizedToJSDate(
-        MockCalendariaService.normalizeDate(calendarId, yearEnd)
-      );
+      const jsStart = CalendarAdapter.calendariaToJS(yearStart);
+      const jsEnd = CalendarAdapter.calendariaToJS(yearEnd);
       
       const isEvenYear = year % 2 === 0;
       
@@ -150,26 +139,6 @@ const CalendarTimeAxis = {
     return items;
   },
 
-  /**
-   * Get the number of days in a specific month.
-   * @param calendarId - Calendar ID
-   * @param _year - Year (unused but kept for future leap year support)
-   * @param month - Month index
-   * @returns Number of days in the month
-   */
-  getDaysInMonth: (calendarId: string, _year: number, month: number): number => {
-    const calendar = MockCalendariaService.getCalendar(calendarId);
-    if (!calendar) {
-      return 30;
-    }
-    
-    const monthDef = calendar.months[month];
-    if (!monthDef) {
-      return 30;
-    }
-    
-    return monthDef.days;
-  },
 
   /**
    * Generate ticks for the timeline axis based on the active calendar.
@@ -177,29 +146,27 @@ const CalendarTimeAxis = {
    * @returns Array of major and minor ticks
    */
   generateTicks: (config: TimeAxisConfig): TimeAxisTick[] => {
-    const calendar = CalendarAdapter.getActiveCalendarDefinition();
-    const calendarId = CalendarAdapter.getActiveCalendarId();
+    const start = CalendarAdapter.jsToCalendaria(config.start);
+    const end = CalendarAdapter.jsToCalendaria(config.end); 
     
     // Determine the best zoom level based on the visible range
-    const zoomLevel = CalendarAdapter.getBestZoomLevel(config.start, config.end);
+    const zoomLevel = CalendarAdapter.getBestZoomLevel(start, end);
     const majorUnit = zoomLevel.unit;
     const minorUnit = zoomLevel.snapUnit;
     
     // Calculate approximate days visible
-    const daysVisible = CalendarAdapter.getDaysBetween(config.start, config.end);
+    const daysVisible = CalendarAdapter.daysBetween(CalendarAdapter.jsToCalendaria(config.start), CalendarAdapter.jsToCalendaria(config.end));
     const pixelsPerDay = config.width / daysVisible;
     
     // Generate ticks based on the zoom level
     const ticks: TimeAxisTick[] = [];
     
     // Get calendar-aware start and end dates
-    const startCalDate = CalendarAdapter.jsDateToCalendarDate(config.start);
-    const endCalDate = CalendarAdapter.jsDateToCalendarDate(config.end);
+    const startCalDate = CalendarAdapter.jsToCalendaria(config.start);
+    const endCalDate = CalendarAdapter.jsToCalendaria(config.end);
     
     // Generate minor ticks
     const minorTicks = CalendarTimeAxis.generateMinorTicks(
-      calendar,
-      calendarId,
       startCalDate,
       endCalDate,
       minorUnit,
@@ -209,8 +176,6 @@ const CalendarTimeAxis = {
     
     // Generate major ticks
     const majorTicks = CalendarTimeAxis.generateMajorTicks(
-      calendar,
-      calendarId,
       startCalDate,
       endCalDate,
       majorUnit,
@@ -243,10 +208,8 @@ const CalendarTimeAxis = {
    * Generate minor ticks at the appropriate calendar boundaries.
    */
   generateMinorTicks: (
-    calendar: CalendarDefinition,
-    calendarId: string,
-    startCalDate: CalendarDate,
-    endCalDate: CalendarDate,
+    startCalDate: CalendariaDate,
+    endCalDate: CalendariaDate,
     unit: CalendarTimeUnit,
     pixelsPerDay: number,
     minTickSpacing: number
@@ -255,30 +218,30 @@ const CalendarTimeAxis = {
     
     switch (unit) {
       case 'year':
-        CalendarTimeAxis.generateYearTicks(calendar, calendarId, startCalDate, endCalDate, ticks);
+        CalendarTimeAxis.generateYearTicks(startCalDate, endCalDate, ticks);
         break;
         
       case 'month':
         CalendarTimeAxis.generateMonthTicks(
-          calendar, calendarId, startCalDate, endCalDate, ticks, 'month', false
+          startCalDate, endCalDate, ticks, 'month', false
         );
         break;
         
       case 'week':
         CalendarTimeAxis.generateWeekTicks(
-          calendar, calendarId, startCalDate, endCalDate, ticks, pixelsPerDay, minTickSpacing
+          startCalDate, endCalDate, ticks, pixelsPerDay, minTickSpacing
         );
         break;
         
       case 'day':
         CalendarTimeAxis.generateDayTicks(
-          calendar, calendarId, startCalDate, endCalDate, ticks, pixelsPerDay, minTickSpacing
+          startCalDate, endCalDate, ticks, pixelsPerDay, minTickSpacing
         );
         break;
         
       default:
         CalendarTimeAxis.generateDayTicks(
-          calendar, calendarId, startCalDate, endCalDate, ticks, pixelsPerDay, minTickSpacing
+          startCalDate, endCalDate, ticks, pixelsPerDay, minTickSpacing
         );
     }
     
@@ -289,10 +252,8 @@ const CalendarTimeAxis = {
    * Generate major ticks at larger calendar boundaries.
    */
   generateMajorTicks: (
-    calendar: CalendarDefinition,
-    calendarId: string,
-    startCalDate: CalendarDate,
-    endCalDate: CalendarDate,
+    startCalDate: CalendariaDate,
+    endCalDate: CalendariaDate,
     unit: CalendarTimeUnit,
     pixelsPerDay: number,
     minTickSpacing: number
@@ -302,13 +263,11 @@ const CalendarTimeAxis = {
     switch (unit) {
       case 'year':
         for (let year = startCalDate.year; year <= endCalDate.year; year++) {
-          const tickDate: CalendarDate = { year, month: 0, day: 1 };
-          const jsDate = MockCalendariaService.normalizedToJSDate(
-            MockCalendariaService.normalizeDate(calendarId, tickDate)
-          );
+          const tickDate: CalendariaDate = { year, month: 0, dayOfMonth: 0 };
+          const jsDate = CalendarAdapter.calendariaToJS(tickDate);
           ticks.push({
             date: jsDate,
-            label: calendar.epochDescription ?? String(year),
+            label: CalendarAdapter.formatDate(tickDate, 'era') || CalendarAdapter.formatDate(tickDate, 'y'),
             unit: 'year',
           });
         }
@@ -316,10 +275,8 @@ const CalendarTimeAxis = {
         
       case 'month':
         for (let year = startCalDate.year; year <= endCalDate.year; year++) {
-          const tickDate: CalendarDate = { year, month: 0, day: 1 };
-          const jsDate = MockCalendariaService.normalizedToJSDate(
-            MockCalendariaService.normalizeDate(calendarId, tickDate)
-          );
+          const tickDate: CalendariaDate = { year, month: 0, dayOfMonth: 0 };
+          const jsDate = CalendarAdapter.calendariaToJS(tickDate);
           ticks.push({
             date: jsDate,
             label: String(year),
@@ -331,13 +288,13 @@ const CalendarTimeAxis = {
       case 'week':
       case 'day':
         CalendarTimeAxis.generateMonthTicks(
-          calendar, calendarId, startCalDate, endCalDate, ticks, 'month', true
+          startCalDate, endCalDate, ticks, 'month', true
         );
         break;
         
       default:
         CalendarTimeAxis.generateDayTicks(
-          calendar, calendarId, startCalDate, endCalDate, ticks, pixelsPerDay, minTickSpacing
+          startCalDate, endCalDate, ticks, pixelsPerDay, minTickSpacing
         );
     }
     
@@ -348,17 +305,13 @@ const CalendarTimeAxis = {
    * Generate ticks at year boundaries.
    */
   generateYearTicks: (
-    _calendar: CalendarDefinition,
-    calendarId: string,
-    startCalDate: CalendarDate,
-    endCalDate: CalendarDate,
+    startCalDate: CalendariaDate,
+    endCalDate: CalendariaDate,
     ticks: Omit<TimeAxisTick, 'isMajor'>[]
   ): void => {
     for (let year = startCalDate.year; year <= endCalDate.year; year++) {
-      const tickDate: CalendarDate = { year, month: 0, day: 1 };
-      const jsDate = MockCalendariaService.normalizedToJSDate(
-        MockCalendariaService.normalizeDate(calendarId, tickDate)
-      );
+      const tickDate: CalendariaDate = { year, month: 0, dayOfMonth: 0 };
+      const jsDate = CalendarAdapter.calendariaToJS(tickDate);
       ticks.push({
         date: jsDate,
         label: String(year),
@@ -371,30 +324,25 @@ const CalendarTimeAxis = {
    * Generate ticks at each month boundary in the calendar.
    */
   generateMonthTicks: (
-    calendar: CalendarDefinition,
-    calendarId: string,
-    startCalDate: CalendarDate,
-    endCalDate: CalendarDate,
+    startCalDate: CalendariaDate,
+    endCalDate: CalendariaDate,
     ticks: Omit<TimeAxisTick, 'isMajor'>[],
     unit: CalendarTimeUnit,
     isMajor: boolean
   ): void => {
-    const monthCount = calendar.months.length;
+    const monthCount = CalendarAdapter.monthsInYear();
     
     for (let year = startCalDate.year; year <= endCalDate.year; year++) {
       const startMonth = year === startCalDate.year ? startCalDate.month : 0;
       const endMonth = year === endCalDate.year ? endCalDate.month : monthCount - 1;
       
       for (let month = startMonth; month <= endMonth; month++) {
-        const tickDate: CalendarDate = { year, month, day: 1 };
-        const jsDate = MockCalendariaService.normalizedToJSDate(
-          MockCalendariaService.normalizeDate(calendarId, tickDate)
-        );
+        const tickDate: CalendariaDate = { year, month, dayOfMonth: 0 };
+        const jsDate = CalendarAdapter.calendariaToJS(tickDate);
         
-        const monthDef = calendar.months[month];
         const label = isMajor 
-          ? `${monthDef?.name ?? 'Unknown'} ${year}`
-          : (monthDef?.shortName ?? String(month + 1));
+          ? CalendarAdapter.formatDate(tickDate, 'MMMM y')
+          : CalendarAdapter.formatDate(tickDate, 'MMM');
         
         ticks.push({
           date: jsDate,
@@ -409,27 +357,21 @@ const CalendarTimeAxis = {
    * Generate ticks at week boundaries.
    */
   generateWeekTicks: (
-    calendar: CalendarDefinition,
-    calendarId: string,
-    startCalDate: CalendarDate,
-    endCalDate: CalendarDate,
+    startCalDate: CalendariaDate,
+    endCalDate: CalendariaDate,
     ticks: Omit<TimeAxisTick, 'isMajor'>[],
     pixelsPerDay: number,
     minTickSpacing: number
   ): void => {
-    const weekLength = calendar.week.days;
     const daysPerTick = Math.max(1, Math.floor(minTickSpacing / pixelsPerDay));
     
-    const startNorm = MockCalendariaService.normalizeDate(calendarId, startCalDate);
-    const weekStart = Math.floor(startNorm.absoluteDay / weekLength) * weekLength;
+    const weekDayIdx = parseInt(CalendarAdapter.formatDate(startCalDate, 'e'));
+    const weekStart = CalendarAdapter.calendariaToAbsolute(startCalDate) - weekDayIdx;
     
-    const endNorm = MockCalendariaService.normalizeDate(calendarId, endCalDate);
-    
-    for (let day = weekStart; day <= endNorm.absoluteDay; day += daysPerTick) {
-      const normDate: NormalizedDate = { absoluteDay: day, dayFraction: 0, calendarId };
-      const jsDate = MockCalendariaService.normalizedToJSDate(normDate);
-      
-      const weekNumber = Math.floor(day / weekLength) + 1;
+    for (let day = weekStart; day <= CalendarAdapter.calendariaToAbsolute(endCalDate); day += daysPerTick) {
+      const calDate: CalendariaDate = CalendarAdapter.absoluteToCalendaria(day);
+      const jsDate = CalendarAdapter.calendariaToJS(calDate);
+      const weekNumber = CalendarAdapter.formatDate(calDate, 'w');
       ticks.push({
         date: jsDate,
         label: `W${weekNumber}`,
@@ -442,30 +384,22 @@ const CalendarTimeAxis = {
    * Generate ticks at day boundaries.
    */
   generateDayTicks: (
-    calendar: CalendarDefinition,
-    calendarId: string,
-    startCalDate: CalendarDate,
-    endCalDate: CalendarDate,
+    startCalDate: CalendariaDate,
+    endCalDate: CalendariaDate,
     ticks: Omit<TimeAxisTick, 'isMajor'>[],
     pixelsPerDay: number,
     minTickSpacing: number
   ): void => {
     const daysPerTick = Math.max(1, Math.floor(minTickSpacing / pixelsPerDay));
     
-    const startNorm = MockCalendariaService.normalizeDate(calendarId, startCalDate);
-    const endNorm = MockCalendariaService.normalizeDate(calendarId, endCalDate);
-    
-    for (let day = startNorm.absoluteDay; day <= endNorm.absoluteDay; day += daysPerTick) {
-      const normDate: NormalizedDate = { absoluteDay: day, dayFraction: 0, calendarId };
-      const jsDate = MockCalendariaService.normalizedToJSDate(normDate);
-      const calDate = MockCalendariaService.denormalizeDate(calendarId, normDate);
+    for (let day = CalendarAdapter.calendariaToAbsolute(startCalDate); day <= CalendarAdapter.calendariaToAbsolute(endCalDate); day += daysPerTick) {
+      const calDate = CalendarAdapter.absoluteToCalendaria(day);
+      const jsDate = CalendarAdapter.calendariaToJS(calDate);
       
-      const weekdayIndex = MockCalendariaService.getWeekday(calendarId, calDate);
-      const weekdayName = calendar.week.dayShortNames[weekdayIndex] ?? String(calDate.day);
-      
+      const weekdayName = CalendarAdapter.formatDate(calDate, 'EEEE');
       ticks.push({
         date: jsDate,
-        label: `${weekdayName} ${calDate.day}`,
+        label: `${weekdayName} ${calDate.dayOfMonth+1}`,
         unit: 'day',
       });
     }

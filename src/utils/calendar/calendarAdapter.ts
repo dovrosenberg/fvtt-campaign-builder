@@ -3,158 +3,299 @@
  * Bridges the gap between arbitrary calendar systems and vis-timeline's JS Date-based API.
  */
 
-import MockCalendariaService from '@/utils/mockCalendaria';
-import type { CalendarDate, CalendarDefinition, CalendarZoomLevel, CalendarTimeUnit } from '@/types';
+import type { CalendariaDate, CalendarZoomLevel, CalendarTimeUnit, CalendariaCategory, CalendariaAPI, CalendariaCalendar } from '@/types';
+
+/**
+ * Get the Calendaria API, throwing if not available.
+ * @returns Calendaria API object
+ * @throws Error if Calendaria module is not active
+ */
+function requireCalendariaApi(): CalendariaAPI {
+  const calendaria = game.modules.get('calendaria');
+
+  if (!calendaria?.active)
+    throw new Error('Calendaria module is not active. The timeline requires Calendaria to be installed and enabled.');
+
+  // @ts-ignore
+  return (CALENDARIA as any).api as CalendariaAPI;
+}
 
 /**
  * Adapter for integrating arbitrary calendars with vis-timeline.
  * Handles conversion between calendar dates and JS Dates, formatting for axis labels,
  * and providing calendar-aware configuration for the timeline.
  */
-const CalendarAdapter = {
+export const CalendarAdapter = {
   /**
-   * Get the currently active calendar ID.
-   * @returns Active calendar ID
-   */
-  getActiveCalendarId: (): string => {
-    return MockCalendariaService.getActiveCalendar().id;
-  },
-
-  /**
-   * Get the currently active calendar definition.
-   * @returns Active calendar definition
-   */
-  getActiveCalendarDefinition: (): CalendarDefinition => {
-    return MockCalendariaService.getActiveCalendarDefinition();
-  },
 
   /**
    * Convert a Calendaria date (from notes) to a JavaScript Date for vis-timeline.
    * @param date - Calendaria date { year, month, dayOfMonth }
    * @returns JavaScript Date
    */
-  calendariaDateToJSDate: (date: { year: number; month: number; dayOfMonth: number }): Date => {
-    const calendarDate: CalendarDate = {
-      year: date.year,
-      month: date.month,
-      day: date.dayOfMonth,
-    };
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    const normalized = MockCalendariaService.normalizeDate(calendarId, calendarDate);
-    return MockCalendariaService.normalizedToJSDate(normalized);
+  calendariaToJS: (calendariaDate: CalendariaDate): Date => {
+    const api = requireCalendariaApi();
+    
+    // get the timestamp (in seconds)
+    const timestamp = api.dateToTimestamp(calendariaDate);
+
+    // Calendaria returns world time in seconds, convert to JS Date (ms)
+    return new Date(timestamp * 1000);
   },
 
   /**
-   * Convert a JavaScript Date to a Calendaria date.
-   * @param jsDate - JavaScript Date
-   * @returns Calendaria date { year, month, dayOfMonth }
+   * Convert a Javascript date to a Calendaria Date.
+   * Uses Calendaria timestamp conversion.
+   * @param jsDate - Javascript date
+   * @returns Calendaria Date
+   * @throws Error if Calendaria is not available
    */
-  jsDateToCalendariaDate: (jsDate: Date): { year: number; month: number; dayOfMonth: number } => {
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    const normalized = MockCalendariaService.jsDateToNormalized(calendarId, jsDate);
-    const calendarDate = MockCalendariaService.denormalizeDate(calendarId, normalized);
-    return {
-      year: calendarDate.year,
-      month: calendarDate.month,
-      dayOfMonth: calendarDate.day,
-    };
+  jsToCalendaria: (jsDate: Date): CalendariaDate => {
+    const api = requireCalendariaApi();
+    
+    // get the timestamp (in ms)
+    const timestamp = jsDate.getTime();
+
+    return api.timestampToDate(timestamp / 1000);
   },
 
-  /**
-   * Convert a JavaScript Date to a full CalendarDate.
-   * @param jsDate - JavaScript Date
-   * @returns CalendarDate with time components
-   */
-  jsDateToCalendarDate: (jsDate: Date): CalendarDate => {
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    const normalized = MockCalendariaService.jsDateToNormalized(calendarId, jsDate);
-    return MockCalendariaService.denormalizeDate(calendarId, normalized);
-  },
-
-  /**
-   * Format a JavaScript Date for display using the active calendar.
-   * @param jsDate - JavaScript Date
-   * @param format - Format string (e.g., 'MMMM DD, YYYY')
-   * @returns Formatted date string
-   */
-  formatDate: (jsDate: Date, format: string): string => {
-    const calendarDate = CalendarAdapter.jsDateToCalendarDate(jsDate);
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    return MockCalendariaService.formatDate(calendarId, calendarDate, format);
+  formatDate: (date: CalendariaDate, formatOrPreset: string): string => {
+    const api = requireCalendariaApi();
+    
+    return api.formatDate(date, formatOrPreset);
   },
 
   /**
    * Format a date for timeline axis minor label.
-   * @param jsDate - JavaScript Date
+   * @param jsDate - date
    * @param unit - Current zoom unit
    * @returns Formatted string for minor axis label
    */
   formatAxisMinorLabel: (jsDate: Date, unit: CalendarTimeUnit): string => {
-    const calendarDate = CalendarAdapter.jsDateToCalendarDate(jsDate);
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    return MockCalendariaService.formatAxisMinorLabel(calendarId, calendarDate, unit);
+    const date = CalendarAdapter.jsToCalendaria(jsDate); 
+
+    switch (unit) {
+      case 'year':
+        return String(date.year);
+      case 'month':
+        return CalendarAdapter.formatDate(date, 'MMM');
+      case 'week':
+        return `W${CalendarAdapter.formatDate(date, 'w')}`;
+      case 'day':
+        return CalendarAdapter.formatDate(date, 'EEE');
+      case 'hour':
+        return CalendarAdapter.formatDate(date, 'H');
+      case 'minute':
+        return CalendarAdapter.formatDate(date, 'm');
+      case 'second':
+        return CalendarAdapter.formatDate(date, 's');
+      default:
+        return String(date.dayOfMonth+1);
+    }
   },
 
   /**
    * Format a date for timeline axis major label.
-   * @param jsDate - JavaScript Date
+   * @param jsDate - date
    * @param unit - Current zoom unit
    * @returns Formatted string for major axis label
    */
   formatAxisMajorLabel: (jsDate: Date, unit: CalendarTimeUnit): string => {
-    const calendarDate = CalendarAdapter.jsDateToCalendarDate(jsDate);
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    return MockCalendariaService.formatAxisMajorLabel(calendarId, calendarDate, unit);
+    const date = CalendarAdapter.jsToCalendaria(jsDate);
+
+    switch (unit) {
+      case 'year':
+        return CalendarAdapter.formatDate(date, 'era');
+      case 'month':
+        return String(date.year);
+      case 'week':
+      case 'day':
+      case 'hour':
+      case 'minute':
+      case 'second':
+        return CalendarAdapter.formatDate(date, 'MMMM y');
+      default:
+        return String(date.year);
+    }
   },
 
   /**
-   * Get the best zoom level for a given date range.
-   * @param startDate - Start JavaScript Date
-   * @param endDate - End JavaScript Date
+   * Get the appropriate zoom level for a given time range.
+   * @param calendarId - Calendar ID
+   * @param startDate - Start date
+   * @param endDate - End date
    * @returns Best matching zoom level
    */
-  getBestZoomLevel: (startDate: Date, endDate: Date): CalendarZoomLevel => {
-    const startCalendarDate = CalendarAdapter.jsDateToCalendarDate(startDate);
-    const endCalendarDate = CalendarAdapter.jsDateToCalendarDate(endDate);
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    return MockCalendariaService.getBestZoomLevel(calendarId, startCalendarDate, endCalendarDate);
+  getBestZoomLevel: (startDate: CalendariaDate, endDate: CalendariaDate): CalendarZoomLevel => {
+    const api = requireCalendariaApi();
+    
+    const daysInRange = api.daysBetween(startDate, endDate);
+    
+    for (const level of CalendarAdapter.getZoomLevels()) {
+      const levelDays = level.visibleUnits * level.scale;
+      if (daysInRange <= levelDays * 2) {
+        return level;
+      }
+    }
+    
+    return CalendarAdapter.getZoomLevels()[0];
   },
 
   /**
-   * Get zoom levels for the active calendar.
+   * Get the number of days in a specific month.
+   * @param year - Needed to check for leap year
+   * @param month - Month index
+   * @returns Number of days in the month
+   */
+  daysInMonth: (year: number, month: number): number => {
+    // TODO: how do i figure out if it's a leapyear
+    const isLeapYear = false;
+    const api = requireCalendariaApi();
+
+    const cal = api.getActiveCalendar();
+    
+    if (!cal)
+      throw new Error('No active calendar in CalendarAdapter.daysInMonth');
+
+    const monthDef = cal.months[month];
+    if (!monthDef)
+      throw new Error('No month definition in CalendarAdapter.daysInMonth');
+
+    if (isLeapYear && monthDef.leapDays)
+      return monthDef.leapDays;
+
+    return monthDef.days;
+  },
+
+  /**
+   * Get the number of months in a specific year.
+   * @returns Number of months in the year
+   */
+  monthsInYear: (): number => {
+    const api = requireCalendariaApi();
+
+    const cal = api.getActiveCalendar();
+
+    if (!cal)
+      throw new Error('No active calendar in CalendarAdapter.monthsInYear');
+    
+    return cal.months.length;
+  },
+
+  getActiveCalendar: (): CalendariaCalendar => {
+    const api = requireCalendariaApi();
+
+    const cal = api.getActiveCalendar();
+
+    if (!cal)
+      throw new Error('No active calendar in CalendarAdapter.getActiveCalendar');
+
+    return cal;
+  },
+
+  /**
+   * Get zoom levels for a calendar.
+   * @param calendarId - Calendar ID
    * @returns Array of zoom levels
    */
   getZoomLevels: (): CalendarZoomLevel[] => {
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    return MockCalendariaService.getZoomLevels(calendarId);
+    const api = requireCalendariaApi();
+
+    const cal = api.getActiveCalendar();
+    if (!cal) {
+      return [];
+    }
+
+    const daysPerYear = cal.days.daysPerYear;
+    const daysPerWeek = daysPerYear / cal.days.values.length;
+    const monthsPerYear = cal.months.length;
+    const numMonths = daysPerYear / monthsPerYear;
+    const daysPerMonth = daysPerYear / numMonths;
+
+    return [
+      { id: 'year', name: 'Years', unit: 'year', visibleUnits: monthsPerYear - 2, snapUnit: 'month', scale: daysPerYear },
+      { id: 'month', name: 'Months', unit: 'month', visibleUnits: numMonths, snapUnit: 'day', scale: daysPerMonth },
+      { id: 'week', name: 'Weeks', unit: 'week', visibleUnits: daysPerWeek + 1, snapUnit: 'day', scale: daysPerWeek },
+      { id: 'day', name: 'Days', unit: 'day', visibleUnits: 30, snapUnit: 'day', scale: 1 },
+    ];
   },
 
   /**
-   * Snap a JavaScript Date to the start of a calendar unit.
-   * @param jsDate - JavaScript Date to snap
-   * @param unit - Unit to snap to
-   * @returns Snapped JavaScript Date
+   * Get all categories.
+   * @returns Array of category definitions
    */
-  snapToStart: (jsDate: Date, unit: CalendarTimeUnit): Date => {
-    const calendarDate = CalendarAdapter.jsDateToCalendarDate(jsDate);
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    const snappedDate = MockCalendariaService.snapToStart(calendarId, calendarDate, unit);
-    const normalized = MockCalendariaService.normalizeDate(calendarId, snappedDate);
-    return MockCalendariaService.normalizedToJSDate(normalized);
+  getCategories: (): CalendariaCategory[] => {
+    const api = requireCalendariaApi();
+
+    return api.getCategories();
   },
 
   /**
-   * Snap a JavaScript Date to the end of a calendar unit.
-   * @param jsDate - JavaScript Date to snap
+   * Snap a date to the start of a calendar unit.
+   * @param calendarId - Calendar ID
+   * @param date - Date to snap
    * @param unit - Unit to snap to
-   * @returns Snapped JavaScript Date
+   * @returns Snapped date at start of unit
    */
-  snapToEnd: (jsDate: Date, unit: CalendarTimeUnit): Date => {
-    const calendarDate = CalendarAdapter.jsDateToCalendarDate(jsDate);
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    const snappedDate = MockCalendariaService.snapToEnd(calendarId, calendarDate, unit);
-    const normalized = MockCalendariaService.normalizeDate(calendarId, snappedDate);
-    return MockCalendariaService.normalizedToJSDate(normalized);
+  snapToStart: (date: CalendariaDate, unit: CalendarTimeUnit): CalendariaDate => {
+    const api = requireCalendariaApi();
+
+    switch (unit) {
+      case 'year':
+        return { year: date.year, month: 0, dayOfMonth: 0 };
+      case 'month':
+        return { year: date.year, month: date.month, dayOfMonth: 0 };
+      case 'week': {
+        const weekday = parseInt(CalendarAdapter.formatDate(date, 'e'));
+        return api.addDays(date, -weekday);
+      }
+      // these are the same because we don't track time
+      case 'day':
+      case 'hour':
+      case 'minute':
+      default:
+        return { ...date };
+    }
+  },
+
+  /**
+   * Snap a date to the end of a calendar unit.
+   * @param calendarId - Calendar ID
+   * @param date - Date to snap
+   * @param unit - Unit to snap to
+   * @returns Snapped date at end of unit
+   */
+  snapToEnd: (date: CalendariaDate, unit: CalendarTimeUnit): CalendariaDate => {
+    const api = requireCalendariaApi();
+    const cal = api.getActiveCalendar();
+
+    if (!cal)
+      throw new Error('Tried to CalendarAdapter.snapToEnd without an active calendar');
+    
+    // generally, the approach is add one, go to the beginning, go back one
+    switch (unit) {
+      case 'year': {
+        let result = api.addYears(date, 1);
+        result = CalendarAdapter.snapToStart(result, 'year');
+        return api.addDays(result, -1); 
+      }
+      case 'month': {
+        let result = api.addMonths(date, 1);
+        result = CalendarAdapter.snapToStart(result, 'month');
+        return api.addDays(result, -1); 
+      }
+      case 'week': {        
+        const daysInWeek = cal.days.values.length;
+        const weekday = parseInt(CalendarAdapter.formatDate(date, 'e'));
+        return api.addDays(date, (daysInWeek - 1) - weekday);
+      }
+      // these are all the same since we don't track time
+      case 'day':
+      case 'hour':
+      case 'minute':
+      default:
+        return { ...date };
+    }
   },
 
   /**
@@ -213,56 +354,69 @@ const CalendarAdapter = {
     };
   },
 
-  /**
-   * Get the weekday name for a JavaScript Date using the active calendar.
-   * @param jsDate - JavaScript Date
-   * @returns Weekday name
-   */
-  getWeekdayName: (jsDate: Date): string => {
-    const calendar = CalendarAdapter.getActiveCalendarDefinition();
-    const calendarDate = CalendarAdapter.jsDateToCalendarDate(jsDate);
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    const weekdayIndex = MockCalendariaService.getWeekday(calendarId, calendarDate);
-    return calendar.week.dayNames[weekdayIndex] ?? '';
+  daysBetween: (start: CalendariaDate, end: CalendariaDate): number => {
+    const api = requireCalendariaApi();
+    return api.daysBetween(start, end);
   },
 
-  /**
-   * Get the month name for a JavaScript Date using the active calendar.
-   * @param jsDate - JavaScript Date
-   * @returns Month name
-   */
-  getMonthName: (jsDate: Date): string => {
-    const calendar = CalendarAdapter.getActiveCalendarDefinition();
-    const calendarDate = CalendarAdapter.jsDateToCalendarDate(jsDate);
-    const month = calendar.months[calendarDate.month];
-    return month?.name ?? '';
+  monthsBetween: (start: CalendariaDate, end: CalendariaDate): number => {
+    const api = requireCalendariaApi();
+    return api.monthsBetween(start, end);
   },
 
-  /**
-   * Calculate the number of days between two JavaScript Dates using the active calendar.
-   * @param start - Start date
-   * @param end - End date
-   * @returns Number of days between dates
-   */
-  getDaysBetween: (start: Date, end: Date): number => {
-    const startCalendarDate = CalendarAdapter.jsDateToCalendarDate(start);
-    const endCalendarDate = CalendarAdapter.jsDateToCalendarDate(end);
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    return MockCalendariaService.getDaysBetween(calendarId, startCalendarDate, endCalendarDate);
+  yearsBetween: (start: CalendariaDate, end: CalendariaDate): number => {
+    const api = requireCalendariaApi();
+    return api.yearsBetween(start, end);
   },
 
-  /**
-   * Add a duration to a JavaScript Date using the active calendar.
-   * @param jsDate - Starting date
-   * @param duration - Duration to add
-   * @returns Resulting JavaScript Date
-   */
-  addDuration: (jsDate: Date, duration: { years?: number; months?: number; weeks?: number; days?: number; hours?: number; minutes?: number; seconds?: number }): Date => {
-    const calendarDate = CalendarAdapter.jsDateToCalendarDate(jsDate);
-    const calendarId = CalendarAdapter.getActiveCalendarId();
-    const resultDate = MockCalendariaService.addDuration(calendarId, calendarDate, duration);
-    const normalized = MockCalendariaService.normalizeDate(calendarId, resultDate);
-    return MockCalendariaService.normalizedToJSDate(normalized);
+  addYears: (date: CalendariaDate, years: number): CalendariaDate => {
+    const api = requireCalendariaApi();
+    return api.addYears(date, years);
+  },
+
+  addMonths: (date: CalendariaDate, months: number): CalendariaDate => {
+    const api = requireCalendariaApi();
+    return api.addMonths(date, months);
+  },
+
+  addDays: (date: CalendariaDate, days: number): CalendariaDate => {
+    const api = requireCalendariaApi();
+    return api.addDays(date, days);
+  },
+
+
+  /** Get the number of days since 0/0/0 
+   * 
+   * @param date - The date to calculate to
+   * @returns The number of days since 0/0/0 (I suppose negative if before)
+  */
+  calendariaToAbsolute: (date: CalendariaDate): number => {
+    const api = requireCalendariaApi();
+    
+    return api.daysBetween({ year: 0, month: 0, dayOfMonth: 0 }, date);
+  },
+  
+  /** 
+   * @param absoluteDay - The number of days since 0/0/0 (that being day 0)
+   * @returns The calendar date
+  */
+  absoluteToCalendaria: (absoluteDay: number): CalendariaDate => {
+    const api = requireCalendariaApi();
+    
+    return api.addDays({ year: 0, month: 0, dayOfMonth: 0 }, absoluteDay);
+  },
+
+  dayOfYear: (date: CalendariaDate): number => {
+    const yearStart: CalendariaDate = { year: date.year, month: 0, dayOfMonth: 0 };
+    return CalendarAdapter.calendariaToAbsolute(date) - CalendarAdapter.calendariaToAbsolute(yearStart) + 1;
+  },
+
+  getCurrentDate: (): CalendariaDate => {
+    const api = requireCalendariaApi();
+
+    const dateTime = api.getCurrentDateTime();
+
+    return { year: dateTime.year, month: dateTime.month, dayOfMonth: dateTime.dayOfMonth };
   },
 
   /**
@@ -272,7 +426,10 @@ const CalendarAdapter = {
    * @returns Snap function for vis-timeline
    */
   createSnapFunction: (snapUnit: CalendarTimeUnit): ((date: Date) => Date) => {
-    return (date: Date) => CalendarAdapter.snapToStart(date, snapUnit);
+    return (date: Date): Date => {
+      const calDate = CalendarAdapter.jsToCalendaria(date);
+      return CalendarAdapter.calendariaToJS(CalendarAdapter.snapToStart(calDate, snapUnit));
+    }
   },
 };
 

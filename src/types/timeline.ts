@@ -35,12 +35,6 @@ export const TIMELINE_DEFAULT: TimelineConfig = {
   filters: TIMELINE_DEFAULT_FILTERS,
 } as const;
 
-export type CalendariaDate = {
-  year: number;
-  month: number;
-  dayOfMonth: number;
-}
-
 /** Configuration for a single timeline */
 export interface TimelineConfig {
   /** Filters applied to the timeline */
