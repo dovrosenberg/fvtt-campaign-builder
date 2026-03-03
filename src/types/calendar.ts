@@ -3,6 +3,8 @@
  * These represent arbitrary calendar systems (not just Gregorian).
  */
 
+import { CalendariaRawNote } from './timeline';
+
 /** Month definition in a calendar */
 export interface CalendarMonth {
   /** Month index (0-based) */
@@ -76,50 +78,16 @@ export interface CalendarDefinition {
   leapDays?: number;
 }
 
-/** Result of date arithmetic */
-export interface DateArithmeticResult {
-  /** The resulting calendar date */
-  date: CalendariaDate;
-  /** Whether the result crossed a year boundary */
-  crossedYear: boolean;
-  /** Whether the result crossed a month boundary */
-  crossedMonth: boolean;
-}
-
-/** Time axis tick information */
-export interface TimeAxisTick {
-  /** Position in pixels */
-  position: number;
-  /** JS Date for vis-timeline compatibility */
-  date: Date;
-  /** Calendar date representation */
-  calendarDate: CalendariaDate;
-  /** Formatted label for this tick */
-  label: string;
-  /** Whether this is a major tick (year/month boundary) */
-  isMajor: boolean;
-  /** Unit this tick represents */
-  unit: CalendarTimeUnit;
-}
-
-/** Configuration for time axis formatting */
-export interface TimeAxisFormatConfig {
-  /** Calendar to use for formatting */
-  calendarId: string;
-  /** Current zoom level */
-  zoomLevel: CalendarZoomLevel;
-  /** Locale for formatting */
-  locale?: string;
-  /** Whether to show weekday names */
-  showWeekdays: boolean;
-  /** Whether to show year on major ticks */
-  showYear: boolean;
-}
-
 export type CalendariaDate = {
   year: number;
   month: number;
-  dayOfMonth: number;
+  day: number;  // 1-indexed
+  /** Hour (0-23). Undefined defaults to 0 (midnight). */
+  hour?: number;
+  /** Minute (0-59). Undefined defaults to 0. */
+  minute?: number;
+  /** Second (0-59). Undefined defaults to 0. */
+  second?: number;
 }
 
 export type CalendariaCategory = {
@@ -188,15 +156,6 @@ export interface CalendariaCalendar {
   };
 }
 
-/** Calendaria date-time with time components */
-export interface CalendariaDateTime extends CalendariaDate {
-  /** Hour (0-23) */
-  hour: number;
-  /** Minute (0-59) */
-  minute: number;
-  /** Second (0-59) */
-  second: number;
-}
 
 /** Calendaria API interface - methods used from requireCalendariaApi() */
 export interface CalendariaAPI {
@@ -221,6 +180,9 @@ export interface CalendariaAPI {
   /** Get a specific calendar by ID */
   getCalendar: (id: string) => CalendarDefinition | null;
 
+  /** Gets notes */
+  getNotesInRange: (startDate: CalendariaDate, endDate: CalendariaDate) => CalendariaRawNote[];
+
   /** Calculate number of days between two dates */
   daysBetween: (start: CalendariaDate, end: CalendariaDate) => number;
 
@@ -240,7 +202,7 @@ export interface CalendariaAPI {
   addDays: (date: CalendariaDate, days: number) => CalendariaDate;
 
   /** Get the current date-time */
-  getCurrentDateTime: () => CalendariaDateTime;
+  getCurrentDateTime: () => CalendariaDate;
 
   /** Get the day of week index (0-based) for a date */
   dayOfWeek: (date: CalendariaDate) => number;

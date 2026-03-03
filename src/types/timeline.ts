@@ -48,7 +48,43 @@ export interface TimelineConfig {
   // displayOptions?: TimelineDisplayOptions;
 }
 
-/** A Calendaria note (mock structure for POC) */
+/** A Calendaria note */
+export interface CalendariaRawNote {
+  /** Unique identifier */
+  id: string;
+
+  /** Note name/title */
+  name: string;
+
+  /** Flag data */
+  flagData: {
+    /** Note content (HTML) */
+    content: string;
+
+    /** Start date components */
+    startDate: { year: number; month: number; day: number };
+
+    /** End date components (for range events) */
+    endDate?: { year: number; month: number; day: number };
+
+    /** Event categories (array of category IDs) */
+    categories: string[];
+
+    /** Icon class for display */
+    icon: string;
+
+    /** Color for timeline item */
+    color: string;
+
+    /** Is this GM-only */
+    gmOnly: boolean;
+
+    // /** Recurrence type */
+    // repeat: TimelineRecurrenceType;
+  }
+}
+
+/** A Calendaria note */
 export interface CalendariaNote {
   /** Unique identifier */
   id: string;
@@ -65,8 +101,8 @@ export interface CalendariaNote {
   /** End date components (for range events) */
   endDate?: CalendariaDate;
 
-  /** Event category */
-  category: string;
+  /** Event categories (array of category IDs) */
+  categories: string[];
 
   /** Icon class for display */
   icon: string;

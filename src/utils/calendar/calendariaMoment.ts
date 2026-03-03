@@ -174,9 +174,9 @@ class CalendariaMoment {
     }
 
     if (value === undefined) {
-      return this._calendariaDate.dayOfMonth + 1;
+      return this._calendariaDate.day;
     }
-    this._calendariaDate.dayOfMonth = value - 1;
+    this._calendariaDate.day = value;
     return this;
   }
 
@@ -200,9 +200,9 @@ class CalendariaMoment {
     let result = this._calendariaDate;
     while (parseInt(CalendarAdapter.formatDate(result, 'e')) !== value) {
       if (value >= 0)
-        CalendarAdapter.addDays(this._calendariaDate, 1);
+        result = CalendarAdapter.addDays(result, 1);
       if (value < 0)
-        CalendarAdapter.addDays(this._calendariaDate, 1);
+        result = CalendarAdapter.addDays(result, -1);
     }
 
     this._calendariaDate = result;
@@ -210,7 +210,7 @@ class CalendariaMoment {
   }
 
   /**
-   * Get or set the hour (0-23).  But not really, since we only track date
+   * Get or set the hour (0-23).
    * When called with an argument, sets the hour and returns this for chaining.
    */
   hours(value?: number): number | CalendariaMoment {
@@ -219,16 +219,16 @@ class CalendariaMoment {
     }
 
     if (value === undefined) {
-      return 0;
+      return this._calendariaDate.hour ?? 0;
     }
 
-    // don't set anything
+    this._calendariaDate.hour = value;
 
     return this;
   }
 
   /**
-   * Get or set the minute (0-59). But not really, since we only track date
+   * Get or set the minute (0-59). Runtime only - not persisted.
    * When called with an argument, sets the minute and returns this for chaining.
    */
   minutes(value?: number): number | CalendariaMoment {
@@ -237,16 +237,17 @@ class CalendariaMoment {
     }
 
     if (value === undefined) {
-      return 0;
+      return (this._calendariaDate as any).minute ?? 0;
     }
 
-    // don't set anything
+    // Store on runtime object (not persisted to DB)
+    (this._calendariaDate as any).minute = value;
     
     return this;
   }
 
   /**
-   * Get or set the second (0-59). But not really, since we only track date
+   * Get or set the second (0-59). Runtime only - not persisted.
    * When called with an argument, sets the second and returns this for chaining.
    */
   seconds(value?: number): number | CalendariaMoment {
@@ -255,10 +256,11 @@ class CalendariaMoment {
     }
 
     if (value === undefined) {
-      return 0;
+      return (this._calendariaDate as any).second ?? 0;
     }
 
-    // don't set anything
+    // Store on runtime object (not persisted to DB)
+    (this._calendariaDate as any).second = value;
     
     return this;
   }
@@ -357,13 +359,16 @@ class CalendariaMoment {
       case 'day':
         this._calendariaDate = CalendarAdapter.addDays(this._calendariaDate, amount);
         break;
-      case 'hour':
+      case 'hour': 
+        this._calendariaDate = CalendarAdapter.addHours(this._calendariaDate, amount);
+        break;      
       case 'minute':
-      case 'second':
-      case 'millisecond':
-        // for now, we don't support these
+        this._calendariaDate = CalendarAdapter.addMinutes(this._calendariaDate, amount);
         break;
-
+      case 'second':
+        this._calendariaDate = CalendarAdapter.addSeconds(this._calendariaDate, amount);
+        break;
+      case 'millisecond': 
       default:
         throw new Error(`Unknown unit: ${unit}`);
     }
@@ -406,13 +411,13 @@ class CalendariaMoment {
         return -CalendarAdapter.daysBetween(this._calendariaDate, otherDate);
       }
       case 'hour': {
-        throw new Error('I guess we need to support hours')
+        return -CalendarAdapter.hoursBetween(this._calendariaDate, otherDate);
       }
       case 'minute': {
-        throw new Error('I guess we need to support minutes')
+        return -CalendarAdapter.minutesBetween(this._calendariaDate, otherDate);
       }
       case 'second': {
-        throw new Error('I guess we need to support seconds')
+        return -CalendarAdapter.secondsBetween(this._calendariaDate, otherDate);
       }
       case 'millisecond': {
         throw new Error('I guess we need to support milliseconds')
@@ -475,13 +480,24 @@ class CalendariaMoment {
         return this.year() === otherMoment.year() && this.month() === otherMoment.month();
       case 'week': 
         return this.year() === otherMoment.year() && this.week() === otherMoment.week();
-      // these are all the same since we don't track time
       case 'day':
-      case 'hour':
-      case 'minute':
-      case 'second':
         return CalendarAdapter.calendariaToAbsolute(this._calendariaDate) ===
           CalendarAdapter.calendariaToAbsolute(otherMoment._calendariaDate);
+      case 'hour':
+        return CalendarAdapter.calendariaToAbsolute(this._calendariaDate) ===
+          CalendarAdapter.calendariaToAbsolute(otherMoment._calendariaDate) &&
+          (this._calendariaDate.hour ?? 0) === (otherMoment._calendariaDate.hour ?? 0);
+      case 'minute':
+        return CalendarAdapter.calendariaToAbsolute(this._calendariaDate) ===
+          CalendarAdapter.calendariaToAbsolute(otherMoment._calendariaDate) &&
+          (this._calendariaDate.hour ?? 0) === (otherMoment._calendariaDate.hour ?? 0) &&
+          (this._calendariaDate.minute ?? 0) === (otherMoment._calendariaDate.minute ?? 0);
+      case 'second':
+        return CalendarAdapter.calendariaToAbsolute(this._calendariaDate) ===
+          CalendarAdapter.calendariaToAbsolute(otherMoment._calendariaDate) &&
+          (this._calendariaDate.hour ?? 0) === (otherMoment._calendariaDate.hour ?? 0) &&
+          (this._calendariaDate.minute ?? 0) === (otherMoment._calendariaDate.minute ?? 0) &&
+          (this._calendariaDate.second ?? 0) === (otherMoment._calendariaDate.second ?? 0);
       default:
         return this.valueOf() === otherMoment.valueOf();
     }
@@ -566,7 +582,10 @@ class CalendariaMoment {
       'millisecond': 'millisecond',
       'milliseconds': 'millisecond',
     };
-    return unitMap[unit] ?? 'day';
+    if (!unitMap[unit]) {
+      throw new Error('Invalid unit: ' + unit);
+    }
+    return unitMap[unit];
   }
 
   // ==================== Static Methods ====================

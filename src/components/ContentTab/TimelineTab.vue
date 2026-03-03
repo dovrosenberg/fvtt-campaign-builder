@@ -136,19 +136,22 @@ Dependencies
    */
   const filterNotes = (notes: CalendariaNote[], filterCriteria: TimelineFilters): CalendariaNote[] => {
     return notes.filter(note => {
-      // Category filter
+      // Category filter - check if any note category matches any filter category
       if (filterCriteria.categories && filterCriteria.categories.length > 0) {
-        if (!filterCriteria.categories.includes(note.category)) {
+        const hasMatchingCategory = note.categories.some(cat => 
+          filterCriteria.categories!.includes(cat)
+        );
+        if (!hasMatchingCategory) {
           return false;
         }
       }
 
       // Text search filter
-      if (filterCriteria.textSearch) {
-        const searchLower = filterCriteria.textSearch.toLowerCase();
-        const nameMatch = note.name.toLowerCase().includes(searchLower);
-        const contentMatch = note.content.toLowerCase().includes(searchLower);
-        if (!nameMatch && !contentMatch) {
+      const search = filterCriteria.textSearch?.trim().toLowerCase();
+      if (search) {
+        const nameMatch = note.name.toLowerCase().includes(search);
+        // const contentMatch = note.content.toLowerCase().includes(searchLower);
+        if (!nameMatch /*&& !contentMatch*/) {
           return false;
         }
       }
@@ -194,19 +197,53 @@ Dependencies
    * @param end - End date of visible range
    */
   let rangeDebounceTimer: NodeJS.Timeout | undefined;
-
   const updateVisibleRange = (start: CalendariaDate, end: CalendariaDate): void => {
     // this needs to be debounced to prevent excessive updates
     clearTimeout(rangeDebounceTimer);
 
     rangeDebounceTimer = setTimeout(() => {
+      const startAbsolute = CalendarAdapter.calendariaToAbsolute(start);
+      const endAbsolute = CalendarAdapter.calendariaToAbsolute(end);
+
+    // Update items dynamically if we need more notes
+      updateTimelineItems(startAbsolute, endAbsolute);
+      
       void saveTimelineConfig({filters: {
         visibleRange: {
           start: start,
           end: end,
         },
       }});
-    }, 500);    
+    }, 50);    
+  };
+
+  /**
+   * Update timeline items dynamically when range changes.
+   * Only fetches new notes if the visible range extends beyond currently loaded data.
+   */
+  const updateTimelineItems = (startAbsolute: number, endAbsolute: number): void => {
+    if (!timelineInstance.value) {
+      return;
+    }
+
+    const newNotes = pullNotesForRange(startAbsolute, endAbsolute);
+
+    // Apply filters and convert to items
+    const filteredNotes = filterNotes(newNotes, filters.value);
+    const newItems = notesToTimelineItems(filteredNotes);
+
+    // Update the timeline items using setItems()
+    timelineInstance.value.setItems(newItems);
+  };
+
+  const pullNotesForRange = (startAbsolute: number, endAbsolute: number): CalendariaNote[] => {
+    // get notes from Calendaria
+    // get 30% more on either side of the range
+    const range = Math.max(endAbsolute - startAbsolute, 7);
+    const rangeStart = CalendarAdapter.absoluteToCalendaria(Math.floor(startAbsolute - .3 * range));
+    const rangeEnd = CalendarAdapter.absoluteToCalendaria(Math.ceil(endAbsolute + .3 * range));
+
+    return (CalendarAdapter.getNotesInRange(rangeStart, rangeEnd));
   };
 
   /**
@@ -233,25 +270,21 @@ Dependencies
       // dynamically import vis-timeline (CSS is bundled via vite config)
       const { Timeline } = await import('vis-timeline');
 
-      // Determine initial visible range - use persisted range or default
-      // Uses CalendarAdapter for calendar-aware date conversion
       // Default to ±50 years around current game date to match mock data range
+      // Determine initial visible range - use persisted range or default
       const currentDate = CalendarAdapter.getCurrentDate();
       const currentYear = currentDate.year;
       
       const initialStart = filters.value.visibleRange
         ? CalendarAdapter.calendariaToJS(filters.value.visibleRange.start)
-        : CalendarAdapter.calendariaToJS({ year: currentYear - 50, month: 0, dayOfMonth: 0 });
+        : CalendarAdapter.calendariaToJS({ year: currentYear - 50, month: 0, day: 1 });
       const initialEnd = filters.value.visibleRange
         ? CalendarAdapter.calendariaToJS(filters.value.visibleRange.end)
-        : CalendarAdapter.calendariaToJS({ year: currentYear + 50, month: 0, dayOfMonth: 0 });
+        : CalendarAdapter.calendariaToJS({ year: currentYear + 50, month: 0, day: 1 });
 
-      // get notes from Calendaria
-      // Use a wide date range centered on current date to get all relevant notes
-      const allNotes = CalendarAdapter.getNotesInRange(
-        { year: currentYear - 100, month: 0, dayOfMonth: 0 }, 
-        { year: currentYear + 100, month: 0, dayOfMonth: 0 }
-      );
+      const startAbsolute = CalendarAdapter.calendariaToAbsolute(filters.value.visibleRange?.start || { year: currentYear - 50, month: 0, day: 1 });
+      const endAbsolute = CalendarAdapter.calendariaToAbsolute(filters.value.visibleRange?.end || { year: currentYear + 50, month: 0, day: 1 });
+      const allNotes = pullNotesForRange(startAbsolute, endAbsolute);
 
       // Apply filters
       const filteredNotes = filterNotes(allNotes, filters.value);
@@ -259,16 +292,6 @@ Dependencies
       // Convert to timeline items
       const items = notesToTimelineItems(filteredNotes);
       
-      // Debug: log item date range
-      if (items.length > 0) {
-        const itemDates = items.map(i => i.start.getTime());
-        const minItem = Math.min(...itemDates);
-        const maxItem = Math.max(...itemDates);
-        console.log('Timeline items:', items.length, 'date range:', new Date(minItem), '-', new Date(maxItem));
-        console.log('Visible range:', initialStart, '-', initialEnd);
-        console.log('Sample item:', items[0]);
-      }
-            
       // Get snap function for the current zoom level
       const zoomLevels = CalendarAdapter.getZoomLevels();
       const defaultZoomLevel = zoomLevels.length > 0 ? zoomLevels[zoomLevels.length - 1] : null;
@@ -297,17 +320,20 @@ Dependencies
             vertical: 5,
           },
         },
+
         // Enable snapping to calendar units for drag/resize
         snap: CalendarAdapter.createSnapFunction(snapUnit),
 
         // Disable default current time line (uses real-world time, not game time)
         showCurrentTime: false,
 
-        // zoomMin = 1 day
-        zoomMin: 1000*60*60*24,
+        // zoomMin = 5 days... if much smaller than you can get to a weird 
+        //   spot where the days are huge but it still doesn't show hours
+        zoomMin: 1000*60*60*24*5,
 
-        // zoomMax = ~1 million years (should probably tie to eras)
-        zoomMax: 1000*60*60*24*365*1000000,
+        // zoomMax = ~15k years (vis timeline has issues much above this)
+        //   
+        zoomMax: 1000*60*60*24*365*15000,
       };
 
       timelineInstance.value = new Timeline(
@@ -376,11 +402,11 @@ Dependencies
     // Only use visibleRange if it has both start and end fully defined
     const inputVisibleRange = newFilters?.visibleRange;
     const validVisibleRange = inputVisibleRange?.start && inputVisibleRange?.end &&
-      inputVisibleRange.start.year != null && inputVisibleRange.start.month != null && inputVisibleRange.start.dayOfMonth != null &&
-      inputVisibleRange.end.year != null && inputVisibleRange.end.month != null && inputVisibleRange.end.dayOfMonth != null
+      inputVisibleRange.start.year != null && inputVisibleRange.start.month != null && inputVisibleRange.start.day != null &&
+      inputVisibleRange.end.year != null && inputVisibleRange.end.month != null && inputVisibleRange.end.day != null
       ? {
-          start: { year: inputVisibleRange.start.year, month: inputVisibleRange.start.month, dayOfMonth: inputVisibleRange.start.dayOfMonth },
-          end: { year: inputVisibleRange.end.year, month: inputVisibleRange.end.month, dayOfMonth: inputVisibleRange.end.dayOfMonth },
+          start: { year: inputVisibleRange.start.year, month: inputVisibleRange.start.month, day: inputVisibleRange.start.day },
+          end: { year: inputVisibleRange.end.year, month: inputVisibleRange.end.month, day: inputVisibleRange.end.day },
         }
       : existingFilters.visibleRange;
     

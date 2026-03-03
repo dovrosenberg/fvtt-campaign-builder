@@ -3,8 +3,7 @@
  * Bridges the gap between arbitrary calendar systems and vis-timeline's JS Date-based API.
  */
 
-import type { CalendariaDate, CalendarZoomLevel, CalendarTimeUnit, CalendariaCategory, CalendariaAPI, CalendariaCalendar, CalendariaNote } from '@/types';
-import mockCalendariaService from './mockCalendariaService';
+import type { CalendariaDate, CalendarZoomLevel, CalendarTimeUnit, CalendariaCategory, CalendariaAPI, CalendariaCalendar, CalendariaNote, CalendariaRawNote } from '@/types';
 
 /**
  * Get the Calendaria API, throwing if not available.
@@ -28,10 +27,8 @@ function requireCalendariaApi(): CalendariaAPI {
  */
 export const CalendarAdapter = {
   /**
-
-  /**
-   * Convert a Calendaria date (from notes) to a JavaScript Date for vis-timeline.
-   * @param date - Calendaria date { year, month, dayOfMonth }
+   * Convert a Calendaria date to a JavaScript Date for vis-timeline.
+   * @param date - Calendaria date { year, month, day }
    * @returns JavaScript Date
    */
   calendariaToJS: (calendariaDate: CalendariaDate): Date => {
@@ -57,6 +54,7 @@ export const CalendarAdapter = {
     // get the timestamp (in ms)
     const timestamp = jsDate.getTime();
 
+    // Get date from API
     return api.timestampToDate(timestamp / 1000);
   },
 
@@ -91,7 +89,7 @@ export const CalendarAdapter = {
       case 'second':
         return CalendarAdapter.formatDate(date, 's');
       default:
-        return String(date.dayOfMonth+1);
+        return String(date.day);
     }
   },
 
@@ -143,10 +141,8 @@ export const CalendarAdapter = {
   },
 
   getNotesInRange(startDate: CalendariaDate, endDate: CalendariaDate): CalendariaNote[] {
-    // const api = requireCalendariaApi();
-    
-    return mockCalendariaService.getRecurrentNotesInRange(startDate, endDate);
-    // return api.getNotesInRange(startDate, endDate);
+    const api = requireCalendariaApi();    
+    return api.getNotesInRange(startDate, endDate).map(CalendarAdapter.convertApiNote);
   },
 
   /**
@@ -233,9 +229,8 @@ export const CalendarAdapter = {
    * @returns Array of category definitions
    */
   getCategories: (): CalendariaCategory[] => {
-    // const api = requireCalendariaApi();
-    // return api.getCategories();
-    return mockCalendariaService.getCategories();
+    const api = requireCalendariaApi();
+    return api.getCategories();
   },
 
   /**
@@ -250,17 +245,20 @@ export const CalendarAdapter = {
 
     switch (unit) {
       case 'year':
-        return { year: date.year, month: 0, dayOfMonth: 0 };
+        return { year: date.year, month: 0, day: 1 };
       case 'month':
-        return { year: date.year, month: date.month, dayOfMonth: 0 };
+        return { year: date.year, month: date.month, day: 1 };
       case 'week': {
         const weekday = parseInt(CalendarAdapter.formatDate(date, 'e'));
         return api.addDays(date, -weekday);
       }
-      // these are the same because we don't track time
       case 'day':
+        return { ...date, hour: 0, minute: 0, second: 0 };
       case 'hour':
+        return { ...date, hour: date.hour ?? 0, minute: 0, second: 0 };
       case 'minute':
+        return { ...date, hour: date.hour ?? 0, minute: date.minute ?? 0, second: 0 };
+      case 'second':
       default:
         return { ...date };
     }
@@ -297,14 +295,43 @@ export const CalendarAdapter = {
         const weekday = parseInt(CalendarAdapter.formatDate(date, 'e'));
         return api.addDays(date, (daysInWeek - 1) - weekday);
       }
-      // these are all the same since we don't track time
       case 'day':
+        return { ...date, hour: 23, minute: 59, second: 59 };
       case 'hour':
+        return { ...date, hour: date.hour ?? 0, minute: 59, second: 59 };
+      // minute/second always assumed 0, no change needed
       case 'minute':
+        return { ...date, hour: date.hour ?? 0, minute: date.minute ?? 0, second: 59 };
+      case 'second':
       default:
         return { ...date };
     }
   },
+
+  /**
+   * Convert a Calendaria API note to our CalendariaNote type.
+   * @param apiNote - Note from Calendaria API
+   * @returns CalendariaNote object
+   */
+  convertApiNote: (apiNote: CalendariaRawNote): CalendariaNote => ({
+    id: apiNote.id,
+    name: apiNote.name,
+    content: 'TBD', //apiNote.flagData.content,
+    startDate: {
+      year: apiNote.flagData.startDate.year,
+      month: apiNote.flagData.startDate.month,
+      day: apiNote.flagData.startDate.day,
+    },
+    endDate: apiNote.flagData.endDate ? {
+      year: apiNote.flagData.endDate.year,
+      month: apiNote.flagData.endDate.month,
+      day: apiNote.flagData.endDate.day,
+    } : undefined,
+    categories: apiNote.flagData.categories,
+    icon: apiNote.flagData.icon,
+    color: apiNote.flagData.color,
+    gmOnly: apiNote.flagData.gmOnly,
+  }),
 
   /**
    * Create a vis-timeline compatible time axis formatter function.
@@ -362,6 +389,30 @@ export const CalendarAdapter = {
     };
   },
 
+  // TODO - replace with api when available; assume 60/60 hour/minute for now
+  hoursBetween: (start: CalendariaDate, end: CalendariaDate): number => {
+    const jsStart = CalendarAdapter.calendariaToJS(start);
+    const jsEnd = CalendarAdapter.calendariaToJS(end);
+    const diffMs = jsEnd.getTime() - jsStart.getTime();
+    return diffMs / (60 * 60 * 1000);
+  },
+
+  // TODO - replace with api when available; assume 60 minutes for now
+  minutesBetween: (start: CalendariaDate, end: CalendariaDate): number => {
+    const jsStart = CalendarAdapter.calendariaToJS(start);
+    const jsEnd = CalendarAdapter.calendariaToJS(end);
+    const diffMs = jsEnd.getTime() - jsStart.getTime();
+    return diffMs / (60 * 1000);
+  },
+
+  // TODO - replace with api when available; assume 60 seconds for now
+  secondsBetween: (start: CalendariaDate, end: CalendariaDate): number => {
+    const jsStart = CalendarAdapter.calendariaToJS(start);
+    const jsEnd = CalendarAdapter.calendariaToJS(end);
+    const diffMs = jsEnd.getTime() - jsStart.getTime();
+    return diffMs / (1000);
+  },
+
   daysBetween: (start: CalendariaDate, end: CalendariaDate): number => {
     const api = requireCalendariaApi();
     return api.daysBetween(start, end);
@@ -393,6 +444,65 @@ export const CalendarAdapter = {
   },
 
 
+  // TODO: replace with api when available
+  addHours: (date: CalendariaDate, hours: number): CalendariaDate => {
+    let result = { ...date };
+
+    // Handle hour addition with day rollover (assumes 24 hours/day)
+    const newHourTotal = (result.hour ?? 0) + hours; 
+    
+    // Handle day rollover using floor (rounds toward negative infinity)
+    const daysToAdd = Math.floor(newHourTotal / 24); 
+    const newHour = ((newHourTotal % 24) + 24) % 24; // Ensure positive result 0-23
+    
+    if (daysToAdd !== 0) {
+      result = CalendarAdapter.addDays(result, daysToAdd);
+    }
+    result.hour = newHour;
+
+    return result;
+  },
+
+  
+  // TODO: replace with api when available
+  addMinutes: (date: CalendariaDate, minutes: number): CalendariaDate => {
+    let result = { ...date };
+
+    // Handle minute addition with hour rollover (assumes 60 minutes/hour)
+    const newMinuteTotal = (result.minute ?? 0) + minutes; 
+    
+    // Handle hour rollover using floor (rounds toward negative infinity)
+    const hoursToAdd = Math.floor(newMinuteTotal / 60); 
+    const newMinutes = ((newMinuteTotal % 60) + 60) % 60; // Ensure positive result 0-23
+    
+    if (hoursToAdd !== 0) {
+      result = CalendarAdapter.addHours(result, hoursToAdd);
+    }
+    result.minute = newMinutes;
+
+    return result;
+  },
+
+  
+  // TODO: replace with api when available
+  addSeconds: (date: CalendariaDate, seconds: number): CalendariaDate => {
+    let result = { ...date };
+
+    // Handle second addition with minute rollover (assumes 60 seconds/minute)
+    const newSecondTotal = (result.second ?? 0) + seconds; 
+    
+    // Handle minute rollover using floor (rounds toward negative infinity)
+    const minutesToAdd = Math.floor(newSecondTotal / 60); 
+    const newSeconds = ((newSecondTotal % 60) + 60) % 60; // Ensure positive result 0-23
+    
+    if (minutesToAdd !== 0) {
+      result = CalendarAdapter.addMinutes(result, minutesToAdd);
+    }
+    result.second = newSeconds;
+
+    return result;
+  },
+
   /** Get the number of days since 0/0/0 
    * 
    * @param date - The date to calculate to
@@ -401,30 +511,28 @@ export const CalendarAdapter = {
   calendariaToAbsolute: (date: CalendariaDate): number => {
     const api = requireCalendariaApi();
     
-    return api.daysBetween({ year: 0, month: 0, dayOfMonth: 0 }, date);
+    return api.daysBetween({ year: 0, month: 0, day: 1 }, date);
   },
   
   /** 
    * @param absoluteDay - The number of days since 0/0/0 (that being day 0)
    * @returns The calendar date
-  */
+   */
   absoluteToCalendaria: (absoluteDay: number): CalendariaDate => {
     const api = requireCalendariaApi();
     
-    return api.addDays({ year: 0, month: 0, dayOfMonth: 0 }, absoluteDay);
+    return api.addDays({ year: 0, month: 0, day: 1 }, absoluteDay);
   },
 
   dayOfYear: (date: CalendariaDate): number => {
-    const yearStart: CalendariaDate = { year: date.year, month: 0, dayOfMonth: 0 };
+    const yearStart: CalendariaDate = { year: date.year, month: 0, day: 1 };
     return CalendarAdapter.calendariaToAbsolute(date) - CalendarAdapter.calendariaToAbsolute(yearStart) + 1;
   },
 
   getCurrentDate: (): CalendariaDate => {
     const api = requireCalendariaApi();
 
-    const dateTime = api.getCurrentDateTime();
-
-    return { year: dateTime.year, month: dateTime.month, dayOfMonth: dateTime.dayOfMonth };
+    return api.getCurrentDateTime();
   },
 
   /**
