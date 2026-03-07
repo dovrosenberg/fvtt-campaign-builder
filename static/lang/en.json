@@ -89,6 +89,9 @@
       "tableGrouping": "Table Grouping Settings",
       "tableGroupingLabel": "Table Grouping",
       "tableGroupingHelp": "Configure which tabs use grouped tables for each content type",
+      "tabVisibility": "Tab Visibility Settings",
+      "tabVisibilityLabel": "Tab Visibility",
+      "tabVisibilityHelp": "Configure which tabs are visible for each content type",
       "importExport": "Import/Export Module Data",
       "importExportLabel": "Import/Export Module Data",
       "importExportHelp": "Export all module data to a file or import from a previous export"
@@ -887,6 +890,40 @@
           "todo": "To-Dos",
           "participants": "Participants",
           "grimPortents": "Grim Portents"
+        }
+      },
+      "tabVisibility": {
+        "title": "Tab Visibility Settings",
+        "description": "Choose which tabs should be visible for each content type. Description tabs are always shown.",
+        "contentTypes": {
+          "setting": "Setting",
+          "campaign": "Campaign",
+          "arc": "Arc",
+          "session": "Session",
+          "entryCharacter": "Entry - Character",
+          "entryLocation": "Entry - Location",
+          "entryOrganization": "Entry - Organization",
+          "entryPC": "Entry - PC"
+        },
+        "tabs": {
+          "journals": "Journals",
+          "characters": "Characters",
+          "npcs": "NPCs",
+          "locations": "Locations",
+          "organizations": "Organizations",
+          "pcs": "PCs",
+          "actors": "Actors",
+          "scenes": "Scenes",
+          "sessions": "Sessions",
+          "foundry": "Foundry",
+          "monsters": "Monsters",
+          "vignettes": "Vignettes",
+          "lore": "Lore",
+          "ideas": "Ideas",
+          "todo": "To-Dos",
+          "participants": "Participants",
+          "magic": "Magic Items",
+          "storyWebs": "Story Webs"
         }
       },
       "relatedEntriesManagement": {

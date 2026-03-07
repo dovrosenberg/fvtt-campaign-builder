@@ -88,6 +88,7 @@
           />
         </DescriptionTab>
         <JournalTab
+          v-if="currentSetting && tabVisibility[TabVisibilityItem.SettingJournals]"
           :initial-journals="currentSetting.journals"
           @journals-updated="onJournalsUpdate"
         />
@@ -131,7 +132,7 @@
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   
   // types
-  import { CustomFieldContentType, RelatedJournal, WindowTabType, } from '@/types';
+  import { CustomFieldContentType, RelatedJournal, WindowTabType, TabVisibilityItem, } from '@/types';
   import { FCBSetting } from '@/classes';
   
   ////////////////////////////////
@@ -160,11 +161,24 @@
   // computed data
   const namePlaceholder = computed((): string => (localize('placeholders.settingName') || ''));
   const generateDisabled = computed(() => !available.value);
-  
-  const tabs = computed(() => [
-    { id: 'description', label: localize('labels.description') },
-    { id: 'journals', label: localize('labels.journals') },
-  ]);
+
+  // Get tab visibility settings
+  const tabVisibility = computed(() => {
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tabVisibilitySettings);
+  });
+
+  const tabs = computed(() => {
+    const baseTabs = [
+      { id: 'description', label: localize('labels.description') },
+    ];
+
+    if (tabVisibility.value[TabVisibilityItem.SettingJournals]) {
+      baseTabs.push({ id: 'journals', label: localize('labels.journals') });
+    }
+
+    return baseTabs;
+  });
 
   ////////////////////////////////
   // methods

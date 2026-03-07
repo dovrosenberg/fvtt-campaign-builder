@@ -14,87 +14,91 @@
           }" 
         />
       </header>
-      <div class="fcb-sheet-subtab-container flexrow">
-        <div class="fcb-subtab-wrapper">
-          <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
-            <a class="item" data-tab="description">{{ localize('labels.description') }}</a>
-            <a class="item" data-tab="journals">{{ localize('labels.journals') }}</a>
-            <a 
-              v-for="relationship in relationships"
-              :key="relationship.tab"
-              class="item" 
-              :data-tab="relationship.tab"
-            >
-              {{ localize(relationship.label) }}
-            </a>
-          </nav>
-          <div class="fcb-tab-body flexrow">
-            <div class="tab flexcol" data-group="primary" data-tab="description" style="height:100%">
-              <div class="tab-inner">
-                <div class="fcb-description-wrapper flexrow">
-                  <div 
-                    class="fcb-sheet-image"
-                    @drop="onDropActor"
-                    @dragover="DragDropService.standardDragover"
-                    @click="onActorImageClick"
-                    @contextmenu.prevent="onImageContextMenu"
+      <ContentTabStrip 
+        :tabs="tabs" 
+        default-tab="description"
+      >
+        <div 
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="description" 
+          style="height:100%"
+        >
+          <div class="tab-inner">
+            <div class="fcb-description-wrapper flexrow">
+              <div 
+                class="fcb-sheet-image"
+                @drop="onDropActor"
+                @dragover="DragDropService.standardDragover"
+                @click="onActorImageClick"
+                @contextmenu.prevent="onImageContextMenu"
+              >
+                <div v-if="isPC && actorId">
+                  <img 
+                    class="profile"
+                    :src="currentImage"
                   >
-                    <div v-if="isPC && actorId">
-                      <img 
-                        class="profile"
-                        :src="currentImage"
-                      >
-                    </div>
-                    <div v-else>
-                      Drag an actor here to link it.
-                    </div>
-                  </div>
-                  <div class="fcb-description-content flexcol" style="height: unset">
-                    <div class="flexrow form-group">
-                      <LabelWithHelp
-                        label-text="labels.fields.playerName"
-                      />
-                      <InputText
-                        v-model="playerName"
-                        for="fcb-input-name" 
-                        class="fcb-input-name"
-                        unstyled
-                        @update:model-value="onPlayerNameUpdate"
-                        :pt="{
-                          root: { class: 'full-height' } 
-                        }" 
-                      />
-                    </div>
-
-                    <CustomFieldsBlocks
-                      v-if="currentEntry"
-                      :content-type="CustomFieldContentType.PC"
-                      @related-entries-changed="onRelatedEntriesChanged"
-                    />
-
-                  </div>
+                </div>
+                <div v-else>
+                  Drag an actor here to link it.
                 </div>
               </div>
-            </div>
-            <JournalTab
-              v-if="currentEntry"
-              :initial-journals="currentEntry.journals"
-              @journals-updated="onJournalsUpdate"
-            />
-            <div 
-              v-for="relationship in relationships"
-              :key="relationship.tab"
-              class="tab flexcol" 
-              data-group="primary" 
-              :data-tab="relationship.tab"
-            >
-              <div class="tab-inner">
-                <RelatedEntryTable :topic="relationship.topic" />
+              <div class="fcb-description-content flexcol" style="height: unset">
+                <div class="flexrow form-group">
+                  <LabelWithHelp
+                    label-text="labels.fields.playerName"
+                  />
+                  <InputText
+                    v-model="playerName"
+                    for="fcb-input-name" 
+                    class="fcb-input-name"
+                    unstyled
+                    @update:model-value="onPlayerNameUpdate"
+                    :pt="{
+                      root: { class: 'full-height' } 
+                    }" 
+                  />
+                </div>
+
+                <CustomFieldsBlocks
+                  v-if="currentEntry"
+                  :content-type="CustomFieldContentType.PC"
+                  @related-entries-changed="onRelatedEntriesChanged"
+                />
+
               </div>
-            </div> 
+            </div>
           </div>
         </div>
-      </div>
+        <JournalTab
+          v-if="currentEntry && tabVisibility[TabVisibilityItem.EntryPCJournals]"
+          :initial-journals="currentEntry.journals"
+          @journals-updated="onJournalsUpdate"
+        />
+        <div 
+          v-for="relationship in relationships"
+          :key="relationship.tab"
+          class="tab flexcol" 
+          data-group="primary" 
+          :data-tab="relationship.tab"
+        >
+          <div class="tab-inner">
+            <RelatedEntryTable :topic="relationship.topic" />
+          </div>
+        </div>
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.EntryPCFoundry]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="foundry"
+        >
+          <div class="tab-inner">
+            <RelatedDocumentTable 
+              :document-link-type="DocumentLinkType.GenericFoundry"
+            />
+          </div>
+        </div>
+      </ContentTabStrip>
     </div>
 
     <!-- Related Items Management Dialog -->
@@ -121,6 +125,7 @@
   import { localize } from '@/utils/game';
   import DragDropService from '@/utils/dragDrop'; 
   import { getEntryRelatedEntries } from '@/utils/uuidExtraction';
+  import { ModuleSettings, SettingKey } from '@/settings';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -128,13 +133,15 @@
   // local components
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import JournalTab from '@/components/ContentTab/JournalTab.vue';
+  import RelatedDocumentTable from '@/components/tables/RelatedDocumentTable.vue'; 
   import RelatedEntryTable from '@/components/tables/RelatedEntryTable.vue';
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
+  import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
 
   // types
   import { Entry } from '@/classes';
-  import { FoundryDragType, Topics, RelatedJournal, ValidTopic, CustomFieldContentType } from '@/types';
+  import { FoundryDragType, Topics, RelatedJournal, ValidTopic, CustomFieldContentType, TabVisibilityItem, ContentTabDescriptor, DocumentLinkType } from '@/types';
   import { DOCUMENT_TYPES } from '@/documents';
 
   ////////////////////////////////
@@ -154,15 +161,14 @@
   ////////////////////////////////
   // data
   const playerName = ref<string>('');
-  const tabs = ref<foundry.applications.ux.Tabs>();
 
   const contentRef = ref<HTMLElement | null>(null);
 
   const relationships = [
-    { tab: 'characters', label: 'labels.tabs.entry.characters', topic: Topics.Character },
-    { tab: 'locations', label: 'labels.tabs.entry.locations', topic: Topics.Location },
-    { tab: 'organizations', label: 'labels.tabs.entry.organizations', topic: Topics.Organization },
-  ] as { tab: string; label: string; topic: ValidTopic }[];
+    { tab: 'characters', label: 'labels.tabs.entry.characters', topic: Topics.Character, visibilityKey: TabVisibilityItem.EntryPCCharacters },
+    { tab: 'locations', label: 'labels.tabs.entry.locations', topic: Topics.Location, visibilityKey: TabVisibilityItem.EntryPCLocations },
+    { tab: 'organizations', label: 'labels.tabs.entry.organizations', topic: Topics.Organization, visibilityKey: TabVisibilityItem.EntryPCOrganizations },
+  ] as { tab: string; label: string; topic: ValidTopic; visibilityKey: TabVisibilityItem }[];
 
   const showRelatedEntriesDialog = ref<boolean>(false);
   const pendingAddedUUIDs = ref<string[]>([]);
@@ -170,10 +176,40 @@
 
   ////////////////////////////////
   // computed data
+  const tabVisibility = computed(() => {
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tabVisibilitySettings);
+  });
+
   const name = computed(() => (currentEntry.value?.name || ''));
   const isPC = computed(() => currentEntry.value?.topic === Topics.PC);
   const actorId = computed(() => (isPC.value ? (currentEntry.value?.actorId || '') : ''));
   const currentImage = computed(() => (isPC.value ? (currentEntry.value?.actor?.img || '') : ''));
+
+  const tabs = computed(() => {
+    const baseTabs = [
+      { id: 'description', label: localize('labels.description') },
+    ] as ContentTabDescriptor[];
+
+    // Journals tab
+    if (tabVisibility.value[TabVisibilityItem.EntryPCJournals]) {
+      baseTabs.push({ id: 'journals', label: localize('labels.journals') });
+    }
+
+    // Relationship tabs (characters, locations, organizations)
+    for (const relationship of relationships) {
+      if (tabVisibility.value[relationship.visibilityKey]) {
+        baseTabs.push({ id: relationship.tab, label: localize(relationship.label) });
+      }
+    }
+
+    // Foundry tab
+    if (tabVisibility.value[TabVisibilityItem.EntryPCFoundry]) {
+      baseTabs.push({ id: 'foundry', label: localize('labels.tabs.entry.foundry') });
+    }
+
+    return baseTabs;
+  });
 
   ////////////////////////////////
   // methods
@@ -185,31 +221,6 @@
     playerName.value = currentEntry.value.playerName || '';
     await currentEntry.value.getActor();
   };
-  
-  const mountTabs = async () => {
-    // Ensure DOM is fully ready before initializing tabs
-    await nextTick();
-    
-    tabs.value = new foundry.applications.ux.Tabs({ 
-      navSelector: '.tabs', 
-      contentSelector: '.fcb-tab-body', 
-      initial: 'description'
-    });
-
-    // update the store when tab changes
-    tabs.value.callback = () => {
-      currentContentTab.value = tabs.value?.active || null;
-    };
-
-    if (contentRef.value) {
-      tabs.value.bind(contentRef.value);
-    }
-
-    if (tabs.value) {
-      tabs.value.activate(currentContentTab.value || 'description');
-    }
-
-  }
 
   ////////////////////////////////
   // event handlers
@@ -348,12 +359,6 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
-    if (newTab!==oldTab) {
-      tabs.value?.activate(newTab || 'description');    
-    }
-  });
-
   watch(currentEntry, async (newEntry: Entry | null): Promise<void> => {
     if (!newEntry) {
       return;
@@ -364,15 +369,11 @@
     if (!currentContentTab.value) {
       currentContentTab.value = 'description';
     }
-
-    await mountTabs();
   });
 
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    await mountTabs();
-
     if (currentEntry.value && currentEntry.value.topic===Topics.PC) {
       // load starting data values
       playerName.value = currentEntry.value.playerName || '';

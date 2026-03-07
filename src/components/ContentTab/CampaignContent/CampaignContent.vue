@@ -50,31 +50,56 @@
           />
         </DescriptionTab>
         <JournalTab
-          v-if="currentCampaign"
+          v-if="currentCampaign && tabVisibility[TabVisibilityItem.CampaignJournals]"
           :initial-journals="currentCampaign.journals"
           @journals-updated="onJournalsUpdate"
         />
-        <div class="tab flexcol" data-group="primary" data-tab="pcs">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.CampaignPCs]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="pcs"
+        >
           <div class="tab-inner">
             <CampaignPCsTab />
           </div>
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="lore">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.CampaignLore]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="lore"
+        >
           <div class="tab-inner">
             <CampaignLoreTab />
           </div>
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="ideas">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.CampaignIdeas]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="ideas"
+        >
           <div class="tab-inner">
             <CampaignIdeasTab />
           </div>
         </div>
-        <div v-if="showStoryWebTab" class="tab flexcol" data-group="primary" data-tab="storyWebs">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.CampaignStoryWebs] && ModuleSettings.get(SettingKey.useStoryWebs)"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="storyWebs"
+        >
           <div class="tab-inner">
             <StoryWebsTab mode="campaign" />
           </div>
         </div>
-        <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="toDo">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.CampaignToDo] && ModuleSettings.get(SettingKey.enableToDoList)"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="toDo"
+        >
           <div class="tab-inner">
             <CampaignToDoTab />
           </div>
@@ -115,7 +140,7 @@
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
 
   // types
-  import { CustomFieldContentType, RelatedJournal, WindowTabType, } from '@/types';
+  import { CustomFieldContentType, RelatedJournal, WindowTabType, TabVisibilityItem, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -146,35 +171,38 @@
   // computed data
   const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
 
-  const showToDoTab = computed(() => {
+  // Get tab visibility settings
+  const tabVisibility = computed(() => {
     ModuleSettings.getReactiveVersion();
-    return ModuleSettings.get(SettingKey.enableToDoList);
+    return ModuleSettings.get(SettingKey.tabVisibilitySettings);
   });
 
-  const showStoryWebTab = computed(() => {
-    ModuleSettings.getReactiveVersion();
-    return ModuleSettings.get(SettingKey.useStoryWebs);
-  });
 
   const openToDoCount = computed(() => toDoRows.value.length);
 
   const tabs = computed(() => {
-    let baseTabs = [
+    const baseTabs = [
       { id: 'description', label: localize('labels.description') },
-      { id: 'journals', label: localize('labels.journals') },
-      { id: 'pcs', label: localize('labels.tabs.campaign.pcs') },
-      { id: 'lore', label: localize('labels.tabs.campaign.lore') },
-      { id: 'ideas', label: localize('labels.tabs.campaign.ideas') },
     ];
 
-    if (showToDoTab.value) {
+    if (tabVisibility.value[TabVisibilityItem.CampaignJournals]) {
+      baseTabs.push({ id: 'journals', label: localize('labels.journals') });
+    }
+    if (tabVisibility.value[TabVisibilityItem.CampaignPCs]) {
+      baseTabs.push({ id: 'pcs', label: localize('labels.tabs.campaign.pcs') });
+    }
+    if (tabVisibility.value[TabVisibilityItem.CampaignLore]) {
+      baseTabs.push({ id: 'lore', label: localize('labels.tabs.campaign.lore') });
+    }
+    if (tabVisibility.value[TabVisibilityItem.CampaignIdeas]) {
+      baseTabs.push({ id: 'ideas', label: localize('labels.tabs.campaign.ideas') });
+    }
+    if (tabVisibility.value[TabVisibilityItem.CampaignToDo] && ModuleSettings.get(SettingKey.enableToDoList)) {
       const baseLabel = localize('labels.tabs.campaign.toDo');
       const label = openToDoCount.value ? `${baseLabel} (${openToDoCount.value})` : baseLabel;
       baseTabs.push({ id: 'toDo', label });
     }
-
-
-    if (showStoryWebTab.value) {
+    if (tabVisibility.value[TabVisibilityItem.CampaignStoryWebs]) {
       baseTabs.push({ id: 'storyWebs', label: localize('contentFolders.storyWebs') });
     }
 
