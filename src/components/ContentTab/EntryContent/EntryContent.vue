@@ -198,9 +198,7 @@
           data-tab="timeline"
         >
           <div class="tab-inner">
-            <TimelineTab
-              :window-tab-type="WindowTabType.Entry"
-            />
+            <TimelineTab />
           </div>
         </div>
       </ContentTabStrip>

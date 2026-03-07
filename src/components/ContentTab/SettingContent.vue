@@ -93,9 +93,7 @@
         />
         <div v-if="showTimelineTab" class="tab flexcol" data-group="primary" data-tab="timeline">
           <div class="tab-inner">
-            <TimelineTab
-              :window-tab-type="WindowTabType.Setting"
-            />
+            <TimelineTab />
           </div>
         </div>
       </ContentTabStrip>

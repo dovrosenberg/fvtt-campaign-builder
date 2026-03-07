@@ -16,8 +16,6 @@ Props
 - filters: TimelineFilters, current filter values
 - isFilterPanelExpanded: boolean, whether the panel is expanded
 - availableCategories: string[], list of available categories for the dropdown
-- windowTabType: WindowTabType, type of entity for the reference checkbox
-- currentUuid: string, the UUID of the current entity for reference filtering
 
 Emits
 - updateFilters: TimelineFilters, emitted when any filter changes
@@ -28,7 +26,7 @@ Slots
 
 Dependencies
 - Stores: None
-- Composables: None
+- Composables: useContentState
 - Services/API: None
 
 -->
@@ -82,7 +80,7 @@ Dependencies
         </div>
 
         <!-- Reference Entity -->
-        <div v-if="props.currentUuid" class="filter-group">
+        <div v-if="currentContentId" class="filter-group">
           <label class="checkbox-label">
             <Checkbox
               v-model="isReferenceEntity"
@@ -95,7 +93,7 @@ Dependencies
         </div>
 
         <!-- Include Nested Content -->
-        <div v-if="props.currentUuid && isReferenceEntity && showNestedContentCheckbox" class="filter-group nested-checkbox">
+        <div v-if="currentContentId && isReferenceEntity && showNestedContentCheckbox" class="filter-group nested-checkbox">
           <label class="checkbox-label">
             <Checkbox
               v-model="localFilters.includeNestedUuids"
@@ -138,7 +136,8 @@ Dependencies
 
   // local imports
   import { localize } from '@/utils/game';
-  import { TimelineFilters, WindowTabType } from '@/types';
+  import { useContentState } from '@/composables/useContentState';
+  import { TimelineFilters, Topics, WindowTabType } from '@/types';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -166,14 +165,6 @@ Dependencies
       type: Array as PropType<string[]>,
       required: true,
     },
-    windowTabType: {
-      type: Number as PropType<WindowTabType>,
-      required: true,
-    },
-    currentUuid: {
-      type: String,
-      required: true
-    },
   });
 
   ////////////////////////////////
@@ -187,7 +178,7 @@ Dependencies
 
   ////////////////////////////////
   // store
-  // (none)
+  const { currentContentType, currentContentId, currentEntryTopic } = useContentState();
 
   ////////////////////////////////
   // data
@@ -204,7 +195,7 @@ Dependencies
    * Get the localized entity type name for the reference checkbox label.
    */
   const entityTypeLabel = computed(() => {
-    switch (props.windowTabType) {
+    switch (currentContentType.value) {
       case WindowTabType.Campaign:
         return localize('labels.campaign.campaign');
       case WindowTabType.Arc:
@@ -222,17 +213,27 @@ Dependencies
 
   /**
    * Determine if the nested content checkbox should be shown.
-   * Not shown for sessions.
+   * Not shown for sessions, or for Character/PC entries (they don't have children).
    */
   const showNestedContentCheckbox = computed(() => {
-    return props.windowTabType !== WindowTabType.Session;
+    // Sessions never have nested content
+    if (currentContentType.value === WindowTabType.Session) {
+      return false;
+    }
+    // For entries, check topic - Characters and PCs don't have children
+    if (currentContentType.value === WindowTabType.Entry) {
+      const topic = currentEntryTopic.value;
+      return topic !== Topics.Character && topic !== Topics.PC;
+    }
+    // All other types can have nested content
+    return true;
   });
 
   /**
    * Get the localized label for the nested content checkbox based on entity type.
    */
   const nestedContentLabel = computed(() => {
-    switch (props.windowTabType) {
+    switch (currentContentType.value) {
       case WindowTabType.Campaign:
         return localize('labels.timeline.includeArcAndSessionReferences');
       case WindowTabType.Arc:
@@ -268,6 +269,10 @@ Dependencies
 
     if (localFilters.value.referencedUuid) {
       parts.push(localize('labels.timeline.referenceEntity', { entity: entityTypeLabel.value }));
+
+      if (localFilters.value.includeNestedUuids) {
+        parts.push(nestedContentLabel.value);
+      }
     }
 
     return parts.length > 0 ? parts.join(' | ') : localize('labels.timeline.noFilters');
@@ -325,7 +330,7 @@ Dependencies
    * Handle reference entity checkbox change.
    */
   const onReferenceEntityChange = (): void => {
-    localFilters.value.referencedUuid = isReferenceEntity.value ? props.currentUuid : '';
+    localFilters.value.referencedUuid = isReferenceEntity.value ? (currentContentId.value || '') : '';
     // Reset nested checkbox when reference is unchecked
     if (!isReferenceEntity.value) {
       localFilters.value.includeNestedUuids = false;

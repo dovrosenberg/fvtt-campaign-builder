@@ -81,10 +81,7 @@
         </div>
         <div v-if="showTimelineTab" class="tab flexcol" data-group="primary" data-tab="timeline">
           <div class="tab-inner">
-            <TimelineTab
-              :document-uuid="currentCampaign?.uuid || ''"
-              :window-tab-type="WindowTabType.Campaign"
-            />
+            <TimelineTab />
           </div>
         </div>
       </ContentTabStrip> 

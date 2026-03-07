@@ -10,7 +10,7 @@ Responsibilities
 - Handle filter changes and timeline refresh
 
 Props
-- windowTabType: WindowTabType, type of document (Campaign, Arc, Session, Entry, Setting)
+- None
 
 Emits
 - None
@@ -32,8 +32,6 @@ Dependencies
       :filters="filters"
       :is-filter-panel-expanded="isFilterPanelExpanded"
       :available-categories="availableCategories"
-      :window-tab-type="currentContentType"
-      :current-uuid="currentContentId || ''"
       @update-filters="onUpdateFilters"
       @reset-filters="onResetFilters"
       @reset-range="onResetRange"
@@ -53,7 +51,7 @@ Dependencies
 
 <script setup lang="ts">
   // library imports
-  import { ref, onMounted, computed, onUnmounted, PropType } from 'vue';
+  import { ref, onMounted, computed, onUnmounted, watch } from 'vue';
   import type { Timeline } from 'vis-timeline';
 
   // local imports
@@ -69,16 +67,9 @@ Dependencies
   // types
   import { CalendariaDate } from '@/types';
   import { Arc, Campaign, FCBSetting } from '@/classes';
-import { watch } from 'vue';
 
   ////////////////////////////////
   // props
-  const props = defineProps({
-    windowTabType: {
-      type: Number as PropType<WindowTabType>,
-      required: true,
-    },
-  });
 
   ////////////////////////////////
   // emits
@@ -106,7 +97,7 @@ import { watch } from 'vue';
    * Settings default to unchecked, all others default to checked.
    */
   const defaultFilters = computed((): TimelineFilters => {
-    const shouldDefaultChecked = props.windowTabType !== WindowTabType.Setting;
+    const shouldDefaultChecked = currentContentType.value !== WindowTabType.Setting;
     return {
       categories: [],
       textSearch: '',
@@ -132,7 +123,7 @@ import { watch } from 'vue';
   // Get the document based on content type
   // returns refs
   const currentDocument = () => {
-    switch (props.windowTabType) {
+    switch (currentContentType.value) {
       case WindowTabType.Campaign:
         return currentCampaign;
       case WindowTabType.Arc:
@@ -163,7 +154,7 @@ import { watch } from 'vue';
       return uuids;
     }
 
-    switch (props.windowTabType) {
+    switch (currentContentType.value) {
       case WindowTabType.Entry: {
         // Get descendants from hierarchy
         const setting = currentSetting.value;
