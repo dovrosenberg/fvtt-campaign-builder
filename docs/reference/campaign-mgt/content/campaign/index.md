@@ -25,3 +25,4 @@ Campaigns have the following tabs where you can manage their details:
 * [Ideas](./ideas) - list of ideas you may want to use in the future
 * [To-Dos](./todos) - a list of things you need to do (and in particular, things that happened during a play session that you may want to follow up on)
 * [Story Webs](./storywebs) - list of story webs that you have associated with the overall Campaign
+* [Timeline](./timeline) - view calendar events from Calendaria that relate to this Campaign

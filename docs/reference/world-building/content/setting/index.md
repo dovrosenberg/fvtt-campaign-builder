@@ -22,6 +22,7 @@ Foundry does not allow renaming of compendia.  So, changing the name of your set
 :::
 
 ## Tabs
-There are two tabs on the Setting details screen:
+There are three tabs on the Setting details screen:
   1. [Description tab](./description) - overview information about the Setting
   2. [Journals tab](./journals) - a place to track Foundry journal entries that relate to the Setting.  Good for tracking extra images or any other content that you want to keep track of and/or share with the player(s)
+  3. [Timeline tab](./timeline) - view calendar events from Calendaria that relate to this Setting
