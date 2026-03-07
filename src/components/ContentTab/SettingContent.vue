@@ -123,6 +123,7 @@
   import { useBackendStore } from '@/applications/stores';
   import { notifyWarn } from '@/utils/notifications';
   import { ModuleSettings, SettingKey } from '@/settings/ModuleSettings';
+  import { calendariaAvailable, calendarActive } from '@/utils/calendar/calendarState';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -170,8 +171,9 @@
   const generateDisabled = computed(() => !available.value);
   
   const showTimelineTab = computed(() => {
-    ModuleSettings.getReactiveVersion();
-    return ModuleSettings.get(SettingKey.useTimeline);
+    return ModuleSettings.get(SettingKey.useTimeline) && 
+      calendariaAvailable.value && 
+      calendarActive.value;
   });
 
   const tabs = computed(() => {

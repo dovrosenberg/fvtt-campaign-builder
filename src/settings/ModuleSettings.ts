@@ -66,7 +66,6 @@ export enum SettingKey {
   lastKnownVersion = 'lastKnownVersion',  // tracks the last known module version - used for tracking migrations
   settingIndex = 'settingIndex',  // array of high-level setting info (name, packId)
   mainWindowBounds = 'mainWindowBounds',
-  calendariaAvailable = 'calendariaAvailable',  // whether Calendaria module is present
 
   // menus
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
@@ -159,7 +158,6 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.mainWindowBounds ? WindowBounds | null :
     K extends SettingKey.enableVoiceRecording ? boolean :
     K extends SettingKey.voiceRecordingFolder ? VoiceRecordingFolderConfig | null :
-    K extends SettingKey.calendariaAvailable ? boolean :
     never;
 
 export class ModuleSettings {
@@ -629,11 +627,6 @@ export class ModuleSettings {
       settingID: SettingKey.mainWindowBounds,
       default: null,
       type: Object,
-    },
-    {
-      settingID: SettingKey.calendariaAvailable,
-      default: false,
-      type: Boolean,
     },
   ];
 

@@ -250,6 +250,7 @@
   import { notifyError } from '@/utils/notifications';
   import { FCBDialog } from '@/dialogs';
   import VoiceRecordingService from '@/utils/voiceRecording';
+  import { calendariaAvailable, calendarActive } from '@/utils/calendar/calendarState';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -391,7 +392,9 @@
     ModuleSettings.getReactiveVersion();
     if (ModuleSettings.get(SettingKey.genericFoundryTab))
       tabs.push({ id: 'foundry', label: localize('labels.tabs.entry.foundry') });
-    if (ModuleSettings.get(SettingKey.useTimeline))
+    if (ModuleSettings.get(SettingKey.useTimeline) &&
+        calendariaAvailable.value &&
+        calendarActive.value)
       tabs.push({ id: 'timeline', label: localize('labels.tabs.entry.timeline') });
 
     return tabs;

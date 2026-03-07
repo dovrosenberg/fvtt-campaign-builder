@@ -153,6 +153,7 @@
   import { notifyWarn } from '@/utils/notifications';
   import { getArcRelatedEntries } from '@/utils/uuidExtraction';
   import { filterRelatedEntries } from '@/utils/relatedContent';
+  import { calendariaAvailable, calendarActive } from '@/utils/calendar/calendarState';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -212,8 +213,9 @@
   });
 
   const showTimelineTab = computed(() => {
-    ModuleSettings.getReactiveVersion();
-    return ModuleSettings.get(SettingKey.useTimeline);
+    return ModuleSettings.get(SettingKey.useTimeline) && 
+      calendariaAvailable.value && 
+      calendarActive.value;
   });
 
   const tabs = computed(() => [

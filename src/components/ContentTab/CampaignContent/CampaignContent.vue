@@ -105,6 +105,7 @@
   import { useCampaignDerivedState, CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyWarn } from '@/utils/notifications';
+  import { calendariaAvailable, calendarActive } from '@/utils/calendar/calendarState';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -166,8 +167,9 @@
   });
 
   const showTimelineTab = computed(() => {
-    ModuleSettings.getReactiveVersion();
-    return ModuleSettings.get(SettingKey.useTimeline);
+    return ModuleSettings.get(SettingKey.useTimeline) && 
+      calendariaAvailable.value && 
+      calendarActive.value;
   });
 
   const openToDoCount = computed(() => toDoRows.value.length);
@@ -186,7 +188,6 @@
       const label = openToDoCount.value ? `${baseLabel} (${openToDoCount.value})` : baseLabel;
       baseTabs.push({ id: 'toDo', label });
     }
-
 
     if (showStoryWebTab.value) {
       baseTabs.push({ id: 'storyWebs', label: localize('contentFolders.storyWebs') });

@@ -9,6 +9,7 @@ import { MigrationManager } from '@/utils/migration';
 import { attachGlobalScripts } from '@/utils/globalScripts';
 import CustomFieldsService from '@/utils/customFields';
 import { vueHost } from '@/libraries/fvtt-vue/VueHost';
+import { initializeCalendarState } from '@/utils/calendar/calendarState';
 
 export function registerForReadyHook() {
   Hooks.once('ready', ready);
@@ -22,10 +23,8 @@ async function ready(): Promise<void> {
   // This prevents circular dependency issues and ensures Vue DevTools works
   await vueHost.ensureMounted();
   
-  // Detect if Calendaria module is present and store the result
-  const calendariaModule = game.modules.get('calendaria');
-  const isCalendariaAvailable = calendariaModule?.active ?? false;
-  await ModuleSettings.set(SettingKey.calendariaAvailable, isCalendariaAvailable);
+  // Initialize calendar state (session-scoped, does not persist)
+  initializeCalendarState();
   
   // Mount the external API
   const module = game.modules.get(moduleId);
