@@ -111,9 +111,7 @@ export class MigrationV1_10 implements Migration {
     }
 
     // Save the new settings if any migrations occurred
-    if (result.migratedCount > 0) {
-      await ModuleSettings.set(SettingKey.tabVisibilitySettings, newSettings);
-    }
+    await ModuleSettings.set(SettingKey.tabVisibilitySettings, newSettings);
 
     return result;
   }

@@ -88,7 +88,7 @@
           />
         </DescriptionTab>
         <div 
-          v-if="tabVisibility.value[TabVisibilityItem.SessionPCs]"
+          v-if="tabVisibility[TabVisibilityItem.SessionPCs]"
           class="tab flexcol" 
           data-group="primary" 
           data-tab="pcs"
