@@ -331,16 +331,19 @@ export const CalendarAdapter = {
   convertApiNote: (apiNote: CalendariaRawNote): CalendariaNote => ({
     id: apiNote.id,
     name: apiNote.name,
-    content: 'TBD', //apiNote.flagData.content,
+    content: game.journal.get(apiNote.journalId)?.pages?.contents?.[0]?.text?.content || '',
+    journalId: apiNote.journalId,
+    // content: undefined,  // need to pull async when needed
+    // API returns dayOfMonth (0-indexed), convert to day (1-indexed)
     startDate: {
       year: apiNote.flagData.startDate.year,
       month: apiNote.flagData.startDate.month,
-      day: apiNote.flagData.startDate.day,
+      day: apiNote.flagData.startDate.dayOfMonth + 1,
     },
     endDate: apiNote.flagData.endDate ? {
       year: apiNote.flagData.endDate.year,
       month: apiNote.flagData.endDate.month,
-      day: apiNote.flagData.endDate.day,
+      day: apiNote.flagData.endDate.dayOfMonth + 1,  
     } : undefined,
     categories: apiNote.flagData.categories,
     icon: apiNote.flagData.icon,

@@ -80,15 +80,16 @@ export function createTabPanelState(initialPanelIndex: number): TabPanelState {
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);
   const currentTag = computed((): { value: string | null } => _currentTag?.value || { value: null });
 
-  const currentContentId = computed((): string | null => {
-    return _currentEntry.value ? _currentEntry.value.uuid :
-      _currentCampaign.value ? _currentCampaign.value.uuid :
-      _currentSession.value ? _currentSession.value.uuid :
-      _currentArc.value ? _currentArc.value.uuid :
-      _currentFront.value ? _currentFront.value.uuid :
-      _currentStoryWeb.value ? _currentStoryWeb.value.uuid :
-      null;
-  });
+  const currentContentId = computed((): string | null => (
+    currentContentType.value === WindowTabType.Setting ? currentTab.value!.header.uuid :
+    _currentEntry.value ? _currentEntry.value.uuid :
+    _currentCampaign.value ? _currentCampaign.value.uuid :
+    _currentSession.value ? _currentSession.value.uuid :
+    _currentArc.value ? _currentArc.value.uuid :
+    _currentFront.value ? _currentFront.value.uuid :
+    _currentStoryWeb.value ? _currentStoryWeb.value.uuid :
+    null
+  ));
 
   const currentEntryTopic = computed((): Topics => {
     if (!currentEntry.value)

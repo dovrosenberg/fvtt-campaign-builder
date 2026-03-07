@@ -57,6 +57,9 @@ export interface CalendariaRawNote {
   /** Unique identifier */
   id: string;
 
+  /** world journalEntry id */
+  journalId: string;
+  
   /** Note name/title */
   name: string;
 
@@ -66,10 +69,10 @@ export interface CalendariaRawNote {
     content: string;
 
     /** Start date components */
-    startDate: { year: number; month: number; day: number };
+    startDate: { year: number; month: number; dayOfMonth: number };
 
     /** End date components (for range events) */
-    endDate?: { year: number; month: number; day: number };
+    endDate?: { year: number; month: number; dayOfMonth: number };
 
     /** Event categories (array of category IDs) */
     categories: string[];
@@ -92,6 +95,9 @@ export interface CalendariaRawNote {
 export interface CalendariaNote {
   /** Unique identifier */
   id: string;
+
+  /** id of journal entry */
+  journalId: string;
 
   /** Note name/title */
   name: string;

@@ -308,8 +308,9 @@ Dependencies
       id: note.id,
       content: `<i class="${note.icon}" style="margin-right: 4px;"></i>${note.name}`,
       start: CalendarAdapter.calendariaToJS(note.startDate),
-      end: note.endDate ? CalendarAdapter.calendariaToJS(note.endDate) : undefined,
-      type: note.endDate ? 'range' : 'box',
+      // set end to nothing if it's just one day
+      end: note.endDate && CalendarAdapter.calendariaToAbsolute(note.startDate) !== CalendarAdapter.calendariaToAbsolute(note.endDate) ? CalendarAdapter.calendariaToJS(note.endDate) : undefined,
+      // type: note.endDate ? 'range' : 'box',
       className: `timeline-note-item-${note.id}`,
       style: `background-color: ${note.color}; border-color: ${note.color};`,
     }));
