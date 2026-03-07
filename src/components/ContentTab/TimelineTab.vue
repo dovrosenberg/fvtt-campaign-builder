@@ -35,6 +35,7 @@ Dependencies
       :window-tab-type="currentContentType"
       :current-uuid="currentContentId || ''"
       @update-filters="onUpdateFilters"
+      @reset-filters="onResetFilters"
       @toggle-panel="onTogglePanel"
     />
 
@@ -66,6 +67,8 @@ Dependencies
 
   // types
   import { CalendariaDate } from '@/types';
+  import { Arc, Campaign, FCBSetting } from '@/classes';
+import { watch } from 'vue';
 
   ////////////////////////////////
   // props
@@ -97,7 +100,23 @@ Dependencies
   // computed data
   const availableCategories = computed(() => CalendarAdapter.getCategories().map(cat=>cat.id));
 
-  const filters = computed(() => currentTimelineConfig.value?.filters ?? TIMELINE_DEFAULT_FILTERS);
+  /**
+   * Get default filters based on content type.
+   * Settings default to unchecked, all others default to checked.
+   */
+  const defaultFilters = computed((): TimelineFilters => {
+    const shouldDefaultChecked = props.windowTabType !== WindowTabType.Setting;
+    return {
+      categories: [],
+      textSearch: '',
+      gmOnly: false,
+      referencedUuid: shouldDefaultChecked ? (currentContentId.value || '') : '',
+      includeNestedUuids: shouldDefaultChecked,
+      visibleRange: null,
+    };
+  });
+
+  const filters = computed(() => currentTimelineConfig.value?.filters ?? defaultFilters.value);
 
   const currentTimelineConfig = computed((): TimelineConfig | null => {
     const doc = currentDocument()?.value;
@@ -131,12 +150,120 @@ Dependencies
   // methods
 
   /**
+   * Get nested content UUIDs for the current document based on content type.
+   * @returns Array of nested UUIDs (empty for sessions or if no current document)
+   */
+  const getNestedUuids = async (): Promise<string[]> => {
+    const uuids: string[] = [];
+    const doc = currentDocument()?.value;
+    
+    if (!doc || !currentContentId.value) {
+      return uuids;
+    }
+
+    switch (props.windowTabType) {
+      case WindowTabType.Entry: {
+        // Get descendants from hierarchy
+        const setting = currentSetting.value;
+        if (setting && currentContentId.value) {
+          const hierarchy = setting.hierarchies[currentContentId.value];
+          if (hierarchy?.children) {
+            // Recursively collect all descendant UUIDs
+            const collectDescendants = (entryId: string): string[] => {
+              const childUuids: string[] = [];
+              const childHierarchy = setting.hierarchies[entryId];
+              if (childHierarchy?.children) {
+                for (const childId of childHierarchy.children) {
+                  childUuids.push(childId);
+                  childUuids.push(...collectDescendants(childId));
+                }
+              }
+              return childUuids;
+            };
+            uuids.push(...collectDescendants(currentContentId.value));
+          }
+        }
+        break;
+      }
+
+      case WindowTabType.Campaign: {
+        // Get arc UUIDs
+        for (const arcIndex of (doc as Campaign).arcIndex) {
+          uuids.push(arcIndex.uuid);
+        }
+        // Get session UUIDs
+        for (const sessionIndex of (doc as Campaign).sessionIndex) {
+          uuids.push(sessionIndex.uuid);
+        }
+        break;
+      }
+
+      case WindowTabType.Arc: {
+        // Get session UUIDs from the campaign's session index within the arc's session range
+        const campaign = await (doc as Arc).loadCampaign();
+        if (campaign) {
+          for (const sessionIndex of campaign.sessionIndex) {
+            if (sessionIndex.number >= (doc as Arc).startSessionNumber && 
+                sessionIndex.number <= (doc as Arc).endSessionNumber) {
+              uuids.push(sessionIndex.uuid);
+            }
+          }
+        }
+        break;
+      }
+
+      case WindowTabType.Setting: {
+        // Get all entry UUIDs from topics
+        for (const topic of Object.values((doc as FCBSetting).topics)) {
+          for (const entryUuid of Object.keys(topic.entries)) {
+            uuids.push(entryUuid);
+          }
+        }
+        // Get campaign, arc, and session UUIDs
+        for (const campaignIndex of (doc as FCBSetting).campaignIndex) {
+          uuids.push(campaignIndex.uuid);
+          for (const arcIndex of campaignIndex.arcs) {
+            uuids.push(arcIndex.uuid);
+          }
+          // Load campaign to get sessions
+          const campaign = (doc as FCBSetting).campaigns[campaignIndex.uuid];
+          if (campaign) {
+            for (const sessionIndex of campaign.sessionIndex) {
+              uuids.push(sessionIndex.uuid);
+            }
+          }
+        }
+        break;
+      }
+
+      case WindowTabType.Session:
+        // No nested content for sessions
+        break;
+    }
+
+    return uuids;
+  };
+
+  /**
    * Filter notes based on the current filter criteria.
    * @param notes - Array of Calendaria notes
    * @param filterCriteria - Filter criteria
    * @returns Filtered notes
    */
-  const filterNotes = (notes: CalendariaNote[], filterCriteria: TimelineFilters): CalendariaNote[] => {
+  const filterNotes = async (notes: CalendariaNote[], filterCriteria: TimelineFilters): Promise<CalendariaNote[]> => {
+    // Build list of UUIDs to match
+    let matchUuids: string[] = [];
+    
+    if (filterCriteria.referencedUuid) {
+      matchUuids.push(filterCriteria.referencedUuid);
+      
+      // Include nested UUIDs if enabled
+      if (filterCriteria.includeNestedUuids) {
+        const nestedUuids = await getNestedUuids();
+        matchUuids.push(...nestedUuids);
+      }
+    }
+
     return notes.filter(note => {
       // Category filter - check if any note category matches any filter category
       if (filterCriteria.categories && filterCriteria.categories.length > 0) {
@@ -163,10 +290,11 @@ Dependencies
         return false;
       }
 
-      // Referenced UUID filter - regex match on content
-      if (filterCriteria.referencedUuid) {
-        const uuidPattern = new RegExp(`@UUID\\[${filterCriteria.referencedUuid}\\]`, 'i');
-        if (!uuidPattern.test(note.content)) {
+      // Referenced UUID filter - check against all UUIDs (including nested if enabled)
+      if (matchUuids.length > 0) {
+        // Build a single regex pattern matching any of the UUIDs
+        const pattern = new RegExp(`@UUID\\[(${matchUuids.join('|')})\\]`, 'i');
+        if (!pattern.test(note.content)) {
           return false;
         }
       }
@@ -186,7 +314,8 @@ Dependencies
       content: `<i class="${note.icon}" style="margin-right: 4px;"></i>${note.name}`,
       start: CalendarAdapter.calendariaToJS(note.startDate),
       end: note.endDate ? CalendarAdapter.calendariaToJS(note.endDate) : undefined,
-      // type: note.endDate ? 'range' : 'point',
+      type: note.endDate ? 'range' : 'box',
+      className: `timeline-note-item-${note.id}`,
       style: `background-color: ${note.color}; border-color: ${note.color};`,
     }));
   };
@@ -202,14 +331,14 @@ Dependencies
     // this needs to be debounced to prevent excessive updates
     clearTimeout(rangeDebounceTimer);
 
-    rangeDebounceTimer = setTimeout(() => {
+    rangeDebounceTimer = setTimeout(async () => {
       const startAbsolute = CalendarAdapter.calendariaToAbsolute(start);
       const endAbsolute = CalendarAdapter.calendariaToAbsolute(end);
-
+    
       // Update items dynamically if we need more notes
-      updateTimelineItems(startAbsolute, endAbsolute);
+      await updateTimelineItems(startAbsolute, endAbsolute);
       
-      void saveTimelineConfig({filters: {
+      await saveTimelineConfig({filters: {
         visibleRange: {
           start: start,
           end: end,
@@ -222,7 +351,7 @@ Dependencies
    * Update timeline items dynamically when range changes.
    * Only fetches new notes if the visible range extends beyond currently loaded data.
    */
-  const updateTimelineItems = (startAbsolute: number, endAbsolute: number): void => {
+  const updateTimelineItems = async (startAbsolute: number, endAbsolute: number): Promise<void> => {
     if (!timelineInstance.value) {
       return;
     }
@@ -230,11 +359,14 @@ Dependencies
     const newNotes = pullNotesForRange(startAbsolute, endAbsolute);
 
     // Apply filters and convert to items
-    const filteredNotes = filterNotes(newNotes, filters.value);
+    const filteredNotes = await filterNotes(newNotes, filters.value);
     const newItems = notesToTimelineItems(filteredNotes);
 
     // Update the timeline items using setItems()
     timelineInstance.value.setItems(newItems);
+
+    // Apply line colors after items are updated
+    applyLineColors();
   };
 
   const pullNotesForRange = (startAbsolute: number, endAbsolute: number): CalendariaNote[] => {
@@ -245,6 +377,42 @@ Dependencies
     const rangeEnd = CalendarAdapter.absoluteToCalendaria(Math.ceil(endAbsolute + .3 * range));
 
     return (CalendarAdapter.getNotesInRange(rangeStart, rangeEnd));
+  };
+
+  /**
+   * Calculate the visible range needed to show all filtered notes with a buffer.
+   * @param notes - Array of filtered notes
+   * @returns Visible range with buffer, or null if no notes
+   */
+  const calculateVisibleRangeFromNotes = (notes: CalendariaNote[]): { start: CalendariaDate; end: CalendariaDate } | null => {
+    if (notes.length === 0) {
+      return null;
+    }
+
+    // Find min start date and max end date
+    let minDate = notes[0].startDate;
+    let maxDate = notes[0].endDate ?? notes[0].startDate;
+
+    for (const note of notes) {
+      // Compare start dates
+      if (CalendarAdapter.calendariaToAbsolute(note.startDate) < CalendarAdapter.calendariaToAbsolute(minDate)) {
+        minDate = note.startDate;
+      }
+      // Compare end dates (or start if no end)
+      const noteEnd = note.endDate ?? note.startDate;
+      if (CalendarAdapter.calendariaToAbsolute(noteEnd) > CalendarAdapter.calendariaToAbsolute(maxDate)) {
+        maxDate = noteEnd;
+      }
+    }
+
+    // Calculate buffer as 10% of the range
+    const rangeDays = CalendarAdapter.daysBetween(minDate, maxDate);
+    const bufferDays = Math.ceil(rangeDays * 0.1);
+
+    return {
+      start: CalendarAdapter.addDays(minDate, -bufferDays),
+      end: CalendarAdapter.addDays(maxDate, bufferDays),
+    };
   };
 
   /**
@@ -271,24 +439,38 @@ Dependencies
       // dynamically import vis-timeline (CSS is bundled via vite config)
       const { Timeline } = await import('vis-timeline');
 
-      // Default to ±50 years around current game date to match mock data range
-      // Determine initial visible range - use persisted range or default
+      // Determine initial visible range and fetch notes accordingly
       const currentDate = CalendarAdapter.getCurrentDate();
       const currentYear = currentDate.year;
+      let initialRange: { start: CalendariaDate; end: CalendariaDate };
+      let filteredNotes: CalendariaNote[];
       
-      const initialStart = filters.value.visibleRange
-        ? CalendarAdapter.calendariaToJS(filters.value.visibleRange.start)
-        : CalendarAdapter.calendariaToJS({ year: currentYear - 50, month: 0, day: 1 });
-      const initialEnd = filters.value.visibleRange
-        ? CalendarAdapter.calendariaToJS(filters.value.visibleRange.end)
-        : CalendarAdapter.calendariaToJS({ year: currentYear + 50, month: 0, day: 1 });
+      if (filters.value.visibleRange) {
+        // Use persisted range - only fetch notes in that range
+        initialRange = filters.value.visibleRange;
+        const startAbsolute = CalendarAdapter.calendariaToAbsolute(initialRange.start);
+        const endAbsolute = CalendarAdapter.calendariaToAbsolute(initialRange.end);
+        const allNotes = pullNotesForRange(startAbsolute, endAbsolute);
+        filteredNotes = await filterNotes(allNotes, filters.value);
+      } else {
+        // No persisted range - get all notes and calculate range from filtered results
+        const allNotes = CalendarAdapter.getAllNotes();
+        filteredNotes = await filterNotes(allNotes, filters.value);
+        
+        const calculatedRange = calculateVisibleRangeFromNotes(filteredNotes);
+        if (calculatedRange) {
+          initialRange = calculatedRange;
+        } else {
+          // No notes - fall back to ±50 years around current date
+          initialRange = {
+            start: { year: currentYear - 50, month: 0, day: 1 },
+            end: { year: currentYear + 50, month: 0, day: 1 },
+          };
+        }
+      }
 
-      const startAbsolute = CalendarAdapter.calendariaToAbsolute(filters.value.visibleRange?.start || { year: currentYear - 50, month: 0, day: 1 });
-      const endAbsolute = CalendarAdapter.calendariaToAbsolute(filters.value.visibleRange?.end || { year: currentYear + 50, month: 0, day: 1 });
-      const allNotes = pullNotesForRange(startAbsolute, endAbsolute);
-
-      // Apply filters
-      const filteredNotes = filterNotes(allNotes, filters.value);
+      const initialStart = CalendarAdapter.calendariaToJS(initialRange.start);
+      const initialEnd = CalendarAdapter.calendariaToJS(initialRange.end);
 
       // Convert to timeline items
       const items = notesToTimelineItems(filteredNotes);
@@ -375,6 +557,14 @@ Dependencies
   };
 
   /**
+   * Handle filter reset.
+   */
+  const onResetFilters = async (): Promise<void> => {
+    await saveTimelineConfig({filters: defaultFilters.value});
+    await generateTimeline();
+  };
+
+  /**
    * Handle filter panel toggle.
    */
   const onTogglePanel = (): void => {
@@ -382,8 +572,42 @@ Dependencies
   };
 
   /**
+   * Apply dynamic line colors to match box colors.
+   * Each box and its corresponding line share a unique className (timeline-note-item-{id}),
+   * so we find matching lines by class rather than by DOM relationship.
+   */
+  const applyLineColors = (): void => {
+    if (!timelineRef.value) {
+      return;
+    }
+
+    // Find all box items and their corresponding lines by matching className
+    const boxes = timelineRef.value.querySelectorAll('.vis-item.vis-box');
+    boxes.forEach((box) => {
+      const boxEl = box as HTMLElement;
+      const bgColor = boxEl.style.backgroundColor;
+      if (bgColor) {
+        // Find the className that starts with 'timeline-note-item-'
+        const noteClass = Array.from(boxEl.classList).find(c => c.startsWith('timeline-note-item-'));
+        if (noteClass) {
+          // Find the line and dot with the same class
+          const line = timelineRef.value?.querySelector(`.vis-item.vis-line.${noteClass}`) as HTMLElement;
+          if (line) {
+            line.style.borderColor = bgColor;
+          }
+
+          const dot = timelineRef.value?.querySelector(`.vis-item.vis-dot.${noteClass}`) as HTMLElement;
+          if (dot) {
+            dot.style.borderColor = bgColor;
+          }
+        }
+      }
+    });
+  };
+
+  /**
    * Save the current timeline config to the document.
-   * For anything not provided, uses the current value in the document, 
+   * For anything not provided, uses the current value in the document,
    *    or the default if there's nothing in the document either.
    */
   const saveTimelineConfig = async (config: DeepPartial<TimelineConfig>): Promise<void> => {
@@ -420,6 +644,7 @@ Dependencies
         textSearch: newFilters?.textSearch ?? existingFilters.textSearch,
         gmOnly: newFilters?.gmOnly ?? existingFilters.gmOnly,
         referencedUuid: newFilters?.referencedUuid ?? existingFilters.referencedUuid,
+        includeNestedUuids: newFilters?.includeNestedUuids ?? existingFilters.includeNestedUuids,
         visibleRange: validVisibleRange,
       },
     };
@@ -432,10 +657,17 @@ Dependencies
 
   ////////////////////////////////
   // watchers
+  // regenerate when filters change (excluding visibleRange, which is just view state)
+  watch(() => filters.value, (newVal: TimelineFilters, oldVal: TimelineFilters) => {
+    const { visibleRange: newRange, ...newRest } = newVal;
+    const { visibleRange: oldRange, ...oldRest } = oldVal;
+    if (JSON.stringify(newRest) !== JSON.stringify(oldRest)) {
+      generateTimeline();
+    }
+  }, { deep: true });
 
   ////////////////////////////////
   // lifecycle hooks
-
   onMounted(async () => {
     if (timelineRef.value) {
       // Ensure the container has dimensions before initializing

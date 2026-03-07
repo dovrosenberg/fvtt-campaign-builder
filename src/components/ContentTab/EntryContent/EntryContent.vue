@@ -191,6 +191,18 @@
             />
           </div>
         </div>
+        <div 
+          v-if="ModuleSettings.get(SettingKey.useTimeline)"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="timeline"
+        >
+          <div class="tab-inner">
+            <TimelineTab
+              :window-tab-type="WindowTabType.Entry"
+            />
+          </div>
+        </div>
       </ContentTabStrip>
     </div>
 
@@ -260,6 +272,7 @@
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
   import VoiceRecordingDialog from '@/components/dialogs/VoiceRecordingDialog.vue';
+  import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
   
   // types
   import { CustomFieldContentType, DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal, ContentTabDescriptor } from '@/types';
@@ -378,6 +391,8 @@
     ModuleSettings.getReactiveVersion();
     if (ModuleSettings.get(SettingKey.genericFoundryTab))
       tabs.push({ id: 'foundry', label: localize('labels.tabs.entry.foundry') });
+    if (ModuleSettings.get(SettingKey.useTimeline))
+      tabs.push({ id: 'timeline', label: localize('labels.tabs.entry.timeline') });
 
     return tabs;
   });

@@ -23,6 +23,9 @@ class CalendariaMoment {
    * Create a CalendariaMoment from a date.
    */
   private constructor(date: CalendariaDate) {
+    if (!date) {
+      throw new Error('Cannot create CalendariaMoment with null or undefined date');
+    }
     this._calendariaDate = date;
   }
 

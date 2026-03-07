@@ -94,6 +94,19 @@ Dependencies
           </label>
         </div>
 
+        <!-- Include Nested Content -->
+        <div v-if="props.currentUuid && isReferenceEntity && showNestedContentCheckbox" class="filter-group nested-checkbox">
+          <label class="checkbox-label">
+            <Checkbox
+              v-model="localFilters.includeNestedUuids"
+              :binary="true"
+              inputId="include-nested"
+              @change="onIncludeNestedChange"
+            />
+            <span>{{ nestedContentLabel }}</span>
+          </label>
+        </div>
+
         <!-- Action Buttons -->
         <div class="filter-actions">
           <Button
@@ -159,6 +172,7 @@ Dependencies
   // emits
   const emit = defineEmits<{
     (e: 'updateFilters', filters: TimelineFilters): void;
+    (e: 'resetFilters'): void;
     (e: 'togglePanel'): void;
   }>();
 
@@ -192,6 +206,32 @@ Dependencies
         return localize('labels.entry.entry');
       case WindowTabType.Setting:
         return localize('labels.setting.setting');
+      default:
+        return '';
+    }
+  });
+
+  /**
+   * Determine if the nested content checkbox should be shown.
+   * Not shown for sessions.
+   */
+  const showNestedContentCheckbox = computed(() => {
+    return props.windowTabType !== WindowTabType.Session;
+  });
+
+  /**
+   * Get the localized label for the nested content checkbox based on entity type.
+   */
+  const nestedContentLabel = computed(() => {
+    switch (props.windowTabType) {
+      case WindowTabType.Campaign:
+        return localize('labels.timeline.includeArcAndSessionReferences');
+      case WindowTabType.Arc:
+        return localize('labels.timeline.includeSessionReferences');
+      case WindowTabType.Entry:
+        return localize('labels.timeline.includeChildren');
+      case WindowTabType.Setting:
+        return localize('labels.timeline.includeAllReferences');
       default:
         return '';
     }
@@ -277,6 +317,17 @@ Dependencies
    */
   const onReferenceEntityChange = (): void => {
     localFilters.value.referencedUuid = isReferenceEntity.value ? props.currentUuid : '';
+    // Reset nested checkbox when reference is unchecked
+    if (!isReferenceEntity.value) {
+      localFilters.value.includeNestedUuids = false;
+    }
+    emitFilterChange();
+  };
+
+  /**
+   * Handle include nested content checkbox change.
+   */
+  const onIncludeNestedChange = (): void => {
     emitFilterChange();
   };
 
@@ -284,25 +335,24 @@ Dependencies
    * Handle reset button click.
    */
   const onResetClick = (): void => {
-    localFilters.value = {
-      categories: [],
-      textSearch: '',
-      gmOnly: false,
-      referencedUuid: '',
-      visibleRange: localFilters.value.visibleRange,
-    };
-    emitFilterChange();
+    emit('resetFilters');
   };
 
   ////////////////////////////////
   // watchers
 
-  // Sync local filters when props change
+  // Sync local filters when props change (but only if different from current local state)
   watch(
     () => props.filters,
     (newFilters) => {
-      localFilters.value = { ...newFilters };
-      isReferenceEntity.value = !!newFilters.referencedUuid;
+      // Only update if the new filters differ from what we already have locally
+      // This prevents overwriting local changes that are still being processed
+      const localSnapshot = JSON.stringify(localFilters.value);
+      const newSnapshot = JSON.stringify(newFilters);
+      if (localSnapshot !== newSnapshot) {
+        localFilters.value = { ...newFilters };
+        isReferenceEntity.value = !!newFilters.referencedUuid;
+      }
     },
     { deep: true }
   );
@@ -316,6 +366,7 @@ Dependencies
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding-left: 2px;
 }
 
 .filter-group {

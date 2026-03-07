@@ -140,6 +140,13 @@
             <StoryWebsTab mode="session" />
           </div>
         </div>
+        <div v-if="showTimelineTab" class="tab flexcol" data-group="primary" data-tab="timeline">
+          <div class="tab-inner">
+            <TimelineTab
+              :window-tab-type="WindowTabType.Session"
+            />
+          </div>
+        </div>
       </ContentTabStrip>
     </div>
   </form>	 
@@ -193,6 +200,7 @@
   import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
+  import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
 
   // types
   import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType } from '@/types';
@@ -239,6 +247,11 @@
     return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 
+  const showTimelineTab = computed(() => {
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.useTimeline);
+  });
+
   const tabs = computed(() => [
     { id: 'notes', label: localize('labels.tabs.session.notes')},
     { id: 'lore', label: localize('labels.tabs.session.lore')},
@@ -249,6 +262,7 @@
     { id: 'magic', label: localize('labels.tabs.session.magic')},
     { id: 'pcs', label: localize('labels.tabs.session.pcs')},
     ...(showStoryWebTab.value ? [{ id: 'storyWebs', label: localize('contentFolders.storyWebs') }] : []),
+    ...(showTimelineTab.value ? [{ id: 'timeline', label: localize('labels.tabs.session.timeline') }] : []),
   ] as ContentTabDescriptor[]);
 
   ////////////////////////////////

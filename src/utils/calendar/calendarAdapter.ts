@@ -55,7 +55,13 @@ export const CalendarAdapter = {
     const timestamp = jsDate.getTime();
 
     // Get date from API
-    return api.timestampToDate(timestamp / 1000);
+    const date = api.timestampToDate(timestamp / 1000);
+
+    if (date == null) {
+      throw new Error('Failed to convert timestamp to Calendaria date');
+    }
+    
+    return date;
   },
 
   formatDate: (date: CalendariaDate, formatOrPreset: string): string => {
@@ -143,6 +149,11 @@ export const CalendarAdapter = {
   getNotesInRange(startDate: CalendariaDate, endDate: CalendariaDate): CalendariaNote[] {
     const api = requireCalendariaApi();    
     return api.getNotesInRange(startDate, endDate).map(CalendarAdapter.convertApiNote);
+  },
+
+  getAllNotes(): CalendariaNote[] {
+    const api = requireCalendariaApi();
+    return api.getAllNotes().map(CalendarAdapter.convertApiNote);
   },
 
   /**

@@ -582,7 +582,11 @@
         "resetFilters": "Reset",
         "noFilters": "No filters",
         "calendar": "Calendar",
-        "selectCalendar": "Select calendar..."
+        "selectCalendar": "Select calendar...",
+        "includeChildren": "Include children",
+        "includeArcAndSessionReferences": "Include Arc and Session references",
+        "includeSessionReferences": "Include Session references",
+        "includeAllReferences": "Include Entry, Campaign, Arc, and Session references"
       },
       "groupTree": "Group tree by type",
       "tabs": {
@@ -591,7 +595,11 @@
           "locations": "Locations",
           "pcs": "PCs",
           "organizations": "Organizations",
-          "foundry": "Foundry"
+          "foundry": "Foundry",
+          "timeline": "Timeline"
+        },
+        "setting": {
+          "timeline": "Timeline"
         },
         "campaign": {
           "pcs": "PCs",
@@ -610,7 +618,8 @@
           "locations": "Locations",
           "participants": "Participants",
           "monsters": "Monsters",
-          "ideas": "Ideas"
+          "ideas": "Ideas",
+          "timeline": "Timeline"
         },
         "session": {
           "notes": "Notes",
@@ -623,7 +632,8 @@
           "npcs": "NPCs",
           "monsters": "Monsters",
           "magic": "Magic Items",
-          "toDo": "To-Do"
+          "toDo": "To-Do",
+          "timeline": "Timeline"
         }
       },
       "noResults": "Nothing here",

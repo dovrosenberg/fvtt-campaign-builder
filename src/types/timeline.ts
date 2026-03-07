@@ -18,6 +18,9 @@ export interface TimelineFilters {
   /** Show events referencing this UUID */
   referencedUuid: string;
 
+  /** Include nested content UUIDs when filtering by reference */
+  includeNestedUuids: boolean;
+
   /** Visible date range for timeline  */
   visibleRange: {
     start: CalendariaDate;
@@ -30,6 +33,7 @@ export const TIMELINE_DEFAULT_FILTERS: TimelineFilters = {
   textSearch: '',
   gmOnly: false,
   referencedUuid: '',
+  includeNestedUuids: false,
   visibleRange: null,
 } as const;
 

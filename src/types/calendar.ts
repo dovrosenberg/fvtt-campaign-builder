@@ -180,8 +180,11 @@ export interface CalendariaAPI {
   /** Get a specific calendar by ID */
   getCalendar: (id: string) => CalendarDefinition | null;
 
-  /** Gets notes */
+  /** Gets notes in a date range */
   getNotesInRange: (startDate: CalendariaDate, endDate: CalendariaDate) => CalendariaRawNote[];
+
+  /** Gets all notes */
+  getAllNotes: () => CalendariaRawNote[];
 
   /** Calculate number of days between two dates */
   daysBetween: (start: CalendariaDate, end: CalendariaDate) => number;
