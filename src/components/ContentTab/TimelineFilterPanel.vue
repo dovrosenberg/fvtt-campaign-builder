@@ -8,6 +8,7 @@ Responsibilities
 - Display category multi-select dropdown
 - Provide text search input
 - GM-only toggle
+- Reference entity toggle
 - Provide reset button
 - Emit filter changes to parent
 
@@ -15,6 +16,8 @@ Props
 - filters: TimelineFilters, current filter values
 - isFilterPanelExpanded: boolean, whether the panel is expanded
 - availableCategories: string[], list of available categories for the dropdown
+- windowTabType: WindowTabType, type of entity for the reference checkbox
+- currentUuid: string, the UUID of the current entity for reference filtering
 
 Emits
 - updateFilters: TimelineFilters, emitted when any filter changes
@@ -33,11 +36,8 @@ Dependencies
 <template>
   <div class="timeline-header">
     <div class="filter-header flexrow" @click="onTogglePanel">
-      <div class="filter-summary flexrow">
-        <i class="fas fa-filter"></i>
-        <span class="filter-text">{{ filterSummary }}</span>
-      </div>
       <i :class="['fas', props.isFilterPanelExpanded ? 'fa-chevron-up' : 'fa-chevron-down', 'toggle-icon']"></i>
+      <span class="filter-text">{{ filterSummary }}</span>
     </div>
 
     <!-- Expandable Filter Panel -->
@@ -81,6 +81,19 @@ Dependencies
           </label>
         </div>
 
+        <!-- Reference Entity -->
+        <div v-if="props.currentUuid" class="filter-group">
+          <label class="checkbox-label">
+            <Checkbox
+              v-model="isReferenceEntity"
+              :binary="true"
+              inputId="reference-entity"
+              @change="onReferenceEntityChange"
+            />
+            <span>{{ localize('labels.timeline.referenceEntity', { entity: entityTypeLabel }) }}</span>
+          </label>
+        </div>
+
         <!-- Action Buttons -->
         <div class="filter-actions">
           <Button
@@ -104,7 +117,7 @@ Dependencies
 
   // local imports
   import { localize } from '@/utils/game';
-  import { TimelineFilters } from '@/types';
+  import { TimelineFilters, WindowTabType } from '@/types';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -132,6 +145,14 @@ Dependencies
       type: Array as PropType<string[]>,
       required: true,
     },
+    windowTabType: {
+      type: Number as PropType<WindowTabType>,
+      required: true,
+    },
+    currentUuid: {
+      type: String,
+      required: true
+    },
   });
 
   ////////////////////////////////
@@ -150,9 +171,33 @@ Dependencies
   // Local copy of filters for v-model binding
   const localFilters = ref<TimelineFilters>({ ...props.filters });
 
+  // Reference entity checkbox state (needs to be a ref for v-model)
+  const isReferenceEntity = ref(!!props.filters.referencedUuid);
+
   ////////////////////////////////
   // computed data
 
+  /**
+   * Get the localized entity type name for the reference checkbox label.
+   */
+  const entityTypeLabel = computed(() => {
+    switch (props.windowTabType) {
+      case WindowTabType.Campaign:
+        return localize('labels.campaign.campaign');
+      case WindowTabType.Arc:
+        return localize('labels.arc.arc');
+      case WindowTabType.Session:
+        return localize('labels.session.session');
+      case WindowTabType.Entry:
+        return localize('labels.entry.entry');
+      case WindowTabType.Setting:
+        return localize('labels.setting.setting');
+      default:
+        return '';
+    }
+  });
+
+  
   /**
    * Generate a summary of active filters.
    * @returns Human-readable filter summary
@@ -228,6 +273,14 @@ Dependencies
   };
 
   /**
+   * Handle reference entity checkbox change.
+   */
+  const onReferenceEntityChange = (): void => {
+    localFilters.value.referencedUuid = isReferenceEntity.value ? props.currentUuid : '';
+    emitFilterChange();
+  };
+
+  /**
    * Handle reset button click.
    */
   const onResetClick = (): void => {
@@ -236,6 +289,7 @@ Dependencies
       textSearch: '',
       gmOnly: false,
       referencedUuid: '',
+      visibleRange: localFilters.value.visibleRange,
     };
     emitFilterChange();
   };
@@ -248,6 +302,7 @@ Dependencies
     () => props.filters,
     (newFilters) => {
       localFilters.value = { ...newFilters };
+      isReferenceEntity.value = !!newFilters.referencedUuid;
     },
     { deep: true }
   );

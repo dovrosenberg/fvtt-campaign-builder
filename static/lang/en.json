@@ -578,6 +578,7 @@
         "categories": "Categories",
         "selectCategories": "Select categories...",
         "gmOnly": "GM Only",
+        "referenceEntity": "Reference this {entity}",
         "resetFilters": "Reset",
         "noFilters": "No filters",
         "calendar": "Calendar",

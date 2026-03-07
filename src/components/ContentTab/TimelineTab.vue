@@ -32,6 +32,8 @@ Dependencies
       :filters="filters"
       :is-filter-panel-expanded="isFilterPanelExpanded"
       :available-categories="availableCategories"
+      :window-tab-type="currentContentType"
+      :current-uuid="currentContentId || ''"
       @update-filters="onUpdateFilters"
       @toggle-panel="onTogglePanel"
     />
@@ -80,7 +82,7 @@ Dependencies
 
   ////////////////////////////////
   // store
-  const { currentCampaign, currentArc, currentSession, currentEntry, currentSetting } = useContentState();
+  const { currentCampaign, currentArc, currentSession, currentEntry, currentSetting, currentContentId, currentContentType } = useContentState();
 
   ////////////////////////////////
   // data
@@ -184,8 +186,7 @@ Dependencies
       content: `<i class="${note.icon}" style="margin-right: 4px;"></i>${note.name}`,
       start: CalendarAdapter.calendariaToJS(note.startDate),
       end: note.endDate ? CalendarAdapter.calendariaToJS(note.endDate) : undefined,
-      type: note.endDate ? 'range' : 'point',
-      className: `timeline-event`,
+      // type: note.endDate ? 'range' : 'point',
       style: `background-color: ${note.color}; border-color: ${note.color};`,
     }));
   };
@@ -205,7 +206,7 @@ Dependencies
       const startAbsolute = CalendarAdapter.calendariaToAbsolute(start);
       const endAbsolute = CalendarAdapter.calendariaToAbsolute(end);
 
-    // Update items dynamically if we need more notes
+      // Update items dynamically if we need more notes
       updateTimelineItems(startAbsolute, endAbsolute);
       
       void saveTimelineConfig({filters: {
