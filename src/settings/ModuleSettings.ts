@@ -412,14 +412,6 @@ export class ModuleSettings {
       type: Boolean,
     },
     {
-      settingID: SettingKey.genericFoundryTab,
-      name: 'settings.genericFoundryTab',
-      hint: 'settings.genericFoundryTabHelp',
-      default: false,
-      requiresReload: true,
-      type: Boolean,
-    },
-    {
       settingID: SettingKey.sessionDisplayMode,
       name: 'settings.sessionDisplayMode',
       hint: 'settings.sessionDisplayModeHelp',
@@ -627,6 +619,11 @@ export class ModuleSettings {
       settingID: SettingKey.mainWindowBounds,
       default: null,
       type: Object,
+    },
+    {
+      settingID: SettingKey.genericFoundryTab,
+      default: false,
+      type: Boolean,
     },
   ];
 
