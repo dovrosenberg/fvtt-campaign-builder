@@ -41,7 +41,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     img: '',
     customFields: {},
     customFieldHeights: {},
-    timelines: TIMELINE_DEFAULT,
+    timelines: [TIMELINE_DEFAULT],
   } as unknown as EntryDocClass['system'];
 
   private _actor: Actor | null;  // for pcs

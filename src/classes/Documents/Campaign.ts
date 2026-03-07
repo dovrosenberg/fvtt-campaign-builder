@@ -29,7 +29,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     frontIds: [],
     storyWebIds: [],
     storyWebs: [],
-    timelines: TIMELINE_DEFAULT,
+    timelines: [TIMELINE_DEFAULT],
     groups: {
       [GroupableItem.CampaignToDos]: [] as TableGroup[],
       [GroupableItem.CampaignIdeas]: [] as TableGroup[],

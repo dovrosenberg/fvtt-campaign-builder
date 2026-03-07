@@ -41,7 +41,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     nameStyleExamples: { genre: '', settingFeeling: '', examples: [] },   
     journals: [],
     tags: {} as SettingTags,
-    timelines: TIMELINE_DEFAULT,
+    timelines: [TIMELINE_DEFAULT],
   } as unknown as SettingDocClass['system'];
   
   // JournalEntries

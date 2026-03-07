@@ -31,7 +31,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     img: '',   
     tags: [],
     storyWebs: [],
-    timelines: TIMELINE_DEFAULT,
+    timelines: [TIMELINE_DEFAULT],
     groups: {
       [GroupableItem.ArcIdeas]: [] as TableGroup[],
       [GroupableItem.ArcLore]: [] as TableGroup[],

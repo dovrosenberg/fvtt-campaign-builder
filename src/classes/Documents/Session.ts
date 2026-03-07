@@ -28,7 +28,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     img: '',   
     tags: [],
     storyWebs: [],
-    timelines: TIMELINE_DEFAULT,    
+    timelines: [TIMELINE_DEFAULT],
     groups: {
       [GroupableItem.SessionLore]: [] as TableGroup[],
       [GroupableItem.SessionVignettes]: [] as TableGroup[],
