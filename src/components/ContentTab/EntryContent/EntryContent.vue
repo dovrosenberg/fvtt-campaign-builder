@@ -192,7 +192,7 @@
           </div>
         </div>
         <div 
-          v-if="ModuleSettings.get(SettingKey.useTimeline)"
+          v-if="showTimelineTab"
           class="tab flexcol" 
           data-group="primary" 
           data-tab="timeline"
@@ -355,6 +355,12 @@
       return localize('tooltips.voiceRecordingNone');
     }
     return localize('tooltips.voiceRecordingExists');
+  });
+
+  const showTimelineTab = computed(() => {
+    return ModuleSettings.get(SettingKey.useTimeline) && 
+      calendariaAvailable.value && 
+      calendarActive.value;
   });
 
   const customFieldContentType = computed<CustomFieldContentType | null>(() => {

@@ -6,7 +6,7 @@
 import type { CalendariaDate, CalendarZoomLevel, CalendarTimeUnit, CalendariaCategory, CalendariaAPI, CalendariaCalendar, CalendariaNote, CalendariaRawNote } from '@/types';
 
 /**
- * Get the Calendaria API, throwing if not available.
+ * Get the Calendaria API, throwing if not available or if there's no active calendar.
  * @returns Calendaria API object
  * @throws Error if Calendaria module is not active
  */
@@ -15,6 +15,10 @@ function requireCalendariaApi(): CalendariaAPI {
 
   if (!calendaria?.active)
     throw new Error('Calendaria module is not active. The timeline requires Calendaria to be installed and enabled.');
+
+  // @ts-ignore
+  if (!CALENDARIA?.api?.getActiveCalendar())
+    throw new Error('No active calendar in Calendaria. The timeline requires an active calendar.');
 
   // @ts-ignore
   return (CALENDARIA as any).api as CalendariaAPI;

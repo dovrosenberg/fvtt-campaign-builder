@@ -9,7 +9,6 @@ import { MigrationManager } from '@/utils/migration';
 import { attachGlobalScripts } from '@/utils/globalScripts';
 import CustomFieldsService from '@/utils/customFields';
 import { vueHost } from '@/libraries/fvtt-vue/VueHost';
-import { initializeCalendarState } from '@/utils/calendar/calendarState';
 
 export function registerForReadyHook() {
   Hooks.once('ready', ready);
@@ -22,9 +21,6 @@ async function ready(): Promise<void> {
   // Initialize VueHost early to ensure it's ready before any windows open
   // This prevents circular dependency issues and ensures Vue DevTools works
   await vueHost.ensureMounted();
-  
-  // Initialize calendar state (session-scoped, does not persist)
-  initializeCalendarState();
   
   // Mount the external API
   const module = game.modules.get(moduleId);

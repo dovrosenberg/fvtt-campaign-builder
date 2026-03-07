@@ -27,10 +27,12 @@ export function initializeCalendarState(): void {
     // Check for active calendar
     calendarActive.value = calendaria?.api?.getActiveCalendar() != null;
     
-    // Register for calendar switch hook to update state reactively
-    // @ts-ignore
-    Hooks.on(calendaria.api.hooks.CALENDAR_SWITCHED, () => {
-      calendarActive.value = !!calendaria?.api?.getActiveCalendar();
-    });
+    if (!calendarActive.value) {
+      // Register for calendar switch hook to update state reactively
+      // @ts-ignore
+      Hooks.on(calendaria.api.hooks.CALENDAR_SWITCHED, () => {
+        calendarActive.value = !!calendaria?.api?.getActiveCalendar();
+      });
+    }
   }
 }
