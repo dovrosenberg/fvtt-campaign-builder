@@ -304,16 +304,40 @@ Dependencies
    * @returns Array of timeline items
    */
   const notesToTimelineItems = (notes: CalendariaNote[]): TimelineItem[] => {
-    return notes.map(note => ({
-      id: note.id,
-      content: `<i class="${note.icon}" style="margin-right: 4px;"></i>${note.name}`,
-      start: CalendarAdapter.calendariaToJS(note.startDate),
-      // set end to nothing if it's just one day
-      end: note.endDate && CalendarAdapter.calendariaToAbsolute(note.startDate) !== CalendarAdapter.calendariaToAbsolute(note.endDate) ? CalendarAdapter.calendariaToJS(note.endDate) : undefined,
-      // type: note.endDate ? 'range' : 'box',
-      className: `timeline-note-item-${note.id}`,
-      style: `background-color: ${note.color}; border-color: ${note.color};`,
-    }));
+    const categories = CalendarAdapter.getCategories();
+    
+    return notes.map(note => {
+      // Build tooltip content
+      const categoryLabels = note.categories
+        .map(catId => categories.find(c => c.id === catId)?.label || catId)
+        .join(', ');
+      
+      const startDateStr = CalendarAdapter.formatDate(note.startDate, 'DD MMMM YYYY');
+      const endDateStr = note.endDate && CalendarAdapter.calendariaToAbsolute(note.startDate) !== CalendarAdapter.calendariaToAbsolute(note.endDate) ? CalendarAdapter.formatDate(note.endDate, 'DD MMMM YYYY') : null;
+      const dateStr = endDateStr ? `${startDateStr} - ${endDateStr}` : startDateStr;
+      
+      // Build tooltip HTML
+      const tooltipHtml = [
+        `<div class="timeline-tooltip">`,
+        `<div class="timeline-tooltip-name"><b>Name: </b>${note.name}</div>`,
+        categoryLabels ? `<div class="timeline-tooltip-category"><b>Category: </b>${categoryLabels}</div>` : '',
+        `<div class="timeline-tooltip-date">${dateStr}</div>`,
+        note.content ? `<div class="timeline-tooltip-content">${note.content}</div>` : '',
+        `</div>`,
+      ].filter(Boolean).join('');
+
+      return {
+        id: note.id,
+        content: `<i class="${note.icon}" style="margin-right: 4px;"></i>${note.name}`,
+        start: CalendarAdapter.calendariaToJS(note.startDate),
+        // set end to nothing if it's just one day
+        end: note.endDate && CalendarAdapter.calendariaToAbsolute(note.startDate) !== CalendarAdapter.calendariaToAbsolute(note.endDate) ? CalendarAdapter.calendariaToJS(note.endDate) : undefined,
+        // type: note.endDate ? 'range' : 'box',
+        className: `timeline-note-item-${note.id}`,
+        style: `background-color: ${note.color}; border-color: ${note.color};`,
+        title: tooltipHtml,
+      };
+    });
   };
 
 
@@ -503,6 +527,11 @@ Dependencies
 
         // Disable default current time line (uses real-world time, not game time)
         showCurrentTime: false,
+
+        // Tooltip options - cap overflow to stay within container
+        tooltip: {
+          overflowMethod: 'flip',
+        },
 
         // zoomMin = 5 days... if much smaller than you can get to a weird 
         //   spot where the days are huge but it still doesn't show hours
@@ -735,82 +764,93 @@ Dependencies
 </script>
 
 <style lang="scss" scoped>
-.timeline-tab {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
-.timeline-header {
-  background-color: var(--fcb-background);
-  border-bottom: 1px solid var(--fcb-border);
-  flex-shrink: 0;
-}
-
-.filter-header {
-  padding: 0.5rem 0.75rem;
-  cursor: pointer;
-  align-items: center;
-  justify-content: flex-start;
-  user-select: none;
-
-  &:hover {
-    background-color: var(--fcb-hover);
-  }
-}
-
-.filter-summary {
-  align-items: center;
-  gap: 0.5rem;
-
-  i {
-    color: var(--fcb-primary);
+  .timeline-tab {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
   }
 
-  .filter-text {
-    font-size: 0.875rem;
+  .timeline-header {
+    background-color: var(--fcb-background);
+    border-bottom: 1px solid var(--fcb-border);
+    flex-shrink: 0;
+  }
+
+  .filter-header {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    align-items: center;
+    justify-content: flex-start;
+    user-select: none;
+
+    &:hover {
+      background-color: var(--fcb-hover);
+    }
+  }
+
+  .filter-summary {
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: var(--fcb-primary);
+    }
+
+    .filter-text {
+      font-size: 0.875rem;
+      color: var(--fcb-text-secondary);
+    }
+  }
+
+  .toggle-icon {
     color: var(--fcb-text-secondary);
+    font-size: 0.75rem;
   }
-}
 
-.toggle-icon {
-  color: var(--fcb-text-secondary);
-  font-size: 0.75rem;
-}
-
-.filter-panel {
-  padding: 0.75rem;
-  border-top: 1px solid var(--fcb-border);
-}
-
-.timeline-container {
-  flex: 1;
-  min-height: 0;
-  position: relative;
-}
-
-.timeline-loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--fcb-text-secondary);
-
-  i {
-    font-size: 1.5rem;
-    color: var(--fcb-primary);
+  .filter-panel {
+    padding: 0.75rem;
+    border-top: 1px solid var(--fcb-border);
   }
-}
 
-.timeline-visualization {
-  flex: 1;
-  min-height: 300px;
-  height: 100%;
-  background-color: var(--fcb-background);
-}
+  .timeline-container {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+  }
 
+  .timeline-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--fcb-text-secondary);
+
+    i {
+      font-size: 1.5rem;
+      color: var(--fcb-primary);
+    }
+  }
+
+  .timeline-visualization {
+    flex: 1;
+    min-height: 300px;
+    height: 100%;
+    background-color: var(--fcb-background);
+  }
+</style>
+
+<style lang="scss">
+  /* Global styles for vis-timeline tooltip - not scoped */
+  .vis-tooltip {
+    max-width: 300px;
+    padding: 8px;
+    background-color: hsl(164, 48%, 95%);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: var(--font-size-12);
+  }
 </style>

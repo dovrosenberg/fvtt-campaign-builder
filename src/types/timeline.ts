@@ -136,4 +136,6 @@ export interface TimelineItem {
   type?: 'box' | 'point' | 'range' | 'background';
   className?: string;
   style?: string;
+  /** Tooltip content (HTML) */
+  title?: string;
 }
