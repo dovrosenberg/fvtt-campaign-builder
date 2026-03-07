@@ -303,6 +303,15 @@ export class ModuleSettings {
       type: TableGroupingSettingsApplication,
     },
     {
+      settingID: SettingKey.tabVisibilityMenu,
+      name: 'settings.tabVisibility',
+      label: 'fcb.settings.tabVisibilityLabel',
+      hint: 'settings.tabVisibilityHelp',
+      icon: 'fa-solid fa-folder-tree',
+      permissions: ['SETTINGS_WRITE'],
+      type: TabVisibilitySettingsApplication,
+    },
+    {
       settingID: SettingKey.importExportMenu,
       name: 'settings.importExport',
       label: 'fcb.settings.importExportLabel',   // localized by Foundry
@@ -311,15 +320,6 @@ export class ModuleSettings {
       permissions: ['SETTINGS_WRITE'],
       type: ImportExportApplication,
     },
-    {
-      settingID: SettingKey.tabVisibilityMenu,
-      name: 'settings.tabVisibility',
-      label: 'fcb.settings.tabVisibilityLabel',
-      hint: 'settings.tabVisibilityHelp',
-      icon: 'fa-solid fa-folder-tree',
-      permissions: ['SETTINGS_WRITE'],
-      type: TabVisibilitySettingsApplication,
-    }
   ];
 
   // these are globals shown in the options
