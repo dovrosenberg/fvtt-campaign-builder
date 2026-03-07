@@ -287,8 +287,10 @@ Dependencies
 
       // Referenced UUID filter - check against all UUIDs (including nested if enabled)
       if (matchUuids.length > 0) {
+        // Escape regex metacharacters in UUIDs (e.g., '.' in 'Compendium.world.abc')
+        const escapedUuids = matchUuids.map(uuid => uuid.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
         // Build a single regex pattern matching any of the UUIDs
-        const pattern = new RegExp(`@UUID\\[(${matchUuids.join('|')})\\]`, 'i');
+        const pattern = new RegExp(`@UUID\\[(${escapedUuids.join('|')})\\]`, 'i');
         if (!pattern.test(note.content)) {
           return false;
         }
