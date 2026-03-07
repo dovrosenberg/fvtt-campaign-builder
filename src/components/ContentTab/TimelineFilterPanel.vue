@@ -117,6 +117,14 @@ Dependencies
             size="small"
             outlined
           />
+          <Button
+            :label="localize('labels.timeline.resetRange')"
+            icon="fas fa-arrows-left-right"
+            severity="secondary"
+            @click="onResetRangeClick"
+            size="small"
+            outlined
+          />
         </div>
       </div>
     </div>
@@ -173,6 +181,7 @@ Dependencies
   const emit = defineEmits<{
     (e: 'updateFilters', filters: TimelineFilters): void;
     (e: 'resetFilters'): void;
+    (e: 'resetRange'): void;
     (e: 'togglePanel'): void;
   }>();
 
@@ -246,22 +255,22 @@ Dependencies
     const parts: string[] = [];
 
     if (localFilters.value.categories && localFilters.value.categories.length > 0) {
-      parts.push(`Categories: ${localFilters.value.categories.join(', ')}`);
+      parts.push(localize('labels.timeline.filterSummaryCategories', { categories: localFilters.value.categories.join(', ') }));
     }
 
     if (localFilters.value.textSearch) {
-      parts.push(`Search: "${localFilters.value.textSearch}"`);
+      parts.push(localize('labels.timeline.filterSummarySearch', { search: localFilters.value.textSearch }));
     }
 
     if (localFilters.value.gmOnly) {
-      parts.push('GM Only');
+      parts.push(localize('labels.timeline.gmOnly'));
     }
 
     if (localFilters.value.referencedUuid) {
-      parts.push('Has Reference');
+      parts.push(localize('labels.timeline.referenceEntity', { entity: entityTypeLabel.value }));
     }
 
-    return parts.length > 0 ? parts.join(' | ') : 'No filters';
+    return parts.length > 0 ? parts.join(' | ') : localize('labels.timeline.noFilters');
   });
 
 
@@ -332,10 +341,17 @@ Dependencies
   };
 
   /**
-   * Handle reset button click.
+   * Handle reset filters button click.
    */
   const onResetClick = (): void => {
     emit('resetFilters');
+  };
+
+  /**
+   * Handle reset range button click.
+   */
+  const onResetRangeClick = (): void => {
+    emit('resetRange');
   };
 
   ////////////////////////////////
