@@ -652,15 +652,17 @@ Dependencies
     // Set flag to prevent watcher from triggering during save
     isSavingConfig.value = true;
 
-    const filters = doc.timelines[0]?.filters ?? defaultFilters.value;
-    filters.visibleRange = range;
-    
-    doc.timelines = [{ filters }];
+    try {
+      const filters = doc.timelines[0]?.filters ?? defaultFilters.value;
+      filters.visibleRange = range;
+      
+      doc.timelines = [{ filters }];
 
-    await doc.save();
-    
-    // Clear flag after save completes
-    isSavingConfig.value = false;
+      await doc.save();
+    } finally {
+      // Clear flag after save completes or fails
+      isSavingConfig.value = false;
+    }
   };
 
   /**
@@ -677,54 +679,56 @@ Dependencies
     // Set flag to prevent watcher from triggering during save
     isSavingConfig.value = true;
 
-    // Update or add the config in the timelines array
-    // For now, just store one timeline per document (first one)
-    const existingFilters = doc.timelines[0]?.filters ?? defaultFilters.value;
-    const newFilters = config.filters;
-    
-    // Filter out undefined values from categories array if present
-    const inputCategories = newFilters?.categories?.filter((c): c is string => c != null);
-    
-    // Handle visibleRange: null means clear it, undefined means keep existing
-    const inputVisibleRange = newFilters?.visibleRange;
-    let validVisibleRange: { start: CalendariaDate; end: CalendariaDate } | null;
-    
-    if (inputVisibleRange === null) {
-      // Explicitly null - clear the range (will be recalculated from notes)
-      validVisibleRange = null;
-    } else if (inputVisibleRange?.start && inputVisibleRange?.end &&
-      inputVisibleRange.start.year != null && inputVisibleRange.start.month != null && inputVisibleRange.start.day != null &&
-      inputVisibleRange.end.year != null && inputVisibleRange.end.month != null && inputVisibleRange.end.day != null) {
-      // Valid range provided - use it
-      validVisibleRange = {
-        start: { year: inputVisibleRange.start.year, month: inputVisibleRange.start.month, day: inputVisibleRange.start.day },
-        end: { year: inputVisibleRange.end.year, month: inputVisibleRange.end.month, day: inputVisibleRange.end.day },
+    try {
+      // Update or add the config in the timelines array
+      // For now, just store one timeline per document (first one)
+      const existingFilters = doc.timelines[0]?.filters ?? defaultFilters.value;
+      const newFilters = config.filters;
+      
+      // Filter out undefined values from categories array if present
+      const inputCategories = newFilters?.categories?.filter((c): c is string => c != null);
+      
+      // Handle visibleRange: null means clear it, undefined means keep existing
+      const inputVisibleRange = newFilters?.visibleRange;
+      let validVisibleRange: { start: CalendariaDate; end: CalendariaDate } | null;
+      
+      if (inputVisibleRange === null) {
+        // Explicitly null - clear the range (will be recalculated from notes)
+        validVisibleRange = null;
+      } else if (inputVisibleRange?.start && inputVisibleRange?.end &&
+        inputVisibleRange.start.year != null && inputVisibleRange.start.month != null && inputVisibleRange.start.day != null &&
+        inputVisibleRange.end.year != null && inputVisibleRange.end.month != null && inputVisibleRange.end.day != null) {
+        // Valid range provided - use it
+        validVisibleRange = {
+          start: { year: inputVisibleRange.start.year, month: inputVisibleRange.start.month, day: inputVisibleRange.start.day },
+          end: { year: inputVisibleRange.end.year, month: inputVisibleRange.end.month, day: inputVisibleRange.end.day },
+        };
+      } else {
+        // No value provided - keep existing
+        validVisibleRange = existingFilters.visibleRange;
+      }
+      
+      const newConfig: TimelineConfig = {
+        ...TIMELINE_DEFAULT,
+        ...(doc.timelines[0] ?? TIMELINE_DEFAULT),
+        ...config,
+        filters: {
+          categories: inputCategories ?? existingFilters.categories,
+          textSearch: newFilters?.textSearch ?? existingFilters.textSearch,
+          gmOnly: newFilters?.gmOnly ?? existingFilters.gmOnly,
+          referenceEntity: newFilters?.referenceEntity ?? existingFilters.referenceEntity,
+          includeNestedUuids: newFilters?.includeNestedUuids ?? existingFilters.includeNestedUuids,
+          visibleRange: validVisibleRange,
+        },
       };
-    } else {
-      // No value provided - keep existing
-      validVisibleRange = existingFilters.visibleRange;
+
+      doc.timelines = [newConfig];
+
+      await doc.save();
+    } finally {
+      // Clear flag after save completes or fails
+      isSavingConfig.value = false;
     }
-    
-    const newConfig: TimelineConfig = {
-      ...TIMELINE_DEFAULT,
-      ...(doc.timelines[0] ?? TIMELINE_DEFAULT),
-      ...config,
-      filters: {
-        categories: inputCategories ?? existingFilters.categories,
-        textSearch: newFilters?.textSearch ?? existingFilters.textSearch,
-        gmOnly: newFilters?.gmOnly ?? existingFilters.gmOnly,
-        referenceEntity: newFilters?.referenceEntity ?? existingFilters.referenceEntity,
-        includeNestedUuids: newFilters?.includeNestedUuids ?? existingFilters.includeNestedUuids,
-        visibleRange: validVisibleRange,
-      },
-    };
-
-    doc.timelines = [newConfig];
-
-    await doc.save();
-    
-    // Clear flag after save completes
-    isSavingConfig.value = false;
   };
 
 
