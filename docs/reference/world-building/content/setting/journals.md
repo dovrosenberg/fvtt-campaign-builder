@@ -1,24 +1,24 @@
 ---
-title: Entry Journals Tab
+title: Setting Journals Tab
 prev: 
-  text: 'Entry description tab'
-  link: '/reference/world-building/content/entry/description'
+  text: 'Setting description tab'
+  link: './description'
 next: 
-  text: 'Entry details'
-  link: '/reference/world-building/content/entry'
+  text: 'Setting Timeline Tab'
+  link: './timeline'
 ---
-# Entry Journals Tab
+# Setting Journals Tab
 
-![Entry Journals Tab](/assets/images/setting-journals-tab.webp)
+![Setting Journals Tab](/assets/images/setting-journals-tab.webp)
 
-The Journals tab allows you to associate any number of Foundry journal entries with the Entry.  This is useful for tracking extra images or any other content that you want to keep track of and/or share with the player(s).
+The Journals tab allows you to associate any number of Foundry journal entries with the Setting.  This is useful for tracking extra images or any other content that you want to keep track of and/or share with the player(s).
 
 ::: info
-Deleting a journal entry in Foundry that is attached to an Entry will automatically and safely remove it from the Entry.
+Deleting a journal entry in Foundry that is attached to a Setting will automatically and safely remove it from the Setting.
 :::
 
 #### Adding Journals
-Click "Add journal" to select a Foundry journal entry or a single page from a journal entry and connect it to the Entry.
+Click "Add journal" to select a Foundry journal entry or a single page from a journal entry and connect it to the Setting.
 
 You can also drag and drop Foundry journal entries and/or pages from Foundry VTT onto the box at the top to make the connection.  You can also drag a section header from the table of contents within a journal entry page, and the link will point directly to that section.
 

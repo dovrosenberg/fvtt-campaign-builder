@@ -14,6 +14,7 @@ next:
 - **Hide missing backend warning**: If you're planning not to use the [Advanced Features], turn this on to avoid being warned about it every time to open the main window.  
 - **Use fronts**: Turn on/off whether to use [Fronts]. Disabling them removes the "Fronts" folder from campaigns, but won't impact any Fronts you've already created (i.e. if you turn it back on in the future, they'll come back).
 - **Use story webs**: Turn on/off whether to use [Story Webs]. Disabling them removes the "Story Webs" folder from campaigns, but won't impact any Story Webs you've already created (i.e. if you turn it back on in the future, they'll come back).
+- **Use timeline**: Turn on/off whether to use [Timelines]. Disabling them hides the timeline tab on all content types. Requires the Calendaria module.
 - **Enable Voice Recording**: When enabled, a microphone button will appear on [^Characters] that allows you to record, play, and delete voice samples. This helps you remember what voice or accent you used for each character. See [Voice Recording](/reference/world-building/content/character/#voice-recording) for more details.
 - **Show types in Setting tree**: If set, when the Setting directory isn't grouped by type, it will instead show the type of each [^Entry] in the tree next to its name.
 - **Sidebar starts collapsed**: If set, the directory sidebar will be collapsed when you open the main window.  
