@@ -36,6 +36,7 @@ Dependencies
       :current-uuid="currentContentId || ''"
       @update-filters="onUpdateFilters"
       @reset-filters="onResetFilters"
+      @reset-range="onResetRange"
       @toggle-panel="onTogglePanel"
     />
 
@@ -124,7 +125,8 @@ import { watch } from 'vue';
       return null;
     }
 
-    return doc.timelines[0] || TIMELINE_DEFAULT;
+    // Return null if no stored config exists, so filters falls back to defaultFilters
+    return doc.timelines[0] ?? null;
   });
 
   // Get the document based on content type
@@ -557,10 +559,20 @@ import { watch } from 'vue';
   };
 
   /**
-   * Handle filter reset.
+   * Handle filter reset - resets all filters including visible range.
    */
   const onResetFilters = async (): Promise<void> => {
     await saveTimelineConfig({filters: defaultFilters.value});
+    await generateTimeline();
+  };
+
+  /**
+   * Handle range reset - recalculates visible range from filtered notes.
+   * Preserves all other filter settings.
+   */
+  const onResetRange = async (): Promise<void> => {
+    // Clear visibleRange to trigger recalculation in generateTimeline
+    await saveTimelineConfig({filters: { ...filters.value, visibleRange: null }});
     await generateTimeline();
   };
 
@@ -624,16 +636,25 @@ import { watch } from 'vue';
     // Filter out undefined values from categories array if present
     const inputCategories = newFilters?.categories?.filter((c): c is string => c != null);
     
-    // Only use visibleRange if it has both start and end fully defined
+    // Handle visibleRange: null means clear it, undefined means keep existing
     const inputVisibleRange = newFilters?.visibleRange;
-    const validVisibleRange = inputVisibleRange?.start && inputVisibleRange?.end &&
+    let validVisibleRange: { start: CalendariaDate; end: CalendariaDate } | null;
+    
+    if (inputVisibleRange === null) {
+      // Explicitly null - clear the range (will be recalculated from notes)
+      validVisibleRange = null;
+    } else if (inputVisibleRange?.start && inputVisibleRange?.end &&
       inputVisibleRange.start.year != null && inputVisibleRange.start.month != null && inputVisibleRange.start.day != null &&
-      inputVisibleRange.end.year != null && inputVisibleRange.end.month != null && inputVisibleRange.end.day != null
-      ? {
-          start: { year: inputVisibleRange.start.year, month: inputVisibleRange.start.month, day: inputVisibleRange.start.day },
-          end: { year: inputVisibleRange.end.year, month: inputVisibleRange.end.month, day: inputVisibleRange.end.day },
-        }
-      : existingFilters.visibleRange;
+      inputVisibleRange.end.year != null && inputVisibleRange.end.month != null && inputVisibleRange.end.day != null) {
+      // Valid range provided - use it
+      validVisibleRange = {
+        start: { year: inputVisibleRange.start.year, month: inputVisibleRange.start.month, day: inputVisibleRange.start.day },
+        end: { year: inputVisibleRange.end.year, month: inputVisibleRange.end.month, day: inputVisibleRange.end.day },
+      };
+    } else {
+      // No value provided - keep existing
+      validVisibleRange = existingFilters.visibleRange;
+    }
     
     const newConfig: TimelineConfig = {
       ...TIMELINE_DEFAULT,
