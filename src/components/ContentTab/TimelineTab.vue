@@ -57,7 +57,7 @@ Dependencies
   // local imports
   import { localize } from '@/utils/game';
   import { useContentState } from '@/composables/useContentState';
-  import { CalendariaNote, TimelineConfig, TimelineFilters, TimelineItem, WindowTabType, TIMELINE_DEFAULT, TIMELINE_DEFAULT_FILTERS, DeepPartial } from '@/types';
+  import { CalendariaNote, TimelineConfig, TimelineFilters, TimelineItem, WindowTabType, TIMELINE_DEFAULT, DeepPartial } from '@/types';
   import CalendarAdapter from '@/utils/calendar/calendarAdapter';
   import calendariaMomentFactory from '@/utils/calendar/calendariaMoment';
 
@@ -87,6 +87,7 @@ Dependencies
   const isTimelineLoading = ref<boolean>(false);
   const isFilterPanelExpanded = ref<boolean>(false);
   const timelineInstance = ref<Timeline | null>(null);
+  const isSavingConfig = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
@@ -102,8 +103,8 @@ Dependencies
       categories: [],
       textSearch: '',
       gmOnly: false,
-      referencedUuid: shouldDefaultChecked ? (currentContentId.value || '') : '',
-      includeNestedUuids: shouldDefaultChecked,
+      referenceEntity: shouldDefaultChecked,
+      includeNestedUuids: false,  
       visibleRange: null,
     };
   });
@@ -247,8 +248,9 @@ Dependencies
     // Build list of UUIDs to match
     let matchUuids: string[] = [];
     
-    if (filterCriteria.referencedUuid) {
-      matchUuids.push(filterCriteria.referencedUuid);
+    // Get reference UUID from current content if referenceEntity is enabled
+    if (filterCriteria.referenceEntity && currentContentId.value) {
+      matchUuids.push(currentContentId.value);
       
       // Include nested UUIDs if enabled
       if (filterCriteria.includeNestedUuids) {
@@ -331,12 +333,10 @@ Dependencies
       // Update items dynamically if we need more notes
       await updateTimelineItems(startAbsolute, endAbsolute);
       
-      await saveTimelineConfig({filters: {
-        visibleRange: {
-          start: start,
-          end: end,
-        },
-      }});
+      await saveTimelineRange({
+        start,
+        end,
+      });
     }, 50);    
   };
 
@@ -609,6 +609,29 @@ Dependencies
   };
 
   /**
+   * Save just a change to the range
+   */
+  const saveTimelineRange = async (range: { start: CalendariaDate, end: CalendariaDate }): Promise<void> => {
+    const doc = currentDocument()?.value;
+    if (!doc) {
+      return;
+    }
+
+    // Set flag to prevent watcher from triggering during save
+    isSavingConfig.value = true;
+
+    const filters = doc.timelines[0]?.filters ?? defaultFilters.value;
+    filters.visibleRange = range;
+    
+    doc.timelines = [{ filters }];
+
+    await doc.save();
+    
+    // Clear flag after save completes
+    isSavingConfig.value = false;
+  };
+
+  /**
    * Save the current timeline config to the document.
    * For anything not provided, uses the current value in the document,
    *    or the default if there's nothing in the document either.
@@ -619,9 +642,12 @@ Dependencies
       return;
     }
 
+    // Set flag to prevent watcher from triggering during save
+    isSavingConfig.value = true;
+
     // Update or add the config in the timelines array
     // For now, just store one timeline per document (first one)
-    const existingFilters = doc.timelines[0]?.filters ?? TIMELINE_DEFAULT_FILTERS;
+    const existingFilters = doc.timelines[0]?.filters ?? defaultFilters.value;
     const newFilters = config.filters;
     
     // Filter out undefined values from categories array if present
@@ -655,7 +681,7 @@ Dependencies
         categories: inputCategories ?? existingFilters.categories,
         textSearch: newFilters?.textSearch ?? existingFilters.textSearch,
         gmOnly: newFilters?.gmOnly ?? existingFilters.gmOnly,
-        referencedUuid: newFilters?.referencedUuid ?? existingFilters.referencedUuid,
+        referenceEntity: newFilters?.referenceEntity ?? existingFilters.referenceEntity,
         includeNestedUuids: newFilters?.includeNestedUuids ?? existingFilters.includeNestedUuids,
         visibleRange: validVisibleRange,
       },
@@ -664,6 +690,9 @@ Dependencies
     doc.timelines = [newConfig];
 
     await doc.save();
+    
+    // Clear flag after save completes
+    isSavingConfig.value = false;
   };
 
 
@@ -671,6 +700,10 @@ Dependencies
   // watchers
   // regenerate when filters change (excluding visibleRange, which is just view state)
   watch(() => filters.value, (newVal: TimelineFilters, oldVal: TimelineFilters) => {
+    // Skip if we're in the middle of saving - the save triggered this watcher
+    if (isSavingConfig.value) {
+      return;
+    }
     const { visibleRange: newRange, ...newRest } = newVal;
     const { visibleRange: oldRange, ...oldRest } = oldVal;
     if (JSON.stringify(newRest) !== JSON.stringify(oldRest)) {
@@ -717,7 +750,7 @@ Dependencies
   padding: 0.5rem 0.75rem;
   cursor: pointer;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   user-select: none;
 
   &:hover {

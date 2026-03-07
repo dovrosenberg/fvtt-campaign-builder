@@ -15,8 +15,8 @@ export interface TimelineFilters {
   /** Show GM-only events only */
   gmOnly: boolean;
 
-  /** Show events referencing this UUID */
-  referencedUuid: string;
+  /** Show events referencing the current content */
+  referenceEntity: boolean;
 
   /** Include nested content UUIDs when filtering by reference */
   includeNestedUuids: boolean;
@@ -32,7 +32,7 @@ export const TIMELINE_DEFAULT_FILTERS: TimelineFilters = {
   categories: [] as string[],
   textSearch: '',
   gmOnly: false,
-  referencedUuid: '',
+  referenceEntity: false,
   includeNestedUuids: false,
   visibleRange: null,
 } as const;

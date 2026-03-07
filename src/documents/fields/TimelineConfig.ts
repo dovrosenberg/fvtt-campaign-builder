@@ -12,7 +12,8 @@ export const TimelineConfigSchema = () => (
       ),
       textSearch: new fields.StringField({ required: true, nullable: false, initial: '' }),
       gmOnly: new fields.BooleanField({ required: true, nullable: false, initial: false }),
-      referencedUuid: new fields.StringField({ required: true, nullable: false, initial: '' }),
+      referenceEntity: new fields.BooleanField({ required: true, nullable: false, initial: true }),
+      includeNestedUuids: new fields.BooleanField({ required: true, nullable: false, initial: false }),
       visibleRange: new fields.SchemaField({
         start: CalendariaDateSchema(),
         end: CalendariaDateSchema(),

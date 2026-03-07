@@ -33,7 +33,7 @@ Dependencies
 
 <template>
   <div class="timeline-header">
-    <div class="filter-header flexrow" @click="onTogglePanel">
+    <div class="filter-header" @click="onTogglePanel">
       <i :class="['fas', props.isFilterPanelExpanded ? 'fa-chevron-up' : 'fa-chevron-down', 'toggle-icon']"></i>
       <span class="filter-text">{{ filterSummary }}</span>
     </div>
@@ -83,7 +83,7 @@ Dependencies
         <div v-if="currentContentId" class="filter-group">
           <label class="checkbox-label">
             <Checkbox
-              v-model="isReferenceEntity"
+              v-model="localFilters.referenceEntity"
               :binary="true"
               inputId="reference-entity"
               @change="onReferenceEntityChange"
@@ -93,7 +93,7 @@ Dependencies
         </div>
 
         <!-- Include Nested Content -->
-        <div v-if="currentContentId && isReferenceEntity && showNestedContentCheckbox" class="filter-group nested-checkbox">
+        <div v-if="currentContentId && localFilters.referenceEntity && showNestedContentCheckbox" class="filter-group nested-checkbox">
           <label class="checkbox-label">
             <Checkbox
               v-model="localFilters.includeNestedUuids"
@@ -185,9 +185,6 @@ Dependencies
   // Local copy of filters for v-model binding
   const localFilters = ref<TimelineFilters>({ ...props.filters });
 
-  // Reference entity checkbox state (needs to be a ref for v-model)
-  const isReferenceEntity = ref(!!props.filters.referencedUuid);
-
   ////////////////////////////////
   // computed data
 
@@ -267,7 +264,7 @@ Dependencies
       parts.push(localize('labels.timeline.gmOnly'));
     }
 
-    if (localFilters.value.referencedUuid) {
+    if (localFilters.value.referenceEntity) {
       parts.push(localize('labels.timeline.referenceEntity', { entity: entityTypeLabel.value }));
 
       if (localFilters.value.includeNestedUuids) {
@@ -330,11 +327,6 @@ Dependencies
    * Handle reference entity checkbox change.
    */
   const onReferenceEntityChange = (): void => {
-    localFilters.value.referencedUuid = isReferenceEntity.value ? (currentContentId.value || '') : '';
-    // Reset nested checkbox when reference is unchecked
-    if (!isReferenceEntity.value) {
-      localFilters.value.includeNestedUuids = false;
-    }
     emitFilterChange();
   };
 
@@ -372,7 +364,6 @@ Dependencies
       const newSnapshot = JSON.stringify(newFilters);
       if (localSnapshot !== newSnapshot) {
         localFilters.value = { ...newFilters };
-        isReferenceEntity.value = !!newFilters.referencedUuid;
       }
     },
     { deep: true }
@@ -404,6 +395,23 @@ Dependencies
 
 .filter-input {
   width: 100%;
+}
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.filter-text {
+  text-align: left;
+  flex: 1;
+}
+
+.toggle-icon {
+  flex-shrink: 0;
 }
 
 .filter-actions {
