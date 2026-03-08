@@ -17,11 +17,16 @@ This guide covers the "how" of using the Campaign Builder. For the "why" and "wh
 ## [Navigation & Interface](navigation/)
 Learn the basics of navigating the Campaign Builder interface.
 
-- [Main Content Display](navigation/main-display)
 - [Directory Sidebar](navigation/sidebar)
+- [Editors](navigation/editors)
+- [Main Content Display](navigation/main-display)
+- [Multi-Panel Interface](navigation/panels)
 - [Tabs](navigation/tabs)
+- [Tables](navigation/tables)
 - [Bookmarks](navigation/bookmarks)
 - [Search](navigation/search)
+- [Tags](navigation/tags)
+- [Timelines](navigation/timelines)
 - [Prep/Play Toggle](navigation/prep-play)
 - [Keybindings](navigation/keybindings)
 

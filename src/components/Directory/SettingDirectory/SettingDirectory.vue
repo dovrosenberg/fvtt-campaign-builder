@@ -73,6 +73,7 @@
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
   import GlobalSettingService from '@/utils/globalSettings';
   import SettingExportService from '@/utils/settingExport';
+  import { exportSingleSettingJson } from '@/utils/export';
   import DragDropService from '@/utils/dragDrop';
   
   // library components
@@ -192,6 +193,16 @@
           onClick: async () => {
             if (settingId) {
               await SettingExportService.exportSetting(settingId);
+            }
+          }
+        },
+        { 
+          icon: 'fa-file-code',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.settingFolder.exportJson'), 
+          onClick: async () => {
+            if (settingId) {
+              await exportSingleSettingJson(settingId);
             }
           }
         },

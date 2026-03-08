@@ -47,12 +47,15 @@ You can create and adjust Hierarchies in two ways:
 
 ### Context menus
 Right-clicking on items in the Entry tree provides additional options depending on the item type:
-1. Settings - Delete the [^Setting], Create a new [^Campaign], Export the Setting (as a markdown file or as a zip file containing the markdown file and all of its Story Web images)
+1. Settings - Delete the [^Setting], Create a new [^Campaign], Export the Setting (as a JSON file, a markdown file, or as a zip file containing the markdown file and all of its Story Web images)
 2. Topics - [Create a new Entry](/reference/world-building/create-entry) in that Topic
 3. Entries - Delete the Entry
 
 ::: info
-Exporting a Setting creates a markdown (.MD) file with all of the details for the Setting, all Entries, and all Campaigns (including all Fronts, Arcs, and Sessions).  This is useful for reviewing everything in a different platform, or for providing to an LLM to enable it to answer questions about the Setting/Campaign.
+Exporting a Setting has three options:
+- **Export as JSON** - Creates a JSON file with all data for the Setting, including all Entries, Campaigns, Sessions, Arcs, Fronts, and Story Webs. This is useful for backing up or transferring a single Setting to another world.  See [Import/Export](/reference/configuration/import-export)
+- **Export Setting** - Creates a markdown (.MD) file with all of the details for the Setting, all Entries, and all Campaigns (including all Fronts, Arcs, and Sessions). This is useful for reviewing everything in a different platform, or for providing to an LLM to enable it to answer questions about the Setting/Campaign.
+- **Export Setting with Story Webs** - Creates a zip file containing the markdown export plus PNG images of all Story Webs in the Setting.
 :::
 
 ### Group by type {#group-by-type}

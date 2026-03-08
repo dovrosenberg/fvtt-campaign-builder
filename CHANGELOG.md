@@ -14,6 +14,7 @@
 - Timelines! These are available on all content types.  They allow you to see notes from your world calendar.  Requires Calendaria to be used as your calendar.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/timelines))
 - There are now module settings that give you control over exactly which tabs you want to use for each type of content. This changes nothing else, so (for example) if you move lore to an arc but you've hidden the lore tab on arcs, you won't see it.  It's still there, though, if you un-hide the tab.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/configuration/tab-visibility))
 - New button on main screen for Characters and Locations that lets you open the Foundry character sheet/scene right from there. ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/world-building/content/entry))
+- Can export a single Setting as a json from the Setting context menu in the directory.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/sidebar))
 
 ## 1.9.3 - Changelog distribution
 ![](https://img.shields.io/badge/release%20date-February%2028%2C%202026-blue)

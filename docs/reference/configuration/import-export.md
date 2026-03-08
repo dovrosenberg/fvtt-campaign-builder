@@ -31,6 +31,11 @@ You access this by clicking the **Import/Export** button in the [Module Settings
 3. A progress bar will show the export status
 4. Once complete, your browser will download a JSON file containing all your data
 
+::: info
+You can also export a single Setting from the right-click menu on the Setting in the Directory.
+:::
+
+
 ### What Gets Exported
 
 You can choose in the dropdown export:

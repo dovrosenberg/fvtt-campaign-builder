@@ -978,7 +978,8 @@
       },
       "settingFolder": {
         "delete": "Delete Setting",
-        "createCampaign": "Create campaign"
+        "createCampaign": "Create campaign",
+        "exportJson": "Export as JSON"
       },
       "campaignsHeader": {
         "createCampaign":"Create campaign"

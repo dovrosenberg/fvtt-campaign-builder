@@ -344,7 +344,26 @@ function cleanInvalidRelationships(system: Record<string, unknown>): Record<stri
   return { ...system, relationships: cleanedRelationships };
 }
 
+/**
+ * Export a single setting to a JSON file and trigger download.
+ *
+ * @param settingId - The UUID of the setting to export
+ */
+export async function exportSingleSettingJson(settingId: string): Promise<void> {
+  const setting = await FCBSetting.fromUuid(settingId);
+  if (!setting) {
+    throw new Error('Setting not found');
+  }
+
+  const settingData = await collectSettingData(setting);
+
+  const json = JSON.stringify(settingData, null, 2);
+  const filename = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${new Date().toISOString().split('T')[0]}.json`;
+  downloadFile(json, filename, 'application/json');
+}
+
 export default {
   exportModuleJson,
+  exportSingleSettingJson,
   ExportMode,
 };
