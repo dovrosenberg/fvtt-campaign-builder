@@ -580,6 +580,21 @@ const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: 
     markdown += '\n';
   }
 
+  // Magic items (table format)
+  if (arc.items && arc.items.length > 0) {
+    markdown += `#### Magic Items\n`;
+    markdown += `| Name | Notes |\n`;
+    markdown += `|------|-------|\n`;
+    for (const item of arc.items) {
+      const docName = resolveFoundryDocumentName(item.uuid, true);
+      if (docName) {
+        const notes = cleanText(item.notes, 5);
+        markdown += `| ${docName} | ${notes} |\n`;
+      }
+    }
+    markdown += '\n';
+  }
+
   // Lore (table format)
   if (arc.lore && arc.lore.length > 0) {
     markdown += `#### Lore\n`;

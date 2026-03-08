@@ -281,8 +281,9 @@ function cleanSessionSystemData(system: Record<string, unknown>): Record<string,
 function cleanArcSystemData(system: Record<string, unknown>): Record<string, unknown> {
   const cleaned = { ...system };
 
-  // Clear monsters array - references non-FCB Foundry Actor documents
+  // Clear monsters and items arrays - references non-FCB Foundry Actor/Item documents
   cleaned.monsters = [];
+  cleaned.items = [];
 
   // Clear journals array - references non-FCB Foundry Journal documents
   cleaned.journals = [];
