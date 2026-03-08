@@ -86,9 +86,6 @@ export interface EntryDoc extends JournalEntryPage {
     // for PCs
     playerName?: string | null;
     actorId?: string | null;   // uuid of the actor
-    background?: string | null;
-    plotPoints?: string | null;
-    magicItems?: string | null; 
 
     img: string;
     timelines: TimelineConfig[];
