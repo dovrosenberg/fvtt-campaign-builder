@@ -29,6 +29,16 @@
           <i class="fas fa-share"></i>
         </button>
         <button
+          v-if="showFoundryDocButton"
+          class="fcb-foundry-doc-button"
+          data-testid="entry-foundry-doc-button"
+          @click="onFoundryDocButtonClick"
+          :disabled="foundryDocButtonDisabled"
+          :title="foundryDocButtonTitle"
+        >
+          <i :class="`fas ${foundryDocButtonIcon}`"></i>
+        </button>
+        <button
           v-if="showVoiceButton"
           class="fcb-voice-button"
           :class="{ 'has-recording': !!currentEntry?.voiceRecordingPath }"
@@ -398,11 +408,45 @@
            topic.value === Topics.Character &&
            VoiceRecordingService.isRecordingSupported();
   });
+
   const voiceButtonTitle = computed(() => {
     if (!currentEntry.value?.voiceRecordingPath) {
       return localize('tooltips.voiceRecordingNone');
     }
     return localize('tooltips.voiceRecordingExists');
+  });
+
+  // Foundry document button computed properties
+  const showFoundryDocButton = computed(() => {
+    return topic.value && [Topics.Character, Topics.Location].includes(topic.value);
+  });
+
+  const foundryDocButtonDisabled = computed(() => {
+    if (!currentEntry.value) {
+      return true;
+    }
+    if (topic.value === Topics.Character) {
+      return currentEntry.value.actors.length === 0;
+    }
+    if (topic.value === Topics.Location) {
+      return currentEntry.value.scenes.length === 0;
+    }
+    return true;
+  });
+
+  const foundryDocButtonIcon = computed(() => {
+    return topic.value === Topics.Character ? 'fa-user' : 'fa-map';
+  });
+
+  const foundryDocButtonTitle = computed(() => {
+    if (topic.value === Topics.Character) {
+      return currentEntry.value?.actors.length ? localize('tooltips.openFoundryActor') : localize('tooltips.noActorsAttached');
+    }
+
+    if (topic.value === Topics.Location) {
+      return currentEntry.value?.scenes.length ? localize('tooltips.openFoundryScene') : localize('tooltips.noScenesAttached');
+    }
+    return '';
   });
 
   const showTimelineTab = computed(() => {
@@ -789,6 +833,74 @@
       zIndex: 300,
       items: menuItems,
     });
+  };
+
+  /**
+   * Handle Foundry document button click - open actor sheet or activate scene.
+   * If multiple documents are attached, show a context menu to select which one.
+   */
+  const onFoundryDocButtonClick = async (event: MouseEvent): Promise<void> => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!currentEntry.value || !topic.value) {
+      return;
+    }
+
+    // Get the appropriate document list based on topic
+    const docUuids = topic.value === Topics.Character 
+      ? currentEntry.value.actors 
+      : topic.value === Topics.Location 
+        ? currentEntry.value.scenes 
+        : [];
+
+    if (docUuids.length === 0) {
+      return;
+    }
+
+    // If only one document, open/activate it directly
+    if (docUuids.length === 1) {
+      await openFoundryDocument(docUuids[0]);
+      return;
+    }
+
+    // Multiple documents - show context menu
+    const menuItems = await Promise.all(docUuids.map(async (uuid) => {
+      const doc = await foundry.utils.fromUuid(uuid);
+      return {
+        icon: topic.value === Topics.Character ? 'fa-user' : 'fa-map',
+        iconFontClass: 'fas',
+        label: doc?.name || 'Unknown',
+        onClick: async () => {
+          await openFoundryDocument(uuid);
+        }
+      };
+    }));
+
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: menuItems,
+    });
+  };
+
+  /**
+   * Open a Foundry document - actor sheet or scene activation.
+   */
+  const openFoundryDocument = async (uuid: string): Promise<void> => {
+    const doc = await foundry.utils.fromUuid(uuid);
+    if (!doc) {
+      return;
+    }
+
+    if (topic.value === Topics.Character) {
+      // Open actor sheet
+      await (doc as Actor).sheet?.render(true);
+    } else if (topic.value === Topics.Location) {
+      await (doc as Scene).view();
+    }
   };
 
   /**

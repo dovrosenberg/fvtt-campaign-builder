@@ -30,8 +30,6 @@ Timeline tabs are available on all major content types:
 
 ## The Timeline Interface
 
-![Timeline interface](/assets/images/timeline-interface.webp)
-
 The timeline interface has two main components:
 
 1. **Filter Panel** - Collapsible panel at the top with filtering options
