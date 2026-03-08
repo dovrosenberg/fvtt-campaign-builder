@@ -561,6 +561,12 @@ Dependencies
         const end = CalendarAdapter.jsToCalendaria(properties.end);
         updateVisibleRange(start, end);
       });
+
+      // Apply line colors and redraw after initial render
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        applyLineColors();
+      });
     } catch (error) {
       isTimelineLoading.value = false;
       throw error;

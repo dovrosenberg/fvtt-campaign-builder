@@ -4,8 +4,8 @@ prev:
   text: 'Story Web Connections'
   link: './story-webs'
 next:
-  text: 'Import/Export'
-  link: './import-export'
+  text: 'Tab Visibility'
+  link: './tab-visibility'
 ---
 # Table Grouping Settings
 

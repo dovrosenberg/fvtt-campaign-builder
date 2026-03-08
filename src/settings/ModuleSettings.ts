@@ -9,8 +9,9 @@ import { TableGroupingSettingsApplication } from '@/applications/settings/TableG
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { StoryWebSettingsApplication } from '@/applications/settings/StoryWebSettingsApplication';
 import { ImportExportApplication } from '@/applications/settings/ImportExportApplication';
+import { TabVisibilitySettingsApplication } from '@/applications/settings/TabVisibilitySettingsApplication';
 import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
-import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, GroupableItem, } from '@/types';
+import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, GroupableItem, TabVisibilityItem, TabVisibilitySettings, } from '@/types';
 
 export type ImageConfiguration = ApiCustomGenerateImagePostRequestImageConfiguration & {
   descriptionField?: string;
@@ -106,6 +107,10 @@ export enum SettingKey {
 
   // import/export menu
   importExportMenu = 'importExportMenu', // display the import/export menu
+
+  // tab visibility settings
+  tabVisibilityMenu = 'tabVisibilityMenu', // display the tab visibility menu
+  tabVisibilitySettings = 'tabVisibilitySettings', // tab visibility settings per content type
 }
 
 export type SettingKeyType<K extends SettingKey> =
@@ -158,6 +163,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.mainWindowBounds ? WindowBounds | null :
     K extends SettingKey.enableVoiceRecording ? boolean :
     K extends SettingKey.voiceRecordingFolder ? VoiceRecordingFolderConfig | null :
+    K extends SettingKey.tabVisibilitySettings ? TabVisibilitySettings :
     never;
 
 export class ModuleSettings {
@@ -292,13 +298,22 @@ export class ModuleSettings {
       type: TableGroupingSettingsApplication,
     },
     {
+      settingID: SettingKey.tabVisibilityMenu,
+      name: 'settings.tabVisibility',
+      label: 'fcb.settings.tabVisibilityLabel',
+      hint: 'settings.tabVisibilityHelp',
+      icon: 'fa-solid fa-folder-tree',
+      permissions: ['SETTINGS_WRITE'],
+      type: TabVisibilitySettingsApplication,
+    },
+    {
       settingID: SettingKey.importExportMenu,
       name: 'settings.importExport',
       label: 'fcb.settings.importExportLabel',   // localized by Foundry
       hint: 'settings.importExportHelp',
       icon: 'fa-solid fa-file-import',
       type: ImportExportApplication,
-    }
+    },
   ];
 
   // these are globals shown in the options
@@ -594,11 +609,73 @@ export class ModuleSettings {
         [GroupableItem.SessionLore]: false,
         [GroupableItem.SessionVignettes]: false,
         [GroupableItem.SessionLocations]: false,
-        [GroupableItem.SessionCharacters]: false,
+        [GroupableItem.SessionNPCs]: false,
         [GroupableItem.SessionMonsters]: false,
         [GroupableItem.SessionItems]: false,
         // [GroupableItem.SessionPCs]: false,
       } as Record<GroupableItem, boolean>,
+      type: Object,
+    },
+    {
+      settingID: SettingKey.tabVisibilitySettings,
+      default: {
+        [TabVisibilityItem.SettingJournals]: true,
+        [TabVisibilityItem.SettingTimeline]: true,
+        [TabVisibilityItem.CampaignJournals]: true,
+        [TabVisibilityItem.CampaignPCs]: true,
+        [TabVisibilityItem.CampaignLore]: true,
+        [TabVisibilityItem.CampaignIdeas]: true,
+        [TabVisibilityItem.CampaignToDo]: true,
+        [TabVisibilityItem.CampaignStoryWebs]: true,
+        [TabVisibilityItem.CampaignTimeline]: true,
+        [TabVisibilityItem.ArcJournals]: true,
+        [TabVisibilityItem.ArcLore]: true,
+        [TabVisibilityItem.ArcVignettes]: true,
+        [TabVisibilityItem.ArcLocations]: true,
+        [TabVisibilityItem.ArcParticipants]: true,
+        [TabVisibilityItem.ArcMonsters]: true,
+        [TabVisibilityItem.ArcIdeas]: true,
+        [TabVisibilityItem.ArcStoryWebs]: true,
+        [TabVisibilityItem.ArcTimeline]: true,
+        [TabVisibilityItem.SessionLore]: true,
+        [TabVisibilityItem.SessionVignettes]: true,
+        [TabVisibilityItem.SessionLocations]: true,
+        [TabVisibilityItem.SessionNPCs]: true,
+        [TabVisibilityItem.SessionMonsters]: true,
+        [TabVisibilityItem.SessionMagic]: true,
+        [TabVisibilityItem.SessionPCs]: true,
+        [TabVisibilityItem.SessionStoryWebs]: true,
+        [TabVisibilityItem.SessionTimeline]: true,
+        [TabVisibilityItem.EntryCharacterJournals]: true,
+        [TabVisibilityItem.EntryCharacterLocations]: true,
+        [TabVisibilityItem.EntryCharacterOrganizations]: true,
+        [TabVisibilityItem.EntryCharacterPCs]: true,
+        [TabVisibilityItem.EntryCharacterSessions]: true,
+        [TabVisibilityItem.EntryCharacterFoundry]: true,
+        [TabVisibilityItem.EntryCharacterActors]: true,
+        [TabVisibilityItem.EntryCharacterTimeline]: true,
+        [TabVisibilityItem.EntryLocationJournals]: true,
+        [TabVisibilityItem.EntryLocationCharacters]: true,
+        [TabVisibilityItem.EntryLocationOrganizations]: true,
+        [TabVisibilityItem.EntryLocationPCs]: true,
+        [TabVisibilityItem.EntryLocationSessions]: true,
+        [TabVisibilityItem.EntryLocationFoundry]: true,
+        [TabVisibilityItem.EntryLocationScenes]: true,
+        [TabVisibilityItem.EntryLocationTimeline]: true,
+        [TabVisibilityItem.EntryOrganizationJournals]: true,
+        [TabVisibilityItem.EntryOrganizationCharacters]: true,
+        [TabVisibilityItem.EntryOrganizationLocations]: true,
+        [TabVisibilityItem.EntryOrganizationPCs]: true,
+        [TabVisibilityItem.EntryOrganizationSessions]: true,
+        [TabVisibilityItem.EntryOrganizationFoundry]: true,
+        [TabVisibilityItem.EntryOrganizationTimeline]: true,
+        [TabVisibilityItem.EntryPCJournals]: true,
+        [TabVisibilityItem.EntryPCCharacters]: true,
+        [TabVisibilityItem.EntryPCLocations]: true,
+        [TabVisibilityItem.EntryPCOrganizations]: true,
+        [TabVisibilityItem.EntryPCFoundry]: true,
+        [TabVisibilityItem.EntryPCTimeline]: true,
+      } as TabVisibilitySettings,
       type: Object,
     },
   ];

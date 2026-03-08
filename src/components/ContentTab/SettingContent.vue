@@ -88,6 +88,7 @@
           />
         </DescriptionTab>
         <JournalTab
+          v-if="currentSetting && tabVisibility[TabVisibilityItem.SettingJournals]"
           :initial-journals="currentSetting.journals"
           @journals-updated="onJournalsUpdate"
         />
@@ -138,7 +139,7 @@
   import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
   
   // types
-  import { CustomFieldContentType, RelatedJournal, WindowTabType, } from '@/types';
+  import { CustomFieldContentType, RelatedJournal, WindowTabType, TabVisibilityItem, } from '@/types';
   import { FCBSetting } from '@/classes';
   
   ////////////////////////////////
@@ -167,20 +168,29 @@
   // computed data
   const namePlaceholder = computed((): string => (localize('placeholders.settingName') || ''));
   const generateDisabled = computed(() => !available.value);
-  
+
   const showTimelineTab = computed(() => {
     return ModuleSettings.get(SettingKey.useTimeline) && 
       calendariaAvailable.value && 
       calendarActive.value;
   });
 
+  // Get tab visibility settings
+  const tabVisibility = computed(() => {
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tabVisibilitySettings);
+  });
+
   const tabs = computed(() => {
     const baseTabs = [
       { id: 'description', label: localize('labels.description') },
-      { id: 'journals', label: localize('labels.journals') },
     ];
 
-    if (showTimelineTab.value) {
+    if (tabVisibility.value[TabVisibilityItem.SettingJournals]) {
+      baseTabs.push({ id: 'journals', label: localize('labels.journals') });
+    }
+
+    if (showTimelineTab.value && tabVisibility.value[TabVisibilityItem.SettingTimeline]) {
       baseTabs.push({ id: 'timeline', label: localize('labels.tabs.setting.timeline') });
     }
 

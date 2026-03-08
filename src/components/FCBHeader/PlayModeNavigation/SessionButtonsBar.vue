@@ -23,8 +23,10 @@
   import { useMainStore, usePlayingStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { openSessionNotes, } from '@/applications/SessionNotes';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // types
+  import { TabVisibilityItem } from '@/types';
 
   ////////////////////////////////
   // store
@@ -36,18 +38,57 @@
 
   ////////////////////////////////
   // data
+  // Get tab visibility settings 
+  const tabVisibility = computed(() => {
+    ModuleSettings.getReactiveVersion();
+    return ModuleSettings.get(SettingKey.tabVisibilitySettings);
+  });
+
   // note the ids need to match the tab ids in SessionContent.vue
-  const sessionButtons = computed(() => [
-    { id: 'noteBox', label: localize('labels.tabs.session.noteBox'), icon: 'fa-external-link' },
-    { id: 'notes', label: localize('labels.tabs.session.notes'), icon: 'fa-pen-to-square' },
-    { id: 'lore', label: localize('labels.tabs.session.lore'), icon: 'fa-book-open' },
-    { id: 'vignettes', label: localize('labels.tabs.session.vignettes'), icon: 'fa-map' },
-    { id: 'locations', label: localize('labels.tabs.session.locations'), icon: 'fa-location-dot' },
-    { id: 'npcs', label: localize('labels.tabs.session.npcs'), icon: 'fa-user' },
-    { id: 'monsters', label: localize('labels.tabs.session.monsters'), icon: 'fa-dragon' },
-    { id: 'magic', label: 'Items', icon: 'fa-wand-sparkles' },
-    { id: 'toDo', label: localize('labels.tabs.session.toDo'), icon: 'fa-check-square' },
-  ]);
+  // noteBox and notes are always shown (like description tabs)
+  const sessionButtons = computed(() => {
+    const buttons = [
+      { id: 'noteBox', label: localize('labels.tabs.session.noteBox'), icon: 'fa-external-link' },
+      { id: 'notes', label: localize('labels.tabs.session.notes'), icon: 'fa-pen-to-square' },
+    ];
+
+    // Lore tab
+    if (tabVisibility.value[TabVisibilityItem.SessionLore]) {
+      buttons.push({ id: 'lore', label: localize('labels.tabs.session.lore'), icon: 'fa-book-open' });
+    }
+
+    // Vignettes tab
+    if (tabVisibility.value[TabVisibilityItem.SessionVignettes]) {
+      buttons.push({ id: 'vignettes', label: localize('labels.tabs.session.vignettes'), icon: 'fa-map' });
+    }
+
+    // Locations tab
+    if (tabVisibility.value[TabVisibilityItem.SessionLocations]) {
+      buttons.push({ id: 'locations', label: localize('labels.tabs.session.locations'), icon: 'fa-location-dot' });
+    }
+
+    // NPCs tab
+    if (tabVisibility.value[TabVisibilityItem.SessionNPCs]) {
+      buttons.push({ id: 'npcs', label: localize('labels.tabs.session.npcs'), icon: 'fa-user' });
+    }
+
+    // Monsters tab
+    if (tabVisibility.value[TabVisibilityItem.SessionMonsters]) {
+      buttons.push({ id: 'monsters', label: localize('labels.tabs.session.monsters'), icon: 'fa-dragon' });
+    }
+
+    // Magic/Items tab
+    if (tabVisibility.value[TabVisibilityItem.SessionMagic]) {
+      buttons.push({ id: 'magic', label: 'Items', icon: 'fa-wand-sparkles' });
+    }
+
+    // To-Do tab (opens Campaign, uses CampaignToDo visibility)
+    if (tabVisibility.value[TabVisibilityItem.CampaignToDo]) {
+      buttons.push({ id: 'toDo', label: localize('labels.tabs.session.toDo'), icon: 'fa-check-square' });
+    }
+
+    return buttons;
+  });
 
   ////////////////////////////////
   // methods

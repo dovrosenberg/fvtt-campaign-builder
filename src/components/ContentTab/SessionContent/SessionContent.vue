@@ -87,19 +87,34 @@
             @related-entries-changed="onRelatedEntriesChanged"
           />
         </DescriptionTab>
-        <div class="tab flexcol" data-group="primary" data-tab="pcs">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.SessionPCs]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="pcs"
+        >
           <div class="tab-inner">
             <CampaignPCsTab :session-mode="true" />
           </div>
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="npcs">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.SessionNPCs]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="npcs"
+        >
           <div class="tab-inner">
             <SessionNPCTab 
               @related-entries-changed="onRelatedEntriesChanged"
             />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="vignettes">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.SessionVignettes]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="vignettes"
+        >
           <div class="tab-inner">
             <SessionVignetteTab 
               @related-entries-changed="onRelatedEntriesChanged"
@@ -107,35 +122,60 @@
           </div>  
         </div>
 
-        <div class="tab flexcol" data-group="primary" data-tab="lore">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.SessionLore]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="lore"
+        >
           <div class="tab-inner">
             <SessionLoreTab 
               @related-entries-changed="onRelatedEntriesChanged"
             />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="locations">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.SessionLocations]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="locations"
+        >
           <div class="tab-inner">
             <SessionLocationTab 
               @related-entries-changed="onRelatedEntriesChanged"
             />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="monsters">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.SessionMonsters]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="monsters"
+        >
           <div class="tab-inner">
             <SessionMonsterTab 
               @related-entries-changed="onRelatedEntriesChanged"
             />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="magic">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.SessionMagic]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="magic"
+        >
           <div class="tab-inner">
             <SessionItemTab 
               @related-entries-changed="onRelatedEntriesChanged"
             />
           </div>  
         </div>
-        <div v-if="showStoryWebTab" class="tab flexcol" data-group="primary" data-tab="storyWebs">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.SessionStoryWebs] && ModuleSettings.get(SettingKey.useStoryWebs)"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="storyWebs"
+        >
           <div class="tab-inner">
             <StoryWebsTab mode="session" />
           </div>
@@ -202,7 +242,7 @@
   import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
 
   // types
-  import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType } from '@/types';
+  import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType, TabVisibilityItem, } from '@/types';
   import { Entry, Session } from '@/classes';
   
   ////////////////////////////////
@@ -241,9 +281,10 @@
 
   ////////////////////////////////
   // computed data
-  const showStoryWebTab = computed(() => {
+  // Get tab visibility settings
+  const tabVisibility = computed(() => {
     ModuleSettings.getReactiveVersion();
-    return ModuleSettings.get(SettingKey.useStoryWebs);
+    return ModuleSettings.get(SettingKey.tabVisibilitySettings);
   });
 
   const showTimelineTab = computed(() => {
@@ -252,18 +293,41 @@
       calendarActive.value;
   });
 
-  const tabs = computed(() => [
-    { id: 'notes', label: localize('labels.tabs.session.notes')},
-    { id: 'lore', label: localize('labels.tabs.session.lore')},
-    { id: 'vignettes', label: localize('labels.tabs.session.vignettes')},
-    { id: 'locations', label: localize('labels.tabs.session.locations')},
-    { id: 'npcs', label: localize('labels.tabs.session.npcs')},
-    { id: 'monsters', label: localize('labels.tabs.session.monsters')},
-    { id: 'magic', label: localize('labels.tabs.session.magic')},
-    { id: 'pcs', label: localize('labels.tabs.session.pcs')},
-    ...(showStoryWebTab.value ? [{ id: 'storyWebs', label: localize('contentFolders.storyWebs') }] : []),
-    ...(showTimelineTab.value ? [{ id: 'timeline', label: localize('labels.tabs.session.timeline') }] : []),
-  ] as ContentTabDescriptor[]);
+  const tabs = computed(() => {
+    const baseTabs = [
+      { id: 'notes', label: localize('labels.tabs.session.notes')},
+    ];
+
+    if (tabVisibility.value[TabVisibilityItem.SessionLore]) {
+      baseTabs.push({ id: 'lore', label: localize('labels.tabs.session.lore')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.SessionVignettes]) {
+      baseTabs.push({ id: 'vignettes', label: localize('labels.tabs.session.vignettes')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.SessionLocations]) {
+      baseTabs.push({ id: 'locations', label: localize('labels.tabs.session.locations')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.SessionNPCs]) {
+      baseTabs.push({ id: 'npcs', label: localize('labels.tabs.session.npcs')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.SessionMonsters]) {
+      baseTabs.push({ id: 'monsters', label: localize('labels.tabs.session.monsters')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.SessionMagic]) {
+      baseTabs.push({ id: 'magic', label: localize('labels.tabs.session.magic')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.SessionPCs]) {
+      baseTabs.push({ id: 'pcs', label: localize('labels.tabs.session.pcs')});
+    }
+    if (ModuleSettings.get(SettingKey.useStoryWebs) && tabVisibility.value[TabVisibilityItem.SessionStoryWebs]) {
+      baseTabs.push({ id: 'storyWebs', label: localize('contentFolders.storyWebs') });
+    }
+    if (showTimelineTab.value && tabVisibility.value[TabVisibilityItem.SessionTimeline]) {
+      baseTabs.push({ id: 'timeline', label: localize('labels.tabs.session.timeline') });
+    }
+
+    return baseTabs as ContentTabDescriptor[];
+  });
 
   ////////////////////////////////
   // methods

@@ -1,8 +1,8 @@
 ---
 title: Import/Export Module Data
 prev: 
-  text: 'Table Grouping'
-  link: '/reference/configuration/table-grouping'
+  text: 'Tab Visibility'
+  link: './tab-visibility'
 ---
 # Import/Export Module Data
 

@@ -60,18 +60,28 @@
           />
         </DescriptionTab>
         <JournalTab
-          v-if="currentArc"
+          v-if="currentArc && tabVisibility[TabVisibilityItem.ArcJournals]"
           :initial-journals="currentArc.journals"
           @journals-updated="onJournalsUpdate"
         />
-        <div class="tab flexcol" data-group="primary" data-tab="participants">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.ArcParticipants]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="participants"
+        >
           <div class="tab-inner">
             <ArcParticipantTab 
               @related-entries-changed="onRelatedEntriesChanged"
             />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="lore">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.ArcLore]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="lore"
+        >
           <div class="tab-inner">
             <SessionLoreTab 
               :arc-mode="true"
@@ -79,7 +89,12 @@
             />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="vignettes">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.ArcVignettes]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="vignettes"
+        >
           <div class="tab-inner">
             <SessionVignetteTab 
               :arc-mode="true"
@@ -87,7 +102,12 @@
             />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="locations">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.ArcLocations]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="locations"
+        >
           <div class="tab-inner">
             <SessionLocationTab 
               :arc-mode="true"
@@ -95,7 +115,12 @@
             />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="monsters">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.ArcMonsters]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="monsters"
+        >
           <div class="tab-inner">
             <SessionMonsterTab 
               :arc-mode="true"
@@ -103,7 +128,12 @@
             />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="ideas">
+        <div 
+          v-if="tabVisibility[TabVisibilityItem.ArcIdeas]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="ideas"
+        >
           <div class="tab-inner">
             <CampaignIdeasTab 
               :arc-mode="true"
@@ -111,7 +141,12 @@
             />
           </div>  
         </div>
-        <div v-if="showStoryWebTab" class="tab flexcol" data-group="primary" data-tab="storyWebs">
+        <div 
+          v-if="ModuleSettings.get(SettingKey.useStoryWebs) && tabVisibility[TabVisibilityItem.ArcStoryWebs]" 
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="storyWebs"
+        >
           <div class="tab-inner">
             <StoryWebsTab mode="arc" />
           </div>
@@ -175,7 +210,7 @@
   import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
 
   // types
-  import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType } from '@/types';
+  import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType, TabVisibilityItem, } from '@/types';
   import { Arc, Entry } from '@/classes';
   
   ////////////////////////////////
@@ -205,9 +240,10 @@
 
   ////////////////////////////////
   // computed data
-  const showStoryWebTab = computed(() => {
+  // Get tab visibility settings
+  const tabVisibility = computed(() => {
     ModuleSettings.getReactiveVersion();
-    return ModuleSettings.get(SettingKey.useStoryWebs);
+    return ModuleSettings.get(SettingKey.tabVisibilitySettings);
   });
 
   const showTimelineTab = computed(() => {
@@ -216,18 +252,40 @@
       calendarActive.value;
   });
 
-  const tabs = computed(() => [
-    { id: 'description', label: localize('labels.description')},
-    { id: 'journals', label: localize('labels.journals') },
-    { id: 'lore', label: localize('labels.tabs.arc.lore')},
-    { id: 'vignettes', label: localize('labels.tabs.arc.vignettes')},
-    { id: 'locations', label: localize('labels.tabs.arc.locations')},
-    { id: 'participants', label: localize('labels.tabs.arc.participants')},
-    { id: 'monsters', label: localize('labels.tabs.arc.monsters')},
-    { id: 'ideas', label: localize('labels.tabs.arc.ideas')},
-    ...(showStoryWebTab.value ? [{ id: 'storyWebs', label: localize('contentFolders.storyWebs') }] : []),
-    ...(showTimelineTab.value ? [{ id: 'timeline', label: localize('labels.tabs.arc.timeline') }] : []),
-  ] as ContentTabDescriptor[]);
+  const tabs = computed(() => {
+    const baseTabs = [
+      { id: 'description', label: localize('labels.description')},
+    ];
+
+    if (tabVisibility.value[TabVisibilityItem.ArcJournals]) {
+      baseTabs.push({ id: 'journals', label: localize('labels.journals') });
+    }
+    if (tabVisibility.value[TabVisibilityItem.ArcLore]) {
+      baseTabs.push({ id: 'lore', label: localize('labels.tabs.arc.lore')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.ArcVignettes]) {
+      baseTabs.push({ id: 'vignettes', label: localize('labels.tabs.arc.vignettes')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.ArcLocations]) {
+      baseTabs.push({ id: 'locations', label: localize('labels.tabs.arc.locations')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.ArcParticipants]) {
+      baseTabs.push({ id: 'participants', label: localize('labels.tabs.arc.participants')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.ArcMonsters]) {
+      baseTabs.push({ id: 'monsters', label: localize('labels.tabs.arc.monsters')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.ArcIdeas]) {
+      baseTabs.push({ id: 'ideas', label: localize('labels.tabs.arc.ideas')});
+    }
+    if (ModuleSettings.get(SettingKey.useStoryWebs) && tabVisibility.value[TabVisibilityItem.ArcStoryWebs]) {
+      baseTabs.push({ id: 'storyWebs', label: localize('contentFolders.storyWebs') });
+    }
+    if (showTimelineTab.value && tabVisibility.value[TabVisibilityItem.ArcTimeline]) {
+      baseTabs.push({ id: 'timeline', label: localize('labels.tabs.arc.timeline') });
+    }
+    return baseTabs as ContentTabDescriptor[];
+  });
 
   ////////////////////////////////
   // methods
