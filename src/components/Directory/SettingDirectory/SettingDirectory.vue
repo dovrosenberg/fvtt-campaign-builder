@@ -1,6 +1,10 @@
 <template>
   <!-- these are the settings (well, really just one) -->
-  <ol class="fcb-setting-list">
+  <ol 
+    class="fcb-setting-list"
+    @drop="onDropActor"
+    @dragover="DragDropService.standardDragover"
+  >
     <li
       v-if="currentSettingTreeObject"
       :key="currentSettingTreeObject.id"
@@ -85,7 +89,7 @@
 
 
   // types
-  import { WindowTabType, Topics } from '@/types';
+  import { WindowTabType, Topics, FoundryDragType } from '@/types';
   import { DirectoryTopicFolderNode, TopicFolder, } from '@/classes';
   import { SettingNodeDragData } from '@/types/dragDrop';
   
@@ -265,6 +269,37 @@
     event.stopPropagation();
 
     await settingDirectoryStore.toggleTopic(directoryTopic);
+  };
+
+  /**
+   * Handles dropping a Foundry actor onto the setting directory.
+   * Creates a new Character entry from the actor and opens it.
+   * @param event The drop event
+   */
+  const onDropActor = async (event: DragEvent): Promise<void> => {
+    // Don't handle if another handler already processed this
+    if (event.defaultPrevented)
+      return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Parse the drag data
+    const data = DragDropService.getValidatedData(event) as FoundryDragType | undefined;
+    if (!data)
+      return;
+
+    // Only handle Actor drops
+    if (data.type !== 'Actor' || !data.uuid)
+      return;
+
+    // Create the entry from the actor
+    const entry = await settingDirectoryStore.createEntryFromActor(data.uuid);
+
+    if (entry) {
+      // Open the entry in the currently focused panel
+      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true });
+    }
   };
 
   ////////////////////////////////

@@ -345,6 +345,71 @@ export const settingDirectoryStore = () => {
   };
 
   /**
+   * Creates a Character entry from a dropped Foundry actor.
+   * Extracts name, image, and description/biography from the actor,
+   * creates a Character entry, links the actor, and returns the entry.
+   * 
+   * @param actorUuid - The UUID of the actor to create an entry from
+   * @returns The created Entry, or null if creation failed
+   */
+  const createEntryFromActor = async (actorUuid: string): Promise<Entry | null> => {
+    if (!currentSetting.value)
+      return null;
+
+    // Load the actor
+    const actor = await foundry.utils.fromUuid<Actor>(actorUuid);
+    if (!actor)
+      return null;
+
+    // Get the Character topic folder
+    const topicFolder = currentSetting.value.topicFolders[Topics.Character];
+    if (!topicFolder)
+      return null;
+
+    // Extract actor data
+    const name = actor.name;
+    const img = actor.img || (actor.prototypeToken as any)?.texture?.src || '';
+
+    // Get description based on system
+    let description = '';
+    const systemId = game.system.id;
+    
+    if (systemId === 'dnd5e') {
+      // dnd5e uses system.details.biography.value
+      description = (actor as any).system?.details?.biography?.value || '';
+    } else if (systemId === 'pf2e') {
+      // pf2e uses system.details.biography.value or system.description.value
+      description = (actor as any).system?.details?.biography?.value 
+        || (actor as any).system?.description?.value 
+        || '';
+    } else {
+      // Try common biography/description patterns for other systems
+      description = (actor as any).system?.details?.biography?.value 
+        || (actor as any).system?.biography?.value 
+        || (actor as any).system?.description?.value 
+        || '';
+    }
+
+    // Create the entry using createEntry (handles hierarchy, top nodes, tree refresh)
+    const entry = await createEntry(topicFolder, { name });
+
+    if (!entry)
+      return null;
+
+    // Set the image and description
+    entry.img = img;
+    entry.description = description;
+
+    // Link the actor
+    entry.actors = [actorUuid];
+
+    // Save the entry
+    await entry.save();
+
+    return entry;
+  };
+
+  /**
    * Deletes a setting identified by the given settingId.
    * This includes deleting all associated compendia and the setting folder itself.
    * After deletion, the directory tree is refreshed.
@@ -736,6 +801,7 @@ export const settingDirectoryStore = () => {
     deleteSetting,
     createSetting,
     createEntry,
+    createEntryFromActor,
     deleteEntry,
     getTopicNodeContextMenuItems,
     getGroupedTypeNodeContextMenuItems,

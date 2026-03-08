@@ -35,6 +35,7 @@
 [^Setting]: The fictional setting where your Campaigns take place (i.e. the equivalent of The Forgotten Realms, Eberron, etc.).
 [^Settings]: The fictional settings where your Campaigns take place (i.e. the equivalent of The Forgotten Realms, Eberron, etc.).
 [^Setting Directory]: The top section of the Directory Sidebar, where you can see all of the Entries in each Setting.
+[^Campaign Directory]: The bottom section of the Directory Sidebar, where you can see all the Campaigns, Arcs, Sessions, Fronts, and Story Webs.
 [^Species]: The species or race of a Character.  They are defined in the module's settings and are used to facilitate search and AI character description/image creation.
 [^Strong start]: Per The Lazy DM, a situation that immediately immerses players in the action and world of the game, pulling them out of their real-world distractions.
 [^Topic]: A category that organizes related Entries. There are three Topics: Characters, Locations, and Organizations.

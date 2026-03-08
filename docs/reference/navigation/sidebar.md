@@ -58,6 +58,12 @@ Exporting a Setting has three options:
 - **Export Setting with Story Webs** - Creates a zip file containing the markdown export plus PNG images of all Story Webs in the Setting.
 :::
 
+
+### Dropping Actors {#dropping-actors}
+You can drag an Actor from the Foundry Actors directory and drop it anywhere in the Setting directory to create a new Character entry, taking the key information from the Actor.
+
+This provides a quick way to import existing actors into your setting as Characters.
+
 ### Group by type {#group-by-type}
 Using the "Group tree by type" checkbox at the top of the sidebar, you can choose to organize the entries by [^Type] instead of Topic.  This will eliminate the Hierarchy representation and instead show all the Entries grouped by their Types.  Entries without a Type will not be shown.
 
