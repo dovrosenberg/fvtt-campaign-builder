@@ -209,8 +209,8 @@ Dependencies
       case WindowTabType.Setting: {
         // Get all entry UUIDs from topics
         for (const topic of Object.values((doc as FCBSetting).topics)) {
-          for (const entryUuid of Object.keys(topic.entries)) {
-            uuids.push(entryUuid);
+          for (const entry of Object.values(topic.entries)) {
+            uuids.push(entry.uuid);
           }
         }
         // Get campaign, arc, and session UUIDs
