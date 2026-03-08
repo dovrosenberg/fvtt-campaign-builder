@@ -80,8 +80,6 @@
       "storyWebSettings": "Story Web Settings",
       "storyWebSettingsLabel": "Configure Settings",
       "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs",
-      "genericFoundryTab": "Afficher l'onglet Foundry sur les entrées",
-      "genericFoundryTabHelp": "Lorsqu'il est activé, les entrées auront un onglet Foundry qui peut contenir tout type de document Foundry (scènes, acteurs, objets, etc.). Cela est utile pour animer des sessions de jeu entièrement à partir des entrées sans utiliser de campagnes/sessions.",
       "sessionBookmark": "Afficher le signet de la session",
       "sessionBookmarkHelp": "Lorsqu'il est activé, un signet pour la session en cours sera affiché en tête de la barre de signets",
       "tableGrouping": "Paramètres de regroupement de table",
@@ -91,7 +89,9 @@
       "enableVoiceRecordingHelp": "Autoriser l'enregistrement d'échantillons vocaux pour les personnages afin d'aider à se souvenir des voix/accents",
       "importExport": "Importer/Exporter les données du module",
       "importExportLabel": "Importer/Exporter les données du module",
-      "importExportHelp": "Exporter toutes les données du module vers un fichier ou importer depuis un export précédent"
+      "importExportHelp": "Exporter toutes les données du module vers un fichier ou importer depuis un export précédent",
+      "useTimeline": "Utiliser la chronologie",
+      "useTimelineHelp": "Activer la fonctionnalité de chronologie (nécessite le module Calendaria)."
     },
     "applications": {
       "sessionNotes": {
@@ -489,13 +489,15 @@
           "locations": "Lieux",
           "organizations": "Organisations",
           "pcs": "PCs",
-          "foundry": "Foundry"
+          "foundry": "Foundry",
+          "timeline": "Chronologie"
         },
         "campaign": {
           "pcs": "PJs",
           "lore": "Savoir",
           "toDo": "À faire",
-          "ideas": "Idées"
+          "ideas": "Idées",
+          "timeline": "Chronologie"
         },
         "session": {
           "notes": "Notes",
@@ -508,7 +510,8 @@
           "monsters": "Monstres",
           "magic": "Objets Magiques",
           "toDo": "À faire",
-          "noteBox": "Boîte à notes"
+          "noteBox": "Boîte à notes",
+          "timeline": "Chronologie"
         },
         "front": {
           "createNewDanger": "Créer un nouveau danger"
@@ -520,7 +523,11 @@
           "participants": "Participants",
           "monsters": "Monstres",
           "ideas": "Idées",
-          "vignettes": "Vignettes"
+          "vignettes": "Vignettes",
+          "timeline": "Chronologie"
+        },
+        "setting": {
+          "timeline": "Chronologie"
         }
       },
       "noResults": "Rien ici",
@@ -611,7 +618,27 @@
       "setting": {
         "setting": "Paramètre"
       },
-      "newGroup": "Nouveau groupe"
+      "newGroup": "Nouveau groupe",
+      "timeline": {
+        "loading": "Chargement de la chronologie...",
+        "textSearch": "Rechercher",
+        "textSearchPlaceholder": "Rechercher des événements...",
+        "categories": "Catégories",
+        "selectCategories": "Sélectionner des catégories...",
+        "excludeGMOnly": "Exclure uniquement le MJ",
+        "referenceEntity": "Référencer ce {entity}",
+        "resetFilters": "Réinitialiser",
+        "resetRange": "Réinitialiser la plage",
+        "noFilters": "Aucun filtre",
+        "filterSummaryCategories": "Catégories : {categories}",
+        "filterSummarySearch": "Recherche : \"{search}\"",
+        "calendar": "Calendrier",
+        "selectCalendar": "Sélectionner un calendrier...",
+        "includeChildren": "Inclure les enfants",
+        "includeArcAndSessionReferences": "Inclure les références d'Arc et de Session",
+        "includeSessionReferences": "Inclure les références de Session",
+        "includeAllReferences": "Inclure les références d'Entrée, de Campagne, d'Arc et de Session"
+      }
     },
     "placeholders": {
       "search": "Rechercher",
