@@ -950,7 +950,8 @@
           "todo": "To-Dos",
           "participants": "Participants",
           "magic": "Magic Items",
-          "storyWebs": "Story Webs"
+          "storyWebs": "Story Webs",
+          "timeline": "Timeline"
         }
       },
       "relatedEntriesManagement": {

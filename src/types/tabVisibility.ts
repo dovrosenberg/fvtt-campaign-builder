@@ -6,6 +6,7 @@
 export enum TabVisibilityItem {
   // Setting
   SettingJournals = 'settingJournals',
+  SettingTimeline = 'settingTimeline',
 
   // Campaign
   CampaignJournals = 'campaignJournals',
@@ -14,6 +15,7 @@ export enum TabVisibilityItem {
   CampaignIdeas = 'campaignIdeas',
   CampaignToDo = 'campaignToDo',
   CampaignStoryWebs = 'campaignStoryWebs',
+  CampaignTimeline = 'campaignTimeline',
 
   // Arc
   ArcJournals = 'arcJournals',
@@ -24,6 +26,7 @@ export enum TabVisibilityItem {
   ArcMonsters = 'arcMonsters',
   ArcIdeas = 'arcIdeas',
   ArcStoryWebs = 'arcStoryWebs',
+  ArcTimeline = 'arcTimeline',
 
   // Session
   SessionLore = 'sessionLore',
@@ -34,6 +37,7 @@ export enum TabVisibilityItem {
   SessionMagic = 'sessionMagic',
   SessionPCs = 'sessionPCs',
   SessionStoryWebs = 'sessionStoryWebs',
+  SessionTimeline = 'sessionTimeline',
 
   // Entry - Character topic
   EntryCharacterJournals = 'entryCharacterJournals',
@@ -43,6 +47,7 @@ export enum TabVisibilityItem {
   EntryCharacterSessions = 'entryCharacterSessions',
   EntryCharacterFoundry = 'entryCharacterFoundry',
   EntryCharacterActors = 'entryCharacterActors',
+  EntryCharacterTimeline = 'entryCharacterTimeline',
 
   // Entry - Location topic
   EntryLocationJournals = 'entryLocationJournals',
@@ -52,6 +57,7 @@ export enum TabVisibilityItem {
   EntryLocationSessions = 'entryLocationSessions',
   EntryLocationFoundry = 'entryLocationFoundry',
   EntryLocationScenes = 'entryLocationScenes',
+  EntryLocationTimeline = 'entryLocationTimeline',
 
   // Entry - Organization topic
   EntryOrganizationJournals = 'entryOrganizationJournals',
@@ -60,6 +66,7 @@ export enum TabVisibilityItem {
   EntryOrganizationPCs = 'entryOrganizationPCs',
   EntryOrganizationSessions = 'entryOrganizationSessions',
   EntryOrganizationFoundry = 'entryOrganizationFoundry',
+  EntryOrganizationTimeline = 'entryOrganizationTimeline',
 
   // Entry - PC topic
   EntryPCJournals = 'entryPCJournals',
@@ -67,6 +74,7 @@ export enum TabVisibilityItem {
   EntryPCLocations = 'entryPCLocation',
   EntryPCOrganizations = 'entryPCOrganizations',
   EntryPCFoundry = 'entryPCFoundry',
+  EntryPCTimeline = 'entryPCTimeline',
 }
 
 /**

@@ -103,6 +103,7 @@ Dependencies
       headerKey: 'dialogs.tabVisibility.contentTypes.setting',
       options: [
         { settingKey: TabVisibilityItem.SettingJournals, labelKey: 'dialogs.tabVisibility.tabs.journals' },
+        { settingKey: TabVisibilityItem.SettingTimeline, labelKey: 'dialogs.tabVisibility.tabs.timeline' },
       ],
     },
     {
@@ -115,6 +116,7 @@ Dependencies
         { settingKey: TabVisibilityItem.CampaignIdeas, labelKey: 'dialogs.tabVisibility.tabs.ideas' },
         { settingKey: TabVisibilityItem.CampaignToDo, labelKey: 'dialogs.tabVisibility.tabs.todo' },
         { settingKey: TabVisibilityItem.CampaignStoryWebs, labelKey: 'dialogs.tabVisibility.tabs.storyWebs' },
+        { settingKey: TabVisibilityItem.CampaignTimeline, labelKey: 'dialogs.tabVisibility.tabs.timeline' },
       ],
     },
     {
@@ -129,6 +131,7 @@ Dependencies
         { settingKey: TabVisibilityItem.ArcMonsters, labelKey: 'dialogs.tabVisibility.tabs.monsters' },
         { settingKey: TabVisibilityItem.ArcIdeas, labelKey: 'dialogs.tabVisibility.tabs.ideas' },
         { settingKey: TabVisibilityItem.ArcStoryWebs, labelKey: 'dialogs.tabVisibility.tabs.storyWebs' },
+        { settingKey: TabVisibilityItem.ArcTimeline, labelKey: 'dialogs.tabVisibility.tabs.timeline' },
       ],
     },
     {
@@ -143,6 +146,7 @@ Dependencies
         { settingKey: TabVisibilityItem.SessionMagic, labelKey: 'dialogs.tabVisibility.tabs.magic' },
         { settingKey: TabVisibilityItem.SessionPCs, labelKey: 'dialogs.tabVisibility.tabs.pcs' },
         { settingKey: TabVisibilityItem.SessionStoryWebs, labelKey: 'dialogs.tabVisibility.tabs.storyWebs' },
+        { settingKey: TabVisibilityItem.SessionTimeline, labelKey: 'dialogs.tabVisibility.tabs.timeline' },
       ],
     },
     {
@@ -156,6 +160,7 @@ Dependencies
         { settingKey: TabVisibilityItem.EntryCharacterSessions, labelKey: 'dialogs.tabVisibility.tabs.sessions' },
         { settingKey: TabVisibilityItem.EntryCharacterFoundry, labelKey: 'dialogs.tabVisibility.tabs.foundry' },
         { settingKey: TabVisibilityItem.EntryCharacterActors, labelKey: 'dialogs.tabVisibility.tabs.actors' },
+        { settingKey: TabVisibilityItem.EntryCharacterTimeline, labelKey: 'dialogs.tabVisibility.tabs.timeline' },
       ],
     },
     {
@@ -169,6 +174,7 @@ Dependencies
         { settingKey: TabVisibilityItem.EntryLocationSessions, labelKey: 'dialogs.tabVisibility.tabs.sessions' },
         { settingKey: TabVisibilityItem.EntryLocationFoundry, labelKey: 'dialogs.tabVisibility.tabs.foundry' },
         { settingKey: TabVisibilityItem.EntryLocationScenes, labelKey: 'dialogs.tabVisibility.tabs.scenes' },
+        { settingKey: TabVisibilityItem.EntryLocationTimeline, labelKey: 'dialogs.tabVisibility.tabs.timeline' },
       ],
     },
     {
@@ -181,6 +187,7 @@ Dependencies
         { settingKey: TabVisibilityItem.EntryOrganizationPCs, labelKey: 'dialogs.tabVisibility.tabs.pcs' },
         { settingKey: TabVisibilityItem.EntryOrganizationSessions, labelKey: 'dialogs.tabVisibility.tabs.sessions' },
         { settingKey: TabVisibilityItem.EntryOrganizationFoundry, labelKey: 'dialogs.tabVisibility.tabs.foundry' },
+        { settingKey: TabVisibilityItem.EntryOrganizationTimeline, labelKey: 'dialogs.tabVisibility.tabs.timeline' },
       ],
     },
     {
@@ -192,6 +199,7 @@ Dependencies
         { settingKey: TabVisibilityItem.EntryPCLocations, labelKey: 'dialogs.tabVisibility.tabs.locations' },
         { settingKey: TabVisibilityItem.EntryPCOrganizations, labelKey: 'dialogs.tabVisibility.tabs.organizations' },
         { settingKey: TabVisibilityItem.EntryPCFoundry, labelKey: 'dialogs.tabVisibility.tabs.foundry' },
+        { settingKey: TabVisibilityItem.EntryPCTimeline, labelKey: 'dialogs.tabVisibility.tabs.timeline' },
       ],
     },
   ];
