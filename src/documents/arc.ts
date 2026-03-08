@@ -70,25 +70,25 @@ export const ArcSchema = {
 
   /** array of locations */
   locations: new fields.ArrayField(
-    schemas.ArcLocation(),
+    schemas.ArcListItem(),
     { initial: [] as ArcLocation[] }
   ),  
 
   /** array of npcs/organizations */
   participants: new fields.ArrayField(
-    schemas.ArcParticipant(),
+    schemas.ArcListItem(),
     { initial: [] as ArcParticipant[] }
   ),  
 
   /** array of monsters */
   monsters: new fields.ArrayField(
-    schemas.ArcMonster(),
+    schemas.ArcListItem(),
     { initial: [] as ArcMonster[] }
   ),  
 
   /** array of magic items */
   items: new fields.ArrayField(
-    schemas.ArcItem(),
+    schemas.ArcListItem(),
     { initial: [] as ArcItem[] }
   ),
 

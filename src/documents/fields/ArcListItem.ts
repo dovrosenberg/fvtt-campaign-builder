@@ -1,6 +1,7 @@
 const fields = foundry.data.fields;
 
-export const ArcParticipantSchema = () => (
+// used for items, monsters, locations, and participants
+export const ArcListItemSchema = () => (
   new fields.SchemaField({
     uuid: new fields.DocumentUUIDField({ required: true, nullable: false }),
 
