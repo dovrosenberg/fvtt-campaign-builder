@@ -11,7 +11,7 @@ export const TimelineConfigSchema = () => (
         { required: true, nullable: false, initial: [] as string[] }
       ),
       textSearch: new fields.StringField({ required: true, nullable: false, initial: '' }),
-      gmOnly: new fields.BooleanField({ required: true, nullable: false, initial: false }),
+      excludeGMOnly: new fields.BooleanField({ required: true, nullable: false, initial: false }),
       referenceEntity: new fields.BooleanField({ required: true, nullable: false, initial: true }),
       includeNestedUuids: new fields.BooleanField({ required: true, nullable: false, initial: false }),
       visibleRange: new fields.SchemaField({

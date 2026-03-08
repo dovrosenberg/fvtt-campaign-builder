@@ -70,12 +70,12 @@ Dependencies
         <div class="filter-group">
           <label class="checkbox-label">
             <Checkbox
-              v-model="localFilters.gmOnly"
+              v-model="localFilters.excludeGMOnly"
               :binary="true"
               inputId="gm-only"
               @change="onGmOnlyChange"
             />
-            <span>{{ localize('labels.timeline.gmOnly') }}</span>
+            <span>{{ localize('labels.timeline.excludeGMOnly') }}</span>
           </label>
         </div>
 
@@ -260,8 +260,8 @@ Dependencies
       parts.push(localize('labels.timeline.filterSummarySearch', { search: localFilters.value.textSearch }));
     }
 
-    if (localFilters.value.gmOnly) {
-      parts.push(localize('labels.timeline.gmOnly'));
+    if (localFilters.value.excludeGMOnly) {
+      parts.push(localize('labels.timeline.excludeGMOnly'));
     }
 
     if (localFilters.value.referenceEntity) {

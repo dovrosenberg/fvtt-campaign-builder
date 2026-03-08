@@ -102,7 +102,7 @@ Dependencies
     return {
       categories: [],
       textSearch: '',
-      gmOnly: false,
+      excludeGMOnly: false,
       referenceEntity: shouldDefaultChecked,
       includeNestedUuids: false,  
       visibleRange: null,
@@ -281,7 +281,7 @@ Dependencies
       }
 
       // GM-only filter
-      if (filterCriteria.gmOnly && !note.gmOnly) {
+      if (filterCriteria.excludeGMOnly && note.gmOnly) {
         return false;
       }
 
@@ -715,7 +715,7 @@ Dependencies
         filters: {
           categories: inputCategories ?? existingFilters.categories,
           textSearch: newFilters?.textSearch ?? existingFilters.textSearch,
-          gmOnly: newFilters?.gmOnly ?? existingFilters.gmOnly,
+          excludeGMOnly: newFilters?.excludeGMOnly ?? existingFilters.excludeGMOnly,
           referenceEntity: newFilters?.referenceEntity ?? existingFilters.referenceEntity,
           includeNestedUuids: newFilters?.includeNestedUuids ?? existingFilters.includeNestedUuids,
           visibleRange: validVisibleRange,

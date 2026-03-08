@@ -12,8 +12,8 @@ export interface TimelineFilters {
   /** Text search filter - matches against name and content */
   textSearch: string;
 
-  /** Show GM-only events only */
-  gmOnly: boolean;
+  /** Exclude GM-only events */
+  excludeGMOnly: boolean;
 
   /** Show events referencing the current content */
   referenceEntity: boolean;
@@ -31,7 +31,7 @@ export interface TimelineFilters {
 export const TIMELINE_DEFAULT_FILTERS: TimelineFilters = {
   categories: [] as string[],
   textSearch: '',
-  gmOnly: false,
+  excludeGMOnly: false,
   referenceEntity: false,
   includeNestedUuids: false,
   visibleRange: null,
