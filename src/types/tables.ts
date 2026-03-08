@@ -2,10 +2,10 @@ import { DataTableFilterMetaData } from 'primevue';
 import { 
   BaseTableGridRow,CampaignIdea,CampaignLore,CampaignPC,GroupableItem, 
   CampaignToDo, ArcIdea, ArcLore, ArcVignette, ArcLocation, ArcParticipant, 
-  ArcMonster, SessionLore, SessionVignette, SessionLocation, SessionNPC, 
+  ArcMonster, ArcItem, SessionLore, SessionVignette, SessionLocation, SessionNPC, 
   SessionMonster, SessionItem,CampaignPCRow,CampaignLoreRow,CampaignIdeaRow,
   CampaignToDoRow,ArcLoreRow,ArcVignetteRow,ArcLocationRow,ArcParticipantRow,
-  ArcMonsterRow,ArcIdeaRow,SessionLoreRow,SessionVignetteRow,SessionLocationRow,
+  ArcMonsterRow,ArcItemRow,ArcIdeaRow,SessionLoreRow,SessionVignetteRow,SessionLocationRow,
   SessionNPCRow,SessionMonsterRow,SessionItemRow,SessionPCRow
 } from './index';
 
@@ -113,6 +113,7 @@ export enum ArcTableTypes {
   Location,
   Participant,
   Monster,
+  Item,
   Vignette,
   Lore,
   Idea,
@@ -153,6 +154,7 @@ export type GroupableItemTypeMap = {
   [GroupableItem.ArcLocations]: ArcLocation;
   [GroupableItem.ArcParticipants]: ArcParticipant;
   [GroupableItem.ArcMonsters]: ArcMonster;
+  [GroupableItem.ArcItems]: ArcItem;
   [GroupableItem.ArcIdeas]: ArcIdea;
   [GroupableItem.SessionLore]: SessionLore;
   [GroupableItem.SessionVignettes]: SessionVignette;
@@ -179,6 +181,7 @@ export type GroupableRowTypeMap = {
   [GroupableItem.ArcLocations]: ArcLocationRow;
   [GroupableItem.ArcParticipants]: ArcParticipantRow;
   [GroupableItem.ArcMonsters]: ArcMonsterRow;
+  [GroupableItem.ArcItems]: ArcItemRow;
   [GroupableItem.ArcIdeas]: ArcIdeaRow;
   [GroupableItem.SessionLore]: SessionLoreRow;
   [GroupableItem.SessionVignettes]: SessionVignetteRow;

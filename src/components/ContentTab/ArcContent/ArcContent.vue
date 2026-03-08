@@ -129,6 +129,19 @@
           </div>  
         </div>
         <div 
+          v-if="tabVisibility[TabVisibilityItem.ArcItems]"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="items"
+        >
+          <div class="tab-inner">
+            <SessionItemTab 
+              :arc-mode="true"
+              @related-entries-changed="onRelatedEntriesChanged"
+            />
+          </div>  
+        </div>
+        <div 
           v-if="tabVisibility[TabVisibilityItem.ArcIdeas]"
           class="tab flexcol" 
           data-group="primary" 
@@ -196,6 +209,7 @@
   import SessionLocationTab from '@/components/ContentTab/SessionContent/SessionLocationTab.vue';
   import ArcParticipantTab from '@/components/ContentTab/ArcContent/ArcParticipantTab.vue';
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
+  import SessionItemTab from '@/components/ContentTab/SessionContent/SessionItemTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
   import SessionVignetteTab from '@/components/ContentTab/SessionContent/SessionVignetteTab.vue';
   import CampaignIdeasTab from '@/components/ContentTab/CampaignContent/CampaignIdeasTab.vue';
@@ -274,6 +288,9 @@
     }
     if (tabVisibility.value[TabVisibilityItem.ArcMonsters]) {
       baseTabs.push({ id: 'monsters', label: localize('labels.tabs.arc.monsters')});
+    }
+    if (tabVisibility.value[TabVisibilityItem.ArcItems]) {
+      baseTabs.push({ id: 'items', label: localize('labels.tabs.arc.items')});
     }
     if (tabVisibility.value[TabVisibilityItem.ArcIdeas]) {
       baseTabs.push({ id: 'ideas', label: localize('labels.tabs.arc.ideas')});

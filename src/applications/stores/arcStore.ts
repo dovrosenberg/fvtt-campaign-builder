@@ -18,6 +18,7 @@ import {
   ArcLocation, 
   ArcLore, 
   ArcMonster, 
+  ArcItem,
   ArcParticipant, 
   ArcVignette, 
 } from '@/types';
@@ -45,6 +46,11 @@ export const arcStore = () => {
     [ArcTableTypes.Monster]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onMonsterClick },
+      { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
+    ],
+    [ArcTableTypes.Item]: [
+      { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
+      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onItemClick },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],
     [ArcTableTypes.Vignette]: [
@@ -460,6 +466,80 @@ export const arcStore = () => {
   };
 
   /**
+   * Adds an item to the arc.
+   * @param uuid the UUID of the item to add.
+   */
+  const addItem = async (uuid: string, notes: string = ''): Promise<void> => {
+    if (!currentArc.value)
+      throw new Error('Invalid arc in arcStore.addItem()');
+
+    await currentArc.value.addItem(uuid, notes);
+    mainStore.refreshArc();
+  }
+
+  /**
+   * Deletes an item from the arc.
+   * @param uuid - The UUID of the item to delete.
+   * @returns True if the item was deleted, false if the user canceled.
+   */
+  const deleteItem = async (uuid: string): Promise<boolean> => {
+    if (!currentArc.value)
+      throw new Error('Invalid arc in arcStore.deleteItem()');
+
+    // confirm
+    if (!(await FCBDialog.confirmDialog('Delete item?', 'Are you sure you want to delete this item?')))
+      return false;
+
+    await currentArc.value.deleteItem(uuid);
+    mainStore.refreshArc();
+    return true;
+  }
+
+  /**
+   * Updates the notes on an item
+   * @param uuid the UUID of the item
+   */
+  const updateItemNotes = async (uuid: string, notes: string): Promise<void> => {
+    if (!currentArc.value)
+      throw new Error('Invalid arc in arcStore.updateItemNotes()');
+
+    await currentArc.value.updateItemNotes(uuid, notes);
+    mainStore.refreshArc();
+  }
+
+  /**
+   * Copy an item to the current session in the campaign.
+   * @param uuid the UUID of the item to copy
+   */
+  const copyItemToSession = async (uuid: string): Promise<void> => {
+    if (!currentArc.value)
+      return;
+
+    const campaign = await currentArc.value.loadCampaign();
+    if (!campaign)
+      throw new Error('Invalid campaign in arcStore.copyItemToSession()');
+
+    const currentSession = await campaign.getCurrentSession();
+    if (!currentSession)
+      throw new Error('Invalid session in arcStore.copyItemToSession()');
+
+    await currentSession.addItem(uuid);
+  }
+
+  /**
+   * Reorders items on the arc (persisting the new array order).
+   * @param reorderedItems the reordered item array
+   */
+  const reorderItems = async (reorderedItems: ArcItem[]): Promise<void> => {
+    if (!currentArc.value)
+      return;
+
+    currentArc.value.items = reorderedItems;
+    await currentArc.value.save();
+    mainStore.refreshArc();
+  };
+
+  /**
    * Reorders story webs on the arc (persisting the new array order).
    * @param reorderedStoryWebIds the reordered story web id array
    */
@@ -571,6 +651,9 @@ export const arcStore = () => {
       [GroupableItem.ArcMonsters]: {
         propertyName: 'monsters',
       },
+      [GroupableItem.ArcItems]: {
+        propertyName: 'items',
+      },
     },
   });
 
@@ -639,6 +722,11 @@ export const arcStore = () => {
     copyMonsterToSession,
     updateMonsterNotes,
     reorderMonsters,
+    addItem,
+    deleteItem,
+    copyItemToSession,
+    updateItemNotes,
+    reorderItems,
     reorderStoryWebs,
     addVignette,
     deleteVignette,

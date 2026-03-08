@@ -21,6 +21,12 @@ export interface ArcMonster {
   groupId: string | null;
 }
 
+export interface ArcItem {
+  uuid: string;
+  notes: string;
+  groupId: string | null;
+}
+
 export interface ArcVignette {
   uuid: string;
   description: string;

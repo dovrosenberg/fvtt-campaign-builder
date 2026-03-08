@@ -23,6 +23,12 @@ export interface ArcMonsterRow extends GroupedTableGridRow {
   notes: string;
 }
 
+export interface ArcItemRow extends GroupedTableGridRow {
+  name: string;           // display field - from linked Item document
+  notes: string;
+  dragTooltip?: string;   // UI-only field
+}
+
 export interface ArcVignetteRow extends GroupedTableGridRow {
   description: string;
 }

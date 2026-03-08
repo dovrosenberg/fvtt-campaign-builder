@@ -47,6 +47,7 @@ export class MigrationV1_10 implements Migration {
       [TabVisibilityItem.ArcLocations]: true,
       [TabVisibilityItem.ArcParticipants]: true,
       [TabVisibilityItem.ArcMonsters]: true,
+      [TabVisibilityItem.ArcItems]: true,
       [TabVisibilityItem.ArcIdeas]: true,
       [TabVisibilityItem.ArcStoryWebs]: true,
       [TabVisibilityItem.SessionLore]: true,

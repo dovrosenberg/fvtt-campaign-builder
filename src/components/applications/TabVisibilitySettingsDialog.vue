@@ -129,6 +129,7 @@ Dependencies
         { settingKey: TabVisibilityItem.ArcLocations, labelKey: 'dialogs.tabVisibility.tabs.locations' },
         { settingKey: TabVisibilityItem.ArcParticipants, labelKey: 'dialogs.tabVisibility.tabs.participants' },
         { settingKey: TabVisibilityItem.ArcMonsters, labelKey: 'dialogs.tabVisibility.tabs.monsters' },
+        { settingKey: TabVisibilityItem.ArcItems, labelKey: 'dialogs.tabVisibility.tabs.magic' },
         { settingKey: TabVisibilityItem.ArcIdeas, labelKey: 'dialogs.tabVisibility.tabs.ideas' },
         { settingKey: TabVisibilityItem.ArcStoryWebs, labelKey: 'dialogs.tabVisibility.tabs.storyWebs' },
         { settingKey: TabVisibilityItem.ArcTimeline, labelKey: 'dialogs.tabVisibility.tabs.timeline' },

@@ -139,6 +139,7 @@ Dependencies
         { settingKey: GroupableItem.ArcLocations, labelKey: 'dialogs.tableGrouping.tabs.locations' },
         { settingKey: GroupableItem.ArcParticipants, labelKey: 'dialogs.tableGrouping.tabs.participants' },
         { settingKey: GroupableItem.ArcMonsters, labelKey: 'dialogs.tableGrouping.tabs.monsters' },
+        { settingKey: GroupableItem.ArcItems, labelKey: 'dialogs.tableGrouping.tabs.magicItems' },
         { settingKey: GroupableItem.ArcIdeas, labelKey: 'dialogs.tableGrouping.tabs.ideas' },
       ],
     },

@@ -24,6 +24,7 @@ export enum TabVisibilityItem {
   ArcLocations = 'arcLocations',
   ArcParticipants = 'arcParticipants',
   ArcMonsters = 'arcMonsters',
+  ArcItems = 'arcItems',
   ArcIdeas = 'arcIdeas',
   ArcStoryWebs = 'arcStoryWebs',
   ArcTimeline = 'arcTimeline',

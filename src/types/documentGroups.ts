@@ -25,6 +25,7 @@ export enum GroupableItem {
   ArcLocations = 'arcLocations',
   ArcParticipants = 'arcParticipants',
   ArcMonsters = 'arcMonsters',
+  ArcItems = 'arcItems',
   ArcIdeas = 'arcIdeas',
   SessionLore = 'sessionLore',
   SessionVignettes = 'sessionVignettes',

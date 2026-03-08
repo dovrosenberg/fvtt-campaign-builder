@@ -1,3 +1,25 @@
+<!--
+SessionItemTab: Magic Items Tab
+
+Purpose
+- Display and manage magic items for sessions or arcs
+
+Responsibilities
+- Show table of magic items with add/delete/edit capabilities
+- Support both session mode (with delivered tracking) and arc mode (with copy to session)
+- Handle drag and drop for adding items
+
+Props
+- arcMode: boolean, whether to operate in arc mode (default false)
+
+Emits
+- relatedEntriesChanged: (addedUUIDs, removedUUIDs) when items are added/removed
+
+Dependencies
+- Stores: sessionStore, arcStore
+- Composables: useGroupedTable, useSessionDerivedState, useArcDerivedState
+-->
+
 <template>
   <BaseTable
     :actions="actions"
@@ -34,14 +56,17 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref, inject } from 'vue';
+  import { computed, ref, inject, watch } from 'vue';
 
   // local imports
-  import { useSessionStore, } from '@/applications/stores';
+  import { useSessionStore, useArcStore } from '@/applications/stores';
+  import { useContentState } from '@/composables/useContentState';
   import { useGroupedTable } from '@/composables/useGroupedTable';
   import { SESSION_DERIVED_STATE_KEY } from '@/composables/useSessionDerivedState';
+  import { ARC_DERIVED_STATE_KEY } from '@/composables/useArcDerivedState';
   import { localize, } from '@/utils/game'
   import DragDropService from '@/utils/dragDrop'; 
+  import { notifyInfo } from '@/utils/notifications';
   import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
@@ -51,10 +76,16 @@
   import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
-  import { CellEditCompleteEvent, SessionTableTypes, BaseTableColumn, GroupableItem } from '@/types';
+  import { CellEditCompleteEvent, SessionTableTypes, ArcTableTypes, BaseTableColumn, GroupableItem } from '@/types';
   
   ////////////////////////////////
   // props
+  const props = defineProps({
+    arcMode: {
+      type: Boolean,
+      default: false,
+    },
+  });
 
   ////////////////////////////////
   // emits
@@ -65,66 +96,106 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const { itemRows, itemGroups } = inject(SESSION_DERIVED_STATE_KEY)!;
+  const arcStore = useArcStore();
+  const { currentArc } = useContentState();
+
+  // Get derived state based on mode
+  const sessionDerivedState = props.arcMode ? null : inject(SESSION_DERIVED_STATE_KEY);
+  const arcDerivedState = props.arcMode ? inject(ARC_DERIVED_STATE_KEY) : null;
+  
+  // Store reference for actions
+  const store = computed(() => props.arcMode ? arcStore : sessionStore);
   
   ////////////////////////////////
   // data
   const showItemPicker = ref<boolean>(false);
+  const campaignHasSessions = ref<boolean>(false);  // are any sessions in the campaign this belongs to?
 
   ////////////////////////////////
   // computed data
+  const derivedState = computed(() => props.arcMode ? arcDerivedState : sessionDerivedState);
+  const itemRows = computed(() => derivedState.value?.itemRows.value ?? []);
+  const itemGroups = computed(() => derivedState.value?.itemGroups.value ?? []);
+
   const isGrouped = computed(() => {
     // Access reactive version to create dependency on settings changes
     ModuleSettings.getReactiveVersion();
-    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[GroupableItem.SessionItems] || false;
+    return ModuleSettings.get(SettingKey.tableGroupingSettings)?.[
+      props.arcMode ?
+      GroupableItem.ArcItems :
+      GroupableItem.SessionItems
+    ] || false;
   });
 
   // Grouped table composable
-  const groupedTable = useGroupedTable(sessionStore.groupStores[GroupableItem.SessionItems]);
+  const groupedTable = useGroupedTable(
+    (props.arcMode ? arcStore : sessionStore)
+    .groupStores[props.arcMode ? GroupableItem.ArcItems : GroupableItem.SessionItems]
+  );
   
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
-    const extraFields = sessionStore.extraFields[SessionTableTypes.Item]
+    const extraFields = props.arcMode 
+      ? arcStore.extraFields[ArcTableTypes.Item]
+      : sessionStore.extraFields[SessionTableTypes.Item];
 
     return [ actionColumn, ...extraFields];
   });
 
-  const actions = computed(() => ([
-    {
-      icon: 'fa-trash', 
-      callback: (data, removedUUIDs) => onDeleteItem(data.uuid, removedUUIDs), 
-      tooltip: localize('tooltips.deleteItem'),
-    },
-    {
-      icon: 'fa-pen', 
-      isEdit: true, 
-      callback: () => {},
-      tooltip: localize('tooltips.editNotes') 
-    },
+  const actions = computed(() => {
+    const baseActions = [
+      {
+        icon: 'fa-trash', 
+        callback: (data, removedUUIDs) => onDeleteItem(data.uuid, removedUUIDs), 
+        tooltip: localize('tooltips.deleteItem'),
+      },
+      {
+        icon: 'fa-pen', 
+        isEdit: true, 
+        callback: () => {},
+        tooltip: localize('tooltips.editNotes') 
+      },
+    ];
 
-    // deliver/undeliver buttons
-    { 
-      icon: 'fa-circle-check', 
-      display: (data) => !data.delivered, 
-      callback: (data) => onMarkItemDelivered(data.uuid), 
-      tooltip: localize('tooltips.markAsDelivered') 
-    },
-    { 
-      icon: 'fa-circle-xmark', 
-      display: (data) => data.delivered, 
-      callback: (data) => onUnmarkItemDelivered(data.uuid), 
-      tooltip: localize('tooltips.unmarkAsDelivered') 
-    },
+    // Session-only actions (delivered tracking)
+    if (!props.arcMode) {
+      baseActions.push(
+        // deliver/undeliver buttons
+        { 
+          icon: 'fa-circle-check', 
+          display: (data) => !data.delivered, 
+          callback: (data) => onMarkItemDelivered(data.uuid), 
+          tooltip: localize('tooltips.markAsDelivered') 
+        },
+        { 
+          icon: 'fa-circle-xmark', 
+          display: (data) => data.delivered, 
+          callback: (data) => onUnmarkItemDelivered(data.uuid), 
+          tooltip: localize('tooltips.unmarkAsDelivered') 
+        },
 
-    // move to next session
-    { 
-      icon: 'fa-share', 
-      display: (data) => !data.delivered, // hide arrow for things already delivered
-      callback: (data) => onMoveItemToNext(data.uuid), 
-      tooltip: localize('tooltips.moveToNextSession') 
+        // move to next session
+        { 
+          icon: 'fa-share', 
+          display: (data) => !data.delivered, // hide arrow for things already delivered
+          callback: (data) => onMoveItemToNext(data.uuid), 
+          tooltip: localize('tooltips.moveToNextSession') 
+        }
+      );
+    } else {
+      // Arc-only action (copy to next session)
+      baseActions.push({
+        icon: 'fa-share',
+        // only show for arc mode if the campaign has at least one session
+        display: () => campaignHasSessions.value,
+        callback: (data) => onCopyItemToSession(data.uuid),
+        tooltip: localize('tooltips.copyToNextSession'),
+      });
     }
-  ]));
+
+    return baseActions;
+  });
 
   ////////////////////////////////
   // methods
@@ -132,7 +203,7 @@
   ////////////////////////////////
   // event handlers
   const onItemAdded = async (documentUuid: string) => {
-    await sessionStore.addItem(documentUuid);
+    await store.value.addItem(documentUuid);
   }
 
   const onDropNew = async (event: DragEvent) => {
@@ -145,7 +216,7 @@
 
     // make sure it's the right format
     if (data.type === 'Item' && data.uuid) {
-      await sessionStore.addItem(data.uuid as string);  
+      await store.value.addItem(data.uuid as string);  
     }
   }
 
@@ -154,7 +225,7 @@
 
     switch (field) {
       case 'notes':
-        await sessionStore.updateItemNotes(data.uuid, newValue as string);
+        await store.value.updateItemNotes(data.uuid, newValue as string);
         break;
 
       default:
@@ -163,22 +234,37 @@
   }
 
   const onDeleteItem = async (uuid: string, removedUUIDs?: string[]) => {
-    const deleted = await sessionStore.deleteItem(uuid);
+    const deleted = await store.value.deleteItem(uuid);
     if (deleted && removedUUIDs && removedUUIDs.length > 0) {
       emit('relatedEntriesChanged', [], removedUUIDs);
     }
   }
 
+  // Session-only handlers
   const onMarkItemDelivered = async (uuid: string) => {
-    await sessionStore.markItemDelivered(uuid, true);
+    if (!props.arcMode) {
+      await sessionStore.markItemDelivered(uuid, true);
+    }
   }
 
   const onUnmarkItemDelivered = async (uuid: string) => {
-    await sessionStore.markItemDelivered(uuid, false);
+    if (!props.arcMode) {
+      await sessionStore.markItemDelivered(uuid, false);
+    }
   }
 
   const onMoveItemToNext = async (uuid: string) => {
-    await sessionStore.moveItemToNext(uuid);
+    if (!props.arcMode) {
+      await sessionStore.moveItemToNext(uuid);
+    }
+  }
+
+  // Arc-only handler
+  const onCopyItemToSession = async (uuid: string) => {
+    if (props.arcMode) {
+      await arcStore.copyItemToSession(uuid);
+      notifyInfo(localize('notifications.itemCopiedToNextSession'));
+    }
   }
 
   const onDragStart = async (event: DragEvent, uuid: string) => {
@@ -187,7 +273,14 @@
 
   ////////////////////////////////
   // watchers
-
+  watch(currentArc, async (newArc) => {
+    if (newArc) {
+      const campaign = await newArc?.loadCampaign();
+      campaignHasSessions.value = (campaign?.sessionIndex?.length || 0) > 0;
+    } else {
+      campaignHasSessions.value = true;
+    }
+  }, { immediate: true });
 
   ////////////////////////////////
   // lifecycle events
