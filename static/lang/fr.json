@@ -91,7 +91,10 @@
       "importExportLabel": "Importer/Exporter les données du module",
       "importExportHelp": "Exporter toutes les données du module vers un fichier ou importer depuis un export précédent",
       "useTimeline": "Utiliser la chronologie",
-      "useTimelineHelp": "Activer la fonctionnalité de chronologie (nécessite le module Calendaria)."
+      "useTimelineHelp": "Activer la fonctionnalité de chronologie (nécessite le module Calendaria).",
+      "tabVisibility": "Paramètres de visibilité des onglets",
+      "tabVisibilityLabel": "Visibilité des onglets",
+      "tabVisibilityHelp": "Configurer quels onglets sont visibles pour chaque type de contenu"
     },
     "applications": {
       "sessionNotes": {
@@ -888,6 +891,41 @@
         "deleteTitle": "Supprimer l'enregistrement ?",
         "deleteMessage": "Êtes-vous sûr de vouloir supprimer cet enregistrement vocal ? Le fichier restera sur le serveur mais ne sera plus lié à ce personnage.",
         "selectFolderTitle": "Sélectionner le dossier d'enregistrement vocal"
+      },
+      "tabVisibility": {
+        "title": "Paramètres de visibilité des onglets",
+        "description": "Choisissez quels onglets doivent être visibles pour chaque type de contenu. Les onglets de description sont toujours affichés.",
+        "contentTypes": {
+          "setting": "Paramètre",
+          "campaign": "Campagne",
+          "arc": "Arc",
+          "session": "Session",
+          "entryCharacter": "Entrée - Personnage",
+          "entryLocation": "Entrée - Lieu",
+          "entryOrganization": "Entrée - Organisation",
+          "entryPC": "Entrée - PJ"
+        },
+        "tabs": {
+          "journals": "Journaux",
+          "characters": "Personnages",
+          "npcs": "PNJs",
+          "locations": "Lieux",
+          "organizations": "Organisations",
+          "pcs": "PJs",
+          "actors": "Acteurs",
+          "scenes": "Scènes",
+          "sessions": "Sessions",
+          "foundry": "Fonderie",
+          "monsters": "Monstres",
+          "vignettes": "Vignettes",
+          "lore": "Traditions",
+          "ideas": "Idées",
+          "todo": "À faire",
+          "participants": "Participants",
+          "magic": "Objets magiques",
+          "storyWebs": "Toiles d'histoires",
+          "timeline": "Chronologie"
+        }
       }
     },
     "contextMenus": {
