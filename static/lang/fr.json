@@ -94,7 +94,7 @@
       "useTimelineHelp": "Activer la fonctionnalité de chronologie (nécessite le module Calendaria).",
       "tabVisibility": "Paramètres de visibilité des onglets",
       "tabVisibilityLabel": "Visibilité des onglets",
-      "tabVisibilityHelp": "Configurer les onglets visibles pour chaque type de contenu"
+      "tabVisibilityHelp": "Configurer quels onglets sont visibles pour chaque type de contenu"
     },
     "applications": {
       "sessionNotes": {
@@ -894,7 +894,7 @@
       },
       "tabVisibility": {
         "title": "Paramètres de visibilité des onglets",
-        "description": "Choisissez les onglets qui doivent être visibles pour chaque type de contenu. Les onglets de description sont toujours affichés.",
+        "description": "Choisissez quels onglets doivent être visibles pour chaque type de contenu. Les onglets de description sont toujours affichés.",
         "contentTypes": {
           "setting": "Paramètre",
           "campaign": "Campagne",
@@ -903,15 +903,15 @@
           "entryCharacter": "Entrée - Personnage",
           "entryLocation": "Entrée - Lieu",
           "entryOrganization": "Entrée - Organisation",
-          "entryPC": "Entrée - PC"
+          "entryPC": "Entrée - PJ"
         },
         "tabs": {
           "journals": "Journaux",
           "characters": "Personnages",
-          "npcs": "PNJ",
+          "npcs": "PNJs",
           "locations": "Lieux",
           "organizations": "Organisations",
-          "pcs": "PJ",
+          "pcs": "PJs",
           "actors": "Acteurs",
           "scenes": "Scènes",
           "sessions": "Sessions",

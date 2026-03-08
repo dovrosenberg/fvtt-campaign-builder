@@ -906,7 +906,7 @@
           "entryPC": "Eintrag - PC"
         },
         "tabs": {
-          "journals": "Journale",
+          "journals": "Tagebücher",
           "characters": "Charaktere",
           "npcs": "NSCs",
           "locations": "Orte",
@@ -923,7 +923,7 @@
           "todo": "Aufgaben",
           "participants": "Teilnehmer",
           "magic": "Magische Gegenstände",
-          "storyWebs": "Geschichtsnetze",
+          "storyWebs": "Geschichten-Netze",
           "timeline": "Zeitachse"
         }
       }
