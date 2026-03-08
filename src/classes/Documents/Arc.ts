@@ -8,7 +8,7 @@ import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Session } from './Session';
 import GlobalSettingService from '@/utils/globalSettings';
-import { RelatedJournal, TableGroup, GroupableItem,ArcIdea, TimelineConfig, TIMELINE_DEFAULT, ArcLocation, ArcLore, ArcMonster, ArcParticipant, ArcVignette, } from '@/types';
+import { RelatedJournal, TableGroup, GroupableItem,ArcIdea, TimelineConfig, TIMELINE_DEFAULT, ArcLocation, ArcLore, ArcMonster, ArcItem, ArcParticipant, ArcVignette, } from '@/types';
 
 type ArcDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Arc>;
 
@@ -24,6 +24,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     locations: [],  
     participants: [],  
     monsters: [],  
+    items: [],
     ideas: [],
     journals: [],
     vignettes: [],
@@ -34,6 +35,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     timelines: [TIMELINE_DEFAULT],
     groups: {
       [GroupableItem.ArcIdeas]: [] as TableGroup[],
+      [GroupableItem.ArcItems]: [] as TableGroup[],
       [GroupableItem.ArcLore]: [] as TableGroup[],
       [GroupableItem.ArcLocations]: [] as TableGroup[],
       [GroupableItem.ArcMonsters]: [] as TableGroup[],
@@ -425,6 +427,40 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
 
   async deleteMonster(uuid: string): Promise<void> {
     this._clone.system.monsters = this._clone.system.monsters.filter(l=> l.uuid!==uuid);
+
+    await this.save();
+  }
+
+  get items(): ArcItem[] {
+    return this._clone.system.items || [];
+  }
+
+  set items(value: ArcItem[] | readonly ArcItem[]) {
+    this._clone.system.items = value.slice();     // we clone it so it can't be edited outside
+  }
+
+  async addItem(uuid: string, notes: string = ''): Promise<void> {
+    if (this._clone.system.items.find(i=> i.uuid===uuid))
+      return;
+
+    this._clone.system.items.push({ uuid, notes, groupId: null });
+
+    await this.save();
+  }
+
+  async updateItemNotes(uuid: string, notes: string): Promise<void> {
+    const item = this._clone.system.items.find(i=> i.uuid===uuid);
+
+    if (!item)
+      return;
+
+    item.notes = notes;
+
+    await this.save();
+  }
+
+  async deleteItem(uuid: string): Promise<void> {
+    this._clone.system.items = this._clone.system.items.filter(i=> i.uuid!==uuid);
 
     await this.save();
   }

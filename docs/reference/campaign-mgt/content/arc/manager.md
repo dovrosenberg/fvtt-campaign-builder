@@ -28,7 +28,7 @@ The main table shows one row per Arc:
 You can create a new Arc by clicking the **Add Arc** button.  You can also quickly add an Arc from the right-click context menu on the name of a Campaign in the [Campaign Directory]. 
 
 ## Editing Arcs
-You can double click on an Arc's name or one of the session numbers to open it for editing.  You can also click the edit action button for the row.
+You can click on an Arc's name or one of the session numbers to open it for editing.  You can also click the edit action button for the row.
 
 This will allow you to edit the Arc's details.  Press Escape to undo or Enter to save.
 

@@ -1,8 +1,8 @@
 ---
 title: Arc Ideas Tab
 prev: 
-  text: 'Arc Monsters Tab'
-  link: '/reference/campaign-mgt/content/arc/monsters'
+  text: 'Arc Magic Items Tab'
+  link: '/reference/campaign-mgt/content/arc/items'
 next: 
   text: 'Arc Manager'
   link: '/reference/campaign-mgt/content/arc/manager'

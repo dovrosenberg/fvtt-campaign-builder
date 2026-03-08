@@ -27,7 +27,7 @@ This list contains the individual Entries.  For each Entry, you can see its name
 
 Click the name of the Entry to open the details page.  Hold Control to open in a new tab, Alt to open in a different [panel](/reference/navigation/panels).
 
-You can also add notes to each Entry to track how it will be used in the Arc.  Double click the notes field for a row or click the "Edit" icon to open the row editor.
+You can also add notes to each Entry to track how it will be used in the Arc.  Click the notes field for a row or click the "Edit" icon to open the row editor.
 
 ### Moveable
 You can reorder the participant list by dragging the handle on the left side of each row to move rows up and down.

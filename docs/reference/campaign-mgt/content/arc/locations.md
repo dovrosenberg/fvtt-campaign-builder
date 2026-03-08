@@ -25,7 +25,7 @@ This list contains the individual Locations.  For each Location, you can see its
 
 Click the name of the Location or parent to open the [Location details](/reference/world-building/content/location/) page.  Hold Control to open in a new tab, Alt to open in a different [panel](/reference/navigation/panels).
 
-You can also add notes to each Location to track how it will be used in the Arc.  Double click the notes field for a row or click the "Edit" icon to open the row editor.
+You can also add notes to each Location to track how it will be used in the Arc.  Click the notes field for a row or click the "Edit" icon to open the row editor.
 
 ### Moveable
 You can reorder the location list by dragging the handle on the left side of each row to move rows up and down.
