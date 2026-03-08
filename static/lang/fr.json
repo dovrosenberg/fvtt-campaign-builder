@@ -1116,7 +1116,11 @@
       "restoreWindow": "Restaurer la fenêtre",
       "currentSession": "session en cours",
       "voiceRecordingExists": "Enregistrement vocal existant - cliquez pour les options",
-      "voiceRecordingNone": "Aucun enregistrement vocal - cliquez pour enregistrer"
+      "voiceRecordingNone": "Aucun enregistrement vocal - cliquez pour enregistrer",
+      "openFoundryActor": "Ouvrir l'acteur de la fonderie",
+      "openFoundryScene": "Ouvrir la scène de la fonderie",
+      "noActorsAttached": "Aucun acteur attaché",
+      "noScenesAttached": "Aucune scène attachée"
     },
     "notifications": {
       "backend": {

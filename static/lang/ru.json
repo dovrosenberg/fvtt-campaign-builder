@@ -1153,7 +1153,11 @@
       "restoreWindow": "Восстановить окно",
       "currentSession": "текущая сессия",
       "voiceRecordingExists": "Запись голоса существует - нажмите для выбора опций",
-      "voiceRecordingNone": "Записи голоса нет - нажмите, чтобы записать"
+      "voiceRecordingNone": "Записи голоса нет - нажмите, чтобы записать",
+      "openFoundryActor": "Открыть актера литейной",
+      "openFoundryScene": "Открыть сцену литейной",
+      "noActorsAttached": "Нет прикрепленных актеров",
+      "noScenesAttached": "Нет прикрепленных сцен"
     },
     "tags": {
       "tag": "Тег",

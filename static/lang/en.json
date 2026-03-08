@@ -1153,7 +1153,11 @@
         "generateImage": "Generate a new image in the background after creating"
       },
       "voiceRecordingExists": "Voice recording exists - click for options",
-      "voiceRecordingNone": "No voice recording - click to record"
+      "voiceRecordingNone": "No voice recording - click to record",
+      "openFoundryActor": "Open Foundry Actor",
+      "openFoundryScene": "Open Foundry Scene",
+      "noActorsAttached": "No actors attached",
+      "noScenesAttached": "No scenes attached"
     },
     "tags": {
       "tag": "Tag",

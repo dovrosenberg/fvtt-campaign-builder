@@ -210,7 +210,7 @@
   import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
 
   // types
-  import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType, TabVisibilityItem, } from '@/types';
+  import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType, TabVisibilityItem, RelatedJournal } from '@/types';
   import { Arc, Entry } from '@/classes';
   
   ////////////////////////////////

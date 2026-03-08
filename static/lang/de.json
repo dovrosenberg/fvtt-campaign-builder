@@ -1116,7 +1116,11 @@
       "restoreWindow": "Fenster wiederherstellen",
       "currentSession": "aktuelle Sitzung",
       "voiceRecordingExists": "Sprachaufnahme vorhanden - klicken für Optionen",
-      "voiceRecordingNone": "Keine Sprachaufnahme - klicken zum Aufnehmen"
+      "voiceRecordingNone": "Keine Sprachaufnahme - klicken zum Aufnehmen",
+      "openFoundryActor": "Foundry-Schauspieler öffnen",
+      "openFoundryScene": "Foundry-Szene öffnen",
+      "noActorsAttached": "Keine Schauspieler angehängt",
+      "noScenesAttached": "Keine Szenen angehängt"
     },
     "notifications": {
       "backend": {
