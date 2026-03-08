@@ -80,8 +80,6 @@
       "storyWebSettings": "Story Web Settings",
       "storyWebSettingsLabel": "Configure Settings",
       "storyWebSettingsHelp": "Configure line colors/styles and element text for story webs",
-      "genericFoundryTab": "Показать вкладку Foundry на записях",
-      "genericFoundryTabHelp": "Когда включено, записи будут иметь вкладку Foundry, которая может содержать любой тип документа Foundry (сцены, актёры, предметы и т.д.). Это полезно для проведения игровых сессий полностью из записей без использования кампаний/сессий.",
       "sessionBookmark": "Отображать закладку сессии",
       "sessionBookmarkHelp": "Когда включено, закладка для текущей сессии будет отображаться в начале панели закладок",
       "tableGrouping": "Настройки группировки таблиц",
@@ -91,7 +89,9 @@
       "enableVoiceRecordingHelp": "Разрешить запись голосовых образцов для персонажей, чтобы помочь запомнить голоса/акценты",
       "importExport": "Импорт/Экспорт данных модуля",
       "importExportLabel": "Импорт/Экспорт данных модуля",
-      "importExportHelp": "Экспорт всех данных модуля в файл или импорт из предыдущего экспорта"
+      "importExportHelp": "Экспорт всех данных модуля в файл или импорт из предыдущего экспорта",
+      "useTimeline": "Использовать временную шкалу",
+      "useTimelineHelp": "Включить функциональность временной шкалы (требуется модуль Calendaria)."
     },
     "applications": {
       "sessionNotes": {
@@ -519,13 +519,15 @@
           "locations": "Локации",
           "pcs": "Персонаж игрока",
           "organizations": "Организации",
-          "foundry": "Foundry"
+          "foundry": "Foundry",
+          "timeline": "Временная шкала"
         },
         "campaign": {
           "pcs": "Персонаж игрока",
           "lore": "Лор",
           "toDo": "Список дел",
-          "ideas": "Идеи"
+          "ideas": "Идеи",
+          "timeline": "Временная шкала"
         },
         "session": {
           "notes": "Заметки",
@@ -538,7 +540,8 @@
           "npcs": "NPC",
           "monsters": "Монстры",
           "magic": "Магические предметы",
-          "toDo": "Список дел"
+          "toDo": "Список дел",
+          "timeline": "Временная шкала"
         },
         "front": {
           "createNewDanger": "Создать новую опасность"
@@ -550,7 +553,11 @@
           "participants": "Участники",
           "monsters": "Монстры",
           "ideas": "Идеи",
-          "vignettes": "Виньетки"
+          "vignettes": "Виньетки",
+          "timeline": "Временная шкала"
+        },
+        "setting": {
+          "timeline": "Временная шкала"
         }
       },
       "noResults": "Здесь ничего нет",
@@ -611,7 +618,27 @@
       "setting": {
         "setting": "Настройка"
       },
-      "newGroup": "Новая группа"
+      "newGroup": "Новая группа",
+      "timeline": {
+        "loading": "Загрузка временной шкалы...",
+        "textSearch": "Поиск",
+        "textSearchPlaceholder": "Поиск событий...",
+        "categories": "Категории",
+        "selectCategories": "Выберите категории...",
+        "excludeGMOnly": "Исключить только для ГМ",
+        "referenceEntity": "Ссылка на этот {entity}",
+        "resetFilters": "Сбросить",
+        "resetRange": "Сбросить диапазон",
+        "noFilters": "Нет фильтров",
+        "filterSummaryCategories": "Категории: {categories}",
+        "filterSummarySearch": "Поиск: \"{search}\"",
+        "calendar": "Календарь",
+        "selectCalendar": "Выберите календарь...",
+        "includeChildren": "Включить дочерние элементы",
+        "includeArcAndSessionReferences": "Включить ссылки на дуги и сессии",
+        "includeSessionReferences": "Включить ссылки на сессии",
+        "includeAllReferences": "Включить ссылки на записи, кампании, дуги и сессии"
+      }
     },
     "placeholders": {
       "search": "Поиск",
