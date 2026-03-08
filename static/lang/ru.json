@@ -91,7 +91,10 @@
       "importExportLabel": "Импорт/Экспорт данных модуля",
       "importExportHelp": "Экспорт всех данных модуля в файл или импорт из предыдущего экспорта",
       "useTimeline": "Использовать временную шкалу",
-      "useTimelineHelp": "Включить функциональность временной шкалы (требуется модуль Calendaria)."
+      "useTimelineHelp": "Включить функциональность временной шкалы (требуется модуль Calendaria).",
+      "tabVisibility": "Настройки видимости вкладок",
+      "tabVisibilityLabel": "Видимость вкладок",
+      "tabVisibilityHelp": "Настройте, какие вкладки видны для каждого типа контента"
     },
     "applications": {
       "sessionNotes": {
@@ -925,6 +928,41 @@
         "deleteTitle": "Удалить запись?",
         "deleteMessage": "Вы уверены, что хотите удалить эту запись голоса? Файл останется на сервере, но больше не будет связан с этим персонажем.",
         "selectFolderTitle": "Выберите папку для записи голоса"
+      },
+      "tabVisibility": {
+        "title": "Настройки видимости вкладок",
+        "description": "Выберите, какие вкладки должны быть видны для каждого типа контента. Вкладки описания всегда отображаются.",
+        "contentTypes": {
+          "setting": "Настройка",
+          "campaign": "Кампания",
+          "arc": "Арка",
+          "session": "Сессия",
+          "entryCharacter": "Запись - Персонаж",
+          "entryLocation": "Запись - Локация",
+          "entryOrganization": "Запись - Организация",
+          "entryPC": "Запись - ПК"
+        },
+        "tabs": {
+          "journals": "Журналы",
+          "characters": "Персонажи",
+          "npcs": "НПС",
+          "locations": "Локации",
+          "organizations": "Организации",
+          "pcs": "ПК",
+          "actors": "Актеры",
+          "scenes": "Сцены",
+          "sessions": "Сессии",
+          "foundry": "Литейная",
+          "monsters": "Монстры",
+          "vignettes": "Виньетки",
+          "lore": "Знания",
+          "ideas": "Идеи",
+          "todo": "Список дел",
+          "participants": "Участники",
+          "magic": "Магические предметы",
+          "storyWebs": "Сетевые истории",
+          "timeline": "Хронология"
+        }
       }
     },
     "contextMenus": {
@@ -1115,7 +1153,11 @@
       "restoreWindow": "Восстановить окно",
       "currentSession": "текущая сессия",
       "voiceRecordingExists": "Запись голоса существует - нажмите для выбора опций",
-      "voiceRecordingNone": "Записи голоса нет - нажмите, чтобы записать"
+      "voiceRecordingNone": "Записи голоса нет - нажмите, чтобы записать",
+      "openFoundryActor": "Открыть актера литейной",
+      "openFoundryScene": "Открыть сцену литейной",
+      "noActorsAttached": "Нет прикрепленных актеров",
+      "noScenesAttached": "Нет прикрепленных сцен"
     },
     "tags": {
       "tag": "Тег",

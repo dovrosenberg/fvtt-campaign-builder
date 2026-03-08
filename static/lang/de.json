@@ -91,7 +91,10 @@
       "importExportLabel": "Moduldaten importieren/exportieren",
       "importExportHelp": "Alle Moduldaten in eine Datei exportieren oder aus einem vorherigen Export importieren",
       "useTimeline": "Zeitleiste verwenden",
-      "useTimelineHelp": "Zeitleistenfunktion aktivieren (erfordert das Calendaria-Modul)."
+      "useTimelineHelp": "Zeitleistenfunktion aktivieren (erfordert das Calendaria-Modul).",
+      "tabVisibility": "Einstellungen zur Tab-Sichtbarkeit",
+      "tabVisibilityLabel": "Tab-Sichtbarkeit",
+      "tabVisibilityHelp": "Konfigurieren Sie, welche Tabs für jeden Inhaltstyp sichtbar sind"
     },
     "applications": {
       "sessionNotes": {
@@ -888,6 +891,41 @@
         "deleteTitle": "Aufnahme löschen?",
         "deleteMessage": "Sind Sie sicher, dass Sie diese Sprachaufnahme löschen möchten? Die Datei bleibt auf dem Server, wird jedoch nicht mehr mit diesem Charakter verknüpft.",
         "selectFolderTitle": "Ordner für Sprachaufnahmen auswählen"
+      },
+      "tabVisibility": {
+        "title": "Einstellungen zur Tab-Sichtbarkeit",
+        "description": "Wählen Sie, welche Tabs für jeden Inhaltstyp sichtbar sein sollen. Beschreibungstabs werden immer angezeigt.",
+        "contentTypes": {
+          "setting": "Einstellung",
+          "campaign": "Kampagne",
+          "arc": "Bogen",
+          "session": "Sitzung",
+          "entryCharacter": "Eintrag - Charakter",
+          "entryLocation": "Eintrag - Ort",
+          "entryOrganization": "Eintrag - Organisation",
+          "entryPC": "Eintrag - PC"
+        },
+        "tabs": {
+          "journals": "Tagebücher",
+          "characters": "Charaktere",
+          "npcs": "NSCs",
+          "locations": "Orte",
+          "organizations": "Organisationen",
+          "pcs": "PCs",
+          "actors": "Schauspieler",
+          "scenes": "Szenen",
+          "sessions": "Sitzungen",
+          "foundry": "Gießerei",
+          "monsters": "Monster",
+          "vignettes": "Vignetten",
+          "lore": "Überlieferung",
+          "ideas": "Ideen",
+          "todo": "Aufgaben",
+          "participants": "Teilnehmer",
+          "magic": "Magische Gegenstände",
+          "storyWebs": "Geschichten-Netze",
+          "timeline": "Zeitachse"
+        }
       }
     },
     "contextMenus": {
@@ -1078,7 +1116,11 @@
       "restoreWindow": "Fenster wiederherstellen",
       "currentSession": "aktuelle Sitzung",
       "voiceRecordingExists": "Sprachaufnahme vorhanden - klicken für Optionen",
-      "voiceRecordingNone": "Keine Sprachaufnahme - klicken zum Aufnehmen"
+      "voiceRecordingNone": "Keine Sprachaufnahme - klicken zum Aufnehmen",
+      "openFoundryActor": "Foundry-Schauspieler öffnen",
+      "openFoundryScene": "Foundry-Szene öffnen",
+      "noActorsAttached": "Keine Schauspieler angehängt",
+      "noScenesAttached": "Keine Szenen angehängt"
     },
     "notifications": {
       "backend": {
