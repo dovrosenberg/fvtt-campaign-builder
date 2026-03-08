@@ -62,7 +62,13 @@ export default defineConfig(({ mode }) => {
       copy({
         targets: [
           { src: 'static/lang', dest: 'dist' },
-          { src: 'static/templates', dest: 'dist' }
+          { src: 'static/templates', dest: 'dist' },
+          // changelog for big bag module manager; strip the badges
+          { 
+            src: 'CHANGELOG.md', 
+            dest: 'dist',
+            transform: (contents) => contents.toString().replace(/!\[.*\]\(.*\)/g, '')
+          }
         ],
         hook: 'writeBundle',
       }),
