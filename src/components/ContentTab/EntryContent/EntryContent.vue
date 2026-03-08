@@ -463,8 +463,8 @@
       baseTabs.push({ id: 'foundry', label: localize('labels.tabs.entry.foundry') });
     }
 
-    if (showTimelineTab.value && tabVisibility.value[topicTabMap[topic.value]['timeline']]) {
-      tabs.push({ id: 'timeline', label: localize('labels.tabs.entry.timeline') });
+    if (topic.value && showTimelineTab.value && tabVisibility.value[topicTabMap[topic.value]['timeline']]) {
+      baseTabs.push({ id: 'timeline', label: localize('labels.tabs.entry.timeline') });
     }
 
     return baseTabs;
