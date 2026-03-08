@@ -191,6 +191,16 @@
             />
           </div>
         </div>
+        <div 
+          v-if="showTimelineTab"
+          class="tab flexcol" 
+          data-group="primary" 
+          data-tab="timeline"
+        >
+          <div class="tab-inner">
+            <TimelineTab />
+          </div>
+        </div>
       </ContentTabStrip>
     </div>
 
@@ -238,6 +248,7 @@
   import { notifyError } from '@/utils/notifications';
   import { FCBDialog } from '@/dialogs';
   import VoiceRecordingService from '@/utils/voiceRecording';
+  import { calendariaAvailable, calendarActive } from '@/utils/calendar/calendarState';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -260,6 +271,7 @@
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
   import VoiceRecordingDialog from '@/components/dialogs/VoiceRecordingDialog.vue';
+  import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
   
   // types
   import { CustomFieldContentType, DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal, ContentTabDescriptor } from '@/types';
@@ -343,6 +355,12 @@
     return localize('tooltips.voiceRecordingExists');
   });
 
+  const showTimelineTab = computed(() => {
+    return ModuleSettings.get(SettingKey.useTimeline) && 
+      calendariaAvailable.value && 
+      calendarActive.value;
+  });
+
   const customFieldContentType = computed<CustomFieldContentType | null>(() => {
     switch (topic.value) {
       case Topics.Character:
@@ -378,6 +396,10 @@
     ModuleSettings.getReactiveVersion();
     if (ModuleSettings.get(SettingKey.genericFoundryTab))
       tabs.push({ id: 'foundry', label: localize('labels.tabs.entry.foundry') });
+    if (ModuleSettings.get(SettingKey.useTimeline) &&
+        calendariaAvailable.value &&
+        calendarActive.value)
+      tabs.push({ id: 'timeline', label: localize('labels.tabs.entry.timeline') });
 
     return tabs;
   });

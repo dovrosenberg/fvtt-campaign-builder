@@ -1,4 +1,4 @@
-import { RelatedEntryDetails, ValidTopic, RelatedJournal, ValidTopicRecord } from '@/types';
+import { RelatedEntryDetails, ValidTopic, RelatedJournal, ValidTopicRecord, TimelineConfig } from '@/types';
 import { schemas } from './fields';
 import CleanKeysService from '@/utils/cleanKeys';
 
@@ -34,6 +34,12 @@ export const EntrySchema = {
 
   // we have to leave this until 1.8 migration is gone because otherwise the migration doesn't have access to it
   background: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
+
+  /** timelines */
+  timelines: new fields.ArrayField(
+    schemas.TimelineConfig(),
+    { required: true, nullable: false, initial: [] as TimelineConfig[] }
+  ),
 
   // Image for the entry
   img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
@@ -85,6 +91,7 @@ export interface EntryDoc extends JournalEntryPage {
     magicItems?: string | null; 
 
     img: string;
+    timelines: TimelineConfig[];
 
     // Voice recording for characters
     voiceRecordingPath?: string | null;

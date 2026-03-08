@@ -4,8 +4,8 @@ prev:
   text: 'Search'
   link: './search'
 next: 
-  text: 'Prep/Play Toggle'
-  link: './prep-play'
+  text: 'Timelines'
+  link: './timeline'
 ---
 
 # Tags

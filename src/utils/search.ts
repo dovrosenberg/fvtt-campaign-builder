@@ -1,8 +1,7 @@
 import MiniSearch from 'minisearch';
 import { Entry, Session, FCBSetting, Arc, Front, FCBJournalEntryPage } from '@/classes';
-import { CustomFieldContentType, Topics, ValidTopic, } from '@/types';
+import { CustomFieldContentType, Topics, ValidTopic, ArcLore, ArcVignette, SessionLore, SessionVignette, SessionRelatedItem } from '@/types';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { ArcLore, ArcVignette, SessionLore, SessionVignette, SessionRelatedItem } from '@/documents';
 import { useMainStore } from '@/applications/stores';
 import { getTopicText } from '@/compendia';
 

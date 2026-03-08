@@ -1,4 +1,10 @@
 # Change Log
+## 1.10.0 - _______________
+![](https://img.shields.io/badge/release%20date-March%20__28__%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.0/module.zip)
+
+- Timelines! These are available on all content types.  They allow you to see notes from your world calendar.  Requires Calendaria to be used as your calendar.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/timelines)).
+
 ## 1.9.2 - Import/Export
 ![](https://img.shields.io/badge/release%20date-February%2028%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.9.2/module.zip)

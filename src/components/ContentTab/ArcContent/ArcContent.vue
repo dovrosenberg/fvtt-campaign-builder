@@ -116,6 +116,11 @@
             <StoryWebsTab mode="arc" />
           </div>
         </div>
+        <div v-if="showTimelineTab" class="tab flexcol" data-group="primary" data-tab="timeline">
+          <div class="tab-inner">
+            <TimelineTab />
+          </div>
+        </div>
       </ContentTabStrip>
     </div>
   </form>	 
@@ -146,6 +151,7 @@
   import { notifyWarn } from '@/utils/notifications';
   import { getArcRelatedEntries } from '@/utils/uuidExtraction';
   import { filterRelatedEntries } from '@/utils/relatedContent';
+  import { calendariaAvailable, calendarActive } from '@/utils/calendar/calendarState';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -166,6 +172,7 @@
   import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
+  import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
 
   // types
   import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType } from '@/types';
@@ -203,6 +210,12 @@
     return ModuleSettings.get(SettingKey.useStoryWebs);
   });
 
+  const showTimelineTab = computed(() => {
+    return ModuleSettings.get(SettingKey.useTimeline) && 
+      calendariaAvailable.value && 
+      calendarActive.value;
+  });
+
   const tabs = computed(() => [
     { id: 'description', label: localize('labels.description')},
     { id: 'journals', label: localize('labels.journals') },
@@ -213,6 +226,7 @@
     { id: 'monsters', label: localize('labels.tabs.arc.monsters')},
     { id: 'ideas', label: localize('labels.tabs.arc.ideas')},
     ...(showStoryWebTab.value ? [{ id: 'storyWebs', label: localize('contentFolders.storyWebs') }] : []),
+    ...(showTimelineTab.value ? [{ id: 'timeline', label: localize('labels.tabs.arc.timeline') }] : []),
   ] as ContentTabDescriptor[]);
 
   ////////////////////////////////

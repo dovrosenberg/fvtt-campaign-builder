@@ -12,6 +12,7 @@ import { SessionLoreSchema } from './SessionLore';
 import { SessionLocationSchema } from './SessionLocation';
 import { TagsSchema } from './Tags';
 import { TopicSchema } from './Topic';
+import { CalendariaDateSchema } from './CalendariaDate';
 import { TopicBasicIndexSchema } from './TopicBasicIndex';
 import { RelationshipsSchema, RelatedEntryDetailsSchema } from './Relationships';
 import { EntryBasicIndexSchema } from './EntryBasicIndex';
@@ -27,6 +28,7 @@ import { ArcVignetteSchema } from './ArcVignette';
 import { StoryWebNodeSchema } from './StoryWebNode';
 import { StoryWebEdgeSchema } from './StoryWebEdge';
 import { GroupArraySchema } from './GroupArray';
+import { TimelineConfigSchema } from './TimelineConfig';
 
 export type * from './Danger';
 export type * from './StoryWebNode';
@@ -63,5 +65,7 @@ export const schemas = {
   StoryWebNode: StoryWebNodeSchema,
   StoryWebEdge: StoryWebEdgeSchema,
   GroupArray: GroupArraySchema,
+  TimelineConfig: TimelineConfigSchema,
+  CalendariaDate: CalendariaDateSchema,
 }
 

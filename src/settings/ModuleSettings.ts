@@ -51,6 +51,7 @@ export enum SettingKey {
   showTypesInTree = 'showTypesInTree', // show the type of the entry in the hierarchy tree
   useFronts = 'useFronts', // allow creation and viewing of fronts
   useStoryWebs = 'useWebs', // allow creation and viewing of story webs; name for backward compatibility
+  useTimeline = 'useTimeline', // allow creation and viewing of timelines
   subTabsSavePosition = 'subTabsSavePosition', // whether sub-tabs remember their last position
   storyWebAutoArrange = 'storyWebAutoArrange', // whether to enable physics in story webs
   genericFoundryTab = 'genericFoundryTab', // whether to show the generic Foundry tab on entries
@@ -118,6 +119,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.showTypesInTree ? boolean :
     K extends SettingKey.useFronts ? boolean :
     K extends SettingKey.useStoryWebs ? boolean :
+    K extends SettingKey.useTimeline ? boolean :
     K extends SettingKey.subTabsSavePosition ? boolean :
     K extends SettingKey.storyWebAutoArrange ? boolean :
     K extends SettingKey.genericFoundryTab ? boolean :
@@ -239,7 +241,6 @@ export class ModuleSettings {
       label: 'fcb.settings.advancedLabel',   // localized by Foundry
       hint: 'settings.advancedHelp',
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
-      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: AdvancedSettingsApplication,
     },
     {
@@ -248,7 +249,6 @@ export class ModuleSettings {
       label: 'fcb.settings.customFieldsLabel',   // localized by Foundry
       hint: 'settings.customFieldsHelp',
       icon: 'fas fa-list',
-      permissions: ['SETTINGS_WRITE'],
       type: CustomFieldsApplication,
     },
     {
@@ -257,7 +257,6 @@ export class ModuleSettings {
       label: 'fcb.settings.speciesListLabel',   // localized by Foundry
       hint: 'settings.speciesListHelp',
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
-      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: SpeciesListApplication,
     },
     {
@@ -266,7 +265,6 @@ export class ModuleSettings {
       label: 'fcb.settings.rollTableSettingsLabel',   // localized by Foundry
       hint: 'settings.rollTableSettingsHelp',
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
-      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: RollTableSettingsApplication,
     },
     {
@@ -275,7 +273,6 @@ export class ModuleSettings {
       label: 'fcb.settings.imagesLabel',   // localized by Foundry
       hint: 'settings.imagesHelp',
       icon: 'fas fa-image',               // A Font Awesome icon used in the submenu button
-      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: ImageSettingsApplication,
     },
     {
@@ -284,7 +281,6 @@ export class ModuleSettings {
       label: 'fcb.settings.storyWebSettingsLabel',   // localized by Foundry
       hint: 'settings.storyWebSettingsHelp',
       icon: 'fa-solid fa-project-diagram',
-      permissions: ['SETTINGS_WRITE'],
       type: StoryWebSettingsApplication,
     },
     {
@@ -293,7 +289,6 @@ export class ModuleSettings {
       label: 'fcb.settings.tableGroupingLabel',   // localized by Foundry
       hint: 'settings.tableGroupingHelp',
       icon: 'fa-solid fa-table',
-      permissions: ['SETTINGS_WRITE'],
       type: TableGroupingSettingsApplication,
     },
     {
@@ -302,7 +297,6 @@ export class ModuleSettings {
       label: 'fcb.settings.importExportLabel',   // localized by Foundry
       hint: 'settings.importExportHelp',
       icon: 'fa-solid fa-file-import',
-      permissions: ['SETTINGS_WRITE'],
       type: ImportExportApplication,
     }
   ];
@@ -321,7 +315,7 @@ export class ModuleSettings {
       settingID: SettingKey.useFronts,
       name: 'settings.useFronts',
       hint: 'settings.useFrontsHelp',
-      requiresReload: true,
+      requiresReload: false,
       default: true,
       type: Boolean,
     },
@@ -329,7 +323,15 @@ export class ModuleSettings {
       settingID: SettingKey.useStoryWebs,
       name: 'settings.useStoryWebs',
       hint: 'settings.useStoryWebsHelp',
-      requiresReload: true,
+      requiresReload: false,
+      default: true,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.useTimeline,
+      name: 'settings.useTimeline',
+      hint: 'settings.useTimelineHelp',
+      requiresReload: false,
       default: true,
       type: Boolean,
     },
@@ -406,14 +408,6 @@ export class ModuleSettings {
       name: 'settings.storyWebAutoArrange',
       hint: 'settings.storyWebAutoArrangeHelp',
       default: true,
-      requiresReload: true,
-      type: Boolean,
-    },
-    {
-      settingID: SettingKey.genericFoundryTab,
-      name: 'settings.genericFoundryTab',
-      hint: 'settings.genericFoundryTabHelp',
-      default: false,
       requiresReload: true,
       type: Boolean,
     },
@@ -625,6 +619,11 @@ export class ModuleSettings {
       settingID: SettingKey.mainWindowBounds,
       default: null,
       type: Object,
+    },
+    {
+      settingID: SettingKey.genericFoundryTab,
+      default: false,
+      type: Boolean,
     },
   ];
 

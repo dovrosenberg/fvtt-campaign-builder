@@ -1,6 +1,6 @@
 // represents a game session 
 
-import { ArcLocation, ArcLore, ArcMonster, ArcParticipant, ArcVignette, DOCUMENT_TYPES, } from '@/documents';
+import { DOCUMENT_TYPES, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
@@ -8,7 +8,7 @@ import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { Session } from './Session';
 import GlobalSettingService from '@/utils/globalSettings';
-import { RelatedJournal, TableGroup, GroupableItem,ArcIdea } from '@/types';
+import { RelatedJournal, TableGroup, GroupableItem,ArcIdea, TimelineConfig, TIMELINE_DEFAULT, ArcLocation, ArcLore, ArcMonster, ArcParticipant, ArcVignette, } from '@/types';
 
 type ArcDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Arc>;
 
@@ -31,6 +31,7 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
     img: '',   
     tags: [],
     storyWebs: [],
+    timelines: [TIMELINE_DEFAULT],
     groups: {
       [GroupableItem.ArcIdeas]: [] as TableGroup[],
       [GroupableItem.ArcLore]: [] as TableGroup[],
@@ -219,11 +220,19 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
   }
 
   get storyWebs(): string[] {
-    return (this._clone.system as any).storyWebs || [];
+    return this._clone.system.storyWebs || [];
   }
 
   set storyWebs(value: string[] | readonly string[]) {
-    (this._clone.system as any).storyWebs = value.slice();
+    this._clone.system.storyWebs = value.slice();
+  }
+
+  get timelines(): TimelineConfig[] {
+    return this._clone.system.timelines || TIMELINE_DEFAULT;
+  }
+
+  set timelines(value: TimelineConfig[]) {
+    this._clone.system.timelines = value;
   }
 
   get description(): string {

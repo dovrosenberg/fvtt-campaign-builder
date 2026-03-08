@@ -1,4 +1,4 @@
-import { GroupableItem, RelatedJournal } from '@/types';
+import { GroupableItem, RelatedJournal, TimelineConfig } from '@/types';
 import type { ArcLocation, ArcParticipant, ArcMonster, ArcVignette, ArcLore, ArcIdea } from '@/types/dbTypes';
 import { schemas } from './fields';
 
@@ -33,6 +33,12 @@ export const ArcSchema = {
   storyWebs: new fields.ArrayField(
     new fields.DocumentUUIDField({ required: true, nullable: false }),
     { required: true, nullable: false, initial: [] as string[] }
+  ),
+
+  /** timelines */
+  timelines: new fields.ArrayField(
+    schemas.TimelineConfig(),
+    { required: true, nullable: false, initial: [] as TimelineConfig[] }
   ),
 
   /** consolidated groups structure */
@@ -125,6 +131,7 @@ export interface ArcDoc extends JournalEntryPage {
     customFieldHeights: Record<string, number>;
     img: string;
     tags: string[];
+    timelines: TimelineConfig[];
 
     // session-like
     campaignId: string;

@@ -30,3 +30,4 @@ Session have the following tabs where you can manage their details:
 * [Magic Items](./magic-items) - the magic items you're ready to hand out for victory
 * [PCs](./pcs) - the PCs you're playing
 * [Story Webs](./storywebs) - list of story webs that you have associated with this Session
+* [Timeline](./timeline) - view calendar events from Calendaria that relate to this Session

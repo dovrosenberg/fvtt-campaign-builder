@@ -91,6 +91,11 @@
           :initial-journals="currentSetting.journals"
           @journals-updated="onJournalsUpdate"
         />
+        <div v-if="showTimelineTab" class="tab flexcol" data-group="primary" data-tab="timeline">
+          <div class="tab-inner">
+            <TimelineTab />
+          </div>
+        </div>
       </ContentTabStrip>
     </div>
   </form>	 
@@ -116,6 +121,7 @@
   import { useBackendStore } from '@/applications/stores';
   import { notifyWarn } from '@/utils/notifications';
   import { ModuleSettings, SettingKey } from '@/settings/ModuleSettings';
+  import { calendariaAvailable, calendarActive } from '@/utils/calendar/calendarState';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -129,6 +135,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import ConfigureNamesDialog from '@/components/AIGeneration/ConfigureNamesDialog.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
+  import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
   
   // types
   import { CustomFieldContentType, RelatedJournal, WindowTabType, } from '@/types';
@@ -161,10 +168,24 @@
   const namePlaceholder = computed((): string => (localize('placeholders.settingName') || ''));
   const generateDisabled = computed(() => !available.value);
   
-  const tabs = computed(() => [
-    { id: 'description', label: localize('labels.description') },
-    { id: 'journals', label: localize('labels.journals') },
-  ]);
+  const showTimelineTab = computed(() => {
+    return ModuleSettings.get(SettingKey.useTimeline) && 
+      calendariaAvailable.value && 
+      calendarActive.value;
+  });
+
+  const tabs = computed(() => {
+    const baseTabs = [
+      { id: 'description', label: localize('labels.description') },
+      { id: 'journals', label: localize('labels.journals') },
+    ];
+
+    if (showTimelineTab.value) {
+      baseTabs.push({ id: 'timeline', label: localize('labels.tabs.setting.timeline') });
+    }
+
+    return baseTabs;
+  });
 
   ////////////////////////////////
   // methods

@@ -1,8 +1,8 @@
 ---
 title: Prep/Play Mode Toggle & Selector
 prev: 
-  text: 'Tags'
-  link: './tags'
+  text: 'Timelines'
+  link: './timeline'
 next: 
   text: 'Keybindings'
   link: './keybindings'

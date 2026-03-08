@@ -4,8 +4,8 @@ prev:
   text: 'Session PCs Tab'
   link: '/reference/campaign-mgt/content/session/pcs'
 next: 
-  text: 'Fronts'
-  link: '/reference/campaign-mgt/content/front'
+  text: 'Session Timeline Tab'
+  link: './timeline'
 ---
 # Story Webs Tab
 ![Session Story Webs Tab](/assets/images/session-storywebs-tab.webp)

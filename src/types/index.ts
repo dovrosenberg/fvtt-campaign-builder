@@ -12,6 +12,8 @@ export type * from './tags.d.ts';
 export type * from './dragDrop.ts';
 export type * from './documentIndices.ts';
 export type * from './relationships.d.ts';
+export * from './timeline';
+export * from './calendar';
 
 // New centralized type files - import first for use in backward compatibility aliases
 export * from './dbTypes';
@@ -30,6 +32,10 @@ export * from '@/documents/fields/StoryWebNode';
 
 // get all the ones defined in the schemas
 export type * from '@/documents/fields/index.ts';
+
+export type DeepPartial<T> = T extends object ? {
+    [P in keyof T]?: DeepPartial<T[P]>;
+} : T;
 
 export enum WindowTabType  {
   NewTab,

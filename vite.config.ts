@@ -81,7 +81,8 @@ export default defineConfig(({ mode }) => {
         sourceMap: isDevelopment,
         include: ['src/**/*.scss', 'src/**/*.css', 
           'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css',
-          'node_modules/@yaireo/tagify/dist/tagify.css'
+          'node_modules/@yaireo/tagify/dist/tagify.css',
+          'node_modules/vis-timeline/styles/vis-timeline-graph2d.css'
         ],
         watch: ['src/**/*.scss', 'src/**/*.css', 'src/'],
       }),
