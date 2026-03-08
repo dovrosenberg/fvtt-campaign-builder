@@ -151,6 +151,11 @@
             <StoryWebsTab mode="arc" />
           </div>
         </div>
+        <div v-if="showTimelineTab" class="tab flexcol" data-group="primary" data-tab="timeline">
+          <div class="tab-inner">
+            <TimelineTab />
+          </div>
+        </div>
       </ContentTabStrip>
     </div>
   </form>	 
@@ -181,6 +186,7 @@
   import { notifyWarn } from '@/utils/notifications';
   import { getArcRelatedEntries } from '@/utils/uuidExtraction';
   import { filterRelatedEntries } from '@/utils/relatedContent';
+  import { calendariaAvailable, calendarActive } from '@/utils/calendar/calendarState';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -201,6 +207,7 @@
   import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
+  import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
 
   // types
   import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType, TabVisibilityItem, } from '@/types';
@@ -239,6 +246,12 @@
     return ModuleSettings.get(SettingKey.tabVisibilitySettings);
   });
 
+  const showTimelineTab = computed(() => {
+    return ModuleSettings.get(SettingKey.useTimeline) && 
+      calendariaAvailable.value && 
+      calendarActive.value;
+  });
+
   const tabs = computed(() => {
     const baseTabs = [
       { id: 'description', label: localize('labels.description')},
@@ -268,7 +281,9 @@
     if (ModuleSettings.get(SettingKey.useStoryWebs) && tabVisibility.value[TabVisibilityItem.ArcStoryWebs]) {
       baseTabs.push({ id: 'storyWebs', label: localize('contentFolders.storyWebs') });
     }
-
+    if (showTimelineTab.value && tabVisibility.value[TabVisibilityItem.ArcTimeline]) {
+      baseTabs.push({ id: 'timeline', label: localize('labels.tabs.arc.timeline') });
+    }
     return baseTabs as ContentTabDescriptor[];
   });
 

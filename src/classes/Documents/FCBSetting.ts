@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { UserFlags, UserFlagKey, ModuleSettings, SettingKey, moduleId, JournalEntryFlagKey } from '@/settings'; 
 import { FCBDialog } from '@/dialogs';
-import { TopicFolder, RootFolder, Entry, Session, Arc, } from '@/classes';
+import { TopicFolder, RootFolder, Entry, Arc, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 import NameGeneratorsService from '@/utils/nameGenerators';
@@ -11,7 +11,7 @@ import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Docume
 import { entryIndexFields, NameStyleExamples, } from '@/documents';
 import CleanKeysService from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
-import { ArcBasicIndex, CampaignBasicIndex, EntryFilterIndex, Hierarchy, RelatedJournal, TopicBasicIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord,SettingTags,SettingTag } from '@/types';
+import { ArcBasicIndex, CampaignBasicIndex, EntryFilterIndex, Hierarchy, RelatedJournal, TopicBasicIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord,SettingTags,SettingTag, TimelineConfig, TIMELINE_DEFAULT,} from '@/types';
 import GlobalSettingService from '@/utils/globalSettings';
 
 type SettingCompendium = CompendiumCollection<'JournalEntry'>;
@@ -41,6 +41,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     nameStyleExamples: { genre: '', settingFeeling: '', examples: [] },   
     journals: [],
     tags: {} as SettingTags,
+    timelines: [TIMELINE_DEFAULT],
   } as unknown as SettingDocClass['system'];
   
   // JournalEntries
@@ -188,6 +189,14 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
   public set journals(value: RelatedJournal[]) {
     (this._clone.system.journals as RelatedJournal[]) = value;
+  }
+
+  public get timelines(): TimelineConfig[] {
+    return this._clone.system.timelines || TIMELINE_DEFAULT;
+  }
+
+  public set timelines(value: TimelineConfig[]) {
+    this._clone.system.timelines = value;
   } 
 
   public get tags(): SettingTags {

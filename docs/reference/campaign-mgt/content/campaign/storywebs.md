@@ -4,8 +4,8 @@ prev:
   text: 'Campaign To-Do Tab'
   link: '/reference/campaign-mgt/content/campaign/todos'
 next: 
-  text: 'Arc'
-  link: '/reference/campaign-mgt/content/arc'
+  text: 'Campaign Timeline Tab'
+  link: './timeline'
 ---
 # Story Webs Tab
 ![Campaign Story Webs Tab](/assets/images/campaign-storywebs-tab.webp)

@@ -1,13 +1,13 @@
 // represents a game session 
 
-import { DOCUMENT_TYPES, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore, } from '@/documents';
+import { DOCUMENT_TYPES, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import GlobalSettingService from '@/utils/globalSettings';
-import { GroupableItem, TableGroup } from '@/types';
+import { GroupableItem, TableGroup, TIMELINE_DEFAULT, TimelineConfig, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore, } from '@/types';
 
 type SessionDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Session>;
 
@@ -28,6 +28,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     img: '',   
     tags: [],
     storyWebs: [],
+    timelines: [TIMELINE_DEFAULT],
     groups: {
       [GroupableItem.SessionLore]: [] as TableGroup[],
       [GroupableItem.SessionVignettes]: [] as TableGroup[],
@@ -139,11 +140,19 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
   }
 
   get storyWebs(): string[] {
-    return (this._clone.system as any).storyWebs || [];
+    return this._clone.system.storyWebs || [];
   }
 
   set storyWebs(value: string[] | readonly string[]) {
-    (this._clone.system as any).storyWebs = value.slice();
+    this._clone.system.storyWebs = value.slice();
+  }
+
+  get timelines(): TimelineConfig[] {
+    return this._clone.system.timelines || TIMELINE_DEFAULT;
+  }
+
+  set timelines(value: TimelineConfig[]) {
+    this._clone.system.timelines = value;
   }
 
   get description(): string {
@@ -337,7 +346,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this._clone.system.lore = value.slice();     // we clone it so it can't be edited outside
   }
 
-  async addLore(description: string, journalEntryPageId: string | null = null): Promise<string> {
+  async addLore(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 
     this._clone.system.lore.push({
@@ -345,7 +354,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       description: description,
       delivered: false,
       significant: false,
-      journalEntryPageId: journalEntryPageId,
+      journalEntryPageId: null,
       groupId: null,
     });
 

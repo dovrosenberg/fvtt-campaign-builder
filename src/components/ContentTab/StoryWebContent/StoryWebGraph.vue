@@ -281,5 +281,8 @@
     font-size: var(--font-size-12);
     max-width: 400px;
     word-wrap: break-word;
+    // Constrain to viewport
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
   }
 </style>

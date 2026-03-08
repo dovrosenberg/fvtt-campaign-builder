@@ -53,9 +53,7 @@
   // local imports
   import { useCampaignStore, } from '@/applications/stores';
   import { CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
-  import { useGroupedTable } from '@/composables/useGroupedTable';
   import { localize } from '@/utils/game'
-  import { ModuleSettings, SettingKey } from '@/settings';
   
   // library components
 	
@@ -75,7 +73,7 @@
   // store
   const campaignStore = useCampaignStore();
   const campaignDerivedState = inject(CAMPAIGN_DERIVED_STATE_KEY, null);
-  const { deliveredLoreRows, allRelatedLoreRows, availableLoreRows, availableLoreGroups } = campaignDerivedState;
+  const { deliveredLoreRows, allRelatedLoreRows, availableLoreRows, } = campaignDerivedState;
 
   ////////////////////////////////
   // data

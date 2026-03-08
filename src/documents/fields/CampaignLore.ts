@@ -21,8 +21,9 @@ export const CampaignLoreSchema = () => (
     /** if it was delivered, in which session? */
     lockedToSessionId: new fields.DocumentUUIDField({ required: true, nullable: true }),
 
+    // for now, we don't allow groups on campaign lore
     /** table group */
-    groupId: new fields.StringField({ required: true, nullable: true, initial: null }),  // optional group ID
+    // groupId: new fields.StringField({ required: true, nullable: true, initial: null }),  // optional group ID
 
     /** if it was delivered, the name of the session */
     lockedToSessionName: new fields.StringField({ required: true, nullable: true}),

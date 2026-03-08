@@ -1,5 +1,5 @@
 import { DOCUMENT_TYPES, } from '@/documents';
-import { RelatedJournal, RelatedEntryDetails, ValidTopic, Topics, ToDoTypes, ValidTopicRecord, } from '@/types';
+import { RelatedJournal, RelatedEntryDetails, ValidTopic, Topics, ToDoTypes, ValidTopicRecord, TimelineConfig, TIMELINE_DEFAULT, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder,  } from '@/classes';
@@ -41,6 +41,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     img: '',
     customFields: {},
     customFieldHeights: {},
+    timelines: [TIMELINE_DEFAULT],
   } as unknown as EntryDocClass['system'];
 
   private _actor: Actor | null;  // for pcs
@@ -167,7 +168,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
       entryItem.name = entry.name;
     }
 
-    // if there's no parent, add it to topnodes
+    // if there's no parent, add it to topNodes
     if (!options.parentId) {
       topicFolder.topNodes = [...topicFolder.topNodes, entry.uuid];
     }
@@ -340,6 +341,14 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     this._clone.system.journals = value;
   }
 
+  public get timelines(): TimelineConfig[] {
+    return this._clone.system.timelines || TIMELINE_DEFAULT;
+  }
+
+  public set timelines(value: TimelineConfig[]) {
+    this._clone.system.timelines = value;
+  }
+
   public async getParentId(): Promise<string | null> {
     const setting = await this.getSetting();
     return getParentId(setting, this);
@@ -420,7 +429,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     
     await super._delete(skipDelete);
 
-    // remove from master entry index and topnodes    
+    // remove from master entry index and topNodes    
     topicFolder.entryIndex = topicFolder.entryIndex.filter((e)=> e.uuid !== uuid);
     topicFolder.topNodes = topicFolder.topNodes.filter((node) => node !== uuid);
     await topicFolder.save();

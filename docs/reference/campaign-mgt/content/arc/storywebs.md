@@ -4,8 +4,8 @@ prev:
   text: 'Arc Ideas Tab'
   link: '/reference/campaign-mgt/content/arc/ideas'
 next: 
-  text: 'Arc Manager'
-  link: '/reference/campaign-mgt/content/arc/manager'
+  text: 'Arc Timeline Tab'
+  link: './timeline'
 ---
 # Arc Story Webs Tab
 ![Arc Story Webs Tab](/assets/images/arc-storywebs-tab.webp)

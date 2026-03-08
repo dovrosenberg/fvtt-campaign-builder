@@ -33,14 +33,10 @@ You access this by clicking the **Import/Export** button in the [Module Settings
 
 ### What Gets Exported
 
-The export includes all Campaign Builder data:
-- **Module Settings**: All configuration options including custom fields, story web settings, roll table settings, species lists, etc.
-- **Settings** (world content): Each [^Setting] with all its content:
-  - [^Entries] (Characters, Locations, Organizations, PCs)
-  - [^Campaigns] and their [^Sessions]
-  - [^Arcs], [^Fronts], and [^StoryWebs]
-  - All relationships between entries
-  - All text content and journal pages
+You can choose in the dropdown export:
+- **Configuration**: All configuration options including custom fields, story web settings, roll table settings, species lists, etc.  This is good if you want to reproduce your environment and preferences in a new Foundry world.
+- **Settings**: Each [^Setting] with all its content.  This is a great way to create a backup of your Campaign Builder content without backing up the full Foundry world.
+- **Everything**: All of the above.
 
 Any links to non-Campaign Builder Foundry documents (actors, scenes, items, etc.) will be preserved, but the actual documents will not be exported.  Direct links (ex. magical items, character actors) will be dropped to keep it tidy.  Links that are in text content will be left but become broken links.
 

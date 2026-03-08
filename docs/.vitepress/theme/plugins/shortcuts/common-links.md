@@ -10,6 +10,8 @@
 [Fronts]: /reference/campaign-mgt/content/front/
 [Story Web]: /reference/campaign-mgt/content/storyWeb/
 [Story Webs]: /reference/campaign-mgt/content/storyWeb/
+[Timeline]: /reference/navigation/timelines
+[Timelines]: /reference/navigation/timelines
 [Setting Directory]: /reference/navigation/sidebar#setting-directory
 [Campaign Directory]: /reference/navigation/sidebar#campaign-directory
 [Image]: /reference/navigation/main-display#images

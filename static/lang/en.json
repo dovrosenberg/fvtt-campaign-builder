@@ -38,8 +38,6 @@
       },
       "autoRefreshRollTables": "Automatically refresh RollTables",
       "autoRefreshRollTablesHelp": "When enabled, generator roll tables will be automatically refreshed with new values when the module loads",
-      "genericFoundryTab": "Show Foundry tab on Entries",
-      "genericFoundryTabHelp": "When enabled, Entries will have a Foundry tab that can hold any type of Foundry document (scenes, actors, items, etc.). This is useful for driving play sessions entirely from Entries without using Campaigns/Sessions.",
       "rollTableSettings": "Roll Table Settings",
       "rollTableSettingsLabel": "Roll Table Settings",
       "rollTableSettingsHelp": "Configure settings for the random generators",
@@ -74,6 +72,8 @@
       "useFrontsHelp": "Turn on campaign \"front\" functionality.",
       "useStoryWebs": "Use Story Webs",
       "useStoryWebsHelp": "Turn on campaign \"story web\" functionality.",
+      "useTimeline": "Use Timeline",
+      "useTimelineHelp": "Turn on timeline functionality (requires Calendaria module).",
       "subTabsSavePosition": "Sub-tabs save position",
       "subTabsSavePositionHelp": "When enabled, every tab will remember which interior sub-tab was open and return to it when you re-open that tab. When disabled, tabs will always revert to the first one (usually description).",
       "storyWebAutoArrange": "Auto-arrange story webs",
@@ -572,6 +572,26 @@
       "setting": {
         "setting": "Setting"
       },
+      "timeline": {
+        "loading": "Loading timeline...",
+        "textSearch": "Search",
+        "textSearchPlaceholder": "Search events...",
+        "categories": "Categories",
+        "selectCategories": "Select categories...",
+        "excludeGMOnly": "Exclude GM Only",
+        "referenceEntity": "Reference this {entity}",
+        "resetFilters": "Reset",
+        "resetRange": "Reset Range",
+        "noFilters": "No filters",
+        "filterSummaryCategories": "Categories: {categories}",
+        "filterSummarySearch": "Search: \"{search}\"",
+        "calendar": "Calendar",
+        "selectCalendar": "Select calendar...",
+        "includeChildren": "Include children",
+        "includeArcAndSessionReferences": "Include Arc and Session references",
+        "includeSessionReferences": "Include Session references",
+        "includeAllReferences": "Include Entry, Campaign, Arc, and Session references"
+      },
       "groupTree": "Group tree by type",
       "tabs": {
         "entry": {
@@ -579,13 +599,18 @@
           "locations": "Locations",
           "pcs": "PCs",
           "organizations": "Organizations",
-          "foundry": "Foundry"
+          "foundry": "Foundry",
+          "timeline": "Timeline"
+        },
+        "setting": {
+          "timeline": "Timeline"
         },
         "campaign": {
           "pcs": "PCs",
           "lore": "Lore",
           "toDo": "To-Do",
-          "ideas": "Ideas"
+          "ideas": "Ideas",
+          "timeline": "Timeline"
         },
         "front": {
           "createNewDanger": "Create new Danger"
@@ -597,7 +622,8 @@
           "locations": "Locations",
           "participants": "Participants",
           "monsters": "Monsters",
-          "ideas": "Ideas"
+          "ideas": "Ideas",
+          "timeline": "Timeline"
         },
         "session": {
           "notes": "Notes",
@@ -610,7 +636,8 @@
           "npcs": "NPCs",
           "monsters": "Monsters",
           "magic": "Magic Items",
-          "toDo": "To-Do"
+          "toDo": "To-Do",
+          "timeline": "Timeline"
         }
       },
       "noResults": "Nothing here",

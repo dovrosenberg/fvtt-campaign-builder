@@ -39,3 +39,4 @@ Arcs have the following tabs where you can manage their details:
 * [Monsters](./monsters) – notable monsters or enemies that show up in the Arc
 * [Ideas](./ideas) – free-form ideas you might want to use somewhere in this Arc
 * [Story Webs](./storywebs) - list of story webs that you have associated with this Arc
+* [Timeline](./timeline) - view calendar events from Calendaria that relate to this Arc

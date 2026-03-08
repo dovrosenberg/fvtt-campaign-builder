@@ -104,6 +104,11 @@
             <CampaignToDoTab />
           </div>
         </div>
+        <div v-if="showTimelineTab" class="tab flexcol" data-group="primary" data-tab="timeline">
+          <div class="tab-inner">
+            <TimelineTab />
+          </div>
+        </div>
       </ContentTabStrip> 
     </div>
   </form>	 
@@ -122,6 +127,7 @@
   import { useCampaignDerivedState, CAMPAIGN_DERIVED_STATE_KEY } from '@/composables/useCampaignDerivedState';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyWarn } from '@/utils/notifications';
+  import { calendariaAvailable, calendarActive } from '@/utils/calendar/calendarState';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -138,6 +144,7 @@
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
+  import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
 
   // types
   import { CustomFieldContentType, RelatedJournal, WindowTabType, TabVisibilityItem, } from '@/types';
@@ -178,6 +185,12 @@
   });
 
 
+  const showTimelineTab = computed(() => {
+    return ModuleSettings.get(SettingKey.useTimeline) && 
+      calendariaAvailable.value && 
+      calendarActive.value;
+  });
+
   const openToDoCount = computed(() => toDoRows.value.length);
 
   const tabs = computed(() => {
@@ -202,8 +215,12 @@
       const label = openToDoCount.value ? `${baseLabel} (${openToDoCount.value})` : baseLabel;
       baseTabs.push({ id: 'toDo', label });
     }
-    if (tabVisibility.value[TabVisibilityItem.CampaignStoryWebs]) {
+    if (ModuleSettings.get(SettingKey.useStoryWebs) && tabVisibility.value[TabVisibilityItem.CampaignStoryWebs]) {
       baseTabs.push({ id: 'storyWebs', label: localize('contentFolders.storyWebs') });
+    }
+
+    if (showTimelineTab.value && tabVisibility.value[TabVisibilityItem.CampaignTimeline]) {
+      baseTabs.push({ id: 'timeline', label: localize('labels.tabs.campaign.timeline') });
     }
 
     return baseTabs;

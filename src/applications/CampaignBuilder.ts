@@ -7,6 +7,8 @@ const { DocumentSheetV2 } = foundry.applications.api;
 
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import '@yaireo/tagify/dist/tagify.css';
+import 'vis-timeline/styles/vis-timeline-graph2d.css';
+
 import { theme } from '@/components/styles/primeVue';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { DOCUMENT_TYPES } from '@/documents';
@@ -17,6 +19,7 @@ import { Entry, WindowTab } from '@/classes';
 import { UserFlagKey, UserFlags } from '@/settings';
 import { WindowTabType } from '@/types';
 import AppWindowService from '@/utils/appWindow';
+import { initializeCalendarState } from '@/utils/calendar/calendarState';
 
 // a (hopefully) never used name to indicate opening window without a doc
 const FCB_OPEN_WINDOW_NAME = 'FCB-Open-Window!!!@#';
@@ -27,6 +30,9 @@ export const renderCampaignBuilderApp = (): CampaignBuilderApplication | null =>
     notifyError(localize('notifications.migration.cannotOpen'));
     return null;
   }
+
+  // Initialize calendar state 
+  initializeCalendarState();
 
   // @ts-ignore
   const existingWindow = game.modules.get(moduleId)?.activeWindow;

@@ -19,5 +19,6 @@ Click the links below to learn more about each element of the UI:
 - [Bookmarks](./bookmarks)
 - [Search](./search)
 - [Tags](./tags)
+- [Timelines](./timeline)
 - [Prep/Play Toggle](./prep-play)
 - [Keybindings](./keybindings)

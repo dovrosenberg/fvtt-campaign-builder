@@ -180,6 +180,11 @@
             <StoryWebsTab mode="session" />
           </div>
         </div>
+        <div v-if="showTimelineTab" class="tab flexcol" data-group="primary" data-tab="timeline">
+          <div class="tab-inner">
+            <TimelineTab />
+          </div>
+        </div>
       </ContentTabStrip>
     </div>
   </form>	 
@@ -212,6 +217,7 @@
   import { ModuleSettings, SettingKey } from '@/settings';
   import { getSessionRelatedEntries } from '@/utils/uuidExtraction';
   import { filterRelatedEntries } from '@/utils/relatedContent';
+  import { calendariaAvailable, calendarActive } from '@/utils/calendar/calendarState';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -233,6 +239,7 @@
   import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
+  import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
 
   // types
   import { ContentTabDescriptor, CustomFieldContentType, Topics, WindowTabType, TabVisibilityItem, } from '@/types';
@@ -280,6 +287,12 @@
     return ModuleSettings.get(SettingKey.tabVisibilitySettings);
   });
 
+  const showTimelineTab = computed(() => {
+    return ModuleSettings.get(SettingKey.useTimeline) && 
+      calendariaAvailable.value && 
+      calendarActive.value;
+  });
+
   const tabs = computed(() => {
     const baseTabs = [
       { id: 'notes', label: localize('labels.tabs.session.notes')},
@@ -306,8 +319,11 @@
     if (tabVisibility.value[TabVisibilityItem.SessionPCs]) {
       baseTabs.push({ id: 'pcs', label: localize('labels.tabs.session.pcs')});
     }
-    if (tabVisibility.value[TabVisibilityItem.SessionStoryWebs] && ModuleSettings.get(SettingKey.useStoryWebs)) {
+    if (ModuleSettings.get(SettingKey.useStoryWebs) && tabVisibility.value[TabVisibilityItem.SessionStoryWebs]) {
       baseTabs.push({ id: 'storyWebs', label: localize('contentFolders.storyWebs') });
+    }
+    if (showTimelineTab.value && tabVisibility.value[TabVisibilityItem.SessionTimeline]) {
+      baseTabs.push({ id: 'timeline', label: localize('labels.tabs.session.timeline') });
     }
 
     return baseTabs as ContentTabDescriptor[];

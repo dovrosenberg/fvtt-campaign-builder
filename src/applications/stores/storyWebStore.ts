@@ -7,7 +7,6 @@
 // library imports
 
 // local imports
-import { useNavigationStore } from '@/applications/stores';
 
 // types
 import type { StoryWebGraphState } from '@/composables/useStoryWebGraphState';

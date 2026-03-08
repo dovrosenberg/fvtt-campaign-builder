@@ -1,11 +1,11 @@
 ---
-title: Entry relationship tabs
+title: Entry Generic Foundry Tab
 prev: 
   text: 'Entry sessions tab'
   link: './sessions'
 next: 
-  text: 'Character details'
-  link: '/reference/world-building/content/character/'
+  text: 'Entry Timeline Tab'
+  link: './timeline'
 ---
 # Generic Foundry Document Tab
 ![Generic Foundry tab](/assets/images/entry-foundry-tab.webp)
