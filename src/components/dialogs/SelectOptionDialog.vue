@@ -62,7 +62,7 @@ Dependencies
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, computed } from 'vue';
+  import { ref, watch, computed, PropType } from 'vue';
 
   // library components
   import Select from 'primevue/select';
@@ -73,6 +73,8 @@ Dependencies
 
   // types
 
+  ////////////////////////////////
+  // props
   const props = defineProps({
     modelValue: {
       type: Boolean,
@@ -95,6 +97,9 @@ Dependencies
       default: '',
     },
   });
+
+  ////////////////////////////////
+  // emits
 
   const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
