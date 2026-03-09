@@ -44,7 +44,7 @@
   import { localize } from '@/utils/game';
 
   // local components
-  import Dialog from '@/components/Dialog.vue';
+  import Dialog from '@/components/dialogs/Dialog.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
 
   // types

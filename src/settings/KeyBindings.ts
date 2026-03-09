@@ -1,13 +1,15 @@
 import { moduleId } from '@/settings';
 import AppWindowService from '@/utils/appWindow';
 import { renderCampaignBuilderApp } from '@/applications/CampaignBuilder';
-import { useNavigationStore } from '@/applications/stores';
+import { useNavigationStore, useCampaignStore, } from '@/applications/stores';
+import { FCBDialog } from '@/dialogs';
 
 export enum KeyBindingKeys {
   closeTab = 'closeTab',   // close the current tab
   historyBack = 'historyBack',   // move back in tab history
   historyForward = 'historyForward',   // move forward in tab history
   toggleWindow = 'toggleWindow',   // open/close the main window
+  addToDo = 'addToDo',   // add a to-do item
 }
 
 export class KeyBindings {
@@ -97,6 +99,24 @@ export class KeyBindings {
         editable: [
           {
             key: 'Z',
+            modifiers: [ 
+              foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.CONTROL,
+              foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.SHIFT
+            ]
+          }
+        ],
+      },
+      {
+        bindingId: KeyBindingKeys.addToDo,
+        name: 'fcb.settings.keybindings.addToDo',
+        hint: 'fcb.settings.keybindings.addToDoHelp',
+        onDown: async () => { 
+          // Open the add to-do dialog via campaign store
+          await useCampaignStore().promptAndAddToDo();
+        },
+        editable: [
+          {
+            key: 'KeyT',
             modifiers: [ 
               foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.CONTROL,
               foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.SHIFT

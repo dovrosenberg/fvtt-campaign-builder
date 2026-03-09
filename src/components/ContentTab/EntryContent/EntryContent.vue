@@ -282,7 +282,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
   import SessionsTab from '@/components/ContentTab/EntryContent/SessionsTab.vue';
-  import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
+  import RelatedEntriesManagementDialog from '@/components/dialogs/RelatedEntriesManagementDialog.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
   import VoiceRecordingDialog from '@/components/dialogs/VoiceRecordingDialog.vue';

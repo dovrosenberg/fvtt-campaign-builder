@@ -1,5 +1,5 @@
 import { vueHost } from '@/libraries/fvtt-vue/VueHost';
-import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import ConfirmDialog from '@/components/dialogs/ConfirmDialog.vue';
 
 // creates a simple confirm dialog with the given title
 // returns true if confirmed, false if canceled
@@ -45,7 +45,7 @@ export async function confirmDialog(title: string, prompt: string): Promise<bool
       },
       container,
       refCallback
-    );
+    ) || null;
 
     // Cleanup function
     function cleanup() {

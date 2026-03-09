@@ -1,12 +1,14 @@
 <template>
-  <Dialog
-    v-model="show"
-    :title="title"
-    :buttons="buttons"
-    @cancel="onCancel"
-  >
-    <p>{{ message }}</p>
-  </Dialog>
+  <Teleport to="body">
+    <Dialog
+      v-model="show"
+      :title="title"
+      :buttons="buttons"
+      @cancel="onCancel"
+    >
+      <p>{{ message }}</p>
+    </Dialog>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -15,13 +17,20 @@
   import { SaveChangesResult } from '@/dialogs/saveChanges';
   import { localize } from '@/utils/game';
 
-  interface Props {
-    modelValue: boolean;
-    title: string;
-    message: string;
-  }
-
-  const props = defineProps<Props>();
+  const props = defineProps({
+    modelValue: {
+      type: Boolean,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    message: {
+      type: String,
+      required: true,
+    },
+  });
   const emit = defineEmits<{
     'update:modelValue': [value: boolean];
     'result': [result: SaveChangesResult];

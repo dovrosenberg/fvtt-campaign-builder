@@ -1,21 +1,14 @@
 <template>
-  <Dialog
-    v-model="show"
-    :title="title"
-    :buttons="buttons"
-    @cancel="onCancel"
-  >
-    <div>
+  <Teleport to="body">
+    <Dialog
+      v-model="show"
+      :title="title"
+      :buttons="buttons"
+      @cancel="onCancel"
+    >
       <p>{{ message }}</p>
-      <input
-        id="response"
-        v-model="inputValue"
-        type="text"
-        class="fcb-input"
-        data-dialog-autofocus
-      />
-    </div>
-  </Dialog>
+    </Dialog>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -27,42 +20,38 @@
     modelValue: boolean;
     title: string;
     message: string;
-    initialValue?: string;
   }
 
-  const props = withDefaults(defineProps<Props>(), {
-    initialValue: '',
-  });
-
+  const props = defineProps<Props>();
   const emit = defineEmits<{
     'update:modelValue': [value: boolean];
-    'result': [value: string | null];
+    'confirm': [];
+    'cancel': [];
   }>();
 
   const show = ref(props.modelValue);
-  const inputValue = ref(props.initialValue);
 
   const buttons = computed(() => [
     {
-      label: localize('labels.cancel'),
+      label: localize('labels.no'),
       close: true,
       callback: () => onCancel(),
     },
     {
-      label: localize('labels.ok'),
+      label: localize('labels.yes'),
       close: true,
       default: true,
-      callback: () => onOk(),
+      callback: () => onConfirm(),
     },
   ]);
 
-  function onOk() {
-    emit('result', inputValue.value.trim());
+  function onConfirm() {
+    emit('confirm');
     emit('update:modelValue', false);
   }
 
   function onCancel() {
-    emit('result', null);
+    emit('cancel');
     emit('update:modelValue', false);
   }
 
@@ -74,11 +63,3 @@
     emit('update:modelValue', newValue);
   });
 </script>
-
-<style scoped>
-  .fcb-input {
-    width: 100%;
-    margin-top: 10px;
-    padding: 5px;
-  }
-</style>

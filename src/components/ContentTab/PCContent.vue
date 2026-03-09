@@ -115,8 +115,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { storeToRefs } from 'pinia';
-  import { ref, watch, onMounted, computed, toRaw, nextTick, onBeforeUnmount } from 'vue';
+  import { ref, watch, onMounted, computed, toRaw, onBeforeUnmount } from 'vue';
 
   // local imports
   import { useMainStore, useNavigationStore, useSettingDirectoryStore, useRelationshipStore } from '@/applications/stores';
@@ -135,7 +134,7 @@
   import JournalTab from '@/components/ContentTab/JournalTab.vue';
   import RelatedDocumentTable from '@/components/tables/RelatedDocumentTable.vue'; 
   import RelatedEntryTable from '@/components/tables/RelatedEntryTable.vue';
-  import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
+  import RelatedEntriesManagementDialog from '@/components/dialogs/RelatedEntriesManagementDialog.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
 

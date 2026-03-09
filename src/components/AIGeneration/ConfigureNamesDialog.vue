@@ -69,7 +69,7 @@
   import Checkbox from 'primevue/checkbox';
   
   // local components
-  import Dialog from '@/components/Dialog.vue';
+  import Dialog from '@/components/dialogs/Dialog.vue';
 
   // types
   import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient/types';

@@ -84,7 +84,7 @@
   import Column from 'primevue/column';
 
   // local components
-  import Dialog from '@/components/Dialog.vue';
+  import Dialog from '@/components/dialogs/Dialog.vue';
 
   // types
 

@@ -1,5 +1,5 @@
 import { vueHost } from '@/libraries/fvtt-vue/VueHost';
-import SaveChangesDialogComponent from '@/components/SaveChangesDialog.vue';
+import SaveChangesDialogComponent from '@/components/dialogs/SaveChangesDialog.vue';
 import { localize } from '@/utils/game';
 
 export enum SaveChangesResult {

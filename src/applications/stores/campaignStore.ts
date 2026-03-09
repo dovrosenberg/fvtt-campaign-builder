@@ -5,7 +5,7 @@ import { storeToRefs, } from 'pinia';
 import { computed } from 'vue';
 
 // local imports
-import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
+import { useCampaignDirectoryStore, useMainStore, useNavigationStore, usePlayingStore } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import { createGroupedTableStores } from '@/composables/createGroupedTableStores';
 
@@ -47,6 +47,7 @@ export const campaignStore = () => {
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
+  const playingStore = usePlayingStore();
   const { currentCampaign, currentSession, currentSetting, } = storeToRefs(mainStore);
 
   ///////////////////////////////
@@ -267,6 +268,70 @@ export const campaignStore = () => {
     const newItem = await currentCampaign.value.addNewToDoItem(type, text, linkedUuid, sessionUuid);
     await mainStore.refreshCampaign();
     return newItem;
+  };
+
+  /**
+   * Shows a dialog to add a new manual to-do item to a campaign.
+   * Uses the currently played campaign, or prompts for selection if multiple campaigns exist.
+   * @returns The created to-do item or null if cancelled/no campaign available.
+   */
+  const promptAndAddToDo = async (campaignToUse?: string): Promise<void> => {
+    let targetCampaign: Campaign | null;
+    const allCampaigns = await campaignDirectoryStore.getCampaigns();
+
+    // no campaign - nothing to do
+    if (allCampaigns.length === 0) {
+      return;
+    }
+
+    // default to the one submitted or the one being played
+    if (campaignToUse) {
+      targetCampaign = allCampaigns.find(c => c.uuid === campaignToUse) || null;
+    } else {
+      // Try to get the currently played campaign
+      targetCampaign = playingStore.currentPlayedCampaign;
+    }
+    
+    // If no played campaign, check all campaigns in the current setting
+    if (!targetCampaign) {      
+      if (allCampaigns.length === 1) {
+        targetCampaign = allCampaigns[0];
+      } else {
+        // Multiple campaigns - prompt user to select one
+        const selectedUuid = await FCBDialog.selectOptionDialog(
+          localize('dialogs.selectCampaign.title'),
+          localize('dialogs.selectCampaign.prompt'),
+          allCampaigns.map(c => ({ label: c.name, id: c.uuid }))
+        );
+        
+        if (!selectedUuid) {
+          return;
+        }
+        targetCampaign = allCampaigns.find(c => c.uuid === selectedUuid) || null;
+      }
+    }
+    
+    if (!targetCampaign) {
+      return;
+    }
+    
+    // Open input dialog to get the to-do text
+    const result = await FCBDialog.inputDialog(
+      localize('dialogs.addToDo.title'),
+      localize('dialogs.addToDo.prompt'),
+      ''
+    );
+    
+    // If user cancelled or entered empty text, return
+    if (!result) {
+      return;
+    }
+    
+    // Add the to-do item to the campaign
+    await targetCampaign.addNewToDoItem(ToDoTypes.Manual, result);
+    
+    // Refresh the content in case a panel is showing the todo tab
+    await mainStore.refreshCurrentContent();
   };
 
   /** Merge a to-do item (add or update existing) */
@@ -563,6 +628,7 @@ export const campaignStore = () => {
     moveLoreToLastSession,
     moveLoreToArc,
     addToDoItem,
+    promptAndAddToDo,
     mergeToDoItem,
     completeToDoItem,
     updateToDoItem,

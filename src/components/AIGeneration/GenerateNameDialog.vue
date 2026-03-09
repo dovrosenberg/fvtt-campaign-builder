@@ -74,7 +74,7 @@
   import ProgressSpinner from 'primevue/progressspinner';
   
   // local components
-  import Dialog from '@/components/Dialog.vue';
+  import Dialog from '@/components/dialogs/Dialog.vue';
 
   ////////////////////////////////
   // props

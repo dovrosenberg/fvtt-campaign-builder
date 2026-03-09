@@ -410,7 +410,7 @@
   import Checkbox from 'primevue/checkbox';
 
   // local components
-  import Dialog from '@/components/Dialog.vue';
+  import Dialog from '@/components/dialogs/Dialog.vue';
   import ConfigDialogLayout from '@/components/layout/ConfigDialogLayout.vue';
 
   // local components

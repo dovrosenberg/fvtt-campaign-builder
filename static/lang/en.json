@@ -34,7 +34,9 @@
         "historyForward": "Move forward in tab history",
         "historyForwardHelp": "Move \"forward\" in the history of the current tab",
         "toggleWindow": "Open/Close Main Window",
-        "toggleWindowHelp": "Open/Close the Campaign Builder window"
+        "toggleWindowHelp": "Open/Close the Campaign Builder window",
+        "addToDo": "Add To-do Item",
+        "addToDoHelp": "Open a dialog to add a new to-do item to a campaign"
       },
       "autoRefreshRollTables": "Automatically refresh RollTables",
       "autoRefreshRollTablesHelp": "When enabled, generator roll tables will be automatically refreshed with new values when the module loads",
@@ -804,7 +806,11 @@
       },
       "addToDo": {
         "title": "Add To-do",
-        "text": "Enter to-do text:"
+        "prompt": "Enter to-do text:"
+      },
+      "selectCampaign": {
+        "title": "Select Campaign",
+        "prompt": "Which campaign should this to-do be added to?"
       },
       "relatedEntries": {
         "additionalInformation": "Additional Information",

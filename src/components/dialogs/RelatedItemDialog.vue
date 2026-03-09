@@ -75,7 +75,7 @@
   import TypeAhead from '@/components/TypeAhead.vue';
   
   // local components
-  import Dialog from '@/components/Dialog.vue';
+  import Dialog from '@/components/dialogs/Dialog.vue';
 
   // types
   interface ButtonProp {

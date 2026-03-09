@@ -17,6 +17,7 @@
 - New button on main screen for Characters and Locations that lets you open the Foundry character sheet/scene right from there. ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/world-building/content/entry))
 - Can export a single Setting as a json from the Setting context menu in the directory.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/sidebar))
 - You can now drop an Actor in the setting directory and it will convert it to a Character.  It copies name, image, and for dnd5e and pf2e the biography field.  It also then connects the character to the actor.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/sidebar#dropping-actors)) 
+- The "To-Do" button in play mode now pops up a dialog for you to quickly record a to-do item, instead of just bringing you to the campaign's To-Do tab.  There's also a keyboard shortcut to quickly add a to-do (Shift-Alt-T by default).
 - Fixed a bug where adding monster names were missing in the Arc monster list.
 
 ## 1.9.3 - Changelog distribution

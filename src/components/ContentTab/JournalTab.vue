@@ -34,7 +34,7 @@
 
   // library components
   import BaseTable from '@/components/tables/BaseTable.vue';
-  import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
+  import RelatedDocumentsDialog from '@/components/dialogs/RelatedDocumentsDialog.vue';
 
   // local components
 

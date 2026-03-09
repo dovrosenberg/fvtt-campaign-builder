@@ -60,7 +60,7 @@
 
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
-  import Dialog from '@/components/Dialog.vue';
+  import Dialog from '@/components/dialogs/Dialog.vue';
 
   // types
   import { BaseTableColumn, RowEditCompleteEvent } from '@/types';

@@ -1,3 +1,29 @@
+<!--
+SessionButtonsBar: Session Buttons Bar
+
+Purpose
+- Displays navigation buttons for session-related tabs during play mode
+
+Responsibilities
+- Show session tabs (notes, lore, vignettes, locations, NPCs, monsters, items, to-do)
+- Handle tab clicks to navigate to session content
+- Open to-do dialog when clicking to-do button
+
+Props
+- None
+
+Emits
+- None
+
+Slots
+- None
+
+Dependencies
+- Stores: mainStore, playingStore, navigationStore
+- Dialogs: FCBDialog
+
+-->
+
 <template>
   <div class="fcb-play-session-tabs flexrow">
     <button
@@ -20,10 +46,11 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, usePlayingStore, useNavigationStore } from '@/applications/stores';
+  import { useMainStore, usePlayingStore, useNavigationStore, useCampaignStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { openSessionNotes, } from '@/applications/SessionNotes';
   import { ModuleSettings, SettingKey } from '@/settings';
+  import { FCBDialog } from '@/dialogs';
 
   // types
   import { TabVisibilityItem } from '@/types';
@@ -33,6 +60,7 @@
   const mainStore = useMainStore();
   const playingStore = usePlayingStore();
   const navigationStore = useNavigationStore();
+  const campaignStore = useCampaignStore();
   const { currentContentTab } = storeToRefs(mainStore);
   const { currentPlayedCampaign } = storeToRefs(playingStore);
 
@@ -82,7 +110,7 @@
       buttons.push({ id: 'magic', label: 'Items', icon: 'fa-wand-sparkles' });
     }
 
-    // To-Do tab (opens Campaign, uses CampaignToDo visibility)
+    // To-Do tab (opens dialog to create a new to-do)
     if (tabVisibility.value[TabVisibilityItem.CampaignToDo]) {
       buttons.push({ id: 'toDo', label: localize('labels.tabs.session.toDo'), icon: 'fa-check-square' });
     }
@@ -109,19 +137,10 @@
     if (!currentSessionId || currentSessionNumber==null)
       return;
 
-    // special case - it's on the campaign
+    // special case - open to-do dialog
     if (tabId === 'toDo') {
-      // Check if we already have a tab open to that campaign (search all panels)
-      const campaignId = currentPlayedCampaign.value.uuid;
-      const campaignTab = navigationStore.findTabAcrossPanels(campaignId);
-
-      // If there isn't a tab open to the most recent session, open one
-      if (!campaignTab) {
-        await navigationStore.openCampaign(campaignId, { newTab: true });
-      } else {
-        // it exists- so switch to it
-        await navigationStore.activateTab(campaignTab.tab.id, false, campaignTab.panelIndex);
-      }
+      await campaignStore.promptAndAddToDo(currentPlayedCampaign.value);
+      return;
     } else if (tabId === 'noteBox') {  // special case - it's the popout box
       await openSessionNotes(currentSessionNumber, false);  
       return;

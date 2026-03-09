@@ -238,7 +238,7 @@
   import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import StoryWebsTab from '@/components/ContentTab/StoryWebsTab.vue';
   import CustomFieldsBlocks from '@/components/CustomFieldsBlocks.vue';
-  import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
+  import RelatedEntriesManagementDialog from '@/components/dialogs/RelatedEntriesManagementDialog.vue';
   import TimelineTab from '@/components/ContentTab/TimelineTab.vue';
 
   // types

@@ -29,6 +29,7 @@
   // library components
   
   // local components
+  import Dialog from '@/components/dialogs/Dialog.vue';
   import RelatedItemDialog from '@/components/dialogs/RelatedItemDialog.vue';
 
   // types

@@ -202,7 +202,7 @@
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
-  import Dialog from '@/components/Dialog.vue';
+  import Dialog from '@/components/dialogs/Dialog.vue';
 
   // types
   import { Topics, ValidTopic, Species, CharacterDetails, LocationDetails, OrganizationDetails } from '@/types';

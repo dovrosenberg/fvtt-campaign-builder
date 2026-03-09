@@ -145,7 +145,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import DangerParticipantTable from './DangerParticipantTable.vue';
   import DangerGrimPortentTable from './DangerGrimPortentTable.vue';
-  import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
+  import RelatedEntriesManagementDialog from '@/components/dialogs/RelatedEntriesManagementDialog.vue';
 
   // types
   import { Danger, Topics, } from '@/types';
