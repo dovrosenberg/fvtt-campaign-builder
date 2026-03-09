@@ -59,7 +59,9 @@
         "historyForward": "In der Tab-Historie vorwärts gehen",
         "historyForwardHelp": "In der Historie des aktuellen Tabs \"vorwärts\" gehen",
         "toggleWindow": "Hauptfenster öffnen/schließen",
-        "toggleWindowHelp": "Fenster des Kampagnenbauers öffnen/schließen"
+        "toggleWindowHelp": "Fenster des Kampagnenbauers öffnen/schließen",
+        "addToDo": "To-do-Element hinzufügen",
+        "addToDoHelp": "Öffnen Sie einen Dialog, um ein neues To-do-Element zu einer Kampagne hinzuzufügen"
       },
       "showTypesInTree": "Typen im Einstellungsbaum anzeigen",
       "showTypesInTreeHelp": "Wenn wahr, zeigt es den Typ jedes Eintrags im Baum an, wenn das Einstellungsverzeichnis nicht nach Typ gruppiert ist.",
@@ -527,7 +529,8 @@
           "monsters": "Monster",
           "ideas": "Ideen",
           "vignettes": "Vignetten",
-          "timeline": "Zeitleiste"
+          "timeline": "Zeitleiste",
+          "items": "Magische Gegenstände"
         },
         "setting": {
           "timeline": "Zeitleiste"
@@ -710,7 +713,7 @@
       },
       "addToDo": {
         "title": "Aufgabe hinzufügen",
-        "text": "Geben Sie den Aufgabentext ein:"
+        "prompt": "To-do-Text eingeben:"
       },
       "configureNames": {
         "title": "Namensstile konfigurieren",
@@ -926,6 +929,10 @@
           "storyWebs": "Geschichten-Netze",
           "timeline": "Zeitachse"
         }
+      },
+      "selectCampaign": {
+        "title": "Kampagne auswählen",
+        "prompt": "Zu welcher Kampagne soll dieses To-do hinzugefügt werden?"
       }
     },
     "contextMenus": {
@@ -987,7 +994,8 @@
       },
       "settingFolder": {
         "delete": "Einstellung löschen",
-        "createCampaign": "Kampagne erstellen"
+        "createCampaign": "Kampagne erstellen",
+        "exportJson": "Als JSON exportieren"
       },
       "arcFolder": {
         "createSession": "Eine Sitzung erstellen",
@@ -1157,7 +1165,8 @@
         "permissionDenied": "Mikrofonzugriff verweigert. Bitte erlauben Sie den Mikrofonzugriff, um die Stimme aufzunehmen.",
         "notSupported": "Sprachaufnahme wird in diesem Browser nicht unterstützt",
         "uploadFailed": "Hochladen der Sprachaufnahme fehlgeschlagen"
-      }
+      },
+      "itemCopiedToNextSession": "Element in die nächste Sitzung kopiert"
     },
     "tags": {
       "tag": "Tag",

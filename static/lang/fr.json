@@ -59,7 +59,9 @@
         "historyForward": "Avancer dans l'historique des onglets",
         "historyForwardHelp": "Avancer dans l'historique de l'onglet actuel",
         "toggleWindow": "Ouvrir/Fermer la fenêtre principale",
-        "toggleWindowHelp": "Ouvrir/Fermer la fenêtre du constructeur de campagne"
+        "toggleWindowHelp": "Ouvrir/Fermer la fenêtre du constructeur de campagne",
+        "addToDo": "Ajouter une tâche",
+        "addToDoHelp": "Ouvrir une boîte de dialogue pour ajouter une nouvelle tâche à une campagne"
       },
       "showTypesInTree": "Afficher les types dans l'arborescence des paramètres",
       "showTypesInTreeHelp": "Lorsque c'est vrai, si le répertoire des paramètres n'est pas groupé par type, il affichera le type de chaque entrée dans l'arborescence.",
@@ -527,7 +529,8 @@
           "monsters": "Monstres",
           "ideas": "Idées",
           "vignettes": "Vignettes",
-          "timeline": "Chronologie"
+          "timeline": "Chronologie",
+          "items": "Objets magiques"
         },
         "setting": {
           "timeline": "Chronologie"
@@ -710,7 +713,7 @@
       },
       "addToDo": {
         "title": "Ajouter une tâche",
-        "text": "Entrez le texte de la tâche :"
+        "prompt": "Entrez le texte de la tâche :"
       },
       "configureNames": {
         "title": "Configurer les styles de nom",
@@ -926,6 +929,10 @@
           "storyWebs": "Toiles d'histoires",
           "timeline": "Chronologie"
         }
+      },
+      "selectCampaign": {
+        "title": "Sélectionner une campagne",
+        "prompt": "À quelle campagne cette tâche doit-elle être ajoutée ?"
       }
     },
     "contextMenus": {
@@ -987,7 +994,8 @@
       },
       "settingFolder": {
         "delete": "Supprimer le paramètre",
-        "createCampaign": "Créer une campagne"
+        "createCampaign": "Créer une campagne",
+        "exportJson": "Exporter en JSON"
       },
       "arcFolder": {
         "createSession": "Créer une session",
@@ -1157,7 +1165,8 @@
         "permissionDenied": "Accès au microphone refusé. Veuillez autoriser l'accès au microphone pour enregistrer la voix.",
         "notSupported": "L'enregistrement vocal n'est pas pris en charge dans ce navigateur",
         "uploadFailed": "Échec du téléchargement de l'enregistrement vocal"
-      }
+      },
+      "itemCopiedToNextSession": "Élément copié à la session suivante"
     },
     "tags": {
       "tag": "Étiquette",
