@@ -358,7 +358,16 @@ export async function exportSingleSettingJson(settingId: string): Promise<void> 
 
   const settingData = await collectSettingData(setting);
 
-  const json = JSON.stringify(settingData, null, 2);
+  // Wrap in ModuleExportData structure for compatibility with importModuleJson
+  const exportData: ModuleExportData = {
+    version: EXPORT_VERSION,
+    exportedAt: new Date().toISOString(),
+    exportMode: ExportMode.SETTINGS_ONLY,
+    moduleSettings: null,
+    settings: [settingData],
+  };
+
+  const json = JSON.stringify(exportData, null, 2);
   const filename = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${new Date().toISOString().split('T')[0]}.json`;
   downloadFile(json, filename, 'application/json');
 }
