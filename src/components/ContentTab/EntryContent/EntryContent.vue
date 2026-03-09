@@ -244,7 +244,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref, watch, provide, onUnmounted, } from 'vue';
+  import { computed, ref, watch, provide, onUnmounted, onBeforeUnmount, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -1189,6 +1189,14 @@
   onUnmounted(() => {
     // Cancel any active recording when component unmounts
     cancelActiveRecording();
+  });
+
+  // Clear debounce timer on unmount
+  onBeforeUnmount(() => {
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = undefined;
+    }
   });
 
 </script>

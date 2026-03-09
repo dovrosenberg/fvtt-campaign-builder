@@ -321,6 +321,7 @@
   // cleanup timers on unmount
   onBeforeUnmount(() => {
     clearTimeout(nameDebounceTimer);
+    clearTimeout(impendingDoomTimer);
   });
   
 

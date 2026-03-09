@@ -111,7 +111,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, onMounted, ref, watch } from 'vue';
+  import { ref, watch, computed, provide, onMounted, onBeforeUnmount, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -336,6 +336,13 @@
     name.value = currentSetting.value?.name || '';
   });
 
+  // Clear debounce timer on unmount
+  onBeforeUnmount(() => {
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = undefined;
+    }
+  });
 
 </script>
 

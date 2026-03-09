@@ -117,7 +117,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref, watch, provide, } from 'vue';
+  import { ref, watch, computed, provide, onBeforeUnmount, } from 'vue';
 
   // local imports
   import { getTabTypeIcon, } from '@/utils/misc';
@@ -305,6 +305,13 @@
 
   ////////////////////////////////
   // lifecycle events
+  onBeforeUnmount(() => {
+    // Clear debounce timer to prevent saves after unmount
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = undefined;
+    }
+  });
 
 </script>
 

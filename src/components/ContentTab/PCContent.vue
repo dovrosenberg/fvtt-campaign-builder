@@ -116,7 +116,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { ref, watch, onMounted, computed, toRaw, nextTick } from 'vue';
+  import { ref, watch, onMounted, computed, toRaw, nextTick, onBeforeUnmount } from 'vue';
 
   // local imports
   import { useMainStore, useNavigationStore, useSettingDirectoryStore, useRelationshipStore } from '@/applications/stores';
@@ -379,6 +379,14 @@
       playerName.value = currentEntry.value.playerName || '';
 
       await currentEntry.value.getActor();
+    }
+  });
+
+  // Clear debounce timer on unmount
+  onBeforeUnmount(() => {
+    if (nameDebounceTimer) {
+      clearTimeout(nameDebounceTimer);
+      nameDebounceTimer = undefined;
     }
   });
 

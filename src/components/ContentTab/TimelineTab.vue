@@ -767,6 +767,12 @@ Dependencies
   });
 
   onUnmounted(() => {
+    // Clear the debounce timer to prevent saves after unmount
+    if (rangeDebounceTimer) {
+      clearTimeout(rangeDebounceTimer);
+      rangeDebounceTimer = undefined;
+    }
+
     // Destroy timeline to prevent memory leaks
     if (timelineInstance.value) {
       timelineInstance.value.destroy();

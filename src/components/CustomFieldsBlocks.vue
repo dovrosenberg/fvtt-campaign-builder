@@ -84,7 +84,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, reactive, watch, PropType, } from 'vue';
+  import { computed, reactive, watch, onBeforeUnmount, PropType } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -361,6 +361,16 @@
       }
     }, debounceTime);
   };
+
+  ////////////////////////////////
+  // lifecycle events
+  onBeforeUnmount(() => {
+    // Clear debounce timer to prevent saves after unmount
+    if (saveDebounceTimer) {
+      clearTimeout(saveDebounceTimer);
+      saveDebounceTimer = undefined;
+    }
+  });
 
   ////////////////////////////////
   // event handlers
