@@ -139,7 +139,7 @@ Dependencies
 
     // special case - open to-do dialog
     if (tabId === 'toDo') {
-      await campaignStore.promptAndAddToDo(currentPlayedCampaign.value);
+      await campaignStore.promptAndAddToDo(currentPlayedCampaign.value.uuid);
       return;
     } else if (tabId === 'noteBox') {  // special case - it's the popout box
       await openSessionNotes(currentSessionNumber, false);  
