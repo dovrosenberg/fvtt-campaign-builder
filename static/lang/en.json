@@ -1134,7 +1134,7 @@
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",
       "dragMonsterFromSession": "Drag to scene",
       "dragItemFromSession": "Drag to actor, etc.",
-      "dragActorFromEntry": "Drag to scene",
+      "dragToScene": "Drag to scene",
       "cannotChangeSettingInPlayMode": "Cannot change Setting while in play mode",
       "contentLinks": {
         "1": {

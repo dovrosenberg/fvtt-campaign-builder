@@ -34,6 +34,9 @@ You can also add notes to each Monster to track how it will be used in the Arc. 
 ### Moveable
 You can reorder the monster list by dragging the handle on the left side of each row to move rows up and down.
 
+### Drag to Scene
+A drag handle appears in the drag column for each Monster. Drag this handle to drop the Actor onto a scene in Foundry.
+
 ### Monster actions
 The actions column lets you take several actions with the Monster entries:
   - **Delete** - Delete the Monster.  This removes it from the Arc list, but DOES NOT delete the Actor from Foundry.

@@ -34,6 +34,9 @@ You can also add notes to each Item to track how it will be used in the Arc. Cli
 ### Moveable
 You can reorder the item list by dragging the handle on the left side of each row to move rows up and down.
 
+### Drag to Foundry
+A drag handle appears in the drag column for each Magic Item. Drag this handle to drop the Item onto an Actor's inventory in Foundry.
+
 ### Magic Item actions
 The actions column lets you take several actions with the Magic Item entries:
   - **Delete** - Delete the Magic Item. This removes it from the Arc list, but DOES NOT delete the Item from Foundry.

@@ -15,6 +15,7 @@
     @add-item="onAddItem"
     @dragoverNew="DragDropService.standardDragover"
     @drop-new="onDropNew"
+    @dragstart="onDragStart"
     @cell-edit-complete="onCellEditComplete"
     @reorder="groupedTable.onReorder"
     @reorder-group="(items) => groupedTable.onReorderGroup(items, participantGroups)"
@@ -94,10 +95,11 @@
 
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+    const dragColumn = { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' };
 
     const extraFields = arcStore.extraFields[ArcTableTypes.Participant]
 
-    return [ actionColumn, ...extraFields];
+    return [ actionColumn, dragColumn, ...extraFields];
   });
 
   const actions = computed(() => ([
@@ -128,6 +130,10 @@
 
   ////////////////////////////////
   // event handlers
+  const onDragStart = async (event: DragEvent, actorId: string) => {
+    await DragDropService.actorDragStart(event, actorId);
+  };
+
   const onDeleteParticipant = async (uuid: string, removedUUIDs?: string[]) => {
     const deleted = await arcStore.deleteParticipant(uuid);
     if (deleted && removedUUIDs && removedUUIDs.length > 0) {

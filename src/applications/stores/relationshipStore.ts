@@ -193,6 +193,23 @@ export const relationshipStore = () => {
   }
 
   /**
+   * Reorder the actors list on the current entry
+   * @param reorderedActors The reordered list of actor UUIDs
+   */
+  async function reorderActors(reorderedActors: string[]): Promise<void> {
+    const entry = currentEntry.value;
+
+    if (!entry)
+      throw new Error('Invalid entry in relationshipStore.reorderActors()');
+
+    // update the entry with the new order
+    entry.actors = reorderedActors;
+    await entry.save();
+
+    await mainStore.refreshEntry();
+  }
+
+  /**
    * Edit a relationship to the current entry - specifically the extra fields
    * @param relatedEntryId The other entry id
    * @param extraFields Extra fields to save with the relationship
@@ -412,6 +429,7 @@ export const relationshipStore = () => {
     addActor,
     deleteScene,
     deleteActor,
+    reorderActors,
     addFoundryDocument,
     deleteFoundryDocument,
   };

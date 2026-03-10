@@ -31,6 +31,10 @@ You can manage the list of species for your Settings in the [Module Settings](/r
 On the Actors tab, you can associate your Character with one or more actors from Foundry.  Having more than one may be helpful if you have different character sheets for this Character at different points in time, or perhaps a transformed/polymorphed version, etc. Since your key Characters will be tied to the [^Current Session], you can access any of them with just a couple clicks.
 
 ::: info
+While you can attach as many Actors as you want for a Character, the top-most one in the list is special.  When you drag the Character into Foundry (ex. from [a Session NPC list](/reference/campaign-mgt-content/session/npcs#drag-to-scene)), it is the first Actor in this list that will be dropped.
+:::
+
+::: info
 Deleting an actor in Foundry that is attached to a Character will automatically and safely remove it from the Character.
 :::
 

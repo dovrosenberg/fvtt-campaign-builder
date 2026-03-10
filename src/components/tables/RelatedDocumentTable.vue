@@ -7,15 +7,15 @@
     :addButtonLabel="addButtonLabel"
     :extraAddText="extraAddText"
     :filterFields="filterFields"
-    :draggable-rows="draggableRows"
     :actions="actions"
-    :can-reorder="false"
+    :can-reorder="props.documentLinkType === DocumentLinkType.Actors"
 
     @row-context-menu="onRowContextMenu"
     @drop-new="onDropNew"
     @dragover="DragDropService.standardDragover"
     @dragstart="onDragStart"
     @add-item="onAddItem"
+    @reorder="onReorder"
   />
   <RelatedDocumentsDialog
     v-if="[DocumentLinkType.Actors, DocumentLinkType.Scenes].includes(props.documentLinkType)"
@@ -72,8 +72,6 @@
   // computed data
   const filterFields = computed(() => ['name', 'documentType']);
 
-  const draggableRows = computed(() => [DocumentLinkType.GenericFoundry, DocumentLinkType.Actors, DocumentLinkType.Items].includes(props.documentLinkType));
-  
   const actions = computed(() => [{ 
     icon: 'fa-trash', 
     callback: (data: any) => onDeleteItemClick(data.uuid), 
@@ -107,6 +105,7 @@
     name: string;
     packId?: string | null;
     dragTooltip?: string;
+    draggableId?: string;  // for drag functionality
     documentType?: string;
     location?: string;
   };
@@ -124,11 +123,12 @@
         location: item.packId ? `${localize('labels.locations.compendium')}: ${item.packName}` : localize('labels.locations.world'),
       };
 
-      // Add dragTooltip for actors
-      if (props.documentLinkType === DocumentLinkType.Actors) {
+      // Add dragTooltip and draggableId for actors,, items, generic foundry
+      if ([DocumentLinkType.Actors, DocumentLinkType.Items, DocumentLinkType.GenericFoundry].includes(props.documentLinkType)) {
         return {
           ...base,
-          dragTooltip: localize('tooltips.dragActorFromEntry')
+          draggableId: item.uuid,  // the foundry document uuid
+          dragTooltip: localize('tooltips.dragToScene')
         };
       }
 
@@ -321,6 +321,14 @@
       showPicker.value = true;
     }
   }
+
+  /** Handle reordering of actors */
+  const onReorder = async (reorderedRows: { uuid: string }[]) => {
+    if (props.documentLinkType === DocumentLinkType.Actors) {
+      const reorderedUuids = reorderedRows.map(row => row.uuid);
+      await relationshipStore.reorderActors(reorderedUuids);
+    }
+  };
 
   ////////////////////////////////
   // watchers

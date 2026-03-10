@@ -14,6 +14,8 @@ export interface RelatedEntry<PrimaryTopic extends ValidTopic, RelatedTopic exte
 // includes additional details
 export interface RelatedEntryDetails<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic> extends RelatedEntry<PrimaryTopic, RelatedTopic> {
   name: string;
+  draggableId?: string;   // UI-only field - UUID for drag operations
+  dragTooltip?: string;   // UI-only field
 }
 
 export interface RelatedDocumentDetails {

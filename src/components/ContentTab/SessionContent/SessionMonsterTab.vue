@@ -8,7 +8,6 @@
     :extra-add-text="localize('labels.session.addMonsterDrag')"
     :allow-drop-row="false"
     :allow-edit="true"
-    :draggable-rows="true"
     :grouped="isGrouped"
     :groups="monsterGroups"
     :help-text="localize('labels.session.monsterHelpText')"
@@ -112,12 +111,13 @@
   
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+    const dragColumn = { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' };
 
     const extraFields = props.arcMode ? 
       arcStore.extraFields[ArcTableTypes.Monster] :
       sessionStore.extraFields[SessionTableTypes.Monster]
 
-    return [ actionColumn, ...extraFields];
+    return [ actionColumn, dragColumn, ...extraFields];
   });
 
   const actions = computed(() => ([

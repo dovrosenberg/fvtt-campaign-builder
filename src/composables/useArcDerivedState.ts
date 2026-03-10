@@ -8,6 +8,7 @@ import { watch, type InjectionKey, type Ref } from 'vue';
 // local imports
 import { useContentState } from '@/composables/useContentState';
 import { useGroupedTableState } from '@/composables/useGroupedTableState';
+import { localize } from '@/utils/game';
 
 // types
 import {
@@ -86,6 +87,8 @@ export function useArcDerivedState(): ArcDerivedState {
           notes: item.notes,
           topic: isChar ? Topics.Character : Topics.Organization,
           type: entry.type || (isChar ? getTopicText(Topics.Character) : getTopicText(Topics.Organization)),
+          draggableId: isChar ? entry.actors?.[0] : undefined,
+          dragTooltip: (isChar && entry.actors?.length) ? localize('tooltips.dragToScene') : undefined,
         });
       }
 
@@ -110,6 +113,8 @@ export function useArcDerivedState(): ArcDerivedState {
             groupId: item.groupId || null,
             name: actor.name,
             notes: item.notes || '',
+            draggableId: item.uuid,
+            dragTooltip: localize('tooltips.dragToScene'),
           });
         }
       }
@@ -135,6 +140,8 @@ export function useArcDerivedState(): ArcDerivedState {
             groupId: item.groupId || null,
             name: itemDoc.name,
             notes: item.notes || '',
+            draggableId: item.uuid,
+            dragTooltip: localize('tooltips.dragItemFromSession'),
           });
         }
       }

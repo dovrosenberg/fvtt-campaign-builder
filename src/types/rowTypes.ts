@@ -16,16 +16,21 @@ export interface ArcParticipantRow extends GroupedTableGridRow {
   name: string;           // display field - from linked Entry
   type: string;           // display field - from linked Entry
   notes: string;
+  draggableId?: string;   // UI-only field - UUID for drag operations
+  dragTooltip?: string;   // UI-only field
 }
 
 export interface ArcMonsterRow extends GroupedTableGridRow {
   name: string;           // display field - from linked Actor
   notes: string;
+  draggableId?: string;   // UI-only field - UUID for drag operations
+  dragTooltip?: string;   // UI-only field
 }
 
 export interface ArcItemRow extends GroupedTableGridRow {
   name: string;           // display field - from linked Item document
   notes: string;
+  draggableId?: string;   // UI-only field - UUID for drag operations
   dragTooltip?: string;   // UI-only field
 }
 
@@ -68,12 +73,15 @@ export interface SessionNPCRow extends GroupedTableGridRow {
   type: string;           // display field - from linked Entry
   notes: string;
   delivered: boolean;
+  draggableId?: string;   // UI-only field - UUID for drag operations
+  dragTooltip?: string;   // UI-only field
 }
 
 export interface SessionItemRow extends GroupedTableGridRow {
   name: string;           // display field - from linked Item document
   delivered: boolean;
   notes: string;
+  draggableId?: string;   // UI-only field - UUID for drag operations
   dragTooltip?: string;   // UI-only field
 }
 
@@ -82,6 +90,7 @@ export interface SessionMonsterRow extends GroupedTableGridRow {
   number: number;
   delivered: boolean;
   notes: string;
+  draggableId?: string;   // UI-only field - UUID for drag operations
   dragTooltip?: string;   // UI-only field
 }
 
@@ -167,6 +176,8 @@ export interface RelatedEntryRow extends BaseRow {
   topic: string;
   type: string;
   extraFields: Record<string, unknown>;  // relationship-specific fields
+  draggableId?: string;   // UI-only field - UUID for drag operations
+  dragTooltip?: string;   // UI-only field
 }
 
 export interface RelatedDocumentRow extends BaseRow {

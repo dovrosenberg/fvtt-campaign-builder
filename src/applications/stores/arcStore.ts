@@ -38,18 +38,15 @@ export const arcStore = () => {
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],
     [ArcTableTypes.Participant]: [
-      { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onItemClick },
       { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],
     [ArcTableTypes.Monster]: [
-      { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onMonsterClick },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],
     [ArcTableTypes.Item]: [
-      { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onItemClick },
       { field: 'notes', style: 'text-align: left', header: 'Notes', editable: true },
     ],

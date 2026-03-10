@@ -13,6 +13,7 @@
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
     @dragover="DragDropService.standardDragover"
+    @dragstart="onDragStart"
     @cell-edit-complete="onCellEditComplete"
   />
 
@@ -60,6 +61,8 @@
     uuid: string; 
     name: string; 
     type: string;
+    draggableId?: string;
+    dragTooltip?: string;
   };
 
   ////////////////////////////////
@@ -134,7 +137,13 @@
 
   const rows = computed((): RelatedEntryGridRow[] => 
     relatedEntryRows.value.map((item: RelatedEntryDetails<any, any>) => {
-      const base = { uuid: item.uuid, name: item.name, type: item.type };
+      const base = { 
+        uuid: item.uuid, 
+        name: item.name, 
+        type: item.type,
+        draggableId: item.draggableId,
+        dragTooltip: item.dragTooltip,
+      };
 
       extraColumns.value.forEach((field) => {
         base[field.field] = item.extraFields[field.field];
@@ -159,6 +168,7 @@
   const columns = computed((): BaseTableColumn[] => {
     // they all have some standard columns
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+    const dragColumn = { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' };
     const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick }; 
     const typeColumn = { field: 'type', style: 'text-align: left', header: 'Type', sortable: true }; 
     // const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 
@@ -166,6 +176,7 @@
     const columns = {
       [Topics.Character]: [
         actionColumn,
+        dragColumn,
         nameColumn,
         typeColumn,
       ],
@@ -211,6 +222,10 @@
 
   ////////////////////////////////
   // event handlers
+  const onDragStart = async (event: DragEvent, actorId: string) => {
+    await DragDropService.actorDragStart(event, actorId);
+  };
+
   const onAddItemClick = () => {
     addDialogShow.value = true;
   };

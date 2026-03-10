@@ -128,6 +128,8 @@ export function useSessionDerivedState(): SessionDerivedState {
             type: entry.type,
             notes: item.notes || '',
             groupId: item.groupId,
+            draggableId: entry.actors?.[0],
+            dragTooltip: entry.actors?.length > 0 ? localize('tooltips.dragToScene') : undefined,
           });
         }
 
@@ -155,7 +157,8 @@ export function useSessionDerivedState(): SessionDerivedState {
               number: item.number,
               notes: item.notes || '',
               name: entry.name,
-              dragTooltip: localize('tooltips.dragMonsterFromSession'),
+              draggableId: item.uuid,
+              dragTooltip: localize('tooltips.dragToScene'),
             });
           } else {
             // the actor was deleted - remove it from our session
@@ -185,6 +188,7 @@ export function useSessionDerivedState(): SessionDerivedState {
               delivered: item.delivered,
               name: entry.name,
               notes: item.notes || '',
+              draggableId: item.uuid,
               dragTooltip: localize('tooltips.dragItemFromSession'),
               groupId: item.groupId,
             });

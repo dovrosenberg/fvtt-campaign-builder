@@ -29,7 +29,6 @@ Dependencies
     :add-button-label="localize('labels.session.addItem')"
     :extra-add-text="localize('labels.session.addItemDrag')"
     :allow-edit="true"
-    :draggable-rows="true"
     :grouped="isGrouped"
     :groups="itemGroups"
     :help-text="localize('labels.session.itemHelpText')"
@@ -135,12 +134,13 @@ Dependencies
   
   const columns = computed((): BaseTableColumn[] => {
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+    const dragColumn = { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' };
 
     const extraFields = props.arcMode 
       ? arcStore.extraFields[ArcTableTypes.Item]
       : sessionStore.extraFields[SessionTableTypes.Item];
 
-    return [ actionColumn, ...extraFields];
+    return [ actionColumn, dragColumn, ...extraFields];
   });
 
   const actions = computed(() => {

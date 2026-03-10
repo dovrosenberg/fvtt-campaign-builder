@@ -279,14 +279,15 @@
           <!-- DRAG HANDLE (FOR DRAGGING ELSEWHERE) -->
           <div v-else-if="field === 'drag'">
             <div
-              v-if="!isPlaceholderRow(data.uuid)"
+              v-if="!isPlaceholderRow(data.uuid) && data.draggableId"
               :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
+              :data-tooltip="data.dragTooltip"
             >
               <div 
                 class="fcb-drag-handle" 
                 draggable="true"
-                @dragstart="onDragstart($event, data.uuid)"
+                @dragstart="onDragstart($event, data.draggableId)"
               >
                 <i class="fas fa-bars"></i>
               </div>
@@ -478,6 +479,7 @@
       type: Boolean,
       default: false,
     },
+    /** can rows be dragged around to reorder them (prevents sorting by column headers) */
     canReorder: {
       type: Boolean,
       default: true,
@@ -498,12 +500,6 @@
     actions: {
       type: Array as PropType<ActionButtonDefinition[]>,
       default: [],
-    },
-    // can a row be dragged to the canvas/other places in Foundry
-    draggableRows: {
-      type: Boolean,
-      required: false,
-      default: false,
     },
     // displays an info icon with this tooltip
     helpText: {   

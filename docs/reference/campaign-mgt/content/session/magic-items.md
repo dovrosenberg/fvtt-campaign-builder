@@ -35,6 +35,9 @@ Click on the notes field to edit it.  Press Enter to save or Escape to cancel. S
 ### Moveable
 You can reorder the magic item list by dragging the handle on the left side of each row to move rows up and down.
 
+### Drag to Foundry
+A drag handle appears in the drag column for each Magic Item. Drag this handle to drop the Item onto an Actor's inventory in Foundry.
+
 ### Magic Item Actions
 The actions column lets you take several actions with the Magic Item entries:
   - **Delete** - Delete the Magic Item.  This removes it from the Session list, but DOES NOT delete the Item from Foundry.

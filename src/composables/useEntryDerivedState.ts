@@ -7,8 +7,10 @@ import { ref, watch, computed, type InjectionKey, type Ref, type ComputedRef } f
 
 // local imports
 import { useContentState } from '@/composables/useContentState';
+import { localize } from '@/utils/game';
 
 // types
+import { Entry } from '@/classes';
 import {
   Topics,
   RelatedEntryDetails,
@@ -117,7 +119,24 @@ export function useEntryDerivedState(): EntryDerivedState {
       }
 
       if (topic !== Topics.None) {
-        relatedEntryRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]!) : [];
+        // Get the raw relationship data
+        const rawRows = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]!) : [];
+        
+        // For character entries, load actors for drag functionality
+        if (topic === Topics.Character) {
+          const enrichedRows = await Promise.all(rawRows.map(async (row) => {
+            const entry = await Entry.fromUuid(row.uuid);
+            const draggableId = entry?.actors?.[0];
+            return {
+              ...row,
+              draggableId,
+              dragTooltip: draggableId ? localize('tooltips.dragToScene') : undefined,
+            };
+          }));
+          relatedEntryRows.value = enrichedRows;
+        } else {
+          relatedEntryRows.value = rawRows;
+        }
         relatedDocumentRows.value = [];
       } else if (currentDocumentType.value === DocumentLinkType.Scenes) {
         relatedEntryRows.value = [];
