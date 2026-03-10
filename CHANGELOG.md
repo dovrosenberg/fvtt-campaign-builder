@@ -20,6 +20,7 @@
 - The "To-Do" button in play mode now pops up a dialog for you to quickly record a to-do item, instead of just bringing you to the campaign's To-Do tab.  There's also a keyboard shortcut to quickly add a to-do (Shift-Alt-T by default).  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/play-mode/session-links))
 - You can now drag a character row (from an entry related characters tab, the arc participants tab, or the session NPCs tab) into Foundry, as long as that character has at least one Actor attached to it.  This will be the equivalent of doing a drag with the 1st Actor in the associated actors list.  This makes it easy, for example, to drag an NPC from the session's NPC list right to the current scene.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/session/npcs#drag-to-scene))
 - Fixed a bug where adding monster names were missing in the Arc monster list.
+- Fixed a bug where AI text generation on custom fields wasn't working.
 
 ## 1.9.3 - Changelog distribution
 ![](https://img.shields.io/badge/release%20date-February%2028%2C%202026-blue)

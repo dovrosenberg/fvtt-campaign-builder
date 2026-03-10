@@ -96,6 +96,7 @@
   import { nameStyles } from '@/utils/nameStyles';
   import { promptReplace } from '@/utils/generation';
   import { replaceUUIDsInText } from '@/utils/sanitizeHtml';
+  import { FCBDialog } from '@/dialogs';
 
   // library components
   import InputText from 'primevue/inputtext';
