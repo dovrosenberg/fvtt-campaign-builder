@@ -13,8 +13,6 @@ When in play mode, an extra row of buttons appears at the top of the Campaign Bu
 
 ![Session links](/assets/images/session-buttons.webp)
 
-Clicking the "To-Do" button will open the [To-do list](/reference/campaign-mgt/content/campaign/todos) for the Current Session's campaign.
+Clicking the "To-Do" button will open a quick dialog box where you can enter text for an item that will then be added to the [To-do list](/reference/campaign-mgt/content/campaign/todos) for the Current Session's campaign.
 
-Clicking any other button will switch to the corresponding tab in the Current Session, regardless of what you have open in the Campaign Builder.  
-
-In both cases, if the Session/Campaign is already open, it will use the existing tab rather than creating a new one.
+Clicking any other button will switch to the corresponding tab in the Current Session, regardless of what you have open in the Campaign Builder.  If the Session is already open, it will use the existing tab rather than creating a new one.

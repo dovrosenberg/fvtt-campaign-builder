@@ -22,6 +22,7 @@ Other typical Foundry keybindings exist - primarily in the editors (ex. Ctrl-Z t
 | **Alt+Left**  | Move one tab to the left |
 | **Alt+Right** | Move one tab to the right |
 | **Ctrl+Shift+Z** | Open/Close the Campaign Builder window |
+| **Alt+Shift+T** | Create a new Campaign To Do item |
 
 <!-- ### Content Management
 | Shortcut | Action | Description |
