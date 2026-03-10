@@ -215,7 +215,7 @@ export const campaignDirectoryStore = () => {
     }
     
     // confirm
-    if (!external && !(await FCBDialog.confirmDialog('Delete session?', 'Are you sure you want to delete this session?')))
+    if (!external && !(await FCBDialog.confirmDialog(localize('dialogs.deleteSession.title'), localize('dialogs.deleteSession.message'))))
       return false;
   
     // Find the affected arc before deleting
@@ -252,7 +252,7 @@ export const campaignDirectoryStore = () => {
       throw new Error('Bad front in campaignDirectoryStore.deleteFront()');
 
     // confirm
-    if (!external && !(await FCBDialog.confirmDialog('Delete front?', 'Are you sure you want to delete this front?')))
+    if (!external && !(await FCBDialog.confirmDialog(localize('dialogs.deleteFront.title'), localize('dialogs.deleteFront.message'))))
       return false;
   
     await front.delete(external);
@@ -280,7 +280,7 @@ export const campaignDirectoryStore = () => {
       throw new Error('Bad story web in campaignDirectoryStore.deleteStoryWeb()');
 
     // confirm
-    if (!external && !(await FCBDialog.confirmDialog('Delete story web?', 'Are you sure you want to delete this story web?')))
+    if (!external && !(await FCBDialog.confirmDialog(localize('dialogs.deleteStoryWeb.title'), localize('dialogs.deleteStoryWeb.message'))))
       return false;
   
     await storyWeb.delete(external);

@@ -7,6 +7,7 @@ import { storeToRefs, } from 'pinia';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import { createGroupedTableStores } from '@/composables/createGroupedTableStores';
+import { localize } from '@/utils/game';
 
 // types
 import {
@@ -100,7 +101,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.deleteLocation()');
 
     // confirm
-    if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete location?', 'Are you sure you want to delete this location? This will not impact the associated Setting Location')))
+    if (!skipConfirm && !(await FCBDialog.confirmDialog(localize('dialogs.deleteLocation.title'), localize('dialogs.deleteLocation.message'))))
       return false;
 
     await currentArc.value.deleteLocation(uuid);
@@ -164,7 +165,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.deleteParticipant()');
 
     // confirm
-    if (!skipConfirm && !(await FCBDialog.confirmDialog('Delete participant?', 'Are you sure you want to delete this participant? This will not impact the associated entry')))
+    if (!skipConfirm && !(await FCBDialog.confirmDialog(localize('dialogs.deleteParticipant.title'), localize('dialogs.deleteParticipant.message'))))
       return false;
 
     await currentArc.value.deleteParticipant(uuid);
@@ -257,7 +258,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.deleteLore()');
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete lore?', 'Are you sure you want to delete this lore?')))
+    if (!(await FCBDialog.confirmDialog(localize('dialogs.deleteLore.title'), localize('dialogs.deleteLore.message'))))
       return false;
 
     await currentArc.value.deleteLore(uuid);
@@ -301,7 +302,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.deleteVignette()');
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete vignette?', 'Are you sure you want to delete this vignette?')))
+    if (!(await FCBDialog.confirmDialog(localize('dialogs.deleteVignette.title'), localize('dialogs.deleteVignette.message'))))
       return false;
 
     await currentArc.value.deleteVignette(uuid);
@@ -397,7 +398,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.deleteMonster()');
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete monster?', 'Are you sure you want to delete this monster?')))
+    if (!(await FCBDialog.confirmDialog(localize('dialogs.deleteMonster.title'), localize('dialogs.deleteMonster.message'))))
       return false;
 
     await currentArc.value.deleteMonster(uuid);
@@ -484,7 +485,7 @@ export const arcStore = () => {
       throw new Error('Invalid arc in arcStore.deleteItem()');
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete item?', 'Are you sure you want to delete this item?')))
+    if (!(await FCBDialog.confirmDialog(localize('dialogs.deleteItem.title'), localize('dialogs.deleteItem.message'))))
       return false;
 
     await currentArc.value.deleteItem(uuid);
@@ -598,7 +599,7 @@ export const arcStore = () => {
       return false;
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete Idea?', 'Are you sure you want to delete this idea?')))
+    if (!(await FCBDialog.confirmDialog(localize('dialogs.deleteIdea.title'), localize('dialogs.deleteIdea.message'))))
       return false;
 
     await currentArc.value.deleteIdea(uuid);

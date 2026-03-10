@@ -409,7 +409,7 @@
 
     // if there's already a value there, confirm that user wants to overwrite
     if (values[field.name]) {
-      if (!(await FCBDialog.confirmDialog('Overwrite field?', `Are you sure you want to overwrite ${field.label} with new text?`)))
+      if (!(await FCBDialog.confirmDialog(localize('dialogs.overwriteField.title'), localize('dialogs.overwriteField.message', { field: field.label }))))
         return;
     }
     

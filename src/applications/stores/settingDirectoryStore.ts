@@ -426,7 +426,7 @@ export const settingDirectoryStore = () => {
       return false;
 
     // confirm
-    if (!external && !(await FCBDialog.confirmDialog('Delete setting?', 'Are you sure you want to delete this setting?')))
+    if (!external && !(await FCBDialog.confirmDialog(localize('dialogs.deleteSetting.title'), localize('dialogs.deleteSetting.message'))))
       return false;
     
     await setting.delete(external);

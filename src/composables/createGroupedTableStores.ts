@@ -181,7 +181,7 @@ export function createGroupedTableStores<Entity extends FCBJournalEntryPage<any>
         if (!entity.value || !groupId) return;
 
         // confirm
-        if (!(await FCBDialog.confirmDialog('Delete group?', 'Are you sure you want to delete this group? All items will be put in \'Ungrouped\'')))
+        if (!(await FCBDialog.confirmDialog(localize('dialogs.deleteGroup.title'), localize('dialogs.deleteGroup.message'))))
           return;
 
         // Remove the group

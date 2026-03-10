@@ -971,6 +971,65 @@
         "dangerDescription": "Select Participants to add to/remove from this Danger based on your changes.",
         "addedItems": "New References Found",
         "removedItems": "References Removed"
+      },
+      "overwriteField": {
+        "title": "Overwrite field?",
+        "message": "Are you sure you want to overwrite {field} with new text?"
+      },
+      "deleteGroup": {
+        "title": "Delete group?",
+        "message": "Are you sure you want to delete this group? All items will be put in 'Ungrouped'"
+      },
+      "deleteSetting": {
+        "title": "Delete setting?",
+        "message": "Are you sure you want to delete this setting?"
+      },
+      "deleteLocation": {
+        "title": "Delete location?",
+        "message": "Are you sure you want to delete this location? This will not impact the associated Setting Location"
+      },
+      "deleteParticipant": {
+        "title": "Delete participant?",
+        "message": "Are you sure you want to delete this participant? This will not impact the associated entry"
+      },
+      "deleteLore": {
+        "title": "Delete lore?",
+        "message": "Are you sure you want to delete this lore?"
+      },
+      "deleteVignette": {
+        "title": "Delete vignette?",
+        "message": "Are you sure you want to delete this vignette?"
+      },
+      "deleteMonster": {
+        "title": "Delete monster?",
+        "message": "Are you sure you want to delete this monster?"
+      },
+      "deleteItem": {
+        "title": "Delete item?",
+        "message": "Are you sure you want to delete this item?"
+      },
+      "deleteIdea": {
+        "title": "Delete idea?",
+        "message": "Are you sure you want to delete this idea?"
+      },
+      "deleteNPC": {
+        "title": "Delete NPC?",
+        "message": "Are you sure you want to delete this NPC? This will not impact the associated Character"
+      },
+      "deleteSession": {
+        "title": "Delete session?",
+        "message": "Are you sure you want to delete this session?"
+      },
+      "deleteFront": {
+        "title": "Delete front?",
+        "message": "Are you sure you want to delete this front?"
+      },
+      "deleteStoryWeb": {
+        "title": "Delete story web?",
+        "message": "Are you sure you want to delete this story web?"
+      },
+      "createEntryTitle": {
+        "title": "Create {topic}"
       }
     },
     "contextMenus": {

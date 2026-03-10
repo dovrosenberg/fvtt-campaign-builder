@@ -134,7 +134,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
 
     let nameToUse: string | null = options.name || '';
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await FCBDialog.inputDialog(`Create ${topicText}`, promptText);
+      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createEntryTitle.title', { topic: topicText }), promptText);
     }  
     
     // if name is null, then we cancelled the dialog
