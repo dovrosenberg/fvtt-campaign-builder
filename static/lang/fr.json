@@ -933,6 +933,65 @@
       "selectCampaign": {
         "title": "Sélectionner une campagne",
         "prompt": "À quelle campagne cette tâche doit-elle être ajoutée ?"
+      },
+      "overwriteField": {
+        "title": "Écraser le champ ?",
+        "message": "Êtes-vous sûr de vouloir écraser {field} avec un nouveau texte ?"
+      },
+      "deleteGroup": {
+        "title": "Supprimer le groupe ?",
+        "message": "Êtes-vous sûr de vouloir supprimer ce groupe ? Tous les éléments seront placés dans 'Non groupé'"
+      },
+      "deleteSetting": {
+        "title": "Supprimer le paramètre ?",
+        "message": "Êtes-vous sûr de vouloir supprimer ce paramètre ?"
+      },
+      "deleteLocation": {
+        "title": "Supprimer l'emplacement ?",
+        "message": "Êtes-vous sûr de vouloir supprimer cet emplacement ? Cela n'affectera pas l'emplacement de paramètre associé"
+      },
+      "deleteParticipant": {
+        "title": "Supprimer le participant ?",
+        "message": "Êtes-vous sûr de vouloir supprimer ce participant ? Cela n'affectera pas l'entrée associée"
+      },
+      "deleteLore": {
+        "title": "Supprimer le savoir ?",
+        "message": "Êtes-vous sûr de vouloir supprimer ce savoir ?"
+      },
+      "deleteVignette": {
+        "title": "Supprimer la vignette ?",
+        "message": "Êtes-vous sûr de vouloir supprimer cette vignette ?"
+      },
+      "deleteMonster": {
+        "title": "Supprimer le monstre ?",
+        "message": "Êtes-vous sûr de vouloir supprimer ce monstre ?"
+      },
+      "deleteItem": {
+        "title": "Supprimer l'objet ?",
+        "message": "Êtes-vous sûr de vouloir supprimer cet objet ?"
+      },
+      "deleteIdea": {
+        "title": "Supprimer l'idée ?",
+        "message": "Êtes-vous sûr de vouloir supprimer cette idée ?"
+      },
+      "deleteNPC": {
+        "title": "Supprimer le PNJ ?",
+        "message": "Êtes-vous sûr de vouloir supprimer ce PNJ ? Cela n'affectera pas le personnage associé"
+      },
+      "deleteSession": {
+        "title": "Supprimer la session ?",
+        "message": "Êtes-vous sûr de vouloir supprimer cette session ?"
+      },
+      "deleteFront": {
+        "title": "Supprimer le front ?",
+        "message": "Êtes-vous sûr de vouloir supprimer ce front ?"
+      },
+      "deleteStoryWeb": {
+        "title": "Supprimer le réseau d'histoires ?",
+        "message": "Êtes-vous sûr de vouloir supprimer ce réseau d'histoires ?"
+      },
+      "createEntryTitle": {
+        "title": "Créer {topic}"
       }
     },
     "contextMenus": {
@@ -1085,7 +1144,6 @@
         "7": "Toile de l'histoire",
         "8": "Résultats des tags"
       },
-      "dragActorFromEntry": "Glisser vers la scène",
       "addToASession": "Ajouter à une session",
       "sessionUnavailable": "Aucune campagne avec une session active, ou cette entrée est déjà attachée à toutes",
       "createEntry": {
@@ -1128,7 +1186,8 @@
       "openFoundryActor": "Ouvrir l'acteur de la fonderie",
       "openFoundryScene": "Ouvrir la scène de la fonderie",
       "noActorsAttached": "Aucun acteur attaché",
-      "noScenesAttached": "Aucune scène attachée"
+      "noScenesAttached": "Aucune scène attachée",
+      "dragToScene": "Faites glisser vers la scène"
     },
     "notifications": {
       "backend": {
