@@ -43,6 +43,15 @@ Click "Add actor" to select a Foundry actor and connect it to the Character.
 
 You can also drag and drop Foundry actors from Foundry VTT onto the box at the top to make the connection.  
 
+#### Tag-based Actor Association
+If you've configured [Association Tags](/reference/configuration/association-tags) to link tags to actors, any matching tags on the Character will automatically show the associated actor in this tab. This provides a convenient way to automatically connect actors based on tags.
+
+When the Actors tab is empty and a tag has an actor association:
+- An info message displays showing which tag created the association
+- The associated actor appears and can be dragged onto scenes
+
+If you manually add actors, the tag-associated actor won't be displayed separately because it won't be applied -- it is overriden by the manual entries (though the tag color will still show in the tag list).
+
 #### The actor list
 For each actor, you can see it's name and whether it is in the current Foundry world or inside a compendium.  You can click the actor name to open its character sheet.  
 

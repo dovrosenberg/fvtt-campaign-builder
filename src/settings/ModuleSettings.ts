@@ -309,11 +309,19 @@ export class ModuleSettings {
     {
       settingID: SettingKey.tabVisibilityMenu,
       name: 'settings.tabVisibility',
-      label: 'fcb.settings.tabVisibilityLabel',
+      label: 'fcb.settings.tabVisibilityLabel',  // localized by Foundry
       hint: 'settings.tabVisibilityHelp',
       icon: 'fa-solid fa-folder-tree',
       permissions: ['SETTINGS_WRITE'],
       type: TabVisibilitySettingsApplication,
+    },
+    {
+      settingID: SettingKey.associationTagsMenu,
+      name: 'settings.associationTags',
+      label: 'fcb.settings.associationTagsLabel',  // localized by Foundry
+      hint: 'settings.associationTagsHelp',
+      icon: 'fa-solid fa-tags',
+      type: AssociationTagsApplication,
     },
     {
       settingID: SettingKey.importExportMenu,
@@ -322,14 +330,6 @@ export class ModuleSettings {
       hint: 'settings.importExportHelp',
       icon: 'fa-solid fa-file-import',
       type: ImportExportApplication,
-    },
-    {
-      settingID: SettingKey.associationTagsMenu,
-      name: 'settings.associationTags',
-      label: 'fcb.settings.associationTagsLabel',
-      hint: 'settings.associationTagsHelp',
-      icon: 'fa-solid fa-tags',
-      type: AssociationTagsApplication,
     },
   ];
 

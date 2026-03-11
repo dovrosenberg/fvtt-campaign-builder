@@ -40,5 +40,12 @@ Click "Add scene" to select a Foundry scene and connect it to the location.
 
 You can also drag and drop Foundry scenes from Foundry VTT onto the box at the top to make the connection.  
 
+#### Tag-based Scene Association
+If you've configured [Association Tags](/reference/configuration/association-tags) to link tags to scenes, any matching tags on the Location will automatically show the associated scene in this tab. This provides a convenient way to automatically connect scenes based on tags.
+
+When the Scenes tab is empty and a tag has a scene association:
+- An info message displays showing which tag created the association
+- The associated scene appears and can be clicked to open its configuration or right-clicked to get the same options you get in the list below.
+
 #### The scene list
 For each scene, you can see its name and whether it is in the current Foundry world or inside a compendium.  You can click the scene name to open the scene settings window.  You can right-click on a scene to get the same set of options you have when right-clicking a scene in the Foundry sidebar.

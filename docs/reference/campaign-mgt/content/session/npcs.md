@@ -30,6 +30,9 @@ You can reorder the NPC list by dragging the handle on the left side of each row
 ### Drag to Scene {#drag-to-scene}
 If a Character has associated [Actors](/reference/world-building/content/character/#actors), a drag handle will appear in the drag column. Drag this handle to drop the top actor in the list onto a scene (or anywhere else) in Foundry.
 
+#### Tag-associated Actors
+If a Character has no manually-added actors but has a [tag associated with an actor](/reference/configuration/association-tags), the row will still be draggable as if it had a manually-added Actor.
+
 ::: info TIP
 When your players encounter an NPC, click on it to open up the details page, where you can get information for describing it.  From there, you can then use the [Actors tab](/reference/world-building/content/character/#actors) to immediately find an associated actors and open their character sheets or drag them right onto the scene in Foundry.
 

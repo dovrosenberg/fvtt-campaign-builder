@@ -37,5 +37,6 @@ next:
 - [Story Web Connections](./story-webs.md) - Configure colors and line styles for Story Web connections
 - [Table Grouping](./table-grouping.md) - Enable/disable table grouping for specific content tabs
 - [Tab Visibility](./tab-visibility.md) - Control which tabs are visible for each content type
+- [Association Tags](./association-tags.md) - Link tags to Foundry actors and scenes for automatic association
 - [Import/Export](./import-export.md) - Export all Campaign Builder data to a file or import from a previous export (i.e backup your data or copy it into a new Foundry world)
 

@@ -11,6 +11,7 @@
         :draggable="props.documentLinkType === DocumentLinkType.Actors"
         :data-tooltip="docNameTooltip"
         @click="onTagAssociatedDocClick"
+        @contextmenu="onTagAssociatedDocContextMenu"
         @dragstart="onTagAssociatedDocDragStart"
         @dragend="DragDropService.dragEnd"
       >
@@ -89,7 +90,7 @@
   ////////////////////////////////
   // data
   const showPicker = ref<boolean>(false);
-  const tagAssociatedDoc = ref<{ uuid: string; name: string } | null>(null);
+  const tagAssociatedDoc = ref<{ uuid: string; name: string; packId?: string | null } | null>(null);
     
   ////////////////////////////////
   // computed data
@@ -192,8 +193,8 @@
     if (props.documentLinkType !== DocumentLinkType.Actors && props.documentLinkType !== DocumentLinkType.Scenes)
       return null;
 
-    // Don't show if there are manually-added documents
-    if (rows.value.length > 0)
+    // Don't show on actors if there are manually-added documents
+    if (props.documentLinkType === DocumentLinkType.Actors && rows.value.length > 0)
       return null;
 
     const entry = currentEntry.value;
@@ -222,7 +223,7 @@
       // Load the document info for display
       foundry.utils.fromUuid(tag.uuid).then((doc: foundry.abstract.Document | null) => {
         if (doc) {
-          tagAssociatedDoc.value = { uuid: tag.uuid, name: doc.name || 'Unknown' };
+          tagAssociatedDoc.value = { uuid: tag.uuid, name: doc.name || 'Unknown', packId: doc.pack };
         }
       });
 
@@ -285,33 +286,16 @@
   };
 
   /**
-   * Handle drag start on tag-associated actor name - start Foundry actor drag.
+   * Show the scene context menu at the specified position.
    */
-  const onTagAssociatedDocDragStart = async (event: DragEvent) => {
-    if (!tagAssociatedDoc.value || props.documentLinkType !== DocumentLinkType.Actors)
-      return;
+  const showSceneContextMenu = (event: MouseEvent, data: { uuid: string; packId?: string | null }) => {
+    event.preventDefault();
+    event.stopPropagation();
 
-    await DragDropService.actorDragStart(event, tagAssociatedDoc.value.uuid);
-  };
-
-  const onRowContextMenu = async (event: DataTableRowContextMenuEvent): Promise<boolean> => {
-    const { originalEvent, data } = event;
-    const mouseEvent = originalEvent as MouseEvent;
-
-    //prevent the browser's default menu
-    mouseEvent.preventDefault();
-    mouseEvent.stopPropagation();
-
-    // no menu for actors or generic
-    if (props.documentLinkType!==DocumentLinkType.Scenes) {
-      return false;
-    }
-
-    //show our menu
     ContextMenu.showContextMenu({
       customClass: 'fcb',
-      x: mouseEvent.x,
-      y: mouseEvent.y,
+      x: event.x,
+      y: event.y,
       zIndex: 300,
       items: [
         { 
@@ -357,7 +341,7 @@
           onClick: async () => {
             const scene = await foundry.utils.fromUuid<Scene>(data.uuid);
             if (!scene)
-              throw new Error('Failed to load scene in RelatedDocumentTable.onRowContextMenu()');
+              throw new Error('Failed to load scene in RelatedDocumentTable.showSceneContextMenu()');
             
             if (scene.active) {
               alert(localize('contextMenus.dialogs.cannotToggleNavigationWhileActive'));
@@ -375,7 +359,35 @@
         },
       ]
     });
+  };
 
+  /**
+   * Handle drag start on tag-associated actor name - start Foundry actor drag.
+   */
+  const onTagAssociatedDocDragStart = async (event: DragEvent) => {
+    if (!tagAssociatedDoc.value || props.documentLinkType !== DocumentLinkType.Actors)
+      return;
+
+    await DragDropService.actorDragStart(event, tagAssociatedDoc.value.uuid);
+  };
+
+  /**
+   * Handle right-click on tag-associated scene name - show context menu.
+   */
+  const onTagAssociatedDocContextMenu = (event: MouseEvent) => {
+    if (!tagAssociatedDoc.value || props.documentLinkType !== DocumentLinkType.Scenes)
+      return;
+
+    showSceneContextMenu(event, tagAssociatedDoc.value);
+  };
+
+  const onRowContextMenu = (event: DataTableRowContextMenuEvent): boolean => {
+    // no menu for actors or generic
+    if (props.documentLinkType !== DocumentLinkType.Scenes) {
+      return false;
+    }
+
+    showSceneContextMenu(event.originalEvent as MouseEvent, event.data);
     return true;
   };
 

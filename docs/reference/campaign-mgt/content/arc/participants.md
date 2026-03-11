@@ -35,6 +35,8 @@ You can reorder the participant list by dragging the handle on the left side of 
 ### Drag to Scene {#drag-to-scene}
 If a Character has associated [Actors](/reference/world-building/content/character/#actors), a drag handle will appear in the drag column. Drag this handle to drop the top Actor in the list onto a scene (or anywhere else) in Foundry.
 
+#### Tag-associated Actors
+If a Character has no manually-added actors but has a [tag associated with an actor](/reference/configuration/association-tags), the row will still be draggable as if it had a manually-added Actor.
 
 ### Participant actions
 The actions column lets you take several actions with the Location entries:
