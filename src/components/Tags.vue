@@ -158,9 +158,14 @@
     if (tagInfo.__isValid !== true) 
       return;
 
-    // add to the setting's tags
-    currentSetting.value.addTag(value, color || null);
-    await currentSetting.value.save();
+    // Check if this was a supplemental whitelist - don't add to global tag list
+    const isWhitelistTag = props.whitelistSupplement.includes(value);
+
+    // Only add to the setting's global tags if it's not a whitelist tag
+    if (!isWhitelistTag) {
+      currentSetting.value.addTag(value, color || null);
+      await currentSetting.value.save();
+    }
 
     // trigger reactivity - map to just the string values
     currentValue.value = tagify.value.value.map((t) => t.value);

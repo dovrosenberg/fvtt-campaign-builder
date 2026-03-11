@@ -220,10 +220,11 @@
     const tag = tags[0];
     if (tag.uuid) {
       // Load the document info for display
-      const doc = await foundry.utils.fromUuid(tag.uuid);
-      if (doc) {
-        tagAssociatedDoc.value = { uuid: tag.uuid, name: doc.name || 'Unknown' };
-      }
+      foundry.utils.fromUuid(tag.uuid).then((doc: foundry.abstract.Document | null) => {
+        if (doc) {
+          tagAssociatedDoc.value = { uuid: tag.uuid, name: doc.name || 'Unknown' };
+        }
+      });
 
       const msg = props.documentLinkType === DocumentLinkType.Actors ?
         localize('tags.actorAssociated', { tagName: tag.name }) :
