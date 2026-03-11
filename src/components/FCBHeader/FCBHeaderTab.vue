@@ -5,7 +5,7 @@
     :title="tab.header.name" 
     :data-testid="`header-tab-${tab.id}`"
     @click="onTabClick"
-    @dragstart="onDragStart"
+    @dragstart="onDragstart"
     @drop="onDrop"
     @dragover="DragDropService.standardDragover"
     @contextmenu="onTabContextMenu"
@@ -138,7 +138,7 @@
   // event handlers
 
   // handle a bookmark or tab dragging
-  const onDragStart = (event: DragEvent): void => {
+  const onDragstart = (event: DragEvent): void => {
     const dragData: TabDragData = {
       type: DragDropService.FCBDragTypes.Tab,
       tabId: props.tab.id,

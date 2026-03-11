@@ -17,7 +17,7 @@
         @contextmenu="onSettingContextMenu($event, currentSettingTreeObject.id)"
         @click="onSettingFolderClick($event, currentSettingTreeObject.id)"
         draggable="true"
-        @dragstart="onDragStart($event, currentSettingTreeObject.id, currentSettingTreeObject.name)"
+        @dragstart="onDragstart($event, currentSettingTreeObject.id, currentSettingTreeObject.name)"
       >
         <div class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
@@ -134,7 +134,7 @@
    * @param settingId The UUID of the setting being dragged
    * @param settingName The name of the setting being dragged
    */
-  const onDragStart = async (event: DragEvent, settingId: string, settingName: string): Promise<void> => {
+  const onDragstart = async (event: DragEvent, settingId: string, settingName: string): Promise<void> => {
     event.stopPropagation();
 
     // Create the FCB data

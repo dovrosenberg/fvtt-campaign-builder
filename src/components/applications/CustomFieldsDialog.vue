@@ -399,6 +399,7 @@
   import AppWindowService from '@/utils/appWindow';
   import CustomFieldsService from '@/utils/customFields';
   import { generateIdFromName } from '@/utils/idGeneration';
+  import { notifyError, notifyInfo } from '@/utils/notifications';
 
   // library components
   import DataTable from 'primevue/datatable';
@@ -915,7 +916,7 @@
       r.label = (r.label || '').trim();
 
       if (!r.deleted && !r.label) {
-        ui.notifications?.error(localize('applications.customFields.notifications.missingLabel'));
+        notifyError(localize('applications.customFields.notifications.missingLabel'));
         return false;
       }
 
@@ -1303,7 +1304,7 @@
       await mainStore.refreshCurrentContent();
     }
 
-    ui.notifications?.info(localize('notifications.changesSaved'));
+    notifyInfo(localize('notifications.changesSaved'));
 
     if (indexedToggled.value && currentSetting.value) {
       // Rebuild search index to reflect any changes to which custom fields are searchable.

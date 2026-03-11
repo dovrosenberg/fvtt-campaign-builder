@@ -6,7 +6,7 @@
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick"
-      @dragstart="onDragStart"
+      @dragstart="onDragstart"
       @contextmenu="onEntryContextMenu"
     >
       {{ props.node.name }}
@@ -81,7 +81,7 @@
     await navigationStore.openEntry(props.node.id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
   };
 
-  const onDragStart = async (event: DragEvent): Promise<void> => {
+  const onDragstart = async (event: DragEvent): Promise<void> => {
     event.stopPropagation();
     
     if (!currentSetting.value) { 

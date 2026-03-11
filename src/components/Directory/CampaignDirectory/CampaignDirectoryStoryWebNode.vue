@@ -9,7 +9,7 @@
           :data-testid="`story-web-node-${props.storyWebNode.id}`"
           @click="onStoryWebClick"
           @contextmenu="onStoryWebContextMenu"
-          @dragstart="onDragStart"
+          @dragstart="onDragstart"
         >
           {{ props.storyWebNode.name }}
         </div>
@@ -111,7 +111,7 @@
     });
   };
 
-  const onDragStart = async (event: DragEvent) => {
+  const onDragstart = async (event: DragEvent) => {
     event.stopPropagation();
 
     // Create the FCB data

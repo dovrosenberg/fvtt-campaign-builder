@@ -10,7 +10,7 @@
           :data-tooltip="props.sessionNode.tooltip"
           @click="onSessionClick"
           @contextmenu="onSessionContextMenu"
-          @dragstart="onDragStart"
+          @dragstart="onDragstart"
         >
           {{ props.sessionNode.name }}
         </div>
@@ -76,7 +76,7 @@
   // event handlers
 
   // handle session dragging
-  const onDragStart = async (event: DragEvent): Promise<void> => {
+  const onDragstart = async (event: DragEvent): Promise<void> => {
     event.stopPropagation();
 
     // Create the FCB data

@@ -105,7 +105,7 @@
 
     // handle front dragging
   // TODO - probably need to put drag handlers back in too - see campaign
-  // const onDragStart = (event: DragEvent): void => {
+  // const onDragstart = (event: DragEvent): void => {
   //   event.stopPropagation();
 
   //   const dragData = {

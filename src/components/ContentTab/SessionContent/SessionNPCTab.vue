@@ -15,7 +15,7 @@
     @add-item="showNPCPicker=true"
     @dragoverNew="DragDropService.standardDragover"
     @drop-new="onDropNew"
-    @dragstart="onDragStart"
+    @dragstart="onDragstart"
     @cell-edit-complete="onCellEditComplete"
     @reorder="groupedTable.onReorder"
     @reorder-group="(items) => groupedTable.onReorderGroup(items, npcGroups)"
@@ -132,7 +132,7 @@
 
   ////////////////////////////////
   // event handlers
-  const onDragStart = async (event: DragEvent, actorId: string) => {
+  const onDragstart = async (event: DragEvent, actorId: string) => {
     await DragDropService.actorDragStart(event, actorId);
   };
 

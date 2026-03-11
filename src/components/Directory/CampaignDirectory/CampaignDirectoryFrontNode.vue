@@ -9,7 +9,7 @@
           :data-testid="`session-node-${props.frontNode.id}`"
           @click="onFrontClick"
           @contextmenu="onFrontContextMenu"
-          @dragstart="onDragStart"
+          @dragstart="onDragstart"
         >
           {{ props.frontNode.name }}
         </div>
@@ -73,7 +73,7 @@
   // event handlers
 
   // handle front dragging
-  const onDragStart = async (event: DragEvent): Promise<void> => {
+  const onDragstart = async (event: DragEvent): Promise<void> => {
     event.stopPropagation();
 
     // Create the FCB data

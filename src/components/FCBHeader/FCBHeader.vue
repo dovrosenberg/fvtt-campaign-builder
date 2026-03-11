@@ -69,6 +69,7 @@
   import { localize } from '@/utils/game';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { ModuleSettings, SettingKey } from '@/settings';
+  import { notifyWarn } from '@/utils/notifications';
   
   // library components
 
@@ -349,7 +350,7 @@
 
     // see if a bookmark for the entry already exists
     if (bookmarks.value.find((b) => (b.header.uuid === tab?.header?.uuid)) != undefined) {
-      ui?.notifications?.warn(localize('notifications.duplicateBookmark') || '');
+      notifyWarn(localize('notifications.duplicateBookmark') || '');
       return;
     }
 

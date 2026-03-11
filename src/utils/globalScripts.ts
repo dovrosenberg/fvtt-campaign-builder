@@ -6,6 +6,7 @@ import { DOCUMENT_TYPES } from '@/documents/types';
 import AppWindowService from '@/utils/appWindow';
 import { toRaw } from 'vue';
 import { localize } from './game';
+import { notifyInfo, notifyWarn, notifyError } from './notifications';
 
 
 /**
@@ -100,14 +101,14 @@ const repairAllIndexes = async (settingId?: string): Promise<void> => {
     console.log(`Index repair complete! Successfully repaired ${totalRepaired} settings, ${totalErrors} errors.`);
     
     if (totalErrors > 0) {
-      ui.notifications?.warn(`Index repair completed with ${totalErrors} errors. Check console for details.`);
+      notifyWarn(`Index repair completed with ${totalErrors} errors. Check console for details.`);
     } else {
-      ui.notifications?.info(localize('notifications.documentIndexesRepaired'));
+      notifyInfo(localize('notifications.documentIndexesRepaired'));
     }
     
   } catch (error) {
     console.error('Fatal error during index repair:', error);
-    ui.notifications?.error(localize('notifications.failedToRepairIndexes'));
+    notifyError(localize('notifications.failedToRepairIndexes'));
     throw error;
   }
 };

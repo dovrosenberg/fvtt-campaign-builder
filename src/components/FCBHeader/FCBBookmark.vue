@@ -5,7 +5,7 @@
     draggable="true"
     @click.left="onBookmarkClick"
     @contextmenu="onBookmarkContextMenu"
-    @dragstart="onDragStart"
+    @dragstart="onDragstart"
     @drop="onDrop"
     @dragover="DragDropService.standardDragover"
   >
@@ -115,7 +115,7 @@
   };
 
   // handle a bookmark or tab dragging
-  const onDragStart = (event: DragEvent): void => {
+  const onDragstart = (event: DragEvent): void => {
     // Don't allow dragging session bookmarks
     if (props.bookmark.id.startsWith('session-')) {
       event.preventDefault();

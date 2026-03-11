@@ -17,7 +17,7 @@
           draggable="true"
           :data-testid="`directory-entry-with-children-${currentNode.id}`"
           @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"
-          @dragstart="onDragStart($event, currentNode.id, currentNode.name)"
+          @dragstart="onDragstart($event, currentNode.id, currentNode.name)"
           @drop="onDrop"
           @dragover="DragDropService.standardDragover"
           @contextmenu="onEntryContextMenu"
@@ -140,7 +140,7 @@
 
   
   // handle an entry dragging to another or to canvas
-  const onDragStart = async (event: DragEvent, id: string, name: string): Promise<void> => {
+  const onDragstart = async (event: DragEvent, id: string, name: string): Promise<void> => {
     event.stopPropagation();
     
     if (!currentSetting.value) { 

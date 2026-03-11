@@ -17,7 +17,7 @@
     @add-item="showMonsterPicker=true"
     @drop-new="onDropNew"
     @dragoverNew="DragDropService.standardDragover"
-    @dragstart="onDragStart"
+    @dragstart="onDragstart"
     @cell-edit-complete="onCellEditComplete"
     @reorder="groupedTable.onReorder"
     @reorder-group="(items) => groupedTable.onReorderGroup(items, monsterGroups)"
@@ -228,7 +228,7 @@
     }
   }
 
-  const onDragStart = async (event: DragEvent, uuid: string) => {
+  const onDragstart = async (event: DragEvent, uuid: string) => {
     await DragDropService.actorDragStart(event, uuid);
   }
 

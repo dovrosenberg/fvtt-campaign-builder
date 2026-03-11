@@ -10,7 +10,7 @@
         draggable="true"
         :data-tooltip="props.arcNode.completed ? localize('tooltips.arcComplete') : ''"
         @contextmenu="onArcContextMenu"
-        @dragstart="onDragStart"
+        @dragstart="onDragstart"
       >
         <i
           class="fas fa-folder-open fa-fw"
@@ -108,7 +108,7 @@
   // event handlers
 
   // handle arc dragging
-  const onDragStart = async (event: DragEvent): Promise<void> => {
+  const onDragstart = async (event: DragEvent): Promise<void> => {
     event.stopPropagation();
 
     // Create the FCB data

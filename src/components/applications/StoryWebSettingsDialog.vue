@@ -374,6 +374,7 @@ Dependencies
   import { storyWebSettingsApp } from '@/applications/settings/StoryWebSettingsApplication';
   import { useMainStore } from '@/applications/stores';
   import { LINE_STYLES } from '@/utils/storyWebGeneration';
+  import { notifyError, notifyInfo } from '@/utils/notifications';
 
   // library components
   import { Button, InputText, Select, DataTable, Column } from 'primevue';
@@ -649,17 +650,17 @@ Dependencies
     const customColorSchemeIds = new Set(workingCustomColorSchemes.value.map(s => s.id));
     
     if (colorIds.size !== workingColors.value.length) {
-      ui.notifications?.error(localize('applications.storyWebSettings.notifications.duplicateColorIds'));
+      notifyError(localize('applications.storyWebSettings.notifications.duplicateColorIds'));
       return;
     }
     
     if (styleIds.size !== workingStyles.value.length) {
-      ui.notifications?.error(localize('applications.storyWebSettings.notifications.duplicateStyleIds'));
+      notifyError(localize('applications.storyWebSettings.notifications.duplicateStyleIds'));
       return;
     }
 
     if (customColorSchemeIds.size !== workingCustomColorSchemes.value.length) {
-      ui.notifications?.error(localize('applications.storyWebSettings.notifications.duplicateCustomColorSchemeIds'));
+      notifyError(localize('applications.storyWebSettings.notifications.duplicateCustomColorSchemeIds'));
       return;
     }
     
@@ -703,7 +704,7 @@ Dependencies
     originalCustomColorSchemes.value = JSON.parse(JSON.stringify(workingCustomColorSchemes.value));
     originalFields.value = JSON.parse(JSON.stringify(workingFields.value));
     
-    ui.notifications?.info(localize('notifications.changesSaved'));
+    notifyInfo(localize('notifications.changesSaved'));
     
     // Refresh the current content to update tooltips
     await useMainStore().refreshCurrentContent();

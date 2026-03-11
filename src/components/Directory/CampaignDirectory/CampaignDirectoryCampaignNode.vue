@@ -10,7 +10,7 @@
         draggable="true"
         :data-tooltip="props.campaignNode.completed ? localize('tooltips.campaignComplete') : ''"
         @contextmenu="onCampaignContextMenu"
-        @dragstart="onDragStart"
+        @dragstart="onDragstart"
       >
         <i
           class="fas fa-folder-open fa-fw"
@@ -170,7 +170,7 @@
   // event handlers
 
   // handle campaign dragging
-  const onDragStart = async (event: DragEvent): Promise<void> => {
+  const onDragstart = async (event: DragEvent): Promise<void> => {
     event.stopPropagation();
 
     // Create the FCB data
