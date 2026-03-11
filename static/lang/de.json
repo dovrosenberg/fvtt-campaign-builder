@@ -933,6 +933,65 @@
       "selectCampaign": {
         "title": "Kampagne auswählen",
         "prompt": "Zu welcher Kampagne soll dieses To-do hinzugefügt werden?"
+      },
+      "overwriteField": {
+        "title": "Feld überschreiben?",
+        "message": "Sind Sie sicher, dass Sie {field} mit neuem Text überschreiben möchten?"
+      },
+      "deleteGroup": {
+        "title": "Gruppe löschen?",
+        "message": "Sind Sie sicher, dass Sie diese Gruppe löschen möchten? Alle Elemente werden in 'Nicht gruppiert' verschoben"
+      },
+      "deleteSetting": {
+        "title": "Einstellung löschen?",
+        "message": "Sind Sie sicher, dass Sie diese Einstellung löschen möchten?"
+      },
+      "deleteLocation": {
+        "title": "Ort löschen?",
+        "message": "Sind Sie sicher, dass Sie diesen Ort löschen möchten? Dies wird die zugehörige Einstellungslokation nicht beeinflussen"
+      },
+      "deleteParticipant": {
+        "title": "Teilnehmer löschen?",
+        "message": "Sind Sie sicher, dass Sie diesen Teilnehmer löschen möchten? Dies wird den zugehörigen Eintrag nicht beeinflussen"
+      },
+      "deleteLore": {
+        "title": "Überlieferung löschen?",
+        "message": "Sind Sie sicher, dass Sie diese Überlieferung löschen möchten?"
+      },
+      "deleteVignette": {
+        "title": "Vignette löschen?",
+        "message": "Sind Sie sicher, dass Sie diese Vignette löschen möchten?"
+      },
+      "deleteMonster": {
+        "title": "Monster löschen?",
+        "message": "Sind Sie sicher, dass Sie dieses Monster löschen möchten?"
+      },
+      "deleteItem": {
+        "title": "Gegenstand löschen?",
+        "message": "Sind Sie sicher, dass Sie diesen Gegenstand löschen möchten?"
+      },
+      "deleteIdea": {
+        "title": "Idee löschen?",
+        "message": "Sind Sie sicher, dass Sie diese Idee löschen möchten?"
+      },
+      "deleteNPC": {
+        "title": "NPC löschen?",
+        "message": "Sind Sie sicher, dass Sie diesen NPC löschen möchten? Dies wird den zugehörigen Charakter nicht beeinflussen"
+      },
+      "deleteSession": {
+        "title": "Sitzung löschen?",
+        "message": "Sind Sie sicher, dass Sie diese Sitzung löschen möchten?"
+      },
+      "deleteFront": {
+        "title": "Front löschen?",
+        "message": "Sind Sie sicher, dass Sie diese Front löschen möchten?"
+      },
+      "deleteStoryWeb": {
+        "title": "Story-Web löschen?",
+        "message": "Sind Sie sicher, dass Sie dieses Story-Web löschen möchten?"
+      },
+      "createEntryTitle": {
+        "title": "{topic} erstellen"
       }
     },
     "contextMenus": {
@@ -1085,7 +1144,6 @@
         "7": "Geschichten-Netz",
         "8": "Tag-Ergebnisse"
       },
-      "dragActorFromEntry": "In Szene ziehen",
       "addToASession": "Zu einer Sitzung hinzufügen",
       "sessionUnavailable": "Keine Kampagnen mit einer aktiven Sitzung oder dieser Eintrag ist bereits an alle angehängt",
       "createEntry": {
@@ -1128,7 +1186,8 @@
       "openFoundryActor": "Foundry-Schauspieler öffnen",
       "openFoundryScene": "Foundry-Szene öffnen",
       "noActorsAttached": "Keine Schauspieler angehängt",
-      "noScenesAttached": "Keine Szenen angehängt"
+      "noScenesAttached": "Keine Szenen angehängt",
+      "dragToScene": "In Szene ziehen"
     },
     "notifications": {
       "backend": {
