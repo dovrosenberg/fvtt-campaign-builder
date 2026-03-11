@@ -13,7 +13,7 @@
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
     @dragover="DragDropService.standardDragover"
-    @dragstart="onDragStart"
+    @dragstart="onDragstart"
     @cell-edit-complete="onCellEditComplete"
   />
 
@@ -222,8 +222,9 @@
 
   ////////////////////////////////
   // event handlers
-  const onDragStart = async (event: DragEvent, actorId: string) => {
-    await DragDropService.actorDragStart(event, actorId);
+  const onDragstart = async (event: DragEvent, draggableId: string) => {
+    // related entries only have actors as draggables
+    await DragDropService.actorDragStart(event, draggableId);
   };
 
   const onAddItemClick = () => {

@@ -1,5 +1,5 @@
 import { DOCUMENT_TYPES, } from '@/documents';
-import { RelatedJournal, RelatedEntryDetails, ValidTopic, Topics, ToDoTypes, ValidTopicRecord, TimelineConfig, TIMELINE_DEFAULT, } from '@/types';
+import { RelatedJournal, RelatedEntryDetails, ValidTopic, Topics, ToDoTypes, ValidTopicRecord, TimelineConfig, TIMELINE_DEFAULT, FoundryTag, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder,  } from '@/classes';
@@ -9,6 +9,7 @@ import { useMainStore, usePlayingStore, useSettingDirectoryStore } from '@/appli
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import CleanKeysService from '@/utils/cleanKeys';
+import { ModuleSettings, SettingKey } from '@/settings';
 
 export interface CreateEntryOptions { 
   name?: string; 
@@ -210,6 +211,22 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   set tags(value: string[]) {
     // @ts-ignore
     this._clone.system.tags = value;
+  }
+
+  /**
+   * Gets all actor/scene tags applied to this entry.
+   * 
+   * @returns An array of FoundryTags that match the entry's tags.
+   */
+  public getFoundryTags(settingKey: SettingKey.actorTags | SettingKey.sceneTags): FoundryTag[] {
+    const tags = ModuleSettings.get(settingKey);
+
+    if (!tags || tags.length === 0 || !this.tags || this.tags.length === 0)
+      return [];
+      
+    return tags.filter(t => 
+      this.tags.some(et => et.toLowerCase() === t.name.toLowerCase())
+    );
   }
 
   get playerName(): string {

@@ -544,7 +544,7 @@
     (e: 'moveToNextSession', uuid: string): void;
 
     /** Start of a drag into foundry */
-    (e: 'dragstart', event: DragEvent, uuid: string): void;
+    (e: 'dragstart', event: DragEvent, draggableId: string): void;
 
     /** Dragging something external over a new drop zone */
     (e: 'dragoverNew', event: DragEvent): void;
@@ -1011,13 +1011,17 @@
     setEditingRow(uuid);
   };
   
-  /** For dragging a row into Foundry */
-  const onDragstart = (event: DragEvent, uuid: string) => {
-    if (!event.target || !uuid) return;
+  /** For dragging a row into Foundry 
+   * 
+   * @param event - The drag event
+   * @param draggableId - The Foundry document UUID to be dropped
+   */
+  const onDragstart = (event: DragEvent, draggableId: string) => {
+    if (!event.target || !draggableId) return;
 
     // Emit the dragstart event with the uuid
     // This lets the parent component handle the drag data
-    emit('dragstart', event, uuid);
+    emit('dragstart', event, draggableId);
   };
 
   const onDragoverNew = (event: DragEvent) => {

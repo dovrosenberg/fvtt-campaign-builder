@@ -17,6 +17,7 @@
 
   // local imports
   import { useMainStore } from "@/applications/stores";
+  import { ModuleSettings, SettingKey } from "@/settings";
 
   // library components
   import Tagify from "@yaireo/tagify"
@@ -45,6 +46,10 @@
     modelValue: {
       type: Array as PropType<string[]>,
       required: true,
+    },
+    whitelistSupplement: {
+      type: Array as PropType<string[]>,
+      default: () => [],
     },
   });
 
@@ -80,11 +85,30 @@
 
   // generate a random color
   const transformTag = ( tagData: TagData ) => {
+    // First check actor tags for a color
+    const actorTags = ModuleSettings.get(SettingKey.actorTags);
+    const actorTag = actorTags.find((t: { name: string; color: string }) => t.name.toLowerCase() === tagData.value.toLowerCase());
+    if (actorTag?.color) {
+      tagData.color = actorTag.color;
+      tagData.style = "--tag-bg:" + tagData.color;
+      return;
+    }
+
+    // Then check scene tags for a color
+    const sceneTags = ModuleSettings.get(SettingKey.sceneTags);
+    const sceneTag = sceneTags.find((t: { name: string; color: string }) => t.name.toLowerCase() === tagData.value.toLowerCase());
+    if (sceneTag?.color) {
+      tagData.color = sceneTag.color;
+      tagData.style = "--tag-bg:" + tagData.color;
+      return;
+    }
+
+    // Then check the setting's tag list
     if (!tagList.value)
       return;
 
     // see if there's a color
-    tagData.color = tagList.value[tagData.value]?.color;
+    tagData.color = tagList.value[tagData.value]?.color || undefined;
     
     // only change it if it doesn't already have a color
     if (!tagData.color) {
@@ -99,13 +123,20 @@
   }
 
   const getWhitelist = (): string[] => {
-    const whitelist = [] as string[];
+    const whitelist = new Set<string>();
+    
+    // Add tags from the setting's tag list
     for (const tag in tagList.value) {
-      if (tagList.value[tag].count > 0)  // make sure count > 0
-        whitelist.push(tag);
+      if (tagList.value[tag].count > 0)
+        whitelist.add(tag);
     }
 
-    return whitelist;
+    // Add any supplemental tags passed from parent
+    for (const tag of props.whitelistSupplement) {
+      whitelist.add(tag);
+    }
+
+    return Array.from(whitelist);
   }
 
 

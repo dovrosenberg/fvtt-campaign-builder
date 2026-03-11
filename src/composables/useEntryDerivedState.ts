@@ -8,6 +8,7 @@ import { ref, watch, computed, type InjectionKey, type Ref, type ComputedRef } f
 // local imports
 import { useContentState } from '@/composables/useContentState';
 import { localize } from '@/utils/game';
+import { SettingKey } from '@/settings';
 
 // types
 import { Entry } from '@/classes';
@@ -126,7 +127,8 @@ export function useEntryDerivedState(): EntryDerivedState {
         if (topic === Topics.Character) {
           const enrichedRows = await Promise.all(rawRows.map(async (row) => {
             const entry = await Entry.fromUuid(row.uuid);
-            const draggableId = entry?.actors?.[0];
+            // Use manual actor if present, otherwise fall back to tag-associated actor
+            const draggableId = entry?.actors?.[0] || entry?.getFoundryTags(SettingKey.actorTags)?.[0]?.uuid || undefined;
             return {
               ...row,
               draggableId,

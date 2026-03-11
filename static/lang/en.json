@@ -96,7 +96,10 @@
       "tabVisibilityHelp": "Configure which tabs are visible for each content type",
       "importExport": "Import/Export Module Data",
       "importExportLabel": "Import/Export Module Data",
-      "importExportHelp": "Export all module data to a file or import from a previous export"
+      "importExportHelp": "Export all module data to a file or import from a previous export",
+      "associationTags": "Association Tags",
+      "associationTagsLabel": "Configure Association Tags",
+      "associationTagsHelp": "Configure tags that are associated with actors (for characters) and scenes (for locations)"
     },
     "applications": {
       "sessionNotes": {
@@ -318,6 +321,30 @@
           "duplicateColorIds": "Color IDs must be unique",
           "duplicateStyleIds": "Style IDs must be unique",
           "duplicateCustomColorSchemeIds": "Custom color scheme IDs must be unique"
+        }
+      },
+      "associationTags": {
+        "title": "Configure Association Tags",
+        "tabs": {
+          "characters": "Characters",
+          "locations": "Locations"
+        },
+        "columns": {
+          "name": "Tag Name",
+          "color": "Color",
+          "actor": "Associated Actor",
+          "scene": "Associated Scene"
+        },
+        "labels": {
+          "add": "Add Tag",
+          "noSelection": "No selection",
+          "selectActor": "Select Actor",
+          "selectScene": "Select Scene"
+        },
+        "notifications": {
+          "duplicateName": "Tag name '{name}' already exists in the other tag list",
+          "duplicateActorNames": "Actor tag names must be unique",
+          "duplicateSceneNames": "Scene tag names must be unique"
         }
       },
       "createEntry": {
@@ -1231,7 +1258,13 @@
       "tag": "Tag",
       "resultsFor": "Tag Results for",
       "entryFound": "entry found",
-      "entriesFound": "entries found"
+      "entriesFound": "entries found",
+      "actorAssociated": "Actor associated via tag \"{tagName}\":",
+      "sceneAssociated": "Scene associated via tag \"{tagName}\":",
+      "dragActorHint": "Drag to Foundry",
+      "clickSceneHint": "Click to configure.  Right-click for more options.",
+      "multipleActorTagsWarning": "Multiple actor tags applied. Only the first ({name}) will be used.",
+      "multipleSceneTagsWarning": "Multiple scene tags applied. Only the first ({name}) will be used."
     },
     "export": {
       "relatedTopics": {

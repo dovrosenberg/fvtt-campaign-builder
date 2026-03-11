@@ -10,6 +10,7 @@ import { useContentState } from '@/composables/useContentState';
 import { useGroupedTableState } from '@/composables/useGroupedTableState';
 import { Entry } from '@/classes';
 import { localize } from '@/utils/game';
+import { SettingKey } from '@/settings';
 
 // types
 import {
@@ -121,6 +122,12 @@ export function useSessionDerivedState(): SessionDerivedState {
 
           if (!entry) continue;
 
+          // Use manual actor if present, otherwise fall back to tag-associated actor
+          const draggableId = 
+            entry.actors?.[0] || 
+            entry.getFoundryTags(SettingKey.actorTags)?.[0]?.uuid || 
+            undefined;
+
           retval.push({
             uuid: item.uuid,
             delivered: item.delivered,
@@ -128,8 +135,8 @@ export function useSessionDerivedState(): SessionDerivedState {
             type: entry.type,
             notes: item.notes || '',
             groupId: item.groupId,
-            draggableId: entry.actors?.[0],
-            dragTooltip: entry.actors?.length > 0 ? localize('tooltips.dragToScene') : undefined,
+            draggableId,
+            dragTooltip: draggableId ? localize('tooltips.dragToScene') : undefined,
           });
         }
 

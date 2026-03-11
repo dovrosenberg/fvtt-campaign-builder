@@ -1,6 +1,23 @@
 <template>
   <!-- A table to display/manage related scenes and actors -->
-  <BaseTable
+  <div class="related-document-table-wrapper flexcol">
+    <!-- Info message for tag-associated actors/scenes -->
+    <div v-if="tagAssociatedInfo" class="tag-associated-info">
+      <i class="fas fa-info-circle"></i>
+      <span>{{ tagAssociatedInfo }}</span>
+      <span v-if="tagAssociatedDocName" 
+        class="tag-associated-doc-name"
+        :class="{ 'draggable': props.documentLinkType === DocumentLinkType.Actors }"
+        :draggable="props.documentLinkType === DocumentLinkType.Actors"
+        :data-tooltip="docNameTooltip"
+        @click="onTagAssociatedDocClick"
+        @dragstart="onTagAssociatedDocDragStart"
+        @dragend="DragDropService.dragEnd"
+      >
+        {{ tagAssociatedDocName }}
+      </span>
+    </div>
+    <BaseTable
     :rows="rows"
     :columns="columns"
     :showAddButton="[DocumentLinkType.Actors, DocumentLinkType.Scenes].includes(props.documentLinkType)"
@@ -13,7 +30,7 @@
     @row-context-menu="onRowContextMenu"
     @drop-new="onDropNew"
     @dragover="DragDropService.standardDragover"
-    @dragstart="onDragStart"
+    @dragstart="onDragstart"
     @add-item="onAddItem"
     @reorder="onReorder"
   />
@@ -23,6 +40,7 @@
     :document-type="props.documentLinkType===DocumentLinkType.Actors ? 'actor' : 'scene'"
     @added="onDocumentAddedClick"
   />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -33,9 +51,12 @@
   // local imports
   import { useRelationshipStore } from '@/applications/stores';
   import { ENTRY_DERIVED_STATE_KEY } from '@/composables/useEntryDerivedState';
+  import { useContentState } from '@/composables/useContentState';
   import { localize } from '@/utils/game';
   import DragDropService from '@/utils/dragDrop';
   import { FCBDialog } from '@/dialogs';
+  import { notifyWarn } from '@/utils/notifications';
+  import { SettingKey } from '@/settings';
 
   // library components
   import { DataTableRowContextMenuEvent } from 'primevue/datatable';
@@ -45,7 +66,7 @@
   import RelatedDocumentsDialog from '@/components/dialogs/RelatedDocumentsDialog.vue';
 
   // types
-  import { BaseTableColumn, RelatedDocumentDetails, DocumentLinkType, FoundryDragType } from '@/types';
+  import { BaseTableColumn, RelatedDocumentDetails, DocumentLinkType, FoundryDragType, FoundryTag } from '@/types';
   
   ////////////////////////////////
   // props
@@ -63,10 +84,12 @@
   // store
   const relationshipStore = useRelationshipStore();
   const { relatedDocumentRows } = inject(ENTRY_DERIVED_STATE_KEY)!;
+  const { currentEntry } = useContentState();
 
   ////////////////////////////////
   // data
   const showPicker = ref<boolean>(false);
+  const tagAssociatedDoc = ref<{ uuid: string; name: string } | null>(null);
     
   ////////////////////////////////
   // computed data
@@ -156,6 +179,78 @@
       return [actionColumn, nameColumn, locationColumn];
   });
 
+  /**
+   * Computed info message for tag-associated actors/scenes.
+   * Returns null if no tag association or if there are manually-added documents.
+   * Also populates tagAssociatedDoc with the document info.
+   */
+  const tagAssociatedInfo = computed((): string | null => {
+    // Reset the doc info
+    tagAssociatedDoc.value = null;
+
+    // Only show for Actors or Scenes tabs
+    if (props.documentLinkType !== DocumentLinkType.Actors && props.documentLinkType !== DocumentLinkType.Scenes)
+      return null;
+
+    // Don't show if there are manually-added documents
+    if (rows.value.length > 0)
+      return null;
+
+    const entry = currentEntry.value;
+    if (!entry)
+      return null;
+
+    const setting = props.documentLinkType === DocumentLinkType.Actors ?
+      SettingKey.actorTags :
+      SettingKey.sceneTags;
+
+    const tags = entry.getFoundryTags(setting);
+    if (tags.length === 0)
+      return null;
+
+    // Warn if multiple tags
+    if (tags.length > 1) {
+      const msg = props.documentLinkType === DocumentLinkType.Actors ?
+        localize('tags.multipleActorTagsWarning', { name: tags[0].name }) :
+        localize('tags.multipleSceneTagsWarning', { name: tags[0].name });
+      notifyWarn(msg);
+    }
+
+    // display the associated tag and load the document info
+    const tag = tags[0];
+    if (tag.uuid) {
+      // Load the document info for display
+      const doc = await foundry.utils.fromUuid(tag.uuid);
+      if (doc) {
+        tagAssociatedDoc.value = { uuid: tag.uuid, name: doc.name || 'Unknown' };
+      }
+
+      const msg = props.documentLinkType === DocumentLinkType.Actors ?
+        localize('tags.actorAssociated', { tagName: tag.name }) :
+        localize('tags.sceneAssociated', { tagName: tag.name });
+      return msg;
+    }
+
+    return null;
+  });
+
+  /**
+   * Computed document name for the tag-associated actor/scene.
+   */
+  const tagAssociatedDocName = computed((): string | null => {
+    return tagAssociatedDoc.value?.name || null;
+  });
+
+  /**
+   * Computed tooltip for the document name link.
+   */
+  const docNameTooltip = computed((): string => {
+    if (props.documentLinkType === DocumentLinkType.Actors) {
+      return localize('tags.dragActorHint');
+    }
+    return localize('tags.clickSceneHint');
+  });
+
   ////////////////////////////////
   // methods
 
@@ -172,6 +267,30 @@
   const onNameClick = async (_event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) => {
     const doc = await fromUuid(rowData.uuid);
     await doc?.sheet?.render(true);
+  };
+
+  /**
+   * Handle click on tag-associated scene name - open scene configuration.
+   */
+  const onTagAssociatedDocClick = async () => {
+    if (!tagAssociatedDoc.value)
+      return;
+
+    // For scenes, open the sheet (configuration)
+    if (props.documentLinkType === DocumentLinkType.Scenes) {
+      const scene = await foundry.utils.fromUuid<Scene>(tagAssociatedDoc.value.uuid);
+      await scene?.sheet?.render(true);
+    }
+  };
+
+  /**
+   * Handle drag start on tag-associated actor name - start Foundry actor drag.
+   */
+  const onTagAssociatedDocDragStart = async (event: DragEvent) => {
+    if (!tagAssociatedDoc.value || props.documentLinkType !== DocumentLinkType.Actors)
+      return;
+
+    await DragDropService.actorDragStart(event, tagAssociatedDoc.value.uuid);
   };
 
   const onRowContextMenu = async (event: DataTableRowContextMenuEvent): Promise<boolean> => {
@@ -301,7 +420,7 @@
     }
   };
 
-  const onDragStart = async (event: DragEvent, uuid: string) => {
+  const onDragstart = async (event: DragEvent, uuid: string) => {
     switch (props.documentLinkType) {
       case DocumentLinkType.Actors:
         return await DragDropService.actorDragStart(event, uuid);
@@ -340,4 +459,41 @@
 </script>
 
 <style lang="scss" scoped>
+  .tag-associated-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-border-light);
+    border-radius: 4px;
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+
+    i {
+      color: var(--fcb-primary);
+    }
+  }
+
+  .tag-associated-doc-name {
+    font-weight: bold;
+    color: var(--fcb-primary);
+    cursor: pointer;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: var(--color-bg-highlight);
+    }
+
+    &.draggable {
+      cursor: grab;
+      
+      &:active {
+        cursor: grabbing;
+      }
+    }
+  }
 </style>

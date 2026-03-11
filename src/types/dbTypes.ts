@@ -187,3 +187,11 @@ export interface SettingTag {
 
 // maps from the string name to the details
 export type SettingTags = Record<string, SettingTag>;
+
+// Foundry tag association (for actors or scenes) - stored globally
+export interface FoundryTag {
+  id: string;           // unique identifier
+  name: string;         // tag name (must be unique across both actor and scene tags)
+  color: string;        // hex or hsl color
+  uuid: string;         // UUID of the associated actor or scene
+}

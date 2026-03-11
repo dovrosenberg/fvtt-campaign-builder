@@ -63,6 +63,7 @@
         <Tags
           v-if="currentEntry"
           v-model="currentEntry.tags"
+          :whitelist-supplement="tagsWhitelistSupplement"
           @tag-added="onTagChange"
           @tag-removed="onTagChange"
           @tag-click="onTagClick"
@@ -407,6 +408,19 @@
     return ModuleSettings.get(SettingKey.enableVoiceRecording) &&
            topic.value === Topics.Character &&
            VoiceRecordingService.isRecordingSupported();
+  });
+
+  // Whitelist supplement for tags - include actor tags for characters, scene tags for locations
+  const tagsWhitelistSupplement = computed((): string[] => {
+    if (topic.value === Topics.Character) {
+      const actorTags = ModuleSettings.get(SettingKey.actorTags);
+      return actorTags.map((t: { name: string }) => t.name);
+    }
+    if (topic.value === Topics.Location) {
+      const sceneTags = ModuleSettings.get(SettingKey.sceneTags);
+      return sceneTags.map((t: { name: string }) => t.name);
+    }
+    return [];
   });
 
   const voiceButtonTitle = computed(() => {

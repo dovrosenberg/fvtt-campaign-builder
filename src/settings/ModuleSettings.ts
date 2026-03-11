@@ -10,8 +10,9 @@ import { RollTableSettingsApplication } from '@/applications/settings/RollTableS
 import { StoryWebSettingsApplication } from '@/applications/settings/StoryWebSettingsApplication';
 import { ImportExportApplication } from '@/applications/settings/ImportExportApplication';
 import { TabVisibilitySettingsApplication } from '@/applications/settings/TabVisibilitySettingsApplication';
+import { AssociationTagsApplication } from '@/applications/settings/AssociationTagsApplication';
 import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
-import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, GroupableItem, TabVisibilityItem, TabVisibilitySettings, } from '@/types';
+import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, GroupableItem, TabVisibilityItem, TabVisibilitySettings, FoundryTag } from '@/types';
 
 export type ImageConfiguration = ApiCustomGenerateImagePostRequestImageConfiguration & {
   descriptionField?: string;
@@ -111,6 +112,11 @@ export enum SettingKey {
   // tab visibility settings
   tabVisibilityMenu = 'tabVisibilityMenu', // display the tab visibility menu
   tabVisibilitySettings = 'tabVisibilitySettings', // tab visibility settings per content type
+
+  // association tags settings
+  associationTagsMenu = 'associationTagsMenu', // display the association tags menu
+  actorTags = 'actorTags', // actor tag associations for characters
+  sceneTags = 'sceneTags', // scene tag associations for locations
 }
 
 export type SettingKeyType<K extends SettingKey> =
@@ -164,6 +170,9 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.enableVoiceRecording ? boolean :
     K extends SettingKey.voiceRecordingFolder ? VoiceRecordingFolderConfig | null :
     K extends SettingKey.tabVisibilitySettings ? TabVisibilitySettings :
+    K extends SettingKey.associationTagsMenu ? never :
+    K extends SettingKey.actorTags ? FoundryTag[] :
+    K extends SettingKey.sceneTags ? FoundryTag[] :
     never;
 
 export class ModuleSettings {
@@ -313,6 +322,14 @@ export class ModuleSettings {
       hint: 'settings.importExportHelp',
       icon: 'fa-solid fa-file-import',
       type: ImportExportApplication,
+    },
+    {
+      settingID: SettingKey.associationTagsMenu,
+      name: 'settings.associationTags',
+      label: 'fcb.settings.associationTagsLabel',
+      hint: 'settings.associationTagsHelp',
+      icon: 'fa-solid fa-tags',
+      type: AssociationTagsApplication,
     },
   ];
 
@@ -679,6 +696,16 @@ export class ModuleSettings {
         [TabVisibilityItem.EntryPCTimeline]: true,
       } as TabVisibilitySettings,
       type: Object,
+    },
+    {
+      settingID: SettingKey.actorTags,
+      default: [],
+      type: Array,
+    },
+    {
+      settingID: SettingKey.sceneTags,
+      default: [],
+      type: Array,
     },
   ];
   
