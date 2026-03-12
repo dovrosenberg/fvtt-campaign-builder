@@ -35,7 +35,15 @@ While you can attach as many Actors as you want for a Character, the top-most on
 :::
 
 ::: info
+If you have [Association Tags](/reference/configuration/#association-tags) configured, the first matching tags on the Character will automatically show the associated actor above the table. You can drag the actor name into Foundry just like you can drag a row from the table.  If you have any manually added actors, they will override it and the info label won't appear.  
+:::
+
+::: info
 Deleting an actor in Foundry that is attached to a Character will automatically and safely remove it from the Character.
+:::
+
+::: warning KNOWN ISSUE 
+Fairly obscure, but if you reorder the actors on a Character that is showing in the related -Characters list of something in another panel, it won't immediately refresh and dragging the Character will bring the wrong Actor.  Just change the tab in the other panel to refresh the list.
 :::
 
 #### Adding actors

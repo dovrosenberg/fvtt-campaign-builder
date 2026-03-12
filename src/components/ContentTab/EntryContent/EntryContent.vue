@@ -325,6 +325,7 @@
   const topicTabMap: Record<ValidTopic, Record<string, TabVisibilityItem>> = {
     [Topics.Character]: {
       journals: TabVisibilityItem.EntryCharacterJournals,
+      characters: TabVisibilityItem.EntryCharacterCharacters,
       locations: TabVisibilityItem.EntryCharacterLocations,
       organizations: TabVisibilityItem.EntryCharacterOrganizations,
       pcs: TabVisibilityItem.EntryCharacterPCs,
@@ -336,6 +337,7 @@
     [Topics.Location]: {
       journals: TabVisibilityItem.EntryLocationJournals,
       characters: TabVisibilityItem.EntryLocationCharacters,
+      locations: TabVisibilityItem.EntryLocationLocations,
       organizations: TabVisibilityItem.EntryLocationOrganizations,
       pcs: TabVisibilityItem.EntryLocationPCs,
       sessions: TabVisibilityItem.EntryLocationSessions,
@@ -347,6 +349,7 @@
       journals: TabVisibilityItem.EntryOrganizationJournals,
       characters: TabVisibilityItem.EntryOrganizationCharacters,
       locations: TabVisibilityItem.EntryOrganizationLocations,
+      organizations: TabVisibilityItem.EntryOrganizationOrganizations,
       pcs: TabVisibilityItem.EntryOrganizationPCs,
       sessions: TabVisibilityItem.EntryOrganizationSessions,
       foundry: TabVisibilityItem.EntryOrganizationFoundry,

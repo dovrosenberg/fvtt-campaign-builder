@@ -42,6 +42,7 @@ export enum TabVisibilityItem {
 
   // Entry - Character topic
   EntryCharacterJournals = 'entryCharacterJournals',
+  EntryCharacterCharacters = 'entryCharacterCharacters',
   EntryCharacterLocations = 'entryCharacterLocations',
   EntryCharacterOrganizations = 'entryCharacterOrganizations',
   EntryCharacterPCs = 'entryCharacterPCs',
@@ -53,6 +54,7 @@ export enum TabVisibilityItem {
   // Entry - Location topic
   EntryLocationJournals = 'entryLocationJournals',
   EntryLocationCharacters = 'entryLocationCharacters',
+  EntryLocationLocations = 'entryLocationLocations',
   EntryLocationOrganizations = 'entryLocationOrganizations',
   EntryLocationPCs = 'entryLocationPCs',
   EntryLocationSessions = 'entryLocationSessions',
@@ -64,6 +66,7 @@ export enum TabVisibilityItem {
   EntryOrganizationJournals = 'entryOrganizationJournals',
   EntryOrganizationCharacters = 'entryOrganizationCharacters',
   EntryOrganizationLocations = 'entryOrganizationLocations',
+  EntryOrganizationOrganizations = 'entryOrganizationOrganizations',
   EntryOrganizationPCs = 'entryOrganizationPCs',
   EntryOrganizationSessions = 'entryOrganizationSessions',
   EntryOrganizationFoundry = 'entryOrganizationFoundry',

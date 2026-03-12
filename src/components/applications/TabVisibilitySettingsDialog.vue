@@ -155,6 +155,7 @@ Dependencies
       headerKey: 'dialogs.tabVisibility.contentTypes.entryCharacter',
       options: [
         { settingKey: TabVisibilityItem.EntryCharacterJournals, labelKey: 'dialogs.tabVisibility.tabs.journals' },
+        { settingKey: TabVisibilityItem.EntryCharacterCharacters, labelKey: 'dialogs.tabVisibility.tabs.characters' },
         { settingKey: TabVisibilityItem.EntryCharacterLocations, labelKey: 'dialogs.tabVisibility.tabs.locations' },
         { settingKey: TabVisibilityItem.EntryCharacterOrganizations, labelKey: 'dialogs.tabVisibility.tabs.organizations' },
         { settingKey: TabVisibilityItem.EntryCharacterPCs, labelKey: 'dialogs.tabVisibility.tabs.pcs' },
@@ -170,6 +171,7 @@ Dependencies
       options: [
         { settingKey: TabVisibilityItem.EntryLocationJournals, labelKey: 'dialogs.tabVisibility.tabs.journals' },
         { settingKey: TabVisibilityItem.EntryLocationCharacters, labelKey: 'dialogs.tabVisibility.tabs.characters' },
+        { settingKey: TabVisibilityItem.EntryLocationLocations, labelKey: 'dialogs.tabVisibility.tabs.locations' },
         { settingKey: TabVisibilityItem.EntryLocationOrganizations, labelKey: 'dialogs.tabVisibility.tabs.organizations' },
         { settingKey: TabVisibilityItem.EntryLocationPCs, labelKey: 'dialogs.tabVisibility.tabs.pcs' },
         { settingKey: TabVisibilityItem.EntryLocationSessions, labelKey: 'dialogs.tabVisibility.tabs.sessions' },
@@ -185,6 +187,7 @@ Dependencies
         { settingKey: TabVisibilityItem.EntryOrganizationJournals, labelKey: 'dialogs.tabVisibility.tabs.journals' },
         { settingKey: TabVisibilityItem.EntryOrganizationCharacters, labelKey: 'dialogs.tabVisibility.tabs.characters' },
         { settingKey: TabVisibilityItem.EntryOrganizationLocations, labelKey: 'dialogs.tabVisibility.tabs.locations' },
+        { settingKey: TabVisibilityItem.EntryOrganizationOrganizations, labelKey: 'dialogs.tabVisibility.tabs.organizations' },
         { settingKey: TabVisibilityItem.EntryOrganizationPCs, labelKey: 'dialogs.tabVisibility.tabs.pcs' },
         { settingKey: TabVisibilityItem.EntryOrganizationSessions, labelKey: 'dialogs.tabVisibility.tabs.sessions' },
         { settingKey: TabVisibilityItem.EntryOrganizationFoundry, labelKey: 'dialogs.tabVisibility.tabs.foundry' },
