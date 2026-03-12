@@ -96,7 +96,10 @@
       "useTimelineHelp": "Включить функциональность временной шкалы (требуется модуль Calendaria).",
       "tabVisibility": "Настройки видимости вкладок",
       "tabVisibilityLabel": "Видимость вкладок",
-      "tabVisibilityHelp": "Настройте, какие вкладки видны для каждого типа контента"
+      "tabVisibilityHelp": "Настройте, какие вкладки видны для каждого типа контента",
+      "associationTags": "Теги ассоциации",
+      "associationTagsLabel": "Настроить теги ассоциации",
+      "associationTagsHelp": "Настройте теги, связанные с актерами (для персонажей) и сценами (для локаций)"
     },
     "applications": {
       "sessionNotes": {
@@ -376,6 +379,30 @@
         "importingSettings": "Импорт настроек модуля...",
         "importingSetting": "Импорт настройки",
         "remappingUuids": "Переназначение ссылок на документы..."
+      },
+      "associationTags": {
+        "title": "Настроить теги ассоциации",
+        "tabs": {
+          "characters": "Персонажи",
+          "locations": "Локации"
+        },
+        "columns": {
+          "name": "Название тега",
+          "color": "Цвет",
+          "actor": "Связанный актер",
+          "scene": "Связанная сцена"
+        },
+        "labels": {
+          "add": "Добавить тег",
+          "noSelection": "Нет выбора",
+          "selectActor": "Выбрать актера",
+          "selectScene": "Выбрать сцену"
+        },
+        "notifications": {
+          "duplicateName": "Имя тега '{name}' уже существует в другом списке тегов",
+          "duplicateActorNames": "Имена тегов актера должны быть уникальными",
+          "duplicateSceneNames": "Имена тегов сцены должны быть уникальными"
+        }
       }
     },
     "help": {
@@ -1231,7 +1258,13 @@
       "tag": "Тег",
       "resultsFor": "Результаты по тегу",
       "entryFound": "запись найдена",
-      "entriesFound": "записей найдено"
+      "entriesFound": "записей найдено",
+      "actorAssociated": "Актер, связанный через тег \"{tagName}\":",
+      "sceneAssociated": "Сцена, связанная через тег \"{tagName}\":",
+      "dragActorHint": "Перетащите в Foundry",
+      "clickSceneHint": "Нажмите для настройки. Щелкните правой кнопкой мыши для дополнительных опций.",
+      "multipleActorTagsWarning": "Применено несколько тегов актера. Будет использован только первый ({name}).",
+      "multipleSceneTagsWarning": "Применено несколько тегов сцены. Будет использован только первый ({name})."
     },
     "export": {
       "relatedTopics": {

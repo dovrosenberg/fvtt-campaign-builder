@@ -96,7 +96,10 @@
       "useTimelineHelp": "Zeitleistenfunktion aktivieren (erfordert das Calendaria-Modul).",
       "tabVisibility": "Einstellungen zur Tab-Sichtbarkeit",
       "tabVisibilityLabel": "Tab-Sichtbarkeit",
-      "tabVisibilityHelp": "Konfigurieren Sie, welche Tabs für jeden Inhaltstyp sichtbar sind"
+      "tabVisibilityHelp": "Konfigurieren Sie, welche Tabs für jeden Inhaltstyp sichtbar sind",
+      "associationTags": "Assoziationstags",
+      "associationTagsLabel": "Assoziationstags konfigurieren",
+      "associationTagsHelp": "Konfigurieren Sie Tags, die mit Schauspielern (für Charaktere) und Szenen (für Orte) verknüpft sind"
     },
     "applications": {
       "sessionNotes": {
@@ -376,6 +379,30 @@
         "importingSettings": "Moduleinstellungen werden importiert...",
         "importingSetting": "Einstellung wird importiert",
         "remappingUuids": "Dokumentenreferenzen werden neu zugeordnet..."
+      },
+      "associationTags": {
+        "title": "Assoziationstags konfigurieren",
+        "tabs": {
+          "characters": "Charaktere",
+          "locations": "Orte"
+        },
+        "columns": {
+          "name": "Tag-Name",
+          "color": "Farbe",
+          "actor": "Zugeordneter Schauspieler",
+          "scene": "Zugeordnete Szene"
+        },
+        "labels": {
+          "add": "Tag hinzufügen",
+          "noSelection": "Keine Auswahl",
+          "selectActor": "Schauspieler auswählen",
+          "selectScene": "Szene auswählen"
+        },
+        "notifications": {
+          "duplicateName": "Tag-Name '{name}' existiert bereits in der anderen Tag-Liste",
+          "duplicateActorNames": "Schauspieler-Tag-Namen müssen eindeutig sein",
+          "duplicateSceneNames": "Szenen-Tag-Namen müssen eindeutig sein"
+        }
       }
     },
     "help": {
@@ -1231,7 +1258,13 @@
       "tag": "Tag",
       "resultsFor": "Tag-Ergebnisse für",
       "entryFound": "Eintrag gefunden",
-      "entriesFound": "Einträge gefunden"
+      "entriesFound": "Einträge gefunden",
+      "actorAssociated": "Schauspieler verknüpft über Tag \"{tagName}\":",
+      "sceneAssociated": "Szene verknüpft über Tag \"{tagName}\":",
+      "dragActorHint": "Zum Foundry ziehen",
+      "clickSceneHint": "Klicken, um zu konfigurieren. Rechtsklick für weitere Optionen.",
+      "multipleActorTagsWarning": "Mehrere Schauspieler-Tags angewendet. Nur das erste ({name}) wird verwendet.",
+      "multipleSceneTagsWarning": "Mehrere Szenen-Tags angewendet. Nur das erste ({name}) wird verwendet."
     },
     "export": {
       "relatedTopics": {
