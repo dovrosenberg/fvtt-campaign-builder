@@ -7,6 +7,7 @@
 // library imports
 
 // local imports
+import { useNavigationStore } from '.';
 
 // types
 import type { StoryWebGraphState } from '@/composables/useStoryWebGraphState';
@@ -74,9 +75,23 @@ export const storyWebStore = () => {
     }
   };
 
+  /**
+   * Add an entry to the focused panel's story web.
+   * @param entryUuid - UUID of the entry to add
+   * @param withRelationships - Whether to also add all related nodes implicitly
+   */
+  const addEntry = async (entryUuid: string, withRelationships: boolean) => {
+    const state = _graphStates.get(useNavigationStore().focusedPanelIndex);
+    if (!state) {
+      return;
+    }
+    await state.addEntry(entryUuid, null, withRelationships);
+  };
+
   return {
     registerGraphState,
     unregisterGraphState,
     regenerateAllGraphs,
+    addEntry,
   };
 };

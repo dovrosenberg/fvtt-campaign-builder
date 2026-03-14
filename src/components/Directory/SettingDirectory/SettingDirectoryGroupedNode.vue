@@ -132,19 +132,19 @@
         {
           icon: 'fa-diagram-project',
           iconFontClass: 'fas',
-          label: 'Add to current Story Web',
+          label: localize('contextMenus.addToStoryWeb'),
           disabled: !currentStoryWeb.value,
           onClick: async () => {
-            await storyWebStore.addEntry(props.node.id, null, false);
+            await storyWebStore.addEntry(props.node.id, false);
           }
         },
         {
           icon: 'fa-sitemap',
           iconFontClass: 'fas',
-          label: 'Add with Relationships',
+          label: localize('contextMenus.addWithRelationships'),
           disabled: !currentStoryWeb.value,
           onClick: async () => {
-            await storyWebStore.addEntry(props.node.id, null, true);
+            await storyWebStore.addEntry(props.node.id, true);
           }
         }
       ]
