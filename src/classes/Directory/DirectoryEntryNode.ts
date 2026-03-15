@@ -9,14 +9,17 @@ import { NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 export class DirectoryEntryNode extends DirectoryTopicTreeNode {
   name: string;
   type: string;    // the type of the entry
+  /** UUIDs of branch entries (organization presences in locations) */
+  childBranches: string[];
   
   constructor(id: string, name: string, type: string, topicFolder: TopicFolder, parentId: string | null = null, children: string[] = [], 
-    loadedChildren: DirectoryEntryNode[] = [], ancestors: string[] = [], expanded: boolean = false
+    loadedChildren: DirectoryEntryNode[] = [], ancestors: string[] = [], expanded: boolean = false, childBranches: string[] = []
   ) {
     super(id, topicFolder, expanded, parentId, children, loadedChildren, ancestors);
 
     this.name = name;
     this.type = type;
+    this.childBranches = childBranches;
   }
 
   // converts the entry to a DirectoryEntryNode for cleaner interface
@@ -38,6 +41,7 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
       [],
       hierarchy?.ancestors || [],
       expanded,
+      hierarchy?.childBranches || [],
     );
   };
 
@@ -45,7 +49,9 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
   public convertToHierarchy = (): Hierarchy => {
     return {
       parentId: this.parentId,
+      locationParentId: null,
       children: this.children,
+      childBranches: this.childBranches,
       ancestors: this.ancestors,
       type: this.type,
     };

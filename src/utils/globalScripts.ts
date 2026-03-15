@@ -79,11 +79,16 @@ const repairAllIndexes = async (settingId?: string): Promise<void> => {
         // Rebuild campaign indexes first and collect arc data
         const campaignArcData = new Map<string, ArcBasicIndex[]>();
         for (const campaignId of campaignIds) {
-          const campaign = await Campaign.fromUuid(campaignId);
-          if (!campaign) continue;
-          
-          const arcData = await repairCampaignIndexes(campaign, sessionIds, arcIds, frontIds, storyWebIds);
-          campaignArcData.set(campaign.uuid, arcData);
+          try {
+            const campaign = await Campaign.fromUuid(campaignId);
+            if (!campaign) continue;
+            
+            const arcData = await repairCampaignIndexes(campaign, sessionIds, arcIds, frontIds, storyWebIds);
+            campaignArcData.set(campaign.uuid, arcData);
+          } catch (error) {
+            console.warn('Skipping campaign with error: ' + campaignId, error);
+            continue;
+          }
         }
         
         // Rebuild FCBSetting indexes using the collected campaign arc data
@@ -125,14 +130,19 @@ async function repairSettingIndexes(
   // Load campaigns individually and rebuild campaignIndex with arc data already populated
   const newCampaignIndex: CampaignBasicIndex[] = [];
   for (const campaignId of campaignIds) {
-    const campaign = await Campaign.fromUuid(campaignId);
-    if (campaign) {
-      newCampaignIndex.push({
-        uuid: campaign.uuid,
-        name: campaign.name,
-        completed: campaign.completed,
-        arcs: campaignArcData.get(campaign.uuid) || []
-      });
+    try {
+      const campaign = await Campaign.fromUuid(campaignId);
+      if (campaign) {
+        newCampaignIndex.push({
+          uuid: campaign.uuid,
+          name: campaign.name,
+          completed: campaign.completed,
+          arcs: campaignArcData.get(campaign.uuid) || []
+        });
+      }
+    } catch (error) {
+      console.warn('Skipping campaign with error: ' + campaignId, error);
+      continue;
     }
   }
   
@@ -156,28 +166,34 @@ async function repairSettingIndexes(
   
   // Load entries individually
   for (const entryId of entryIds) {
-    const entry = await Entry.fromUuid(entryId);
-    if (!entry) continue;
-    
-    const topic = entry.topic.toString();
-    const entryIndex: EntryBasicIndex = {
-      uuid: entry.uuid,
-      name: entry.name,
-      type: entry.type || ''
-    };
-    
-    if (!topicEntries.has(topic)) {
-      topicEntries.set(topic, []);
-      topicTypes.set(topic, new Set());
-    }
-    
-    topicEntries.get(topic)!.push(entryIndex);
-    if (entry.type) {
-      topicTypes.get(topic)!.add(entry.type);
+    try {
+      const entry = await Entry.fromUuid(entryId);
+      if (!entry) continue;
+      
+      const topic = entry.topic.toString();
+      const entryIndex: EntryBasicIndex = {
+        uuid: entry.uuid,
+        name: entry.name,
+        type: entry.type || '',
+        isBranch: entry.isBranch,
+      };
+      
+      if (!topicEntries.has(topic)) {
+        topicEntries.set(topic, []);
+        topicTypes.set(topic, new Set());
+      }
+      
+      topicEntries.get(topic)!.push(entryIndex);
+      if (entry.type) {
+        topicTypes.get(topic)!.add(entry.type);
+      }
+    } catch (error) {
+      console.warn('Skipping entry with error: ' + entryId, error);
+      continue;
     }
   }
   
-  // clean up heierarchies - we can't adjust parents but we can remove any references to bad entries
+  // clean up hierarchies - we can't adjust parents but we can remove any references to bad entries
   const newHierarchies: Record<string, Hierarchy> = {};
   for (const key in setting.hierarchies) {
     // if key is invalid, drop it
@@ -190,6 +206,8 @@ async function repairSettingIndexes(
       ancestors: hierarchy.ancestors.filter((ancestor) => entryIds.includes(ancestor)),
       children: hierarchy.children.filter((child) => entryIds.includes(child)),
       parentId: hierarchy.parentId && entryIds.includes(hierarchy.parentId) ? hierarchy.parentId : null,
+      locationParentId: hierarchy.locationParentId && entryIds.includes(hierarchy.locationParentId) ? hierarchy.locationParentId : null,
+      childBranches: (hierarchy.childBranches || []).filter((branch) => entryIds.includes(branch)),
     };
     newHierarchies[key] = newHierarchy;
   }
@@ -234,33 +252,43 @@ async function repairCampaignIndexes(
   // Load and filter documents belonging to this campaign individually
   const newSessionIndex: SessionBasicIndex[] = [];
   for (const sessionId of sessionIds) {
-    const session = await Session.fromUuid(sessionId);
-    if (!session) {
-      console.log('Skipping bad session id: ' + sessionId);
-      continue;
-    }
+    try {
+      const session = await Session.fromUuid(sessionId);
+      if (!session) {
+        console.log('Skipping bad session id: ' + sessionId);
+        continue;
+      }
 
-    if (session.campaignId === campaign.uuid) {
-      newSessionIndex.push({
-        uuid: session.uuid,
-        name: session.name,
-        number: session.number,
-        date: session.date?.toISOString() || null
-      });
+      if (session.campaignId === campaign.uuid) {
+        newSessionIndex.push({
+          uuid: session.uuid,
+          name: session.name,
+          number: session.number,
+          date: session.date?.toISOString() || null
+        });
+      }
+    } catch (error) {
+      console.warn('Skipping session with invalid campaign reference: ' + sessionId, error);
+      continue;
     }
   }
   
   let newArcIndex: ArcBasicIndex[] = [];
   for (const arcId of arcIds) {
-    const arc = await Arc.fromUuid(arcId);
-    if (arc && arc.campaignId === campaign.uuid) {
-      newArcIndex.push({
-          uuid: arc.uuid,
-          name: arc.name,
-          startSessionNumber: arc.startSessionNumber,
-          endSessionNumber: arc.endSessionNumber,
-          sortOrder: arc.sortOrder,
-      });
+    try {
+      const arc = await Arc.fromUuid(arcId);
+      if (arc && arc.campaignId === campaign.uuid) {
+        newArcIndex.push({
+            uuid: arc.uuid,
+            name: arc.name,
+            startSessionNumber: arc.startSessionNumber,
+            endSessionNumber: arc.endSessionNumber,
+            sortOrder: arc.sortOrder,
+        });
+      }
+    } catch (error) {
+      console.warn('Skipping arc with invalid campaign reference: ' + arcId, error);
+      continue;
     }
   }
 
@@ -268,17 +296,27 @@ async function repairCampaignIndexes(
   
   // there's no setter, so we use the add method
   for (const frontId of frontIds) {
-    const front = await Front.fromUuid(frontId);
-    if (front && front.campaignId === campaign.uuid) {
-      await campaign.addFront(front);
+    try {
+      const front = await Front.fromUuid(frontId);
+      if (front && front.campaignId === campaign.uuid) {
+        await campaign.addFront(front);
+      }
+    } catch (error) {
+      console.warn('Skipping front with invalid campaign reference: ' + frontId, error);
+      continue;
     }
   }
 
   // there's no setter, so we use the add method
   for (const storyWebId of storyWebIds) {
-    const storyWeb = await StoryWeb.fromUuid(storyWebId);
-    if (storyWeb && storyWeb.campaignId === campaign.uuid) {
-      await campaign.addStoryWeb(storyWeb);
+    try {
+      const storyWeb = await StoryWeb.fromUuid(storyWebId);
+      if (storyWeb && storyWeb.campaignId === campaign.uuid) {
+        await campaign.addStoryWeb(storyWeb);
+      }
+    } catch (error) {
+      console.warn('Skipping storyWeb with invalid campaign reference: ' + storyWebId, error);
+      continue;
     }
   }
     

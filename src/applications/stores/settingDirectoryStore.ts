@@ -480,8 +480,9 @@ export const settingDirectoryStore = () => {
       }
     }
 
-    // save the parent
+    // save the parent(s) - branches have both parentId (org) and locationParentId (location)
     const parentId = hierarchy?.parentId || null;
+    const locationParentId = hierarchy?.locationParentId || null;
 
     const entry = await Entry.fromUuid(entryId);
     if (!entry)
@@ -492,8 +493,9 @@ export const settingDirectoryStore = () => {
     // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(entryId);
 
-    // refresh and force its parent to update
-    await refreshSettingDirectoryTree(parentId ? [parentId] : []);
+    // refresh and force its parent(s) to update
+    const parentIds = [parentId, locationParentId].filter((id): id is string => id !== null);
+    await refreshSettingDirectoryTree(parentIds);
 
     return true;
   };

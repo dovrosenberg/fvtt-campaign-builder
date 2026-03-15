@@ -71,7 +71,7 @@
   
   // types
   import { EntryNodeDragData, ValidTopic, Topics } from '@/types';
-  import { Entry, DirectoryEntryNode, FCBSetting, TopicFolder, DirectoryBranchFolderNode } from '@/classes';
+  import { Entry, DirectoryEntryNode, FCBSetting, TopicFolder, DirectoryBranchFolderNode, CollapsibleNode } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -139,8 +139,9 @@
       return null;
     }
 
-    // Get the topic folder for creating the branch folder node
-    const topicFolder = currentSetting.value.topicFolders[props.topic];
+    // Get the Organization topic folder - branches are always Organization entries
+    // even when displayed under a Location
+    const topicFolder = currentSetting.value.topicFolders[Topics.Organization];
     if (!topicFolder) {
       return null;
     }
@@ -150,13 +151,23 @@
     const branchFolderId = `${currentNode.value.id}.branches`;
     const expanded = expandedIds[branchFolderId] || false;
 
-    return new DirectoryBranchFolderNode(
+    // Check if we already have a loaded branch folder node - reuse it to preserve loadedChildren
+    const existingNode = CollapsibleNode._loadedNodes[branchFolderId] as DirectoryBranchFolderNode | undefined;
+    if (existingNode) {
+      existingNode.expanded = expanded;
+      return existingNode;
+    }
+
+    const newNode = new DirectoryBranchFolderNode(
       currentNode.value.id,
       topicFolder,
       childBranches,
       [],
       expanded
     );
+    // Store in _loadedNodes so we can reuse it and preserve loadedChildren
+    CollapsibleNode._loadedNodes[branchFolderId] = newNode;
+    return newNode;
   });
 
   const showTypesInTree = computed(() => {

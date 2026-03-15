@@ -143,6 +143,7 @@
     [CustomFieldContentType.PC]: ApiCustomGeneratePostRequestContentTypeEnum.Pc,
     [CustomFieldContentType.Location]: ApiCustomGeneratePostRequestContentTypeEnum.Location,
     [CustomFieldContentType.Organization]: ApiCustomGeneratePostRequestContentTypeEnum.Organization,
+    [CustomFieldContentType.Branch]: ApiCustomGeneratePostRequestContentTypeEnum.Organization,
     [CustomFieldContentType.Campaign]: ApiCustomGeneratePostRequestContentTypeEnum.Campaign,
     [CustomFieldContentType.Arc]: ApiCustomGeneratePostRequestContentTypeEnum.Arc,
     [CustomFieldContentType.Session]: ApiCustomGeneratePostRequestContentTypeEnum.Session,
@@ -180,6 +181,7 @@
       case CustomFieldContentType.PC:
       case CustomFieldContentType.Location:
       case CustomFieldContentType.Organization:
+      case CustomFieldContentType.Branch:
         return currentEntry.value;
 
       default:
@@ -260,6 +262,7 @@
       break;
     case CustomFieldContentType.Location:
     case CustomFieldContentType.Organization:
+    case CustomFieldContentType.Branch:
       type = (content.value as Entry)?.type ?? '';
 
       const entry = content.value as unknown as Entry;

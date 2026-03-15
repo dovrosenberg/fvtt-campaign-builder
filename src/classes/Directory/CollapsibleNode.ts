@@ -142,7 +142,9 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
       } else {
         // should never happen because everything should be in _loadedNodes
         // this happens (for ex.) when an entry is in the setting's hierarchy but the topic's filterEntries() doesn't return it
-        throw new Error('Entry failed to load properly in CollapsibleNode.recursivelyLoadNode() ');
+        // log a warning and skip this child instead of throwing
+        console.warn(`Entry failed to load properly in CollapsibleNode.recursivelyLoadNode(), skipping: ${this.children[i]}`);
+        continue;
       }
 
       // may need to change the expanded state

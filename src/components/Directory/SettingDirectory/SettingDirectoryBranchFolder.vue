@@ -62,7 +62,7 @@ Dependencies
   import { computed, PropType, ref, watch } from 'vue';
 
   // local imports
-  import { useMainStore } from '@/applications/stores';
+  import { useSettingDirectoryStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // library components
@@ -96,7 +96,7 @@ Dependencies
   
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   
   ////////////////////////////////
   // data
@@ -116,23 +116,8 @@ Dependencies
   ////////////////////////////////
   // event handlers
   const onToggleClick = async (_event: MouseEvent) => {
-    expanded.value = !expanded.value;
-    
-    if (expanded.value) {
-      // Load children if not already loaded
-      const expandedIds = mainStore.currentSetting?.expandedIds || {};
-      await currentNode.value.recursivelyLoadNode(expandedIds);
-    }
-    
-    // Update expanded state in setting
-    if (mainStore.currentSetting) {
-      if (expanded.value) {
-        mainStore.currentSetting.expandedIds[currentNode.value.id] = true;
-      } else {
-        delete mainStore.currentSetting.expandedIds[currentNode.value.id];
-      }
-      await mainStore.currentSetting.save();
-    }
+    currentNode.value = await currentNode.value.toggleWithLoad(!expanded.value);
+    await settingDirectoryStore.refreshSettingDirectoryTree([currentNode.value.id]);
   };
 
   ////////////////////////////////

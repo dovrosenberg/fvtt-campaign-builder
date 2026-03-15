@@ -1,6 +1,6 @@
 <template>
   <SettingDirectoryNodeWithChildren 
-    v-if="props.node.children.length && filterNodes[props.topic]?.includes(props.node.id)" 
+    v-if="(props.node.children.length || props.node.childBranches?.length) && filterNodes[props.topic]?.includes(props.node.id)" 
     :node="props.node"
     :setting-id="props.settingId"
     :topic="props.topic"
