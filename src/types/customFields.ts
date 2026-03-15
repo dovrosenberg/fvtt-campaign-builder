@@ -11,6 +11,7 @@ export enum CustomFieldContentType {
   Character,
   Location,
   Organization,
+  Branch,
   Arc,
   Front,
   PC,

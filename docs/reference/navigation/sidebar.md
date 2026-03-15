@@ -45,11 +45,15 @@ You can create and adjust Hierarchies in two ways:
 1. Dragging entries within the sidebar.  By dragging an Entry onto another, the dragged Entry will become a child of the target.
 2. Using the Parent field in the Entry editor.  Simply choose the parent you want (or set it to blank to make the Entry a top-level one).
 
+### Branches folder {#branches-folder}
+Organizations and locations that have [Branches] will show a "Branches" folder in the directory tree. This folder contains all the branches for that organization or location, making it easy to find organization presence in specific locations.
+
 ### Context menus
 Right-clicking on items in the Entry tree provides additional options depending on the item type:
 1. Settings - Delete the [^Setting], Create a new [^Campaign], Export the Setting (as a JSON file, a markdown file, or as a zip file containing the markdown file and all of its Story Web images)
 2. Topics - [Create a new Entry](/reference/world-building/create-entry) in that Topic
 3. Entries - Delete the Entry
+4. Organization entries - Create [Branches]
 
 ::: info
 Exporting a Setting has three options:

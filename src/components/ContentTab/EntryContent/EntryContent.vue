@@ -472,14 +472,15 @@
       calendarActive.value;
   });
 
-  const customFieldContentType = computed<CustomFieldContentType | null>(() => {
+  const customFieldContentType = computed<CustomFieldContentType | null>(() => {    
     switch (topic.value) {
       case Topics.Character:
         return CustomFieldContentType.Character;
       case Topics.Location:
         return CustomFieldContentType.Location;
       case Topics.Organization:
-        return CustomFieldContentType.Organization;
+        // Branches use their own content type for custom fields
+        return currentEntry.value?.isBranch ? CustomFieldContentType.Branch : CustomFieldContentType.Organization;
       case Topics.PC:
         return CustomFieldContentType.PC;
       default:

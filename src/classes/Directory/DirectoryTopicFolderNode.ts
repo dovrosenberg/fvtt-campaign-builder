@@ -57,8 +57,10 @@ export class DirectoryTopicFolderNode extends DirectoryTopicTreeNode {
 
       // For the '(none)' group, include entries whose type is actually empty/undefined.
       // For all other groups, match on the literal type string.
+      // Exclude branches - they should only appear in the Branches folder.
       const loadedChildren = this.topicFolder.entryIndex.filter((e: EntryBasicIndex): boolean =>
-        (type === NO_TYPE_STRING ? (e.type === type || !e.type) : e.type === type)
+        (type === NO_TYPE_STRING ? (e.type === type || !e.type) : e.type === type) &&
+        !e.isBranch
       );
 
       let loadedChildrenNodes = [] as DirectoryTypeEntryNode[];

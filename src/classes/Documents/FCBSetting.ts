@@ -23,10 +23,10 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   static override _documentType = DOCUMENT_TYPES.Setting;
   static override _defaultSystem = { 
     topics: {
-      [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [], entries: {} },
-      [Topics.Location]: { topic: Topics.Location, topNodes: [], types: [], entries: {} },
-      [Topics.Organization]: { topic: Topics.Organization, topNodes: [], types: [], entries: {} },
-      [Topics.PC]: { topic: Topics.PC, topNodes: [], types: [], entries: {} },
+      [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [], entries: [] },
+      [Topics.Location]: { topic: Topics.Location, topNodes: [], types: [], entries: [] },
+      [Topics.Organization]: { topic: Topics.Organization, topNodes: [], types: [], entries: [] },
+      [Topics.PC]: { topic: Topics.PC, topNodes: [], types: [], entries: [] },
     },
     campaigns: {},  
     expandedIds: {},  
@@ -418,10 +418,10 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
     if (!this._clone.system.topics || Object.keys(this._clone.system.topics).length === 0) {
       this._clone.system.topics = {
-        [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [], entries: {} },
-        [Topics.Location]: { topic: Topics.Location, topNodes: [], types: [], entries: {} },
-        [Topics.Organization]: { topic: Topics.Organization, topNodes: [], types: [], entries: {} },
-        [Topics.PC]: { topic: Topics.PC, topNodes: [], types: [], entries: {} },
+        [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [], entries: [] },
+        [Topics.Location]: { topic: Topics.Location, topNodes: [], types: [], entries: [] },
+        [Topics.Organization]: { topic: Topics.Organization, topNodes: [], types: [], entries: [] },
+        [Topics.PC]: { topic: Topics.PC, topNodes: [], types: [], entries: [] },
       } as unknown as ValidTopicRecord<TopicBasicIndex>;
     }
 

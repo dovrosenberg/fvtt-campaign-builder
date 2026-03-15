@@ -151,6 +151,7 @@ export interface EntryBasicIndex {
   uuid: string;
   name: string; 
   type: string; 
+  isBranch?: boolean;
 };
 
 export interface TopicBasicIndex { 

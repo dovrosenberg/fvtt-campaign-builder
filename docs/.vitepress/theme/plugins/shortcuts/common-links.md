@@ -1,5 +1,7 @@
 [Advanced Features]: /reference/backend/
 [Advanced Feature]: /reference/backend/
+[Branch]: /reference/world-building/content/organization#branches
+[Branches]: /reference/world-building/content/organization#branches
 [Location]: /reference/world-building/content/location/
 [Locations]: /reference/world-building/content/location/
 [Organization]: /reference/world-building/content/organization/

@@ -170,6 +170,7 @@ const CustomFieldsService = {
         { ...rpgNotesConfig(locationPrompt), sortOrder: 2 },
       ],
       [CustomFieldContentType.Organization]: [rpgNotesConfig(organizationPrompt) ],
+      [CustomFieldContentType.Branch]: [rpgNotesConfig(organizationPrompt) ],
       [CustomFieldContentType.PC]: [
       {
           name: backgroundKey,
@@ -255,6 +256,7 @@ const CustomFieldsService = {
       [CustomFieldContentType.Character]: 'Portrait of a character from a TTRPG campaign.',
       [CustomFieldContentType.Location]: 'Image of a location from a TTRPG campaign.',
       [CustomFieldContentType.Organization]: 'Image to be used alongside the description of an organization in a TTRPG campaign book.',
+      [CustomFieldContentType.Branch]: 'Image to be used alongside the description of an organization branch in a TTRPG campaign book.',
       [CustomFieldContentType.Arc]: 'Cover art for a chapter of a TTRPG campaign book.',
       [CustomFieldContentType.Front]: 'Art of a dramatic or threatening scene for a section of a TTRPG campaign book to to be used to describe the {name} front.',
       [CustomFieldContentType.PC]: '',
@@ -267,6 +269,7 @@ const CustomFieldsService = {
       [CustomFieldContentType.Character]: boxedTextKey,
       [CustomFieldContentType.Location]: boxedTextKey,
       [CustomFieldContentType.Organization]: boxedTextKey,
+      [CustomFieldContentType.Branch]: boxedTextKey,
       [CustomFieldContentType.PC]: '',
       [CustomFieldContentType.Arc]: 'description',
       [CustomFieldContentType.Front]: 'description',
@@ -293,6 +296,11 @@ const CustomFieldsService = {
       },
       [CustomFieldContentType.Organization]: { 
         ...{...defaultConfig, descriptionField: defaultDescriptions[CustomFieldContentType.Organization]},
+        composition: 'symbolic composition, emblematic layout, centered focal point, heraldic design',
+        camera: 'straight on view, symmetrical composition, professional presentation',
+      },
+      [CustomFieldContentType.Branch]: { 
+        ...{...defaultConfig, descriptionField: defaultDescriptions[CustomFieldContentType.Branch]},
         composition: 'symbolic composition, emblematic layout, centered focal point, heraldic design',
         camera: 'straight on view, symmetrical composition, professional presentation',
       },
@@ -336,7 +344,10 @@ const CustomFieldsService = {
           case Topics.Location:
             return CustomFieldContentType.Location;
           case Topics.Organization:
-            return CustomFieldContentType.Organization;
+            // Branches use their own content type for custom fields
+            return (entry as Entry).isBranch 
+              ? CustomFieldContentType.Branch 
+              : CustomFieldContentType.Organization;
           case Topics.PC:
             return CustomFieldContentType.PC;
           default:

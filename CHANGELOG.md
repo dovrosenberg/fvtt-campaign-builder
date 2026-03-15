@@ -12,6 +12,7 @@
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.0/module.zip)
 
 - Timelines! These are available on all content types.  They allow you to see notes from your world calendar.  Requires Calendaria to be used as your calendar.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/timelines))
+- Branches: New system for creating and managing organization branches to represent an organization's presence in specific locations. Branches can be quickly created from the parent organization, and appear under both the parent organization and the location in the directory tree. ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/world-building/content/organization#branches))
 - Added magic items tab to Arcs.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/arc/items))
 - Don't want another tab in Arcs?  No problem - there are now module settings that give you control over exactly which tabs you want to use for each type of content. This changes nothing else, so (for example) if you move lore to an arc but you've hidden the lore tab on arcs, you won't see it.  It's still there, though, if you un-hide the tab.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/configuration/tab-visibility))
 - New button on main screen for Characters and Locations that lets you open the Foundry character sheet/scene right from there. ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/world-building/content/entry))
@@ -23,6 +24,7 @@
 - Localized the text in a number of dialog boxes
 - Fixed a bug where adding monster names were missing in the Arc monster list.
 - Fixed a bug where AI text generation on custom fields wasn't working.
+- Fixed a bug where you couldn't add Entries to Story Webs from the directory context menu. 
 
 ## 1.9.3 - Changelog distribution
 ![](https://img.shields.io/badge/release%20date-February%2028%2C%202026-blue)

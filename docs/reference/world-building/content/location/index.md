@@ -49,3 +49,10 @@ When the Scenes tab is empty and a tag has a scene association:
 
 #### The scene list
 For each scene, you can see its name and whether it is in the current Foundry world or inside a compendium.  You can click the scene name to open the scene settings window.  You can right-click on a scene to get the same set of options you have when right-clicking a scene in the Foundry sidebar.
+
+## Branches
+Locations can have organization [branches] associated with them. These appear in a "Branches" folder under the location in the [Setting Directory](/reference/navigation/sidebar#setting-directory).
+
+::: warning
+Deleting a location will also delete all of its branches. You'll see a confirmation dialog confirming the deletion.
+:::

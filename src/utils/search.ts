@@ -27,6 +27,8 @@ export interface SearchableItem {
   species: string;
   /** Type classification of the item */
   type: string;
+  /** Whether this entry is a branch (organization presence in a location) */
+  isBranch?: boolean;
 }
 
 /**
@@ -49,6 +51,9 @@ export interface FCBSearchResult {
 
   /** Type classification of the result */
   type: string;
+
+  /** Whether this entry is a branch (organization presence in a location) */
+  isBranch?: boolean;
 }
 
 /**
@@ -254,6 +259,7 @@ class SearchService {
 
     // custom fields get added to description so they get a higher priority than snippets
     const customFieldType = 
+      entry.isBranch ? CustomFieldContentType.Branch :
       entry.topic === Topics.PC ? CustomFieldContentType.PC :
       entry.topic === Topics.Character ? CustomFieldContentType.Character :
       entry.topic === Topics.Location ? CustomFieldContentType.Location :
@@ -320,6 +326,14 @@ class SearchService {
           names.push(ancestorName);
       }
 
+      // For branches, also add the location parent name
+      if (entry.isBranch && hierarchy.locationParentId) {
+        const locationParentEntry = setting.topicFolders[Topics.Location]?.entryIndex.find(e=>e.uuid===hierarchy.locationParentId);
+        if (locationParentEntry) {
+          names.push(locationParentEntry.name);
+        }
+      }
+
       // do one layer of children as part of our experimenting
       // if we do this, I think we want to do it separately and weight it less than the other way
       // for (let i=0; i<hierarchy.children.length; i++) {
@@ -342,6 +356,7 @@ class SearchService {
       species: species,
       type: type,
       relationships: snippets.join(' '),
+      isBranch: entry.isBranch,
     };
   }
 
@@ -509,6 +524,7 @@ class SearchService {
       resultType: sr.resultType,
       topic: sr.topic,
       type: sr.type,
+      isBranch: sr.isBranch,
     }));
   }
 
@@ -570,7 +586,46 @@ class SearchService {
     }
     
     // Search across all fields with MiniSearch
-    const results = this._searchIndex.search(query);
+    let results = this._searchIndex.search(query);
+    
+    // Post-filter branch results: branches only appear when query matches BOTH org AND location names
+    // Branch names follow format "Org Name (Location Name)"
+    const queryTokens = query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+    
+    results = results.filter(sr => {
+      // Non-branch results pass through normally
+      if (!sr.isBranch) {
+        return true;
+      }
+      
+      // For branches, require at least one token to match org part AND one to match location part
+      const branchName = sr.name.toLowerCase();
+
+      // match by regex ("Org name (Location name)")
+      const branchRegex = /^(.*)\s*\((.*)\)$/;
+      const match = branchName.match(branchRegex);
+      if (!match) {
+        return true;
+      }
+      
+      const orgPart = match[1].trim();
+      const locationPart = match[2].trim();
+            
+      // Check if at least one token matches org part AND at least one matches location part
+      let orgMatch = false;
+      let locationMatch = false;
+      
+      for (const token of queryTokens) {
+        if (orgPart.includes(token)) {
+          orgMatch = true;
+        }
+        if (locationPart.includes(token)) {
+          locationMatch = true;
+        }
+      }
+      
+      return orgMatch && locationMatch;
+    });
     
     // Limit to 10 results
     // Results from MiniSearch already include the stored fields
@@ -580,6 +635,7 @@ class SearchService {
       resultType: sr.resultType,
       topic: sr.topic,
       type: sr.type,
+      isBranch: sr.isBranch,
     }));
   }
 

@@ -1,0 +1,142 @@
+<!--
+SettingDirectoryBranchNode: Setting Directory Branch Node
+
+Purpose
+- Displays a single branch entry in the directory tree
+
+Responsibilities
+- Show branch name with click-to-open functionality
+- Handle context menu for branch entries
+
+Props
+- node: DirectoryBranchEntryNode, the branch node to display
+- settingId: string, the setting UUID
+- topic: ValidTopic, the topic (Organization)
+
+Emits
+- None
+
+Slots
+- None
+
+Dependencies
+- Stores: mainStore, navigationStore
+
+-->
+
+<template>
+  <li class="fcb-branch-node">
+    <div class="details">
+      <div class="summary">      
+        <div class="fcb-directory-expand-button fcb-branch-spacer">
+          <!-- Branches don't have children, so no expand button -->
+        </div>
+        <div 
+          :class="`${node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
+          draggable="true"
+          :data-testid="`directory-branch-node-${node.id}`"
+          @click="onDirectoryItemClick($event, node)"
+          @contextmenu="onEntryContextMenu"
+        >
+          {{ node.name }}
+        </div>
+      </div>
+    </div>
+  </li>
+</template>
+
+<script setup lang="ts">
+  // library imports
+  import { PropType } from 'vue';
+  import { storeToRefs } from 'pinia';
+
+  // local imports
+  import { useMainStore, useNavigationStore, useSettingDirectoryStore } from '@/applications/stores';
+
+  // library components
+  import ContextMenu from '@imengyu/vue3-context-menu';
+
+  // local components
+  
+  // types
+  import { ValidTopic } from '@/types';
+  import { DirectoryBranchEntryNode } from '@/classes';
+
+  ////////////////////////////////
+  // props
+  const props = defineProps({
+    node: { 
+      type: Object as PropType<DirectoryBranchEntryNode>,
+      required: true,
+    },
+    settingId: {
+      type: String,
+      required: true
+    },
+    topic: {
+      type: Number as PropType<ValidTopic>,
+      required: true
+    },
+  });
+
+  ////////////////////////////////
+  // emits
+  
+  ////////////////////////////////
+  // store
+  const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
+  const { currentEntry, } = storeToRefs(mainStore);
+  
+  ////////////////////////////////
+  // data
+  
+  ////////////////////////////////
+  // computed data
+
+  ////////////////////////////////
+  // methods
+
+  ////////////////////////////////
+  // event handlers
+  const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryBranchEntryNode) => {
+    event.stopPropagation();
+    event.preventDefault();
+    
+    await navigationStore.openEntry(node.id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
+  };
+
+  const onEntryContextMenu = (event: MouseEvent): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+    event.stopPropagation();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: settingDirectoryStore.getTopicNodeContextMenuItems(
+        props.topic, 
+        props.node.id
+      )
+    });
+  };
+
+  ////////////////////////////////
+  // watchers
+
+  ////////////////////////////////
+  // lifecycle hooks
+</script>
+
+<style lang="scss" scoped>
+.fcb-branch-node {
+  .fcb-branch-spacer {
+    width: 20px;
+    display: inline-block;
+  }
+}
+</style>

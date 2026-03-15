@@ -28,6 +28,15 @@
       <ul>
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
         <template v-if="currentNode.expanded">
+          <!-- Branches folder - shown above regular children for organizations and locations -->
+          <SettingDirectoryBranchFolderComponent
+            v-if="branchFolderNode"
+            :key="branchFolderNode.id"
+            :node="branchFolderNode"
+            :setting-id="props.settingId"
+            :topic="props.topic"
+          />
+          
           <SettingDirectoryNodeComponent 
             v-for="child in sortedChildren"
             :key="child.id"
@@ -58,10 +67,11 @@
 
   // local components
   import SettingDirectoryNodeComponent from './SettingDirectoryNode.vue';
+  import SettingDirectoryBranchFolderComponent from './SettingDirectoryBranchFolder.vue';
   
   // types
-  import { EntryNodeDragData, ValidTopic } from '@/types';
-  import { Entry, DirectoryEntryNode, FCBSetting, TopicFolder } from '@/classes';
+  import { EntryNodeDragData, ValidTopic, Topics } from '@/types';
+  import { Entry, DirectoryEntryNode, FCBSetting, TopicFolder, DirectoryBranchFolderNode } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -105,6 +115,48 @@
   const sortedChildren = computed((): DirectoryEntryNode[] => {
     const children = (currentNode.value).loadedChildren;
     return children.sort((a, b) => a.name.localeCompare(b.name)) as DirectoryEntryNode[];
+  });
+
+  /**
+   * Returns a Branches folder node if this entry has child branches.
+   * Only organizations and locations can have branches.
+   */
+  const branchFolderNode = computed((): DirectoryBranchFolderNode | null => {
+    // Only organizations and locations can have branches
+    if (props.topic !== Topics.Organization && props.topic !== Topics.Location) {
+      return null;
+    }
+
+    // Check if there are child branches in the hierarchy
+    if (!currentSetting.value) {
+      return null;
+    }
+
+    const hierarchy = currentSetting.value.getEntryHierarchy(currentNode.value.id);
+    const childBranches = hierarchy?.childBranches || [];
+
+    if (childBranches.length === 0) {
+      return null;
+    }
+
+    // Get the topic folder for creating the branch folder node
+    const topicFolder = currentSetting.value.topicFolders[props.topic];
+    if (!topicFolder) {
+      return null;
+    }
+
+    // Check if the branch folder is expanded
+    const expandedIds = currentSetting.value.expandedIds || {};
+    const branchFolderId = `${currentNode.value.id}.branches`;
+    const expanded = expandedIds[branchFolderId] || false;
+
+    return new DirectoryBranchFolderNode(
+      currentNode.value.id,
+      topicFolder,
+      childBranches,
+      [],
+      expanded
+    );
   });
 
   const showTypesInTree = computed(() => {

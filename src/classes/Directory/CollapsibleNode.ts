@@ -2,9 +2,9 @@
  * A class representing a node (which might have children) in the topic or campaign tree structures
  */
 
-import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, FCBSetting, DirectoryArcNode, DirectoryFrontFolder, DirectoryFrontNode, DirectoryStoryWebFolder, DirectoryStoryWebNode } from '@/classes';
+import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, FCBSetting, DirectoryArcNode, DirectoryFrontFolder, DirectoryFrontNode, DirectoryStoryWebFolder, DirectoryStoryWebNode, DirectoryBranchEntryNode, DirectoryBranchFolderNode } from '@/classes';
 
-type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode | DirectoryArcNode | DirectoryFrontFolder | DirectoryFrontNode | DirectoryStoryWebFolder | DirectoryStoryWebNode;
+type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode | DirectoryArcNode | DirectoryFrontFolder | DirectoryFrontNode | DirectoryStoryWebFolder | DirectoryStoryWebNode | DirectoryBranchEntryNode | DirectoryBranchFolderNode;
 
 export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   protected static _currentSetting: FCBSetting | null = null;

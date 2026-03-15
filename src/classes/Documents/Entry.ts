@@ -3,7 +3,7 @@ import { RelatedJournal, RelatedEntryDetails, ValidTopic, Topics, ToDoTypes, Val
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder,  } from '@/classes';
-import { getParentId } from '@/utils/hierarchy';
+import { getLocationId, getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore, useSettingDirectoryStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
@@ -26,6 +26,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     topic: Topics.None,  
     type: '',  
     tags: [],  
+    isBranch: false,
     relationships: {
       [Topics.Character]: {},
       [Topics.Location]: {},
@@ -163,10 +164,12 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
         uuid: entry.uuid,
         name: entry.name,
         type: entry.type,
+        isBranch: entry.isBranch,
       };
       topicFolder.entryIndex.push(entryItem);
     } else {
       entryItem.name = entry.name;
+      entryItem.isBranch = entry.isBranch;
     }
 
     // if there's no parent, add it to topNodes
@@ -281,6 +284,15 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     this._clone.system.type = value;
   }
 
+  /** whether this entry is a branch (organization presence in a location) */
+  get isBranch(): boolean {
+    return this._clone.system.isBranch || false;
+  }
+
+  set isBranch(value: boolean) {
+    this._clone.system.isBranch = value;
+  }
+
   get description(): string {
     return this._clone.text?.content || '';
   }
@@ -371,6 +383,15 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     return getParentId(setting, this);
   }
 
+  /** for branches */
+  public async getLocationId(): Promise<string | null> {
+    if (!this.isBranch)
+      return null;
+
+    const setting = await this.getSetting();
+    return getLocationId(setting, this);
+  }
+
   protected _prepData(data: EntryDocClass): void {
     data.system.relationships = CleanKeysService.cleanTopicKeysOnSave(data.system.relationships);
   }
@@ -383,7 +404,8 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
    */
   public async save(): Promise<void> {
     const needToAddType = this._doc.system.type !== this._clone.system.type;
-
+    const nameChanged = this._doc.name !== this._clone.name;
+    
     // we attempt to save first - because if it fails, we don't 
     //    want to adjust anything else
     try {
@@ -411,11 +433,13 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
         uuid: this.uuid,
         name: this._clone.name,
         type: this._clone.system.type,
+        isBranch: this._clone.system.isBranch,
       };
       topicFolder.entryIndex.push(entryItem);
     } else {
       entryItem.name = this._clone.name;
       entryItem.type = this._clone.system.type;
+      entryItem.isBranch = this._clone.system.isBranch;
     }
     await topicFolder.save();
  
@@ -427,6 +451,15 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     const sessionNumber = campaign?.currentSessionNumber;
     if (useMainStore().isInPlayMode && campaign && sessionNumber!==null) {
       await campaign.mergeToDoItem(ToDoTypes.Entry, `Edited during session ${sessionNumber}`, this.uuid);
+    }
+
+    // if we changed the name and it's an org or location (and not a branch), update the branches
+    if (
+      (this.topic === Topics.Organization || this.topic === Topics.Location) && 
+      !this.isBranch &&
+      nameChanged
+    ) {
+      await this.syncBranchNames();
     }
 
     // if we might have added a type, refresh the tree
@@ -486,6 +519,61 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
 
       topicFolder.types = updatedTypes;
       await topicFolder.save();
+    }
+  }
+
+  /**
+   * Synchronizes branch names when an organization or location is renamed.
+   * Branch names follow the pattern "Organization Name (Location Name)".
+   * Should be called after saving an organization or location entry.
+   */
+  public async syncBranchNames(): Promise<void> {
+    const setting = await this.getSetting();
+    if (!setting) {
+      return;
+    }
+
+    const hierarchy = setting.getEntryHierarchy(this.uuid);
+    if (!hierarchy) {
+      return;
+    }
+
+    // Only organizations and locations can have branches
+    if (this.topic !== Topics.Organization && this.topic !== Topics.Location) {
+      return;
+    }
+
+    // Get branches to update
+    const branchIds = hierarchy.childBranches || [];
+    
+    for (const branchId of branchIds) {
+      const branch = await Entry.fromUuid(branchId);
+      if (!branch || !branch.isBranch) {
+        continue;
+      }
+
+      // Get the organization and location for naming
+      const orgId = getParentId(setting, branch);
+      const locId = getLocationId(setting, branch);
+
+      if (!orgId || !locId) {
+        continue;
+      }
+
+      const org = await Entry.fromUuid(orgId);
+      const loc = await Entry.fromUuid(locId);
+
+      if (!org || !loc) {
+        continue;
+      }
+
+      // Update branch name: "Org Name (Location Name)"
+      const newBranchName = `${org.name} (${loc.name})`;
+      
+      if (branch.name !== newBranchName) {
+        branch.name = newBranchName;
+        await branch.save();
+      }
     }
   }
  

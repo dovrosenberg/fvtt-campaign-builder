@@ -39,6 +39,7 @@ export const entryIndexFields = (): any => ({
     'pages.uuid', 
     'pages.system.topic',
     'pages.system.type',
-    'pages.system.actorId'
+    'pages.system.actorId',
+    'pages.system.isBranch'
   ]
 } as any);

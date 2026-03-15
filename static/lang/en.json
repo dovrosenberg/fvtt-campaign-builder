@@ -439,6 +439,7 @@
       "journals": "Journals",
       "searching": "Searching",
       "copyOf": "Copy of {name}",
+      "branchesFolder": "Branches",
       "tableHeaders": {
         "actions": "Actions",
         "name": "Name",
@@ -831,6 +832,18 @@
         "title": "Delete entry?",
         "message": "Are you sure you want to delete this entry?  It will be removed from all relationships and sessions.  Any references to it in editors will become broken."
       },
+      "deleteEntryWithBranches": {
+        "title": "Delete entry?",
+        "message": "This will also delete {count} branch(s). Are you sure you want to continue?"
+      },
+      "createBranches": {
+        "title": "Create Branches",
+        "message": "Select locations to create branches for {organization}:",
+        "loading": "Loading locations...",
+        "noLocations": "No locations available",
+        "selectedCount": "{count} location(s) selected",
+        "existingBranch": "(branch exists)"
+      },
       "addToDo": {
         "title": "Add To-do",
         "prompt": "Enter to-do text:"
@@ -1156,7 +1169,8 @@
         }
       },
       "directoryEntry": {
-        "delete": "Delete entry"
+        "delete": "Delete entry",
+        "createBranches": "Create Branches"
       },
       "typeFolder": {
         "create": "Create new"

@@ -32,8 +32,9 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
     // we only want to load ones not already in _loadedNodes, unless its in updateIds
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
+    // Filter out branches - they should only appear in Branches folders, not as regular children
     const entryIndices = this.topicFolder.entryIndex
-      .filter((index: EntryBasicIndex)=>uuidsToLoad.includes(index.uuid));
+      .filter((index: EntryBasicIndex)=>uuidsToLoad.includes(index.uuid) && !index.isBranch);
 
     for (const index of entryIndices) {
       const newNode = DirectoryEntryNode.fromEntryBasicIndex(index, this.topicFolder);

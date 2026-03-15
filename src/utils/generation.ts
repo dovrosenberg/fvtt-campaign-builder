@@ -132,6 +132,7 @@ export const generateImage = async (forSetting: FCBSetting, windowTabType: Windo
       [CustomFieldContentType.Character]: ApiCustomGenerateImagePostRequestContentTypeEnum.Character,
       [CustomFieldContentType.Location]: ApiCustomGenerateImagePostRequestContentTypeEnum.Location,
       [CustomFieldContentType.Organization]: ApiCustomGenerateImagePostRequestContentTypeEnum.Organization,
+      [CustomFieldContentType.Branch]: ApiCustomGenerateImagePostRequestContentTypeEnum.Organization,
       [CustomFieldContentType.Arc]: ApiCustomGenerateImagePostRequestContentTypeEnum.Arc,
       [CustomFieldContentType.Front]: ApiCustomGenerateImagePostRequestContentTypeEnum.Front,
       [CustomFieldContentType.PC]: ApiCustomGenerateImagePostRequestContentTypeEnum.Pc,

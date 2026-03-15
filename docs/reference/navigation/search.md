@@ -33,6 +33,12 @@ This box searches all [^Entries], looking across these fields:
 
 So, searching for "Sally sibling" would return an entry with a relationship of "sibling" to a Character named Sally.  That result would be lower on the list, though, than Sally herself.
 
+::: info Branch Search Behavior
+[Branches] have a special search behavior: they only appear in results when the query matches both the organization name AND the location name. 
+
+For example, searching for "Magic" won't find "Magic Society (Waterdeep)" unless the query also includes a term matching "Waterdeep". This prevents branches from overwhelming the search results whenever just part of the name happens to match.
+:::
+
 ### Searching PCs
 The search box also searches across [^PCs].  It looks across:
 * Name

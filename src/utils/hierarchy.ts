@@ -66,9 +66,27 @@ export function getParentId(FCBSetting: FCBSetting, entry: Entry): string | null
 }
 
 /**
+ * Gets the location parent ID for a branch.
+ * Returns null for topics that don't support hierarchy or entries without parents.
+ * 
+ * @param FCBSetting - The FCBSetting containing the hierarchy data
+ * @param entry - The entry to get the parent ID for
+ * @returns The UUID of the parent entry, or null if no parent exists
+ */
+export function getLocationId(FCBSetting: FCBSetting, entry: Entry): string | null {
+  if (!hasHierarchy(entry.topic))
+    return null;
+
+  const hierarchies = FCBSetting.hierarchies;
+  const hierarchy = hierarchies[entry.uuid];
+  return hierarchy?.locationParentId ?? null;
+}
+
+/**
  * Cleans up hierarchy relationships after an item is deleted.
  * Removes the deleted item from all hierarchy trees and reconnects its children to its parent.
  * Also updates the topic's top nodes list and cleans up orphaned relationships.
+ * Handles branch cleanup when a location or organization is deleted.
  * 
  * @private We need to remove it from any trees where it is a child or ancestor, and from the ancestor
  * list of all the items that will now be orphaned below it
@@ -116,6 +134,18 @@ export const cleanTrees = async function(FCBSetting: FCBSetting, topicFolder: To
     ];
 }
 
+  // remove it from the childBranches of its org and location
+  if (deletedHierarchy.locationParentId && hierarchies[deletedHierarchy.locationParentId]) {
+    hierarchies[deletedHierarchy.locationParentId].childBranches = 
+      (hierarchies[deletedHierarchy.locationParentId].childBranches || [])
+        .filter(id => id !== deletedItemId);
+  }
+  if (deletedHierarchy.parentId && hierarchies[deletedHierarchy.parentId]) {
+    hierarchies[deletedHierarchy.parentId].childBranches = 
+      (hierarchies[deletedHierarchy.parentId].childBranches || [])
+        .filter(id => id !== deletedItemId);
+  }
+  
   // Now process all other entries - we're looking for downstream descendants
   //    that need to have their ancestor list cleaned
   for (const id in hierarchies) {

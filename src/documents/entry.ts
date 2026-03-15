@@ -8,6 +8,9 @@ export const EntrySchema = {
   type: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
   tags: schemas.Tags(),
 
+  /** whether this is a branch (organization presence in a location) */
+  isBranch: new fields.BooleanField({ required: true, nullable: false, initial: false }),
+
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
@@ -72,6 +75,7 @@ export interface EntryDoc extends JournalEntryPage {
     topic: ValidTopic;
     type: string;
     tags: string[];
+    isBranch: boolean;
     customFields: Record<string, string>;
     customFieldHeights: Record<string, number>;
 

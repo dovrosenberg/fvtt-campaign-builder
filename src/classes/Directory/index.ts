@@ -4,6 +4,8 @@ export * from './DirectoryTypeNode';
 export * from './DirectoryTypeEntryNode';
 export * from './DirectoryTopicTreeNode';
 export * from './DirectoryEntryNode';
+export * from './DirectoryBranchEntryNode';
+export * from './DirectoryBranchFolderNode';
 export * from './DirectoryTopicFolderNode';
 export * from './DirectoryCampaignNode';
 export * from './DirectorySessionNode';
