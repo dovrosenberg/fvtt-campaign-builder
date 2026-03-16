@@ -32,7 +32,7 @@ export async function inputDialog(title: string, prompt: string, initialValue?: 
       },
       container,
       () => {} // No ref callback needed
-    );
+    ) || null;
 
     // Cleanup function
     function cleanup() {

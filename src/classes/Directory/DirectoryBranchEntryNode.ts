@@ -55,7 +55,7 @@ export class DirectoryBranchEntryNode extends CollapsibleNode<never> {
    */
   static fromEntryBasicIndex = (
     entry: EntryBasicIndex,
-    parentTopicFolder: TopicFolder,
+    _parentTopicFolder: TopicFolder,
     organizationParentId: string
   ): DirectoryBranchEntryNode => {
     if (!CollapsibleNode._currentSetting)
