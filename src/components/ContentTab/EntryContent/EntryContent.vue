@@ -11,6 +11,7 @@
           class="fcb-input-name"
           data-testid="entry-name-input"
           unstyled
+          :disabled="currentEntry?.isBranch"
           :placeholder="namePlaceholder"
           :pt="{
             root: { class: 'full-height' }
