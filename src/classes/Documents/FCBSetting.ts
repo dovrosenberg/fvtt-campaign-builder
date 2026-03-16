@@ -510,6 +510,17 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public async deleteEntryFromSetting(topicFolder: TopicFolder, entryId: string) {
     const hierarchy = this.hierarchies[entryId];
     
+    // Cascade-delete branches before cleaning trees
+    if (hierarchy?.childBranches?.length) {
+      for (const branchId of hierarchy.childBranches) {
+        const branch = await Entry.fromUuid(branchId);
+        if (branch) {
+          // Delete the branch entry (its hierarchy cleanup happens recursively -- except for now they can't have children so it doesn't matter)
+          await branch.delete();
+        }
+      }
+    }
+    
     let topNodesCleaned = false;
     if (hierarchy) {
       // delete from any trees (also cleans up topNodes)

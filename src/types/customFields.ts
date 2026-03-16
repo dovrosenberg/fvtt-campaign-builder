@@ -11,12 +11,12 @@ export enum CustomFieldContentType {
   Character,
   Location,
   Organization,
-  Branch,
   Arc,
   Front,
   PC,
   Session,
   Campaign,
+  Branch,
 }
 
 // types and functions used to manage topic hierarchies
