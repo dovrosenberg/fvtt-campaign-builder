@@ -153,6 +153,10 @@
 
     const topicFolder = currentSetting.value?.topicFolders[props.topic];
 
+    // branches can't be re-parented
+    if (fcbData.isBranch)
+      return;
+
     // make sure it's not the same item
     const parentId = props.node.id;
     if (fcbData.childId===parentId)

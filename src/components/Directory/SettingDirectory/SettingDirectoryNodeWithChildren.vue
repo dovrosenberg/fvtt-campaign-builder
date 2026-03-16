@@ -239,6 +239,10 @@
     if (!fcbData) 
       return;
           
+    // branches can't be re-parented
+    if (fcbData.isBranch)
+      return;
+
     // make sure it's not the same item
     const parentId = currentNode.value.id;
     if (fcbData.childId===parentId)

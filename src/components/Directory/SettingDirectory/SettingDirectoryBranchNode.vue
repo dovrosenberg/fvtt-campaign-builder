@@ -36,6 +36,7 @@ Dependencies
           draggable="true"
           :data-testid="`directory-branch-node-${node.id}`"
           @click="onDirectoryItemClick($event, node)"
+          @dragstart="onDragstart"
           @contextmenu="onEntryContextMenu"
         >
           {{ node.name }}
@@ -52,6 +53,7 @@ Dependencies
 
   // local imports
   import { useMainStore, useNavigationStore, useSettingDirectoryStore } from '@/applications/stores';
+  import DragDropService from '@/utils/dragDrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -59,8 +61,9 @@ Dependencies
   // local components
   
   // types
-  import { ValidTopic } from '@/types';
+  import { ValidTopic, Topics } from '@/types';
   import { DirectoryBranchEntryNode } from '@/classes';
+  import { EntryNodeDragData } from '@/types/dragDrop';
 
   ////////////////////////////////
   // props
@@ -105,6 +108,24 @@ Dependencies
     event.preventDefault();
     
     await navigationStore.openEntry(node.id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
+  };
+
+  /** Handle drag start - branches are Organization entries */
+  const onDragstart = async (event: DragEvent): Promise<void> => {
+    event.stopPropagation();
+
+    // Create the FCB data - branches are Organization entries
+    const fcbData = {
+      type: 'fcb-entry',
+      topic: Topics.Organization,
+      name: props.node.name,
+      childId: props.node.id,
+      typeName: props.node.type ?? '',
+      isBranch: true,
+    } as EntryNodeDragData;
+
+    // Set combined drag data for both canvas drops and internal operations
+    DragDropService.setCombinedDragData(event, props.node.id, fcbData);
   };
 
   const onEntryContextMenu = (event: MouseEvent): void => {

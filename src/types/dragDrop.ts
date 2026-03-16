@@ -7,6 +7,7 @@ export interface EntryNodeDragData {
   name: string;
   typeName: string;
   topic: ValidTopic;
+  isBranch?: boolean;
 };
 
 export interface StoryWebNodeDragData {
