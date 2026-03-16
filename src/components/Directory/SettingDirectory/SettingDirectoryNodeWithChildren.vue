@@ -71,7 +71,7 @@
   
   // types
   import { EntryNodeDragData, ValidTopic, Topics } from '@/types';
-  import { Entry, DirectoryEntryNode, FCBSetting, TopicFolder, DirectoryBranchFolderNode, CollapsibleNode } from '@/classes';
+  import { Entry, DirectoryEntryNode, FCBSetting, TopicFolder, DirectoryBranchFolderNode } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -114,12 +114,14 @@
   // computed data
   const sortedChildren = computed((): DirectoryEntryNode[] => {
     const children = (currentNode.value).loadedChildren;
-    return children.sort((a, b) => a.name.localeCompare(b.name)) as DirectoryEntryNode[];
+    // Filter out branch folder nodes - they're handled separately
+    const entryChildren = children.filter((c) => !c.id.endsWith('.branches'));
+    return entryChildren.sort((a, b) => a.name.localeCompare(b.name)) as DirectoryEntryNode[];
   });
 
   /**
    * Returns a Branches folder node if this entry has child branches.
-   * Only organizations and locations can have branches.
+   * The branch folder is now loaded via the children array like story webs.
    */
   const branchFolderNode = computed((): DirectoryBranchFolderNode | null => {
     // Only organizations and locations can have branches
@@ -127,47 +129,9 @@
       return null;
     }
 
-    // Check if there are child branches in the hierarchy
-    if (!currentSetting.value) {
-      return null;
-    }
-
-    const hierarchy = currentSetting.value.getEntryHierarchy(currentNode.value.id);
-    const childBranches = hierarchy?.childBranches || [];
-
-    if (childBranches.length === 0) {
-      return null;
-    }
-
-    // Get the Organization topic folder - branches are always Organization entries
-    // even when displayed under a Location
-    const topicFolder = currentSetting.value.topicFolders[Topics.Organization];
-    if (!topicFolder) {
-      return null;
-    }
-
-    // Check if the branch folder is expanded
-    const expandedIds = currentSetting.value.expandedIds || {};
+    // The branch folder is now in loadedChildren (loaded via _loadNodeList)
     const branchFolderId = `${currentNode.value.id}.branches`;
-    const expanded = expandedIds[branchFolderId] || false;
-
-    // Check if we already have a loaded branch folder node - reuse it to preserve loadedChildren
-    const existingNode = CollapsibleNode._loadedNodes[branchFolderId] as DirectoryBranchFolderNode | undefined;
-    if (existingNode) {
-      existingNode.expanded = expanded;
-      return existingNode;
-    }
-
-    const newNode = new DirectoryBranchFolderNode(
-      currentNode.value.id,
-      topicFolder,
-      childBranches,
-      [],
-      expanded
-    );
-    // Store in _loadedNodes so we can reuse it and preserve loadedChildren
-    CollapsibleNode._loadedNodes[branchFolderId] = newNode;
-    return newNode;
+    return currentNode.value.loadedChildren.find((c) => c.id === branchFolderId) as DirectoryBranchFolderNode || null;
   });
 
   const showTypesInTree = computed(() => {
