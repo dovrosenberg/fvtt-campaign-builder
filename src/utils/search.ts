@@ -134,7 +134,7 @@ class SearchService {
       fields: ['name', 'tags', 'description', 'relationships', 'topic', 'type', 'species'],
 
       // Fields to include in search results 
-      storeFields: ['name', 'topic', 'type', 'description', 'resultType', 'tags'],
+      storeFields: ['name', 'topic', 'type', 'description', 'resultType', 'tags', 'isBranch'],
 
       searchOptions: {
         boost: { 
@@ -589,8 +589,6 @@ class SearchService {
     let results = this._searchIndex.search(query);
     
     // Post-filter branch results: branches only appear when query matches BOTH org AND location names
-    // Branch names follow format "Org Name (Location Name)"
-    const queryTokens = query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
     
     results = results.filter(sr => {
       // Non-branch results pass through normally
@@ -598,6 +596,8 @@ class SearchService {
         return true;
       }
       
+      const matchedTerms = sr.terms.map(term => term.toLowerCase());
+
       // For branches, require at least one token to match org part AND one to match location part
       const branchName = sr.name.toLowerCase();
 
@@ -615,11 +615,11 @@ class SearchService {
       let orgMatch = false;
       let locationMatch = false;
       
-      for (const token of queryTokens) {
-        if (orgPart.includes(token)) {
+      for (const term of matchedTerms) {
+        if (orgPart.includes(term)) {
           orgMatch = true;
         }
-        if (locationPart.includes(token)) {
+        if (locationPart.includes(term)) {
           locationMatch = true;
         }
       }
