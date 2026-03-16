@@ -195,7 +195,7 @@
     // font-size: var(--fcb-font-size);
     // font-family: var(--fcb-font-family);
 
-    .fcb-directory-entry, .fcb-current-directory-entry {
+    .fcb-directory-entry, .fcb-current-directory-entry, .fcb-current-directory-branch {
       position: relative;
       padding-left: 1em;
       cursor: pointer;
@@ -206,14 +206,15 @@
     }
 
     // bold the active one
-    .fcb-current-directory-entry {
+    .fcb-current-directory-entry, .fcb-current-directory-branch {
       color: var(--fcb-accent-400);
       font-weight: 700;
     }
 
     // add margin when these are immediate children of summary
     div.summary.top > .fcb-directory-entry,
-    div.summary.top > .fcb-current-directory-entry {
+    div.summary.top > .fcb-current-directory-entry,
+    div.summary.top > .fcb-current-directory-branch {
       margin-left: 8px;
     }
 

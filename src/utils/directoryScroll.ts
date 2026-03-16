@@ -101,7 +101,7 @@ const DirectoryScrollService = {
       await DirectoryScrollService.scrollToEntryInGroupedView(entry, topicNode as DirectoryTopicFolderNode);
     } else {
       // Handle nested hierarchy view
-      await DirectoryScrollService.scrollToEntryInNestedView(entryId);
+      await DirectoryScrollService.scrollToEntryInNestedView(entry);
     }
 
     // Wait for the DOM to update
@@ -139,11 +139,12 @@ const DirectoryScrollService = {
   /**
    * Scrolls to an entry in the nested hierarchy directory view.
    * Expands all ancestor nodes in the hierarchy to make the entry visible.
+   * For branch entries, also expands the branch folder.
    * 
-   * @param entryId - The UUID of the entry to scroll to
+   * @param entry - The entry to scroll to
    * @returns A promise that resolves when the scroll operation is complete
    */
-  scrollToEntryInNestedView: async (entryId: string): Promise<void> => {
+  scrollToEntryInNestedView: async (entry: Entry): Promise<void> => {
     const mainStore = useMainStore();
     const settingDirectoryStore = useSettingDirectoryStore();
     
@@ -152,6 +153,8 @@ const DirectoryScrollService = {
     if (!currentSetting) {
       return;
     }
+
+    const entryId = entry.uuid;
 
     // Get the entry hierarchy to find all ancestors that need to be expanded
     const hierarchy = currentSetting.getEntryHierarchy(entryId);
@@ -165,6 +168,15 @@ const DirectoryScrollService = {
       if (!currentSetting.expandedIds[ancestorId]) {
         await currentSetting.expandNode(ancestorId);
         expandedNodeIds.push(ancestorId);
+      }
+    }
+
+    // For branch entries, also expand the branch folder
+    if (entry.isBranch && hierarchy?.parentId) {
+      const branchFolderId = `${hierarchy.parentId}.branches`;
+      if (!currentSetting.expandedIds[branchFolderId]) {
+        await currentSetting.expandNode(branchFolderId);
+        expandedNodeIds.push(branchFolderId);
       }
     }
 

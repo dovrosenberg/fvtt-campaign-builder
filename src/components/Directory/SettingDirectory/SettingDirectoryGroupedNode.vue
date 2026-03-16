@@ -2,7 +2,11 @@
   <!-- an entry node beneath a topic -- don't show children -->
   <li v-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
-      :class="`${props.node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
+      :class="
+        props.node.id===currentEntry?.uuid && props.topic===Topics.Organization ? 'fcb-current-directory-entry' : 
+        props.node.id===currentEntry?.uuid ? 'fcb-current-directory-branch' : 
+        'fcb-directory-entry'
+      "
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick"
@@ -31,7 +35,7 @@
   // local components
 
   // types
-  import { EntryNodeDragData, ValidTopic } from '@/types';
+  import { EntryNodeDragData, Topics, ValidTopic } from '@/types';
   import { DirectoryTypeEntryNode, } from '@/classes';
   
   ////////////////////////////////

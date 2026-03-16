@@ -10,7 +10,11 @@
     <div class="details">
       <div class="summary">
         <div 
-          :class="`${props.node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
+          :class="
+            props.node.id===currentEntry?.uuid && props.topic===Topics.Organization ? 'fcb-current-directory-entry' : 
+            props.node.id===currentEntry?.uuid ? 'fcb-current-directory-branch' : 
+            'fcb-directory-entry'
+          "
           style="pointer-events: auto;"
           draggable="true"
           :data-testid="`directory-entry-${props.node.id}`"
@@ -45,7 +49,7 @@
   import SettingDirectoryNodeWithChildren from './SettingDirectoryNodeWithChildren.vue';
   
   // types
-  import { EntryNodeDragData, ValidTopic } from '@/types';
+  import { EntryNodeDragData, ValidTopic, Topics } from '@/types';
   import { DirectoryEntryNode, Entry, FCBSetting, TopicFolder } from '@/classes';
 
   ////////////////////////////////

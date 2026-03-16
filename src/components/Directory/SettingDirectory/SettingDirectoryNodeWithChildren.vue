@@ -13,7 +13,11 @@
           <span v-if="currentNode.expanded">-</span><span v-else>+</span>
         </div>
         <div 
-          :class="`${currentNode.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
+          :class="
+            currentNode.id===currentEntry?.uuid && props.topic===Topics.Organization ? 'fcb-current-directory-entry' : 
+            currentNode.id===currentEntry?.uuid ? 'fcb-current-directory-branch' : 
+            'fcb-directory-entry'
+          "
           draggable="true"
           :data-testid="`directory-entry-with-children-${currentNode.id}`"
           @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"

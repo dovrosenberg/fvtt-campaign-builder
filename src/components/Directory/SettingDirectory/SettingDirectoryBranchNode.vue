@@ -31,8 +31,13 @@ Dependencies
         <div class="fcb-directory-expand-button fcb-branch-spacer">
           <!-- Branches don't have children, so no expand button -->
         </div>
+        <!-- the branch under locations gets special tag so it doesn't get scrolled to -->
         <div 
-          :class="`${node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
+          :class="
+            node.id===currentEntry?.uuid && props.topic===Topics.Organization ? 'fcb-current-directory-entry' : 
+            node.id===currentEntry?.uuid ? 'fcb-current-directory-branch' : 
+            'fcb-directory-entry'
+          "
           draggable="true"
           :data-testid="`directory-branch-node-${node.id}`"
           @click="onDirectoryItemClick($event, node)"

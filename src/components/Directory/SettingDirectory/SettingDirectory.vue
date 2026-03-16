@@ -396,7 +396,7 @@
     }
 
     // bold the active one
-    .fcb-current-directory-entry {
+    .fcb-current-directory-entry, .fcb-current-directory-branch {
       color: var(--fcb-accent-400);
       font-weight: 700;
       cursor: pointer;
