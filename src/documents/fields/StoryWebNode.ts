@@ -15,6 +15,7 @@ export enum StoryWebNodeTypes {
   Character = 'character',
   Location = 'location',
   Organization = 'organization',
+  Branch = 'branch',
   PC = 'pc',
   Danger = 'danger',
   Custom = 'custom',
@@ -25,6 +26,7 @@ export const STORY_WEB_TO_CUSTOM_FIELD_MAP: Record<StoryWebNodeTypes, CustomFiel
   [StoryWebNodeTypes.Character]: CustomFieldContentType.Character,
   [StoryWebNodeTypes.Location]: CustomFieldContentType.Location,
   [StoryWebNodeTypes.Organization]: CustomFieldContentType.Organization,
+  [StoryWebNodeTypes.Branch]: CustomFieldContentType.Branch,
   [StoryWebNodeTypes.PC]: CustomFieldContentType.PC,
   [StoryWebNodeTypes.Danger]: null, // Dangers don't have custom fields
   [StoryWebNodeTypes.Custom]: null, // Custom nodes don't have custom fields
@@ -35,6 +37,7 @@ export const CUSTOM_FIELD_TO_STORYWEB_MAP: Partial<Record<CustomFieldContentType
   [CustomFieldContentType.Character]: StoryWebNodeTypes.Character,
   [CustomFieldContentType.Location]: StoryWebNodeTypes.Location,
   [CustomFieldContentType.Organization]: StoryWebNodeTypes.Organization,
+  [CustomFieldContentType.Branch]: StoryWebNodeTypes.Branch,
   [CustomFieldContentType.PC]: StoryWebNodeTypes.PC,
   // Note: Setting, Arc, Front, Session, Campaign don't map to StoryWeb nodes
 };

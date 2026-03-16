@@ -465,6 +465,8 @@
       "fields": {
         "type": "Type",
         "parent": "Parent",
+        "parentOrganization": "Parent Organization",
+        "branchLocation": "Location",
         "campaign": "Campaign",
         "sessionNumber": "Number",
         "sessionDate": "Session Date",
@@ -594,7 +596,8 @@
         "character": "Character"
       },
       "organization": {
-        "organization": "Organization"
+        "organization": "Organization",
+        "branch": "Branch"
       },
       "location": {
         "location": "Location"

@@ -112,7 +112,7 @@ export class MigrationV1_10 implements Migration {
     // Migrate genericFoundryTab -> Entry foundry tabs for all topics
     const genericFoundryTab = ModuleSettings.get(SettingKey.genericFoundryTab);
 
-    // Actually, I'll handle this properly: if genericFoundryTab was false, hide the foundry tabs
+    // if genericFoundryTab was false, hide the foundry tabs
     if (genericFoundryTab === false) {
       newSettings[TabVisibilityItem.EntryCharacterFoundry] = false;
       newSettings[TabVisibilityItem.EntryLocationFoundry] = false;

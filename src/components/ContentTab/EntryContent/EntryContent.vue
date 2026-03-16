@@ -107,6 +107,33 @@
             />
           </div>
 
+          <!-- Branch info: show parent org and location as read-only links -->
+          <template v-if="currentEntry?.isBranch">
+            <div 
+              class="flexrow form-group"
+            >
+              <LabelWithHelp
+                label-text="labels.fields.parentOrganization"
+              />
+              <div class="fcb-branch-link">
+                <a @click.prevent.stop="onParentOrgClick">{{ parentOrgName }}</a>
+              </div>
+            </div>
+
+            <div 
+              v-if="currentEntry?.isBranch"
+              class="flexrow form-group"
+              style="margin-bottom: 8px;"
+            >
+              <LabelWithHelp
+                label-text="labels.fields.branchLocation"
+              />
+              <div class="fcb-branch-link">
+                <a @click.prevent.stop="onLocationClick">{{ locationName }}</a>
+              </div>
+            </div>
+          </template>
+
           <div 
             v-if="showHierarchy"
             class="flexrow form-group"
@@ -404,7 +431,28 @@
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
   const canGenerate = computed(() => topic.value && [Topics.Character, Topics.Location, Topics.Organization].includes(topic.value));
   const generateDisabled = computed(() => !available.value);
-  const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
+  const showHierarchy = computed((): boolean => {
+    if (topic.value === null) return false;
+    if (!hasHierarchy(topic.value)) return false;
+    // Branches can't change parent - hide the dropdown
+    if (currentEntry.value?.isBranch) return false;
+    return true;
+  });
+
+  // Branch parent name computed properties
+  const parentOrgName = computed((): string => {
+    // parse the branch name
+    const branchName = currentEntry.value?.name || '';
+    const parts = branchName.split(' (');
+    return (parts.length < 2) ? '' : parts[0]; 
+  });
+
+  const locationName = computed((): string => {
+    // parse the branch name
+    const branchName = currentEntry.value?.name || '';
+    const parts = branchName.split(' (');
+    return (parts.length < 2) ? '' : parts[1].replace(')', ''); 
+  });
 
   // Voice recording computed properties
   const showVoiceButton = computed(() => {
@@ -609,6 +657,21 @@
     descriptionHeight.value = height;
     currentEntry.value?.setCustomFieldHeight('###description###', height);
     await currentEntry.value?.save();
+  };
+
+  // Click handlers for branch parent links
+  const onParentOrgClick = async (event: MouseEvent) => {
+    if (currentEntry.value) {
+      const id = await currentEntry.value.getParentId();
+      await navigationStore.openEntry(id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
+    }
+  };
+
+  const onLocationClick = async (event: MouseEvent) => {
+    if (currentEntry.value) {
+      const id = await currentEntry.value.getLocationId();
+      await navigationStore.openEntry(id, { newTab: event.ctrlKey, panelIndex: event.altKey ? -1 : undefined });
+    }
   };
 
   // debounce changes to name
@@ -1255,5 +1318,14 @@
   .fcb-voice-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  .fcb-branch-link {
+    a {
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 </style>

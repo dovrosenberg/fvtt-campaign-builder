@@ -496,6 +496,7 @@
     { value: CustomFieldContentType.Character, label: localize('labels.character.character') },
     { value: CustomFieldContentType.Location, label: localize('labels.location.location') },
     { value: CustomFieldContentType.Organization, label: localize('labels.organization.organization') },
+    { value: CustomFieldContentType.Branch, label: localize('labels.organization.branch') },
     { value: CustomFieldContentType.PC, label: localize('labels.pc.pc') },
     { value: CustomFieldContentType.Setting, label: localize('labels.setting.setting') },
   ];
@@ -576,6 +577,7 @@
       || t === CustomFieldContentType.Character
       || t === CustomFieldContentType.Location
       || t === CustomFieldContentType.Organization
+      || t === CustomFieldContentType.Branch
       || t === CustomFieldContentType.PC;
   });
 
@@ -602,6 +604,12 @@
       { key: 'parent', labelKey: 'labels.fields.parent' },
     ],
     [CustomFieldContentType.Organization]: [
+      { key: 'name', labelKey: 'labels.fields.name' },
+      { key: 'description', labelKey: 'labels.labels.description' },
+      { key: 'type', labelKey: 'labels.fields.type' },
+      { key: 'parent', labelKey: 'labels.fields.parent' },
+    ],
+    [CustomFieldContentType.Branch]: [
       { key: 'name', labelKey: 'labels.fields.name' },
       { key: 'description', labelKey: 'labels.labels.description' },
       { key: 'type', labelKey: 'labels.fields.type' },
