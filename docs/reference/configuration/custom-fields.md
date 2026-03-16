@@ -10,7 +10,7 @@ next:
 
 # Custom Fields Menu 
 
-This menu allows you to customize the available fields for all your content ([^Settings], [^Entries], [^Campaigns], [^Arcs], [^Sessions], and [^Fronts]), and fine-tune your AI generation settings for specific fields and image generation [[Advanced Feature]].
+This menu allows you to customize the available fields for all your content ([^Settings], [^Entries]/[^Branches], [^Campaigns], [^Arcs], [^Sessions], and [^Fronts]), and fine-tune your AI generation settings for specific fields and image generation [[Advanced Feature]].
 
 ::: info
 No changes are saved in this dialog (including sub-dialogs) until you hit "Save".

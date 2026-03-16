@@ -27,6 +27,9 @@ Organizations are arranged in a hierarchical structure (that you can see in the 
 Branches represent an organization's presence in a specific location. For example, if you have a "Thieves' Guild" organization that operates in multiple cities, you can create branches for each city: "Thieves' Guild (Waterdeep)", "Thieves' Guild (Baldur's Gate)", etc.
 
 ### Creating branches
+![Create branches dialog](/assets/images/create-branches-dialog.webp)
+
+
 To create branches for an organization:
 1. Right-click on the organization in the [Setting Directory](/reference/navigation/sidebar#setting-directory)
 2. Select "Create Branches" from the context menu
@@ -45,8 +48,14 @@ Branches appear in a "Branches" folder under both:
 
 This makes it easy to find branches whether you're browsing by organization or by location.  For organizations in particular, it also makes it easier to avoid clutter in the tree because you can close the whole branch folder when you're not using it.
 
+Note that branches cannot have children.
+
 ### Branch content view
 When you open a branch, you'll see the same interface as a regular organization entry. The branch has its own description, custom fields, and relationships - allowing you to add location-specific details about that organization's presence there.
+
+You cannot change the name, parent Organization, or parent Location of Branches.
+
+The custom fields for Branches can be managed separately than those for Organizations in the [Custom Fields](/reference/configuration/custom-fields) configuration.
 
 ### Deleting branches
 Branches can be deleted individually like any other entry, but deleting an organization or location will also delete all of its branches. 

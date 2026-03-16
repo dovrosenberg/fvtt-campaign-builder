@@ -24,6 +24,8 @@
 [^NPCs]: Called "Important NPCs" by The Lazy DM, the NPCs that the players may encounter in a session.  We connect them directly to Characters in the Setting.
 [^Organization]: An organization within the Setting.  Organizations represent a group of characters and can describe anything from a clan to a guild to a religion. They have a hierarchichal structure.
 [^Organizations]: An organization within the Setting.  Organizations represent a group of characters and can describe anything from a clan to a guild to a religion. They have a hierarchichal structure.
+[^Branch]: A child Organization that is tied to a specific Location.  It's a subtype of Organizations with slightly a different interface.
+[^Branches]: A child Organization that is tied to a specific Location.  It's a subtype of Organizations with slightly a different interface.
 [^Play mode]: Indicated by the Prep/Play toggle in the title bar, this is the mode where you're actively running a session with your players.  It enables a variety of special functionality.
 [^PC]: A player character - linked to Campaigns/Sessions. Generally NOT tied to Setting Characters.
 [^PCs]: Player characters - linked to Campaigns/Sessions. Generally NOT tied to Setting Characters.
