@@ -28,9 +28,9 @@ Dependencies
   <li class="fcb-branch-node">
     <div class="details">
       <div class="summary">      
-        <div class="fcb-directory-expand-button fcb-branch-spacer">
-          <!-- Branches don't have children, so no expand button -->
-        </div>
+        <!-- Branches don't have children, so no expand button -->
+        <!-- <div class="fcb-directory-expand-button fcb-branch-spacer">
+        </div> -->
         <!-- the branch under locations gets special tag so it doesn't get scrolled to -->
         <div 
           :class="
@@ -38,6 +38,7 @@ Dependencies
             node.id===currentEntry?.uuid ? 'fcb-current-directory-branch' : 
             'fcb-directory-entry'
           "
+          style="pointer-events: auto;"
           draggable="true"
           :data-testid="`directory-branch-node-${node.id}`"
           @click="onDirectoryItemClick($event, node)"
@@ -159,10 +160,4 @@ Dependencies
 </script>
 
 <style lang="scss" scoped>
-.fcb-branch-node {
-  .fcb-branch-spacer {
-    width: 20px;
-    display: inline-block;
-  }
-}
 </style>
