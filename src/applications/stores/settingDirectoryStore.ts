@@ -484,17 +484,38 @@ export const settingDirectoryStore = () => {
     const parentId = hierarchy?.parentId || null;
     const locationParentId = hierarchy?.locationParentId || null;
 
+    // Collect location and org IDs from branches so we can refresh those locations/orgs after cascade-delete
+    // This ensures the branch folders in those locations update to remove deleted branches
+    const branchLocationIds = [] as string[];
+    const branchOrgIds = [] as string[];
+    for (const branchId of childBranches) {
+      const branchHierarchy = currentSetting.value.getEntryHierarchy(branchId);
+      if (branchHierarchy?.locationParentId) {
+        branchLocationIds.push(branchHierarchy.locationParentId);
+      }
+      if (branchHierarchy?.parentId) {
+        branchOrgIds.push(branchHierarchy.parentId);
+      }
+    }
+
+    // Cleanup tabs/bookmarks for branches BEFORE cascade-delete
+    // Otherwise tabs will reference deleted entries
+    for (const branchId of childBranches) {
+      await navigationStore.cleanupDeletedEntry(branchId);
+    }
+
     const entry = await Entry.fromUuid(entryId);
     if (!entry)
       return false;
 
     await entry.delete(external);
 
-    // update tabs/bookmarks
+    // update tabs/bookmarks for the parent entry
     await navigationStore.cleanupDeletedEntry(entryId);
 
     // refresh and force its parent(s) to update
-    const parentIds = [parentId, locationParentId].filter((id): id is string => id !== null);
+    // Include branch location IDs so their branch folders update
+    const parentIds = [locationParentId, parentId, ...branchLocationIds, ...branchOrgIds].filter(id=>id != null);
     await refreshSettingDirectoryTree(parentIds);
 
     return true;

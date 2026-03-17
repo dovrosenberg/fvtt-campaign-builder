@@ -247,12 +247,6 @@ Dependencies
     // Save the setting once with all updates
     await setting.save();
 
-    // Force compendium index refresh to ensure isBranch is in the index
-    const compendium = toRaw(setting.compendium);
-    if (compendium) {
-      await compendium.getIndex({ fields: compendium.indexFields });
-    }
-
     return createdBranches;
   }
 
@@ -354,8 +348,10 @@ Dependencies
     // Create the branches
     const branches = await createBranches();
 
-    // Refresh the directory tree
-    await settingDirectoryStore.refreshSettingDirectoryTree();
+    // Force reload of organization and location nodes so they get updated childBranches
+    // This ensures the branch folder appears with the new branches
+    const locationIds = Array.from(selectedLocationIds.value);
+    await settingDirectoryStore.refreshSettingDirectoryTree([props.organizationId, ...locationIds]);
 
     emit('confirm', branches);
     emit('update:modelValue', false);
