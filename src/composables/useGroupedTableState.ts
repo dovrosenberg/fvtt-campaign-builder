@@ -37,17 +37,25 @@ export function useGroupedTableState<
    * Refreshes rows and groups from the current entity
    */
   const refresh = async () => {
-    rows.value = [];
-    groups.value = [];
-
-    if (!currentEntity.value) return;
+    if (!currentEntity.value) {
+      rows.value = [];
+      groups.value = [];
+      return;
+    }
     
-    // Get items
-    if (currentEntity.value[itemProperty])
-      rows.value = itemsToRows ? await itemsToRows(currentEntity.value[itemProperty].slice() as ItemType[]) : currentEntity.value[itemProperty].slice() as unknown as RowType[];
+    // Build new rows first (don't assign to reactive refs yet to avoid intermediate empty state)
+    const newRows = currentEntity.value[itemProperty]
+      ? (itemsToRows 
+          ? await itemsToRows(currentEntity.value[itemProperty].slice() as ItemType[]) 
+          : currentEntity.value[itemProperty].slice() as unknown as RowType[])
+      : [];
     
-    // Get groups
-    groups.value = (currentEntity.value.getGroups(group).slice() || []) as TableGroup[];
+    // Build new groups
+    const newGroups = (currentEntity.value.getGroups(group).slice() || []) as TableGroup[];
+    
+    // Assign both at once - Vue sees single transition, not empty→populated
+    rows.value = newRows;
+    groups.value = newGroups;
   };
   
   return {
