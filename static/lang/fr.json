@@ -96,7 +96,10 @@
       "useTimelineHelp": "Activer la fonctionnalité de chronologie (nécessite le module Calendaria).",
       "tabVisibility": "Paramètres de visibilité des onglets",
       "tabVisibilityLabel": "Visibilité des onglets",
-      "tabVisibilityHelp": "Configurer quels onglets sont visibles pour chaque type de contenu"
+      "tabVisibilityHelp": "Configurer quels onglets sont visibles pour chaque type de contenu",
+      "associationTags": "Tags d'association",
+      "associationTagsLabel": "Configurer les tags d'association",
+      "associationTagsHelp": "Configurer les tags associés aux acteurs (pour les personnages) et aux scènes (pour les lieux)"
     },
     "applications": {
       "sessionNotes": {
@@ -376,6 +379,30 @@
         "importingSettings": "Importation des paramètres du module...",
         "importingSetting": "Importation du paramètre",
         "remappingUuids": "Remappage des références de documents..."
+      },
+      "associationTags": {
+        "title": "Configurer les tags d'association",
+        "tabs": {
+          "characters": "Personnages",
+          "locations": "Lieux"
+        },
+        "columns": {
+          "name": "Nom du tag",
+          "color": "Couleur",
+          "actor": "Acteur associé",
+          "scene": "Scène associée"
+        },
+        "labels": {
+          "add": "Ajouter un tag",
+          "noSelection": "Aucune sélection",
+          "selectActor": "Sélectionner un acteur",
+          "selectScene": "Sélectionner une scène"
+        },
+        "notifications": {
+          "duplicateName": "Le nom du tag '{name}' existe déjà dans l'autre liste de tags",
+          "duplicateActorNames": "Les noms des tags d'acteur doivent être uniques",
+          "duplicateSceneNames": "Les noms des tags de scène doivent être uniques"
+        }
       }
     },
     "help": {
@@ -423,7 +450,9 @@
         "strongStartHelpText": "Un début fort est un événement court et percutant qui donne le ton à la session. Cliquez pour en savoir plus de Lazy DM.",
         "notes": "Notes",
         "boxedText": "Texte Encadré",
-        "gmNotes": "Notes du MJ"
+        "gmNotes": "Notes du MJ",
+        "parentOrganization": "Organisation parente",
+        "branchLocation": "Lieu"
       },
       "addTopic": {
         "character": "Ajouter un Personnage",
@@ -616,7 +645,8 @@
         "character": "Personnage"
       },
       "organization": {
-        "organization": "Organisation"
+        "organization": "Organisation",
+        "branch": "Branche"
       },
       "location": {
         "location": "Lieu"
@@ -644,7 +674,8 @@
         "includeArcAndSessionReferences": "Inclure les références d'Arc et de Session",
         "includeSessionReferences": "Inclure les références de Session",
         "includeAllReferences": "Inclure les références d'Entrée, de Campagne, d'Arc et de Session"
-      }
+      },
+      "branchesFolder": "Branches"
     },
     "placeholders": {
       "search": "Rechercher",
@@ -992,6 +1023,18 @@
       },
       "createEntryTitle": {
         "title": "Créer {topic}"
+      },
+      "deleteEntryWithBranches": {
+        "title": "Supprimer l'entrée ?",
+        "message": "Cela supprimera également {count} branche(s). Êtes-vous sûr de vouloir continuer ?"
+      },
+      "createBranches": {
+        "title": "Créer des branches",
+        "message": "Sélectionnez les lieux pour créer des branches pour {organization} :",
+        "loading": "Chargement des lieux...",
+        "noLocations": "Aucun lieu disponible",
+        "selectedCount": "{count} lieu(x) sélectionné(s)",
+        "existingBranch": "(branche existante)"
       }
     },
     "contextMenus": {
@@ -1036,7 +1079,8 @@
         }
       },
       "directoryEntry": {
-        "delete": "Supprimer l'entrée"
+        "delete": "Supprimer l'entrée",
+        "createBranches": "Créer des branches"
       },
       "typeFolder": {
         "create": "Créer un nouveau"
@@ -1231,7 +1275,13 @@
       "tag": "Étiquette",
       "resultsFor": "Résultats de l'étiquette pour",
       "entryFound": "entrée trouvée",
-      "entriesFound": "entrées trouvées"
+      "entriesFound": "entrées trouvées",
+      "actorAssociated": "Acteur associé via le tag \"{tagName}\" :",
+      "sceneAssociated": "Scène associée via le tag \"{tagName}\" :",
+      "dragActorHint": "Glisser vers Foundry",
+      "clickSceneHint": "Cliquez pour configurer. Clic droit pour plus d'options.",
+      "multipleActorTagsWarning": "Plusieurs tags d'acteur appliqués. Seul le premier ({name}) sera utilisé.",
+      "multipleSceneTagsWarning": "Plusieurs tags de scène appliqués. Seul le premier ({name}) sera utilisé."
     },
     "export": {
       "relatedTopics": {

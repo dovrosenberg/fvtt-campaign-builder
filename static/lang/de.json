@@ -96,7 +96,10 @@
       "useTimelineHelp": "Zeitleistenfunktion aktivieren (erfordert das Calendaria-Modul).",
       "tabVisibility": "Einstellungen zur Tab-Sichtbarkeit",
       "tabVisibilityLabel": "Tab-Sichtbarkeit",
-      "tabVisibilityHelp": "Konfigurieren Sie, welche Tabs für jeden Inhaltstyp sichtbar sind"
+      "tabVisibilityHelp": "Konfigurieren Sie, welche Tabs für jeden Inhaltstyp sichtbar sind",
+      "associationTags": "Assoziationstags",
+      "associationTagsLabel": "Assoziationstags konfigurieren",
+      "associationTagsHelp": "Konfigurieren Sie Tags, die mit Schauspielern (für Charaktere) und Szenen (für Orte) verknüpft sind"
     },
     "applications": {
       "sessionNotes": {
@@ -376,6 +379,30 @@
         "importingSettings": "Moduleinstellungen werden importiert...",
         "importingSetting": "Einstellung wird importiert",
         "remappingUuids": "Dokumentenreferenzen werden neu zugeordnet..."
+      },
+      "associationTags": {
+        "title": "Assoziationstags konfigurieren",
+        "tabs": {
+          "characters": "Charaktere",
+          "locations": "Orte"
+        },
+        "columns": {
+          "name": "Tag-Name",
+          "color": "Farbe",
+          "actor": "Zugeordneter Schauspieler",
+          "scene": "Zugeordnete Szene"
+        },
+        "labels": {
+          "add": "Tag hinzufügen",
+          "noSelection": "Keine Auswahl",
+          "selectActor": "Schauspieler auswählen",
+          "selectScene": "Szene auswählen"
+        },
+        "notifications": {
+          "duplicateName": "Tag-Name '{name}' existiert bereits in der anderen Tag-Liste",
+          "duplicateActorNames": "Schauspieler-Tag-Namen müssen eindeutig sein",
+          "duplicateSceneNames": "Szenen-Tag-Namen müssen eindeutig sein"
+        }
       }
     },
     "help": {
@@ -423,7 +450,9 @@
         "strongStartHelpText": "Ein starker Start ist ein kurzes, wirkungsvolles Ereignis, das den Ton für die Sitzung angibt. Klicken Sie, um mehr von Lazy DM zu lesen.",
         "notes": "Notizen",
         "boxedText": "Gerahmter Text",
-        "gmNotes": "GM-Notizen"
+        "gmNotes": "GM-Notizen",
+        "parentOrganization": "Übergeordnete Organisation",
+        "branchLocation": "Ort"
       },
       "addTopic": {
         "character": "Charakter hinzufügen",
@@ -616,7 +645,8 @@
         "character": "Charakter"
       },
       "organization": {
-        "organization": "Organisation"
+        "organization": "Organisation",
+        "branch": "Zweig"
       },
       "location": {
         "location": "Ort"
@@ -644,7 +674,8 @@
         "includeArcAndSessionReferences": "Arc- und Sitzungsreferenzen einschließen",
         "includeSessionReferences": "Sitzungsreferenzen einschließen",
         "includeAllReferences": "Eintrag-, Kampagnen-, Arc- und Sitzungsreferenzen einschließen"
-      }
+      },
+      "branchesFolder": "Zweige"
     },
     "placeholders": {
       "search": "Suche",
@@ -992,6 +1023,18 @@
       },
       "createEntryTitle": {
         "title": "{topic} erstellen"
+      },
+      "deleteEntryWithBranches": {
+        "title": "Eintrag löschen?",
+        "message": "Dies wird auch {count} Zweig(e) löschen. Sind Sie sicher, dass Sie fortfahren möchten?"
+      },
+      "createBranches": {
+        "title": "Zweige erstellen",
+        "message": "Wählen Sie Orte aus, um Zweige für {organization} zu erstellen:",
+        "loading": "Orte werden geladen...",
+        "noLocations": "Keine Orte verfügbar",
+        "selectedCount": "{count} Ort(e) ausgewählt",
+        "existingBranch": "(Zweig existiert)"
       }
     },
     "contextMenus": {
@@ -1036,7 +1079,8 @@
         }
       },
       "directoryEntry": {
-        "delete": "Eintrag löschen"
+        "delete": "Eintrag löschen",
+        "createBranches": "Zweige erstellen"
       },
       "typeFolder": {
         "create": "Neu erstellen"
@@ -1231,7 +1275,13 @@
       "tag": "Tag",
       "resultsFor": "Tag-Ergebnisse für",
       "entryFound": "Eintrag gefunden",
-      "entriesFound": "Einträge gefunden"
+      "entriesFound": "Einträge gefunden",
+      "actorAssociated": "Schauspieler über Tag \"{tagName}\" zugeordnet:",
+      "sceneAssociated": "Szene über Tag \"{tagName}\" zugeordnet:",
+      "dragActorHint": "Zum Foundry ziehen",
+      "clickSceneHint": "Klicken, um zu konfigurieren. Rechtsklick für weitere Optionen.",
+      "multipleActorTagsWarning": "Mehrere Schauspieler-Tags angewendet. Nur das erste ({name}) wird verwendet.",
+      "multipleSceneTagsWarning": "Mehrere Szenen-Tags angewendet. Nur das erste ({name}) wird verwendet."
     },
     "export": {
       "relatedTopics": {
