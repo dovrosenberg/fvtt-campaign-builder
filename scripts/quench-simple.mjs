@@ -248,6 +248,39 @@ async function runQuenchTestsSimple() {
       return stats && stats.style.display !== 'none';
     }, { timeout: 60000 });
     
+    // Capture the JSON report from the quenchReports hook
+    const jsonReport = await page.evaluate(() => {
+      return (window).quenchJsonReport || null;
+    });
+    
+    // Save JSON report to file for LLM debugging
+    if (jsonReport) {
+      const reportPath = path.join(outputDir, 'quench-report.json');
+      fs.writeFileSync(reportPath, jsonReport);
+      console.log(`JSON report saved to: ${reportPath}`);
+      
+      // Also save a human-readable summary for quick reference
+      const parsedReport = JSON.parse(jsonReport);
+      const summaryPath = path.join(outputDir, 'quench-summary.txt');
+      let summary = '=== QUENCH TEST SUMMARY ===\n\n';
+      
+      if (parsedReport.failures && parsedReport.failures.length > 0) {
+        summary += 'FAILED TESTS:\n';
+        for (const failure of parsedReport.failures) {
+          summary += `\n❌ ${failure.fullTitle}\n`;
+          summary += `   ${failure.err.message}\n`;
+          if (failure.err.stack) {
+            summary += `   Stack: ${failure.err.stack.split('\n').slice(0, 3).join('\n   ')}\n`;
+          }
+        }
+        summary += '\n';
+      }
+      
+      summary += `Stats: ${parsedReport.stats?.passes || 0} passed, ${parsedReport.stats?.failures || 0} failed, ${parsedReport.stats?.pending || 0} pending\n`;
+      fs.writeFileSync(summaryPath, summary);
+      console.log(`Summary saved to: ${summaryPath}`);
+    }
+    
     // Extract results from the UI
     const results = await page.evaluate(() => {
       const testResults = [];

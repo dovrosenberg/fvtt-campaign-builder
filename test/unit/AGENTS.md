@@ -6,8 +6,7 @@ This document outlines the approach for unit testing in the FoundryVTT Campaign 
 ## Testing Philosophy
 
 ### No Stubbing of FoundryVTT APIs
-- **Never stub `game.settings`** - This breaks integration with FoundryVTT
-- **Never stub `game` or its core properties** - Quench runs inside the actual Foundry environment
+- **Never stub `game` or its core properties, other than game.settings** - Quench runs inside the actual Foundry environment
 - Use real FoundryVTT APIs and objects
 
 ### Integration Testing Approach

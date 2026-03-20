@@ -1,0 +1,14 @@
+# Foundry VTT Source Reference
+
+The `app` workspace folder contains the Foundry VTT client source code.
+Treat it as READ-ONLY reference material. Never suggest modifications to files in that folder.
+
+Use it to:
+- Look up accurate API signatures, method names, and return types
+- Understand class hierarchies (e.g., Actor, Item, Application subclasses)
+- Verify hook names and their callback signatures
+- Check correct property paths on core data models
+
+Do not use it to:
+- Influence code style, structure, or formatting choices in the main codebase
+- Override the project's established patterns and conventions

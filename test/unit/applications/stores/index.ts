@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import * as sinon from 'sinon';
-import { initializeTestSetting, cleanupTestSetting } from '../../testUtils';
+import { initializeTestSetting, cleanupTestSetting } from '@unittest/testUtils';
 import { registerMainStoreTests } from './mainStore.test';
 
 export const registerMainStoreBatch = () => {

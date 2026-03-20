@@ -2,9 +2,7 @@
 // Quench Unit Testing              //
 // -------------------------------- //
 
-import { SettingKey, ModuleSettings } from '@/settings';
-// import { registerClassesTests } from '@unittest/classes';
-// import { registerSettingsTests } from '@unittest/settings';
+import { registerEntryBatch } from '@unittest/classes';
 import { 
   registerAppWindowBatch,
   registerHierarchyBatch,
@@ -24,10 +22,12 @@ Hooks.on('quenchReady' as any, (quench: any): void => {
   (window as any).quenchObject = quench;
   (window as any).quenchTestsRegistered = true;
   
-  // registerClassesTests();
-  // registerSettingsTests();
-  
   // Register individual batches so users can select which to run
+  
+  // Classes
+  registerEntryBatch();
+  
+  // Utils
   registerAppWindowBatch();
   registerHierarchyBatch();
   registerRelatedContentBatch();
@@ -36,29 +36,19 @@ Hooks.on('quenchReady' as any, (quench: any): void => {
   registerCustomFieldsBatch();
   registerDirectoryScrollBatch();
   registerDragDropBatch();
-  registerMainStoreBatch();
   registerNameGeneratorsBatch();
+  
+  // Stores
+  registerMainStoreBatch();
 });
 
-const settings = {};
-
-const backupSettings = () => {
-  for (const k of Object.values(SettingKey)) {
-    if (typeof k === 'string') {
-      settings[k] = ModuleSettings.get(k as SettingKey);
-    }
-  }
-}
-
-const restoreSettings = async () => {
-  for (const k of Object.values(SettingKey)) {
-    if (typeof k === 'string') {
-      await ModuleSettings.set(k as SettingKey, settings[k]);
-    }
-  }
-}
-
-export { 
-  backupSettings,
-  restoreSettings,
-}
+// Capture test results as JSON for LLM debugging
+Hooks.on('quenchReports' as any, (reports: { json: string }): void => {
+  // Log with a distinctive prefix for easy capture by Playwright
+  console.log('QUENCH_JSON_REPORT_START');
+  console.log(reports.json);
+  console.log('QUENCH_JSON_REPORT_END');
+  
+  // Also store globally for direct access
+  (window as any).quenchJsonReport = reports.json;
+});
