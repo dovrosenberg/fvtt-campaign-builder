@@ -516,7 +516,9 @@ export const settingDirectoryStore = () => {
     // refresh and force its parent(s) to update
     // Include branch location IDs so their branch folders update
     const parentIds = [locationParentId, parentId, ...branchLocationIds, ...branchOrgIds].filter(id=>id != null);
-    await refreshSettingDirectoryTree(parentIds);
+    // Add branch folder IDs so they get refreshed (branch folder ID format is ${entryUuid}.branches)
+    const branchFolderIds = parentIds.map(id => `${id}.branches`);
+    await refreshSettingDirectoryTree([...parentIds, ...branchFolderIds]);
 
     return true;
   };
