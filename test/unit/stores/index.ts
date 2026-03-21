@@ -40,6 +40,7 @@ export {
 
 export {
   createStoreStub,
+  stubStoreComputed,
   type StoreStubResult,
   type StubConfig,
 } from './createStoreStub';

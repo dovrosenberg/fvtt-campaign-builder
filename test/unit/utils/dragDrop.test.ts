@@ -9,6 +9,21 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
     let sandbox: sinon.SinonSandbox;
     let mockDataTransfer;
     let mockDragEvent;
+    const originalFromUuid = foundry.utils.fromUuid;
+
+    /**
+     * Replaces foundry.utils.fromUuid with a sinon stub.
+     * The property is non-configurable, so we must use Object.defineProperty.
+     */
+    const stubFromUuid = (resolveValue: unknown): sinon.SinonStub => {
+      const stub = sandbox.stub().resolves(resolveValue);
+      Object.defineProperty(foundry.utils, 'fromUuid', {
+        value: stub,
+        configurable: true,
+        writable: true,
+      });
+      return stub;
+    };
 
     beforeEach(() => {
       sandbox = sinon.createSandbox();
@@ -29,6 +44,12 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
     });
 
     afterEach(() => {
+      // Restore the original fromUuid before sandbox.restore()
+      Object.defineProperty(foundry.utils, 'fromUuid', {
+        value: originalFromUuid,
+        configurable: true,
+        writable: false,
+      });
       sandbox.restore();
     });
 
@@ -167,7 +188,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           toDragData: sandbox.stub().returns({ type: 'Actor', uuid: 'actor-uuid' }),
         };
 
-        sandbox.stub(foundry.utils, 'fromUuid').resolves(mockActor);
+        stubFromUuid(mockActor);
       });
 
       it('should set drag data for actor', async () => {
@@ -223,7 +244,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           toDragData: sandbox.stub().returns({ type: 'Item', uuid: 'item-uuid' }),
         };
 
-        sandbox.stub(foundry.utils, 'fromUuid').resolves(mockItem);
+        stubFromUuid(mockItem);
         
         // Mock existing preview removal
         document.getElementById = sandbox.stub().returns(null);
@@ -265,7 +286,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           toDragData: sandbox.stub().returns({ type: 'JournalEntry', uuid: 'doc-uuid' }),
         };
         
-        sandbox.stub(foundry.utils, 'fromUuid').resolves(mockDoc);
+        stubFromUuid(mockDoc);
       });
 
       it('should set drag data using document toDragData', async () => {
@@ -279,11 +300,8 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
 
       it('should handle error gracefully', async () => {
         const consoleSpy = sandbox.spy(console, 'error');
-        // Restore any existing fromUuid stub before creating a new one
-        if ((foundry.utils.fromUuid as any).restore) {
-          (foundry.utils.fromUuid as any).restore();
-        }
-        sandbox.stub(foundry.utils, 'fromUuid').rejects(new Error('Test error'));
+        stubFromUuid(null);
+        (foundry.utils.fromUuid as sinon.SinonStub).rejects(new Error('Test error'));
         
         await DragDropService.foundryDragStart(mockDragEvent, 'actor-uuid');
         

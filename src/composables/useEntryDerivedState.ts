@@ -180,7 +180,7 @@ export function useEntryDerivedState(): EntryDerivedState {
 
         const docList = [] as RelatedDocumentDetails[];
         for (let i = 0; i < currentEntry.value.foundryDocuments.length; i++) {
-          const doc = await fromUuid(currentEntry.value.foundryDocuments[i]);
+          const doc = await foundry.utils.fromUuid(currentEntry.value.foundryDocuments[i]);
           if (!doc)
             continue;
 

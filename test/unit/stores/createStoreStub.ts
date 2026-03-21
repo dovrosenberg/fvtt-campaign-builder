@@ -11,6 +11,35 @@ export interface StoreStubResult<T> {
 }
 
 /**
+ * Stub a store property (including read-only computed properties) so it returns the given value.
+ * Uses sinon getter stubs under the hood, so the stub is automatically restored by
+ * `sandbox.restore()` or `sinon.restore()`.
+ *
+ * Returns the sinon stub so callers can change the return value later via `.get(() => newValue)`.
+ *
+ * @param sandbox - The sinon sandbox to register the stub in
+ * @param store - The Pinia store instance
+ * @param propName - The property name to stub
+ * @param value - The value the property should return
+ * @returns The sinon stub (with `.get()` applied)
+ *
+ * @example
+ * ```typescript
+ * const mainStore = useMainStore();
+ * stubStoreComputed(sandbox, mainStore, 'currentTab', { header: { uuid: 'x' }, tabType: WindowTabType.Entry });
+ * stubStoreComputed(sandbox, mainStore, 'currentSetting', {} as FCBSetting);
+ * ```
+ */
+export function stubStoreComputed<T>(
+  sandbox: sinon.SinonSandbox,
+  store: T,
+  propName: keyof T & string,
+  value: unknown,
+): sinon.SinonStub {
+  return sandbox.stub(store as Record<string, unknown>, propName).get(() => value);
+}
+
+/**
  * Stub configuration for a single store method.
  * - If a SinonStub is provided, it is used directly.
  * - If any other value is provided, a stub that resolves/returns that value is created.
@@ -67,9 +96,15 @@ export function createStoreStub<T>(
     }
   }
 
-  // Apply property overrides
+  // Apply property overrides using sinon getter stubs so both writable refs
+  // and read-only computed properties can be overridden.
   for (const [propName, value] of Object.entries(propertyOverrides)) {
-    (store as Record<string, unknown>)[propName] = value;
+    try {
+      (store as Record<string, unknown>)[propName] = value;
+    } catch {
+      // Direct assignment fails for read-only computed properties; fall back to getter stub
+      sinon.stub(store as Record<string, unknown>, propName).get(() => value);
+    }
   }
 
   return { store, stubs };

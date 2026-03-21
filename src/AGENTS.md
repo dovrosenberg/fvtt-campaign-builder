@@ -29,3 +29,6 @@ The latest version of the Foundry VTT API is available at https://foundryvtt.com
 
 ### function definitions
 - Only define functions inside other functions if it needs to modify the variables in the outer function 
+
+### foundry
+- Some foundry methods are available as global but also inside the foundry namespace.  When they are available in both places, do not use the global.

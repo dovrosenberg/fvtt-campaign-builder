@@ -267,7 +267,7 @@
   };
 
   const onNameClick = async (_event: MouseEvent, rowData: Record<string, unknown> & { uuid: string }) => {
-    const doc = await fromUuid(rowData.uuid);
+    const doc = await foundry.utils.fromUuid(rowData.uuid);
     await doc?.sheet?.render(true);
   };
 

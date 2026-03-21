@@ -219,7 +219,7 @@ const DragDropService = {
 
     // just use built in data
     try {
-      const doc = await fromUuid(uuid);
+      const doc = await foundry.utils.fromUuid(uuid);
       const dragData = doc?.toDragData() || {};
       event.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
     } catch(error) {

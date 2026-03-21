@@ -313,15 +313,22 @@ Store stubs live in `test/unit/stores/`:
 
 - **`backendStoreStubs.ts`** / **`mainStoreStubs.ts`** — Domain-specific stubs with sensible defaults
 - **`createStoreStub(useStore, methodStubs, propertyOverrides)`** — Generic factory for quickly stubbing any Pinia store. Use for new stores that don't need complex defaults.
+- **`stubStoreComputed(sandbox, store, propName, value)`** — Stubs a store property (including read-only computed properties) so it returns the given value. Cleaned up automatically by `sandbox.restore()`.
 - **`testPinia.ts`** — Shared Pinia instance for all test store stubs
 
 ```typescript
-import { createStoreStub } from '@unittest/stores';
-import { useNavigationStore } from '@/applications/stores';
+import { createStoreStub, stubStoreComputed } from '@unittest/stores';
+import { useNavigationStore, useMainStore } from '@/applications/stores';
 
+// Factory approach for stubbing an entire store
 const { store, stubs } = createStoreStub(useNavigationStore, {
   openContent: sinon.stub().resolves(),
 });
+
+// Per-property approach for stubbing individual computed properties
+const mainStore = useMainStore();
+stubStoreComputed(sandbox, mainStore, 'currentTab', { header: { uuid: 'x' }, tabType: WindowTabType.Entry });
+stubStoreComputed(sandbox, mainStore, 'currentSetting', {} as FCBSetting);
 ```
 
 ### RollTable Test Pattern
