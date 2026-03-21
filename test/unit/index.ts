@@ -16,6 +16,7 @@ import {
 } from '@unittest/utils';
 import { registerMainStoreBatch } from '@unittest/applications/stores';
 import { registerModuleSettingsBatch } from '@unittest/settings';
+import { registerLabelWithHelpBatch } from '@unittest/components';
 
 // Registers all `Quench` tests
 Hooks.on('quenchReady' as any, (quench: any): void => {
@@ -24,10 +25,20 @@ Hooks.on('quenchReady' as any, (quench: any): void => {
   (window as any).quenchTestsRegistered = true;
   
   // Register individual batches so users can select which to run
+  // Register alphabetically for each of finding
   
   // Classes
-  registerEntryBatch();
+  registerEntryBatch();  
   
+  // Components
+  registerLabelWithHelpBatch();
+
+  // Settings
+  registerModuleSettingsBatch();
+  
+  // Stores
+  registerMainStoreBatch();
+
   // Utils
   registerAppWindowBatch();
   registerHierarchyBatch();
@@ -38,12 +49,7 @@ Hooks.on('quenchReady' as any, (quench: any): void => {
   registerDirectoryScrollBatch();
   registerDragDropBatch();
   registerNameGeneratorsBatch();
-  
-  // Stores
-  registerMainStoreBatch();
-  
-  // Settings
-  registerModuleSettingsBatch();
+    
 });
 
 // Capture test results as JSON for LLM debugging

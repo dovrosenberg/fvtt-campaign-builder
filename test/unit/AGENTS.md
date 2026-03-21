@@ -123,8 +123,72 @@ export const registerSomeTests = (context: QuenchBatchContext) => {
 - Test methods with real data
 - Verify side effects on actual FoundryVTT objects
 
-### UI Components
-- Do not use unit tests for UI components
+### Vue Components
+Unit tests for Vue components focus on **logic only**, not UX/visual behavior. UX testing is handled by Playwright E2E tests (or not at all).
+
+#### What to Test
+- Computed property calculations
+- Method behavior and return values (including event handlers)
+- Event emissions (emit payloads)
+- Prop validation and defaults
+- Watcher side effects
+- Conditional rendering logic (e.g., "error class applied when invalid")
+
+#### What NOT to Test (use Playwright instead)
+- Visual rendering and styling
+- User interactions and UX flows - except starting at the event handler level
+- Accessibility
+- PrimeVue component behavior
+
+#### Test Utilities
+Use `mountComponent()` from `@unittest/vueTestUtils`:
+
+```typescript
+import { mountComponent, flushPromises } from '@unittest/vueTestUtils';
+import MyComponent from '@/components/MyComponent.vue';
+
+export const registerMyComponentTests = (context: QuenchBatchContext) => {
+  const { describe, it, expect } = context;
+
+  describe('MyComponent', () => {
+    it('emits update event with correct payload', async () => {
+      const { wrapper } = mountComponent(MyComponent, {
+        props: { modelValue: 'initial' }
+      });
+
+      await wrapper.find('input').setValue('new value');
+      expect(wrapper.emitted('update:modelValue')?.[0]).to.deep.equal(['new value']);
+    });
+
+    it('computes derived value correctly', async () => {
+      const { wrapper } = mountComponent(MyComponent, {
+        props: { count: 5 }
+      });
+
+      expect(wrapper.vm.doubledCount).to.equal(10);
+    });
+  });
+};
+```
+
+#### Key Design Decisions
+1. **Store stubbing**: Explicit opt-in - tests must specify which stores to stub
+2. **PrimeVue**: Stubbed by default - we test logic, not UI
+3. **`localize()`**: Stubbed to return the key itself - catches missing strings
+4. **DOM assertions**: Minimal - only verify logic outcomes
+
+#### Store Stubs in Component Tests
+When a component uses Pinia stores, stub them explicitly:
+
+```typescript
+const { wrapper, storeStubs } = mountComponent(MyComponent, {
+  props: { title: 'Test' },
+  stores: {
+    main: { currentSetting: mockSetting },
+    navigation: { openContent: sinon.stub().resolves() }
+  }
+});
+```
 
 ## Common Patterns
 
@@ -274,6 +338,7 @@ Test directories mirror `src/` categories:
 | `test/unit/classes/` | `src/classes/` | Active |
 | `test/unit/applications/stores/` | `src/applications/stores/` | Active |
 | `test/unit/settings/` | `src/settings/` | Active |
+| `test/unit/components/` | `src/components/` | Active |
 | `test/unit/composables/` | `src/composables/` | Scaffolded |
 | `test/unit/documents/` | `src/documents/` | Scaffolded |
 | `test/unit/hooks/` | `src/hooks/` | Scaffolded |
