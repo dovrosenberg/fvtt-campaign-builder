@@ -108,6 +108,8 @@ class TestSettingManager {
       }
 
       this.setting = (await FCBSetting.create(false, 'Global Test Setting'))!;
+      // Track any roll tables/folders created during setting initialization
+      rollTableHelper.trackSettingTables(this.setting);
       return this.setting;
     } finally {
       this.releaseLock();
