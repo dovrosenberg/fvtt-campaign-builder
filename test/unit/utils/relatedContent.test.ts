@@ -203,7 +203,7 @@ export const registerRelatedContentTests = (context: QuenchBatchContext) => {
       ]);
     });
 
-        it('should handle malformed UUIDs gracefully', async () => {
+    it('should handle malformed UUIDs gracefully', async () => {
       added = [
         testEntries.character1.uuid,
         'invalid-uuid-format',

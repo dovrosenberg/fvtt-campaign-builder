@@ -1,6 +1,4 @@
-import { QuenchBatchContext } from '@ethaks/fvtt-quench';
-import * as sinon from 'sinon';
-import { initializeTestSetting, cleanupTestSetting } from '@unittest/testUtils';
+import { createBatch } from '@unittest/testUtils';
 import { registerAppWindowTests } from "./appWindow.test";
 import { registerHierarchyTests } from "./hierarchy.test";
 import { registerRelatedContentTests } from "./relatedContent.test";
@@ -10,37 +8,6 @@ import { registerCustomFieldsTests } from "./customFields.test";
 import { registerDirectoryScrollTests } from "./directoryScroll.test";
 import { registerDragDropTests } from "./dragDrop.test";
 import { registerNameGeneratorsTests } from "./nameGenerators.test";
-
-/**
- * Helper function to create and register a test batch with standard setup/teardown
- */
-const createBatch = (
-  batchName: string,
-  displayName: string,
-  registerTests: (context: QuenchBatchContext) => void
-) => {
-  quench?.registerBatch(
-    batchName,
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      // Standard batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Standard batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerTests(context);
-    },
-    { displayName, preSelected: false },
-  );
-};
 
 export const registerAppWindowBatch = () => {
   createBatch(
@@ -64,19 +31,6 @@ export const registerRelatedContentBatch = () => {
     '/utils/relatedContent',
     registerRelatedContentTests
   );
-};
-
-// Legacy function for backward compatibility - registers all batches
-export const registerUtilsTests = () => {
-  registerAppWindowBatch();
-  registerHierarchyBatch();
-  registerRelatedContentBatch();
-  registerArcIndexBatch();
-  registerCleanKeysBatch();
-  registerCustomFieldsBatch();
-  registerDirectoryScrollBatch();
-  registerDragDropBatch();
-  registerNameGeneratorsBatch();
 };
 
 export const registerArcIndexBatch = () => {

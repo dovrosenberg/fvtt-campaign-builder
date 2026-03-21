@@ -15,6 +15,7 @@ import {
   registerNameGeneratorsBatch,
 } from '@unittest/utils';
 import { registerMainStoreBatch } from '@unittest/applications/stores';
+import { registerModuleSettingsBatch } from '@unittest/settings';
 
 // Registers all `Quench` tests
 Hooks.on('quenchReady' as any, (quench: any): void => {
@@ -40,13 +41,17 @@ Hooks.on('quenchReady' as any, (quench: any): void => {
   
   // Stores
   registerMainStoreBatch();
+  
+  // Settings
+  registerModuleSettingsBatch();
 });
 
 // Capture test results as JSON for LLM debugging
 Hooks.on('quenchReports' as any, (reports: { json: string }): void => {
   // Log with a distinctive prefix for easy capture by Playwright
   console.log('QUENCH_JSON_REPORT_START');
-  console.log(reports.json);
+  const objectResults = { failures: JSON.parse(reports.json)?.failures || [] };
+  console.debug(JSON.stringify(objectResults));
   console.log('QUENCH_JSON_REPORT_END');
   
   // Also store globally for direct access

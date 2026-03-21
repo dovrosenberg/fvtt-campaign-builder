@@ -23,139 +23,40 @@ Since Quench tests run inside the actual FoundryVTT environment:
 
 For optimal performance and consistency, ALL test batches share a single global FCBSetting managed by `test/unit/testUtils.ts`. This uses a mutex pattern with reference counting to prevent race conditions when batches run in parallel.
 
-#### 1. Global testUtils.ts (already exists)
-```typescript
-// test/unit/testUtils.ts
-import { FCBSetting } from '@/classes';
+#### 1. testUtils.ts — Helper Classes and Utilities
 
-// Global shared test setting
-let testSetting: FCBSetting | undefined;
+`test/unit/testUtils.ts` provides four key exports:
 
-// Reference counting to track active test batches
-let activeBatches = 0;
-
-// Mutex to prevent race conditions
-let isLocked = false;
-const lockQueue: Array<() => void> = [];
-
-/**
- * Initialize the shared test setting
- * Increments reference count for each calling batch
- */
-export const initializeTestSetting = async () => {
-  await acquireLock();
-  
-  try {
-    // Increment reference count
-    activeBatches++;
-    
-    // If setting already exists, just return it
-    if (testSetting) {
-      return testSetting;
-    }
-    
-    // Create new setting
-    testSetting = (await FCBSetting.create(false, 'Global Test Setting'))!;
-    return testSetting;
-  } finally {
-    releaseLock();
-  }
-};
-
-/**
- * Get the current test setting
- */
-export const getTestSetting = (): FCBSetting => {
-  if (!testSetting) {
-    throw new Error('Test setting not initialized. Call initializeTestSetting() first.');
-  }
-  return testSetting;
-};
-
-/**
- * Decrements reference count and queues cleanup if no active batches remain
- */
-export const cleanupTestSetting = async () => {
-  await acquireLock();
-  
-  try {
-    // Decrement reference count
-    activeBatches = Math.max(0, activeBatches - 1);
-    
-    // Only cleanup if there are no active batches
-    if (activeBatches === 0 && testSetting) {
-      await testSetting.delete();
-      testSetting = undefined;
-    }
-  } finally {
-    releaseLock();
-  }
-};
-```
+- **`createBatch(batchName, displayName, registerTests)`** — Standard batch registration with `initializeTestSetting`/`cleanupTestSetting`/`sinon.restore()` boilerplate. Use this in every `index.ts`.
+- **`testSettingManager`** (`TestSettingManager` class) — Manages the shared FCBSetting lifecycle with mutex + ref counting. Backward-compat wrappers: `initializeTestSetting()`, `getTestSetting()`, `cleanupTestSetting()`.
+- **`rollTableHelper`** (`RollTableTestHelper` class) — Tracks RollTables/folders for cleanup. Key method: `trackSettingTables(setting)` replaces repeated track loops. Backward-compat wrappers: `trackRollTable()`, `trackRollTableFolder()`, `cleanupRollTables()`.
+- **`settingsHelper`** (`SettingsTestHelper` class) — Queue-based backup/restore for module settings. Backward-compat wrappers: `backupSettings()`, `restoreSettings()`.
 
 #### 2. Create individual batch registration files
 ```typescript
 // test/unit/[category]/index.ts
-import { QuenchBatchContext } from '@ethaks/fvtt-quench';
-import * as sinon from 'sinon';
-import { initializeTestSetting, cleanupTestSetting } from '@unittest/testUtils';
+import { createBatch } from '@unittest/testUtils';
 import { registerSomeTests } from "./some.test";
 import { registerOtherTests } from "./other.test";
 
 export const registerSomeBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.[category].some',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      // Batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerSomeTests(context);
-    },
-    { displayName: "/[category]/some", preSelected: false },
+    '/[category]/some',
+    registerSomeTests
   );
 };
 
 export const registerOtherBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.[category].other',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      // Batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerOtherTests(context);
-    },
-    { displayName: "/[category]/other", preSelected: false },
+    '/[category]/other',
+    registerOtherTests
   );
 };
 ```
 
-**Note**: Each test file gets its own batch registration function, allowing users to select which tests to run in the Quench UI.
-
-**Batch Registration Options**:
-- `displayName`: The path shown in the Quench UI for this test batch (e.g., "/utils/appWindow")
-- `preSelected`: Whether this batch is selected by default (typically `false`)
+**Note**: Each test file gets its own batch registration function, allowing users to select which tests to run in the Quench UI. `createBatch` handles all setup/teardown boilerplate (`initializeTestSetting`, `cleanupTestSetting`, `sinon.restore()`).
 
 #### 3. Create individual test files
 ```typescript
@@ -248,7 +149,7 @@ For tests that modify module settings, use the queue-based backup/restore system
 ```typescript
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { moduleId, SettingKey } from '@/settings';
-import { backupSettings, restoreSettings } from '@unittest/testUtils';
+import { settingsHelper } from '@unittest/testUtils';
 
 export const registerSettingsTests = (context: QuenchBatchContext) => {
   const { describe, it, expect } = context;
@@ -262,7 +163,7 @@ export const registerSettingsTests = (context: QuenchBatchContext) => {
 
     it('should modify settings safely', async () => {
       // Tests that MODIFY settings must backup/restore
-      await backupSettings();
+      await settingsHelper.backup();
       
       try {
         // Modify settings
@@ -273,7 +174,7 @@ export const registerSettingsTests = (context: QuenchBatchContext) => {
         expect(value).to.equal(true);
       } finally {
         // Always restore in finally to ensure cleanup
-        await restoreSettings();
+        await settingsHelper.restore();
       }
     });
   });
@@ -281,10 +182,11 @@ export const registerSettingsTests = (context: QuenchBatchContext) => {
 ```
 
 **Key Points:**
-1. **Only tests that MODIFY settings** need to call `backupSettings()` and `restoreSettings()`
+1. **Only tests that MODIFY settings** need to call `settingsHelper.backup()` and `settingsHelper.restore()`
 2. Use **try/finally** to ensure settings are restored even if tests fail
 3. The queue system ensures tests run sequentially: Test 1 backup → Test 1 restore → Test 2 backup → Test 2 restore
 4. Tests that only read settings don't need any backup
+5. Backward-compat wrappers `backupSettings()` / `restoreSettings()` are also available
 
 #### General Data Management
 ```typescript
@@ -314,30 +216,17 @@ Use the global testUtils from `@unittest/testUtils` instead.
 
 ## What TO Do
 
-✅ **Use global shared test setting**
+✅ **Use createBatch for batch registration**
 ```typescript
-// RIGHT - Import from global testUtils
-import { getTestSetting } from '@unittest/testUtils';
+// RIGHT - Use createBatch from testUtils
+import { createBatch } from '@unittest/testUtils';
+import { registerMyTests } from './my.test';
 
-// Each batch registers independently
 export const registerMyBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.category.mytest',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      registerMyTests(context);
-    },
-    { displayName: "/category/mytest", preSelected: false },
+    '/category/mytest',
+    registerMyTests
   );
 };
 ```
@@ -376,36 +265,82 @@ await filterRelatedEntries(getTestSetting(), added, removed);
 ```
 
 ## File Organization
-- Place tests in `test/unit/utils/` for utilities
-- Place tests in `test/unit/classes/` for class tests
-- Each test file has its own batch registration function
-- Use descriptive test names that explain what is being tested
 
-### Setting up a New Test Directory
+Test directories mirror `src/` categories:
 
-When creating a new test directory from scratch:
+| Test Directory | Source Directory | Status |
+|---|---|---|
+| `test/unit/utils/` | `src/utils/` | Active |
+| `test/unit/classes/` | `src/classes/` | Active |
+| `test/unit/applications/stores/` | `src/applications/stores/` | Active |
+| `test/unit/settings/` | `src/settings/` | Active |
+| `test/unit/composables/` | `src/composables/` | Scaffolded |
+| `test/unit/documents/` | `src/documents/` | Scaffolded |
+| `test/unit/hooks/` | `src/hooks/` | Scaffolded |
+| `test/unit/dialogs/` | `src/dialogs/` | Scaffolded |
 
-1. **Create the directory structure**:
-   ```
-   test/unit/[category]/
-   ├── index.ts          # Batch registration functions
-   ├── some.test.ts      # Individual test files
-   └── other.test.ts
-   ```
+Each test file has its own batch registration function. Use descriptive test names that explain what is being tested.
 
-2. **Create index.ts** with batch registration functions (see template above)
+### Setting up a New Test
 
-3. **Create test files** (follow the pattern in step 3)
+Scaffolded directories already have an `index.ts` with a commented template. To add a test:
 
-4. **Register in main test runner**:
+1. **Create the test file** `test/unit/[category]/myFeature.test.ts` (follow the test file pattern above)
+
+2. **Add batch registration** in `test/unit/[category]/index.ts`:
    ```typescript
-   // In test/unit/index.ts or main test file
-   import { registerSomeBatch, registerOtherBatch } from './[category]/index';
-   
-   // Call the registration functions
-   registerSomeBatch();
-   registerOtherBatch();
+   import { createBatch } from '@unittest/testUtils';
+   import { registerMyFeatureTests } from './myFeature.test';
+
+   export const registerMyFeatureBatch = () => {
+     createBatch(
+       'campaign-builder.[category].myFeature',
+       '/[category]/myFeature',
+       registerMyFeatureTests
+     );
+   };
    ```
+
+3. **Wire into main runner** in `test/unit/index.ts`:
+   ```typescript
+   import { registerMyFeatureBatch } from '@unittest/[category]';
+   registerMyFeatureBatch();
+   ```
+
+### Store Stubs
+
+Store stubs live in `test/unit/stores/`:
+
+- **`backendStoreStubs.ts`** / **`mainStoreStubs.ts`** — Domain-specific stubs with sensible defaults
+- **`createStoreStub(useStore, methodStubs, propertyOverrides)`** — Generic factory for quickly stubbing any Pinia store. Use for new stores that don't need complex defaults.
+- **`testPinia.ts`** — Shared Pinia instance for all test store stubs
+
+```typescript
+import { createStoreStub } from '@unittest/stores';
+import { useNavigationStore } from '@/applications/stores';
+
+const { store, stubs } = createStoreStub(useNavigationStore, {
+  openContent: sinon.stub().resolves(),
+});
+```
+
+### RollTable Test Pattern
+
+For tests that create RollTables, use `rollTableHelper` to avoid manual tracking boilerplate:
+
+```typescript
+import { rollTableHelper } from '@unittest/testUtils';
+
+beforeEach(async () => {
+  await NameGeneratorsService.initializeSettingRollTables(testSetting);
+  rollTableHelper.trackSettingTables(testSetting);
+});
+
+afterEach(async () => {
+  await rollTableHelper.cleanup();
+  await rollTableHelper.clearConfig(testSetting);
+});
+```
 
 ## Benefits of This Approach
 
@@ -413,7 +348,8 @@ When creating a new test directory from scratch:
 2. **Shared Resources**: All tests share the same setting, reducing setup/teardown overhead
 3. **Race Condition Prevention**: Mutex pattern ensures safe concurrent execution
 4. **Automatic Cleanup**: Setting is cleaned up only when all batches are complete
-5. **Simplified Structure**: No need for per-directory testUtils files
+5. **Zero Boilerplate**: `createBatch` eliminates duplicated setup/teardown code
+6. **Scalable Store Stubs**: `createStoreStub` factory handles new stores without hand-rolling each one
 
 ## Remember
 Quench runs INSIDE FoundryVTT, not alongside it. This means we have access to all FoundryVTT APIs and should use them rather than mocking them.
