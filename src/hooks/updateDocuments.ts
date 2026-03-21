@@ -49,13 +49,14 @@ function registerForActorHooks() {
         }
 
         // also need to update the details on campaigns
-        for (let campaign of Object.values(setting.campaigns)) {
-          const pc = campaign.pcs.find(pc => pc.uuid === actor.uuid);
-          if (pc) {
-            pc.name = actor.name;
-            await campaign.save();
-          }
-        }
+        // we don't store the name on CampaignPC any more
+        // for (let campaign of Object.values(setting.campaigns)) {
+        //   const pc = campaign.pcs.find(pc => pc.uuid === actor.uuid);
+        //   if (pc) {
+        //     pc.name = actor.name;
+        //     await campaign.save();
+        //   }
+        // }
       }
 
       // refresh the content window in case it's showing in a table
