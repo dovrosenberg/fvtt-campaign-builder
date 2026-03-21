@@ -442,8 +442,13 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    * @returns {Entry[]} The entries that pass the filter 
    */
   public async filterEntries(filterFn: (e: EntryFilterIndex) => boolean): Promise<Entry[]> { 
+    // bail out if the compendium no longer exists
+    const compendium = toRaw(this.compendium);
+    if (compendium == null)
+      return [];
+
     // get all the journal entries
-    const indexEntries = await toRaw(this.compendium).getIndex(entryIndexFields());
+    const indexEntries = await compendium.getIndex(entryIndexFields());
 
     // find the entries 
     const entries = indexEntries
