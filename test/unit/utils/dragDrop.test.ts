@@ -167,7 +167,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           toDragData: sandbox.stub().returns({ type: 'Actor', uuid: 'actor-uuid' }),
         };
 
-        sandbox.stub(window, 'fromUuid').resolves(mockActor);
+        sandbox.stub(foundry.utils, 'fromUuid').resolves(mockActor);
       });
 
       it('should set drag data for actor', async () => {
@@ -223,7 +223,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           toDragData: sandbox.stub().returns({ type: 'Item', uuid: 'item-uuid' }),
         };
 
-        sandbox.stub(window, 'fromUuid').resolves(mockItem);
+        sandbox.stub(foundry.utils, 'fromUuid').resolves(mockItem);
         
         // Mock existing preview removal
         document.getElementById = sandbox.stub().returns(null);
@@ -265,7 +265,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
           toDragData: sandbox.stub().returns({ type: 'JournalEntry', uuid: 'doc-uuid' }),
         };
         
-        sandbox.stub(window, 'fromUuid').resolves(mockDoc);
+        sandbox.stub(foundry.utils, 'fromUuid').resolves(mockDoc);
       });
 
       it('should set drag data using document toDragData', async () => {
@@ -280,10 +280,10 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
       it('should handle error gracefully', async () => {
         const consoleSpy = sandbox.spy(console, 'error');
         // Restore any existing fromUuid stub before creating a new one
-        if ((window.fromUuid as any).restore) {
-          (window.fromUuid as any).restore();
+        if ((foundry.utils.fromUuid as any).restore) {
+          (foundry.utils.fromUuid as any).restore();
         }
-        sandbox.stub(window, 'fromUuid').rejects(new Error('Test error'));
+        sandbox.stub(foundry.utils, 'fromUuid').rejects(new Error('Test error'));
         
         await DragDropService.foundryDragStart(mockDragEvent, 'actor-uuid');
         

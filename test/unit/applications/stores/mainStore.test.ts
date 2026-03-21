@@ -12,6 +12,7 @@ import GlobalSettingService from '@/utils/globalSettings';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 import NameGeneratorsService from '@/utils/nameGenerators';
 import TitleUpdaterService from '@/utils/titleUpdater';
+import { createTabPanelState, type TabPanelState } from '@/composables/useTabPanelState';
 
 export const registerMainStoreTests = (context: QuenchBatchContext) => {
   const { describe, it, expect, beforeEach, afterEach } = context;
@@ -46,6 +47,7 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
     let testSetting: FCBSetting;
     let getGlobalSettingsStub: sinon.SinonStub;
     let closeCampaignBuilderAppStub: sinon.SinonStub;
+    let panelState: TabPanelState;
 
     beforeEach(async () => {
       sandbox = sinon.createSandbox();
@@ -65,6 +67,10 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
       
       // Configure the stub to return the test setting by default
       getGlobalSettingsStub.withArgs(testSetting.uuid).resolves(testSetting);
+      
+      // Create and set a TabPanelState for the focused panel
+      panelState = createTabPanelState(0);
+      mainStore.setFocusedPanel(panelState);
     });
 
     afterEach(() => {
@@ -719,11 +725,24 @@ export const registerMainStoreTests = (context: QuenchBatchContext) => {
       });
 
       it('should turn off play mode when switching settings', async () => {
+        // First set an initial setting (so there's an oldSetting to switch from)
+        await mainStore.setNewSetting(testSetting.uuid);
         mainStore.isInPlayMode = true;
         
-        await mainStore.setNewSetting(testSetting.uuid);
+        // Create a second setting to switch to
+        const secondSetting = (await FCBSetting.create(false, 'Second Test Setting'))!;
         
-        expect(mainStore.isInPlayMode).to.be.false;
+        try {
+          // Configure the stub to return the second setting for its UUID
+          getGlobalSettingsStub.withArgs(secondSetting.uuid).resolves(secondSetting);
+          
+          // Switch to the new setting - this should turn off play mode
+          await mainStore.setNewSetting(secondSetting.uuid);
+          
+          expect(mainStore.isInPlayMode).to.be.false;
+        } finally {
+          await secondSetting.delete();
+        }
       });
 
       it('should not update title when same setting UUID', async () => {

@@ -49,8 +49,9 @@ export const registerEntryTests = (context: QuenchBatchContext) => {
         });
         
         expect(entry!.uuid).to.be.a('string');
+        // Entry UUID is the wrapper JournalEntry's UUID, not the page UUID
         expect(entry!.uuid).to.include('JournalEntry');
-        expect(entry!.uuid).to.include('JournalEntryPage');
+        expect(entry!.uuid).to.not.include('JournalEntryPage');
       });
     });
 

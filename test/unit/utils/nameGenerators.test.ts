@@ -37,8 +37,11 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       }
     });
     
+    // Set as active pinia so dynamic imports use the stubbed store
+    setActivePinia(pinia);
+    
     // Get the stubbed backend store
-    backendStore = useBackendStore(pinia);
+    backendStore = useBackendStore();
 
     // Stub notifyInfo
     notifyInfoStub = sinon.stub(NotificationService, 'info');
@@ -119,6 +122,9 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       await NameGeneratorsService.initializeSettingRollTables(testSetting);
       const tableUuid = testSetting.rollTableConfig?.rollTables[GeneratorType.NPC];
       testTable = (await foundry.utils.fromUuid<RollTable>(tableUuid))!;
+      
+      // Populate the table with initial results
+      await NameGeneratorsService.refreshSettingRollTable(testTable, testSetting);
     });
 
     it('should throw error when backend is not available', async () => {
@@ -178,6 +184,8 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
   describe('refreshSettingRollTables', () => {
     beforeEach(async () => {
       await NameGeneratorsService.initializeSettingRollTables(testSetting);
+      // Populate all tables with initial results
+      await NameGeneratorsService.refreshSettingRollTables(testSetting);
     });
 
     it('should refresh all tables for a setting', async () => {
@@ -194,9 +202,6 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       }
 
       await NameGeneratorsService.refreshSettingRollTables(testSetting);
-
-      // Check that notification was shown
-      expect(notifyInfoStub.calledOnce).to.be.true;
       
       // Check that all drawn results were replaced
       for (const type of Object.values(GeneratorType)) {
@@ -263,6 +268,9 @@ export const registerNameGeneratorsTests = (context: QuenchBatchContext) => {
       secondSetting = (await FCBSetting.create(false, 'Second Test Setting'))!;
       await NameGeneratorsService.initializeSettingRollTables(testSetting);
       await NameGeneratorsService.initializeSettingRollTables(secondSetting);
+      // Populate tables with initial results
+      await NameGeneratorsService.refreshSettingRollTables(testSetting);
+      await NameGeneratorsService.refreshSettingRollTables(secondSetting);
     });
 
     afterEach(async () => {

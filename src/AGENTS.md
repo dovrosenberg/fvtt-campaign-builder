@@ -1,4 +1,4 @@
-# agents.MD
+# AGENTS.MD
 
 ## Scope
 
@@ -16,9 +16,6 @@ Agents are not allowed to:
 The latest version of the Foundry VTT API is available at https://foundryvtt.com/api/.  This should be used as authoritative reference for all Foundry VTT API questions.  Only the latest version needs to be supported unless specifically noted.
 
 ## Repo conventions
-
-### Build command
-- Prefer `npm run debug` as the standard build/run command for this repository (unless the user requests otherwise).
 
 ### TypeScript
 - Avoid `any`. Use `unknown` and narrow whenever possible, unless it is a one-time use and narrowing would require significantly more code/complexity.
