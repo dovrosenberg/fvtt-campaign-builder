@@ -368,6 +368,11 @@ const generateSettingTableResults = async (type: GeneratorType, count: number, s
         throw new Error(`Unknown generator type: ${type} in generators.generateSettingTableResults()`);
     }
 
+    // Response can be undefined if API call failed or api is null
+    if (response == null) {
+      return [];
+    }
+
     return response.data.names;
   } catch (error) {
     throw new Error(`Error in generators.generateSettingTableResults() generating names for ${type}: ${error}`);
