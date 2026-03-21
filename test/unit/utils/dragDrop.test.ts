@@ -45,10 +45,11 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
 
     afterEach(() => {
       // Restore the original fromUuid before sandbox.restore()
+      // Keep writable: true so subsequent tests can redefine it
       Object.defineProperty(foundry.utils, 'fromUuid', {
         value: originalFromUuid,
         configurable: true,
-        writable: false,
+        writable: true,
       });
       sandbox.restore();
     });
