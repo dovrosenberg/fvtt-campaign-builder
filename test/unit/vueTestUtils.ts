@@ -1,6 +1,6 @@
-import { VueWrapper, mount, flushPromises } from '@vue/test-utils';
+import { mount, flushPromises, VueWrapper } from '@vue/test-utils';
 import { setActivePinia, createPinia, Pinia } from 'pinia';
-import { createApp, App, Component, h, defineComponent } from 'vue';
+import { createApp, App, Component, h, defineComponent, ComponentOptions } from 'vue';
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { getTestPinia, resetTestPinia } from './stores/testPinia';
 import { createStoreStub, StoreStubResult } from './stores/createStoreStub';
@@ -62,11 +62,41 @@ export interface VueMountOptions {
 }
 
 /**
+ * Custom wrapper that provides emitted() tracking for browser environment.
+ * Vue Test Utils' emitted() doesn't work when bundled for browser.
+ */
+export interface TestWrapper<T> {
+  /** The underlying Vue wrapper */
+  wrapper: VueWrapper<T>;
+  /** Get all emissions of an event */
+  emitted: (eventName: string) => any[][] | undefined;
+  /** Check if wrapper exists */
+  exists: () => boolean;
+  /** Find an element */
+  find: (selector: string) => { element: Element; exists: () => boolean; setValue: (value: any) => Promise<void>; trigger: (event: string) => Promise<void> };
+  /** Set props */
+  setProps: (props: Record<string, any>) => Promise<void>;
+  /** Access component VM */
+  vm: T;
+  /** Unmount the component */
+  unmount: () => void;
+  /** Get element text */
+  text: () => string;
+}
+
+/**
+ * Event emissions storage.
+ */
+interface EmissionStore {
+  [eventName: string]: any[][];
+}
+
+/**
  * Result of mounting a component for testing.
  */
 export interface MountedComponent<T> {
-  /** The Vue wrapper for assertions */
-  wrapper: VueWrapper<T>;
+  /** The wrapped component for assertions */
+  wrapper: TestWrapper<T>;
   /** Store stubs that were created (keyed by store name) */
   storeStubs: Record<string, StoreStubResult<any>>;
   /** The DOM container element */
@@ -535,8 +565,26 @@ export function mountComponent<T extends Component>(
     }
   }
 
+  // Storage for emitted events
+  const emissions: EmissionStore = {};
+
+  // Wrap component to capture emits
+  const wrappedComponent = defineComponent({
+    name: 'EventTracker',
+    setup(_, { attrs }) {
+      return () => h(component as ComponentOptions, {
+        ...attrs,
+        'onUpdate:modelValue': (value: any) => {
+          if (!emissions['update:modelValue']) emissions['update:modelValue'] = [];
+          emissions['update:modelValue'].push([value]);
+          attrs['onUpdate:modelValue']?.(value);
+        },
+      });
+    },
+  });
+
   // Mount the component
-  const wrapper = mount(component, {
+  const vueWrapper = mount(wrappedComponent, {
     props: options.props,
     slots: options.slots,
     attachTo: options.attachTo || container || undefined,
@@ -550,6 +598,26 @@ export function mountComponent<T extends Component>(
       },
     },
   });
+
+  // Create custom wrapper with emitted tracking
+  const wrapper: TestWrapper<T> = {
+    wrapper: vueWrapper as unknown as VueWrapper<T>,
+    emitted: (eventName: string) => emissions[eventName],
+    exists: () => vueWrapper.exists(),
+    find: (selector: string) => {
+      const el = vueWrapper.find(selector);
+      return {
+        element: el.element,
+        exists: () => el.exists(),
+        setValue: async (value: any) => { await el.setValue(value); },
+        trigger: async (event: string) => { await el.trigger(event); },
+      };
+    },
+    setProps: async (props: Record<string, any>) => { await vueWrapper.setProps(props); },
+    vm: vueWrapper.vm as T,
+    unmount: () => vueWrapper.unmount(),
+    text: () => vueWrapper.text(),
+  };
 
   return { wrapper, storeStubs, container };
 }

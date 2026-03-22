@@ -469,6 +469,82 @@ stubStoreComputed(sandbox, mainStore, 'currentTab', { header: { uuid: 'x' }, tab
 stubStoreComputed(sandbox, mainStore, 'currentSetting', {} as FCBSetting);
 ```
 
+### Component Test Utilities
+
+`test/unit/componentTestUtils.ts` provides helpers to reduce boilerplate in Vue component tests:
+
+#### Emit Assertions
+
+```typescript
+import { assertEmitted, assertNotEmitted, getEmitPayload } from '@unittest/componentTestUtils';
+
+// Assert event was emitted with payload (expect from Quench context)
+assertEmitted(expect, wrapper, 'update:modelValue', 0, 'new value');
+
+// Assert event was NOT emitted
+assertNotEmitted(expect, wrapper, 'submit');
+
+// Get payload from emission (no expect needed - just returns value)
+const value = getEmitPayload<string>(wrapper, 'update:modelValue');
+```
+
+#### v-model Testing
+
+```typescript
+import { testVModel, testVModelRender } from '@unittest/componentTestUtils';
+
+// Test v-model binding (sets value + checks emit)
+await testVModel(expect, wrapper, 'test value');
+
+// Test v-model prop renders correctly
+testVModelRender(expect, wrapper, 'initial value');
+```
+
+#### Mock Documents
+
+For prop testing where full document functionality isn't needed:
+
+```typescript
+import { createMockSetting, createMockEntry, createMockCampaign } from '@unittest/componentTestUtils';
+
+const setting = createMockSetting({ name: 'My Setting' });
+const entry = createMockEntry({ name: 'John', topic: Topics.Character });
+const campaign = createMockCampaign({ completed: false });
+```
+
+**Note**: These are plain objects, NOT real Foundry documents. Use real documents when testing document methods or Foundry integration.
+
+#### Store Stub Presets
+
+Quick setup for common store configurations:
+
+```typescript
+import {
+  createMinimalMainStoreStub,
+  createNavigationStoreStub,
+  createRelationshipStoreStub,
+} from '@unittest/componentTestUtils';
+
+// Minimal main store with just currentSetting
+const { store } = createMinimalMainStoreStub();
+
+// Navigation store with stubbed methods
+const { store, stubs } = createNavigationStoreStub();
+await store.openContent('some-uuid');
+expect(stubs.openContent.calledOnce).to.be.true;
+```
+
+#### Input Event Helpers
+
+```typescript
+import { typeInInput, clickButton, selectOption, toggleCheckbox } from '@unittest/componentTestUtils';
+
+await typeInInput(wrapper, 'input[name="title"]', 'New Title');
+await clickButton(wrapper, 'button.submit');
+await selectOption(wrapper, 'select', 'option2');
+await toggleCheckbox(wrapper, 'input[type="checkbox"]', true);
+```
+
 ### RollTable Test Pattern
 
 For tests that create RollTables, use `rollTableHelper` to avoid manual tracking boilerplate:
