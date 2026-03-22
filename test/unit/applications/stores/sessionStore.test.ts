@@ -2,9 +2,8 @@ import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import * as sinon from 'sinon';
 import { setActivePinia, createPinia } from 'pinia';
 import { useSessionStore, useMainStore } from '@/applications/stores';
-import { Campaign, Session, Entry, WindowTab } from '@/classes';
-import { Topics } from '@/types';
-import { getTestSetting } from '@unittest/testUtils';
+import { Campaign, Session, WindowTab } from '@/classes';
+import { getTestSetting, fakeUuid, fakeFCBJournalEntryPageUuid } from '@unittest/testUtils';
 import { createTabPanelState } from '@/composables/useTabPanelState';
 import { WindowTabType } from '@/types';
 import { FCBDialog } from '@/dialogs';
@@ -33,7 +32,6 @@ export const registerSessionStoreTests = (context: QuenchBatchContext) => {
     let testSetting: Awaited<ReturnType<typeof getTestSetting>>;
     let testCampaign: Campaign;
     let testSession: Session;
-    let testEntry: Entry;
 
     beforeEach(async () => {
       sandbox = sinon.createSandbox();
@@ -53,11 +51,6 @@ export const registerSessionStoreTests = (context: QuenchBatchContext) => {
       testSession = (await Session.create(testCampaign, 'Test Session'))!;
       testSession.number = 1;
       await testSession.save();
-
-      // Create a test entry for location/NPC tests
-      testEntry = (await Entry.create(testSetting.topicFolders[Topics.Location]!, {
-        name: 'Test Location',
-      }))!;
 
       // Set up the main store with panel state
       const panelState = createTabPanelState(0);
@@ -101,31 +94,33 @@ export const registerSessionStoreTests = (context: QuenchBatchContext) => {
 
     describe('addLocation', () => {
       it('should add location to session', async () => {
-        await sessionStore.addLocation(testEntry.uuid);
+        const locationUuid = fakeFCBJournalEntryPageUuid();
+        await sessionStore.addLocation(locationUuid);
 
         const refreshed = await Session.fromUuid(testSession.uuid);
         expect(refreshed?.locations).to.have.length(1);
-        expect(refreshed?.locations[0].uuid).to.equal(testEntry.uuid);
+        expect(refreshed?.locations[0].uuid).to.equal(locationUuid);
       });
 
       it('should throw when no current session', async () => {
         await mainStore.setNewTab(createTestTab(testSetting.uuid, WindowTabType.Setting));
 
-        await expect(sessionStore.addLocation(testEntry.uuid)).to.be.rejectedWith('Invalid session');
+        await expect(sessionStore.addLocation(fakeFCBJournalEntryPageUuid())).to.be.rejectedWith('Invalid session');
       });
     });
 
     describe('deleteLocation', () => {
       let confirmDialogStub: sinon.SinonStub;
+      let locationUuid: string;
 
-      beforeEach(() => {
+      beforeEach(async () => {
         confirmDialogStub = sandbox.stub(FCBDialog, 'confirmDialog').resolves(true);
+        locationUuid = fakeFCBJournalEntryPageUuid();
+        await sessionStore.addLocation(locationUuid);
       });
 
       it('should remove location from session', async () => {
-        await sessionStore.addLocation(testEntry.uuid);
-
-        const result = await sessionStore.deleteLocation(testEntry.uuid);
+        const result = await sessionStore.deleteLocation(locationUuid);
 
         expect(result).to.be.true;
         const refreshed = await Session.fromUuid(testSession.uuid);
@@ -134,17 +129,14 @@ export const registerSessionStoreTests = (context: QuenchBatchContext) => {
 
       it('should return false if confirmation cancelled', async () => {
         confirmDialogStub.resolves(false);
-        await sessionStore.addLocation(testEntry.uuid);
 
-        const result = await sessionStore.deleteLocation(testEntry.uuid);
+        const result = await sessionStore.deleteLocation(locationUuid);
 
         expect(result).to.be.false;
       });
 
       it('should skip confirmation when skipConfirm is true', async () => {
-        await sessionStore.addLocation(testEntry.uuid);
-
-        const result = await sessionStore.deleteLocation(testEntry.uuid, true);
+        const result = await sessionStore.deleteLocation(locationUuid, true);
 
         expect(confirmDialogStub.called).to.be.false;
         expect(result).to.be.true;
@@ -153,9 +145,10 @@ export const registerSessionStoreTests = (context: QuenchBatchContext) => {
 
     describe('updateLocationNotes', () => {
       it('should update location notes', async () => {
-        await sessionStore.addLocation(testEntry.uuid);
+        const locationUuid = fakeFCBJournalEntryPageUuid();
+        await sessionStore.addLocation(locationUuid);
 
-        await sessionStore.updateLocationNotes(testEntry.uuid, 'Updated notes');
+        await sessionStore.updateLocationNotes(locationUuid, 'Updated notes');
 
         const refreshed = await Session.fromUuid(testSession.uuid);
         expect(refreshed?.locations[0].notes).to.equal('Updated notes');
@@ -164,16 +157,13 @@ export const registerSessionStoreTests = (context: QuenchBatchContext) => {
 
     describe('reorderLocations', () => {
       it('should reorder locations in session', async () => {
-        const entry2 = (await Entry.create(testSetting.topicFolders[Topics.Location]!, {
-          name: 'Location 2',
-        }))!;
-        const entry3 = (await Entry.create(testSetting.topicFolders[Topics.Location]!, {
-          name: 'Location 3',
-        }))!;
+        const loc1 = fakeFCBJournalEntryPageUuid();
+        const loc2 = fakeFCBJournalEntryPageUuid();
+        const loc3 = fakeFCBJournalEntryPageUuid();
 
-        await sessionStore.addLocation(testEntry.uuid);
-        await sessionStore.addLocation(entry2.uuid);
-        await sessionStore.addLocation(entry3.uuid);
+        await sessionStore.addLocation(loc1);
+        await sessionStore.addLocation(loc2);
+        await sessionStore.addLocation(loc3);
 
         const refreshed = await Session.fromUuid(testSession.uuid);
         const locations = refreshed!.locations;
@@ -183,44 +173,39 @@ export const registerSessionStoreTests = (context: QuenchBatchContext) => {
         await sessionStore.reorderLocations(reordered);
 
         const afterReorder = await Session.fromUuid(testSession.uuid);
-        expect(afterReorder?.locations.map(l => l.uuid)).to.deep.equal([entry3.uuid, entry2.uuid, testEntry.uuid]);
+        expect(afterReorder?.locations.map(l => l.uuid)).to.deep.equal([loc3, loc2, loc1]);
       });
     });
 
     describe('addNPC', () => {
       it('should add NPC to session', async () => {
-        const character = (await Entry.create(testSetting.topicFolders[Topics.Character]!, {
-          name: 'Test NPC',
-        }))!;
-
-        await sessionStore.addNPC(character.uuid);
+        const npcUuid = fakeFCBJournalEntryPageUuid();
+        await sessionStore.addNPC(npcUuid);
 
         const refreshed = await Session.fromUuid(testSession.uuid);
         expect(refreshed?.npcs).to.have.length(1);
-        expect(refreshed?.npcs[0].uuid).to.equal(character.uuid);
+        expect(refreshed?.npcs[0].uuid).to.equal(npcUuid);
       });
 
       it('should throw when no current session', async () => {
         await mainStore.setNewTab(createTestTab(testSetting.uuid, WindowTabType.Setting));
 
-        await expect(sessionStore.addNPC('some-uuid')).to.be.rejectedWith('Invalid session');
+        await expect(sessionStore.addNPC(fakeFCBJournalEntryPageUuid())).to.be.rejectedWith('Invalid session');
       });
     });
 
     describe('deleteNPC', () => {
       let confirmDialogStub: sinon.SinonStub;
+      let npcUuid: string;
 
-      beforeEach(() => {
+      beforeEach(async () => {
         confirmDialogStub = sandbox.stub(FCBDialog, 'confirmDialog').resolves(true);
+        npcUuid = fakeFCBJournalEntryPageUuid();
+        await sessionStore.addNPC(npcUuid);
       });
 
       it('should remove NPC from session', async () => {
-        const character = (await Entry.create(testSetting.topicFolders[Topics.Character]!, {
-          name: 'Test NPC',
-        }))!;
-        await sessionStore.addNPC(character.uuid);
-
-        const result = await sessionStore.deleteNPC(character.uuid);
+        const result = await sessionStore.deleteNPC(npcUuid);
 
         expect(result).to.be.true;
         const refreshed = await Session.fromUuid(testSession.uuid);
@@ -230,12 +215,10 @@ export const registerSessionStoreTests = (context: QuenchBatchContext) => {
 
     describe('updateNPCNotes', () => {
       it('should update NPC notes', async () => {
-        const character = (await Entry.create(testSetting.topicFolders[Topics.Character]!, {
-          name: 'Test NPC',
-        }))!;
-        await sessionStore.addNPC(character.uuid);
+        const npcUuid = fakeFCBJournalEntryPageUuid();
+        await sessionStore.addNPC(npcUuid);
 
-        await sessionStore.updateNPCNotes(character.uuid, 'Updated notes');
+        await sessionStore.updateNPCNotes(npcUuid, 'Updated notes');
 
         const refreshed = await Session.fromUuid(testSession.uuid);
         expect(refreshed?.npcs[0].notes).to.equal('Updated notes');
@@ -244,13 +227,13 @@ export const registerSessionStoreTests = (context: QuenchBatchContext) => {
 
     describe('reorderNPCs', () => {
       it('should reorder NPCs in session', async () => {
-        const char1 = (await Entry.create(testSetting.topicFolders[Topics.Character]!, { name: 'NPC 1' }))!;
-        const char2 = (await Entry.create(testSetting.topicFolders[Topics.Character]!, { name: 'NPC 2' }))!;
-        const char3 = (await Entry.create(testSetting.topicFolders[Topics.Character]!, { name: 'NPC 3' }))!;
+        const npc1 = fakeFCBJournalEntryPageUuid();
+        const npc2 = fakeFCBJournalEntryPageUuid();
+        const npc3 = fakeFCBJournalEntryPageUuid();
 
-        await sessionStore.addNPC(char1.uuid);
-        await sessionStore.addNPC(char2.uuid);
-        await sessionStore.addNPC(char3.uuid);
+        await sessionStore.addNPC(npc1);
+        await sessionStore.addNPC(npc2);
+        await sessionStore.addNPC(npc3);
 
         const refreshed = await Session.fromUuid(testSession.uuid);
         const npcs = refreshed!.npcs;
@@ -260,7 +243,7 @@ export const registerSessionStoreTests = (context: QuenchBatchContext) => {
         await sessionStore.reorderNPCs(reordered);
 
         const afterReorder = await Session.fromUuid(testSession.uuid);
-        expect(afterReorder?.npcs.map(n => n.uuid)).to.deep.equal([char3.uuid, char2.uuid, char1.uuid]);
+        expect(afterReorder?.npcs.map(n => n.uuid)).to.deep.equal([npc3, npc2, npc1]);
       });
     });
 
@@ -365,15 +348,19 @@ export const registerSessionStoreTests = (context: QuenchBatchContext) => {
 
     describe('reorderStoryWebs', () => {
       it('should reorder story webs in session', async () => {
-        testSession.storyWebs = ['sw-1', 'sw-2', 'sw-3'];
+        const sw1 = fakeUuid('JournalEntry');
+        const sw2 = fakeUuid('JournalEntry');
+        const sw3 = fakeUuid('JournalEntry');
+
+        testSession.storyWebs = [sw1, sw2, sw3];
         await testSession.save();
 
         await mainStore.refreshSession();
 
-        await sessionStore.reorderStoryWebs(['sw-3', 'sw-1', 'sw-2']);
+        await sessionStore.reorderStoryWebs([sw3, sw1, sw2]);
 
         const refreshed = await Session.fromUuid(testSession.uuid);
-        expect(refreshed?.storyWebs).to.deep.equal(['sw-3', 'sw-1', 'sw-2']);
+        expect(refreshed?.storyWebs).to.deep.equal([sw3, sw1, sw2]);
       });
     });
   });

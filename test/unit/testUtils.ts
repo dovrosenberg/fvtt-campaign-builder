@@ -12,7 +12,37 @@ import { moduleId } from '@/settings';
  * - RollTableTestHelper: track and clean up RollTables created during tests
  * - SettingsTestHelper: backup/restore module settings to prevent test interference
  * - createBatch: standard batch registration with setup/teardown boilerplate
+ * - fakeUuid: generate valid fake UUIDs for DocumentUUIDField validation
  */
+
+// ─── Fake UUID Generation ───────────────────────────────────────────────
+
+/**
+ * Generate a fake but valid UUID for testing DocumentUUIDField validation.
+ * The UUID passes Foundry's format validation but does not reference a real document.
+ * Foundry validates: Type must be a valid document type, ID must be 16 alphanumeric chars.
+ *
+ * @param documentType - The Foundry document type (e.g., 'Scene', 'Actor', 'JournalEntry')
+ * @returns A valid-format UUID string like 'Scene.abcdefghijklmnop'
+ */
+export const fakeUuid = (documentType: string): string => {
+  const id = foundry.utils.randomID(16);
+  return `${documentType}.${id}`;
+};
+
+/**
+ * Generate a fake but valid UUID for an FCBJournalEntryPage (embedded document).
+ * Works for: Entry, Campaign, Session, Arc, Front, StoryWeb, Setting.
+ * The UUID passes Foundry's format validation but does not reference a real document.
+ * Format: JournalEntry.parentId.JournalEntryPage.pageId
+ *
+ * @returns A valid-format embedded document UUID string
+ */
+export const fakeFCBJournalEntryPageUuid = (): string => {
+  const parentId = foundry.utils.randomID(16);
+  const pageId = foundry.utils.randomID(16);
+  return `JournalEntry.${parentId}.JournalEntryPage.${pageId}`;
+};
 
 // ─── Batch Registration ────────────────────────────────────────────────
 

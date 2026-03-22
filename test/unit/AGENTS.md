@@ -278,6 +278,14 @@ import { getTestSetting } from './testUtils'; // Don't do this!
 ```
 Use the global testUtils from `@unittest/testUtils` instead.
 
+❌ **Don't use invalid UUID formats with DocumentUUIDField**
+```typescript
+// WRONG - These don't match Foundry's UUID format
+testArc.storyWebs = ['sw-1', 'sw-2', 'sw-3'];  // Missing document type!
+await relationshipStore.addScene('scene-123');  // Missing document type!
+```
+Foundry's `DocumentUUIDField` validates UUID format: `Type.16chars` where Type is a valid document type and ID is 16 alphanumeric characters. It does **not** verify the document exists.
+
 ## What TO Do
 
 ✅ **Use createBatch for batch registration**
@@ -327,6 +335,49 @@ export const registerMyTests = (context: QuenchBatchContext) => {
 // RIGHT - Test how components work together
 await filterRelatedEntries(getTestSetting(), added, removed);
 ```
+
+✅ **Use fakeUuid for primary document UUIDs (when document resolution isn't needed)**
+```typescript
+import { fakeUuid, fakeFCBJournalEntryPageUuid } from '@unittest/testUtils';
+
+// For primary documents (Scene, Actor, Item, RollTable, JournalEntry):
+const sceneUuid = fakeUuid('Scene');
+const actorUuid = fakeUuid('Actor');
+const storyWebUuid = fakeUuid('JournalEntry');  // StoryWeb stored as JournalEntry
+
+// Use in store tests
+testArc.storyWebs = [fakeUuid('JournalEntry'), fakeUuid('JournalEntry')];
+await testArc.save();
+
+await relationshipStore.addScene(sceneUuid);
+await relationshipStore.addActor(actorUuid);
+```
+
+✅ **Use fakeFCBJournalEntryPageUuid for embedded document UUIDs**
+```typescript
+import { fakeFCBJournalEntryPageUuid } from '@unittest/testUtils';
+
+// For FCBJournalEntryPage subtypes (Entry, Campaign, Session, Arc, Front, StoryWeb, Setting):
+const entryUuid = fakeFCBJournalEntryPageUuid();  // JournalEntry.xxx.JournalEntryPage.yyy
+
+// Use in store tests for locations, participants, NPCs
+await arcStore.addLocation(fakeFCBJournalEntryPageUuid());
+await sessionStore.addNPC(fakeFCBJournalEntryPageUuid());
+```
+
+**When to use fake UUIDs vs real documents:**
+- **Use `fakeUuid`** for primary documents (Scene, Actor, Item) when testing storage/reordering
+- **Use `fakeFCBJournalEntryPageUuid`** for Entry/FCB document UUIDs when testing storage/reordering
+- **Use real documents** when the code resolves the UUID to access document properties
+
+**Fields that use DocumentUUIDField:**
+- `Entry.scenes` — Array of Scene UUIDs (use `fakeUuid`)
+- `Entry.actors` — Array of Actor UUIDs (use `fakeUuid`)
+- `Entry.foundryDocuments` — Array of any Foundry document UUIDs
+- `Campaign.storyWebs`, `Session.storyWebs`, `Arc.storyWebs` — Array of JournalEntry UUIDs (use `fakeUuid`)
+- `Arc.locations`, `Arc.participants` — Objects with Entry UUIDs (use `fakeFCBJournalEntryPageUuid`)
+- `Session.locations`, `Session.npcs` — Objects with Entry UUIDs (use `fakeFCBJournalEntryPageUuid`)
+- `RelatedEntryDetails.uuid` in relationships — Entry UUIDs (needs real Entry for name/topic)
 
 ## File Organization
 

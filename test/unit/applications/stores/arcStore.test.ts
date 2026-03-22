@@ -2,9 +2,8 @@ import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import * as sinon from 'sinon';
 import { setActivePinia, createPinia } from 'pinia';
 import { useArcStore, useMainStore } from '@/applications/stores';
-import { Arc, Campaign, Session, Entry, WindowTab } from '@/classes';
-import { Topics } from '@/types';
-import { getTestSetting } from '@unittest/testUtils';
+import { Arc, Campaign, WindowTab } from '@/classes';
+import { getTestSetting, fakeUuid, fakeFCBJournalEntryPageUuid } from '@unittest/testUtils';
 import { createTabPanelState } from '@/composables/useTabPanelState';
 import { WindowTabType } from '@/types';
 import { FCBDialog } from '@/dialogs';
@@ -33,7 +32,6 @@ export const registerArcStoreTests = (context: QuenchBatchContext) => {
     let testSetting: Awaited<ReturnType<typeof getTestSetting>>;
     let testCampaign: Campaign;
     let testArc: Arc;
-    let testEntry: Entry;
 
     beforeEach(async () => {
       sandbox = sinon.createSandbox();
@@ -51,11 +49,6 @@ export const registerArcStoreTests = (context: QuenchBatchContext) => {
       // Create test data
       testCampaign = (await Campaign.create(testSetting, 'Test Campaign'))!;
       testArc = (await Arc.create(testCampaign, 'Test Arc'))!;
-
-      // Create a test entry for location/participant tests
-      testEntry = (await Entry.create(testSetting.topicFolders[Topics.Location]!, {
-        name: 'Test Location',
-      }))!;
 
       // Set up the main store with panel state
       const panelState = createTabPanelState(0);
@@ -99,32 +92,34 @@ export const registerArcStoreTests = (context: QuenchBatchContext) => {
 
     describe('addLocation', () => {
       it('should add location to arc', async () => {
-        await arcStore.addLocation(testEntry.uuid, 'Test notes');
+        const locationUuid = fakeFCBJournalEntryPageUuid();
+        await arcStore.addLocation(locationUuid, 'Test notes');
 
         const refreshed = await Arc.fromUuid(testArc.uuid);
         expect(refreshed?.locations).to.have.length(1);
-        expect(refreshed?.locations[0].uuid).to.equal(testEntry.uuid);
+        expect(refreshed?.locations[0].uuid).to.equal(locationUuid);
         expect(refreshed?.locations[0].notes).to.equal('Test notes');
       });
 
       it('should throw when no current arc', async () => {
         await mainStore.setNewTab(createTestTab(testSetting.uuid, WindowTabType.Setting));
 
-        await expect(arcStore.addLocation(testEntry.uuid)).to.be.rejectedWith('Invalid arc');
+        await expect(arcStore.addLocation(fakeFCBJournalEntryPageUuid())).to.be.rejectedWith('Invalid arc');
       });
     });
 
     describe('deleteLocation', () => {
       let confirmDialogStub: sinon.SinonStub;
+      let locationUuid: string;
 
-      beforeEach(() => {
+      beforeEach(async () => {
         confirmDialogStub = sandbox.stub(FCBDialog, 'confirmDialog').resolves(true);
+        locationUuid = fakeFCBJournalEntryPageUuid();
+        await arcStore.addLocation(locationUuid);
       });
 
       it('should remove location from arc', async () => {
-        await arcStore.addLocation(testEntry.uuid);
-
-        const result = await arcStore.deleteLocation(testEntry.uuid);
+        const result = await arcStore.deleteLocation(locationUuid);
 
         expect(result).to.be.true;
         const refreshed = await Arc.fromUuid(testArc.uuid);
@@ -133,9 +128,8 @@ export const registerArcStoreTests = (context: QuenchBatchContext) => {
 
       it('should return false if confirmation cancelled', async () => {
         confirmDialogStub.resolves(false);
-        await arcStore.addLocation(testEntry.uuid);
 
-        const result = await arcStore.deleteLocation(testEntry.uuid);
+        const result = await arcStore.deleteLocation(locationUuid);
 
         expect(result).to.be.false;
         const refreshed = await Arc.fromUuid(testArc.uuid);
@@ -143,9 +137,7 @@ export const registerArcStoreTests = (context: QuenchBatchContext) => {
       });
 
       it('should skip confirmation when skipConfirm is true', async () => {
-        await arcStore.addLocation(testEntry.uuid);
-
-        const result = await arcStore.deleteLocation(testEntry.uuid, true);
+        const result = await arcStore.deleteLocation(locationUuid, true);
 
         expect(confirmDialogStub.called).to.be.false;
         expect(result).to.be.true;
@@ -154,9 +146,10 @@ export const registerArcStoreTests = (context: QuenchBatchContext) => {
 
     describe('updateLocationNotes', () => {
       it('should update location notes', async () => {
-        await arcStore.addLocation(testEntry.uuid, 'Original notes');
+        const locationUuid = fakeFCBJournalEntryPageUuid();
+        await arcStore.addLocation(locationUuid, 'Original notes');
 
-        await arcStore.updateLocationNotes(testEntry.uuid, 'Updated notes');
+        await arcStore.updateLocationNotes(locationUuid, 'Updated notes');
 
         const refreshed = await Arc.fromUuid(testArc.uuid);
         expect(refreshed?.locations[0].notes).to.equal('Updated notes');
@@ -165,16 +158,13 @@ export const registerArcStoreTests = (context: QuenchBatchContext) => {
 
     describe('reorderLocations', () => {
       it('should reorder locations in arc', async () => {
-        const entry2 = (await Entry.create(testSetting.topicFolders[Topics.Location]!, {
-          name: 'Location 2',
-        }))!;
-        const entry3 = (await Entry.create(testSetting.topicFolders[Topics.Location]!, {
-          name: 'Location 3',
-        }))!;
+        const loc1 = fakeFCBJournalEntryPageUuid();
+        const loc2 = fakeFCBJournalEntryPageUuid();
+        const loc3 = fakeFCBJournalEntryPageUuid();
 
-        await arcStore.addLocation(testEntry.uuid);
-        await arcStore.addLocation(entry2.uuid);
-        await arcStore.addLocation(entry3.uuid);
+        await arcStore.addLocation(loc1);
+        await arcStore.addLocation(loc2);
+        await arcStore.addLocation(loc3);
 
         const refreshed = await Arc.fromUuid(testArc.uuid);
         const locations = refreshed!.locations;
@@ -184,7 +174,7 @@ export const registerArcStoreTests = (context: QuenchBatchContext) => {
         await arcStore.reorderLocations(reordered);
 
         const afterReorder = await Arc.fromUuid(testArc.uuid);
-        expect(afterReorder?.locations.map(l => l.uuid)).to.deep.equal([entry3.uuid, entry2.uuid, testEntry.uuid]);
+        expect(afterReorder?.locations.map(l => l.uuid)).to.deep.equal([loc3, loc2, loc1]);
       });
     });
 
@@ -354,38 +344,33 @@ export const registerArcStoreTests = (context: QuenchBatchContext) => {
 
     describe('addParticipant', () => {
       it('should add participant to arc', async () => {
-        const character = (await Entry.create(testSetting.topicFolders[Topics.Character]!, {
-          name: 'Test Character',
-        }))!;
-
-        await arcStore.addParticipant(character.uuid, 'Test notes');
+        const participantUuid = fakeFCBJournalEntryPageUuid();
+        await arcStore.addParticipant(participantUuid, 'Test notes');
 
         const refreshed = await Arc.fromUuid(testArc.uuid);
         expect(refreshed?.participants).to.have.length(1);
-        expect(refreshed?.participants[0].uuid).to.equal(character.uuid);
+        expect(refreshed?.participants[0].uuid).to.equal(participantUuid);
       });
 
       it('should throw when no current arc', async () => {
         await mainStore.setNewTab(createTestTab(testSetting.uuid, WindowTabType.Setting));
 
-        await expect(arcStore.addParticipant('some-uuid')).to.be.rejectedWith('Invalid arc');
+        await expect(arcStore.addParticipant(fakeFCBJournalEntryPageUuid())).to.be.rejectedWith('Invalid arc');
       });
     });
 
     describe('deleteParticipant', () => {
       let confirmDialogStub: sinon.SinonStub;
+      let participantUuid: string;
 
-      beforeEach(() => {
+      beforeEach(async () => {
         confirmDialogStub = sandbox.stub(FCBDialog, 'confirmDialog').resolves(true);
+        participantUuid = fakeFCBJournalEntryPageUuid();
+        await arcStore.addParticipant(participantUuid);
       });
 
       it('should remove participant from arc', async () => {
-        const character = (await Entry.create(testSetting.topicFolders[Topics.Character]!, {
-          name: 'Test Character',
-        }))!;
-        await arcStore.addParticipant(character.uuid);
-
-        const result = await arcStore.deleteParticipant(character.uuid);
+        const result = await arcStore.deleteParticipant(participantUuid);
 
         expect(result).to.be.true;
         const refreshed = await Arc.fromUuid(testArc.uuid);
@@ -395,13 +380,13 @@ export const registerArcStoreTests = (context: QuenchBatchContext) => {
 
     describe('reorderParticipants', () => {
       it('should reorder participants in arc', async () => {
-        const char1 = (await Entry.create(testSetting.topicFolders[Topics.Character]!, { name: 'Char 1' }))!;
-        const char2 = (await Entry.create(testSetting.topicFolders[Topics.Character]!, { name: 'Char 2' }))!;
-        const char3 = (await Entry.create(testSetting.topicFolders[Topics.Character]!, { name: 'Char 3' }))!;
+        const p1 = fakeFCBJournalEntryPageUuid();
+        const p2 = fakeFCBJournalEntryPageUuid();
+        const p3 = fakeFCBJournalEntryPageUuid();
 
-        await arcStore.addParticipant(char1.uuid);
-        await arcStore.addParticipant(char2.uuid);
-        await arcStore.addParticipant(char3.uuid);
+        await arcStore.addParticipant(p1);
+        await arcStore.addParticipant(p2);
+        await arcStore.addParticipant(p3);
 
         const refreshed = await Arc.fromUuid(testArc.uuid);
         const participants = refreshed!.participants;
@@ -411,21 +396,25 @@ export const registerArcStoreTests = (context: QuenchBatchContext) => {
         await arcStore.reorderParticipants(reordered);
 
         const afterReorder = await Arc.fromUuid(testArc.uuid);
-        expect(afterReorder?.participants.map(p => p.uuid)).to.deep.equal([char3.uuid, char2.uuid, char1.uuid]);
+        expect(afterReorder?.participants.map(p => p.uuid)).to.deep.equal([p3, p2, p1]);
       });
     });
 
     describe('reorderStoryWebs', () => {
       it('should reorder story webs in arc', async () => {
-        testArc.storyWebs = ['sw-1', 'sw-2', 'sw-3'];
+        const sw1 = fakeUuid('JournalEntry');
+        const sw2 = fakeUuid('JournalEntry');
+        const sw3 = fakeUuid('JournalEntry');
+
+        testArc.storyWebs = [sw1, sw2, sw3];
         await testArc.save();
 
         await mainStore.refreshArc();
 
-        await arcStore.reorderStoryWebs(['sw-3', 'sw-1', 'sw-2']);
+        await arcStore.reorderStoryWebs([sw3, sw1, sw2]);
 
         const refreshed = await Arc.fromUuid(testArc.uuid);
-        expect(refreshed?.storyWebs).to.deep.equal(['sw-3', 'sw-1', 'sw-2']);
+        expect(refreshed?.storyWebs).to.deep.equal([sw3, sw1, sw2]);
       });
     });
   });

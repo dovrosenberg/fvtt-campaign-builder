@@ -4,7 +4,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import { useCampaignStore, useMainStore } from '@/applications/stores';
 import { Campaign, Session, Arc, Entry, WindowTab } from '@/classes';
 import { Topics, ToDoTypes, CampaignPC } from '@/types';
-import { getTestSetting } from '@unittest/testUtils';
+import { getTestSetting, fakeUuid } from '@unittest/testUtils';
 import { createTabPanelState } from '@/composables/useTabPanelState';
 import { WindowTabType } from '@/types';
 import { FCBDialog } from '@/dialogs';
@@ -190,15 +190,19 @@ export const registerCampaignStoreTests = (context: QuenchBatchContext) => {
 
     describe('reorderStoryWebs', () => {
       it('should reorder story webs in campaign', async () => {
-        testCampaign.storyWebs = ['sw-1', 'sw-2', 'sw-3'];
+        const sw1 = fakeUuid('JournalEntry');
+        const sw2 = fakeUuid('JournalEntry');
+        const sw3 = fakeUuid('JournalEntry');
+
+        testCampaign.storyWebs = [sw1, sw2, sw3];
         await testCampaign.save();
 
         await mainStore.refreshCampaign();
 
-        await campaignStore.reorderStoryWebs(['sw-3', 'sw-1', 'sw-2']);
+        await campaignStore.reorderStoryWebs([sw3, sw1, sw2]);
 
         const refreshed = await Campaign.fromUuid(testCampaign.uuid);
-        expect(refreshed?.storyWebs).to.deep.equal(['sw-3', 'sw-1', 'sw-2']);
+        expect(refreshed?.storyWebs).to.deep.equal([sw3, sw1, sw2]);
       });
     });
 

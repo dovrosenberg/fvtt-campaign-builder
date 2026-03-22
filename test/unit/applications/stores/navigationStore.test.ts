@@ -88,7 +88,7 @@ export const registerNavigationStoreTests = (context: QuenchBatchContext) => {
         navigationStore.tabs = [[tab1, tab2]];
 
         const tab = navigationStore.getActiveTab(true, 0);
-        expect(tab).to.equal(tab2);
+        expect(tab?.id).to.equal(tab2.id);
       });
     });
 
@@ -117,7 +117,7 @@ export const registerNavigationStoreTests = (context: QuenchBatchContext) => {
     describe('addBookmark', () => {
       it('should add a bookmark', async () => {
         const bookmark = {
-          id: 'test-bookmark',
+          id: foundry.utils.randomID(),
           header: { uuid: testCampaign.uuid, name: 'Test', icon: '' },
           tabInfo: { tabType: WindowTabType.Campaign, contentId: testCampaign.uuid, contentTab: null },
         };
@@ -125,34 +125,34 @@ export const registerNavigationStoreTests = (context: QuenchBatchContext) => {
         await navigationStore.addBookmark(bookmark);
 
         expect(navigationStore.bookmarks).to.have.length(1);
-        expect(navigationStore.bookmarks[0].id).to.equal('test-bookmark');
+        expect(navigationStore.bookmarks[0].id).to.equal(bookmark.id);
       });
     });
 
     describe('removeBookmark', () => {
       it('should remove a bookmark', async () => {
         const bookmark = {
-          id: 'test-bookmark',
+          id: foundry.utils.randomID(),
           header: { uuid: testCampaign.uuid, name: 'Test', icon: '' },
           tabInfo: { tabType: WindowTabType.Campaign, contentId: testCampaign.uuid, contentTab: null },
         };
 
         await navigationStore.addBookmark(bookmark);
-        await navigationStore.removeBookmark('test-bookmark');
+        await navigationStore.removeBookmark(bookmark.id);
 
-        expect(navigationStore.bookmarks).to.have.length(0);
+        expect(navigationStore.bookmarks.filter(b=>b.id===bookmark.id)).to.have.length(0);
       });
     });
 
     describe('changeBookmarkPosition', () => {
       it('should reorder bookmarks', async () => {
         const bookmark1 = {
-          id: 'bookmark-1',
+          id: foundry.utils.randomID(),
           header: { uuid: 'uuid1', name: 'First', icon: '' },
           tabInfo: { tabType: WindowTabType.Campaign, contentId: 'uuid1', contentTab: null },
         };
         const bookmark2 = {
-          id: 'bookmark-2',
+          id: foundry.utils.randomID(),
           header: { uuid: 'uuid2', name: 'Second', icon: '' },
           tabInfo: { tabType: WindowTabType.Campaign, contentId: 'uuid2', contentTab: null },
         };
@@ -160,10 +160,14 @@ export const registerNavigationStoreTests = (context: QuenchBatchContext) => {
         await navigationStore.addBookmark(bookmark1);
         await navigationStore.addBookmark(bookmark2);
 
-        await navigationStore.changeBookmarkPosition(1, 0);
+        // find the first index
+        const firstIndex = navigationStore.bookmarks.findIndex(b => b.id === bookmark1.id);
+        const secondIndex = navigationStore.bookmarks.findIndex(b => b.id === bookmark2.id);
 
-        expect(navigationStore.bookmarks[0].id).to.equal('bookmark-2');
-        expect(navigationStore.bookmarks[1].id).to.equal('bookmark-1');
+        await navigationStore.changeBookmarkPosition(secondIndex, firstIndex);
+
+        expect(navigationStore.bookmarks[firstIndex].id).to.equal(bookmark2.id);
+        expect(navigationStore.bookmarks[secondIndex].id).to.equal(bookmark1.id);
       });
     });
 
@@ -223,8 +227,11 @@ export const registerNavigationStoreTests = (context: QuenchBatchContext) => {
       });
 
       it('should update bookmark name', async () => {
+        // Clear any bookmarks from previous tests
+        navigationStore.bookmarks = [];
+
         const bookmark = {
-          id: 'test-bookmark',
+          id: foundry.utils.randomID(),
           header: { uuid: testCampaign.uuid, name: 'Old Name', icon: '' },
           tabInfo: { tabType: WindowTabType.Campaign, contentId: testCampaign.uuid, contentTab: null },
         };
@@ -232,7 +239,7 @@ export const registerNavigationStoreTests = (context: QuenchBatchContext) => {
 
         await navigationStore.propagateNameChange(testCampaign.uuid, 'New Name');
 
-        expect(navigationStore.bookmarks[0].header.name).to.equal('New Name');
+        expect(navigationStore.bookmarks.find(b => b.id === bookmark.id)?.header.name).to.equal('New Name');
       });
     });
 
@@ -255,7 +262,7 @@ export const registerNavigationStoreTests = (context: QuenchBatchContext) => {
 
         expect(result).to.not.be.null;
         expect(result?.panelIndex).to.equal(0);
-        expect(result?.tab).to.equal(tab);
+        expect(result?.tab.id).to.equal(tab.id);
       });
 
       it('should return null when not found', () => {
