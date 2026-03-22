@@ -705,6 +705,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
     // add it to the setting's list
     setting.campaignIndex.push({ uuid: campaign.uuid, name: nameToUse, completed: false, arcs: [] });
+    
+    // if setting.campaigns was populated, keep it up to date
+    if (Object.keys(setting.campaigns).length === setting.campaignIndex.length - 1) {
+      setting.campaigns[campaign.uuid] = campaign;
+    }
+    
     await setting.save();
     
     return campaign;

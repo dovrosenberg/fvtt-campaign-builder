@@ -800,11 +800,13 @@ export const settingDirectoryStore = () => {
   //@ts-ignore - Vue can't handle reactive classes
   watch(currentSetting, async (newSetting: FCBSetting | null, oldSetting: FCBSetting | null): Promise<void> => {
     if (!newSetting) {
+      // Clear the tree when setting becomes null
+      currentSettingTree.value = [];
       return;
     }
 
     // Only refresh if the setting actually changed (not just a reactive update)
-        if (newSetting.uuid !== oldSetting?.uuid) {
+    if (newSetting.uuid !== oldSetting?.uuid) {
       await refreshSettingDirectoryTree();
     }
   });
