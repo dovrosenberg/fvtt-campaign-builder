@@ -1,10 +1,24 @@
 import { mount, flushPromises, VueWrapper } from '@vue/test-utils';
-import { setActivePinia, createPinia, Pinia } from 'pinia';
-import { createApp, App, Component, h, defineComponent, ComponentOptions } from 'vue';
+import { setActivePinia, Pinia } from 'pinia';
+import { Component, h, defineComponent, ComponentOptions } from 'vue';
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { getTestPinia, resetTestPinia } from './stores/testPinia';
 import { createStoreStub, StoreStubResult } from './stores/createStoreStub';
 import * as sinon from 'sinon';
+import {
+  useMainStore,
+  useNavigationStore,
+  useSettingDirectoryStore,
+  useCampaignDirectoryStore,
+  useRelationshipStore,
+  useCampaignStore,
+  useSessionStore,
+  usePlayingStore,
+  useFrontStore,
+  useStoryWebStore,
+  useArcStore,
+  useBackendStore,
+} from '@/applications/stores';
 
 /**
  * Vue component testing utilities for Quench tests in Foundry VTT.
@@ -73,7 +87,7 @@ export interface TestWrapper<T> {
   /** Check if wrapper exists */
   exists: () => boolean;
   /** Find an element */
-  find: (selector: string) => { element: Element; exists: () => boolean; setValue: (value: any) => Promise<void>; trigger: (event: string) => Promise<void> };
+  find: (selector: string) => { element: Element | undefined; exists: () => boolean; setValue: (value: any) => Promise<void>; trigger: (event: string, options?: Record<string, any>) => Promise<void>; classes: () => string[]; attributes: (name?: string) => Record<string, string> | string | undefined };
   /** Set props */
   setProps: (props: Record<string, any>) => Promise<void>;
   /** Access component VM */
@@ -525,55 +539,57 @@ export function mountComponent<T extends Component>(
   // Set up store stubs if provided
   const storeStubs: Record<string, StoreStubResult<any>> = {};
   if (options.stores) {
-    const storeImports = require('@/applications/stores');
-
     if (options.stores.main) {
-      storeStubs.main = createStoreStub(storeImports.useMainStore, options.stores.main as Record<string, any>);
+      storeStubs.main = createStoreStub(useMainStore, options.stores.main as Record<string, any>);
     }
     if (options.stores.navigation) {
-      storeStubs.navigation = createStoreStub(storeImports.useNavigationStore, options.stores.navigation as Record<string, any>);
+      storeStubs.navigation = createStoreStub(useNavigationStore, options.stores.navigation as Record<string, any>);
     }
     if (options.stores.settingDirectory) {
-      storeStubs.settingDirectory = createStoreStub(storeImports.useSettingDirectoryStore, options.stores.settingDirectory as Record<string, any>);
+      storeStubs.settingDirectory = createStoreStub(useSettingDirectoryStore, options.stores.settingDirectory as Record<string, any>);
     }
     if (options.stores.campaignDirectory) {
-      storeStubs.campaignDirectory = createStoreStub(storeImports.useCampaignDirectoryStore, options.stores.campaignDirectory as Record<string, any>);
+      storeStubs.campaignDirectory = createStoreStub(useCampaignDirectoryStore, options.stores.campaignDirectory as Record<string, any>);
     }
     if (options.stores.relationship) {
-      storeStubs.relationship = createStoreStub(storeImports.useRelationshipStore, options.stores.relationship as Record<string, any>);
+      storeStubs.relationship = createStoreStub(useRelationshipStore, options.stores.relationship as Record<string, any>);
     }
     if (options.stores.campaign) {
-      storeStubs.campaign = createStoreStub(storeImports.useCampaignStore, options.stores.campaign as Record<string, any>);
+      storeStubs.campaign = createStoreStub(useCampaignStore, options.stores.campaign as Record<string, any>);
     }
     if (options.stores.session) {
-      storeStubs.session = createStoreStub(storeImports.useSessionStore, options.stores.session as Record<string, any>);
+      storeStubs.session = createStoreStub(useSessionStore, options.stores.session as Record<string, any>);
     }
     if (options.stores.playing) {
-      storeStubs.playing = createStoreStub(storeImports.usePlayingStore, options.stores.playing as Record<string, any>);
+      storeStubs.playing = createStoreStub(usePlayingStore, options.stores.playing as Record<string, any>);
     }
     if (options.stores.front) {
-      storeStubs.front = createStoreStub(storeImports.useFrontStore, options.stores.front as Record<string, any>);
+      storeStubs.front = createStoreStub(useFrontStore, options.stores.front as Record<string, any>);
     }
     if (options.stores.storyWeb) {
-      storeStubs.storyWeb = createStoreStub(storeImports.useStoryWebStore, options.stores.storyWeb as Record<string, any>);
+      storeStubs.storyWeb = createStoreStub(useStoryWebStore, options.stores.storyWeb as Record<string, any>);
     }
     if (options.stores.arc) {
-      storeStubs.arc = createStoreStub(storeImports.useArcStore, options.stores.arc as Record<string, any>);
+      storeStubs.arc = createStoreStub(useArcStore, options.stores.arc as Record<string, any>);
     }
     if (options.stores.backend) {
-      storeStubs.backend = createStoreStub(storeImports.useBackendStore, options.stores.backend as Record<string, any>);
+      storeStubs.backend = createStoreStub(useBackendStore, options.stores.backend as Record<string, any>);
     }
   }
 
   // Storage for emitted events
   const emissions: EmissionStore = {};
+  
+  // Storage for inner component instance (to access defineExpose properties)
+  let innerComponentInstance: any = null;
 
-  // Wrap component to capture emits
+  // Wrap component to capture emits and track inner instance
   const wrappedComponent = defineComponent({
     name: 'EventTracker',
     setup(_, { attrs }) {
       return () => h(component as ComponentOptions, {
         ...attrs,
+        ref: (inst: any) => { innerComponentInstance = inst; },
         'onUpdate:modelValue': (value: any) => {
           if (!emissions['update:modelValue']) emissions['update:modelValue'] = [];
           emissions['update:modelValue'].push([value]);
@@ -606,15 +622,26 @@ export function mountComponent<T extends Component>(
     exists: () => vueWrapper.exists(),
     find: (selector: string) => {
       const el = vueWrapper.find(selector);
+      const exists = el.exists();
       return {
-        element: el.element,
-        exists: () => el.exists(),
+        element: exists ? el.element : undefined,
+        exists: () => exists,
         setValue: async (value: any) => { await el.setValue(value); },
         trigger: async (event: string) => { await el.trigger(event); },
+        classes: () => exists ? Array.from(el.element.classList) : [],
+        attributes: (name?: string) => {
+          if (!exists) return name ? undefined : {};
+          const attrs: Record<string, string> = {};
+          for (const attr of Array.from(el.element.attributes)) {
+            attrs[attr.name] = attr.value;
+          }
+          return name ? attrs[name] : attrs;
+        },
       };
     },
     setProps: async (props: Record<string, any>) => { await vueWrapper.setProps(props); },
-    vm: vueWrapper.vm as T,
+    // Return inner component instance (with defineExpose properties) or fall back to wrapper vm
+    vm: (innerComponentInstance ?? vueWrapper.vm) as T,
     unmount: () => vueWrapper.unmount(),
     text: () => vueWrapper.text(),
   };
