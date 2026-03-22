@@ -92,29 +92,30 @@ export const registerCampaignDirectoryStoreTests = (context: QuenchBatchContext)
 
     describe('createCampaign', () => {
       it('should create a new campaign', async () => {
-        const campaign = await campaignDirectoryStore.createCampaign();
+        const campaign = await campaignDirectoryStore.createCampaign(testSetting, 'New Campaign');
 
         expect(campaign).to.not.be.null;
-        expect(campaign?.name).to.exist;
+        expect(campaign?.name).to.equal('New Campaign');
 
         // Verify it appears in the tree
         await campaignDirectoryStore.refreshCampaignDirectoryTree();
-        const found = campaignDirectoryStore.currentCampaignTree.value.find(n => n.uuid === campaign?.uuid);
+        const found = campaignDirectoryStore.currentCampaignTree.value.find(n => n.id === campaign?.uuid);
         expect(found).to.exist;
       });
     });
 
     describe('createSession', () => {
       it('should create a new session in campaign', async () => {
-        const session = await campaignDirectoryStore.createSession(testCampaign.uuid);
+        const session = await campaignDirectoryStore.createSession(testCampaign.uuid, 'New Session');
 
         expect(session).to.not.be.null;
+        expect(session?.name).to.equal('New Session');
       });
 
       it('should return null when no setting', async () => {
         await mainStore.setNewSetting(null);
 
-        const session = await campaignDirectoryStore.createSession(testCampaign.uuid);
+        const session = await campaignDirectoryStore.createSession(testCampaign.uuid, 'New Session');
 
         expect(session).to.be.null;
       });
@@ -122,31 +123,42 @@ export const registerCampaignDirectoryStoreTests = (context: QuenchBatchContext)
 
     describe('createArc', () => {
       it('should create a new arc in campaign', async () => {
-        const arc = await campaignDirectoryStore.createArc(testCampaign.uuid);
+        const arc = await campaignDirectoryStore.createArc(testCampaign.uuid, 'New Arc');
 
         expect(arc).to.not.be.null;
+        expect(arc?.name).to.equal('New Arc');
       });
     });
 
     describe('createFront', () => {
       it('should create a new front in campaign when fronts enabled', async () => {
-        // Enable fronts
-        sandbox.stub(ModuleSettings, 'get').withArgs(SettingKey.useFronts).returns(true);
+        // Enable fronts - capture original before stubbing to avoid recursion
+        const originalGet = ModuleSettings.get.bind(ModuleSettings);
+        sandbox.stub(ModuleSettings, 'get').callsFake((key: SettingKey) => {
+          if (key === SettingKey.useFronts) return true;
+          return originalGet(key);
+        });
 
-        const front = await campaignDirectoryStore.createFront(testCampaign.uuid);
+        const front = await campaignDirectoryStore.createFront(testCampaign.uuid, 'New Front');
 
         expect(front).to.not.be.null;
+        expect(front?.name).to.equal('New Front');
       });
     });
 
     describe('createStoryWeb', () => {
       it('should create a new story web in campaign when story webs enabled', async () => {
-        // Enable story webs
-        sandbox.stub(ModuleSettings, 'get').withArgs(SettingKey.useStoryWebs).returns(true);
+        // Enable story webs - capture original before stubbing to avoid recursion
+        const originalGet = ModuleSettings.get.bind(ModuleSettings);
+        sandbox.stub(ModuleSettings, 'get').callsFake((key: SettingKey) => {
+          if (key === SettingKey.useStoryWebs) return true;
+          return originalGet(key);
+        });
 
-        const storyWeb = await campaignDirectoryStore.createStoryWeb(testCampaign.uuid);
+        const storyWeb = await campaignDirectoryStore.createStoryWeb(testCampaign.uuid, 'New StoryWeb');
 
         expect(storyWeb).to.not.be.null;
+        expect(storyWeb?.name).to.equal('New StoryWeb');
       });
     });
 
@@ -218,13 +230,23 @@ export const registerCampaignDirectoryStoreTests = (context: QuenchBatchContext)
 
     describe('deleteFront', () => {
       let confirmDialogStub: sinon.SinonStub;
+      let moduleSettingsStub: sinon.SinonStub;
+      let originalGet: (key: SettingKey) => unknown;
 
       beforeEach(() => {
         confirmDialogStub = sandbox.stub(FCBDialog, 'confirmDialog').resolves(true);
+        // Enable fronts - capture original before stubbing to avoid recursion
+        originalGet = ModuleSettings.get.bind(ModuleSettings);
+
+        // @ts-ignore
+        moduleSettingsStub = sandbox.stub(ModuleSettings, 'get').callsFake((key: SettingKey) => {
+          if (key === SettingKey.useFronts) return true;
+          return originalGet(key);
+        });
       });
 
       it('should delete front and return true', async () => {
-        const front = (await Front.create(testCampaign))!;
+        const front = (await Front.create(testCampaign, 'Front to Delete'))!;
 
         const result = await campaignDirectoryStore.deleteFront(front.uuid);
 
@@ -238,13 +260,23 @@ export const registerCampaignDirectoryStoreTests = (context: QuenchBatchContext)
 
     describe('deleteStoryWeb', () => {
       let confirmDialogStub: sinon.SinonStub;
+      let moduleSettingsStub: sinon.SinonStub;
+      let originalGet: (key: SettingKey) => unknown;
 
       beforeEach(() => {
         confirmDialogStub = sandbox.stub(FCBDialog, 'confirmDialog').resolves(true);
+        // Enable story webs - capture original before stubbing to avoid recursion
+        originalGet = ModuleSettings.get.bind(ModuleSettings);
+
+        // @ts-ignore
+        moduleSettingsStub = sandbox.stub(ModuleSettings, 'get').callsFake((key: SettingKey) => {
+          if (key === SettingKey.useStoryWebs) return true;
+          return originalGet(key);
+        });
       });
 
       it('should delete story web and return true', async () => {
-        const storyWeb = (await StoryWeb.create(testCampaign))!;
+        const storyWeb = (await StoryWeb.create(testCampaign, 'StoryWeb to Delete'))!;
 
         const result = await campaignDirectoryStore.deleteStoryWeb(storyWeb.uuid);
 
@@ -257,10 +289,22 @@ export const registerCampaignDirectoryStoreTests = (context: QuenchBatchContext)
     });
 
     describe('duplicateStoryWeb', () => {
+      let moduleSettingsStub: sinon.SinonStub;
+      let originalGet: (key: SettingKey) => unknown;
+
+      beforeEach(() => {
+        // Enable story webs - capture original before stubbing to avoid recursion
+        originalGet = ModuleSettings.get.bind(ModuleSettings);
+
+        // @ts-ignore
+        moduleSettingsStub = sandbox.stub(ModuleSettings, 'get').callsFake((key: SettingKey) => {
+          if (key === SettingKey.useStoryWebs) return true;
+          return originalGet(key);
+        });
+      });
+
       it('should duplicate a story web', async () => {
-        const storyWeb = (await StoryWeb.create(testCampaign))!;
-        storyWeb.name = 'Original';
-        await storyWeb.save();
+        const storyWeb = (await StoryWeb.create(testCampaign, 'Original StoryWeb'))!;
 
         const duplicate = await campaignDirectoryStore.duplicateStoryWeb(storyWeb.uuid);
 

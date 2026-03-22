@@ -286,6 +286,16 @@ await relationshipStore.addScene('scene-123');  // Missing document type!
 ```
 Foundry's `DocumentUUIDField` validates UUID format: `Type.16chars` where Type is a valid document type and ID is 16 alphanumeric characters. It does **not** verify the document exists.
 
+❌ **Don't use `withArgs()` for ModuleSettings.get stubs**
+```typescript
+// WRONG - withArgs returns undefined for unmatched calls, breaking other code
+sandbox.stub(ModuleSettings, 'get').withArgs(SettingKey.useFronts).returns(true);
+// This causes ModuleSettings.get(SettingKey.settingIndex) to return undefined!
+// Which breaks FCBJournalEntryPage.settingId getter (needs settingIndex to find packId)
+```
+
+The `withArgs()` pattern blocks ALL unmatched calls, returning `undefined`. This breaks any code that depends on other settings being accessible during the test.
+
 ## What TO Do
 
 ✅ **Use createBatch for batch registration**
@@ -335,6 +345,18 @@ export const registerMyTests = (context: QuenchBatchContext) => {
 // RIGHT - Test how components work together
 await filterRelatedEntries(getTestSetting(), added, removed);
 ```
+
+✅ **Use `callsFake()` for ModuleSettings.get stubs with call-through**
+```typescript
+// RIGHT - Capture original before stubbing to avoid recursion
+const originalGet = ModuleSettings.get.bind(ModuleSettings);
+sandbox.stub(ModuleSettings, 'get').callsFake((key: SettingKey) => {
+  if (key === SettingKey.useFronts) return true;
+  return originalGet(key);
+});
+```
+
+**Critical**: Must capture the original function BEFORE stubbing. Calling `ModuleSettings.get` inside the fake creates infinite recursion because the stub replaces the method.
 
 ✅ **Use fakeUuid for primary document UUIDs (when document resolution isn't needed)**
 ```typescript

@@ -326,9 +326,10 @@ export const campaignDirectoryStore = () => {
   };
 
   /** create a session in campaign. Puts it at the end.
-   *  @param campaignId the campaign to create the session 
+   *  @param campaignId the campaign to create the session
+   *  @param name optional name; if not provided, prompts user via dialog
    */
-  const createSession = async (campaignId: string): Promise<Session | null> => {
+  const createSession = async (campaignId: string, name = ''): Promise<Session | null> => {
     if (!currentSetting.value)
       return null;
 
@@ -336,7 +337,7 @@ export const campaignDirectoryStore = () => {
     if (!campaign)
       throw new Error('Bad campaign in campaignDirectoryStore.createSessionInArc()');
 
-    const session = await Session.create(campaign);
+    const session = await Session.create(campaign, name);
 
     if (session) {
       // it might have updated the campaign, so make sure we have the latest copy
@@ -364,12 +365,12 @@ export const campaignDirectoryStore = () => {
     await refreshCampaignDirectoryTree(updateIds);
   };
 
-  const createFront = async (campaignId: string): Promise<Front | null> => {
+  const createFront = async (campaignId: string, name = ''): Promise<Front | null> => {
     const campaign = await Campaign.fromUuid(campaignId);
     if (!campaign)
       throw new Error('Bad campaign in campaignDirectoryStore.createFront()');
 
-    const front = await Front.create(campaign);
+    const front = await Front.create(campaign, name);
 
     if (front) {
       await refreshCampaignDirectoryTree();
@@ -379,12 +380,12 @@ export const campaignDirectoryStore = () => {
     }
   };
 
-  const createStoryWeb = async (campaignId: string): Promise<StoryWeb | null> => {
+  const createStoryWeb = async (campaignId: string, name = ''): Promise<StoryWeb | null> => {
     const campaign = await Campaign.fromUuid(campaignId);
     if (!campaign)
       throw new Error('Bad campaign in campaignDirectoryStore.createStoryWeb()');
 
-    const storyWeb = await StoryWeb.create(campaign);
+    const storyWeb = await StoryWeb.create(campaign, name);
 
     if (storyWeb) {
       await refreshCampaignDirectoryTree();
@@ -395,9 +396,10 @@ export const campaignDirectoryStore = () => {
   };
 
   /** create an arc in campaign. Puts it at the end.
-   *  @param campaignId the campaign to create the arc 
+   *  @param campaignId the campaign to create the arc
+   *  @param name optional name; if not provided, prompts user via dialog
    */
-  const createArc = async (campaignId: string): Promise<Arc | null> => {
+  const createArc = async (campaignId: string, name = ''): Promise<Arc | null> => {
     if (!currentSetting.value)
       return null;
 
@@ -405,7 +407,7 @@ export const campaignDirectoryStore = () => {
     if (!campaign)
       throw new Error('Bad campaign in campaignDirectoryStore.createArc()');
 
-    const arc = await Arc.create(campaign);
+    const arc = await Arc.create(campaign, name);
 
     if (arc) {
       await refreshCampaignDirectoryTree();
@@ -418,9 +420,10 @@ export const campaignDirectoryStore = () => {
   /**
    * Creates a new campaign in the current setting and opens it
    * @param setting The setting to create the campaign in; defaults to the current setting if there is one
+   * @param name optional name; if not provided, prompts user via dialog
    * @returns The created campaign, or null if the setting is not found
    */
-  const createCampaign = async (setting?: FCBSetting): Promise<Campaign | null> => {
+  const createCampaign = async (setting?: FCBSetting, name = ''): Promise<Campaign | null> => {
     let campaign: Campaign | null = null;
 
     let settingToUse: FCBSetting | null;
@@ -433,7 +436,7 @@ export const campaignDirectoryStore = () => {
     if (!settingToUse)
       throw new Error('No setting in campaignDirectoryStore.createCampaign()');
 
-    campaign = await Campaign.create(settingToUse);
+    campaign = await Campaign.create(settingToUse, name);
 
     if (campaign) {
       // if we're working on the current setting, refresh the tree and open the campaign

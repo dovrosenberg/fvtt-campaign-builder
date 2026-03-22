@@ -3,6 +3,7 @@ import * as sinon from 'sinon';
 import { FCBSetting } from '@/classes';
 import { GeneratorType } from '@/types';
 import { moduleId } from '@/settings';
+import GlobalSettingService from '@/utils/globalSettings';
 
 /**
  * Global test utilities shared across all test batches.
@@ -138,6 +139,8 @@ class TestSettingManager {
       }
 
       this.setting = (await FCBSetting.create(false, 'Global Test Setting'))!;
+      // Register in global cache so mainStore.setNewSetting gets the same instance
+      GlobalSettingService.updateGlobalSetting(this.setting);
       // Track any roll tables/folders created during setting initialization
       rollTableHelper.trackSettingTables(this.setting);
       return this.setting;
@@ -171,6 +174,9 @@ class TestSettingManager {
         // Clean up any tracked RollTables before deleting the setting
         await rollTableHelper.cleanup();
 
+        // Remove from global cache before deleting
+        GlobalSettingService.removeGlobalSetting(this.setting.uuid);
+
         await this.setting.delete();
         this.setting = undefined;
       }
@@ -188,6 +194,9 @@ class TestSettingManager {
     try {
       this.activeBatches = 0;
       if (this.setting) {
+        // Remove from global cache before deleting
+        GlobalSettingService.removeGlobalSetting(this.setting.uuid);
+
         await this.setting.delete();
         this.setting = undefined;
       }
