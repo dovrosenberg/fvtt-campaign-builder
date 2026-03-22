@@ -9,7 +9,19 @@ import { registerDirectoryScrollTests } from "./directoryScroll.test";
 import { registerDragDropTests } from "./dragDrop.test";
 import { registerNameGeneratorsTests } from "./nameGenerators.test";
 
-export const registerAppWindowBatch = () => {
+export const registerUtilBatches = () => {
+  registerAppWindowBatch();
+  registerHierarchyBatch();
+  registerRelatedContentBatch();
+  registerArcIndexBatch();
+  registerCleanKeysBatch();
+  registerCustomFieldsBatch();
+  registerDirectoryScrollBatch();
+  registerDragDropBatch();
+  registerNameGeneratorsBatch();
+};
+
+const registerAppWindowBatch = () => {
   createBatch(
     'campaign-builder.utils.appWindow',
     '/utils/appWindow',
@@ -17,7 +29,7 @@ export const registerAppWindowBatch = () => {
   );
 };
 
-export const registerHierarchyBatch = () => {
+const registerHierarchyBatch = () => {
   createBatch(
     'campaign-builder.utils.hierarchy',
     '/utils/hierarchy',
@@ -25,7 +37,7 @@ export const registerHierarchyBatch = () => {
   );
 };
 
-export const registerRelatedContentBatch = () => {
+const registerRelatedContentBatch = () => {
   createBatch(
     'campaign-builder.utils.relatedContent',
     '/utils/relatedContent',
@@ -33,7 +45,7 @@ export const registerRelatedContentBatch = () => {
   );
 };
 
-export const registerArcIndexBatch = () => {
+const registerArcIndexBatch = () => {
   createBatch(
     'campaign-builder.utils.arcIndex',
     '/utils/arcIndex',
@@ -41,7 +53,7 @@ export const registerArcIndexBatch = () => {
   );
 };
 
-export const registerCleanKeysBatch = () => {
+const registerCleanKeysBatch = () => {
   createBatch(
     'campaign-builder.utils.cleanKeys',
     '/utils/cleanKeys',
@@ -49,7 +61,7 @@ export const registerCleanKeysBatch = () => {
   );
 };
 
-export const registerCustomFieldsBatch = () => {
+const registerCustomFieldsBatch = () => {
   createBatch(
     'campaign-builder.utils.customFields',
     '/utils/customFields',
@@ -57,7 +69,7 @@ export const registerCustomFieldsBatch = () => {
   );
 };
 
-export const registerDirectoryScrollBatch = () => {
+const registerDirectoryScrollBatch = () => {
   createBatch(
     'campaign-builder.utils.directoryScroll',
     '/utils/directoryScroll',
@@ -65,7 +77,7 @@ export const registerDirectoryScrollBatch = () => {
   );
 };
 
-export const registerDragDropBatch = () => {
+const registerDragDropBatch = () => {
   createBatch(
     'campaign-builder.utils.dragDrop',
     '/utils/dragDrop',
@@ -73,7 +85,7 @@ export const registerDragDropBatch = () => {
   );
 };
 
-export const registerNameGeneratorsBatch = () => {
+const registerNameGeneratorsBatch = () => {
   createBatch(
     'campaign-builder.utils.nameGenerators',
     '/utils/nameGenerators',
