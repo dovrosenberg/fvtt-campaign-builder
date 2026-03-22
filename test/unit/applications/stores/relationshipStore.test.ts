@@ -32,6 +32,8 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
     let testSetting: Awaited<ReturnType<typeof getTestSetting>>;
     let testEntry1: Entry;
     let testEntry2: Entry;
+    let testActors: Actor[] = [];
+    let testScenes: Scene[] = [];
 
     beforeEach(async () => {
       sandbox = sinon.createSandbox();
@@ -66,7 +68,27 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
       await mainStore.setNewTab(tab);
     });
 
-    afterEach(() => {
+    afterEach(async () => {
+      // Clean up test actors
+      for (const actor of testActors) {
+        try {
+          await actor.delete();
+        } catch {
+          // Ignore if already deleted
+        }
+      }
+      testActors = [];
+
+      // Clean up test scenes
+      for (const scene of testScenes) {
+        try {
+          await scene.delete();
+        } catch {
+          // Ignore if already deleted
+        }
+      }
+      testScenes = [];
+
       sandbox.restore();
     });
 
@@ -102,9 +124,9 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
         const refreshed1 = await Entry.fromUuid(testEntry1.uuid);
         const refreshed2 = await Entry.fromUuid(testEntry2.uuid);
 
-        expect(refreshed1?.relationships[Topics.Character][testEntry2.uuid]).to.exist;
-        expect(refreshed1?.relationships[Topics.Character][testEntry2.uuid].extraFields.relationship).to.equal('Friend');
-        expect(refreshed2?.relationships[Topics.Character][testEntry1.uuid]).to.exist;
+        expect(refreshed1?.relationships[Topics.Character]?.[testEntry2.uuid]).to.exist;
+        expect(refreshed1?.relationships[Topics.Character]?.[testEntry2.uuid]?.extraFields.relationship).to.equal('Friend');
+        expect(refreshed2?.relationships[Topics.Character]?.[testEntry1.uuid]).to.exist;
       });
 
       it('should throw when no current entry', async () => {
@@ -153,8 +175,8 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
         const refreshed1 = await Entry.fromUuid(testEntry1.uuid);
         const refreshed2 = await Entry.fromUuid(testEntry2.uuid);
 
-        expect(refreshed1?.relationships[Topics.Character][testEntry2.uuid].extraFields.relationship).to.equal('Rival');
-        expect(refreshed2?.relationships[Topics.Character][testEntry1.uuid].extraFields.relationship).to.equal('Rival');
+        expect(refreshed1?.relationships[Topics.Character]?.[testEntry2.uuid]?.extraFields.relationship).to.equal('Rival');
+        expect(refreshed2?.relationships[Topics.Character]?.[testEntry1.uuid]?.extraFields.relationship).to.equal('Rival');
       });
 
       it('should throw when no current entry', async () => {
@@ -166,17 +188,25 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
 
     describe('addScene', () => {
       it('should add scene to entry', async () => {
-        const sceneId = 'scene-123';
-        await relationshipStore.addScene(sceneId);
+        // Create a real Scene document
+        const scene = await Scene.create({ name: 'Test Scene' });
+        testScenes.push(scene!);
+        const sceneUuid = scene!.uuid;
+
+        await relationshipStore.addScene(sceneUuid);
 
         const refreshed = await Entry.fromUuid(testEntry1.uuid);
-        expect(refreshed?.scenes).to.include(sceneId);
+        expect(refreshed?.scenes).to.include(sceneUuid);
       });
 
       it('should not add duplicate scene', async () => {
-        const sceneId = 'scene-123';
-        await relationshipStore.addScene(sceneId);
-        await relationshipStore.addScene(sceneId);
+        // Create a real Scene document
+        const scene = await Scene.create({ name: 'Test Scene' });
+        testScenes.push(scene!);
+        const sceneUuid = scene!.uuid;
+
+        await relationshipStore.addScene(sceneUuid);
+        await relationshipStore.addScene(sceneUuid);
 
         const refreshed = await Entry.fromUuid(testEntry1.uuid);
         expect(refreshed?.scenes).to.have.length(1);
@@ -185,23 +215,35 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
       it('should throw when no current entry', async () => {
         await mainStore.setNewTab(createTestTab(testSetting.uuid, WindowTabType.Setting));
 
-        await expect(relationshipStore.addScene('scene-123')).to.be.rejectedWith('Invalid entry');
+        // Create a real Scene for the error test
+        const scene = await Scene.create({ name: 'Test Scene' });
+        testScenes.push(scene!);
+
+        await expect(relationshipStore.addScene(scene!.uuid)).to.be.rejectedWith('Invalid entry');
       });
     });
 
     describe('deleteScene', () => {
       it('should remove scene from entry', async () => {
-        const sceneId = 'scene-123';
-        await relationshipStore.addScene(sceneId);
+        // Create a real Scene document
+        const scene = await Scene.create({ name: 'Test Scene' });
+        testScenes.push(scene!);
+        const sceneUuid = scene!.uuid;
 
-        await relationshipStore.deleteScene(sceneId);
+        await relationshipStore.addScene(sceneUuid);
+
+        await relationshipStore.deleteScene(sceneUuid);
 
         const refreshed = await Entry.fromUuid(testEntry1.uuid);
-        expect(refreshed?.scenes).to.not.include(sceneId);
+        expect(refreshed?.scenes).to.not.include(sceneUuid);
       });
 
       it('should do nothing if scene not found', async () => {
-        await relationshipStore.deleteScene('non-existent');
+        // Create a real Scene that won't be added
+        const scene = await Scene.create({ name: 'Unrelated Scene' });
+        testScenes.push(scene!);
+
+        await relationshipStore.deleteScene(scene!.uuid);
 
         // Should not throw
         const refreshed = await Entry.fromUuid(testEntry1.uuid);
@@ -211,17 +253,25 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
 
     describe('addActor', () => {
       it('should add actor to entry', async () => {
-        const actorId = 'actor-123';
-        await relationshipStore.addActor(actorId);
+        // Create a real Actor document
+        const actor = await Actor.create({ name: 'Test Actor', type: 'base' });
+        testActors.push(actor!);
+        const actorUuid = actor!.uuid;
+
+        await relationshipStore.addActor(actorUuid);
 
         const refreshed = await Entry.fromUuid(testEntry1.uuid);
-        expect(refreshed?.actors).to.include(actorId);
+        expect(refreshed?.actors).to.include(actorUuid);
       });
 
       it('should not add duplicate actor', async () => {
-        const actorId = 'actor-123';
-        await relationshipStore.addActor(actorId);
-        await relationshipStore.addActor(actorId);
+        // Create a real Actor document
+        const actor = await Actor.create({ name: 'Test Actor', type: 'base' });
+        testActors.push(actor!);
+        const actorUuid = actor!.uuid;
+
+        await relationshipStore.addActor(actorUuid);
+        await relationshipStore.addActor(actorUuid);
 
         const refreshed = await Entry.fromUuid(testEntry1.uuid);
         expect(refreshed?.actors).to.have.length(1);
@@ -230,37 +280,47 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
       it('should throw when no current entry', async () => {
         await mainStore.setNewTab(createTestTab(testSetting.uuid, WindowTabType.Setting));
 
-        await expect(relationshipStore.addActor('actor-123')).to.be.rejectedWith('Invalid entry');
+        // Create a real Actor for the error test
+        const actor = await Actor.create({ name: 'Test Actor', type: 'base' });
+        testActors.push(actor!);
+
+        await expect(relationshipStore.addActor(actor!.uuid)).to.be.rejectedWith('Invalid entry');
       });
     });
 
     describe('deleteActor', () => {
       it('should remove actor from entry', async () => {
-        const actorId = 'actor-123';
-        await relationshipStore.addActor(actorId);
+        // Create a real Actor document
+        const actor = await Actor.create({ name: 'Test Actor', type: 'base' });
+        testActors.push(actor!);
+        const actorUuid = actor!.uuid;
 
-        await relationshipStore.deleteActor(actorId);
+        await relationshipStore.addActor(actorUuid);
+
+        await relationshipStore.deleteActor(actorUuid);
 
         const refreshed = await Entry.fromUuid(testEntry1.uuid);
-        expect(refreshed?.actors).to.not.include(actorId);
+        expect(refreshed?.actors).to.not.include(actorUuid);
       });
     });
 
     describe('reorderActors', () => {
       it('should reorder actors list', async () => {
-        const actor1 = 'actor-1';
-        const actor2 = 'actor-2';
-        const actor3 = 'actor-3';
+        // Create real Actor documents
+        const actor1 = await Actor.create({ name: 'Actor 1', type: 'base' });
+        const actor2 = await Actor.create({ name: 'Actor 2', type: 'base' });
+        const actor3 = await Actor.create({ name: 'Actor 3', type: 'base' });
+        testActors.push(actor1!, actor2!, actor3!);
 
-        await relationshipStore.addActor(actor1);
-        await relationshipStore.addActor(actor2);
-        await relationshipStore.addActor(actor3);
+        await relationshipStore.addActor(actor1!.uuid);
+        await relationshipStore.addActor(actor2!.uuid);
+        await relationshipStore.addActor(actor3!.uuid);
 
         // Reverse order
-        await relationshipStore.reorderActors([actor3, actor2, actor1]);
+        await relationshipStore.reorderActors([actor3!.uuid, actor2!.uuid, actor1!.uuid]);
 
         const refreshed = await Entry.fromUuid(testEntry1.uuid);
-        expect(refreshed?.actors).to.deep.equal([actor3, actor2, actor1]);
+        expect(refreshed?.actors).to.deep.equal([actor3!.uuid, actor2!.uuid, actor1!.uuid]);
       });
 
       it('should throw when no current entry', async () => {
@@ -272,32 +332,50 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
 
     describe('addFoundryDocument', () => {
       it('should add document uuid to entry', async () => {
-        const docUuid = 'Compendium.test.Document.testId';
+        // Create a real JournalEntry to use as the document
+        const journal = await JournalEntry.create({ name: 'Test Journal' });
+        const docUuid = journal!.uuid;
+
         await relationshipStore.addFoundryDocument(docUuid);
 
         const refreshed = await Entry.fromUuid(testEntry1.uuid);
         expect(refreshed?.foundryDocuments).to.include(docUuid);
+
+        // Clean up
+        await journal?.delete();
       });
 
       it('should not add duplicate document', async () => {
-        const docUuid = 'Compendium.test.Document.testId';
+        // Create a real JournalEntry to use as the document
+        const journal = await JournalEntry.create({ name: 'Test Journal' });
+        const docUuid = journal!.uuid;
+
         await relationshipStore.addFoundryDocument(docUuid);
         await relationshipStore.addFoundryDocument(docUuid);
 
         const refreshed = await Entry.fromUuid(testEntry1.uuid);
         expect(refreshed?.foundryDocuments).to.have.length(1);
+
+        // Clean up
+        await journal?.delete();
       });
     });
 
     describe('deleteFoundryDocument', () => {
       it('should remove document from entry', async () => {
-        const docUuid = 'Compendium.test.Document.testId';
+        // Create a real JournalEntry to use as the document
+        const journal = await JournalEntry.create({ name: 'Test Journal' });
+        const docUuid = journal!.uuid;
+
         await relationshipStore.addFoundryDocument(docUuid);
 
         await relationshipStore.deleteFoundryDocument(docUuid);
 
         const refreshed = await Entry.fromUuid(testEntry1.uuid);
         expect(refreshed?.foundryDocuments).to.not.include(docUuid);
+
+        // Clean up
+        await journal?.delete();
       });
     });
 
@@ -331,44 +409,53 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
         // Add relationship
         await relationshipStore.addRelationship(testEntry2, { relationship: 'Friend' });
 
+        // Reload entry1 to get updated relationships
+        const entry1 = (await Entry.fromUuid(testEntry1.uuid))!;
+
         // Change name and propagate
-        testEntry1.name = 'Updated Name';
-        await testEntry1.save();
-        await relationshipStore.propagateFieldChange(testEntry1, 'name');
+        entry1.name = 'Updated Name';
+        await entry1.save();
+        await relationshipStore.propagateFieldChange(entry1, 'name');
 
         // Verify propagated
         const refreshed2 = await Entry.fromUuid(testEntry2.uuid);
-        expect(refreshed2?.relationships[Topics.Character][testEntry1.uuid].name).to.equal('Updated Name');
+        expect(refreshed2?.relationships[Topics.Character]?.[testEntry1.uuid]?.name).to.equal('Updated Name');
       });
 
       it('should propagate type change to related entries', async () => {
         // Add relationship
         await relationshipStore.addRelationship(testEntry2, { relationship: 'Friend' });
 
+        // Reload entry1 to get updated relationships
+        const entry1 = (await Entry.fromUuid(testEntry1.uuid))!;
+
         // Change type and propagate
-        testEntry1.type = 'NPC';
-        await testEntry1.save();
-        await relationshipStore.propagateFieldChange(testEntry1, 'type');
+        entry1.type = 'NPC';
+        await entry1.save();
+        await relationshipStore.propagateFieldChange(entry1, 'type');
 
         // Verify propagated
         const refreshed2 = await Entry.fromUuid(testEntry2.uuid);
-        expect(refreshed2?.relationships[Topics.Character][testEntry1.uuid].type).to.equal('NPC');
+        expect(refreshed2?.relationships[Topics.Character]?.[testEntry1.uuid]?.type).to.equal('NPC');
       });
 
       it('should propagate multiple fields at once', async () => {
         // Add relationship
         await relationshipStore.addRelationship(testEntry2, { relationship: 'Friend' });
 
+        // Reload entry1 to get updated relationships
+        const entry1 = (await Entry.fromUuid(testEntry1.uuid))!;
+
         // Change both fields and propagate
-        testEntry1.name = 'Updated Name';
-        testEntry1.type = 'NPC';
-        await testEntry1.save();
-        await relationshipStore.propagateFieldChange(testEntry1, ['name', 'type']);
+        entry1.name = 'Updated Name';
+        entry1.type = 'NPC';
+        await entry1.save();
+        await relationshipStore.propagateFieldChange(entry1, ['name', 'type']);
 
         // Verify both propagated
         const refreshed2 = await Entry.fromUuid(testEntry2.uuid);
-        expect(refreshed2?.relationships[Topics.Character][testEntry1.uuid].name).to.equal('Updated Name');
-        expect(refreshed2?.relationships[Topics.Character][testEntry1.uuid].type).to.equal('NPC');
+        expect(refreshed2?.relationships[Topics.Character]?.[testEntry1.uuid]?.name).to.equal('Updated Name');
+        expect(refreshed2?.relationships[Topics.Character]?.[testEntry1.uuid]?.type).to.equal('NPC');
       });
 
       it('should do nothing when entry has no relationships', async () => {
@@ -382,8 +469,11 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
         // Add relationship
         await relationshipStore.addRelationship(testEntry2, { relationship: 'Friend' });
 
+        // Reload entry1 to get updated relationships
+        const entry1 = (await Entry.fromUuid(testEntry1.uuid))!;
+
         // Should not throw with invalid field
-        await relationshipStore.propagateFieldChange(testEntry1, 'invalid' as any);
+        await relationshipStore.propagateFieldChange(entry1, 'invalid' as any);
 
         // No change should occur
         const refreshed2 = await Entry.fromUuid(testEntry2.uuid);
@@ -398,8 +488,8 @@ export const registerRelationshipStoreTests = (context: QuenchBatchContext) => {
         const refreshed1 = await Entry.fromUuid(testEntry1.uuid);
         const refreshed2 = await Entry.fromUuid(testEntry2.uuid);
 
-        expect(refreshed1?.relationships[Topics.Character][testEntry2.uuid]).to.exist;
-        expect(refreshed2?.relationships[Topics.Character][testEntry1.uuid]).to.exist;
+        expect(refreshed1?.relationships[Topics.Character]?.[testEntry2.uuid]).to.exist;
+        expect(refreshed2?.relationships[Topics.Character]?.[testEntry1.uuid]).to.exist;
       });
 
       it('should throw for invalid entry1 uuid', async () => {
