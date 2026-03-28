@@ -99,7 +99,7 @@
       "tabVisibilityHelp": "Настройте, какие вкладки видны для каждого типа контента",
       "associationTags": "Теги ассоциации",
       "associationTagsLabel": "Настроить теги ассоциации",
-      "associationTagsHelp": "Настройте теги, связанные с актерами (для персонажей) и сценами (для локаций)"
+      "associationTagsHelp": "Настройте теги, которые связаны с актерами (для персонажей) и сценами (для локаций)"
     },
     "applications": {
       "sessionNotes": {
@@ -400,8 +400,8 @@
         },
         "notifications": {
           "duplicateName": "Имя тега '{name}' уже существует в другом списке тегов",
-          "duplicateActorNames": "Имена тегов актера должны быть уникальными",
-          "duplicateSceneNames": "Имена тегов сцены должны быть уникальными"
+          "duplicateActorNames": "Имена тегов актеров должны быть уникальными",
+          "duplicateSceneNames": "Имена тегов сцен должны быть уникальными"
         }
       }
     },
@@ -480,7 +480,9 @@
         "strongStartHelpText": "Сильное начало - это короткое, впечатляющее событие, которое задает тон для сессии. Нажмите, чтобы прочитать больше от Lazy DM.",
         "notes": "Заметки",
         "boxedText": "Текст в рамке",
-        "gmNotes": "Заметки ГМ"
+        "gmNotes": "Заметки ГМ",
+        "parentOrganization": "Родительская организация",
+        "branchLocation": "Локация"
       },
       "addTopic": {
         "character": "Добавить персонажа",
@@ -643,7 +645,8 @@
         "character": "Персонаж"
       },
       "organization": {
-        "organization": "Организация"
+        "organization": "Организация",
+        "branch": "Филиал"
       },
       "location": {
         "location": "Местоположение"
@@ -671,7 +674,8 @@
         "includeArcAndSessionReferences": "Включить ссылки на дуги и сессии",
         "includeSessionReferences": "Включить ссылки на сессии",
         "includeAllReferences": "Включить ссылки на записи, кампании, дуги и сессии"
-      }
+      },
+      "branchesFolder": "Филиалы"
     },
     "placeholders": {
       "search": "Поиск",
@@ -1057,6 +1061,18 @@
       },
       "createEntryTitle": {
         "title": "Создать {topic}"
+      },
+      "deleteEntryWithBranches": {
+        "title": "Удалить запись?",
+        "message": "Это также удалит {count} филиал(ов). Вы уверены, что хотите продолжить?"
+      },
+      "createBranches": {
+        "title": "Создать филиалы",
+        "message": "Выберите локации для создания филиалов для {organization}:",
+        "loading": "Загрузка локаций...",
+        "noLocations": "Доступных локаций нет",
+        "selectedCount": "{count} локация(и) выбрано",
+        "existingBranch": "(филиал существует)"
       }
     },
     "contextMenus": {
@@ -1110,7 +1126,8 @@
         }
       },
       "directoryEntry": {
-        "delete": "Удалить запись"
+        "delete": "Удалить запись",
+        "createBranches": "Создать филиалы"
       },
       "typeFolder": {
         "create": "Создать новый"
@@ -1259,12 +1276,12 @@
       "resultsFor": "Результаты по тегу",
       "entryFound": "запись найдена",
       "entriesFound": "записей найдено",
-      "actorAssociated": "Актер, связанный через тег \"{tagName}\":",
-      "sceneAssociated": "Сцена, связанная через тег \"{tagName}\":",
+      "actorAssociated": "Актер связан через тег \"{tagName}\":",
+      "sceneAssociated": "Сцена связана через тег \"{tagName}\":",
       "dragActorHint": "Перетащите в Foundry",
       "clickSceneHint": "Нажмите для настройки. Щелкните правой кнопкой мыши для дополнительных опций.",
-      "multipleActorTagsWarning": "Применено несколько тегов актера. Будет использован только первый ({name}).",
-      "multipleSceneTagsWarning": "Применено несколько тегов сцены. Будет использован только первый ({name})."
+      "multipleActorTagsWarning": "Применено несколько тегов актеров. Будет использован только первый ({name}).",
+      "multipleSceneTagsWarning": "Применено несколько тегов сцен. Будет использован только первый ({name})."
     },
     "export": {
       "relatedTopics": {
