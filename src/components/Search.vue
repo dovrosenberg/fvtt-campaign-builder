@@ -76,6 +76,14 @@
     maxResults: {
       type: Number,
       default: 5
+    },
+    /**
+     * If true, opening a result will reuse the current tab instead of creating a new one.
+     * Used when Search is displayed on a "new tab" page.
+     */
+    reuseCurrentTab: {
+      type: Boolean,
+      default: false
     }
   });
   
@@ -238,21 +246,21 @@
     // Check if this is a tag result
     if ('isTagResult' in result) {
       // Open the Tag Results tab
-      navigationStore.openTagResults(result.tag, { newTab: true, activate: true });
+      navigationStore.openTagResults(result.tag, { newTab: !props.reuseCurrentTab, activate: true });
     } else {
-      // Open the selected entry - always a new tab
+      // Open the selected entry
       switch (result.resultType) {
         case 'entry':
-          navigationStore.openEntry(result.uuid, { newTab: true, activate: true });
+          navigationStore.openEntry(result.uuid, { newTab: !props.reuseCurrentTab, activate: true });
           break;
         case 'session':
-          navigationStore.openSession(result.uuid, { newTab: true, activate: true });
+          navigationStore.openSession(result.uuid, { newTab: !props.reuseCurrentTab, activate: true });
           break;
         case 'front':
-          navigationStore.openFront(result.uuid, { newTab: true, activate: true });
+          navigationStore.openFront(result.uuid, { newTab: !props.reuseCurrentTab, activate: true });
           break;
         case 'arc':
-          navigationStore.openArc(result.uuid, { newTab: true, activate: true });
+          navigationStore.openArc(result.uuid, { newTab: !props.reuseCurrentTab, activate: true });
           break;
       }
     }

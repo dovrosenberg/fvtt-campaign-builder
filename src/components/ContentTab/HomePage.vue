@@ -69,7 +69,7 @@
       </div>
 
       <div class="search-container">
-        <Search class="fcb-global-search" />
+        <Search class="fcb-global-search" :reuse-current-tab="true" />
       </div>
 
       <div class="flexrow">
