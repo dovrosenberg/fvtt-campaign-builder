@@ -65,8 +65,13 @@ export class TopicFolder {
   public async filterEntries(filterFn: (s: EntryFilterIndex) => boolean): Promise<Entry[]> { 
     // TODO: we could make this more efficient if we wanted to 
     //    add actorId to the index and then calc id
+    // bail out if the compendium no longer exists
+    const compendium = toRaw(this.setting.compendium);
+    if (compendium == null)
+      return [];
+
     // get all the journal entries
-    const indexes = await toRaw(this.setting.compendium).getIndex(entryIndexFields());
+    const indexes = await compendium.getIndex(entryIndexFields());
   
     // find the sessions connected to this entries in this folder
     const entries = indexes

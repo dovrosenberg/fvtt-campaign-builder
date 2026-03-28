@@ -20,13 +20,19 @@ See the [user documentation](https://dovrosenberg.github.io/fvtt-campaign-builde
   <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot8.webp" alt="Multi panels" width="260" />
 </p>
 
-## A note on AI and "Advanced Features"
-You'll see lots of references to AI capabilities in the [documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/) and feature lists.  There is no AI-generated content (or any other content) provided by the module (other than foreign language translations of UI elements). It merely has the capability to use AI to generate various things if you desire.  
+## A note on AI
 
-So if you're in the anti-AI crowd, know that the module is *fully functional and useful without any use of AI*, and all of the AI features/functions are disabled by default.  
+**The module is *fully functional and useful without any use of AI*, and all of the AI features/functions are disabled by default.  It was, however, developed with substantial assistance from AI coding tools.  It is fully compliant with Foundry's AI Policy (https://foundryvtt.com/article/ai-policy/) for official store listings.**
+
+### Content and "Advanced Features"
+You'll see lots of references to AI capabilities in the [documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/) and feature lists.  There is no AI-generated content (or any other content) provided by the module (other than foreign language translations of UI elements, which are then reviewed by humans). It merely has the capability to use AI to generate various things if you desire.  
 
 That said, full details on features, costs, and setup are in the [documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/backend).  Any description of AI features in the documentation is clearly denoted as an "Advanced Feature".
 
+### Code
+AI was used in the production of this code.  I use AI to help with code generation and debugging, but I review every line before it is committed, usually with edits.  There is no "vibe coding", but rather the use of the AI allows me to put out new releases much more quickly, and by using it to build and maintain test infrastructure, it also helps to ensure the code is more robust and reliable.
+
+I have and continue to try a variety of tools to get the best quality output while reducing my development time.  Tools have included Cursor, Windsurf, and Claude Code. Primary have included those from OpenAI (though not since release 1.2 or so), Anthropic, Zhipu, and Windsurf.  
 
 ## Play style notes
 The campaign planning component is modeled after [The Lazy Dungeon Master](https://slyflourish.com/lazydm/), which I highly recommend.  There is a [freely available copy of the original book](https://slyflourish.com/the_lazy_dungeon_master_cc.html) and I also recommend the newer [Return of the Lazy Dungeon Master](https://www.amazon.com/Flourishs-Return-Lazy-Dungeon-Master/dp/B0B8F1G5G7) (though you have to buy that version).

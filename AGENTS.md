@@ -1,6 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# AGENTS.md
 
 ## Project Overview
 
@@ -89,28 +87,4 @@ All stored as JournalEntryPage subtypes: `entry2`, `session2`, `campaign2`, `arc
 
 ## Unit Testing (Quench)
 
-Quench tests run **inside** the live Foundry VTT environment — use real APIs, never mock them.
-
-### Philosophy
-- **Never stub** `game`, `game.settings`, or other Foundry core APIs.
-- Create real Foundry objects (Settings, Entries) and test with actual data/UUIDs.
-- Do not unit-test UI components; use integration/E2E for those.
-
-### Shared Test Setting
-- All test batches share **one global `FCBSetting`** managed by `test/unit/testUtils.ts` (mutex + reference counting).
-- Call `initializeTestSetting()` in `before()` and `cleanupTestSetting()` in `after()` of each batch.
-- Use `getTestSetting()` inside tests. Create with `makeCurrent=false` to avoid changing the user's active setting.
-- Objects created within the test setting don't need individual cleanup — deleting the parent cascades.
-
-### File Organization
-- `test/unit/utils/` — utility tests; `test/unit/classes/` — class tests.
-- Each test file exports a `register*Tests(context)` function, registered as its own Quench batch for selective execution.
-- Batch registration in `test/unit/[category]/index.ts`; wired up in `test/unit/index.ts`.
-- Import modules under test **directly** (no dynamic imports). Import `getTestSetting` from `@unittest/testUtils`.
-- No outer `describe` wrapper in test files — the batch registration handles grouping.
-
-### Settings Tests
-- Tests that **modify** `game.settings` must call `backupSettings()` / `restoreSettings()` (from `@unittest/testUtils`) in a `try/finally` block.
-- Tests that only **read** settings need no backup.
-
-See `test/unit/AGENTS.md` for full templates, patterns, and examples.
+See `test/unit/AGENTS.md` for all testing guidelines, patterns, and examples.

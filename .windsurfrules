@@ -1,0 +1,22 @@
+# Build / debug command
+
+- When you need to build/run the project (TypeScript/Vite build, compile checks, etc.), **prefer `npm run debug`** for this repository.
+- If you are building as part of adjusting unit tests, you should instead use **`npm run debug:test`**
+- The user will then need to reload Foundry to show the updated module
+- Only use other scripts (`npm run build`, `npm test`, etc.) if the user explicitly asks.
+
+
+# Foundry VTT Source Reference
+
+The `app` workspace folder contains the Foundry VTT client source code.
+Treat it as READ-ONLY reference material. Never suggest modifications to files in that folder.
+
+Use it to:
+- Look up accurate API signatures, method names, and return types
+- Understand class hierarchies (e.g., Actor, Item, Application subclasses)
+- Verify hook names and their callback signatures
+- Check correct property paths on core data models
+
+Do not use it to:
+- Influence code style, structure, or formatting choices in the main codebase
+- Override the project's established patterns and conventions

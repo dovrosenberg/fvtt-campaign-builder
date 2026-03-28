@@ -142,14 +142,15 @@
       const id = foundry.utils.randomID(12);
       
       (list.value as ListItem[]).push({ id, label: text });
+      emit('itemAdded', { id, label: text });
     } else {
       (list.value as string[]).push(text);
+      emit('itemAdded', text);
     }
 
     hasFocus.value = false;
     idx.value = -1;
     filteredItems.value = [];
-    emit('itemAdded', text);
   }
 
 

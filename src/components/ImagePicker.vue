@@ -130,7 +130,7 @@
   });
 
   ////////////////////////////////
-  // methods
+  // event handlers
   // Handle image click to either view the image or open FilePicker
   const onImageClick = async (event: MouseEvent) => {
     event.preventDefault();
@@ -247,6 +247,19 @@
     });
   };
 
+  // Handle image loading errors
+  const onImageError = (event: Event) => {
+    const target = event.target as HTMLImageElement;
+    if (target && !target.dataset.errorHandled) {
+      target.dataset.errorHandled = 'true';
+      target.src = getDefaultImage.value;
+    }
+  };
+
+
+  ////////////////////////////////
+  // methods
+
   // Open the FilePicker to select a new image
   const openFilePicker = () => {
     // Create a new FilePicker instance using the global Foundry VTT FilePicker
@@ -276,15 +289,6 @@
 
     // Display the ImagePopout
     popout.render(true);
-  };
-
-  // Handle image loading errors
-  const onImageError = (event: Event) => {
-    const target = event.target as HTMLImageElement;
-    if (target && !target.dataset.errorHandled) {
-      target.dataset.errorHandled = 'true';
-      target.src = getDefaultImage.value;
-    }
   };
 
   const generateImage = () => {

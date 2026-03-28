@@ -360,10 +360,13 @@ const exportCampaign = async (
       if (!pc.actorId)
         continue;
 
-      // lookup the actor
-      const actorName = resolveUuidNameSync(pc.actorId);
-      if (actorName)
-        markdown += `- ${actorName} (player name: ${pc.name})\n`;
+      // lookup the actor and the player name 
+      const entry = await Entry.fromUuid(pc.uuid);
+
+      if (entry) {
+          if (entry.name)
+          markdown += `- ${entry.name} (player name: ${entry.playerName})\n`;
+      }
     }
     markdown += '\n';
   }

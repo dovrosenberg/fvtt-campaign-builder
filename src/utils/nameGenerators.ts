@@ -164,39 +164,40 @@ const NameGeneratorsService = {
 
     refreshInProgress = true;
 
-    const config = setting.rollTableConfig;
+    try {
+      const config = setting.rollTableConfig;
 
-    if (!config) {
-      return; // No roll tables configured for this setting
-    }
+      if (!config) {
+        return; // No roll tables configured for this setting
+      }
 
-    let alerted = false;
-    
-    for (const key in config.rollTables) {
-      const table = await foundry.utils.fromUuid<RollTable>(config.rollTables[key]);
-      if (table) {
-        if (empty && table.results.size > 0) {
-          await table.deleteEmbeddedDocuments("TableResult", table.results.map(r => r.id || ''));
-        }
-
-        // see if we actually need any
-        const drawnResults = table.results.filter(r => r.drawn).map(r => r.id) as string[];
-        const neededItems = NameGeneratorsService.TABLE_SIZE - table.results.size + drawnResults.length;
+      let alerted = false;
       
+      for (const key in config.rollTables) {
+        const table = await foundry.utils.fromUuid<RollTable>(config.rollTables[key]);
+        if (table) {
+          if (empty && table.results.size > 0) {
+            await table.deleteEmbeddedDocuments("TableResult", table.results.map(r => r.id || ''));
+          }
 
-        if (neededItems > 0) {
-          await NameGeneratorsService.refreshSettingRollTable(table, setting);
+          // see if we actually need any
+          const drawnResults = table.results.filter(r => r.drawn).map(r => r.id) as string[];
+          const neededItems = NameGeneratorsService.TABLE_SIZE - table.results.size + drawnResults.length;
 
-          // ui alert if we have at least one
-          if (!alerted) {
-            notifyInfo(localize('applications.rollTableSettings.notifications.refreshStarted'));
-            alerted = true;
+          if (neededItems > 0) {
+            await NameGeneratorsService.refreshSettingRollTable(table, setting);
+
+            // ui alert if we have at least one
+            if (!alerted) {
+              notifyInfo(localize('applications.rollTableSettings.notifications.refreshStarted'));
+              alerted = true;
+            }
           }
         }
       }
+    } finally {
+      refreshInProgress = false;
     }
-
-    refreshInProgress = false;
   },
 
   /**
@@ -365,6 +366,11 @@ const generateSettingTableResults = async (type: GeneratorType, count: number, s
 
       default:
         throw new Error(`Unknown generator type: ${type} in generators.generateSettingTableResults()`);
+    }
+
+    // Response can be undefined if API call failed or api is null
+    if (response == null) {
+      return [];
     }
 
     return response.data.names;

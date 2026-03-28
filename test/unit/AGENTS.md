@@ -6,8 +6,7 @@ This document outlines the approach for unit testing in the FoundryVTT Campaign 
 ## Testing Philosophy
 
 ### No Stubbing of FoundryVTT APIs
-- **Never stub `game.settings`** - This breaks integration with FoundryVTT
-- **Never stub `game` or its core properties** - Quench runs inside the actual Foundry environment
+- **Never stub `game` or its core properties, other than game.settings** - Quench runs inside the actual Foundry environment
 - Use real FoundryVTT APIs and objects
 
 ### Integration Testing Approach
@@ -24,139 +23,40 @@ Since Quench tests run inside the actual FoundryVTT environment:
 
 For optimal performance and consistency, ALL test batches share a single global FCBSetting managed by `test/unit/testUtils.ts`. This uses a mutex pattern with reference counting to prevent race conditions when batches run in parallel.
 
-#### 1. Global testUtils.ts (already exists)
-```typescript
-// test/unit/testUtils.ts
-import { FCBSetting } from '@/classes';
+#### 1. testUtils.ts — Helper Classes and Utilities
 
-// Global shared test setting
-let testSetting: FCBSetting | undefined;
+`test/unit/testUtils.ts` provides four key exports:
 
-// Reference counting to track active test batches
-let activeBatches = 0;
-
-// Mutex to prevent race conditions
-let isLocked = false;
-const lockQueue: Array<() => void> = [];
-
-/**
- * Initialize the shared test setting
- * Increments reference count for each calling batch
- */
-export const initializeTestSetting = async () => {
-  await acquireLock();
-  
-  try {
-    // Increment reference count
-    activeBatches++;
-    
-    // If setting already exists, just return it
-    if (testSetting) {
-      return testSetting;
-    }
-    
-    // Create new setting
-    testSetting = (await FCBSetting.create(false, 'Global Test Setting'))!;
-    return testSetting;
-  } finally {
-    releaseLock();
-  }
-};
-
-/**
- * Get the current test setting
- */
-export const getTestSetting = (): FCBSetting => {
-  if (!testSetting) {
-    throw new Error('Test setting not initialized. Call initializeTestSetting() first.');
-  }
-  return testSetting;
-};
-
-/**
- * Decrements reference count and queues cleanup if no active batches remain
- */
-export const cleanupTestSetting = async () => {
-  await acquireLock();
-  
-  try {
-    // Decrement reference count
-    activeBatches = Math.max(0, activeBatches - 1);
-    
-    // Only cleanup if there are no active batches
-    if (activeBatches === 0 && testSetting) {
-      await testSetting.delete();
-      testSetting = undefined;
-    }
-  } finally {
-    releaseLock();
-  }
-};
-```
+- **`createBatch(batchName, displayName, registerTests)`** — Standard batch registration with `initializeTestSetting`/`cleanupTestSetting`/`sinon.restore()` boilerplate. Use this in every `index.ts`.
+- **`testSettingManager`** (`TestSettingManager` class) — Manages the shared FCBSetting lifecycle with mutex + ref counting. Backward-compat wrappers: `initializeTestSetting()`, `getTestSetting()`, `cleanupTestSetting()`.
+- **`rollTableHelper`** (`RollTableTestHelper` class) — Tracks RollTables/folders for cleanup. Key method: `trackSettingTables(setting)` replaces repeated track loops. Backward-compat wrappers: `trackRollTable()`, `trackRollTableFolder()`, `cleanupRollTables()`.
+- **`settingsHelper`** (`SettingsTestHelper` class) — Queue-based backup/restore for module settings. Backward-compat wrappers: `backupSettings()`, `restoreSettings()`.
 
 #### 2. Create individual batch registration files
 ```typescript
 // test/unit/[category]/index.ts
-import { QuenchBatchContext } from '@ethaks/fvtt-quench';
-import * as sinon from 'sinon';
-import { initializeTestSetting, cleanupTestSetting } from '@unittest/testUtils';
+import { createBatch } from '@unittest/testUtils';
 import { registerSomeTests } from "./some.test";
 import { registerOtherTests } from "./other.test";
 
 export const registerSomeBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.[category].some',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      // Batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerSomeTests(context);
-    },
-    { displayName: "/[category]/some", preSelected: false },
+    '/[category]/some',
+    registerSomeTests
   );
 };
 
 export const registerOtherBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.[category].other',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      // Batch-level setup
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      // Batch-level cleanup
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      // Register tests
-      registerOtherTests(context);
-    },
-    { displayName: "/[category]/other", preSelected: false },
+    '/[category]/other',
+    registerOtherTests
   );
 };
 ```
 
-**Note**: Each test file gets its own batch registration function, allowing users to select which tests to run in the Quench UI.
-
-**Batch Registration Options**:
-- `displayName`: The path shown in the Quench UI for this test batch (e.g., "/utils/appWindow")
-- `preSelected`: Whether this batch is selected by default (typically `false`)
+**Note**: Each test file gets its own batch registration function, allowing users to select which tests to run in the Quench UI. `createBatch` handles all setup/teardown boilerplate (`initializeTestSetting`, `cleanupTestSetting`, `sinon.restore()`).
 
 #### 3. Create individual test files
 ```typescript
@@ -223,8 +123,72 @@ export const registerSomeTests = (context: QuenchBatchContext) => {
 - Test methods with real data
 - Verify side effects on actual FoundryVTT objects
 
-### UI Components
-- Do not use unit tests for UI components
+### Vue Components
+Unit tests for Vue components focus on **logic only**, not UX/visual behavior. UX testing is handled by Playwright E2E tests (or not at all).
+
+#### What to Test
+- Computed property calculations
+- Method behavior and return values (including event handlers)
+- Event emissions (emit payloads)
+- Prop validation and defaults
+- Watcher side effects
+- Conditional rendering logic (e.g., "error class applied when invalid")
+
+#### What NOT to Test (use Playwright instead)
+- Visual rendering and styling
+- User interactions and UX flows - except starting at the event handler level
+- Accessibility
+- PrimeVue component behavior
+
+#### Test Utilities
+Use `mountComponent()` from `@unittest/vueTestUtils`:
+
+```typescript
+import { mountComponent, flushPromises } from '@unittest/vueTestUtils';
+import MyComponent from '@/components/MyComponent.vue';
+
+export const registerMyComponentTests = (context: QuenchBatchContext) => {
+  const { describe, it, expect } = context;
+
+  describe('MyComponent', () => {
+    it('emits update event with correct payload', async () => {
+      const { wrapper } = mountComponent(MyComponent, {
+        props: { modelValue: 'initial' }
+      });
+
+      await wrapper.find('input').setValue('new value');
+      expect(wrapper.emitted('update:modelValue')?.[0]).to.deep.equal(['new value']);
+    });
+
+    it('computes derived value correctly', async () => {
+      const { wrapper } = mountComponent(MyComponent, {
+        props: { count: 5 }
+      });
+
+      expect(wrapper.vm.doubledCount).to.equal(10);
+    });
+  });
+};
+```
+
+#### Key Design Decisions
+1. **Store stubbing**: Explicit opt-in - tests must specify which stores to stub
+2. **PrimeVue**: Stubbed by default - we test logic, not UI
+3. **`localize()`**: Stubbed to return the key itself - catches missing strings
+4. **DOM assertions**: Minimal - only verify logic outcomes
+
+#### Store Stubs in Component Tests
+When a component uses Pinia stores, stub them explicitly:
+
+```typescript
+const { wrapper, storeStubs } = mountComponent(MyComponent, {
+  props: { title: 'Test' },
+  stores: {
+    main: { currentSetting: mockSetting },
+    navigation: { openContent: sinon.stub().resolves() }
+  }
+});
+```
 
 ## Common Patterns
 
@@ -249,7 +213,7 @@ For tests that modify module settings, use the queue-based backup/restore system
 ```typescript
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { moduleId, SettingKey } from '@/settings';
-import { backupSettings, restoreSettings } from '@unittest/testUtils';
+import { settingsHelper } from '@unittest/testUtils';
 
 export const registerSettingsTests = (context: QuenchBatchContext) => {
   const { describe, it, expect } = context;
@@ -263,7 +227,7 @@ export const registerSettingsTests = (context: QuenchBatchContext) => {
 
     it('should modify settings safely', async () => {
       // Tests that MODIFY settings must backup/restore
-      await backupSettings();
+      await settingsHelper.backup();
       
       try {
         // Modify settings
@@ -274,7 +238,7 @@ export const registerSettingsTests = (context: QuenchBatchContext) => {
         expect(value).to.equal(true);
       } finally {
         // Always restore in finally to ensure cleanup
-        await restoreSettings();
+        await settingsHelper.restore();
       }
     });
   });
@@ -282,10 +246,11 @@ export const registerSettingsTests = (context: QuenchBatchContext) => {
 ```
 
 **Key Points:**
-1. **Only tests that MODIFY settings** need to call `backupSettings()` and `restoreSettings()`
+1. **Only tests that MODIFY settings** need to call `settingsHelper.backup()` and `settingsHelper.restore()`
 2. Use **try/finally** to ensure settings are restored even if tests fail
 3. The queue system ensures tests run sequentially: Test 1 backup → Test 1 restore → Test 2 backup → Test 2 restore
 4. Tests that only read settings don't need any backup
+5. Backward-compat wrappers `backupSettings()` / `restoreSettings()` are also available
 
 #### General Data Management
 ```typescript
@@ -313,32 +278,37 @@ import { getTestSetting } from './testUtils'; // Don't do this!
 ```
 Use the global testUtils from `@unittest/testUtils` instead.
 
+❌ **Don't use invalid UUID formats with DocumentUUIDField**
+```typescript
+// WRONG - These don't match Foundry's UUID format
+testArc.storyWebs = ['sw-1', 'sw-2', 'sw-3'];  // Missing document type!
+await relationshipStore.addScene('scene-123');  // Missing document type!
+```
+Foundry's `DocumentUUIDField` validates UUID format: `Type.16chars` where Type is a valid document type and ID is 16 alphanumeric characters. It does **not** verify the document exists.
+
+❌ **Don't use `withArgs()` for ModuleSettings.get stubs**
+```typescript
+// WRONG - withArgs returns undefined for unmatched calls, breaking other code
+sandbox.stub(ModuleSettings, 'get').withArgs(SettingKey.useFronts).returns(true);
+// This causes ModuleSettings.get(SettingKey.settingIndex) to return undefined!
+// Which breaks FCBJournalEntryPage.settingId getter (needs settingIndex to find packId)
+```
+
+The `withArgs()` pattern blocks ALL unmatched calls, returning `undefined`. This breaks any code that depends on other settings being accessible during the test.
+
 ## What TO Do
 
-✅ **Use global shared test setting**
+✅ **Use createBatch for batch registration**
 ```typescript
-// RIGHT - Import from global testUtils
-import { getTestSetting } from '@unittest/testUtils';
+// RIGHT - Use createBatch from testUtils
+import { createBatch } from '@unittest/testUtils';
+import { registerMyTests } from './my.test';
 
-// Each batch registers independently
 export const registerMyBatch = () => {
-  quench?.registerBatch(
+  createBatch(
     'campaign-builder.category.mytest',
-    (context: QuenchBatchContext) => {
-      const { before, after } = context;
-
-      before(async () => {
-        await initializeTestSetting();
-      });
-
-      after(async () => {
-        await cleanupTestSetting();
-        sinon.restore();
-      });
-
-      registerMyTests(context);
-    },
-    { displayName: "/category/mytest", preSelected: false },
+    '/category/mytest',
+    registerMyTests
   );
 };
 ```
@@ -376,37 +346,222 @@ export const registerMyTests = (context: QuenchBatchContext) => {
 await filterRelatedEntries(getTestSetting(), added, removed);
 ```
 
+✅ **Use `callsFake()` for ModuleSettings.get stubs with call-through**
+```typescript
+// RIGHT - Capture original before stubbing to avoid recursion
+const originalGet = ModuleSettings.get.bind(ModuleSettings);
+sandbox.stub(ModuleSettings, 'get').callsFake((key: SettingKey) => {
+  if (key === SettingKey.useFronts) return true;
+  return originalGet(key);
+});
+```
+
+**Critical**: Must capture the original function BEFORE stubbing. Calling `ModuleSettings.get` inside the fake creates infinite recursion because the stub replaces the method.
+
+✅ **Use fakeUuid for primary document UUIDs (when document resolution isn't needed)**
+```typescript
+import { fakeUuid, fakeFCBJournalEntryPageUuid } from '@unittest/testUtils';
+
+// For primary documents (Scene, Actor, Item, RollTable, JournalEntry):
+const sceneUuid = fakeUuid('Scene');
+const actorUuid = fakeUuid('Actor');
+const storyWebUuid = fakeUuid('JournalEntry');  // StoryWeb stored as JournalEntry
+
+// Use in store tests
+testArc.storyWebs = [fakeUuid('JournalEntry'), fakeUuid('JournalEntry')];
+await testArc.save();
+
+await relationshipStore.addScene(sceneUuid);
+await relationshipStore.addActor(actorUuid);
+```
+
+✅ **Use fakeFCBJournalEntryPageUuid for embedded document UUIDs**
+```typescript
+import { fakeFCBJournalEntryPageUuid } from '@unittest/testUtils';
+
+// For FCBJournalEntryPage subtypes (Entry, Campaign, Session, Arc, Front, StoryWeb, Setting):
+const entryUuid = fakeFCBJournalEntryPageUuid();  // JournalEntry.xxx.JournalEntryPage.yyy
+
+// Use in store tests for locations, participants, NPCs
+await arcStore.addLocation(fakeFCBJournalEntryPageUuid());
+await sessionStore.addNPC(fakeFCBJournalEntryPageUuid());
+```
+
+**When to use fake UUIDs vs real documents:**
+- **Use `fakeUuid`** for primary documents (Scene, Actor, Item) when testing storage/reordering
+- **Use `fakeFCBJournalEntryPageUuid`** for Entry/FCB document UUIDs when testing storage/reordering
+- **Use real documents** when the code resolves the UUID to access document properties
+
+**Fields that use DocumentUUIDField:**
+- `Entry.scenes` — Array of Scene UUIDs (use `fakeUuid`)
+- `Entry.actors` — Array of Actor UUIDs (use `fakeUuid`)
+- `Entry.foundryDocuments` — Array of any Foundry document UUIDs
+- `Campaign.storyWebs`, `Session.storyWebs`, `Arc.storyWebs` — Array of JournalEntry UUIDs (use `fakeUuid`)
+- `Arc.locations`, `Arc.participants` — Objects with Entry UUIDs (use `fakeFCBJournalEntryPageUuid`)
+- `Session.locations`, `Session.npcs` — Objects with Entry UUIDs (use `fakeFCBJournalEntryPageUuid`)
+- `RelatedEntryDetails.uuid` in relationships — Entry UUIDs (needs real Entry for name/topic)
+
 ## File Organization
-- Place tests in `test/unit/utils/` for utilities
-- Place tests in `test/unit/classes/` for class tests
-- Each test file has its own batch registration function
-- Use descriptive test names that explain what is being tested
 
-### Setting up a New Test Directory
+Test directories mirror `src/` categories:
 
-When creating a new test directory from scratch:
+| Test Directory | Source Directory | Status |
+|---|---|---|
+| `test/unit/utils/` | `src/utils/` | Active |
+| `test/unit/classes/` | `src/classes/` | Active |
+| `test/unit/applications/stores/` | `src/applications/stores/` | Active |
+| `test/unit/settings/` | `src/settings/` | Active |
+| `test/unit/components/` | `src/components/` | Active |
+| `test/unit/composables/` | `src/composables/` | Scaffolded |
+| `test/unit/documents/` | `src/documents/` | Scaffolded |
+| `test/unit/hooks/` | `src/hooks/` | Scaffolded |
+| `test/unit/dialogs/` | `src/dialogs/` | Scaffolded |
 
-1. **Create the directory structure**:
-   ```
-   test/unit/[category]/
-   ├── index.ts          # Batch registration functions
-   ├── some.test.ts      # Individual test files
-   └── other.test.ts
-   ```
+Each test file has its own batch registration function. Use descriptive test names that explain what is being tested.
 
-2. **Create index.ts** with batch registration functions (see template above)
+### Setting up a New Test
 
-3. **Create test files** (follow the pattern in step 3)
+Scaffolded directories already have an `index.ts` with a commented template. To add a test:
 
-4. **Register in main test runner**:
+1. **Create the test file** `test/unit/[category]/myFeature.test.ts` (follow the test file pattern above)
+
+2. **Add batch registration** in `test/unit/[category]/index.ts`:
    ```typescript
-   // In test/unit/index.ts or main test file
-   import { registerSomeBatch, registerOtherBatch } from './[category]/index';
-   
-   // Call the registration functions
-   registerSomeBatch();
-   registerOtherBatch();
+   import { createBatch } from '@unittest/testUtils';
+   import { registerMyFeatureTests } from './myFeature.test';
+
+   export const registerMyFeatureBatch = () => {
+     createBatch(
+       'campaign-builder.[category].myFeature',
+       '/[category]/myFeature',
+       registerMyFeatureTests
+     );
+   };
    ```
+
+3. **Wire into main runner** in `test/unit/index.ts`:
+   ```typescript
+   import { registerMyFeatureBatch } from '@unittest/[category]';
+   registerMyFeatureBatch();
+   ```
+
+### Store Stubs
+
+Store stubs live in `test/unit/stores/`:
+
+- **`backendStoreStubs.ts`** / **`mainStoreStubs.ts`** — Domain-specific stubs with sensible defaults
+- **`createStoreStub(useStore, methodStubs, propertyOverrides)`** — Generic factory for quickly stubbing any Pinia store. Use for new stores that don't need complex defaults.
+- **`stubStoreComputed(sandbox, store, propName, value)`** — Stubs a store property (including read-only computed properties) so it returns the given value. Cleaned up automatically by `sandbox.restore()`.
+- **`testPinia.ts`** — Shared Pinia instance for all test store stubs
+
+```typescript
+import { createStoreStub, stubStoreComputed } from '@unittest/stores';
+import { useNavigationStore, useMainStore } from '@/applications/stores';
+
+// Factory approach for stubbing an entire store
+const { store, stubs } = createStoreStub(useNavigationStore, {
+  openContent: sinon.stub().resolves(),
+});
+
+// Per-property approach for stubbing individual computed properties
+const mainStore = useMainStore();
+stubStoreComputed(sandbox, mainStore, 'currentTab', { header: { uuid: 'x' }, tabType: WindowTabType.Entry });
+stubStoreComputed(sandbox, mainStore, 'currentSetting', {} as FCBSetting);
+```
+
+### Component Test Utilities
+
+`test/unit/componentTestUtils.ts` provides helpers to reduce boilerplate in Vue component tests:
+
+#### Emit Assertions
+
+```typescript
+import { assertEmitted, assertNotEmitted, getEmitPayload } from '@unittest/componentTestUtils';
+
+// Assert event was emitted with payload (expect from Quench context)
+assertEmitted(expect, wrapper, 'update:modelValue', 0, 'new value');
+
+// Assert event was NOT emitted
+assertNotEmitted(expect, wrapper, 'submit');
+
+// Get payload from emission (no expect needed - just returns value)
+const value = getEmitPayload<string>(wrapper, 'update:modelValue');
+```
+
+#### v-model Testing
+
+```typescript
+import { testVModel, testVModelRender } from '@unittest/componentTestUtils';
+
+// Test v-model binding (sets value + checks emit)
+await testVModel(expect, wrapper, 'test value');
+
+// Test v-model prop renders correctly
+testVModelRender(expect, wrapper, 'initial value');
+```
+
+#### Mock Documents
+
+For prop testing where full document functionality isn't needed:
+
+```typescript
+import { createMockSetting, createMockEntry, createMockCampaign } from '@unittest/componentTestUtils';
+
+const setting = createMockSetting({ name: 'My Setting' });
+const entry = createMockEntry({ name: 'John', topic: Topics.Character });
+const campaign = createMockCampaign({ completed: false });
+```
+
+**Note**: These are plain objects, NOT real Foundry documents. Use real documents when testing document methods or Foundry integration.
+
+#### Store Stub Presets
+
+Quick setup for common store configurations:
+
+```typescript
+import {
+  createMinimalMainStoreStub,
+  createNavigationStoreStub,
+  createRelationshipStoreStub,
+} from '@unittest/componentTestUtils';
+
+// Minimal main store with just currentSetting
+const { store } = createMinimalMainStoreStub();
+
+// Navigation store with stubbed methods
+const { store, stubs } = createNavigationStoreStub();
+await store.openContent('some-uuid');
+expect(stubs.openContent.calledOnce).to.be.true;
+```
+
+#### Input Event Helpers
+
+```typescript
+import { typeInInput, clickButton, selectOption, toggleCheckbox } from '@unittest/componentTestUtils';
+
+await typeInInput(wrapper, 'input[name="title"]', 'New Title');
+await clickButton(wrapper, 'button.submit');
+await selectOption(wrapper, 'select', 'option2');
+await toggleCheckbox(wrapper, 'input[type="checkbox"]', true);
+```
+
+### RollTable Test Pattern
+
+For tests that create RollTables, use `rollTableHelper` to avoid manual tracking boilerplate:
+
+```typescript
+import { rollTableHelper } from '@unittest/testUtils';
+
+beforeEach(async () => {
+  await NameGeneratorsService.initializeSettingRollTables(testSetting);
+  rollTableHelper.trackSettingTables(testSetting);
+});
+
+afterEach(async () => {
+  await rollTableHelper.cleanup();
+  await rollTableHelper.clearConfig(testSetting);
+});
+```
 
 ## Benefits of This Approach
 
@@ -414,7 +569,8 @@ When creating a new test directory from scratch:
 2. **Shared Resources**: All tests share the same setting, reducing setup/teardown overhead
 3. **Race Condition Prevention**: Mutex pattern ensures safe concurrent execution
 4. **Automatic Cleanup**: Setting is cleaned up only when all batches are complete
-5. **Simplified Structure**: No need for per-directory testUtils files
+5. **Zero Boilerplate**: `createBatch` eliminates duplicated setup/teardown code
+6. **Scalable Store Stubs**: `createStoreStub` factory handles new stores without hand-rolling each one
 
 ## Remember
 Quench runs INSIDE FoundryVTT, not alongside it. This means we have access to all FoundryVTT APIs and should use them rather than mocking them.

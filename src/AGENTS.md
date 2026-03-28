@@ -1,4 +1,4 @@
-# agents.MD
+# AGENTS.MD
 
 ## Scope
 
@@ -17,9 +17,6 @@ The latest version of the Foundry VTT API is available at https://foundryvtt.com
 
 ## Repo conventions
 
-### Build command
-- Prefer `npm run debug` as the standard build/run command for this repository (unless the user requests otherwise).
-
 ### TypeScript
 - Avoid `any`. Use `unknown` and narrow whenever possible, unless it is a one-time use and narrowing would require significantly more code/complexity.
 - Don't create const/let variables for intermediate expressions that are only used once, unless it is something particularly complex or it significantly improves readability.
@@ -32,3 +29,6 @@ The latest version of the Foundry VTT API is available at https://foundryvtt.com
 
 ### function definitions
 - Only define functions inside other functions if it needs to modify the variables in the outer function 
+
+### foundry
+- Some foundry methods are available as global but also inside the foundry namespace.  When they are available in both places, do not use the global.
