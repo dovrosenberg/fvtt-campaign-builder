@@ -25,6 +25,7 @@
 - Fixed a bug where adding monster names were missing in the Arc monster list.
 - Fixed a bug where AI text generation on custom fields wasn't working.
 - Fixed a bug where you couldn't add Entries to Story Webs from the directory context menu. 
+- Fixed a bug where picking a newly created species in the Character Generate dialog to use with AI generation didn't actually pass that species name to the AI.
 
 ## 1.9.3 - Changelog distribution
 ![](https://img.shields.io/badge/release%20date-February%2028%2C%202026-blue)
