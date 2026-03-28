@@ -8,7 +8,7 @@
 
 # Change Log
 ## 1.10.0 - Timelines! Configurable Tabs! Location/Org Branches! And More!
-![](https://img.shields.io/badge/release%20date-March%20__%2C%202026-blue)
+![](https://img.shields.io/badge/release%20date-March%2028%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.0/module.zip)
 
 - Timelines! These are available on all content types.  They allow you to see notes from your world calendar.  Requires Calendaria to be used as your calendar.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/timelines))
