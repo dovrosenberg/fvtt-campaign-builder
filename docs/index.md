@@ -34,7 +34,8 @@ features:
     'Story arcs let you track your plot and store ideas for the future', 
     'AI generation of text and images (optional)',
     'Relationship graphs let you see connections between elements',
-    'Multiple panels let you work more efficiently'
+    'Multiple panels let you work more efficiently',
+    'Track timelines tied to Calendaria notes'
   ];
   const screenshots = Array.from({ length: labels.length }, (_, i) =>
     `${baseUrl}screenshots/screenshot${i + 1}.webp`

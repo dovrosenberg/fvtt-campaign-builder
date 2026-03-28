@@ -18,6 +18,7 @@ See the [user documentation](https://dovrosenberg.github.io/fvtt-campaign-builde
   <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot5.webp" alt="Story Arcs" width="260" />
   <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot7.webp" alt="Relationship graphs" width="260" />
   <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot8.webp" alt="Multi panels" width="260" />
+  <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot9.webp" alt="Timelines" width="260" />
 </p>
 
 ## A note on AI
