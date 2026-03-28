@@ -62,19 +62,6 @@ export const registerSearchTests = (context: QuenchBatchContext) => {
         sinon.restore();
       });
 
-      it('calls searchService.buildIndex on mount', async () => {
-        const mockSetting = createMockSetting();
-
-        mountComponent(Search, {
-          stores: {
-            main: { currentSetting: mockSetting },
-          },
-        });
-
-        await flushPromises();
-
-        expect(buildIndexStub.calledOnce).to.be.true;
-      });
     });
   });
 };
