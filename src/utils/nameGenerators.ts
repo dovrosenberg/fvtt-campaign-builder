@@ -370,7 +370,7 @@ const generateSettingTableResults = async (type: GeneratorType, count: number, s
 
     // Response can be undefined if API call failed or api is null
     if (response == null) {
-      return [];
+      throw new Error(`Backend returned null response for ${type} name generation`);
     }
 
     return response.data.names;
