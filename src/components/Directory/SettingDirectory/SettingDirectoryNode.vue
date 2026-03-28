@@ -11,8 +11,8 @@
       <div class="summary">
         <div 
           :class="
-            props.node.id===currentEntry?.uuid && props.topic===Topics.Organization ? 'fcb-current-directory-entry' : 
-            props.node.id===currentEntry?.uuid ? 'fcb-current-directory-branch' : 
+            props.node.id===currentEntry?.uuid && currentEntry?.isBranch ? 'fcb-current-directory-branch' : 
+            props.node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 
             'fcb-directory-entry'
           "
           style="pointer-events: auto;"

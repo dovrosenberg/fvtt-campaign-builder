@@ -617,37 +617,49 @@ export const settingDirectoryStore = () => {
     }
   };
 
-  const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string): MenuItem[] => {
+  /**
+   * Gets context menu items for an entry node.
+   * 
+   * @param topic - The topic for the entry
+   * @param entryId - The UUID of the entry
+   * @param isBranch - If true, excludes parent/child creation actions that could corrupt branch hierarchies
+   * @returns Array of menu items for the entry
+   */
+  const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string, isBranch = false): MenuItem[] => {
     if (!topic || !currentSetting.value)
       throw new Error('Invalid topic in getTopicNodeContextMenuItems()');
 
     const items = [] as MenuItem[];
 
-    if (hasHierarchy(topic)) {
-      items.push({ 
-        icon: 'fa-atlas',
-        iconFontClass: 'fas',
-        label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child',
-        onClick: async () => {
-          const entry = await FCBDialog.createEntryDialog(topic, { parentId: entryId, generateMode: true } );
+    // Branches should not expose parent/child creation actions - they can corrupt branch hierarchies
+    // Branches should not have "Create Branches" - they are already branches
+    if (!isBranch) {
+      if (!isBranch && hasHierarchy(topic)) {
+        items.push({ 
+          icon: 'fa-atlas',
+          iconFontClass: 'fas',
+          label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child',
+          onClick: async () => {
+            const entry = await FCBDialog.createEntryDialog(topic, { parentId: entryId, generateMode: true } );
 
-          if (entry) {
-            await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
+            if (entry) {
+              await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
+            }
           }
-        }
-      });
-    }
+        });
+      }
 
-    // Add "Create Branches" option for organizations
-    if (topic === Topics.Organization) {
-      items.push({
-        icon: 'fa-code-branch',
-        iconFontClass: 'fas',
-        label: localize('contextMenus.directoryEntry.createBranches'),
-        onClick: async () => {
-          await FCBDialog.createBranchesDialog(entryId);
-        }
-      });
+      // Add "Create Branches" option for organizations
+      if (topic === Topics.Organization) {
+        items.push({
+          icon: 'fa-code-branch',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.directoryEntry.createBranches'),
+          onClick: async () => {
+            await FCBDialog.createBranchesDialog(entryId);
+          }
+        });
+      }
     }
 
     items.push({

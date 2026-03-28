@@ -139,7 +139,7 @@ Dependencies
     event.preventDefault();
     event.stopPropagation();
 
-    //show our menu
+    //show our menu - pass isBranch=true to exclude parent/child creation actions
     ContextMenu.showContextMenu({
       customClass: 'fcb',
       x: event.x,
@@ -147,7 +147,8 @@ Dependencies
       zIndex: 300,
       items: settingDirectoryStore.getTopicNodeContextMenuItems(
         props.topic, 
-        props.node.id
+        props.node.id,
+        true // isBranch - excludes parent/child creation actions that could corrupt branch hierarchies
       )
     });
   };
