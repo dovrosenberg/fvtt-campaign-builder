@@ -1,5 +1,6 @@
 import * as sinon from 'sinon';
-import { setActivePinia } from 'pinia';
+import { setActivePinia, storeToRefs } from 'pinia';
+import { computed } from 'vue';
 import { getTestPinia } from './testPinia';
 
 /**
@@ -110,14 +111,32 @@ export function createStoreStub<T>(
   }
 
   // Apply property overrides.
-  // For computed properties accessed via storeToRefs, we need to override the getter
-  // on the store instance itself. storeToRefs creates refs from the store's getters.
-  for (const [propName, value] of Object.entries(propertyConfigs)) {
-    // Use Object.defineProperty to override the getter
-    Object.defineProperty(store, propName, {
-      get: () => value,
-      configurable: true,
-    });
+  // We need to stub storeToRefs to return refs from stub values.
+  // storeToRefs accesses Pinia's internal state, not the store object's properties,
+  // so stubbing properties on the store doesn't work.
+  // Instead, we stub storeToRefs to return computed refs for our stub values.
+  if (Object.keys(propertyConfigs).length > 0) {
+    // Create a map of property names to computed refs
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const stubbedRefs: Record<string, any> = {};
+    for (const [propName, value] of Object.entries(propertyConfigs)) {
+      // Wrap each stub value in a computed ref so it behaves like storeToRefs output
+      stubbedRefs[propName] = computed(() => value);
+    }
+
+    // Stub storeToRefs to return our stubbed refs
+    const storeToRefsStub = sinon.stub({ storeToRefs } as { storeToRefs: typeof storeToRefs }, 'storeToRefs').callsFake(
+      (storeInstance: unknown) => {
+        // If this is the store we're stubbing, return stubbed refs
+        if (storeInstance === store) {
+          return stubbedRefs;
+        }
+        // Otherwise call the original (this shouldn't happen in our tests)
+        return storeToRefs(storeInstance as Parameters<typeof storeToRefs>[0]);
+      }
+    );
+    // Store the stub so it gets restored
+    stubs['__storeToRefs__'] = storeToRefsStub as unknown as sinon.SinonStub;
   }
 
   return { store, stubs };

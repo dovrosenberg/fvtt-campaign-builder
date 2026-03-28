@@ -59,13 +59,16 @@ export const registerSearchTests = (context: QuenchBatchContext) => {
       });
 
       afterEach(() => {
-        buildIndexStub.restore();
+        sinon.restore();
       });
 
       it('calls searchService.buildIndex on mount', async () => {
         const mockSetting = createMockSetting();
+
         mountComponent(Search, {
-          stores: { main: { currentSetting: mockSetting } },
+          stores: {
+            main: { currentSetting: mockSetting },
+          },
         });
 
         await flushPromises();
