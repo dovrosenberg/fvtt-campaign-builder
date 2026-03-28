@@ -7,11 +7,13 @@
 **Discord**: Join the [Discord Server](https://discord.gg/zKWCkwbnn3) for discussion, questions, or requests
 
 # Change Log
-## 1.10.0 - [____________]
-![](https://img.shields.io/badge/release%20date-March%20___%2C%202026-blue)
+## 1.10.0 - Timelines! Configurable Tabs! Location/Org Branches! And More!
+![](https://img.shields.io/badge/release%20date-March%2028%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.0/module.zip)
 
 - Timelines! These are available on all content types.  They allow you to see notes from your world calendar.  Requires Calendaria to be used as your calendar.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/navigation/timelines))
+
+Note: Known issue (as of Calendaria 0.11.9) - with some calendars, notes on certain days don't show on the timeline where they should.  This is a Calendaria bug (https://github.com/Sayshal/Calendaria/issues/500).  When it gets fixed in Calendaria, it will start working properly.
 - Branches: New system for creating and managing organization branches to represent an organization's presence in specific locations. Branches can be quickly created from the parent organization, and appear under both the parent organization and the location in the directory tree. ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/world-building/content/organization#branches))
 - Added magic items tab to Arcs.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/campaign-mgt/content/arc/items))
 - Don't want another tab in Arcs?  No problem - there are now module settings that give you control over exactly which tabs you want to use for each type of content. This changes nothing else, so (for example) if you move lore to an arc but you've hidden the lore tab on arcs, you won't see it.  It's still there, though, if you un-hide the tab.  ([documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/configuration/tab-visibility))
