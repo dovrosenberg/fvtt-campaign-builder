@@ -50,6 +50,8 @@ It's totally possible to adapt your usage of the module to whatever your preferr
 - Create organizational hierarchies (ex. for religions, governing bodies, large families, criminal organizations, companies, etc.)
 - Define your world's species for assigning to characters (and using for AI prompts)
 - Directory view of all of your world entries
+- Create mindmap-like views of your campaign plots and relationships
+- Integration with Calendaria to convert calendar notes to timelines tied to specific parts of your world.
 - Manage your campaigns with story arcs, DungeonWorld-style fronts, and sessions
 - Easily plan your play sessions (in Lazy DM style) and track what happens to blend it back into your world
 - Powerful search based on names, descriptions, relationships, tags, etc.
