@@ -342,7 +342,7 @@ export const createMockStoryWeb = (overrides: Partial<StoryWeb> = {}): StoryWeb 
  * ```
  */
 export const createMinimalMainStoreStub = (setting: FCBSetting = createMockSetting()) => {
-  return createStoreStub(useMainStore, {}, {
+  return createStoreStub(useMainStore, {
     currentSetting: setting,
   });
 };

@@ -153,6 +153,8 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
       if (!arc)
         throw new Error('Failed to create default arc in Campaign.addSession()')
+      // Set campaign reference so arc.save() updates this instance's arcIndex
+      arc.campaign = this;
       arc.startSessionNumber = session.number;
       arc.endSessionNumber = session.number;
       arc.sortOrder = 0;  // just in case

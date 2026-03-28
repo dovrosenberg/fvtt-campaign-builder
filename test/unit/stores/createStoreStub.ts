@@ -52,7 +52,7 @@ export type StubConfig = sinon.SinonStub | unknown;
  *
  * Automatically detects whether each config entry is a method or property:
  * - Functions (including SinonStubs) are treated as methods
- * - Non-function values are treated as properties and are intercepted via Proxy
+ * - Non-function values are treated as properties and set via $patch
  *
  * For stores with complex domain-specific defaults (e.g. backendStore's generateNames),
  * prefer the dedicated stub helpers in backendStoreStubs.ts / mainStoreStubs.ts.
@@ -78,7 +78,7 @@ export function createStoreStub<T>(
   const pinia = getTestPinia();
   setActivePinia(pinia);
 
-  const originalStore = useStore();
+  const store = useStore();
   const stubs: Record<string, sinon.SinonStub> = {};
 
   // Separate methods from properties
@@ -99,32 +99,25 @@ export function createStoreStub<T>(
     // Check if the config is already a SinonStub (duck-type by checking for callCount)
     if (methodConfig != null && typeof (methodConfig as sinon.SinonStub).callCount === 'number') {
       // Already a SinonStub — use it directly
-      (originalStore as Record<string, unknown>)[methodName] = methodConfig;
+      (store as Record<string, unknown>)[methodName] = methodConfig;
       stubs[methodName] = methodConfig as sinon.SinonStub;
     } else {
       // Create a stub that resolves with the provided value
       const stub = sinon.stub().resolves(methodConfig);
-      (originalStore as Record<string, unknown>)[methodName] = stub;
+      (store as Record<string, unknown>)[methodName] = stub;
       stubs[methodName] = stub;
     }
   }
 
-  // For property overrides, we can't modify the Pinia Proxy directly.
-  // Instead, create a Proxy wrapper that intercepts property access.
-  let store: T;
-  if (Object.keys(propertyConfigs).length > 0) {
-    store = new Proxy(originalStore, {
-      get(target, prop) {
-        // Check if this property has an override
-        if (prop in propertyConfigs) {
-          return propertyConfigs[prop as string];
-        }
-        // Otherwise, return from original store
-        return (target as any)[prop];
-      },
-    }) as T;
-  } else {
-    store = originalStore;
+  // Apply property overrides.
+  // For computed properties accessed via storeToRefs, we need to override the getter
+  // on the store instance itself. storeToRefs creates refs from the store's getters.
+  for (const [propName, value] of Object.entries(propertyConfigs)) {
+    // Use Object.defineProperty to override the getter
+    Object.defineProperty(store, propName, {
+      get: () => value,
+      configurable: true,
+    });
   }
 
   return { store, stubs };

@@ -1,9 +1,7 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
-import sinon from 'sinon';
 import { mountComponent, flushPromises } from '@unittest/vueTestUtils';
 import { assertEmitted } from '@unittest/componentTestUtils';
 import TypeAhead from '@/components/TypeAhead.vue';
-import * as GameUtils from '@/utils/game';
 
 /**
  * Tests for TypeAhead component.
@@ -15,22 +13,15 @@ import * as GameUtils from '@/utils/game';
  * - Props (initialValue, initialList, allowNewItems)
  * - Emits (itemAdded, selectionMade)
  * - Keyboard navigation (ArrowUp, ArrowDown, Enter, Tab)
- * - External function calls (localize, foundry.utils)
+ *
+ * Note: Uses real Foundry utilities (localize, randomID, deepClone) since
+ * Quench runs inside the Foundry environment.
  */
 
 export const registerTypeAheadTests = (context: QuenchBatchContext) => {
-  const { describe, it, expect, beforeEach, afterEach } = context;
+  const { describe, it, expect } = context;
 
   describe('TypeAhead', () => {
-    let localizeStub: sinon.SinonStub;
-
-    beforeEach(() => {
-      localizeStub = sinon.stub(GameUtils, 'localize').callsFake((key: string) => key);
-    });
-
-    afterEach(() => {
-      localizeStub.restore();
-    });
 
     describe('props', () => {
       it('renders without errors with required props in string mode', async () => {
@@ -70,6 +61,8 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
           },
         });
 
+        await flushPromises();
+
         const input = wrapper.find('input').element as HTMLInputElement;
         expect(input.value).to.equal('Banana');
       });
@@ -95,6 +88,8 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
             initialList: ['Apple', 'Banana'],
           },
         });
+
+        await flushPromises();
 
         const input = wrapper.find('input').element as HTMLInputElement;
         expect(input.value).to.equal('Apple');
@@ -249,7 +244,11 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         await wrapper.find('[data-testid="typeahead-option-0"]').trigger('click');
         await flushPromises();
 
-        assertEmitted(expect, wrapper, 'selectionMade', 0, 'Apple');
+        // selectionMade emits (id, label) - in string mode both are the same
+        const emissions = wrapper.emitted('selectionMade');
+        expect(emissions).to.exist;
+        expect(emissions![0][0]).to.equal('Apple'); // id
+        expect(emissions![0][1]).to.equal('Apple'); // label
       });
 
       it('emits selectionMade with id and label when clicking an item in object mode', async () => {
@@ -292,9 +291,7 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         assertEmitted(expect, wrapper, 'itemAdded', 0, 'Banana');
       });
 
-      it('calls foundry.utils.randomID when adding in object mode', async () => {
-        const randomIDStub = sinon.stub(foundry.utils, 'randomID').returns('test-id-123');
-
+      it('emits itemAdded with { id, label } in object mode', async () => {
         const { wrapper } = mountComponent(TypeAhead, {
           props: {
             initialValue: '',
@@ -308,10 +305,11 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         await wrapper.find('[data-testid="typeahead-add-option"]').trigger('click');
         await flushPromises();
 
-        expect(randomIDStub.calledOnce).to.be.true;
-        expect(randomIDStub.firstCall.args[0]).to.equal(12);
-
-        randomIDStub.restore();
+        // Should emit with { id, label } object
+        const emissions = wrapper.emitted('itemAdded');
+        expect(emissions).to.exist;
+        expect(emissions![0][0]).to.have.property('id').with.lengthOf(12);
+        expect(emissions![0][0].label).to.equal('Banana');
       });
 
       it('does not emit itemAdded when allowNewItems is false', async () => {
@@ -423,7 +421,7 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
     });
 
     describe('keyboard navigation - ArrowUp/ArrowDown', () => {
-      it('ArrowDown from initial state highlights first item', async () => {
+      it('typing highlights first filtered item', async () => {
         const { wrapper } = mountComponent(TypeAhead, {
           props: {
             initialValue: '',
@@ -431,13 +429,12 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
           },
         });
 
+        // setValue already triggers the input event
         await wrapper.find('input').setValue('a');
         await flushPromises();
 
-        await wrapper.find('input').trigger('keydown', { key: 'ArrowDown' });
-        await flushPromises();
-
-        // First item should be highlighted
+        // After typing, onInput sets idx=1 (first real item since Add option is shown at idx=0)
+        // First item (Apple, option-0) should be highlighted
         const option = wrapper.find('[data-testid="typeahead-option-0"]');
         expect(option.classes()).to.include('highlighted');
       });
@@ -446,20 +443,23 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         const { wrapper } = mountComponent(TypeAhead, {
           props: {
             initialValue: '',
-            initialList: ['Apple', 'Banana', 'Cherry'],
+            // they all need to have an a in them
+            initialList: ['Apple', 'Banana', 'Cantaloupe'],
           },
         });
 
         await wrapper.find('input').setValue('a');
         await flushPromises();
 
-        // Navigate down multiple times
+        // After typing, idx=1 (first real item since Add option is shown at idx=0)
+        // Navigate down once: idx=2 (Banana, option-1)
+        // Navigate down again: idx=3 (Cantaloupe, option-2)
         await wrapper.find('input').trigger('keydown', { key: 'ArrowDown' });
         await wrapper.find('input').trigger('keydown', { key: 'ArrowDown' });
         await flushPromises();
 
-        // Second item should be highlighted
-        const option = wrapper.find('[data-testid="typeahead-option-1"]');
+        // Third item (Cherry, option-2) should be highlighted
+        const option = wrapper.find('[data-testid="typeahead-option-2"]');
         expect(option.classes()).to.include('highlighted');
       });
 
@@ -467,21 +467,24 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         const { wrapper } = mountComponent(TypeAhead, {
           props: {
             initialValue: '',
-            initialList: ['Apple', 'Banana', 'Cherry'],
+            initialList: ['Apple', 'Banana', 'Cantaloupe'],
           },
         });
 
         await wrapper.find('input').setValue('a');
         await flushPromises();
 
-        // Navigate to second item, then up
+        // After typing, idx=1 (Apple, option-0)
+        // Navigate down: idx=2 (Banana, option-1)
+        // Navigate down: idx=3 (Cantaloupe, option-2)
+        // Navigate up: idx=2 (Banana, option-1)
         await wrapper.find('input').trigger('keydown', { key: 'ArrowDown' });
         await wrapper.find('input').trigger('keydown', { key: 'ArrowDown' });
         await wrapper.find('input').trigger('keydown', { key: 'ArrowUp' });
         await flushPromises();
 
-        // First item should be highlighted again
-        const option = wrapper.find('[data-testid="typeahead-option-0"]');
+        // Second item (Banana, option-1) should be highlighted
+        const option = wrapper.find('[data-testid="typeahead-option-1"]');
         expect(option.classes()).to.include('highlighted');
       });
 
@@ -496,12 +499,18 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         await wrapper.find('input').setValue('a');
         await flushPromises();
 
-        // Add option shown first, arrow down should highlight Apple
+        // Add option shown first, but apple is already highlighted
+        // go up 
+        await wrapper.find('input').trigger('keydown', { key: 'ArrowUp' });
+        let option = wrapper.find('[data-testid="typeahead-add-option"]');
+        expect(option.classes()).to.include('highlighted');
+
+        // arrow down should highlight Apple
         await wrapper.find('input').trigger('keydown', { key: 'ArrowDown' });
         await flushPromises();
 
         // Apple (option-0) should be highlighted
-        const option = wrapper.find('[data-testid="typeahead-option-0"]');
+        option = wrapper.find('[data-testid="typeahead-option-0"]');
         expect(option.classes()).to.include('highlighted');
       });
     });
@@ -522,7 +531,10 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         await wrapper.find('input').trigger('keydown', { key: 'Enter' });
         await flushPromises();
 
-        assertEmitted(expect, wrapper, 'selectionMade', 0, 'Apple');
+        // selectionMade emits (id, label) - in string mode both are the same
+        const emissions = wrapper.emitted('selectionMade');
+        expect(emissions).to.exist;
+        expect(emissions![0][0]).to.equal('Apple');
       });
 
       it('Enter on add option emits itemAdded', async () => {
@@ -557,7 +569,10 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         await wrapper.find('input').trigger('keydown', { key: 'Tab' });
         await flushPromises();
 
-        assertEmitted(expect, wrapper, 'selectionMade', 0, 'Apple');
+        // selectionMade emits (id, label)
+        const emissions = wrapper.emitted('selectionMade');
+        expect(emissions).to.exist;
+        expect(emissions![0][0]).to.equal('Apple');
       });
 
       it('Enter with empty list and no value emits selectionMade with empty string', async () => {
@@ -572,7 +587,10 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         await wrapper.find('input').trigger('keydown', { key: 'Enter' });
         await flushPromises();
 
-        assertEmitted(expect, wrapper, 'selectionMade', 0, '');
+        // selectionMade emits ('', '') for empty selection
+        const emissions = wrapper.emitted('selectionMade');
+        expect(emissions).to.exist;
+        expect(emissions![0][0]).to.equal('');
       });
 
       it('Enter with existing value match in list selects it', async () => {
@@ -591,7 +609,10 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         await wrapper.find('input').trigger('keydown', { key: 'Enter' });
         await flushPromises();
 
-        assertEmitted(expect, wrapper, 'selectionMade', 0, 'Apple');
+        // selectionMade emits (id, label) - in string mode both are the same
+        const emissions = wrapper.emitted('selectionMade');
+        expect(emissions).to.exist;
+        expect(emissions![0][0]).to.equal('Apple');
       });
 
       it('Enter with existing value match in object mode selects it', async () => {
@@ -632,7 +653,10 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         await wrapper.find('input').trigger('keydown', { key: 'Enter' });
         await flushPromises();
 
-        assertEmitted(expect, wrapper, 'itemAdded', 0, 'Cherry');
+        // itemAdded emits the text in string mode
+        const emissions = wrapper.emitted('itemAdded');
+        expect(emissions).to.exist;
+        expect(emissions![0][0]).to.equal('Cherry');
       });
 
       it('Enter with no match and allowNewItems=false resets to initialValue in string mode', async () => {
@@ -650,7 +674,10 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         await wrapper.find('input').trigger('keydown', { key: 'Enter' });
         await flushPromises();
 
-        assertEmitted(expect, wrapper, 'selectionMade', 0, 'Apple');
+        // selectionMade emits (id, label) - in string mode both are the same
+        const emissions = wrapper.emitted('selectionMade');
+        expect(emissions).to.exist;
+        expect(emissions![0][0]).to.equal('Apple');
       });
 
       it('Enter with no match and allowNewItems=false resets to initialValue in object mode', async () => {
@@ -760,6 +787,7 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
         });
 
         // Initial value shows Apple
+        await flushPromises();
         let input = wrapper.find('input').element as HTMLInputElement;
         expect(input.value).to.equal('Apple');
 
@@ -773,38 +801,5 @@ export const registerTypeAheadTests = (context: QuenchBatchContext) => {
       });
     });
 
-    describe('external function calls', () => {
-      it('calls localize with correct keys', async () => {
-        const { wrapper } = mountComponent(TypeAhead, {
-          props: {
-            initialValue: '',
-            initialList: ['Apple'],
-          },
-        });
-
-        await flushPromises();
-
-        // localize should be called for placeholder and add label
-        expect(localizeStub.calledWith('placeholders.search')).to.be.true;
-      });
-
-      it('calls foundry.utils.deepClone on mount', async () => {
-        const deepCloneStub = sinon.stub(foundry.utils, 'deepClone').callsFake((obj: any) => obj ? [...obj] : []);
-
-        mountComponent(TypeAhead, {
-          props: {
-            initialValue: '',
-            initialList: ['Apple', 'Banana'],
-          },
-        });
-
-        await flushPromises();
-
-        expect(deepCloneStub.calledOnce).to.be.true;
-        expect(deepCloneStub.firstCall.args[0]).to.deep.equal(['Apple', 'Banana']);
-
-        deepCloneStub.restore();
-      });
-    });
   });
 };

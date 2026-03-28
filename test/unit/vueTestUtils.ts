@@ -28,6 +28,7 @@ import {
  * - PrimeVue: Stubbed by default (we test logic, not UI)
  * - localize(): Stubbed to return the key itself (catches missing strings)
  * - DOM assertions: Minimal (only logic outcomes, not visual behavior)
+ * - storeToRefs: Stubbed to work with stub stores (returns refs from stub values)
  */
 
 // ─── Types ─────────────────────────────────────────────────────────────
@@ -538,6 +539,7 @@ export function mountComponent<T extends Component>(
 
   // Set up store stubs if provided
   const storeStubs: Record<string, StoreStubResult<any>> = {};
+  
   if (options.stores) {
     if (options.stores.main) {
       storeStubs.main = createStoreStub(useMainStore, options.stores.main as Record<string, any>);
@@ -577,30 +579,8 @@ export function mountComponent<T extends Component>(
     }
   }
 
-  // Storage for emitted events
-  const emissions: EmissionStore = {};
-  
-  // Storage for inner component instance (to access defineExpose properties)
-  let innerComponentInstance: any = null;
-
-  // Wrap component to capture emits and track inner instance
-  const wrappedComponent = defineComponent({
-    name: 'EventTracker',
-    setup(_, { attrs }) {
-      return () => h(component as ComponentOptions, {
-        ...attrs,
-        ref: (inst: any) => { innerComponentInstance = inst; },
-        'onUpdate:modelValue': (value: any) => {
-          if (!emissions['update:modelValue']) emissions['update:modelValue'] = [];
-          emissions['update:modelValue'].push([value]);
-          attrs['onUpdate:modelValue']?.(value);
-        },
-      });
-    },
-  });
-
-  // Mount the component
-  const vueWrapper = mount(wrappedComponent, {
+  // Mount the component directly
+  const vueWrapper = mount(component as ComponentOptions, {
     props: options.props,
     slots: options.slots,
     attachTo: options.attachTo || container || undefined,
@@ -608,17 +588,18 @@ export function mountComponent<T extends Component>(
       plugins: [pinia],
       stubs,
       provide: options.global?.provide,
-      mocks: {
-        // Stub localize by providing it via global properties
-        // Components import it from @/utils/game, so we need to mock that module
-      },
     },
   });
 
-  // Create custom wrapper with emitted tracking
+  // Create custom wrapper that uses Vue Test Utils' native emitted() tracking
   const wrapper: TestWrapper<T> = {
     wrapper: vueWrapper as unknown as VueWrapper<T>,
-    emitted: (eventName: string) => emissions[eventName],
+    emitted: (eventName: string) => {
+      // Vue Test Utils stores emits as arrays of argument arrays
+      // e.g., { 'update:modelValue': [['value1'], ['value2']] }
+      const allEmits = vueWrapper.emitted();
+      return allEmits[eventName] as any[][] | undefined;
+    },
     exists: () => vueWrapper.exists(),
     find: (selector: string) => {
       const el = vueWrapper.find(selector);
@@ -627,7 +608,7 @@ export function mountComponent<T extends Component>(
         element: exists ? el.element : undefined,
         exists: () => exists,
         setValue: async (value: any) => { await el.setValue(value); },
-        trigger: async (event: string) => { await el.trigger(event); },
+        trigger: async (event: string, options?: Record<string, any>) => { await el.trigger(event, options); },
         classes: () => exists ? Array.from(el.element.classList) : [],
         attributes: (name?: string) => {
           if (!exists) return name ? undefined : {};
@@ -640,8 +621,8 @@ export function mountComponent<T extends Component>(
       };
     },
     setProps: async (props: Record<string, any>) => { await vueWrapper.setProps(props); },
-    // Return inner component instance (with defineExpose properties) or fall back to wrapper vm
-    vm: (innerComponentInstance ?? vueWrapper.vm) as T,
+    // Return component instance (includes defineExpose properties)
+    vm: vueWrapper.vm as T,
     unmount: () => vueWrapper.unmount(),
     text: () => vueWrapper.text(),
   };
