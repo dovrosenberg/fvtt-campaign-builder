@@ -4,7 +4,7 @@
  */
 
 import { FCBSetting, Entry, Campaign, Arc, Session, Front, FCBJournalEntryPage } from '@/classes';
-import { CustomFieldContentType, CustomFieldDescription, FieldType, Species, Topics } from '@/types';
+import { CustomFieldContentType, CustomFieldDescription, FieldType, Species, Topics, RelatedJournal } from '@/types';
 import { localize } from '@/utils/game';
 import { cleanUuidReferencesInText, resolveUuidNameSync } from '@/utils/clipboardUuidCleaner';
 import { htmlToMarkdown } from '@/utils/sanitizeHtml';
@@ -12,6 +12,9 @@ import { ModuleSettings, SettingKey } from '@/settings';
 import ZipFileService from '@/utils/zipFiles';
 import { downloadFile, downloadBlob } from '@/utils/fileDownload';
 import { notifyError, notifyInfo } from './notifications';
+import SettingScannerService, { ScanContext } from './settingScanner';
+import { extractUUIDs } from './uuidExtraction';
+import { isFCBUuid } from './importExportCommon';
 
 /**
  * Exports an entire setting to a markdown file with story web images in a zip archive.
@@ -120,6 +123,9 @@ const generateSettingMarkdown = async (setting: FCBSetting): Promise<string> => 
 
   // Export campaigns
   markdown += await exportCampaigns(setting);
+
+  // Export referenced journal entries
+  markdown += await exportReferencedJournals(setting);
 
   return markdown;
 };
@@ -1035,6 +1041,292 @@ const cleanText = (text: string, topHeaderLevel: number = 1): string => {
   cleaned = htmlToMarkdown(cleaned, topHeaderLevel).trim();
 
   return cleaned;
+};
+
+/**
+ * Collects all non-FCB JournalEntry/JournalEntryPage UUIDs referenced in the setting.
+ * Uses the scanner utility to traverse all text content and extracts UUIDs.
+ * @param setting - The setting to scan
+ * @returns Map of journal UUID to set of referenced page UUIDs (empty set = whole journal referenced)
+ */
+const collectReferencedJournalUuids = async (setting: FCBSetting): Promise<Map<string, Set<string>>> => {
+  const journalMap = new Map<string, Set<string>>();
+
+  // Callback to process each text field
+  const processText = (text: string, _context: ScanContext): void => {
+    if (!text) return;
+
+    // Extract all UUIDs from the text
+    const uuids = extractUUIDs(text);
+
+    for (const uuid of uuids) {
+      // Skip FCB UUIDs - those are already exported
+      if (isFCBUuid(uuid)) continue;
+
+      // Parse the UUID to determine document type
+      const parsed = foundry.utils.parseUuid(uuid);
+      if (!parsed) continue;
+
+      const docType = parsed.type as string;
+
+      // Only process JournalEntry and JournalEntryPage references
+      if (docType === 'JournalEntry') {
+        // Whole journal referenced - set to empty set (meaning all pages)
+        // This overrides any existing page-specific references
+        journalMap.set(uuid, new Set());
+      }
+      else if (docType === 'JournalEntryPage') {
+        // Single page referenced - need to get parent journal UUID
+        // UUID format: JournalEntry.xxx.JournalEntryPage.yyy or Compendium.xxx.JournalEntry.xxx.JournalEntryPage.yyy
+        const parts = uuid.split('.');
+        const pageIdIndex = parts.lastIndexOf('JournalEntryPage');
+        if (pageIdIndex > 0) {
+          // Reconstruct parent journal UUID
+          // For world: JournalEntry.xxx.JournalEntryPage.yyy -> JournalEntry.xxx
+          // For compendium: Compendium.xxx.JournalEntry.yyy.JournalEntryPage.zzz -> Compendium.xxx.JournalEntry.yyy
+          let journalUuid: string;
+          if (parts[0] === 'Compendium') {
+            // Compendium format: Compendium.xxx.JournalEntry.yyy.JournalEntryPage.zzz
+            const journalIdIndex = parts.lastIndexOf('JournalEntry');
+            if (journalIdIndex > 0 && journalIdIndex < pageIdIndex) {
+              journalUuid = parts.slice(0, journalIdIndex + 2).join('.');
+            }
+            else {
+              continue;
+            }
+          }
+          else {
+            // World format: JournalEntry.xxx.JournalEntryPage.yyy
+            journalUuid = parts.slice(0, 2).join('.');
+          }
+
+          // Only add specific page if we're not already exporting all pages
+          // (empty set means all pages, non-empty means specific pages)
+          if (!journalMap.has(journalUuid)) {
+            journalMap.set(journalUuid, new Set([uuid]));
+          }
+          else {
+            const existingPages = journalMap.get(journalUuid)!;
+            // Only add if set is non-empty (i.e., tracking specific pages, not all)
+            if (existingPages.size > 0) {
+              existingPages.add(uuid);
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // Scan all text content in the setting
+  await SettingScannerService.scanSettingContent(setting, processText);
+
+  // Also scan journals arrays (RelatedJournal objects) directly
+  await collectJournalUuidsFromArrays(setting, journalMap);
+
+  return journalMap;
+};
+
+/**
+ * Collects Journal UUIDs from journals arrays on content objects.
+ * These are explicit journal links stored separately from text content.
+ */
+const collectJournalUuidsFromArrays = async (
+  setting: FCBSetting,
+  journalMap: Map<string, Set<string>>
+): Promise<void> => {
+  // Process journals from entries
+  const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
+  for (const topic of topics) {
+    const entries = await setting.topicFolders[topic].allEntries();
+    for (const entry of entries) {
+      processRelatedJournals(entry.journals, journalMap);
+    }
+  }
+
+  // Process journals from campaigns
+  for (const campaign of Object.values(setting.campaigns)) {
+    if (!campaign) continue;
+
+    processRelatedJournals(campaign.journals, journalMap);
+
+    // Process sessions
+    const sessions = await campaign.allSessions();
+    for (const session of sessions) {
+      // Sessions don't have journals arrays, but arcs do
+    }
+
+    // Process arcs
+    for (const arcIndex of campaign.arcIndex) {
+      const arc = await Arc.fromUuid(arcIndex.uuid);
+      if (arc) {
+        processRelatedJournals(arc.journals, journalMap);
+      }
+    }
+  }
+};
+
+/**
+ * Processes an array of RelatedJournal objects and adds to the journal map.
+ */
+const processRelatedJournals = (
+  journals: RelatedJournal[],
+  journalMap: Map<string, Set<string>>
+): void => {
+  for (const journal of journals) {
+    if (!journal.journalUuid) continue;
+
+    // Skip FCB UUIDs
+    if (isFCBUuid(journal.journalUuid)) continue;
+
+    // If there's a specific page, add it (unless we're already exporting all pages)
+    if (journal.pageUuid && !isFCBUuid(journal.pageUuid)) {
+      if (!journalMap.has(journal.journalUuid)) {
+        journalMap.set(journal.journalUuid, new Set([journal.pageUuid]));
+      }
+      else {
+        const existingPages = journalMap.get(journal.journalUuid)!;
+        // Only add if set is non-empty (i.e., tracking specific pages, not all)
+        if (existingPages.size > 0) {
+          existingPages.add(journal.pageUuid);
+        }
+      }
+    }
+    else {
+      // No specific page - whole journal referenced (empty set = all pages)
+      // This overrides any existing page-specific references
+      journalMap.set(journal.journalUuid, new Set());
+    }
+  }
+};
+
+/**
+ * Exports a single JournalEntryPage to markdown.
+ * @param page - The page to export
+ * @returns Markdown content for the page
+ */
+const exportJournalPage = (page: JournalEntryPage): string => {
+  let markdown = `#### ${page.name}\n\n`;
+
+  switch (page.type) {
+    case 'text':
+      if (page.text.content) {
+        markdown += cleanText(page.text.content, 5) + '\n\n';
+      }
+      break;
+
+    case 'image':
+      markdown += `*[Image page]*\n`;
+      if (page.src) {
+        markdown += `**Source:** ${page.src}\n\n`;
+      }
+      if (page.image.caption) {
+        markdown += `**Caption:** ${page.image.caption}\n\n`;
+      }
+      break;
+
+    case 'pdf':
+      markdown += `*[PDF page]*\n`;
+      if (page.src) {
+        markdown += `**Source:** ${page.src}\n\n`;
+      }
+      break;
+
+    case 'video':
+      markdown += `*[Video page]*\n`;
+      if (page.src) {
+        markdown += `**Source:** ${page.src}\n\n`;
+      }
+      // Include video-specific settings
+      if (page.video.controls !== undefined || page.video.autoplay !== undefined) {
+        const settings: string[] = [];
+        if (page.video.autoplay) settings.push('autoplay');
+        if (page.video.loop) settings.push('loop');
+        if (page.video.controls) settings.push('controls');
+        if (settings.length > 0) {
+          markdown += `**Settings:** ${settings.join(', ')}\n\n`;
+        }
+      }
+      break;
+
+    default:
+      markdown += `*[${page.type} page]*\n\n`;
+  }
+
+  return markdown;
+};
+
+/**
+ * Exports a JournalEntry with all its pages to markdown.
+ * @param journal - The journal entry to export
+ * @param specificPageUuids - Optional set of specific page UUIDs to export (if empty, export all)
+ * @returns Markdown content for the journal
+ */
+const exportJournalEntry = (
+  journal: JournalEntry,
+  specificPageUuids: Set<string> | null
+): string => {
+  let markdown = `### ${journal.name}\n\n`;
+
+  // If specific pages were referenced, only export those
+  // Otherwise, export all pages
+  const pagesToExport = specificPageUuids && specificPageUuids.size > 0
+    ? journal.pages.contents.filter(p => specificPageUuids.has(p.uuid))
+    : journal.pages.contents;
+
+  if (pagesToExport.length === 0) {
+    markdown += `*[No pages]*\n\n`;
+    return markdown;
+  }
+
+  for (const page of pagesToExport) {
+    markdown += exportJournalPage(page);
+  }
+
+  return markdown;
+};
+
+/**
+ * Generates the "Referenced Journal Entries" section for the export.
+ * @param setting - The setting being exported
+ * @returns Markdown content for the referenced journals section
+ */
+const exportReferencedJournals = async (setting: FCBSetting): Promise<string> => {
+  // Collect all referenced journal UUIDs
+  const journalMap = await collectReferencedJournalUuids(setting);
+
+  if (journalMap.size === 0) {
+    return '';
+  }
+
+  let markdown = `## Referenced Journal Entries\n\n`;
+  markdown += `*The following journal entries are referenced in the setting content.*\n\n`;
+
+  // Sort journals by name for consistent output
+  const sortedEntries = Array.from(journalMap.entries()).sort((a, b) => {
+    // We'll sort by UUID for now, names will be added when we load
+    return a[0].localeCompare(b[0]);
+  });
+
+  for (const [journalUuid, pageUuids] of sortedEntries) {
+    try {
+      // Load the journal entry
+      const journal = await foundry.utils.fromUuid<JournalEntry>(journalUuid);
+
+      if (!journal) {
+        markdown += `### [Journal not found: ${journalUuid}]\n\n`;
+        continue;
+      }
+
+      // Export the journal (with specific pages if referenced)
+      markdown += exportJournalEntry(journal, pageUuids.size > 0 ? pageUuids : null);
+    }
+    catch (error) {
+      console.error(`Error exporting journal ${journalUuid}:`, error);
+      markdown += `### [Error loading journal: ${journalUuid}]\n\n`;
+    }
+  }
+
+  return markdown;
 };
 
 const SettingExportService = {

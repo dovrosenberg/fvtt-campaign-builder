@@ -12,6 +12,7 @@ const UUID_QUICK_CHECK = /@(UUID|Actor|Item|Scene|JournalEntry|Macro|RollTable|C
 /**
  * Synchronously resolves a UUID to its document name using index lookups.
  * Uses foundry.utils.parseUuid() and collection index/get lookups (same pattern as helpers.ts).
+ * Handles both primary documents and embedded documents (like JournalEntryPage).
  */
 export function resolveUuidNameSync(uuid: string): string {
   try {
@@ -20,9 +21,52 @@ export function resolveUuidNameSync(uuid: string): string {
 
     const collection = parsed.collection as any;
     const id = parsed.id as string;
+    const primaryId = parsed.primaryId as string | undefined;
+    const embedded = parsed.embedded as string[] | undefined;
 
     if (!collection || !id) return uuid;
 
+    // For embedded documents (e.g., JournalEntryPage), we need to get the parent first
+    if (embedded && embedded.length > 0 && primaryId) {
+      // Get the primary document first
+      let primaryDoc: any = null;
+
+      // For compendium collections, check the index
+      if (collection.index) {
+        primaryDoc = collection.index.get(primaryId);
+      }
+
+      // For world collections
+      if (!primaryDoc && typeof collection.get === 'function') {
+        primaryDoc = collection.get(primaryId);
+      }
+
+      // If we found the primary document, look for the embedded document
+      if (primaryDoc) {
+        // For compendium index entries, check if pages are indexed
+        if (primaryDoc.pages && Array.isArray(primaryDoc.pages)) {
+          // Find the page by id
+          const page = primaryDoc.pages.find((p: any) => p._id === id || p.id === id);
+          if (page?.name) return page.name;
+        }
+
+        // For actual document instances with embedded collection
+        if (typeof primaryDoc.getEmbeddedDocument === 'function') {
+          const embeddedDoc = primaryDoc.getEmbeddedDocument(embedded[0], id);
+          if (embeddedDoc?.name) return embeddedDoc.name;
+        }
+
+        // Fall back to pages.contents for JournalEntry documents
+        if (primaryDoc.pages?.contents) {
+          const page = primaryDoc.pages.contents.find((p: any) => p._id === id || p.id === id);
+          if (page?.name) return page.name;
+        }
+      }
+
+      return uuid;
+    }
+
+    // For primary documents (non-embedded)
     // For compendium collections, check the index
     if (collection.index) {
       const indexEntry = collection.index.get(id);
