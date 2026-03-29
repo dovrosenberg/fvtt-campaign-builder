@@ -7,6 +7,13 @@
 **Discord**: Join the [Discord Server](https://discord.gg/zKWCkwbnn3) for discussion, questions, or requests
 
 # Change Log
+## 1.10.1 - v14 compatibility
+![](https://img.shields.io/badge/release%20date-March%2028%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.1/module.zip)
+
+- The main thing here is flagging as compatible with Foundry v14
+- Setting export now exports the text of any journal entries that are referenced within the Setting.  
+
 ## 1.10.0 - Timelines! Configurable Tabs! Location/Org Branches! And More!
 ![](https://img.shields.io/badge/release%20date-March%2028%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.0/module.zip)
