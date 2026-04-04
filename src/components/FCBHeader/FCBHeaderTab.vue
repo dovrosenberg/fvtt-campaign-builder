@@ -2,7 +2,7 @@
   <div 
     :class="'fcb-tab flexrow ' + (tab.active ? 'active' : '')" 
     draggable="true"
-    :title="tab.header.name" 
+    :title="tab?.header?.name" 
     :data-testid="`header-tab-${tab.id}`"
     @click="onTabClick"
     @dragstart="onDragstart"
@@ -11,13 +11,13 @@
     @contextmenu="onTabContextMenu"
   >
     <div 
-      v-if="tab.header.icon"
+      v-if="tab?.header?.icon"
       class="fcb-tab-icon"
     >
-      <i :class="'fas ' + tab.header.icon"></i>
+      <i :class="'fas ' + tab?.header?.icon"></i>
     </div>
     <div class="tab-content">
-      {{ tab.header.name }}
+      {{ tab?.header?.name }}
     </div>
     <div 
       class="close"

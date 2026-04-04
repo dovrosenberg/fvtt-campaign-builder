@@ -172,7 +172,7 @@ export interface CalendariaAPI {
   getActiveCalendar: () => CalendariaCalendar | null;
 
   /** Get all available categories for timeline notes */
-  getCategories: () => CalendariaCategory[];
+  getPresets: () => CalendariaCategory[];
 
   /** Get all available calendars */
   getAllCalendars: () => Map<string, CalendarDefinition>;
