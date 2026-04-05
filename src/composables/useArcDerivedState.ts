@@ -14,6 +14,7 @@ import { localize } from '@/utils/game';
 import {
   ArcIdeaRow,
   ArcItemRow,
+  ArcLocation,
   ArcLocationRow,
   ArcLoreRow,
   ArcMonsterRow,
@@ -66,7 +67,42 @@ export function useArcDerivedState(): ArcDerivedState {
   const { rows: vignetteRows, groups: vignetteGroups, refresh: _refreshVignettes } = 
     useGroupedTableState(currentArc, 'vignettes', GroupableItem.ArcVignettes);
   const { rows: locationRows, groups: locationGroups, refresh: _refreshLocations } = 
-    useGroupedTableState(currentArc, 'locations', GroupableItem.ArcLocations);
+    useGroupedTableState(currentArc, 'locations', GroupableItem.ArcLocations,
+    async (items: ArcLocation[]): Promise<ArcLocationRow[]> => {
+      const retval: ArcLocationRow[] = [];
+      const setting = useMainStore().currentSetting;
+
+      if (!setting)
+        return [];
+      
+      const topicFolder = setting.topicFolders[Topics.Location];
+
+      if (!topicFolder)
+        return [];
+
+      for (const item of items) {
+        const entry = await topicFolder.findEntry(item.uuid);
+
+        if (!entry)
+          continue;
+
+        const parentId = await entry.getParentId();
+        const parent = parentId ? await Entry.fromUuid(parentId) : null;
+
+        retval.push({
+          uuid: item.uuid,
+          groupId: item.groupId || null,
+          name: entry.name,
+          type: entry.type || getTopicText(Topics.Location),
+          parent: parent?.name || '',
+          parentId: parent?.uuid || null,
+          notes: item.notes || '',
+        });
+      }
+
+      return retval;
+    }
+  );
   const { rows: participantRows, groups: participantGroups, refresh: _refreshParticipants } =
     useGroupedTableState(currentArc, 'participants', GroupableItem.ArcParticipants,
     async (items: ArcParticipant[]): Promise<ArcParticipantRow[]> => {

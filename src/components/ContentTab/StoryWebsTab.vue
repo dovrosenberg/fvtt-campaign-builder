@@ -17,7 +17,6 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
-  import { storeToRefs } from 'pinia';
 
   import { useMainStore, useNavigationStore, useCampaignStore, useArcStore, useSessionStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
@@ -102,6 +101,8 @@
   };
 
   const refreshRows = async () => {
+    // we store these now so that all actions in this act on the same objects (otherwise,
+    //   it's possible the objects change between awaits)
     const c = campaign.value;
     const e = entity.value as any;
 
@@ -141,6 +142,8 @@
   };
 
   const onAddItem = async () => {
+    // we store these now so that all actions in this act on the same objects (otherwise,
+    //   it's possible the objects change between awaits)
     const c = campaign.value;
     const e = entity.value as any;
     if (!c || !e)
@@ -201,6 +204,8 @@
   };
 
   const onDeleteStoryWeb = async (uuid: string) => {
+    // we store these now so that all actions in this act on the same objects (otherwise,
+    //   it's possible the objects change between awaits)
     const e = entity.value as any;
     if (!e)
       return;
