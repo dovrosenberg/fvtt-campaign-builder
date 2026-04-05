@@ -7,6 +7,13 @@
 **Discord**: Join the [Discord Server](https://discord.gg/zKWCkwbnn3) for discussion, questions, or requests
 
 # Change Log
+## 1.10.2 - Support for Calendaria v1.0
+![](https://img.shields.io/badge/release%20date-April%205%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.2/module.zip)
+
+- Calendaria v1.0 had some breaking changes; it should now be supported
+- Fixed issue with tab headers getting lost in Foundry v14
+
 ## 1.10.1 - v14 compatibility
 ![](https://img.shields.io/badge/release%20date-March%2028%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.1/module.zip)

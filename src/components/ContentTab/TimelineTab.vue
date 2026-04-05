@@ -239,7 +239,7 @@ Dependencies
   };
 
   /**
-   * Filter notes based on the current filter criteria.
+   * Filter notes based on the current filter criteria (other than date range).
    * @param notes - Array of Calendaria notes
    * @param filterCriteria - Filter criteria
    * @returns Filtered notes

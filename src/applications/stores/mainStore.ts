@@ -35,7 +35,7 @@ export const mainStore = () => {
  
   ///////////////////////////////
   // external state
-  const rootFolder = ref<RootFolder | null>(null);
+  const rootFolder = shallowRef<RootFolder | null>(null);
 
   /** whether the arc manager dialog is currently open */
   const isArcManagerOpen = ref<boolean>(false);
