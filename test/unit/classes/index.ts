@@ -14,7 +14,7 @@ export const registerClassBatches = () => {
 
 const registerEntryBatch = () => {
   createBatch(
-    'campaign-builder.classes.Entry',
+    'classes.Entry',
     '/classes/Entry',
     registerEntryTests
   );
@@ -22,7 +22,7 @@ const registerEntryBatch = () => {
 
 const registerFCBJournalEntryPageBatch = () => {
   createBatch(
-    'campaign-builder.classes.FCBJournalEntryPage',
+    'classes.FCBJournalEntryPage',
     '/classes/FCBJournalEntryPage',
     registerFCBJournalEntryPageTests
   );
@@ -30,7 +30,7 @@ const registerFCBJournalEntryPageBatch = () => {
 
 const registerFCBSettingBatch = () => {
   createBatch(
-    'campaign-builder.classes.FCBSetting',
+    'classes.FCBSetting',
     '/classes/FCBSetting',
     registerFCBSettingTests
   );
@@ -38,7 +38,7 @@ const registerFCBSettingBatch = () => {
 
 const registerCampaignBatch = () => {
   createBatch(
-    'campaign-builder.classes.Campaign',
+    'classes.Campaign',
     '/classes/Campaign',
     registerCampaignTests
   );

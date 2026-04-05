@@ -4,5 +4,5 @@
 // import { registerXxxTests } from './xxx.test';
 //
 // export const registerXxxBatch = () => {
-//   createBatch('campaign-builder.hooks.xxx', '/hooks/xxx', registerXxxTests);
+//   createBatch('hooks.xxx', '/hooks/xxx', registerXxxTests);
 // };

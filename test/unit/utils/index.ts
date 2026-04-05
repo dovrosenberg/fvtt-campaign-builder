@@ -23,7 +23,7 @@ export const registerUtilBatches = () => {
 
 const registerAppWindowBatch = () => {
   createBatch(
-    'campaign-builder.utils.appWindow',
+    'utils.appWindow',
     '/utils/appWindow',
     registerAppWindowTests
   );
@@ -31,7 +31,7 @@ const registerAppWindowBatch = () => {
 
 const registerHierarchyBatch = () => {
   createBatch(
-    'campaign-builder.utils.hierarchy',
+    'utils.hierarchy',
     '/utils/hierarchy',
     registerHierarchyTests
   );
@@ -39,7 +39,7 @@ const registerHierarchyBatch = () => {
 
 const registerRelatedContentBatch = () => {
   createBatch(
-    'campaign-builder.utils.relatedContent',
+    'utils.relatedContent',
     '/utils/relatedContent',
     registerRelatedContentTests
   );
@@ -47,7 +47,7 @@ const registerRelatedContentBatch = () => {
 
 const registerArcIndexBatch = () => {
   createBatch(
-    'campaign-builder.utils.arcIndex',
+    'utils.arcIndex',
     '/utils/arcIndex',
     registerArcIndexTests
   );
@@ -55,7 +55,7 @@ const registerArcIndexBatch = () => {
 
 const registerCleanKeysBatch = () => {
   createBatch(
-    'campaign-builder.utils.cleanKeys',
+    'utils.cleanKeys',
     '/utils/cleanKeys',
     registerCleanKeysTests
   );
@@ -63,7 +63,7 @@ const registerCleanKeysBatch = () => {
 
 const registerCustomFieldsBatch = () => {
   createBatch(
-    'campaign-builder.utils.customFields',
+    'utils.customFields',
     '/utils/customFields',
     registerCustomFieldsTests
   );
@@ -71,7 +71,7 @@ const registerCustomFieldsBatch = () => {
 
 const registerDirectoryScrollBatch = () => {
   createBatch(
-    'campaign-builder.utils.directoryScroll',
+    'utils.directoryScroll',
     '/utils/directoryScroll',
     registerDirectoryScrollTests
   );
@@ -79,7 +79,7 @@ const registerDirectoryScrollBatch = () => {
 
 const registerDragDropBatch = () => {
   createBatch(
-    'campaign-builder.utils.dragDrop',
+    'utils.dragDrop',
     '/utils/dragDrop',
     registerDragDropTests
   );
@@ -87,7 +87,7 @@ const registerDragDropBatch = () => {
 
 const registerNameGeneratorsBatch = () => {
   createBatch(
-    'campaign-builder.utils.nameGenerators',
+    'utils.nameGenerators',
     '/utils/nameGenerators',
     registerNameGeneratorsTests
   );

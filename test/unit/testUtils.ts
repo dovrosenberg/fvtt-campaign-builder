@@ -61,7 +61,7 @@ export const createBatch = (
   registerTests: (context: QuenchBatchContext) => void
 ) => {
   quench?.registerBatch(
-    batchName,
+    `campaign-builder.${batchName}`,
     (context: QuenchBatchContext) => {
       const { before, after } = context;
 
@@ -79,7 +79,7 @@ export const createBatch = (
       // Register tests
       registerTests(context);
     },
-    { displayName, preSelected: false },
+    { displayName: `World & Campaign Builder: ${displayName}`, preSelected: false },
   );
 };
 

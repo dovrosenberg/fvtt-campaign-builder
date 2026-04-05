@@ -4,5 +4,5 @@
 // import { registerXxxTests } from './xxx.test';
 //
 // export const registerXxxBatch = () => {
-//   createBatch('campaign-builder.dialogs.xxx', '/dialogs/xxx', registerXxxTests);
+//   createBatch('dialogs.xxx', '/dialogs/xxx', registerXxxTests);
 // };

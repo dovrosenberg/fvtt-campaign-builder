@@ -19,6 +19,7 @@ export const registerStoreBatches = () => {
   registerCampaignStoreBatch();
   registerFrontStoreBatch();
   registerMainStoreBatch();
+  registerStoryWebStoreBatch();
   registerNavigationStoreBatch();
   registerPlayingStoreBatch();
   registerRelationshipStoreBatch();
@@ -28,7 +29,7 @@ export const registerStoreBatches = () => {
 
 const registerMainStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.mainStore',
+    'stores.mainStore',
     '/stores/mainStore',
     registerMainStoreTests
   );
@@ -36,7 +37,7 @@ const registerMainStoreBatch = () => {
 
 const registerStoryWebStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.storyWebStore',
+    'stores.storyWebStore',
     '/stores/storyWebStore',
     registerStoryWebStoreTests
   );
@@ -44,7 +45,7 @@ const registerStoryWebStoreBatch = () => {
 
 const registerFrontStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.frontStore',
+    'stores.frontStore',
     '/stores/frontStore',
     registerFrontStoreTests
   );
@@ -52,7 +53,7 @@ const registerFrontStoreBatch = () => {
 
 const registerPlayingStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.playingStore',
+    'stores.playingStore',
     '/stores/playingStore',
     registerPlayingStoreTests
   );
@@ -60,7 +61,7 @@ const registerPlayingStoreBatch = () => {
 
 const registerBackendStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.backendStore',
+    'stores.backendStore',
     '/stores/backendStore',
     registerBackendStoreTests
   );
@@ -68,7 +69,7 @@ const registerBackendStoreBatch = () => {
 
 const registerRelationshipStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.relationshipStore',
+    'stores.relationshipStore',
     '/stores/relationshipStore',
     registerRelationshipStoreTests
   );
@@ -76,7 +77,7 @@ const registerRelationshipStoreBatch = () => {
 
 const registerCampaignStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.campaignStore',
+    'stores.campaignStore',
     '/stores/campaignStore',
     registerCampaignStoreTests
   );
@@ -84,7 +85,7 @@ const registerCampaignStoreBatch = () => {
 
 const registerArcStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.arcStore',
+    'stores.arcStore',
     '/stores/arcStore',
     registerArcStoreTests
   );
@@ -92,7 +93,7 @@ const registerArcStoreBatch = () => {
 
 const registerSessionStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.sessionStore',
+    'stores.sessionStore',
     '/stores/sessionStore',
     registerSessionStoreTests
   );
@@ -100,7 +101,7 @@ const registerSessionStoreBatch = () => {
 
 const registerCampaignDirectoryStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.campaignDirectoryStore',
+    'stores.campaignDirectoryStore',
     '/stores/campaignDirectoryStore',
     registerCampaignDirectoryStoreTests
   );
@@ -108,7 +109,7 @@ const registerCampaignDirectoryStoreBatch = () => {
 
 const registerSettingDirectoryStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.settingDirectoryStore',
+    'stores.settingDirectoryStore',
     '/stores/settingDirectoryStore',
     registerSettingDirectoryStoreTests
   );
@@ -116,7 +117,7 @@ const registerSettingDirectoryStoreBatch = () => {
 
 const registerNavigationStoreBatch = () => {
   createBatch(
-    'campaign-builder.stores.navigationStore',
+    'stores.navigationStore',
     '/stores/navigationStore',
     registerNavigationStoreTests
   );
