@@ -1,4 +1,5 @@
 - update version in package.json
+- run all quench tests
 - update latest tested version in module.json, if needed
 - update changelog (including the date/version tags)
 - update readme
