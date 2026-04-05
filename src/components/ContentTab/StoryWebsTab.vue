@@ -17,7 +17,6 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
-  import { storeToRefs } from 'pinia';
 
   import { useMainStore, useNavigationStore, useCampaignStore, useArcStore, useSessionStore } from '@/applications/stores';
   import { useContentState } from '@/composables/useContentState';
@@ -102,22 +101,19 @@
   };
 
   const refreshRows = async () => {
-    const c = campaign.value;
-    const e = entity.value as any;
-
-    if (!c || !e) {
+    if (!campaign.value || !entity.value) {
       rows.value = [];
       return;
     }
 
-    const selectedIds = (e.storyWebs || []) as string[];
+    const selectedIds = (entity.value.storyWebs || []) as string[];
     if (selectedIds.length === 0) {
       rows.value = [];
       return;
     }
 
     // we need to get them into the right order
-    const storyWebs = await c.filterStoryWebs((s) => selectedIds.includes(s.uuid));
+    const storyWebs = await campaign.value.filterStoryWebs((s) => selectedIds.includes(s.uuid));
     
     // Create a map for quick lookup
     const storyWebMap = new Map(storyWebs.map((s: StoryWeb) => [s.uuid, s]));
@@ -141,13 +137,11 @@
   };
 
   const onAddItem = async () => {
-    const c = campaign.value;
-    const e = entity.value as any;
-    if (!c || !e)
+    if (!campaign.value || !entity.value)
       return;
 
-    const all = await c.filterStoryWebs(() => true);
-    const selected = new Set<string>(((e.storyWebs || []) as string[]));
+    const all = await campaign.value.filterStoryWebs(() => true);
+    const selected = new Set<string>(((entity.value.storyWebs || []) as string[]));
 
     const options = all
       .filter((w: StoryWeb) => !selected.has(w.uuid))
@@ -161,10 +155,10 @@
     if (!selectedItemId)
       return;
 
-    const next = new Set<string>(((e.storyWebs || []) as string[]));
+    const next = new Set<string>(((entity.value.storyWebs || []) as string[]));
     next.add(selectedItemId);
-    e.storyWebs = Array.from(next);
-    await e.save();
+    entity.value.storyWebs = Array.from(next);
+    await entity.value.save();
 
     await mainStore.refreshCurrentContent();
     await refreshRows();
@@ -201,16 +195,15 @@
   };
 
   const onDeleteStoryWeb = async (uuid: string) => {
-    const e = entity.value as any;
-    if (!e)
+    if (!entity.value)
       return;
 
     if (!(await FCBDialog.confirmDialog(localize('dialogs.confirmDeleteRelationship.title'), localize('dialogs.confirmDeleteRelationship.message'))))
       return;
 
-    const next = ((e.storyWebs || []) as string[]).filter((id: string) => id !== uuid);
-    e.storyWebs = next;
-    await e.save();
+    const next = ((entity.value.storyWebs || []) as string[]).filter((id: string) => id !== uuid);
+    entity.value.storyWebs = next;
+    await entity.value.save();
 
     await mainStore.refreshCurrentContent();
     await refreshRows();

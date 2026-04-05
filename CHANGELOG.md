@@ -13,6 +13,7 @@
 
 - Calendaria v1.0 had some breaking changes; it should now be supported
 - Fixed issue with tab headers getting lost in Foundry v14
+- Fixed issue with locations not displaying their names in Arcs
 
 ## 1.10.1 - v14 compatibility
 ![](https://img.shields.io/badge/release%20date-March%2028%2C%202026-blue)
