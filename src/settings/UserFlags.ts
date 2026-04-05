@@ -24,10 +24,16 @@ export abstract class UserFlags {
     if (!game.user)
       return null;
 
+    // this one only has one part
+    if (flag === UserFlagKey.currentSetting) 
+      return (game.user?.getFlag(moduleId, flag) ||  '') as UserFlagType<T>;
+
+    const flagKey = `${flag}.${settingId}` as UserFlagKey;
+
     if (flag === UserFlagKey.tabs) {
       // We need to create the class instances
       // Deserialize as 2D array of WindowTab instances (one inner array per panel)
-      const rawPanels: any[][] = game.user?.getFlag(moduleId, `${flag}.${settingId}`) || [];
+      const rawPanels: any[][] = game.user?.getFlag(moduleId, flagKey) || [];
 
       return rawPanels.map((panel: any[]) =>
         panel.map((t: any) => new WindowTab(
@@ -41,10 +47,8 @@ export abstract class UserFlags {
           t.historyIdx
         ))
       ) as unknown as UserFlagType<T>;
-    } else if (flag === UserFlagKey.currentSetting) {
-      return (game.user?.getFlag(moduleId, flag) ||  '') as UserFlagType<T>;
     } else {
-      return (game.user?.getFlag(moduleId, `${flag}.${settingId}`) ||  []) as UserFlagType<T>;
+      return (game.user?.getFlag(moduleId, flagKey) ||  []) as UserFlagType<T>;
     }
   }
 
@@ -57,7 +61,8 @@ export abstract class UserFlags {
       await game.user?.setFlag(moduleId, flag, value);
     } else {
       // @ts-ignore - We don't want to setup the configuration with all the possible setting/flag combos
-      await game.user?.setFlag(moduleId, `${flag}.${settingId}`, value);
+      const flagKey = `${flag}.${settingId}`;
+      await game.user?.setFlag(moduleId, flagKey, value);
     }
   }
 }

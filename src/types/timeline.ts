@@ -69,10 +69,10 @@ export interface CalendariaRawNote {
     content: string;
 
     /** Start date components */
-    startDate: { year: number; month: number; dayOfMonth: number };
+    startDate: { year: number; month: number; day: number };
 
     /** End date components (for range events) */
-    endDate?: { year: number; month: number; dayOfMonth: number };
+    endDate?: { year: number; month: number; day: number };
 
     /** Event categories (array of category IDs) */
     categories: string[];

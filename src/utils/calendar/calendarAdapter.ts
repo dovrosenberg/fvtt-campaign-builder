@@ -245,7 +245,7 @@ export const CalendarAdapter = {
    */
   getCategories: (): CalendariaCategory[] => {
     const api = requireCalendariaApi();
-    return api.getCategories();
+    return api.getPresets();
   },
 
   /**
@@ -334,16 +334,15 @@ export const CalendarAdapter = {
     content: game.journal.get(apiNote.journalId)?.pages?.contents?.[0]?.text?.content || '',
     journalId: apiNote.journalId,
     // content: undefined,  // need to pull async when needed
-    // API returns dayOfMonth (0-indexed), convert to day (1-indexed)
     startDate: {
       year: apiNote.flagData.startDate.year,
       month: apiNote.flagData.startDate.month,
-      day: apiNote.flagData.startDate.dayOfMonth + 1,
+      day: apiNote.flagData.startDate.day,
     },
     endDate: apiNote.flagData.endDate ? {
       year: apiNote.flagData.endDate.year,
       month: apiNote.flagData.endDate.month,
-      day: apiNote.flagData.endDate.dayOfMonth + 1,  
+      day: apiNote.flagData.endDate.day,  
     } : undefined,
     categories: apiNote.flagData.categories,
     icon: apiNote.flagData.icon,
