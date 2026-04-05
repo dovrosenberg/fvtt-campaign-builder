@@ -21,6 +21,7 @@
     "tsc": "tsgo --noEmit --skipLibCheck -p ./tsconfig.json",
     "unlinkdata": "unlink ~/foundry14data/Data/modules/campaign-builder",
     "foundry": "node ~/foundry14/resources/app/main.js --dataPath=/home/dov/foundry14data",
+    "foundry13": "node ~/foundry13/resources/app/main.js --dataPath=/home/dov/foundry13data",
     "updateREST": "rm -rf src/apiClient && npx @openapitools/openapi-generator-cli generate --config=openapi-config.json",
     "docs:generate-version": "node docs/.vitepress/theme/utils/generate-version.cjs",
     "docs:dev": "npm run docs:generate-version && vitepress dev docs",

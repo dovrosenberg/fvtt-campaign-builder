@@ -143,4 +143,20 @@ export class WindowTab {
     });
     this.historyIdx = this.history.length-1;
   }
+
+  /**
+   * Serializes the WindowTab to a JSON-compatible object.
+   * Ensures all properties are included even if undefined (converted to null for JSON compatibility).
+   *
+   * @returns The JSON representation of this tab.
+   */
+  public toJSON(): Record<string, unknown> {
+    return {
+      id: this.id,
+      active: this.active,
+      history: this.history,
+      historyIdx: this.historyIdx,
+      header: this.header ?? null,
+    };
+  }
 }
