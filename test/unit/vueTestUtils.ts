@@ -679,7 +679,7 @@ export function createVueBatch(
   registerTests: (context: VueTestContext) => void,
 ): void {
   quench?.registerBatch(
-    batchName,
+    `campaign-builder.${batchName}`,
     (context: QuenchBatchContext) => {
       const { before, after, afterEach } = context;
 
@@ -730,7 +730,7 @@ export function createVueBatch(
 
       registerTests(vueContext);
     },
-    { displayName, preSelected: false },
+    { displayName: `World & Campaign Builder: ${displayName}`, preSelected: false },
   );
 }
 

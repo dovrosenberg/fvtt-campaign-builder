@@ -49,17 +49,17 @@ export const registerSettingDirectoryStoreTests = (context: QuenchBatchContext) 
       // Get the shared test setting
       testSetting = getTestSetting();
 
-      // Create a test entry
-      testEntry = (await Entry.create(testSetting.topicFolders[Topics.Character]!, {
-        name: 'Test Character',
-      }))!;
-
       // Set up the main store with panel state
       const panelState = createTabPanelState(0);
       mainStore.setFocusedPanel(panelState);
 
       // Set the setting
       await mainStore.setNewSetting(testSetting.uuid);
+
+      // Create a test entry using settingDirectoryStore to ensure hierarchy is created
+      testEntry = (await settingDirectoryStore.createEntry(testSetting.topicFolders[Topics.Character]!, {
+        name: 'Test Character',
+      }))!;
 
       // Refresh the directory tree
       await settingDirectoryStore.refreshSettingDirectoryTree();
@@ -258,7 +258,7 @@ export const registerSettingDirectoryStoreTests = (context: QuenchBatchContext) 
 
     describe('updateEntryType', () => {
       it('should update entry type in hierarchy', async () => {
-        const entry = (await Entry.create(testSetting.topicFolders[Topics.Character]!, {
+        const entry = (await settingDirectoryStore.createEntry(testSetting.topicFolders[Topics.Character]!, {
           name: 'Test',
           type: 'NPC',
         }))!;
@@ -274,7 +274,7 @@ export const registerSettingDirectoryStoreTests = (context: QuenchBatchContext) 
       });
 
       it('should do nothing when type unchanged', async () => {
-        const entry = (await Entry.create(testSetting.topicFolders[Topics.Character]!, {
+        const entry = (await settingDirectoryStore.createEntry(testSetting.topicFolders[Topics.Character]!, {
           name: 'Test',
           type: 'NPC',
         }))!;

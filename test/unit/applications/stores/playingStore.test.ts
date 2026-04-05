@@ -53,6 +53,9 @@ export const registerPlayingStoreTests = (context: QuenchBatchContext) => {
       testCampaign = (await Campaign.create(testSetting, 'Test Campaign'))!;
       testSession = (await Session.create(testCampaign, 'Test Session'))!;
 
+      // Load campaigns so setting.campaigns is populated (Campaign.create only adds to campaigns if already loaded)
+      await testSetting.loadCampaigns();
+
       // Set up the main store with panel state
       const panelState = createTabPanelState(0);
       mainStore.setFocusedPanel(panelState);

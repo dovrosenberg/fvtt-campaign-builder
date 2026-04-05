@@ -226,7 +226,7 @@
       const campaign = await newArc?.loadCampaign();
       campaignHasSessions.value = (campaign?.sessionIndex?.length || 0) > 0;
     } else {
-      campaignHasSessionscampaignHasSessions.value = true;  // means we're in session mode
+      campaignHasSessions.value = true;  // means we're in session mode
     }
   }, { immediate: true });
 

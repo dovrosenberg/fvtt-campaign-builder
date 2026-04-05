@@ -41,7 +41,7 @@ import { registerOtherTests } from "./other.test";
 
 export const registerSomeBatch = () => {
   createBatch(
-    'campaign-builder.[category].some',
+    '[category].some',
     '/[category]/some',
     registerSomeTests
   );
@@ -49,7 +49,7 @@ export const registerSomeBatch = () => {
 
 export const registerOtherBatch = () => {
   createBatch(
-    'campaign-builder.[category].other',
+    '[category].other',
     '/[category]/other',
     registerOtherTests
   );
@@ -306,7 +306,7 @@ import { registerMyTests } from './my.test';
 
 export const registerMyBatch = () => {
   createBatch(
-    'campaign-builder.category.mytest',
+    'category.mytest',
     '/category/mytest',
     registerMyTests
   );
@@ -432,7 +432,7 @@ Scaffolded directories already have an `index.ts` with a commented template. To 
 
    export const registerMyFeatureBatch = () => {
      createBatch(
-       'campaign-builder.[category].myFeature',
+       '[category].myFeature',
        '/[category]/myFeature',
        registerMyFeatureTests
      );
