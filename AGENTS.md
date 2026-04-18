@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-Foundry VTT module for world-building and campaign management. GMs create interconnected entries (characters, locations, organizations, events), plan sessions (Lazy DM style), manage story arcs, fronts, and story webs. Optional AI-assisted content generation via external backend.
+World & Campaign Builder is a Foundry VTT module (system-agnostic TTRPG tool) built with Vue 3 + TypeScript + Vite. GMs create interconnected entries (characters, locations, organizations, events), plan sessions (Lazy DM style), manage story arcs, fronts, and story webs.  AI features (content/image generation) are optional and disabled by default; they use a separate backend module typically run in Google Cloud.
 
-**Stack:** Vue 3 (Composition API, `<script setup lang="ts">`), Pinia, PrimeVue 4, TypeScript, Vite 6, SCSS. Target: Foundry VTT v13+.
+**Stack:** Vue 3 (Composition API, `<script setup lang="ts">`), Pinia, PrimeVue 4, TypeScript, Vite 6, SCSS. Target: Foundry VTT v13/v14.
 
 ## Overall approach **Important**
 
@@ -12,44 +12,133 @@ Foundry VTT module for world-building and campaign management. GMs create interc
 
 2. Keep it simple. Do not over-complicate code.  Do not add extensive readmes or large template comments unless explicitly asked.
 
-## Commands
+3. Don't change public behavior, UX flows, or data contracts without an explicit request.
 
-- **`npm run debug`** — Preferred build command (dev mode, non-minified). Reload Foundry to see changes.
-- `npm run build` — Production build (minified). Only use if explicitly asked.
-- `npm run lint` — ESLint for .ts and .vue files
-- `npm run tscvue` — TypeScript + Vue type checking
-- `npm test` — Puppeteer E2E tests
+4. Don't do broad drive-by formatting across unrelated files.
 
-## Architecture
+## Build & Development Commands
 
-### Foundry Integration
-- Extends Foundry's `DocumentSheetV2` via custom `VueApplicationMixin` (in `src/libraries/fvtt-vue/`)
-- Singleton Vue app with portal-based rendering (`VueHost`) for multi-window support and Vue DevTools
-- Hook-based initialization in `src/hooks/` (init, ready, updateDocuments)
-- Entry point: `src/main.ts` registers all Foundry hooks
+```bash
+npm run build          # Production build (minified, outputs to dist/)
+npm run debug          # Development build (unminified, sourcemaps, --mode development)
+npm run debug:test     # Test build (unminified, sourcemaps, Istanbul instrumentation, --mode test)
+npm run lint           # Lint src/ with ESLint
+npm run tsc            # Type-check with tsgo (native TS compiler)
+npm run tscvue         # Type-check with vue-tsc (slower, handles Vue SFCs)
+```
 
-### Custom Document Types
-All stored as JournalEntryPage subtypes: `entry2`, `session2`, `campaign2`, `arc2`, `front2`, `storyWeb2`, `setting2`. Document schemas in `src/documents/`, wrapper classes in `src/classes/Documents/`.
+The built module is deployed to Foundry by symlinking `dist/` into the Foundry data directory: `npm run linkdata` (unlink with `npm run unlinkdata`).
+
+## User documentation
+Vitepress site in `/docs`.  
+
+## Tests
+### E2E Tests
+Tests are Puppeteer-based E2E tests using Mocha in `/test/e2e`, running against a live Foundry instance with a real browser.
+
+### Quench Unit Tests
+Unit tests are in `/test/unit` and use [Quench](https://github.com/Ethaks/FVTT-Quench).
+
+### Entry Point & Initialization
+
+`src/main.ts` → `registerForHooks()` in `src/hooks/index.ts` which registers three Foundry hooks:
+
+1. **`init`** (`src/hooks/init.ts`): Registers module settings, key bindings, DataModel types for JournalEntryPage, and the CampaignBuilderApplication sheet
+2. **`ready`** (`src/hooks/ready.ts`): Initializes VueHost, external API, text enricher, runs migrations, loads defaults, checks backend
+3. **`updateDocuments`** (`src/hooks/updateDocuments.ts`): Handles Foundry document lifecycle events
+
+### Foundry Data Models
+
+All module data is stored as JournalEntryPage subtypes registered in `CONFIG.JournalEntryPage.dataModels`:
+
+- **Entry** (`campaign-builder.entry2`) — Characters, Locations, Organizations, Events, PCs
+- **Setting** (`campaign-builder.setting2`) — World/region containers
+- **Campaign** (`campaign-builder.campaign2`) — Campaign containers
+- **Session** (`campaign-builder.session2`) — Session notes
+- **Front** (`campaign-builder.front2`) — DungeonWorld-style fronts
+- **Arc** (`campaign-builder.arc2`) — Story arcs
+- **StoryWeb** (`campaign-builder.storyWeb2`) — Mindmap/relationship views
+
+Data models are in `src/documents/` with corresponding DataModel classes.
+
+### Application Shell
+
+`CampaignBuilderApplication` (`src/applications/CampaignBuilder.ts`) extends `VueApplicationMixin(DocumentSheetV2)` — a custom mixin (`src/libraries/fvtt-vue/VueApplicationMixin.ts`) that bridges Foundry's DocumentSheetV2 with Vue 3. The VueHost (`src/libraries/fvtt-vue/VueHost.ts`) manages Vue app lifecycle and mounting.
 
 ### State Management
-11 Pinia stores in `src/applications/stores/`: mainStore, navigationStore, settingDirectoryStore, campaignDirectoryStore, relationshipStore, campaignStore, sessionStore, playingStore, frontStore, storyWebStore, arcStore, backendStore.
+
+Pinia stores in `src/applications/stores/`:
+
+- `mainStore` — Core module state
+- `navigationStore` — Navigation/tab state
+- `settingDirectoryStore` / `campaignDirectoryStore` — Directory trees
+- `relationshipStore` — Entry relationships
+- `campaignStore` / `sessionStore` / `frontStore` / `arcStore` / `storyWebStore` — Feature-specific state
+- `playingStore` — Live play tracking
+- `backendStore` — AI backend configuration
+
+Composables in `src/composables/` provide derived/computed state (e.g., `useEntryDerivedState`, `useCampaignDerivedState`).
 
 ### Key Directories
-- `src/components/` — Vue components (~91 files), organized by feature (ContentTab/, Directory/, Editor/, FCBHeader/, AIGeneration/, tables/, dialogs/)
-- `src/classes/` — Business logic classes (Entry, Campaign, Session, Arc, Front, StoryWeb, WindowTab)
-- `src/documents/` — Foundry document type definitions with custom `fields/`
-- `src/utils/` — ~30 utility modules (search, generation, migration, entity linking, UUID handling, etc.)
-- `src/apiClient/` — Auto-generated REST client from OpenAPI spec (`npm run updateREST`)
-- `static/lang/` — i18n files (en, fr, de, ru)
+
+| Directory | Purpose |
+|-----------|---------|
+| `src/applications/` | Main app class, stores, directory/sheet classes |
+| `src/components/` | Vue SFC components organized by feature (AIGeneration, ContentTab, Directory, Editor, etc.) |
+| `src/composables/` | Vue composables for derived state |
+| `src/dialogs/` | Dialog helpers (createEntry, saveChanges, confirm, etc.) |
+| `src/documents/` | Foundry DataModel definitions and custom fields |
+| `src/hooks/` | Foundry hook registrations (init, ready, updateDocuments) |
+| `src/libraries/fvtt-vue/` | Vue-Foundry bridge (VueApplicationMixin, VueHost) |
+| `src/libraries/foundry/` | Foundry utility wrappers |
+| `src/settings/` | Module settings, key bindings, user flags |
+| `src/utils/` | Utility services (each exported as default object — see pattern below) |
+| `src/apiClient/` | Auto-generated OpenAPI client (regenerated via `npm run updateREST`) |
+| `src/compendia/` | Compendium pack management |
+| `src/classes/` | Core classes (Entry, WindowTab, ExternalAPI) |
+| `src/types/` | Shared TypeScript type definitions |
+
+### Utility Service Pattern
+
+Utils in `src/utils/` follow a singleton object pattern — a plain object with methods, exported as default:
+
+```typescript
+const MyService = {
+  methodOne: (param: Type): ReturnType => { /* ... */ },
+  methodTwo: (): void => { /* ... */ },
+};
+export default MyService;
+```
+
+Do not use classes or `new` for utility services. Stateful services should use Pinia stores instead.
 
 ### Path Aliases
+
 - `@/` → `src/`
 - `@module` → `static/module.json`
-- `@unittest/` → test utilities
+- `@test/` → `test/`
+- `@unittest/` → `test/unit/`
+- `@e2etest/` → `test/e2e/`
 
-## Scope Rules
-- Don't change public behavior, UX flows, or data contracts without an explicit request.
-- Don't do broad drive-by formatting across unrelated files.
+### CSS
+
+All CSS is prefixed with `.fcb` via PostCSS (`postcss-prefix-selector`) to avoid conflicts with Foundry's styles. SCSS is consolidated into `dist/styles/campaign-builder.css`. The `@use "@/components/styles/mixins" as *` is auto-injected into every SCSS block.
+
+### PrimeVue
+
+UI components use PrimeVue 4. Components are manually imported (auto-import resolver is commented out in vite.config.ts).
+
+## Type Checking
+
+- `npm run tsc` uses `tsgo` (native Go-based TypeScript compiler) for faster type checking
+- `npm run tscvue` uses `vue-tsc` for full Vue SFC type checking
+- `tsconfig.json` has `noImplicitAny: false` and `strictPropertyInitialization: false`
+- E2E tests have their own `tsconfig.json` targeting ES2022
+
+## Linting
+
+ESLint with `@typescript-eslint` and `vue/vue3-recommended`. Config in `.eslintrc.json`. Key rules: single quotes, 2-space indent, Unix linebreaks, no floating promises (error).
+
 
 ## Coding Conventions
 
@@ -90,7 +179,3 @@ All stored as JournalEntryPage subtypes: `entry2`, `session2`, `campaign2`, `arc
 - Vue files: script indented 1 level (2 spaces base indent)
 - `@typescript-eslint/no-floating-promises: error` — all promises must be handled
 - Vue: max 3 attributes per single line, 1 per line for multiline; hyphenated events and attributes
-
-## Unit Testing (Quench)
-
-See `test/unit/AGENTS.md` for all testing guidelines, patterns, and examples.
