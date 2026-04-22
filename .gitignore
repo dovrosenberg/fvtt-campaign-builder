@@ -8,5 +8,8 @@ coverage/
 tsconfig.tsbuildinfo
 docs/.vitepress/cache
 playwright-report/
-test-results
+test-results/
 .env
+
+# CocoIndex Code (ccc)
+/.cocoindex_code/

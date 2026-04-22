@@ -98,7 +98,7 @@ const DirectoryScrollService = {
 
     if (isGroupedByType || topicNode.topicFolder.topic === Topics.Character) {
       // Handle grouped-by-type view
-      await DirectoryScrollService.scrollToEntryInGroupedView(entry, topicNode as DirectoryTopicFolderNode);
+      DirectoryScrollService.scrollToEntryInGroupedView(entry, topicNode as DirectoryTopicFolderNode);
     } else {
       // Handle nested hierarchy view
       await DirectoryScrollService.scrollToEntryInNestedView(entry);
@@ -117,21 +117,19 @@ const DirectoryScrollService = {
    * 
    * @param entry - The entry to scroll to
    * @param topicNode - The topic node containing the entry
-   * @returns A promise that resolves when the scroll operation is complete
    */
-  scrollToEntryInGroupedView: async (entry: Entry, topicNode: DirectoryTopicFolderNode): Promise<void> => {
-    const settingDirectoryStore = useSettingDirectoryStore();
-    
+  scrollToEntryInGroupedView: (entry: Entry, topicNode: DirectoryTopicFolderNode): void => {
     // Find the type node for this entry's type
     // Use NO_TYPE_STRING for entries without a type (empty string or null)
     const entryType = entry.type || NO_TYPE_STRING;
     const typeNode = topicNode.loadedTypes.find(t => t.name === entryType);
-    
+
     if (typeNode && !typeNode.expanded) {
-      // Expand the type node - this will trigger a refresh
-      await settingDirectoryStore.toggleWithLoad(typeNode, true);
-      // Refresh only happens when we actually expanded something
-      await settingDirectoryStore.refreshSettingDirectoryTree();
+      // Persist the expanded state (debounced save) and mutate the reactive typeNode in place
+      //   so Vue re-renders just this branch -- no full tree refresh needed. The type node already
+      //   has its loadedChildren populated by loadTypeEntries when the topic was expanded.
+      typeNode.toggle();
+      typeNode.expanded = true;
     }
     // If already expanded, no refresh needed - CSS will update via reactivity
   },
@@ -166,7 +164,7 @@ const DirectoryScrollService = {
     // Expand all ancestor nodes
     for (const ancestorId of ancestorIds) {
       if (!currentSetting.expandedIds[ancestorId]) {
-        await currentSetting.expandNode(ancestorId);
+        currentSetting.expandNode(ancestorId);
         expandedNodeIds.push(ancestorId);
       }
     }
@@ -175,7 +173,7 @@ const DirectoryScrollService = {
     if (entry.isBranch && hierarchy?.parentId) {
       const branchFolderId = `${hierarchy.parentId}.branches`;
       if (!currentSetting.expandedIds[branchFolderId]) {
-        await currentSetting.expandNode(branchFolderId);
+        currentSetting.expandNode(branchFolderId);
         expandedNodeIds.push(branchFolderId);
       }
     }

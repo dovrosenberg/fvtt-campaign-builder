@@ -157,9 +157,10 @@
   ////////////////////////////////
   // event handlers
   const onEntryToggleClick = async (_event: MouseEvent) => {
-    // it returns the same node, so vue doesn't necessarily realize it needs to rerender without a new copy
+    // toggleWithLoad returns a fresh node object, so swapping currentNode.value triggers Vue to re-render
+    //   just this subtree. We deliberately skip the full tree refresh here -- it would rebuild every
+    //   topic and entry in the setting, which is the dominant cost on big trees.
     currentNode.value = await settingDirectoryStore.toggleWithLoad(currentNode.value as DirectoryEntryNode, !currentNode.value.expanded);
-    await settingDirectoryStore.refreshSettingDirectoryTree([currentNode.value.id]);
   };
 
   const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryEntryNode) => {

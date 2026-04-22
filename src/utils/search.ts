@@ -912,8 +912,11 @@ function addCustomFieldsToDescription(
   // custom fields get added to description so they get a higher priority than snippets
   const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields)[contentType];
 
+  // Users upgrading from a pre-1.10 settings object may not have every content type
+  // (e.g. Branch) in their stored customFields setting. Treat a missing entry as
+  // "no custom fields configured for this type".
   if (customFieldDefinitions == null)
-    throw new Error('Tried bad contentType in search.addCustomFieldsToDescription()');
+    return description;
 
   for (let i=0; i<customFieldDefinitions.length; i++) {
     if (!customFieldDefinitions[i].deleted && customFieldDefinitions[i].indexed) {
