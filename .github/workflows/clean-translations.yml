@@ -27,7 +27,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 22.x
+          node-version: 24.x
 
       - name: Install OpenAI only (minimal install)
         run: |
