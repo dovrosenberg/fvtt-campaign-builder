@@ -49,6 +49,9 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
   /** these are the the class objects - see topics for just the flattened system data */
   public topicFolders: ValidTopicRecord<TopicFolder> = {};  // we load them when we load the setting (using populate()), so we assume it's never empty
+
+  /** trailing-debounce timer for persisting expandedIds changes; in-memory updates apply immediately */
+  private _expandedIdsSaveTimer: ReturnType<typeof setTimeout> | null = null;
     
   static override async fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
@@ -273,14 +276,75 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   }
   
  
-  public async collapseNode(id: string): Promise<void> {
+  /**
+   * Marks an entry as collapsed in memory and schedules a debounced save.
+   * The in-memory `expandedIds` is updated synchronously so subsequent reads
+   * (toggles, structural refreshes, filtering) see the new state immediately.
+   *
+   * @param id - The id of the node to collapse
+   */
+  public collapseNode(id: string): void {
     delete this.expandedIds[id];
+    this._scheduleExpandedIdsSave();
+  }
+
+  /**
+   * Marks an entry as expanded in memory and schedules a debounced save.
+   * The in-memory `expandedIds` is updated synchronously so subsequent reads
+   * (toggles, structural refreshes, filtering) see the new state immediately.
+   *
+   * @param id - The id of the node to expand
+   */
+  public expandNode(id: string): void {
+    this.expandedIds[id] = true;
+    this._scheduleExpandedIdsSave();
+  }
+
+  /**
+   * Schedules a trailing-debounced save of the setting document so that rapid
+   * expand/collapse interactions coalesce into a single Foundry write.
+   *
+   * @param delayMs - How long to wait after the last call before persisting.
+   */
+  private _scheduleExpandedIdsSave(delayMs = 300): void {
+    if (this._expandedIdsSaveTimer) {
+      clearTimeout(this._expandedIdsSaveTimer);
+    }
+
+    this._expandedIdsSaveTimer = setTimeout(() => {
+      this._expandedIdsSaveTimer = null;
+      // fire-and-forget; the next caller that needs guaranteed persistence should use flushExpandedIdsSave
+      void this.save();
+    }, delayMs);
+  }
+
+  /**
+   * If a debounced expandedIds save is pending, cancels the timer and persists
+   * immediately. Use this before any path that needs the expanded state on disk
+   * (setting switch, beforeunload, structural saves that overwrite the document).
+   *
+   * @returns A promise that resolves once the pending save has completed (or immediately if none was pending).
+   */
+  public async flushExpandedIdsSave(): Promise<void> {
+    if (!this._expandedIdsSaveTimer)
+      return;
+
+    clearTimeout(this._expandedIdsSaveTimer);
+    this._expandedIdsSaveTimer = null;
     await this.save();
   }
 
-  public async expandNode(id: string): Promise<void> {
-    this.expandedIds[id] = true;
-    await this.save();
+  /**
+   * Cancels a pending debounced expandedIds save without persisting.
+   * Use this when the caller is about to do its own `save()` that will
+   * include the latest in-memory state, so we don't queue a redundant write.
+   */
+  private _cancelPendingExpandedIdsSave(): void {
+    if (!this._expandedIdsSaveTimer)
+      return;
+
+    clearTimeout(this._expandedIdsSaveTimer);
+    this._expandedIdsSaveTimer = null;
   }
 
   // alias for uuid
@@ -491,6 +555,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   }
 
   public async collapseAll() {
+    this._cancelPendingExpandedIdsSave();
     this.expandedIds = {};
     await this.save();
   }
@@ -508,8 +573,10 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     this.campaignIndex = this.campaignIndex.filter((c) => c.uuid !== campaignId);
     delete this.expandedIds[campaignId];
 
+    // structural save coming up; drop any pending debounced write so we don't double-save
+    this._cancelPendingExpandedIdsSave();
     await this.save();
-  }  
+  }
 
   // remove an entry from the setting metadata
   public async deleteEntryFromSetting(topicFolder: TopicFolder, entryId: string) {
@@ -550,12 +617,17 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     // remove from the expanded list
     delete this.expandedIds[entryId];
 
+    // structural save coming up; drop any pending debounced write so we don't double-save
+    this._cancelPendingExpandedIdsSave();
+
     // save the updates
     await this.save();
-  }  
+  }
 
   public async deleteIdFromExpandedList(id: string) {
     delete this.expandedIds[id];
+    // structural save coming up; drop any pending debounced write so we don't double-save
+    this._cancelPendingExpandedIdsSave();
     await this.save();
   }
   

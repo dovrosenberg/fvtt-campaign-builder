@@ -12,7 +12,7 @@
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.3/module.zip)
 
 - Fixed bug that prevented search from working for some users
-
+- Dramatically sped up the time to expand/collapse nodes in settings with lots of entries
 
 ## 1.10.2 - Support for Calendaria v1.0
 ![](https://img.shields.io/badge/release%20date-April%205%2C%202026-blue)
