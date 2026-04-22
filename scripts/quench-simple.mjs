@@ -61,7 +61,7 @@ async function runQuenchTestsSimple() {
       await page.click('button[name="join"]');
       
       // Wait for redirect
-      await page.waitForURL('**/game', { timeout: 10000 });
+      await page.waitForURL('**/game', { timeout: 5000 });
     }
     
     // Wait for game to be ready
@@ -184,7 +184,7 @@ async function runQuenchTestsSimple() {
     await page.screenshot({ path: 'test-results/quench-after-click.png' });
     
     // Try multiple selectors for the Quench window
-    await page.waitForSelector('#quench-results, .application#quench-results, form#quench-results', { timeout: 10000 });
+    await page.waitForSelector('#quench-results, .application#quench-results, form#quench-results', { timeout: 5000 });
     
     // Check for and dismiss any notifications
     try {

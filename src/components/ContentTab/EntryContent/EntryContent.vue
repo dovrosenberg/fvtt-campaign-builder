@@ -930,10 +930,10 @@
     }
 
     // Get the appropriate document list based on topic
-    const docUuids = topic.value === Topics.Character 
-      ? currentEntry.value.actors 
-      : topic.value === Topics.Location 
-        ? currentEntry.value.scenes 
+    const docUuids = topic.value === Topics.Character
+      ? currentEntry.value.actors
+      : topic.value === Topics.Location
+        ? currentEntry.value.scenes
         : [];
 
     if (docUuids.length === 0) {

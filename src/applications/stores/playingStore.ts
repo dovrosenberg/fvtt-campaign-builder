@@ -153,7 +153,7 @@ export const playingStore = () => {
   watch(()=> currentSetting.value, () => {
     currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
 
-    // shouldn't be in playmode if there's no current campaign
+    // shouldn't be in play mode if there's no current campaign
     if (!currentPlayedCampaignId.value && isInPlayMode.value) {
       isInPlayMode.value = false;
     }

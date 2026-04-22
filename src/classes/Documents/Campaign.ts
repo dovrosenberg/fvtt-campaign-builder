@@ -757,17 +757,22 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @param {(e: SessionFilterIndex) => boolean} filterFn - The filter function
    * @returns {Session[]} The entries that pass the filter
    */
-  public async filterSessions(filterFn: (s: SessionFilterIndex) => boolean): Promise<Session[]> { 
+  public async filterSessions(filterFn: (s: SessionFilterIndex) => boolean): Promise<Session[]> {
+    // Guard against missing compendium (can happen during test setup, for ex.)
+    if (!this.compendium) {
+      return [];
+    }
+
     // add the id
     const sessions = this.sessionIndex
-      .map((s) => ({ 
-        name: s.name, 
+      .map((s) => ({
+        name: s.name,
         id: foundry.utils.parseUuid(s.uuid).id,
         uuid: s.uuid,
-        number: s.number 
+        number: s.number
       } as SessionFilterIndex))
 
-      // now filter by the function passed in 
+      // now filter by the function passed in
       .filter((s: SessionFilterIndex)=> filterFn(s)) || [];
 
     const idList = sessions.map((s)=> s.id);
@@ -791,7 +796,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @param {(e: FrontFilterIndex) => boolean} filterFn - The filter function
    * @returns {Front[]} The entries that pass the filter
    */
-  public async filterFronts(filterFn: (s: FrontFilterIndex) => boolean): Promise<Front[]> { 
+  public async filterFronts(filterFn: (s: FrontFilterIndex) => boolean): Promise<Front[]> {
+    // Guard against missing compendium (can happen during test setup, for ex.)
+    if (!this.compendium) {
+      return [];
+    }
+
     // get all entries
     const entries = await toRaw(this.compendium).getIndex(frontIndexFields());
 
@@ -832,7 +842,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @param {(e: StoryWebFilterIndex) => boolean} filterFn - The filter function
    * @returns {StoryWeb[]} The entries that pass the filter
    */
-  public async filterStoryWebs(filterFn: (s: StoryWebFilterIndex) => boolean): Promise<StoryWeb[]> { 
+  public async filterStoryWebs(filterFn: (s: StoryWebFilterIndex) => boolean): Promise<StoryWeb[]> {
+    // Guard against missing compendium (can happen during test setup, for ex.)
+    if (!this.compendium) {
+      return [];
+    }
+
     // get all the journal entries
     const entries = await toRaw(this.compendium).getIndex();
 

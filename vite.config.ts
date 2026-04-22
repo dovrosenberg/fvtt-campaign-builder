@@ -11,6 +11,7 @@ import { defineConfig, Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import postcssPrefixSelector from 'postcss-prefix-selector';
+import istanbul from 'vite-plugin-istanbul';
 // import Components from 'unplugin-vue-components/vite';
 // import { PrimeVueResolver } from '@primevue/auto-import-resolver';
 
@@ -18,7 +19,8 @@ import postcssPrefixSelector from 'postcss-prefix-selector';
 import npmPackage from './package.json';
 
 export default defineConfig(({ mode }) => {
-  const isDevelopment = (mode === 'development' || mode === 'test'); 
+  const isDevelopment = (mode === 'development' || mode === 'test');
+  const isTest = mode === 'test';
 
   return {
     // our dev mode is still using build so we have to overwrite like this
@@ -102,6 +104,14 @@ export default defineConfig(({ mode }) => {
         }
       }),
       updateModuleManifestPlugin(),
+      // Instrument source code for coverage collection in test mode
+      ...(isTest ? [istanbul({
+        include: 'src/**/*',
+        exclude: ['node_modules', 'test/**/*'],
+        extension: ['.ts', '.vue'],
+        requireEnv: false,
+        forceBuildInstrument: true,
+      })] : []),
     ],
     css: {
       postcss: {

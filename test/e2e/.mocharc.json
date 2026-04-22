@@ -1,0 +1,7 @@
+{
+  "extension": ["ts"],
+  "require": ["tsx", "test/e2e/globalSetup.ts"],
+  "timeout": 30000,
+  "serial": true,
+  "bail": false
+}

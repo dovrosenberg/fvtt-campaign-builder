@@ -5,8 +5,9 @@
         <i :class="`fas ${getTabTypeIcon(WindowTabType.Session)} sheet-icon`"></i>
         <InputText
           v-model="name"
-          for="fcb-input-name" 
+          for="fcb-input-name"
           class="fcb-input-name"
+          data-testid="session-name-input"
           unstyled
           :placeholder="localize('placeholders.sessionName')"
           :pt="{

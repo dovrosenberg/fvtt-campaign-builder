@@ -46,7 +46,7 @@ Performs a complete release of the Campaign Builder module, including version ve
    ```
    
    After the build completes, ask the user:
-   > Please reload Foundry and run the Quench tests. Confirm all tests pass before proceeding.
+   > Please reload Foundry and run the Quench tests. Confirm all tests pass before proceeding.  Also run the Puppeteer E2E tests to ensure the UI is working correctly.
 
    Wait for user confirmation.
 
