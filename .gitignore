@@ -8,3 +8,6 @@ tsconfig.tsbuildinfo
 docs/.vitepress/cache
 playwright-report/
 test-results/
+
+# CocoIndex Code (ccc)
+/.cocoindex_code/

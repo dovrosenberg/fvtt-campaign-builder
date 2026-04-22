@@ -7,6 +7,7 @@ import { MigrationV1_8_6 } from './MigrationV1_8_6';
 import { MigrationV1_9 } from './MigrationV1_9';
 import { MigrationV1_9_1 } from './MigrationV1_9_1';
 import { MigrationV1_10 } from './MigrationV1_10';
+import { MigrationV1_10_3 } from './MigrationV1_10_3';
 
 export const migrationVersions: Record<string, MigrationConstructor> = {
   '1.6.0': MigrationV1_6,
@@ -17,4 +18,5 @@ export const migrationVersions: Record<string, MigrationConstructor> = {
   '1.9.0': MigrationV1_9,
   '1.9.1': MigrationV1_9_1,
   '1.10.0': MigrationV1_10,
+  '1.10.3': MigrationV1_10_3,
 };
