@@ -44,29 +44,29 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
    * 
    * @returns A promise that resolves when the node has been toggled.
    */
-  public async toggle() : Promise<void> {
+  public toggle() : void {
     // closing is easy
     if (this.expanded) {
-      await this.collapse();
+      this.collapse();
     } else {
-      await this.expand();
+      this.expand();
     }
   }
 
   // used to toggle entries and compendia (not settings)
-  public async collapse(): Promise<void> {
+  public collapse(): void {
     if (!CollapsibleNode._currentSetting)
       return;
 
-    await CollapsibleNode._currentSetting.collapseNode(this.id);
+    CollapsibleNode._currentSetting.collapseNode(this.id);
   }
 
-  public async expand(): Promise<void> {
+  public expand(): void {
     if (!CollapsibleNode._currentSetting)
       return;
 
-    await CollapsibleNode._currentSetting.expandNode(this.id);
-  } 
+    CollapsibleNode._currentSetting.expandNode(this.id);
+  }
  
   // expand/contract  the given entry, loading the new item data
   // return the new node
@@ -74,10 +74,15 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
     if (this.expanded===expanded || !CollapsibleNode._currentSetting)
       return this;
     
-    await this.toggle();
+    this.toggle();
 
-    // instead of refreshing the whole tree, we can just update the node
-    const updatedNode = foundry.utils.deepClone(this);
+    // instead of refreshing the whole tree, we just update the toggled node.
+    // Use a prototype-preserving shallow clone so Vue sees a new identity (triggering the ref swap
+    //   in SettingDirectoryNodeWithChildren) without paying the cost of a full deepClone of the
+    //   whole subtree. We give loadedChildren a fresh array so subsequent mutations here don't
+    //   leak back into the previous node reference held by the parent component.
+    const updatedNode = Object.assign(Object.create(Object.getPrototypeOf(this)), this) as typeof this;
+    updatedNode.loadedChildren = [...this.loadedChildren];
     updatedNode.expanded = expanded;
 
     // make sure all children are properly loaded (if it's being opened)
@@ -128,9 +133,13 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
       if (child && !updateEntryIds.includes(child.id) && !updateEntryIds.includes(this.id)) {
         // this one is already loaded and attached (and not a forced update)
       } else if (CollapsibleNode._loadedNodes[this.children[i]]) {
-        // it was loaded previously - just reattach it
-        // without a deep clone, the reactivity down the tree on node.expanded isn't working... so doing this for now unless it creates performance issues
-        child = foundry.utils.deepClone(CollapsibleNode._loadedNodes[this.children[i]]) as ChildType | null;
+        // it was loaded previously - reattach with a prototype-preserving shallow clone so we get
+        //   a fresh identity (Vue reactivity needs this for some downstream binds) without
+        //   recursively deep-cloning the cached subtree on every traversal.
+        const cached = CollapsibleNode._loadedNodes[this.children[i]];
+        child = Object.assign(Object.create(Object.getPrototypeOf(cached)), cached) as ChildType;
+        // give loadedChildren a fresh array so mutations here don't leak into the cached entry
+        (child as unknown as CollapsibleNode<NodeType>).loadedChildren = [...(cached as unknown as CollapsibleNode<NodeType>).loadedChildren];
 
         if (!child)
           throw new Error('Child failed to load properly in CollapsibleNode.recursivelyLoadNode() ');

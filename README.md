@@ -33,7 +33,7 @@ That said, full details on features, costs, and setup are in the [documentation]
 ### Code
 AI was used in the production of this code.  I use AI to help with code generation and debugging, but I review every line before it is committed, usually with edits.  There is no "vibe coding", but rather the use of the AI allows me to put out new releases much more quickly, and by using it to build and maintain test infrastructure, it also helps to ensure the code is more robust and reliable.
 
-I have and continue to try a variety of tools to get the best quality output while reducing my development time.  Tools have included Cursor, Windsurf, and Claude Code. Primary have included those from OpenAI (though not since release 1.2 or so), Anthropic, Zhipu, and Windsurf.  
+I have and continue to try a variety of tools to get the best quality output while reducing my development time.  Tools have included Cursor, Windsurf, and Claude Code. Models have included those from OpenAI (though not since release 1.2 or so), Anthropic, Zhipu, and Windsurf.  
 
 ## Play style notes
 The campaign planning component is modeled after [The Lazy Dungeon Master](https://slyflourish.com/lazydm/), which I highly recommend.  There is a [freely available copy of the original book](https://slyflourish.com/the_lazy_dungeon_master_cc.html) and I also recommend the newer [Return of the Lazy Dungeon Master](https://www.amazon.com/Flourishs-Return-Lazy-Dungeon-Master/dp/B0B8F1G5G7) (though you have to buy that version).

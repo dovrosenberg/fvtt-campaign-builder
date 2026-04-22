@@ -72,14 +72,35 @@ export const settingDirectoryStore = () => {
   };
 
   /**
-   * Toggles the expansion state of the given topic node.
-   * 
-   * @param topic - The topic node to be toggled.
-   * @returns A promise that resolves when the topic has been toggled.
+   * Toggles the expansion state of the given topic node by mutating it in place.
+   *
+   * The topic node lives directly in `currentSettingTree.value[0].topicNodes[i]`, which is a Vue
+   * `reactive` proxy. Mutating `expanded` and (re)populating `loadedChildren` / `loadedTypes`
+   * triggers Vue to re-render just the topic's subtree, avoiding a full
+   * `refreshSettingDirectoryTree` rebuild that would scale with the entire setting size.
+   *
+   * @param topicNode - The topic node to be toggled.
+   * @returns A promise that resolves when the topic has been toggled and any newly visible children loaded.
    */
   const toggleTopic = async(topicNode: DirectoryTopicFolderNode) : Promise<void> => {
-    await topicNode.toggleWithLoad(!topicNode.expanded);
-    await refreshSettingDirectoryTree();
+    if (!currentSetting.value)
+      return;
+
+    const newExpanded = !topicNode.expanded;
+
+    // updates the persisted expandedIds via the debounced save path; uses current topicNode.expanded
+    //   to decide direction, so call this BEFORE mutating expanded below.
+    topicNode.toggle();
+
+    // mutate in place so Vue's reactivity picks up the change without rebuilding the whole tree
+    topicNode.expanded = newExpanded;
+
+    if (newExpanded) {
+      // mirror what refreshSettingDirectoryTree does for an expanded topic, but only for this topic
+      const expandedNodes = currentSetting.value.expandedIds;
+      await topicNode.recursivelyLoadNode(expandedNodes);
+      topicNode.loadTypeEntries(topicNode.topicFolder.types, expandedNodes);
+    }
   };
 
   // move the entry to a new type (doesn't update the entry itself)
@@ -811,6 +832,12 @@ export const settingDirectoryStore = () => {
   // when the setting changes, clean out the cache of loaded items
   //@ts-ignore - Vue can't handle reactive classes
   watch(currentSetting, async (newSetting: FCBSetting | null, oldSetting: FCBSetting | null): Promise<void> => {
+    // flush any pending debounced expandedIds save on the outgoing setting so toggles
+    //   made within the debounce window aren't lost when switching/clearing the active setting
+    if (oldSetting && oldSetting.uuid !== newSetting?.uuid) {
+      await oldSetting.flushExpandedIdsSave();
+    }
+
     if (!newSetting) {
       // Clear the tree when setting becomes null
       currentSettingTree.value = [];
@@ -848,6 +875,13 @@ export const settingDirectoryStore = () => {
     isGroupedByType.value = ModuleSettings.get(SettingKey.groupTreeByType);
     // Initialize the setting list
     settingIndexList.value = ModuleSettings.get(SettingKey.settingIndex) || [];
+
+    // make a best-effort attempt to persist any pending debounced expandedIds save before the
+    //   page unloads. beforeunload can't reliably await async work, so we just kick off the save;
+    //   in the worst case the user loses up to ~300ms of toggle state on a hard close.
+    window.addEventListener('beforeunload', () => {
+      void currentSetting.value?.flushExpandedIdsSave();
+    });
   });
 
   ///////////////////////////////

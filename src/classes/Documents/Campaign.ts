@@ -896,7 +896,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     if (justCompleted) {
       if (setting) {
         // collapse the node
-        await setting.collapseNode(this.uuid);
+        setting.collapseNode(this.uuid);
       }
 
       // remove from search results
