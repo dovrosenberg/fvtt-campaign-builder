@@ -854,12 +854,12 @@ export const removeJournal = async (journalName: string): Promise<void> => {
         await deleteBtn.click();
 
         // Confirm the deletion dialog if it appears
-        await page.waitForSelector('.fcb-confirm-dialog', { timeout: 2000 }).catch(() => {});
-        const confirmBtn = await page.$('.fcb-confirm-dialog .confirm-button');
+        await page.waitForSelector('.fcb-dialog', { timeout: 2000 }).catch(() => {});
+        const confirmBtn = await page.$('.fcb-dialog-button.default');
         if (confirmBtn) {
           await confirmBtn.click();
           // Wait for confirm dialog to close
-          await page.waitForSelector('.fcb-confirm-dialog', { hidden: true, timeout: 3000 }).catch(() => {});
+          await page.waitForSelector('.fcb-dialog', { hidden: true, timeout: 3000 }).catch(() => {});
         }
       }
       break;
@@ -892,13 +892,10 @@ export const clickJournalRow = async (journalName: string): Promise<void> => {
 };
 
 /**
- * Gets the count of journals in the journals tab.
+ * Gets the count of journals in the journals tab, excluding empty-state rows.
  */
 export const getJournalCount = async (): Promise<number> => {
-  const page = sharedContext.page!;
-
-  const rows = await page.$$('[data-testid="journals-table"] tbody tr');
-  return rows.length;
+  return await getTableRowCount('[data-testid="journals-table"] tbody tr');
 };
 
 ////////////////////
@@ -1062,17 +1059,62 @@ export const dropEntryOnRelationshipTab = async (entryUuid: string, tabId: strin
 };
 
 /**
- * Gets the count of related entries in a relationship tab.
+ * Checks if a table row is an empty-state row (e.g., "Nothing here" text).
+ * @param row The row element handle to check
+ * @returns True if the row contains only empty-state text
  */
-export const getRelatedEntryCount = async (tabName?: string): Promise<number> => {
+const isEmptyStateRow = async (row: import('puppeteer').ElementHandle<Element>): Promise<boolean> => {
+  const text = await row.evaluate(el => el.textContent?.trim() || '');
+  // Filter out rows that only contain empty-state indicators like "Nothing here"
+  return text.toLowerCase() === 'nothing here' || text === '';
+};
+
+/**
+ * Gets the count of real data rows in a table, excluding empty-state rows.
+ * @param selector CSS selector for the table rows (e.g., '[data-testid="actors-table"] tbody tr')
+ */
+export const getTableRowCount = async (selector: string): Promise<number> => {
   const page = sharedContext.page!;
 
+  const rows = await page.$$(selector);
+  let count = 0;
+  for (const row of rows) {
+    const isEmpty = await isEmptyStateRow(row);
+    if (!isEmpty) {
+      count++;
+    }
+  }
+  return count;
+};
+
+/**
+ * Checks if a table contains a row with the given name in any cell.
+ * @param tableSelector CSS selector for the table (e.g., '[data-testid="actors-table"]')
+ * @param name The name to search for in table cells
+ */
+export const hasTableRowWithName = async (tableSelector: string, name: string): Promise<boolean> => {
+  const page = sharedContext.page!;
+
+  return await page.evaluate(({ tableSelector, name }: { tableSelector: string; name: string }) => {
+    const cells = document.querySelectorAll(`${tableSelector} tbody td`);
+    for (const cell of cells) {
+      if (cell.textContent && cell.textContent.includes(name)) {
+        return true;
+      }
+    }
+    return false;
+  }, { tableSelector, name });
+};
+
+/**
+ * Gets the count of related entries in a relationship tab, excluding empty-state rows.
+ */
+export const getRelatedEntryCount = async (tabName?: string): Promise<number> => {
   // If a tab name is provided, scope to that specific table; otherwise use the active relationship tab
   const selector = tabName
     ? `[data-testid="${tabName}-table"] tbody tr`
     : '.tab.active [data-testid$="-table"] tbody tr';
-  const rows = await page.$$(selector);
-  return rows.length;
+  return await getTableRowCount(selector);
 };
 
 /**
@@ -1091,12 +1133,12 @@ export const removeRelatedEntry = async (entryName: string): Promise<void> => {
         await deleteBtn.click();
 
         // Confirm the deletion dialog
-        await page.waitForSelector('.fcb-confirm-dialog', { timeout: 2000 }).catch(() => {});
-        const confirmBtn = await page.$('.fcb-confirm-dialog .confirm-button');
+        await page.waitForSelector('.fcb-dialog', { timeout: 2000 }).catch(() => {});
+        const confirmBtn = await page.$('.fcb-dialog-button.default');
         if (confirmBtn) {
           await confirmBtn.click();
           // Wait for confirm dialog to close
-          await page.waitForSelector('.fcb-confirm-dialog', { hidden: true, timeout: 3000 }).catch(() => {});
+          await page.waitForSelector('.fcb-dialog', { hidden: true, timeout: 3000 }).catch(() => {});
         }
       }
       break;
@@ -1109,13 +1151,30 @@ export const removeRelatedEntry = async (entryName: string): Promise<void> => {
 ////////////////////
 
 /**
- * Gets the count of related documents in a documents tab.
+ * Gets the count of actors in the actors tab, excluding empty-state rows.
+ */
+export const getActorCount = async (): Promise<number> => {
+  return await getTableRowCount('[data-testid="actors-table"] tbody tr');
+};
+
+/**
+ * Gets the count of Foundry documents in the foundry tab, excluding empty-state rows.
+ */
+export const getFoundryDocCount = async (): Promise<number> => {
+  return await getTableRowCount('[data-testid="foundry-table"] tbody tr');
+};
+
+/**
+ * Gets the count of related documents in a documents tab, excluding empty-state rows.
  */
 export const getRelatedDocumentCount = async (): Promise<number> => {
   const page = sharedContext.page!;
 
-  const rows = await page.$$('[data-testid="foundry-table"] tbody tr, [data-testid="scenes-table"] tbody tr, [data-testid="actors-table"] tbody tr');
-  return rows.length;
+  // Count rows across all document tables, filtering empty-state rows
+  const foundryCount = await getTableRowCount('[data-testid="foundry-table"] tbody tr');
+  const scenesCount = await getTableRowCount('[data-testid="scenes-table"] tbody tr');
+  const actorsCount = await getTableRowCount('[data-testid="actors-table"] tbody tr');
+  return foundryCount + scenesCount + actorsCount;
 };
 
 /**
@@ -1147,13 +1206,10 @@ export const clickDocumentRow = async (docName: string): Promise<void> => {
 ////////////////////
 
 /**
- * Gets the count of sessions in the sessions tab.
+ * Gets the count of sessions in the sessions tab, excluding empty-state rows.
  */
 export const getSessionCount = async (): Promise<number> => {
-  const page = sharedContext.page!;
-
-  const rows = await page.$$('[data-testid="sessions-table"] tbody tr');
-  return rows.length;
+  return await getTableRowCount('[data-testid="sessions-table"] tbody tr');
 };
 
 /**

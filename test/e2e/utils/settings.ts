@@ -162,9 +162,22 @@ export const expandTypeNode = async (topic: ValidTopic, typeName: string) => {
   }, topic, typeName);
 
   if (clicked) {
-    // Wait for entries to appear within the topic folder
-    await page.waitForSelector(`.fcb-topic-folder[data-topic="${topic}"] .fcb-directory-entry`, { timeout: 5000 });
-    // Wait for Vue reactivity to settle
+    // Wait for entries to appear within the specific type node container (not just any entry in the topic folder)
+    await page.waitForFunction((topicId: number, type: string) => {
+      const topicFolder = document.querySelector(`.fcb-topic-folder[data-topic="${topicId}"]`);
+      if (!topicFolder) return false;
+      const typeNodes = topicFolder.querySelectorAll('.fcb-directory-type');
+      for (const typeNode of typeNodes) {
+        if (typeNode.textContent?.includes(type)) {
+          const container = typeNode.closest('.fcb-type-item');
+          if (!container) return false;
+          return container.querySelector('.fcb-directory-entry, .fcb-current-directory-entry') !== null;
+        }
+      }
+      return false;
+    }, { timeout: 5000 }, topic, typeName).catch(() => {
+      // Proceed even if no entries found (e.g., empty type or timing issue)
+    });
     await new Promise(resolve => setTimeout(resolve, 200));
   }
 };
