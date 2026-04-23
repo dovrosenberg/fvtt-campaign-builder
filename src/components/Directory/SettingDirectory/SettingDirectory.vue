@@ -77,6 +77,7 @@
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
   import GlobalSettingService from '@/utils/globalSettings';
   import SettingExportService from '@/utils/settingExport';
+  import ToonExportService from '@/utils/toonExport';
   import { exportSingleSettingJson } from '@/utils/export';
   import DragDropService from '@/utils/dragDrop';
   
@@ -200,13 +201,23 @@
             }
           }
         },
-        { 
+        {
           icon: 'fa-file-code',
           iconFontClass: 'fas',
-          label: localize('contextMenus.settingFolder.exportJson'), 
+          label: localize('contextMenus.settingFolder.exportJson'),
           onClick: async () => {
             if (settingId) {
               await exportSingleSettingJson(settingId);
+            }
+          }
+        },
+        {
+          icon: 'fa-robot',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.settingFolder.exportToon'),
+          onClick: async () => {
+            if (settingId) {
+              await ToonExportService.exportSettingToon(settingId);
             }
           }
         },

@@ -11,6 +11,7 @@
 ![](https://img.shields.io/badge/release%20date-April%2021%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.3/module.zip)
 
+- Added TOON export format for settings
 - Fixed bug that prevented search from working for some users
 - Dramatically sped up the time to expand/collapse nodes in settings with lots of entries
 

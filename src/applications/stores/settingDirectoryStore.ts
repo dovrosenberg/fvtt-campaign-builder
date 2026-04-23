@@ -72,12 +72,13 @@ export const settingDirectoryStore = () => {
   };
 
   /**
-   * Toggles the expansion state of the given topic node by mutating it in place.
+   * Toggles the expansion state of the given topic node by swapping it with a freshly
+   * built instance at the same position in the tree.
    *
-   * The topic node lives directly in `currentSettingTree.value[0].topicNodes[i]`, which is a Vue
-   * `reactive` proxy. Mutating `expanded` and (re)populating `loadedChildren` / `loadedTypes`
-   * triggers Vue to re-render just the topic's subtree, avoiding a full
-   * `refreshSettingDirectoryTree` rebuild that would scale with the entire setting size.
+   * We can't simply mutate the existing topic node in place: the nested tree/grouped-tree
+   * child components bind against `props.topicNode.loadedChildren`/`loadedTypes`, and Vue's
+   * prop path doesn't reliably re-propagate when those array-valued properties are reassigned
+   * on a class instance living inside the `reactive()` container.
    *
    * @param topicNode - The topic node to be toggled.
    * @returns A promise that resolves when the topic has been toggled and any newly visible children loaded.
@@ -89,18 +90,34 @@ export const settingDirectoryStore = () => {
     const newExpanded = !topicNode.expanded;
 
     // updates the persisted expandedIds via the debounced save path; uses current topicNode.expanded
-    //   to decide direction, so call this BEFORE mutating expanded below.
+    //   to decide direction, so call this BEFORE we swap in the new instance.
     topicNode.toggle();
 
-    // mutate in place so Vue's reactivity picks up the change without rebuilding the whole tree
-    topicNode.expanded = newExpanded;
+    // locate the topic node's slot in the tree so we can swap it for a fresh instance
+    const settingBlock = currentSettingTree.value[0];
+    const idx = settingBlock?.topicNodes.findIndex((n) => n.id === topicNode.id) ?? -1;
+    if (idx < 0)
+      return;
+
+    // build a fresh topic node so Vue's v-for/child props see a new identity for just this topic
+    const fresh = new DirectoryTopicFolderNode(
+      topicNode.id,
+      topicNode.name,
+      topicNode.topicFolder,
+      topicNode.topicFolder.topNodes.concat(),
+      [],
+      [],
+      newExpanded,
+    );
 
     if (newExpanded) {
       // mirror what refreshSettingDirectoryTree does for an expanded topic, but only for this topic
       const expandedNodes = currentSetting.value.expandedIds;
-      await topicNode.recursivelyLoadNode(expandedNodes);
-      topicNode.loadTypeEntries(topicNode.topicFolder.types, expandedNodes);
+      await fresh.recursivelyLoadNode(expandedNodes);
+      fresh.loadTypeEntries(fresh.topicFolder.types, expandedNodes);
     }
+
+    settingBlock.topicNodes[idx] = fresh;
   };
 
   // move the entry to a new type (doesn't update the entry itself)

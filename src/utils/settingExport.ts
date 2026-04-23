@@ -1,47 +1,65 @@
 /**
- * Service for exporting entire settings to markdown files with accompanying story web images.
- * Provides functionality to generate hierarchical markdown documentation and package it with images.
+ * Service for exporting entire settings to markdown files, with an optional zip containing
+ * accompanying story web PNGs.
+ *
+ * The markdown content is produced by walking a pre-resolved `SettingTree` built by
+ * `settingExportTree.ts`. All async document lookups and text-cleaning live there; this module
+ * is a synchronous markdown renderer + the browser-download/zip wrapper + the story-web PNG
+ * generation path that is also consumed externally by `storyWebGeneration.ts`.
  */
 
-import { FCBSetting, Entry, Campaign, Arc, Session, Front, FCBJournalEntryPage } from '@/classes';
-import { CustomFieldContentType, CustomFieldDescription, FieldType, Species, Topics, RelatedJournal } from '@/types';
+import { FCBSetting } from '@/classes';
+import { FieldType } from '@/types';
 import { localize } from '@/utils/game';
-import { cleanUuidReferencesInText, resolveUuidNameSync } from '@/utils/clipboardUuidCleaner';
-import { htmlToMarkdown } from '@/utils/sanitizeHtml';
-import { ModuleSettings, SettingKey } from '@/settings';
 import ZipFileService from '@/utils/zipFiles';
 import { downloadFile, downloadBlob } from '@/utils/fileDownload';
+import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyError, notifyInfo } from './notifications';
-import SettingScannerService, { ScanContext } from './settingScanner';
-import { extractUUIDs } from './uuidExtraction';
-import { isFCBUuid } from './importExportCommon';
+import {
+  buildSettingTree,
+  SettingTree,
+  SettingNode,
+  EntryNode,
+  CampaignNode,
+  FrontNode,
+  DangerNode,
+  ArcNode,
+  SessionNode,
+  JournalNode,
+  JournalPageNode,
+  CustomFieldRow,
+  RelationshipGroup,
+  TOPIC_KEY,
+  ENTRY_TOPICS
+} from './settingExportTree';
+
+////////////////////////////////////////////////////////////////////////////////
+// Public API
+////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Exports an entire setting to a markdown file with story web images in a zip archive.
- * @param settingId - The UUID of the setting to export
+ * Exports an entire setting to a markdown file bundled with story web PNG images in a zip archive.
+ * @param settingId - The UUID of the setting to export.
  */
 const exportSetting = async (settingId: string): Promise<void> => {
   try {
-    // Load the setting
     const setting = await FCBSetting.fromUuid(settingId);
     if (!setting) {
       throw new Error('Setting not found');
     }
 
-    // Show loading notification
     notifyInfo(localize('notifications.export.starting'));
 
-    // Generate markdown content
-    const markdownContent = await generateSettingMarkdown(setting);
+    const tree = await buildSettingTree(setting);
+    const markdownContent = renderMarkdown(tree);
 
-    // Export story webs as PNGs
+    // Story webs are orthogonal to the markdown content; still loaded/rendered separately.
     console.log('Loading campaigns for story web export...');
     await setting.loadCampaigns();
     console.log('Campaigns loaded:', Object.keys(setting.campaigns).length);
     const storyWebImages = await exportStoryWebs(setting);
     console.log(`Total story web images to include: ${storyWebImages.length}`);
 
-    // Create and download zip file
     await createAndDownloadZip(setting, markdownContent, storyWebImages);
 
     notifyInfo(localize('notifications.export.complete'));
@@ -52,24 +70,21 @@ const exportSetting = async (settingId: string): Promise<void> => {
 };
 
 /**
- * Exports an entire setting to a markdown file only (no story webs).
- * @param settingId - The UUID of the setting to export
+ * Exports an entire setting to a markdown file only (no story webs, no zip).
+ * @param settingId - The UUID of the setting to export.
  */
 const exportSettingMarkdown = async (settingId: string): Promise<void> => {
   try {
-    // Load the setting
     const setting = await FCBSetting.fromUuid(settingId);
     if (!setting) {
       throw new Error('Setting not found');
     }
 
-    // Show loading notification
     notifyInfo(localize('notifications.export.starting'));
 
-    // Generate markdown content
-    const markdownContent = await generateSettingMarkdown(setting);
+    const tree = await buildSettingTree(setting);
+    const markdownContent = renderMarkdown(tree);
 
-    // Download just the markdown file
     const filename = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
     downloadFile(markdownContent, filename, 'text/markdown');
 
@@ -80,728 +95,561 @@ const exportSettingMarkdown = async (settingId: string): Promise<void> => {
   }
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// Markdown renderer (synchronous; operates purely on the resolved tree)
+////////////////////////////////////////////////////////////////////////////////
+
 /**
- * Generates hierarchical markdown content for the entire setting.
- * @param setting - The setting object to export
- * @returns The generated markdown content
+ * Renders a SettingTree as a markdown string. Header levels and whitespace match the behavior of
+ * the pre-refactor exporter byte-for-byte.
+ * @param tree - Resolved setting tree.
+ * @returns Markdown text.
  */
-const generateSettingMarkdown = async (setting: FCBSetting): Promise<string> => {
-  let markdown = `# ${setting.name}\n\n`;
-  markdown += `## Overview\n`;
-
-  // Add genre and feeling
-  if (setting.genre.trim()) {
-    markdown += `**Genre:** ${setting.genre.trim()}\n\n`;
-  }
-  if (setting.settingFeeling.trim()) {
-    markdown += `**Setting Feeling:** ${setting.settingFeeling.trim()}\n\n`;
-  }
-
-  // Add setting description
-  if (setting.description.trim()) {
-    markdown += `**Description:**\n\n${cleanText(setting.description, 3)}\n\n`;
-  }
-
-  const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields);
-  const fields = customFieldDefinitions[CustomFieldContentType.Setting] || [];
-  if (fields.length>0)
-    markdown += exportCustomFields(setting, fields);
-
-  const speciesList = ModuleSettings.get(SettingKey.speciesList);
-  if (speciesList.length > 0) {
-    markdown += `## Setting Species\n`;
-    for (const species of speciesList) {
-      markdown += `**${species.name.trim()}:**\n\n${cleanText(species.description, 3)}\n\n`;
-    }
-  }
-
-  // Load all campaigns
-  await setting.loadCampaigns();
-
-  // Export entries by topic
-  markdown += await exportEntriesByTopic(setting);
-
-  // Export campaigns
-  markdown += await exportCampaigns(setting);
-
-  // Export referenced journal entries
-  markdown += await exportReferencedJournals(setting);
-
-  return markdown;
+const renderMarkdown = (tree: SettingTree): string => {
+  let md = `# ${tree.setting.name}\n\n`;
+  md += renderSettingOverview(tree.setting);
+  md += renderEntriesByTopic(tree);
+  md += renderCampaigns(tree.campaigns);
+  md += renderReferencedJournals(tree.referencedJournals);
+  return md;
 };
 
 /**
- * Exports all entries organized by topic.
- * @param setting - The setting object
- * @returns Markdown content for all entries
+ * Renders the Setting overview (genre, feeling, description, custom fields, species list).
+ * @param setting - Setting node.
+ * @returns Markdown fragment.
  */
-const exportEntriesByTopic = async (setting: FCBSetting): Promise<string> => {
-  let markdown = '';
+const renderSettingOverview = (setting: SettingNode): string => {
+  let md = `## Overview\n`;
 
-  const topics = [
-    { type: Topics.Character, name: localize('topics.characters'), contentType: CustomFieldContentType.Character},
-    { type: Topics.Location, name: localize('topics.locations'), contentType: CustomFieldContentType.Location},
-    { type: Topics.Organization, name: localize('topics.organizations'), contentType: CustomFieldContentType.Organization},
-    { type: Topics.PC, name: localize('topics.pcs'), contentType: CustomFieldContentType.PC}
-  ];
+  if (setting.genre) {
+    md += `**Genre:** ${setting.genre}\n\n`;
+  }
+  if (setting.feeling) {
+    md += `**Setting Feeling:** ${setting.feeling}\n\n`;
+  }
+  if (setting.description) {
+    md += `**Description:**\n\n${setting.description}\n\n`;
+  }
 
-  const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields);
+  md += renderCustomFields(setting.customFields);
 
-  const validSpecies = ModuleSettings.get(SettingKey.speciesList).reduce((acc, s: Species) => {
-    acc[s.id] = s.name;
-    return acc;
-  }, {} as Record<string, string>);
+  if (setting.species.length > 0) {
+    md += `## Setting Species\n`;
+    for (const species of setting.species) {
+      md += `**${species.name}:**\n\n${species.description}\n\n`;
+    }
+  }
 
-  for (const topic of topics) {
-    const entries = await setting.topicFolders[topic.type].allEntries();
-    if (entries.length > 0) {
-      markdown += `## ${topic.name}\n`;
-      
-      for (const entry of entries) {
-        markdown += await exportEntry(entry, setting, validSpecies, customFieldDefinitions[topic.contentType] || []);
+  return md;
+};
+
+/**
+ * Renders the four topic sections (Characters, Locations, Organizations, PCs). Sections with no
+ * entries are omitted entirely (including the ## header).
+ * @param tree - Full tree.
+ * @returns Markdown fragment.
+ */
+const renderEntriesByTopic = (tree: SettingTree): string => {
+  let md = '';
+
+  // Present topics in the canonical order (Character → Location → Organization → PC) using the
+  // localized header labels from the i18n bundle.
+  const topicHeaders: Record<string, string> = {
+    characters: localize('topics.characters'),
+    locations: localize('topics.locations'),
+    organizations: localize('topics.organizations'),
+    pcs: localize('topics.pcs')
+  };
+
+  for (const topic of ENTRY_TOPICS) {
+    const key = TOPIC_KEY[topic];
+    const list = tree.entries[key];
+    if (list.length === 0) {
+      continue;
+    }
+    md += `## ${topicHeaders[key]}\n`;
+    for (const entry of list) {
+      md += renderEntry(entry);
+    }
+  }
+
+  return md;
+};
+
+/**
+ * Renders a single entry's markdown block.
+ * @param entry - Entry node.
+ * @returns Markdown fragment.
+ */
+const renderEntry = (entry: EntryNode): string => {
+  let md = `### ${entry.name}\n`;
+
+  if (entry.type) {
+    md += `**Type:** ${entry.type}\n\n`;
+  }
+  if (entry.species) {
+    md += `**Species:** ${entry.species}\n\n`;
+  }
+  if (entry.parentName) {
+    md += `**Parent:** ${entry.parentName}\n\n`;
+  }
+  if (entry.description) {
+    md += `**Description:**\n\n${entry.description}\n\n`;
+  }
+  md += renderCustomFields(entry.customFields);
+  md += renderRelationships(entry.relationships);
+
+  return md;
+};
+
+/**
+ * Renders custom fields in the same `**Label:** value` style the original exporter used.
+ * Boolean values are "Yes"/"No"; Editor values render as a paragraph under the label.
+ * @param rows - Custom field rows.
+ * @returns Markdown fragment.
+ */
+const renderCustomFields = (rows: CustomFieldRow[]): string => {
+  let md = '';
+  for (const row of rows) {
+    switch (row.fieldType) {
+      case FieldType.Boolean:
+        md += `**${row.label}:** ${row.value ? 'Yes' : 'No'}\n\n`;
+        break;
+      case FieldType.Select:
+      case FieldType.Text:
+        md += `**${row.label}:** ${row.value}\n\n`;
+        break;
+      case FieldType.Editor:
+        md += `**${row.label}:**\n\n${row.value}\n\n`;
+        break;
+      default:
+        break;
+    }
+  }
+  return md;
+};
+
+/**
+ * Renders relationships grouped by related-topic.
+ * @param groups - Relationship groups.
+ * @returns Markdown fragment.
+ */
+const renderRelationships = (groups: RelationshipGroup[]): string => {
+  let md = '';
+  for (const group of groups) {
+    md += `#### ${localize(`export.relatedTopics.${group.topic}`)}\n`;
+    for (const rel of group.rows) {
+      md += `- ${rel.name}`;
+      if (rel.type) {
+        md += ` (${rel.type})`;
       }
-    }
-  }
-
-  return markdown;
-};
-
-/**
- * Exports a single entry with all its content.
- * @param entry - The entry to export
- * @returns Markdown content for the entry
- */
-const exportEntry = async (entry: Entry, setting: FCBSetting, validSpecies: Record<string, string>, customFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
-  let markdown = `### ${entry.name}\n`;
-
-  // Tags - I think these may not make sense to export?
-  // if (entry.tags && entry.tags.length > 0) {
-  //   markdown += `**Tags:** ${entry.tags.join(', ')}\n\n`;
-  // }
-
-  // Type
-  if (entry.type.trim()) {
-    markdown += `**Type:** ${entry.type.trim()}\n\n`;
-  }
-
-  // characters have species
-  if (entry.topic === Topics.Character && entry.speciesId && validSpecies[entry.speciesId]) {
-    markdown += `**Species:** ${validSpecies[entry.speciesId]}\n\n`;
-  }
-  
-  // locations and orgs have parents
-  if ([Topics.Location, Topics.Organization].includes(entry.topic)) {
-    const parentId = setting.getEntryHierarchy(entry.uuid)?.parentId;
-    if (parentId) {
-      markdown += `**Parent:** ${resolveUuidNameSync(parentId)}\n\n`;
-    }
-  }
-
-  // Description
-  if (entry.description.trim()) {
-    markdown += `**Description:**\n\n${cleanText(entry.description, 3)}\n\n`;
-  }
-
-  markdown += exportCustomFields(entry, customFieldDefinitions);
-
-
-  // Relationships
-  markdown += exportRelationships(entry);
-
-  // Linked Foundry Documents - not sure these make sense to export
-  // if (entry.foundryDocuments && entry.foundryDocuments.length > 0) {
-  //   markdown += `### Linked Documents\n\n`;
-  //   for (const docId of entry.foundryDocuments) {
-  //     const docName = resolveFoundryDocumentName(docId);
-  //     markdown += `- ${docName}\n`;
-  //   }
-  //   markdown += '\n';
-  // }
-
-  // Linked Journals - not sure these make sense to export
-  // if (entry.journals && entry.journals.length > 0) {
-  //   markdown += `### Linked Journals\n\n`;
-  //   for (const journal of entry.journals) {
-  //     // RelatedJournal might not have standard properties, so we handle it safely
-  //     const journalName = (journal as any).name || 'Journal Entry';
-  //     markdown += `- ${journalName}\n`;
-  //   }
-  //   markdown += '\n';
-  // }
-
-  return markdown;
-};
-
-/**
- * Exports custom field definitions for an object with them
- */
-const exportCustomFields = (content: FCBJournalEntryPage<any, any>, customFieldDefinitions: CustomFieldDescription[]): string => {
-  let markdown = '';
-
-  // Custom Fields
-  for (const fieldDef of customFieldDefinitions) {  
-    if (!fieldDef.deleted) {
-      let value = content.getCustomField(fieldDef.name);
-
-      if (value == null)
-        continue;
-
-      switch (fieldDef.fieldType) {
-        case FieldType.Boolean:
-          markdown += `**${fieldDef.label}:** ${value ? 'Yes' : 'No'}\n\n`;
-          break;
-        case FieldType.Select:
-        case FieldType.Text:
-          if ((value as string).trim())
-            markdown += `**${fieldDef.label}:** ${(value as string).trim()}\n\n`;
-          break;
-        case FieldType.Editor:
-          if ((value as string).trim())
-            markdown += `**${fieldDef.label}:**\n\n${cleanText((value as string), 4)}\n\n`;
-          break;
-        default:
-          continue;
+      if (rel.note) {
+        md += ` - ${rel.note}`;
       }
+      md += '\n';
     }
+    md += '\n';
   }
-
-  return markdown;
-}
-
-/**
- * Exports relationships for an entry.
- * @param entry - The entry
- * @returns Formatted relationships markdown
- */
-const exportRelationships = (entry: Entry): string => {
-  let relationships = '';
-
-  for (const [topic, topicRelationships] of Object.entries(entry.relationships)) {
-    const relationshipData = Object.values(topicRelationships);
-
-    if (relationshipData.length > 0) {
-      relationships += `#### ${localize(`export.relatedTopics.${topic}`)}\n`;
-      for (const relationship of relationshipData) {
-        relationships += `- ${relationship.name.trim()}`;
-
-        if (relationship.type.trim()) {
-          relationships += ` (${relationship.type?.trim()})`;
-        }
-
-        if (relationship.extraFields?.relationship?.trim()) {
-          relationships += ` - ${cleanText(relationship.extraFields.relationship, 5)}`;
-        }
-
-        relationships += '\n';
-      }
-
-      relationships += '\n';
-    }
-  }
-
-  return relationships;
+  return md;
 };
 
 /**
- * Exports all campaigns with their arcs and sessions.
- * @param setting - The setting object
- * @returns Markdown content for all campaigns
+ * Renders all active campaigns.
+ * @param campaigns - Active campaign nodes.
+ * @returns Markdown fragment.
  */
-const exportCampaigns = async (setting: FCBSetting): Promise<string> => {
-  let markdown = '';
-
-  if (Object.keys(setting.campaigns).length === 0) {
-    return markdown;
+const renderCampaigns = (campaigns: CampaignNode[]): string => {
+  let md = '';
+  for (const campaign of campaigns) {
+    md += renderCampaign(campaign);
   }
-
-  // Get custom field definitions once for all campaigns
-  const customFieldDefinitions = ModuleSettings.get(SettingKey.customFields);
-  const campaignFields = customFieldDefinitions[CustomFieldContentType.Campaign] || [];
-  const frontFields = customFieldDefinitions[CustomFieldContentType.Front] || [];
-  const arcFields = customFieldDefinitions[CustomFieldContentType.Arc] || [];
-  const sessionFields = customFieldDefinitions[CustomFieldContentType.Session] || [];
-
-  for (const campaign of Object.values(setting.campaigns)) {
-    markdown += await exportCampaign(campaign, setting, campaignFields, frontFields, arcFields, sessionFields);
-  }
-
-  return markdown;
+  return md;
 };
 
 /**
- * Exports a single campaign with its fronts, arcs, and sessions.
- * @param campaign - The campaign to export
- * @param setting - The setting object
- * @param customFieldDefinitions - The custom field definitions for campaigns
- * @param frontFieldDefinitions - The custom field definitions for fronts
- * @param arcFieldDefinitions - The custom field definitions for arcs
- * @param sessionFieldDefinitions - The custom field definitions for sessions
- * @returns Markdown content for the campaign
+ * Renders one campaign with its PCs, lore, ideas, todos, fronts, and arcs.
+ * @param campaign - Campaign node.
+ * @returns Markdown fragment.
  */
-const exportCampaign = async (
-  campaign: Campaign,
-  setting: FCBSetting,
-  customFieldDefinitions: CustomFieldDescription[],
-  frontFieldDefinitions: CustomFieldDescription[],
-  arcFieldDefinitions: CustomFieldDescription[],
-  sessionFieldDefinitions: CustomFieldDescription[]
-): Promise<string> => {
-  if (campaign.completed)
-    return '';  
+const renderCampaign = (campaign: CampaignNode): string => {
+  let md = `## Campaign: ${campaign.name}\n`;
 
-  let markdown = `## Campaign: ${campaign.name}\n`;
-
-  // Description
   if (campaign.description) {
-    markdown += `**Description:**\n\n${cleanText(campaign.description, 3)}\n\n`;
+    md += `**Description:**\n\n${campaign.description}\n\n`;
   }
+  md += renderCustomFields(campaign.customFields);
 
-  // Custom fields
-  markdown += exportCustomFields(campaign, customFieldDefinitions);
-
-  // TODO - PCs
-  if (campaign.pcs && campaign.pcs.length > 0) {
-    markdown += `### PCs\n`;
+  if (campaign.pcs.length > 0) {
+    md += `### PCs\n`;
     for (const pc of campaign.pcs) {
-      if (!pc.actorId)
-        continue;
-
-      // lookup the actor and the player name 
-      const entry = await Entry.fromUuid(pc.uuid);
-
-      if (entry) {
-          if (entry.name)
-          markdown += `- ${entry.name} (player name: ${entry.playerName})\n`;
-      }
+      md += `- ${pc.name} (player name: ${pc.player})\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Lore (only undelivered) - table format
-  const undeliveredLore = campaign.lore.filter(lore => !lore.delivered);
-  if (undeliveredLore.length > 0) {
-    markdown += `### Not-yet-delivered Lore\n`;
-    markdown += `| Lore         |\n`;
-    markdown += `|--------------|\n`;
-    for (const lore of undeliveredLore) {
-      const description = cleanText(lore.description, 4);
-      markdown += `| ${description} |\n`;
+  if (campaign.undeliveredLore.length > 0) {
+    md += `### Not-yet-delivered Lore\n`;
+    md += `| Lore         |\n`;
+    md += `|--------------|\n`;
+    for (const lore of campaign.undeliveredLore) {
+      md += `| ${lore.description} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Ideas
-  if (campaign.ideas && campaign.ideas.length > 0) {
-    markdown += `### Ideas\n`;
+  if (campaign.ideas.length > 0) {
+    md += `### Ideas\n`;
     for (const idea of campaign.ideas) {
-      markdown += `- ${cleanText(idea.text, 4)}\n`;
+      md += `- ${idea.description}\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Todo Items (table format)
-  if (ModuleSettings.get(SettingKey.enableToDoList)) {
-    if (campaign.toDoItems && campaign.toDoItems.length > 0) {
-      markdown += `### To-Do Items\n`;
-      markdown += `| Date | Reference | To Do |\n`;
-      markdown += `|------|-----------|-------|\n`;
-      for (const toDo of campaign.toDoItems) {
-        const date = new Date(toDo.lastTouched).toLocaleDateString();
-        const reference = toDo.linkedText || '';
-        const toDoText = cleanText(toDo.text, 4);
-        markdown += `| ${date} | ${reference} | ${toDoText} |\n`;
-      }
-      markdown += '\n';
+  // Todos is null when the feature flag is off; empty array means flag on but no items.
+  if (campaign.todos && campaign.todos.length > 0) {
+    md += `### To-Do Items\n`;
+    md += `| Date | Reference | To Do |\n`;
+    md += `|------|-----------|-------|\n`;
+    for (const t of campaign.todos) {
+      md += `| ${t.date} | ${t.reference} | ${t.text} |\n`;
     }
+    md += '\n';
   }
 
-  // Fronts
-  if (ModuleSettings.get(SettingKey.useFronts)) {
-    const fronts = await campaign.allFronts();
-    if (fronts.length > 0) {
-      for (const front of fronts) {
-        markdown += await exportFront(front, setting, frontFieldDefinitions);
-      }
+  if (campaign.fronts) {
+    for (const front of campaign.fronts) {
+      md += renderFront(front);
     }
   }
 
-  // Arcs
-  const arcs = await Promise.all(
-    campaign.arcIndex.map(arcIndex => Arc.fromUuid(arcIndex.uuid))
-  );
-  const validArcs = arcs.filter(arc => arc !== null) as Arc[];
-
-  if (validArcs.length > 0) {
-    for (const arc of validArcs) {
-      markdown += await exportArc(arc, setting, arcFieldDefinitions, sessionFieldDefinitions);
-    }
+  for (const arc of campaign.arcs) {
+    md += renderArc(arc);
   }
 
-  return markdown;
+  return md;
 };
 
 /**
- * Exports a front with its dangers.
- * @param front - The front to export
- * @param setting - The setting object 
- * @param customFieldDefinitions - The custom field definitions for fronts
- * @returns Markdown content for the front
+ * Renders one front with its dangers.
+ * @param front - Front node.
+ * @returns Markdown fragment.
  */
-const exportFront = async (front: Front, setting: FCBSetting, customFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
-  let markdown = `### Front: ${front.name}\n`;
+const renderFront = (front: FrontNode): string => {
+  let md = `### Front: ${front.name}\n`;
 
-  // Description
   if (front.description) {
-    markdown += `#### Description\n${cleanText(front.description)}\n\n`;
+    md += `#### Description\n${front.description}\n\n`;
+  }
+  md += renderCustomFields(front.customFields);
+
+  for (const danger of front.dangers) {
+    md += renderDanger(danger);
   }
 
-  // Custom fields
-  markdown += exportCustomFields(front, customFieldDefinitions);
-
-  // Dangers
-  if (front.dangers && front.dangers.length > 0) {
-    for (const danger of front.dangers) {
-      markdown += `#### Danger: ${danger.name}\n`;
-      if (danger.description.trim()) {
-        markdown += `${cleanText(danger.description)}\n\n`;
-      }
-      if (danger.impendingDoom.trim()) {
-        markdown += `**Impending Doom:** ${danger.impendingDoom.trim()}\n\n`;
-      }
-      if (danger.motivation.trim()) {
-        markdown += `**Motivation:** ${cleanText(danger.motivation.trim(), 5)}\n\n`;
-      }
-
-      // Participants
-      if (danger.participants && danger.participants.length > 0) {
-        markdown += `**Participants:**\n\n`;
-        for (const participant of danger.participants) {
-          const name = resolveUuidNameSync(participant.uuid);
-          markdown += `- ${name} ${participant.role.trim() ? `(Role: ${cleanText(participant.role, 5)})` : ''}\n`;
-        }
-        markdown += '\n';
-      }
-
-      // Grim Portents (table format)
-      if (danger.grimPortents && danger.grimPortents.length > 0) {
-        markdown += `**Grim Portents:**\n\n`;
-        markdown += `| Complete | Description |\n`;
-        markdown += `|-------------|----------|\n`;
-        for (const portent of danger.grimPortents) {
-          const complete = portent.complete ? '✓' : '';
-          const description = cleanText(portent.description, 5);
-
-          if (!description)
-            continue;
-
-          markdown += `| ${complete} | ${description} |\n`;
-        }
-        markdown += '\n';
-      }
-    }
-  }
-
-  return markdown;
+  return md;
 };
 
 /**
- * Exports an arc with its sessions.
- * @param arc - The arc to export
- * @param setting - The setting object 
- * @param customFieldDefinitions - The custom field definitions for arcs
- * @param sessionFieldDefinitions - The custom field definitions for sessions
- * @returns Markdown content for the arc
+ * Renders one danger (within a front).
+ * @param danger - Danger node.
+ * @returns Markdown fragment.
  */
-const exportArc = async (arc: Arc, setting: FCBSetting, customFieldDefinitions: CustomFieldDescription[], sessionFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
-  let markdown = `### Arc: ${arc.name}\n`;
+const renderDanger = (danger: DangerNode): string => {
+  let md = `#### Danger: ${danger.name}\n`;
 
-  // Description
+  if (danger.description) {
+    md += `${danger.description}\n\n`;
+  }
+  if (danger.impendingDoom) {
+    md += `**Impending Doom:** ${danger.impendingDoom}\n\n`;
+  }
+  if (danger.motivation) {
+    md += `**Motivation:** ${danger.motivation}\n\n`;
+  }
+
+  if (danger.participants.length > 0) {
+    md += `**Participants:**\n\n`;
+    for (const p of danger.participants) {
+      md += `- ${p.name} ${p.role ? `(Role: ${p.role})` : ''}\n`;
+    }
+    md += '\n';
+  }
+
+  if (danger.grimPortents.length > 0) {
+    md += `**Grim Portents:**\n\n`;
+    md += `| Complete | Description |\n`;
+    md += `|-------------|----------|\n`;
+    for (const portent of danger.grimPortents) {
+      md += `| ${portent.complete ? '✓' : ''} | ${portent.description} |\n`;
+    }
+    md += '\n';
+  }
+
+  return md;
+};
+
+/**
+ * Renders one arc with its sub-tables and sessions.
+ * @param arc - Arc node.
+ * @returns Markdown fragment.
+ */
+const renderArc = (arc: ArcNode): string => {
+  let md = `### Arc: ${arc.name}\n`;
+
   if (arc.description) {
-    markdown += `**Description:**\n\n${cleanText(arc.description, 5)}\n\n`;
+    md += `**Description:**\n\n${arc.description}\n\n`;
   }
+  md += renderCustomFields(arc.customFields);
 
-  // Custom fields
-  markdown += exportCustomFields(arc, customFieldDefinitions);
-
-  // Vignettes (table format)
-  if (arc.vignettes && arc.vignettes.length > 0) {
-    markdown += `#### Vignettes\n`;
-    markdown += `| Description |\n`;
-    markdown += `|-------------|\n`;
-    for (const vignette of arc.vignettes) {
-      const description = cleanText(vignette.description, 5);
-
-      if (!description)
-        continue;
-
-      markdown += `| ${description} |\n`;
+  if (arc.vignettes.length > 0) {
+    md += `#### Vignettes\n`;
+    md += `| Description |\n`;
+    md += `|-------------|\n`;
+    for (const v of arc.vignettes) {
+      md += `| ${v.description} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Locations (table format with name, type, parent, notes)
-  if (arc.locations && arc.locations.length > 0) {
-    markdown += `#### Locations\n`;
-    markdown += `| Name | Type | Parent | Notes |\n`;
-    markdown += `|------|------|--------|-------|\n`;
-    for (const location of arc.locations) {
-      const entry = await Entry.fromUuid(location.uuid);
-      if (entry) {
-        const name = entry.name;
-        const type = entry.type || '';
-        const hierarchy = setting?.getEntryHierarchy(entry.uuid);
-        const parentName = hierarchy?.parentId ? resolveUuidNameSync(hierarchy.parentId) : '';
-        const notes = cleanText(location.notes, 5);
-        markdown += `| ${name} | ${type} | ${parentName} | ${notes} |\n`;
-      }
+  if (arc.locations.length > 0) {
+    md += `#### Locations\n`;
+    md += `| Name | Type | Parent | Notes |\n`;
+    md += `|------|------|--------|-------|\n`;
+    for (const loc of arc.locations) {
+      md += `| ${loc.name} | ${loc.type} | ${loc.parent} | ${loc.notes} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Participants (table format with name, type, notes)
-  if (arc.participants && arc.participants.length > 0) {
-    markdown += `#### Participants\n`;
-    markdown += `| Name | Type | Notes |\n`;
-    markdown += `|------|------|-------|\n`;
-    for (const participant of arc.participants) {
-      const entry = await Entry.fromUuid(participant.uuid);
-      if (entry) {
-        const name = entry.name;
-        const type = entry.type || '';
-        const notes = cleanText(participant.notes, 5);
-        markdown += `| ${name} | ${type} | ${notes} |\n`;
-      }
+  if (arc.participants.length > 0) {
+    md += `#### Participants\n`;
+    md += `| Name | Type | Notes |\n`;
+    md += `|------|------|-------|\n`;
+    for (const p of arc.participants) {
+      md += `| ${p.name} | ${p.type} | ${p.notes} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Monsters (table format)
-  if (arc.monsters && arc.monsters.length > 0) {
-    markdown += `#### Monsters\n`;
-    markdown += `| Name | Notes |\n`;
-    markdown += `|------|-------|\n`;
-    for (const monster of arc.monsters) {
-      const docName = resolveFoundryDocumentName(monster.uuid, true);
-      if (docName) {
-        const notes = cleanText(monster.notes, 5);
-        markdown += `| ${docName} | ${notes} |\n`;
-      }
+  if (arc.monsters.length > 0) {
+    md += `#### Monsters\n`;
+    md += `| Name | Notes |\n`;
+    md += `|------|-------|\n`;
+    for (const m of arc.monsters) {
+      md += `| ${m.name} | ${m.notes} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Magic items (table format)
-  if (arc.items && arc.items.length > 0) {
-    markdown += `#### Magic Items\n`;
-    markdown += `| Name | Notes |\n`;
-    markdown += `|------|-------|\n`;
-    for (const item of arc.items) {
-      const docName = resolveFoundryDocumentName(item.uuid, true);
-      if (docName) {
-        const notes = cleanText(item.notes, 5);
-        markdown += `| ${docName} | ${notes} |\n`;
-      }
+  if (arc.magicItems.length > 0) {
+    md += `#### Magic Items\n`;
+    md += `| Name | Notes |\n`;
+    md += `|------|-------|\n`;
+    for (const it of arc.magicItems) {
+      md += `| ${it.name} | ${it.notes} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Lore (table format)
-  if (arc.lore && arc.lore.length > 0) {
-    markdown += `#### Lore\n`;
-    markdown += `| Description |\n`;
-    markdown += `|-------------|\n`;
-    for (const lore of arc.lore) {
-      const description = cleanText(lore.description, 5);
-
-      if (!description)
-        continue;
-
-      markdown += `| ${description} |\n`;
+  if (arc.lore.length > 0) {
+    md += `#### Lore\n`;
+    md += `| Description |\n`;
+    md += `|-------------|\n`;
+    for (const l of arc.lore) {
+      md += `| ${l.description} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Ideas (table format)
-  if (arc.ideas && arc.ideas.length > 0) {
-    markdown += `#### Ideas\n`;
-
-    markdown += `| Description |\n`;
-    markdown += `|-------------|\n`;
-    for (const idea of arc.ideas) {
-      const description = cleanText(idea.text, 5);
-
-      if (!description)
-        continue;
-
-      markdown += `| ${description} |\n`;
+  if (arc.ideas.length > 0) {
+    md += `#### Ideas\n`;
+    md += `| Description |\n`;
+    md += `|-------------|\n`;
+    for (const i of arc.ideas) {
+      md += `| ${i.description} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Sessions
-  const campaign = await arc.loadCampaign();
-  const sessions = await campaign.filterSessions(s =>
-    s.number >= arc.startSessionNumber && s.number <= arc.endSessionNumber
-  );
-
-  if (sessions.length > 0) {
-    for (const session of sessions) {
-      markdown += await exportSession(session, setting, sessionFieldDefinitions);
-    }
+  for (const session of arc.sessions) {
+    md += renderSession(session);
   }
 
-  return markdown;
+  return md;
 };
 
 /**
- * Exports a session with all its content.
- * @param session - The session to export
- * @param setting - The setting object 
- * @param customFieldDefinitions - The custom field definitions for sessions
- * @returns Markdown content for the session
+ * Renders one session with all its tabular sub-blocks.
+ * @param session - Session node.
+ * @returns Markdown fragment.
  */
-const exportSession = async (session: Session, setting: FCBSetting, customFieldDefinitions: CustomFieldDescription[]): Promise<string> => {
-  let markdown = `#### Session: ${session.name}\n`;
+const renderSession = (session: SessionNode): string => {
+  let md = `#### Session: ${session.name}\n`;
 
-  // Session number and date
-  markdown += `**Session Number:** ${session.number}\n\n`;
+  md += `**Session Number:** ${session.number}\n\n`;
   if (session.date) {
-    markdown += `**Session Date:** ${session.date.toLocaleDateString()}\n\n`;
+    md += `**Session Date:** ${session.date}\n\n`;
   }
-
-  // Description
-  if (session.description) {
-    markdown += `**Notes:**\n\n${cleanText(session.description, 5)}\n\n`;
+  if (session.notes) {
+    md += `**Notes:**\n\n${session.notes}\n\n`;
   }
+  md += renderCustomFields(session.customFields);
 
-  // Custom fields
-  markdown += exportCustomFields(session, customFieldDefinitions);
-
-  // Tags - I think these may not make sense to export?
-  // if (session.tags && session.tags.length > 0) {
-  //   markdown += `**Tags:** ${session.tags.join(', ')}\n\n`;
-  // }
-
-  // Lore (table format)
-  if (session.lore && session.lore.length > 0) {
-    markdown += `#### Lore\n`;
-    markdown += `| Used | Significant | Description |\n`;
-    markdown += `|------|-------------|-------------|\n`;
-    for (const lore of session.lore) {
-      const description = cleanText(lore.description, 5);
-      const significant = lore.significant ? '✓' : '';
-      const delivered = lore.delivered ? '✓' : '';
-
-      if (!description)
-        continue;
-
-      markdown += `| ${delivered} | ${significant} | ${description} |\n`;
+  if (session.lore.length > 0) {
+    md += `#### Lore\n`;
+    md += `| Used | Significant | Description |\n`;
+    md += `|------|-------------|-------------|\n`;
+    for (const l of session.lore) {
+      md += `| ${l.used ? '✓' : ''} | ${l.significant ? '✓' : ''} | ${l.description} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Vignettes
-  if (session.vignettes && session.vignettes.length > 0) {
-    markdown += `#### Vignettes\n`;
-    markdown += `| Used | Description |\n`;
-    markdown += `|------|-------------|\n`;
-    for (const vignette of session.vignettes) {
-      const description = cleanText(vignette.description, 5);
-      const delivered = vignette.delivered ? '✓' : '';
-
-      if (!description)
-        continue;
-
-      markdown += `| ${delivered} | ${description} |\n`;
+  if (session.vignettes.length > 0) {
+    md += `#### Vignettes\n`;
+    md += `| Used | Description |\n`;
+    md += `|------|-------------|\n`;
+    for (const v of session.vignettes) {
+      md += `| ${v.used ? '✓' : ''} | ${v.description} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Locations
-  if (session.locations && session.locations.length > 0) {
-    markdown += `#### Locations\n`;
-
-    markdown += `| Used | Name | Type | Parent | Notes |\n`;
-    markdown += `|------|------|------|--------|-------|\n`;
-    for (const location of session.locations) {
-      const entry = await Entry.fromUuid(location.uuid);
-      if (entry && entry.uuid) {
-        const name = entry.name;
-        const type = entry.type || '';
-        const delivered = location.delivered ? '✓' : '';
-        const notes = cleanText(location.notes, 5);
-        const parentName = setting?.getEntryHierarchy(entry.uuid)?.parentId ? resolveUuidNameSync(setting.getEntryHierarchy(entry.uuid)!.parentId || '') : '';
-        markdown += `| ${delivered} | ${name} | ${type} | ${parentName} | ${notes} |\n`;
-      }
+  if (session.locations.length > 0) {
+    md += `#### Locations\n`;
+    md += `| Used | Name | Type | Parent | Notes |\n`;
+    md += `|------|------|------|--------|-------|\n`;
+    for (const loc of session.locations) {
+      md += `| ${loc.used ? '✓' : ''} | ${loc.name} | ${loc.type} | ${loc.parent} | ${loc.notes} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // NPCs (table format)
-  // TODO - get tid of all the checks, etc.
-   if (session.npcs && session.npcs.length > 0) {
-    markdown += `#### NPCs\n`;
-    markdown += `| Used | Name | Type | Notes |\n`;
-    markdown += `|------|------|------|-------|\n`;
+  if (session.npcs.length > 0) {
+    md += `#### NPCs\n`;
+    md += `| Used | Name | Type | Notes |\n`;
+    md += `|------|------|------|-------|\n`;
     for (const npc of session.npcs) {
-      const entry = await Entry.fromUuid(npc.uuid);
-      if (entry) {
-        const name = entry.name;
-        const type = entry.type || '';
-        const delivered = npc.delivered ? '✓' : '';
-        const notes = cleanText(npc.notes, 5);
-        markdown += `| ${delivered} | ${name} | ${type} | ${notes} |\n`;
-      }
+      md += `| ${npc.used ? '✓' : ''} | ${npc.name} | ${npc.type} | ${npc.notes} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Monsters (table format)
-  if (session.monsters && session.monsters.length > 0) {
-    markdown += `#### Monsters\n`;
-    markdown += `| Used | Name | Number | Notes |\n`;
-    markdown += `|------|------|--------|-------|\n`;
-    for (const monster of session.monsters) {
-      const docName = resolveFoundryDocumentName(monster.uuid, true);
-      if (docName) {
-        const delivered = monster.delivered ? '✓' : '';
-        const notes = cleanText(monster.notes, 5);
-        markdown += `| ${delivered} | ${docName} | ${monster.number} | ${notes} |\n`;
-      }
+  if (session.monsters.length > 0) {
+    md += `#### Monsters\n`;
+    md += `| Used | Name | Number | Notes |\n`;
+    md += `|------|------|--------|-------|\n`;
+    for (const m of session.monsters) {
+      md += `| ${m.used ? '✓' : ''} | ${m.name} | ${m.number} | ${m.notes} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  // Items
-  if (session.items && session.items.length > 0) {
-    markdown += `#### Items\n`;
-    markdown += `| Used | Name | Notes |\n`;
-    markdown += `|------|------|-------|\n`;
-    for (const item of session.items) {
-      const docName = resolveFoundryDocumentName(item.uuid, true);
-      if (docName) {
-        const delivered = item.delivered ? '✓' : '';
-        const notes = cleanText(item.notes, 5);
-        markdown += `| ${delivered} | ${docName} | ${notes} |\n`;
-      }
+  if (session.items.length > 0) {
+    md += `#### Items\n`;
+    md += `| Used | Name | Notes |\n`;
+    md += `|------|------|-------|\n`;
+    for (const it of session.items) {
+      md += `| ${it.used ? '✓' : ''} | ${it.name} | ${it.notes} |\n`;
     }
-    markdown += '\n';
+    md += '\n';
   }
 
-  return markdown;
+  return md;
 };
 
 /**
- * Generates a PNG blob from a story web.
- * @param storyWeb - The story web to export
- * @returns Promise<Blob> - The PNG blob
+ * Renders the "Referenced Journal Entries" section listing every external Foundry journal.
+ * @param journals - Journal nodes (already sorted by UUID in the tree).
+ * @returns Markdown fragment.
+ */
+const renderReferencedJournals = (journals: JournalNode[]): string => {
+  if (journals.length === 0) {
+    return '';
+  }
+
+  let md = `## Referenced Journal Entries\n\n`;
+  md += `*The following journal entries are referenced in the setting content.*\n\n`;
+
+  for (const j of journals) {
+    if (!j.found) {
+      md += `### [Journal not found: ${j.uuid}]\n\n`;
+      continue;
+    }
+    md += `### ${j.name}\n\n`;
+    if (j.pages.length === 0) {
+      md += `*[No pages]*\n\n`;
+      continue;
+    }
+    for (const page of j.pages) {
+      md += renderJournalPage(page);
+    }
+  }
+
+  return md;
+};
+
+/**
+ * Renders one journal page, dispatching on page type.
+ * @param page - Journal page node.
+ * @returns Markdown fragment.
+ */
+const renderJournalPage = (page: JournalPageNode): string => {
+  let md = `#### ${page.name}\n\n`;
+
+  switch (page.type) {
+    case 'text':
+      if (page.text) {
+        md += `${page.text}\n\n`;
+      }
+      return md;
+    case 'image':
+      md += `*[Image page]*\n`;
+      if (page.src) {
+        md += `**Source:** ${page.src}\n\n`;
+      }
+      if (page.caption) {
+        md += `**Caption:** ${page.caption}\n\n`;
+      }
+      return md;
+    case 'pdf':
+      md += `*[PDF page]*\n`;
+      if (page.src) {
+        md += `**Source:** ${page.src}\n\n`;
+      }
+      return md;
+    case 'video':
+      md += `*[Video page]*\n`;
+      if (page.src) {
+        md += `**Source:** ${page.src}\n\n`;
+      }
+      if (page.videoSettings.length > 0) {
+        md += `**Settings:** ${page.videoSettings.join(', ')}\n\n`;
+      }
+      return md;
+    default:
+      md += `*[${page.type} page]*\n\n`;
+      return md;
+  }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Story web PNG generation + zip assembly (unchanged from prior implementation)
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Generates a PNG blob rendering of a story web. Consumed externally by storyWebGeneration.ts.
+ * @param storyWeb - The story web to render.
+ * @returns PNG blob.
  */
 const generateStoryWebPng = async (storyWeb: any): Promise<Blob> => {
   // Generate network data
   const { nodes, edges } = await storyWeb.generateNetworkData(true);
 
-  // Create off-screen container
-  // I've been unable to get the container to size dynamically; it should only be an issue for very large webs, though, since it will fit and then you can zoom in
+  // Create off-screen container.
+  // I've been unable to get the container to size dynamically; it should only be an issue for very
+  // large webs, though, since it will fit and then you can zoom in.
   const container = document.createElement('div');
   container.style.position = 'absolute';
   container.style.left = '-9999px';
@@ -810,10 +658,9 @@ const generateStoryWebPng = async (storyWeb: any): Promise<Blob> => {
   container.style.backgroundColor = 'white';
   document.body.appendChild(container);
 
-  // Import vis-network dynamically
+  // Import vis-network dynamically.
   const { Network } = await import('vis-network');
 
-  // Create network
   const network = new Network(container, { nodes, edges }, {
     physics: false,
     interaction: {
@@ -822,43 +669,36 @@ const generateStoryWebPng = async (storyWeb: any): Promise<Blob> => {
     }
   });
 
-  // Wait for network to be ready and rendered
+  // Since physics is disabled the network should be ready immediately, but wait a beat for rendering.
   await new Promise<void>((resolve) => {
-    // Since physics is disabled, the network should be ready immediately
-    // But we'll wait a bit for rendering
     setTimeout(resolve, 1000);
   });
 
-  // Get the network canvas directly from vis-network
-  const networkCanvas = (network as any).canvas?.frame?.canvas || 
-                        container.querySelector('canvas') as HTMLCanvasElement;
-  
+  const networkCanvas = (network as any).canvas?.frame?.canvas ||
+    (container.querySelector('canvas') as HTMLCanvasElement);
+
   if (!networkCanvas) {
     document.body.removeChild(container);
     network.destroy();
     throw new Error('Could not find network canvas for story web export');
   }
 
-  // Create canvas with the same dimensions as the network canvas
+  // Create a canvas matching the network canvas dimensions.
   const canvas = document.createElement('canvas');
   canvas.width = networkCanvas.width || 2000;
   canvas.height = networkCanvas.height || 1500;
   const ctx = canvas.getContext('2d');
-  
+
   if (!ctx) {
     document.body.removeChild(container);
     network.destroy();
     throw new Error('Could not get canvas context for story web export');
   }
 
-  // Draw white background
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Draw the network canvas to our canvas
   ctx.drawImage(networkCanvas, 0, 0);
 
-  // Get canvas data as PNG
   const pngData = await new Promise<Blob>((resolve) => {
     canvas.toBlob(blob => {
       if (blob) {
@@ -869,7 +709,6 @@ const generateStoryWebPng = async (storyWeb: any): Promise<Blob> => {
     }, 'image/png');
   });
 
-  // Clean up
   document.body.removeChild(container);
   network.destroy();
 
@@ -877,13 +716,14 @@ const generateStoryWebPng = async (storyWeb: any): Promise<Blob> => {
 };
 
 /**
- * Exports all story webs in a setting as PNG images.
- * @param setting - The setting object
- * @returns Array of objects containing story web name and PNG data
+ * Exports every story web in a setting as a PNG image.
+ * @param setting - The setting to render story webs for.
+ * @returns Array of { name, data } tuples.
  */
 const exportStoryWebs = async (setting: FCBSetting): Promise<Array<{ name: string; data: Blob }>> => {
-  if (!ModuleSettings.get(SettingKey.useStoryWebs))
+  if (!ModuleSettings.get(SettingKey.useStoryWebs)) {
     return [];
+  }
 
   const storyWebImages: Array<{ name: string; data: Blob }> = [];
   console.log('Starting story web export for setting:', setting.name);
@@ -891,17 +731,14 @@ const exportStoryWebs = async (setting: FCBSetting): Promise<Array<{ name: strin
   for (const campaign of Object.values(setting.campaigns)) {
     const storyWebs = await campaign.allStoryWebs();
     console.log(`Found ${storyWebs.length} story webs in campaign: ${campaign.name}`);
-    
+
     for (const storyWeb of storyWebs) {
       try {
         console.log(`Exporting story web: ${storyWeb.name}`);
-        
-        // Use the shared PNG generation function
+
         const pngData = await generateStoryWebPng(storyWeb);
-        
-        // Only add if we got valid data
+
         if (pngData.size > 0) {
-          // Get the campaign name for the filename
           const campaignName = campaign?.name || 'Unknown Campaign';
           const fileName = `${campaignName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${storyWeb.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
           storyWebImages.push({ name: fileName, data: pngData });
@@ -920,10 +757,11 @@ const exportStoryWebs = async (setting: FCBSetting): Promise<Array<{ name: strin
 };
 
 /**
- * Creates and downloads a zip file containing the markdown and images.
- * @param setting - The setting object
- * @param markdownContent - The markdown content
- * @param storyWebImages - Array of story web images
+ * Builds a zip archive containing the markdown file and story web PNGs, and triggers a download.
+ * Falls back to downloading files individually if zip creation fails.
+ * @param setting - Source setting (used for the archive filename).
+ * @param markdownContent - Markdown content to include as the main file.
+ * @param storyWebImages - Story web PNG blobs to include.
  */
 const createAndDownloadZip = async (
   setting: FCBSetting,
@@ -931,18 +769,15 @@ const createAndDownloadZip = async (
   storyWebImages: Array<{ name: string; data: Blob }>
 ): Promise<void> => {
   try {
-    // Create ZIP data directly
     const encoder = new TextEncoder();
     const files: Array<{ name: string; content: Uint8Array }> = [];
-    
-    // Add markdown file
+
     const markdownFileName = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
     files.push({
       name: markdownFileName,
       content: encoder.encode(markdownContent)
     });
-    
-    // Add image files
+
     for (const image of storyWebImages) {
       const arrayBuffer = await image.data.arrayBuffer();
       files.push({
@@ -950,384 +785,45 @@ const createAndDownloadZip = async (
         content: new Uint8Array(arrayBuffer)
       });
     }
-    
-    // Create ZIP file
+
     const zipData = await ZipFileService.createZipData(files);
-    
-    // Download the ZIP file
+
     const filename = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.zip`;
     downloadFile(zipData, filename, 'application/zip');
-    
+
   } catch (error) {
     console.error('Error creating zip file:', error);
-    // Fallback - download files separately
+    // Fallback: download files separately.
     await downloadFilesSeparately(setting, markdownContent, storyWebImages);
   }
 };
 
 /**
- * Downloads files individually when ZIP creation is not available.
- * @param setting - The setting object
- * @param markdownContent - The markdown content
- * @param storyWebImages - Array of story web images
+ * Fallback path used when zip creation fails: downloads the markdown file and each image separately.
+ * @param setting - Source setting.
+ * @param markdownContent - Markdown content to download.
+ * @param storyWebImages - Story web PNG blobs to download individually.
  */
 const downloadFilesSeparately = async (
   setting: FCBSetting,
   markdownContent: string,
   storyWebImages: Array<{ name: string; data: Blob }>
 ): Promise<void> => {
-  // Download markdown file
   const markdownFilename = `${setting.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
   downloadFile(markdownContent, markdownFilename, 'text/markdown');
 
-  // Download images with a small delay between each
   for (let i = 0; i < storyWebImages.length; i++) {
     const image = storyWebImages[i];
+    // Stagger downloads slightly to avoid popup-blocker heuristics.
     setTimeout(() => {
       downloadBlob(image.data, image.name);
-    }, i * 100); // 100ms delay between downloads
+    }, i * 100);
   }
 };
 
-/**
- * Resolves a Foundry document UUID to a readable name.
- * @param uuid - The UUID to resolve
- * @basic = If true, just return the name of the document 
- * @returns The formatted name
- */
-const resolveFoundryDocumentName = (uuid: string, basic: boolean = false): string => {
-  try {
-    const parsed = foundry.utils.parseUuid(uuid);
-    if (!parsed) return uuid;
-
-    const collection = parsed.collection as any;
-    const id = parsed.id as string;
-
-    // Try to get the document name
-    if (collection.index) {
-      const indexEntry = collection.index.get(id);
-      if (indexEntry?.name) {
-        // Determine document type from collection name
-        const docType = collection.metadata?.name || 'Document';
-        return basic ? indexEntry.name : `[Foundry ${docType} - ${indexEntry.name}]`;
-      }
-    }
-
-    if (typeof collection.get === 'function') {
-      const doc = collection.get(id);
-      if (doc?.name) {
-        const docType = doc.documentName || 'Document';
-        return basic ? doc.name : `[Foundry ${docType} - ${doc.name}]`;
-      }
-    }
-
-    return `[Foundry Document - ${uuid}]`;
-  } catch {
-    return `[Foundry Document - ${uuid}]`;
-  }
-};
-
-/**
- * Cleans text content by removing UUID references and HTML.  Also trims.
- * @param text - The text to clean
- * @param topHeaderLevel - The header level to use for the top-level heading
- * @returns The cleaned text
- */
-const cleanText = (text: string, topHeaderLevel: number = 1): string => {
-  // Clean UUID references first (before DOM parsing, so names appear in markdown)
-  let cleaned = cleanUuidReferencesInText(text);
-
-  // Convert HTML to markdown
-  cleaned = htmlToMarkdown(cleaned, topHeaderLevel).trim();
-
-  return cleaned;
-};
-
-/**
- * Collects all non-FCB JournalEntry/JournalEntryPage UUIDs referenced in the setting.
- * Uses the scanner utility to traverse all text content and extracts UUIDs.
- * @param setting - The setting to scan
- * @returns Map of journal UUID to set of referenced page UUIDs (empty set = whole journal referenced)
- */
-const collectReferencedJournalUuids = async (setting: FCBSetting): Promise<Map<string, Set<string>>> => {
-  const journalMap = new Map<string, Set<string>>();
-
-  // Callback to process each text field
-  const processText = (text: string, _context: ScanContext): void => {
-    if (!text) return;
-
-    // Extract all UUIDs from the text
-    const uuids = extractUUIDs(text);
-
-    for (const uuid of uuids) {
-      // Skip FCB UUIDs - those are already exported
-      if (isFCBUuid(uuid)) continue;
-
-      // Parse the UUID to determine document type
-      const parsed = foundry.utils.parseUuid(uuid);
-      if (!parsed) continue;
-
-      const docType = parsed.type as string;
-
-      // Only process JournalEntry and JournalEntryPage references
-      if (docType === 'JournalEntry') {
-        // Whole journal referenced - set to empty set (meaning all pages)
-        // This overrides any existing page-specific references
-        journalMap.set(uuid, new Set());
-      }
-      else if (docType === 'JournalEntryPage') {
-        // Single page referenced - need to get parent journal UUID
-        // UUID format: JournalEntry.xxx.JournalEntryPage.yyy or Compendium.xxx.JournalEntry.xxx.JournalEntryPage.yyy
-        const parts = uuid.split('.');
-        const pageIdIndex = parts.lastIndexOf('JournalEntryPage');
-        if (pageIdIndex > 0) {
-          // Reconstruct parent journal UUID
-          // For world: JournalEntry.xxx.JournalEntryPage.yyy -> JournalEntry.xxx
-          // For compendium: Compendium.xxx.JournalEntry.yyy.JournalEntryPage.zzz -> Compendium.xxx.JournalEntry.yyy
-          let journalUuid: string;
-          if (parts[0] === 'Compendium') {
-            // Compendium format: Compendium.xxx.JournalEntry.yyy.JournalEntryPage.zzz
-            const journalIdIndex = parts.lastIndexOf('JournalEntry');
-            if (journalIdIndex > 0 && journalIdIndex < pageIdIndex) {
-              journalUuid = parts.slice(0, journalIdIndex + 2).join('.');
-            }
-            else {
-              continue;
-            }
-          }
-          else {
-            // World format: JournalEntry.xxx.JournalEntryPage.yyy
-            journalUuid = parts.slice(0, 2).join('.');
-          }
-
-          // Only add specific page if we're not already exporting all pages
-          // (empty set means all pages, non-empty means specific pages)
-          if (!journalMap.has(journalUuid)) {
-            journalMap.set(journalUuid, new Set([uuid]));
-          }
-          else {
-            const existingPages = journalMap.get(journalUuid)!;
-            // Only add if set is non-empty (i.e., tracking specific pages, not all)
-            if (existingPages.size > 0) {
-              existingPages.add(uuid);
-            }
-          }
-        }
-      }
-    }
-  };
-
-  // Scan all text content in the setting
-  await SettingScannerService.scanSettingContent(setting, processText);
-
-  // Also scan journals arrays (RelatedJournal objects) directly
-  await collectJournalUuidsFromArrays(setting, journalMap);
-
-  return journalMap;
-};
-
-/**
- * Collects Journal UUIDs from journals arrays on content objects.
- * These are explicit journal links stored separately from text content.
- */
-const collectJournalUuidsFromArrays = async (
-  setting: FCBSetting,
-  journalMap: Map<string, Set<string>>
-): Promise<void> => {
-  // Process journals from entries
-  const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC];
-  for (const topic of topics) {
-    const entries = await setting.topicFolders[topic].allEntries();
-    for (const entry of entries) {
-      processRelatedJournals(entry.journals, journalMap);
-    }
-  }
-
-  // Process journals from campaigns
-  for (const campaign of Object.values(setting.campaigns)) {
-    if (!campaign) continue;
-
-    processRelatedJournals(campaign.journals, journalMap);
-
-    // Process sessions
-    const sessions = await campaign.allSessions();
-    for (const session of sessions) {
-      // Sessions don't have journals arrays, but arcs do
-    }
-
-    // Process arcs
-    for (const arcIndex of campaign.arcIndex) {
-      const arc = await Arc.fromUuid(arcIndex.uuid);
-      if (arc) {
-        processRelatedJournals(arc.journals, journalMap);
-      }
-    }
-  }
-};
-
-/**
- * Processes an array of RelatedJournal objects and adds to the journal map.
- */
-const processRelatedJournals = (
-  journals: RelatedJournal[],
-  journalMap: Map<string, Set<string>>
-): void => {
-  for (const journal of journals) {
-    if (!journal.journalUuid) continue;
-
-    // Skip FCB UUIDs
-    if (isFCBUuid(journal.journalUuid)) continue;
-
-    // If there's a specific page, add it (unless we're already exporting all pages)
-    if (journal.pageUuid && !isFCBUuid(journal.pageUuid)) {
-      if (!journalMap.has(journal.journalUuid)) {
-        journalMap.set(journal.journalUuid, new Set([journal.pageUuid]));
-      }
-      else {
-        const existingPages = journalMap.get(journal.journalUuid)!;
-        // Only add if set is non-empty (i.e., tracking specific pages, not all)
-        if (existingPages.size > 0) {
-          existingPages.add(journal.pageUuid);
-        }
-      }
-    }
-    else {
-      // No specific page - whole journal referenced (empty set = all pages)
-      // This overrides any existing page-specific references
-      journalMap.set(journal.journalUuid, new Set());
-    }
-  }
-};
-
-/**
- * Exports a single JournalEntryPage to markdown.
- * @param page - The page to export
- * @returns Markdown content for the page
- */
-const exportJournalPage = (page: JournalEntryPage): string => {
-  let markdown = `#### ${page.name}\n\n`;
-
-  switch (page.type) {
-    case 'text':
-      if (page.text.content) {
-        markdown += cleanText(page.text.content, 5) + '\n\n';
-      }
-      break;
-
-    case 'image':
-      markdown += `*[Image page]*\n`;
-      if (page.src) {
-        markdown += `**Source:** ${page.src}\n\n`;
-      }
-      if (page.image.caption) {
-        markdown += `**Caption:** ${page.image.caption}\n\n`;
-      }
-      break;
-
-    case 'pdf':
-      markdown += `*[PDF page]*\n`;
-      if (page.src) {
-        markdown += `**Source:** ${page.src}\n\n`;
-      }
-      break;
-
-    case 'video':
-      markdown += `*[Video page]*\n`;
-      if (page.src) {
-        markdown += `**Source:** ${page.src}\n\n`;
-      }
-      // Include video-specific settings
-      if (page.video.controls !== undefined || page.video.autoplay !== undefined) {
-        const settings: string[] = [];
-        if (page.video.autoplay) settings.push('autoplay');
-        if (page.video.loop) settings.push('loop');
-        if (page.video.controls) settings.push('controls');
-        if (settings.length > 0) {
-          markdown += `**Settings:** ${settings.join(', ')}\n\n`;
-        }
-      }
-      break;
-
-    default:
-      markdown += `*[${page.type} page]*\n\n`;
-  }
-
-  return markdown;
-};
-
-/**
- * Exports a JournalEntry with all its pages to markdown.
- * @param journal - The journal entry to export
- * @param specificPageUuids - Optional set of specific page UUIDs to export (if empty, export all)
- * @returns Markdown content for the journal
- */
-const exportJournalEntry = (
-  journal: JournalEntry,
-  specificPageUuids: Set<string> | null
-): string => {
-  let markdown = `### ${journal.name}\n\n`;
-
-  // If specific pages were referenced, only export those
-  // Otherwise, export all pages
-  const pagesToExport = specificPageUuids && specificPageUuids.size > 0
-    ? journal.pages.contents.filter(p => specificPageUuids.has(p.uuid))
-    : journal.pages.contents;
-
-  if (pagesToExport.length === 0) {
-    markdown += `*[No pages]*\n\n`;
-    return markdown;
-  }
-
-  for (const page of pagesToExport) {
-    markdown += exportJournalPage(page);
-  }
-
-  return markdown;
-};
-
-/**
- * Generates the "Referenced Journal Entries" section for the export.
- * @param setting - The setting being exported
- * @returns Markdown content for the referenced journals section
- */
-const exportReferencedJournals = async (setting: FCBSetting): Promise<string> => {
-  // Collect all referenced journal UUIDs
-  const journalMap = await collectReferencedJournalUuids(setting);
-
-  if (journalMap.size === 0) {
-    return '';
-  }
-
-  let markdown = `## Referenced Journal Entries\n\n`;
-  markdown += `*The following journal entries are referenced in the setting content.*\n\n`;
-
-  // Sort journals by name for consistent output
-  const sortedEntries = Array.from(journalMap.entries()).sort((a, b) => {
-    // We'll sort by UUID for now, names will be added when we load
-    return a[0].localeCompare(b[0]);
-  });
-
-  for (const [journalUuid, pageUuids] of sortedEntries) {
-    try {
-      // Load the journal entry
-      const journal = await foundry.utils.fromUuid<JournalEntry>(journalUuid);
-
-      if (!journal) {
-        markdown += `### [Journal not found: ${journalUuid}]\n\n`;
-        continue;
-      }
-
-      // Export the journal (with specific pages if referenced)
-      markdown += exportJournalEntry(journal, pageUuids.size > 0 ? pageUuids : null);
-    }
-    catch (error) {
-      console.error(`Error exporting journal ${journalUuid}:`, error);
-      markdown += `### [Error loading journal: ${journalUuid}]\n\n`;
-    }
-  }
-
-  return markdown;
-};
+////////////////////////////////////////////////////////////////////////////////
+// Service export
+////////////////////////////////////////////////////////////////////////////////
 
 const SettingExportService = {
   exportSetting,
