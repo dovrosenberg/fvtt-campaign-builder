@@ -1087,7 +1087,8 @@
       "settingFolder": {
         "delete": "Удалить настройку",
         "createCampaign": "Создать кампанию",
-        "exportJson": "Экспортировать как JSON"
+        "exportJson": "Экспортировать как JSON",
+        "exportToon": "Экспортировать как TOON (для использования LLM)"
       },
       "campaignsHeader": {
         "createCampaign": "Создать кампанию"

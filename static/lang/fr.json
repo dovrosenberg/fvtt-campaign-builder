@@ -1098,7 +1098,8 @@
       "settingFolder": {
         "delete": "Supprimer le paramètre",
         "createCampaign": "Créer une campagne",
-        "exportJson": "Exporter en JSON"
+        "exportJson": "Exporter en JSON",
+        "exportToon": "Exporter en TOON (pour utilisation LLM)"
       },
       "arcFolder": {
         "createSession": "Créer une session",
