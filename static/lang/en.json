@@ -1089,7 +1089,8 @@
       "settingFolder": {
         "delete": "Delete Setting",
         "createCampaign": "Create campaign",
-        "exportJson": "Export as JSON"
+        "exportJson": "Export as JSON",
+        "exportToon": "Export as TOON (for LLM use)"
       },
       "campaignsHeader": {
         "createCampaign":"Create campaign"
