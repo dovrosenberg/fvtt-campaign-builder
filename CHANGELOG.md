@@ -7,6 +7,13 @@
 **Discord**: Join the [Discord Server](https://discord.gg/zKWCkwbnn3) for discussion, questions, or requests
 
 # Change Log
+## 1.10.4 - Popout
+![](https://img.shields.io/badge/release%20date-June%207%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.4/module.zip)
+
+- Added support for native window popout in v14
+- New module setting to let you always have the window popped out by default
+
 ## 1.10.3 - Bug fixes
 ![](https://img.shields.io/badge/release%20date-April%2021%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.3/module.zip)

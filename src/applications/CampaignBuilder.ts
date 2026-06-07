@@ -44,13 +44,22 @@ export const renderCampaignBuilderApp = (): CampaignBuilderApplication | null =>
   }
   
   const newWindow = new CampaignBuilderApplication();
-  newWindow.render(true);
+
+  // If the user opted to always pop out, detach into a separate browser window once the initial render completes.
+  // detachWindow is a native Foundry v14 ApplicationV2 method; _canDetach() gates it to v14+.
+  void newWindow.render(true).then(() => {
+    // @ts-ignore - detach API not yet in installed v13-beta types
+    if (ModuleSettings.get(SettingKey.alwaysPopout) && newWindow._canDetach() && !useMainStore().isDetached) {
+      // @ts-ignore - detachWindow not yet in installed v13-beta types
+      void newWindow.detachWindow();
+    }
+  });
 
   // @ts-ignore
   game.modules.get(moduleId)!.activeWindow = newWindow;
-  
 
-  return newWindow;    
+
+  return newWindow;
 };
 
 
@@ -102,6 +111,16 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
   // Override to prevent DocumentSheetV2 from adding default controls
   override _getHeaderControls() {
     return [];
+  }
+
+  /**
+   * Override the window title so the header (and native detached browser window title) show the
+   * module name rather than DocumentSheetV2's default "Journal Entry: <doc.name>" (which exposes
+   * the internal FCB_OPEN_WINDOW_NAME placeholder).
+   * @returns The localized module title.
+   */
+  override get title(): string {
+    return localize('title');
   }
 
   /**
