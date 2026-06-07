@@ -1193,6 +1193,7 @@
       "collapseDirectory": "Collapse directory",
       "maximizeWindow": "Maximize window",
       "restoreWindow": "Restore window",
+      "popoutWindow": "Pop out into a separate window",
       "collapseAllTopics": "Collapse all",
       "addBookmark": "Add bookmark",
       "moreBookmarks": "More bookmarks",
