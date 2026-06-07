@@ -58,6 +58,7 @@ export enum SettingKey {
   storyWebAutoArrange = 'storyWebAutoArrange', // whether to enable physics in story webs
   genericFoundryTab = 'genericFoundryTab', // whether to show the generic Foundry tab on entries
   enableVoiceRecording = 'enableVoiceRecording', // whether voice recording for characters is enabled
+  alwaysPopout = 'alwaysPopout', // always open the main window detached into a separate browser window (v14+)
 
   // internal only
   voiceRecordingFolder = 'voiceRecordingFolder', // folder path for voice recordings
@@ -121,6 +122,7 @@ export enum SettingKey {
 
 export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
+    K extends SettingKey.alwaysPopout ? boolean :
     K extends SettingKey.displaySessionNotes ? boolean :
     K extends SettingKey.sessionDisplayMode ? SessionDisplayMode :
     K extends SettingKey.rootFolderId ? string :
@@ -389,6 +391,13 @@ export class ModuleSettings {
       settingID: SettingKey.startCollapsed,
       name: 'settings.startCollapsed',
       hint: 'settings.startCollapsedHelp',
+      default: false,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.alwaysPopout,
+      name: 'settings.alwaysPopout',
+      hint: 'settings.alwaysPopoutHelp',
       default: false,
       type: Boolean,
     },

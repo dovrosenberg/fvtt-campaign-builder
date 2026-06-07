@@ -49,17 +49,29 @@
       </div>
     </div>
 
-    <!-- Maximize button - match the style of the close button-->
-    <button 
-      type="button" 
+    <!-- Maximize button - match the style of the close button; hidden when detached -->
+    <button
+      v-if="!isDetached"
+      type="button"
       :class="[
         'header-control',
         'icon',
         isMaximized ? 'fas fa-regular fa-window-restore' : 'fas fa-regular fa-window-maximize'
       ]"
-      :data-tooltip="isMaximized ? localize('tooltips.restoreWindow') : localize('tooltips.maximizeWindow')" 
+      :data-tooltip="isMaximized ? localize('tooltips.restoreWindow') : localize('tooltips.maximizeWindow')"
       aria-describedby="tooltip"
       @click.stop="onToggleMaximize"
+    >
+    </button>
+    <!-- Pop-out / detach button (Foundry v14+ native detached windows); hidden when already detached -->
+    <button
+      v-if="isV14 && !isDetached"
+      type="button"
+      class="header-control icon fas fa-up-right-from-square"
+      style="margin-left: 4px;"
+      :data-tooltip="localize('tooltips.popoutWindow')"
+      aria-describedby="tooltip"
+      @click.stop="onDetach"
     >
     </button>
   </div>
@@ -86,12 +98,14 @@
   // Store references
   const mainStore = useMainStore();
   const playingStore = usePlayingStore();
-  const { isInPlayMode, currentSetting } = storeToRefs(mainStore);
+  const { isInPlayMode, currentSetting, isDetached } = storeToRefs(mainStore);
   const { playableCampaigns } = storeToRefs(playingStore);
 
   // Data
   const toggleValue = ref<boolean>(isInPlayMode.value);
   const isMaximized = ref<boolean>(false);
+  // True on Foundry v14+, which has native detached-window support
+  const isV14 = (game.release?.generation ?? 0) >= 14;
 
   // Computed data
   // Only show the selector if there are multiple campaigns and we're in play mode
@@ -145,14 +159,25 @@
   }
 
   const onToggleMaximize = async () => {
-    isMaximized.value = !isMaximized.value; 
- 
+    isMaximized.value = !isMaximized.value;
+
     await ModuleSettings.set(SettingKey.mainWindowBounds, {
       ...ModuleSettings.get(SettingKey.mainWindowBounds),
       maximized: isMaximized.value
     });
   }
 
+  const onDetach = async () => {
+    // Get the singleton CampaignBuilder application instance (same access pattern as renderRightSize)
+    // @ts-ignore
+    const app = game.modules.get(moduleId)?.activeWindow as CampaignBuilderApplication;
+    if (!app)
+      return;
+
+    // detachWindow is a native Foundry v14 ApplicationV2 method, not yet in installed v13-beta types
+    // @ts-ignore
+    await app.detachWindow();
+  }
 
   // Watchers
   watch(() => isInPlayMode, (newValue) => {

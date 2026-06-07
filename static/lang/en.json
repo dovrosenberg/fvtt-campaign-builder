@@ -1,6 +1,6 @@
 {
   "fcb": {
-    "title": "Campaign Builder",
+    "title": "Foundry World & Campaign Builder",
     "defaultRootFolderName": "Campaign Builder",
     "contentFolders": {
       "campaigns": "Campaigns",
@@ -13,6 +13,8 @@
     "settings": {
       "startCollapsed": "Sidebar starts collapsed?",
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
+      "alwaysPopout": "Always open in pop-out window",
+      "alwaysPopoutHelp": "When enabled, the main window will automatically open detached into a separate browser window. (Requires Foundry v14+.)",
       "displaySessionNotes": "Display pop-up session notes",
       "displaySessionNotesHelp": "When enabled, a session notes window will automatically open when a play session starts",
       "defaultAddToSession": "Default 'Add to current session'",
@@ -1193,6 +1195,7 @@
       "collapseDirectory": "Collapse directory",
       "maximizeWindow": "Maximize window",
       "restoreWindow": "Restore window",
+      "popoutWindow": "Pop out into a separate window",
       "collapseAllTopics": "Collapse all",
       "addBookmark": "Add bookmark",
       "moreBookmarks": "More bookmarks",
