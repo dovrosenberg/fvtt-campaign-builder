@@ -145,10 +145,10 @@ export const registerFCBSettingTests = (context: QuenchBatchContext) => {
         const testSetting = getTestSetting();
         const testId = 'test-node-id';
 
-        await testSetting.expandNode(testId);
+        testSetting.expandNode(testId);
         expect(testSetting.expandedIds[testId]).to.equal(true);
 
-        await testSetting.collapseNode(testId);
+        testSetting.collapseNode(testId);
         expect(testSetting.expandedIds[testId]).to.be.undefined;
       });
     });

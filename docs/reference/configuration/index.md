@@ -18,6 +18,7 @@ next:
 - **Enable Voice Recording**: When enabled, a microphone button will appear on [^Characters] that allows you to record, play, and delete voice samples. This helps you remember what voice or accent you used for each character. See [Voice Recording](/reference/world-building/content/character/#voice-recording) for more details.
 - **Show types in Setting tree**: If set, when the Setting directory isn't grouped by type, it will instead show the type of each [^Entry] in the tree next to its name.
 - **Sidebar starts collapsed**: If set, the directory sidebar will be collapsed when you open the main window.  
+- **Always open in pop-out window (v14 only)**: If set, the main Campaign Builder window will always open popped out into a separate window vs. opening in Foundry browser tab.  
 - **Display pop-up session notes**: If set, when you enter "Play Mode", a separate session notes window will automatically popup to make it easier to take notes mid-session.
 - **Default 'Add to current session'**: When you're in [^Play Mode] and are creating an Entry, there is a checkbox to automatically add it to the current [^Session] (vs. just adding to the [^Setting]).  This checkbox determines whether that checkbox defaults to on or off.
 - **Display Session Bookmark'**: When enabled, a bookmark for the current Session will always be displayed at the front of the bookmark list.  

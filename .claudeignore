@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.tscout/
+
+# Test coverage output
+coverage/
+.nyc_output/
+playwright-report/
+test-results
+
+# Misc
+.windsurf/
+docs/.vitepress/dist

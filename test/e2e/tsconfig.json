@@ -1,12 +1,20 @@
 {
-	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-		"typeRoots": [ "../../src/types", "node", "@playwright/test"],
-		"noEmit": true
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"noEmit": true,
+		"types": ["mocha", "chai"],
+		"paths": {
+			"@/types": ["./types"],
+			"@e2etest/*": ["./*"]
+		}
 	},
 	"include": [
-		"./**/*.ts",
-		"../../src/types/**/*.d.ts"
+		"./**/*.ts"
 	],
 	"exclude": []
 }

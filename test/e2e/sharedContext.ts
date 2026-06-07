@@ -1,7 +1,7 @@
-import { Page, BrowserContext } from '@playwright/test';
+import { Page, Browser } from 'puppeteer';
 
 export let sharedContext: {
 	page?: Page,
-	context?: BrowserContext
+	context?: Browser
 } = {}
 	

@@ -9,6 +9,7 @@
         :extra-add-text="localize('labels.session.addJournalDrag')"
         :filter-fields="filterFields"
         :actions="[{ icon: 'fa-trash', callback: (data) => onDeleteItemClick(data.uuid), tooltip: localize('tooltips.deleteRelationship') }]"
+        :table-test-id="'journals-table'"
 
         @drop-new="onDropNew"
         @dragover="DragDropService.standardDragover"

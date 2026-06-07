@@ -40,6 +40,9 @@ export const mainStore = () => {
   /** whether the arc manager dialog is currently open */
   const isArcManagerOpen = ref<boolean>(false);
 
+  // True when the main window is detached into a separate browser window (Foundry v14+)
+  const isDetached = ref<boolean>(false);
+
   /** prep/play mode toggle - true for play mode, false for prep mode */
   const isInPlayMode = ref<boolean>(ModuleSettings.get(SettingKey.isInPlayMode));
 
@@ -309,6 +312,7 @@ export const mainStore = () => {
     currentContentId,
     currentTag,
     isArcManagerOpen,
+    isDetached,
     rootFolder,
     currentSettingCompendium,
     refreshCurrentEntry,

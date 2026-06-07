@@ -1,0 +1,12 @@
+{
+  "report-dir": "coverage",
+  "reporter": ["text", "text-summary", "html", "lcov"],
+  "temp-dir": ".nyc_output",
+  "extension": [".ts", ".vue"],
+  "exclude": [
+    "node_modules/**",
+    "test/**",
+    "src/apiClient/**",
+    "dist/**"
+  ]
+}

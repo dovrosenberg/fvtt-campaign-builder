@@ -3,12 +3,13 @@
     ref="baseTableRef"
     :rows="rows"
     :columns="columns"
-    :showAddButton="true"
+    :show-add-button="true"
     :can-reorder="false"
     :extra-add-text="newItemDragLabel"
     :addButtonLabel="newItemLabel"
     :filterFields="filterFields"
     :actions="actions"
+    :table-test-id="`${topicTabName}-table`"
 
     @add-item="onAddItemClick"
     @drop-new="onDropNew"
@@ -46,6 +47,7 @@
   import { Entry } from '@/classes';
   import DragDropService from '@/utils/dragDrop';
   import { FCBDialog } from '@/dialogs';
+  import { getTopicTextPlural } from '@/compendia';
 
 
   // library components
@@ -124,6 +126,10 @@
       case Topics.Organization: return localize('labels.addTopic.organization');
       case Topics.PC: return localize('labels.addTopic.pc');
     }
+  });
+
+  const topicTabName = computed(() => {
+    return getTopicTextPlural(props.topic).toLowerCase();;
   });
 
   const newItemDragLabel = computed(() => {

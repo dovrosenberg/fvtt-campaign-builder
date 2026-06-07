@@ -21,12 +21,13 @@
     <BaseTable
     :rows="rows"
     :columns="columns"
-    :showAddButton="[DocumentLinkType.Actors, DocumentLinkType.Scenes].includes(props.documentLinkType)"
-    :addButtonLabel="addButtonLabel"
-    :extraAddText="extraAddText"
-    :filterFields="filterFields"
+    :show-add-button="[DocumentLinkType.Actors, DocumentLinkType.Scenes].includes(props.documentLinkType)"
+    :add-button-label="addButtonLabel"
+    :extra-add-text="extraAddText"
+    :filter-fields="filterFields"
     :actions="actions"
     :can-reorder="props.documentLinkType === DocumentLinkType.Actors"
+    :table-test-id="docTableTestId"
 
     @row-context-menu="onRowContextMenu"
     @drop-new="onDropNew"
@@ -121,6 +122,15 @@
         return localize('labels.session.addDocumentDrag');
     }
     return '';
+  });
+
+  const docTableTestId = computed((): string => {
+    switch (props.documentLinkType) {
+      case DocumentLinkType.Actors: return 'actors-table';
+      case DocumentLinkType.Scenes: return 'scenes-table';
+      case DocumentLinkType.GenericFoundry: return 'foundry-table';
+      default: return 'documents-table';
+    }
   });
 
 

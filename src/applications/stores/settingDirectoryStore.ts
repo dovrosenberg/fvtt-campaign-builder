@@ -72,14 +72,52 @@ export const settingDirectoryStore = () => {
   };
 
   /**
-   * Toggles the expansion state of the given topic node.
-   * 
-   * @param topic - The topic node to be toggled.
-   * @returns A promise that resolves when the topic has been toggled.
+   * Toggles the expansion state of the given topic node by swapping it with a freshly
+   * built instance at the same position in the tree.
+   *
+   * We can't simply mutate the existing topic node in place: the nested tree/grouped-tree
+   * child components bind against `props.topicNode.loadedChildren`/`loadedTypes`, and Vue's
+   * prop path doesn't reliably re-propagate when those array-valued properties are reassigned
+   * on a class instance living inside the `reactive()` container.
+   *
+   * @param topicNode - The topic node to be toggled.
+   * @returns A promise that resolves when the topic has been toggled and any newly visible children loaded.
    */
   const toggleTopic = async(topicNode: DirectoryTopicFolderNode) : Promise<void> => {
-    await topicNode.toggleWithLoad(!topicNode.expanded);
-    await refreshSettingDirectoryTree();
+    if (!currentSetting.value)
+      return;
+
+    const newExpanded = !topicNode.expanded;
+
+    // updates the persisted expandedIds via the debounced save path; uses current topicNode.expanded
+    //   to decide direction, so call this BEFORE we swap in the new instance.
+    topicNode.toggle();
+
+    // locate the topic node's slot in the tree so we can swap it for a fresh instance
+    const settingBlock = currentSettingTree.value[0];
+    const idx = settingBlock?.topicNodes.findIndex((n) => n.id === topicNode.id) ?? -1;
+    if (idx < 0)
+      return;
+
+    // build a fresh topic node so Vue's v-for/child props see a new identity for just this topic
+    const fresh = new DirectoryTopicFolderNode(
+      topicNode.id,
+      topicNode.name,
+      topicNode.topicFolder,
+      topicNode.topicFolder.topNodes.concat(),
+      [],
+      [],
+      newExpanded,
+    );
+
+    if (newExpanded) {
+      // mirror what refreshSettingDirectoryTree does for an expanded topic, but only for this topic
+      const expandedNodes = currentSetting.value.expandedIds;
+      await fresh.recursivelyLoadNode(expandedNodes);
+      fresh.loadTypeEntries(fresh.topicFolder.types, expandedNodes);
+    }
+
+    settingBlock.topicNodes[idx] = fresh;
   };
 
   // move the entry to a new type (doesn't update the entry itself)
@@ -811,6 +849,12 @@ export const settingDirectoryStore = () => {
   // when the setting changes, clean out the cache of loaded items
   //@ts-ignore - Vue can't handle reactive classes
   watch(currentSetting, async (newSetting: FCBSetting | null, oldSetting: FCBSetting | null): Promise<void> => {
+    // flush any pending debounced expandedIds save on the outgoing setting so toggles
+    //   made within the debounce window aren't lost when switching/clearing the active setting
+    if (oldSetting && oldSetting.uuid !== newSetting?.uuid) {
+      await oldSetting.flushExpandedIdsSave();
+    }
+
     if (!newSetting) {
       // Clear the tree when setting becomes null
       currentSettingTree.value = [];
@@ -848,6 +892,13 @@ export const settingDirectoryStore = () => {
     isGroupedByType.value = ModuleSettings.get(SettingKey.groupTreeByType);
     // Initialize the setting list
     settingIndexList.value = ModuleSettings.get(SettingKey.settingIndex) || [];
+
+    // make a best-effort attempt to persist any pending debounced expandedIds save before the
+    //   page unloads. beforeunload can't reliably await async work, so we just kick off the save;
+    //   in the worst case the user loses up to ~300ms of toggle state on a hard close.
+    window.addEventListener('beforeunload', () => {
+      void currentSetting.value?.flushExpandedIdsSave();
+    });
   });
 
   ///////////////////////////////

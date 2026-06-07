@@ -44,13 +44,22 @@ export const renderCampaignBuilderApp = (): CampaignBuilderApplication | null =>
   }
   
   const newWindow = new CampaignBuilderApplication();
-  newWindow.render(true);
+
+  // If the user opted to always pop out, detach into a separate browser window once the initial render completes.
+  // detachWindow is a native Foundry v14 ApplicationV2 method; _canDetach() gates it to v14+.
+  void newWindow.render(true).then(() => {
+    // @ts-ignore - detach API not yet in installed v13-beta types
+    if (ModuleSettings.get(SettingKey.alwaysPopout) && newWindow._canDetach() && !useMainStore().isDetached) {
+      // @ts-ignore - detachWindow not yet in installed v13-beta types
+      void newWindow.detachWindow();
+    }
+  });
 
   // @ts-ignore
   game.modules.get(moduleId)!.activeWindow = newWindow;
-  
 
-  return newWindow;    
+
+  return newWindow;
 };
 
 
@@ -102,6 +111,59 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
   // Override to prevent DocumentSheetV2 from adding default controls
   override _getHeaderControls() {
     return [];
+  }
+
+  /**
+   * Override the window title so the header (and native detached browser window title) show the
+   * module name rather than DocumentSheetV2's default "Journal Entry: <doc.name>" (which exposes
+   * the internal FCB_OPEN_WINDOW_NAME placeholder).
+   * @returns The localized module title.
+   */
+  override get title(): string {
+    return localize('title');
+  }
+
+  /**
+   * Permit detaching into a separate browser window on Foundry v14+ (native ApplicationV2 feature).
+   * @returns Whether this application may detach from the main workspace.
+   */
+  // @ts-ignore - detach API not yet in installed v13-beta types
+  override _canDetach(): boolean {
+    // Foundry v14 introduced native detached windows; gate on generation.
+    return (game.release?.generation ?? 0) >= 14;
+  }
+
+  /**
+   * Permit re-attaching a detached window back to the main workspace on v14+.
+   * @returns Whether this application may re-attach to the main workspace.
+   */
+  // @ts-ignore - attach API not yet in installed v13-beta types
+  override _canAttach(): boolean {
+    return (game.release?.generation ?? 0) >= 14;
+  }
+
+  /**
+   * Track detached state when the window is popped into a separate browser window (v14+).
+   * @param from - The document the application was detached from.
+   * @param to - The document the application was detached into.
+   */
+  // @ts-ignore - detach API not yet in installed v13-beta types
+  override _onDetach(from: Document, to: Document): void {
+    // @ts-ignore
+    super._onDetach?.(from, to);
+    useMainStore().isDetached = true;
+  }
+
+  /**
+   * Clear detached state when the window is re-attached to the main workspace (v14+).
+   * @param from - The document the application was attached from.
+   * @param to - The document the application was attached into.
+   */
+  // @ts-ignore - attach API not yet in installed v13-beta types
+  override _onAttach(from: Document, to: Document): void {
+    // @ts-ignore
+    super._onAttach?.(from, to);
+    useMainStore().isDetached = false;
   }
 
   private _inMiddleOfRender = false;  // because otherwise we can get stuck in strange loops
@@ -278,6 +340,11 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     if (game.modules.get(moduleId))
       // @ts-ignore
       game.modules.get(moduleId).activeWindow = null;
+
+    // Reset detached state: closing a detached window does not fire _onAttach, so clear the
+    // flag here, otherwise the next (re-attached) open would inherit the stale detached state
+    // and keep the maximize/pop-out buttons hidden.
+    useMainStore().isDetached = false;
 
     await super.close(options);
 

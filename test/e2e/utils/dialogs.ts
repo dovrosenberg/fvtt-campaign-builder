@@ -1,22 +1,40 @@
 import { TestContext } from '../types';
-import { expect } from 'playwright/test';
 
 export async function fillOutNameDialog(context: TestContext, headerText: string, name: string) {
   const page = context.page!;
   
-  const dialog = await page.locator('div.app.window-app.dialog', { 
-    has: page.locator(`header h4:has-text("${headerText}")`)
-  });
+  // Find dialog with the header text
+  const dialogs = await page.$$('div.app.window-app.dialog');
+  let targetDialog: import('puppeteer').ElementHandle<Element> | null = null;
+  
+  for (const dialog of dialogs) {
+    const header = await dialog.$(`header h4`);
+    if (header) {
+      const text = await header.evaluate(el => el.textContent);
+      if (text?.includes(headerText)) {
+        targetDialog = dialog;
+        break;
+      }
+    }
+  }
+
+  if (!targetDialog) {
+    throw new Error(`Dialog with header "${headerText}" not found`);
+  }
 
   // find the text box - it's in a <section> tag that is in the same <div> as the <header>
-  //   that contains the <h4>
-  const nameInput = await dialog.locator('section div p input[type="text"]');
-  await expect(nameInput).toBeAttached();
+  const nameInput = await targetDialog.$('section div p input[type="text"]');
+  if (!nameInput) {
+    throw new Error('Name input not found in dialog');
+  }
 
   // put in text
-  await nameInput.fill(name);
+  await nameInput.type(name);
 
   // click the button
-  await dialog.locator('.dialog-button.ok').click();
+  const okButton = await targetDialog.$('.dialog-button.ok');
+  if (okButton) {
+    await okButton.click();
+  }
 }
 

@@ -50,16 +50,17 @@ Organizations and locations that have [Branches](/reference/world-building/conte
 
 ### Context menus
 Right-clicking on items in the Entry tree provides additional options depending on the item type:
-1. Settings - Delete the [^Setting], Create a new [^Campaign], Export the Setting (as a JSON file, a markdown file, or as a zip file containing the markdown file and all of its Story Web images)
+1. Settings - Delete the [^Setting], Create a new [^Campaign], Export the Setting (as a JSON file, a markdown file, a zip file containing the markdown file and all of its Story Web images, or a TOON file tuned for feeding to an LLM)
 2. Topics - [Create a new Entry](/reference/world-building/create-entry) in that Topic
 3. Entries - Delete the Entry
 4. Organization entries - Create [Branches](/reference/world-building/content/organization/#branches)
 
 ::: info
-Exporting a Setting has three options:
+Exporting a Setting has four options:
 - **Export as JSON** - Creates a JSON file with all data for the Setting, including all Entries, Campaigns, Sessions, Arcs, Fronts, and Story Webs. This is useful for backing up or transferring a single Setting to another world.  See [Import/Export](/reference/configuration/import-export)
 - **Export Setting** - Creates a markdown (.MD) file with all of the details for the Setting, all Entries, and all Campaigns (including all Fronts, Arcs, and Sessions). This is useful for reviewing everything in a different platform, or for providing to an LLM to enable it to answer questions about the Setting/Campaign.
 - **Export Setting with Story Webs** - Creates a zip file containing the markdown export plus PNG images of all Story Webs in the Setting.
+- **Export for LLM (TOON)** - Creates a `.toon` file structured specifically for feeding to an LLM. It contains the same content as the markdown export, but carries a Foundry UUID on every entity and begins with an alphabetical index of every Entry (name, topic, type, UUID) so the LLM can resolve proper-noun spelling from raw session transcripts. It also is specifically designed to minimize token count.
 :::
 
 

@@ -12,6 +12,7 @@
       :add-button-label="''"
       :extra-add-text="''"
       :allow-drop-row="false"
+      :table-test-id="'sessions-table'"
     />
   </div>
 </template>

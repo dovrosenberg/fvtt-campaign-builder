@@ -2,6 +2,7 @@
   <div
     class="primevue-only fcb-table-wrapper"
     style="display: flex"
+    :data-testid="props.tableTestId || undefined"
     @dragover="onTableDragover"
     @drop="onTableDrop"
     @dragleave="onTableDragleave"
@@ -527,6 +528,12 @@
       type: Array as PropType<TableGroup[]>,
       required: false,
       default: () => [],
+    },
+    // test ID for E2E testing
+    tableTestId: {
+      type: String,
+      required: false,
+      default: '',
     }
   });
 

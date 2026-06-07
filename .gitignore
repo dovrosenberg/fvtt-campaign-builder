@@ -2,9 +2,14 @@ node_modules/
 .DS_Store
 dist/
 coverage/
+.nyc_output/
 .tscout/
 .npmrc
 tsconfig.tsbuildinfo
 docs/.vitepress/cache
 playwright-report/
 test-results/
+.env
+
+# CocoIndex Code (ccc)
+/.cocoindex_code/
