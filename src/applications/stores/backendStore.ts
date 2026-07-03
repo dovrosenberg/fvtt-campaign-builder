@@ -15,8 +15,9 @@ import { Campaign } from '@/classes';
 import { reactive, ref } from 'vue';
 
 // this is the backend version that needs to be used with this version of the module
-// generally, we'll try to keep them more or less in sync, at least at the minor release level
-const REQUIRED_VERSION = '1.8';
+// generally, we'll try to keep them more or less in sync, at least at the minor release level,
+//    but as long as it's backwards compatible, we won't force a backend update every release
+const REQUIRED_VERSION = '1.11';
 
 export const backendStore = () => {
   ///////////////////////////////
