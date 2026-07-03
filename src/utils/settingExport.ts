@@ -194,6 +194,9 @@ const renderEntry = (entry: EntryNode): string => {
   if (entry.parentName) {
     md += `**Parent:** ${entry.parentName}\n\n`;
   }
+  if (entry.isBranch && entry.locationParentName) {
+    md += `**Location:** ${entry.locationParentName}\n\n`;
+  }
   if (entry.description) {
     md += `**Description:**\n\n${entry.description}\n\n`;
   }

@@ -110,6 +110,11 @@ export type EntryNode = {
   species: string;          // resolved species name; '' when not applicable
   parentUuid: string;       // '' when no parent
   parentName: string;       // '' when no parent
+  // Branch info, present on Organization nodes only (kept on every organization so the array
+  // stays shape-uniform for TOON's tabular encoding); a branch is an org's presence in a location.
+  isBranch?: boolean;
+  locationParentUuid?: string;   // '' when not a branch
+  locationParentName?: string;   // '' when not a branch
   description: string;      // cleanText at 3; '' when blank
   customFields: CustomFieldRow[];
   relationships: RelationshipGroup[];
@@ -531,9 +536,16 @@ export const buildSettingTree = async (setting: FCBSetting): Promise<SettingTree
       topic === Topics.Organization ? CustomFieldContentType.Organization :
       CustomFieldContentType.PC;
     const fields = customFieldDefinitions[contentType] || [];
+    // Branches store their custom field values under the Branch definitions, not Organization.
+    const branchFields = customFieldDefinitions[CustomFieldContentType.Branch] || [];
     const entries = await setting.topicFolders[topic].allEntries();
     for (const entry of entries) {
-      const node = buildEntryNode(entry, setting, validSpecies, fields);
+      const node = buildEntryNode(
+        entry,
+        setting,
+        validSpecies,
+        topic === Topics.Organization && entry.isBranch ? branchFields : fields
+      );
       topicBuckets[topic].push(node);
       indexRows.push({
         name: entry.name,
@@ -677,6 +689,17 @@ export const buildEntryNode = (
     }
   }
 
+  // Branch info (Organization only): a branch also links to the location it operates in.
+  let branchInfo: Pick<EntryNode, 'isBranch' | 'locationParentUuid' | 'locationParentName'> | undefined;
+  if (entry.topic === Topics.Organization) {
+    const locationParentId = setting.getEntryHierarchy(entry.uuid)?.locationParentId || '';
+    branchInfo = {
+      isBranch: entry.isBranch,
+      locationParentUuid: locationParentId,
+      locationParentName: locationParentId ? resolveUuidNameSync(locationParentId) : ''
+    };
+  }
+
   // Species is Character-only and only when it resolves to a known species.
   const species =
     entry.topic === Topics.Character && entry.speciesId && validSpecies[entry.speciesId]
@@ -691,6 +714,7 @@ export const buildEntryNode = (
     species,
     parentUuid,
     parentName,
+    ...branchInfo,
     description: entry.description?.trim() ? cleanText(entry.description, 3) : '',
     customFields: buildCustomFieldRows(entry, customFieldDefinitions),
     relationships: buildRelationshipGroups(entry)

@@ -136,7 +136,8 @@ type BuildContext = {
   excludeField?: ExcludedField;
 };
 
-// Custom-field content type per entry topic (mirrors buildSettingTree's mapping).
+/** Custom-field content type per entry topic (mirrors buildSettingTree's mapping).
+ */
 const TOPIC_TO_CONTENT_TYPE: Record<EntryTopic, CustomFieldContentType> = {
   [Topics.Character]: CustomFieldContentType.Character,
   [Topics.Location]: CustomFieldContentType.Location,
@@ -240,13 +241,24 @@ const addEntryWithAncestors = async (uuid: string, context: BuildContext): Promi
     return null;
   }
 
-  const node: ContextEntryNode = buildEntryNode(entry, context.setting, context.validSpecies, fieldsFor(context, TOPIC_TO_CONTENT_TYPE[topic]));
+  // Branches (an organization's presence in a location) store their values under the Branch
+  // custom-field definitions, not the Organization ones.
+  const fieldContentType = topic === Topics.Organization && entry.isBranch
+    ? CustomFieldContentType.Branch
+    : TOPIC_TO_CONTENT_TYPE[topic];
+
+  const node: ContextEntryNode = buildEntryNode(entry, context.setting, context.validSpecies, fieldsFor(context, fieldContentType));
   context.entryNodes.set(uuid, node);
 
   // Pull in the full ancestor chain (only Locations/Organizations have hierarchies).
   const ancestors = context.setting.getEntryHierarchy(uuid)?.ancestors || [];
   for (const ancestorUuid of ancestors) {
     await addEntryWithAncestors(ancestorUuid, context);
+  }
+
+  // A branch's location (and that location's ancestors) is essential context for the branch.
+  if (node.locationParentUuid) {
+    await addEntryWithAncestors(node.locationParentUuid, context);
   }
 
   return node;

@@ -317,6 +317,56 @@ export const registerGenerationContextTests = (context: QuenchBatchContext) => {
     });
   });
 
+  describe('buildContextTree - branch primary', () => {
+    let testSetting: FCBSetting;
+    let parentOrg: Entry;
+    let branch: Entry;
+    let region: Entry;
+    let city: Entry;
+
+    beforeEach(async () => {
+      stubContextSettings(3, false);
+      testSetting = getTestSetting();
+
+      parentOrg = (await Entry.create(testSetting.topicFolders[Topics.Organization]!, { name: 'GC Guild' }))!;
+      branch = (await Entry.create(testSetting.topicFolders[Topics.Organization]!, { name: 'GC Guild Chapter' }))!;
+      branch.isBranch = true;
+      await branch.save();
+
+      region = (await Entry.create(testSetting.topicFolders[Topics.Location]!, { name: 'GC Branch Region' }))!;
+      city = (await Entry.create(testSetting.topicFolders[Topics.Location]!, { name: 'GC Branch City' }))!;
+      await testSetting.setEntryHierarchy(city.uuid, {
+        parentId: region.uuid, locationParentId: null, ancestors: [region.uuid], children: [], childBranches: [branch.uuid], type: ''
+      });
+      await testSetting.setEntryHierarchy(branch.uuid, {
+        parentId: parentOrg.uuid, locationParentId: city.uuid, ancestors: [parentOrg.uuid], children: [], childBranches: [], type: ''
+      });
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should include the parent org, the branch location, and its ancestors', async () => {
+      const tree = await GenerationContextService.buildContextTree(branch, CustomFieldContentType.Branch, testSetting);
+
+      const branchNode = tree.entries.organizations.find(o => o.uuid === branch.uuid);
+      expect(branchNode).to.exist;
+      expect(branchNode?.primaryEntity).to.equal(true);
+      expect(branchNode?.isBranch).to.equal(true);
+      expect(branchNode?.locationParentUuid).to.equal(city.uuid);
+      expect(branchNode?.locationParentName).to.equal(city.name);
+
+      // org ancestor chain
+      expect(tree.entries.organizations.map(o => o.uuid)).to.include(parentOrg.uuid);
+
+      // branch location and its ancestors
+      const locationUuids = tree.entries.locations.map(l => l.uuid);
+      expect(locationUuids).to.include(city.uuid);
+      expect(locationUuids).to.include(region.uuid);
+    });
+  });
+
   describe('buildContextTree - excluded field', () => {
     let testSetting: FCBSetting;
     let entry: Entry;
