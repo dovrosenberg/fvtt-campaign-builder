@@ -174,11 +174,15 @@
           "textModel": "Text Generation Model",
           "textModelHint": "Select the AI model to use for text generation",
           "imageModel": "Image Generation Model",
-          "imageModelHint": "Select the AI model to use for image generation"
+          "imageModelHint": "Select the AI model to use for image generation",
+          "aiContextSessionCount": "Sessions in AI Context",
+          "aiContextSessionCountHint": "How many recent sessions per campaign to include as context when generating text with AI (more sessions = higher cost)",
+          "aiContextIncludeJournals": "Include Journals in AI Context",
+          "aiContextIncludeJournalsHint": "Include referenced Foundry journal entries as context when generating text with AI (may significantly increase cost)"
         },
         "tabs":{
           "backend": "Backend",
-          "models": "AI Models",
+          "models": "AI Settings",
           "content": "AI Content",
           "email": "Email"
         }

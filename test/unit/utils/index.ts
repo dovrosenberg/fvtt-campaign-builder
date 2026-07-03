@@ -8,6 +8,7 @@ import { registerCustomFieldsTests } from "./customFields.test";
 import { registerDirectoryScrollTests } from "./directoryScroll.test";
 import { registerDragDropTests } from "./dragDrop.test";
 import { registerNameGeneratorsTests } from "./nameGenerators.test";
+import { registerGenerationContextTests } from "./generationContext.test";
 
 export const registerUtilBatches = () => {
   registerAppWindowBatch();
@@ -19,6 +20,7 @@ export const registerUtilBatches = () => {
   registerDirectoryScrollBatch();
   registerDragDropBatch();
   registerNameGeneratorsBatch();
+  registerGenerationContextBatch();
 };
 
 const registerAppWindowBatch = () => {
@@ -90,5 +92,13 @@ const registerNameGeneratorsBatch = () => {
     'utils.nameGenerators',
     '/utils/nameGenerators',
     registerNameGeneratorsTests
+  );
+};
+
+const registerGenerationContextBatch = () => {
+  createBatch(
+    'utils.generationContext',
+    '/utils/generationContext',
+    registerGenerationContextTests
   );
 };

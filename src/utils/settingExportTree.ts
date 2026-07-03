@@ -342,6 +342,66 @@ export const resolveFoundryDocumentName = (uuid: string, basic: boolean = false)
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Extracts external Foundry JournalEntry/JournalEntryPage UUID references from a single raw text
+ * blob and accumulates them into the journal map (journal UUID -> set of specific page UUIDs; an
+ * empty set means "include all pages"). Exported so callers with a narrower scan scope than the
+ * whole setting (e.g. AI generation context) can reuse the reference parsing.
+ * @param text - Raw text (HTML) possibly containing `@UUID[...]` references.
+ * @param journalMap - Map to accumulate journal references into.
+ */
+export const collectJournalRefsFromText = (text: string, journalMap: Map<string, Set<string>>): void => {
+  if (!text) {
+    return;
+  }
+  const uuids = extractUUIDs(text);
+  for (const uuid of uuids) {
+    if (isFCBUuid(uuid)) {
+      continue;
+    }
+    const parsed = foundry.utils.parseUuid(uuid);
+    if (!parsed) {
+      continue;
+    }
+    const docType = parsed.type as string;
+    if (docType === 'JournalEntry') {
+      // Whole-journal reference overrides any per-page references.
+      journalMap.set(uuid, new Set());
+    }
+    else if (docType === 'JournalEntryPage') {
+      // Reconstruct the parent journal UUID and add the specific page, unless the whole
+      // journal is already being exported (empty set).
+      const parts = uuid.split('.');
+      const pageIdIndex = parts.lastIndexOf('JournalEntryPage');
+      if (pageIdIndex <= 0) {
+        continue;
+      }
+      let journalUuid: string;
+      if (parts[0] === 'Compendium') {
+        const journalIdIndex = parts.lastIndexOf('JournalEntry');
+        if (journalIdIndex > 0 && journalIdIndex < pageIdIndex) {
+          journalUuid = parts.slice(0, journalIdIndex + 2).join('.');
+        }
+        else {
+          continue;
+        }
+      }
+      else {
+        journalUuid = parts.slice(0, 2).join('.');
+      }
+      if (!journalMap.has(journalUuid)) {
+        journalMap.set(journalUuid, new Set([uuid]));
+      }
+      else {
+        const existing = journalMap.get(journalUuid)!;
+        if (existing.size > 0) {
+          existing.add(uuid);
+        }
+      }
+    }
+  }
+};
+
+/**
  * Scans every text field in the setting for external Foundry JournalEntry/JournalEntryPage UUID
  * references and returns a map of journal UUID -> set of specific page UUIDs. An empty set for a
  * journal means "include all pages" (the whole journal was referenced directly).
@@ -353,55 +413,7 @@ const collectReferencedJournalUuids = async (setting: FCBSetting): Promise<Map<s
 
   // Callback fed to SettingScannerService to inspect every text field in the setting.
   const processText = (text: string, _context: ScanContext): void => {
-    if (!text) {
-      return;
-    }
-    const uuids = extractUUIDs(text);
-    for (const uuid of uuids) {
-      if (isFCBUuid(uuid)) {
-        continue;
-      }
-      const parsed = foundry.utils.parseUuid(uuid);
-      if (!parsed) {
-        continue;
-      }
-      const docType = parsed.type as string;
-      if (docType === 'JournalEntry') {
-        // Whole-journal reference overrides any per-page references.
-        journalMap.set(uuid, new Set());
-      }
-      else if (docType === 'JournalEntryPage') {
-        // Reconstruct the parent journal UUID and add the specific page, unless the whole
-        // journal is already being exported (empty set).
-        const parts = uuid.split('.');
-        const pageIdIndex = parts.lastIndexOf('JournalEntryPage');
-        if (pageIdIndex <= 0) {
-          continue;
-        }
-        let journalUuid: string;
-        if (parts[0] === 'Compendium') {
-          const journalIdIndex = parts.lastIndexOf('JournalEntry');
-          if (journalIdIndex > 0 && journalIdIndex < pageIdIndex) {
-            journalUuid = parts.slice(0, journalIdIndex + 2).join('.');
-          }
-          else {
-            continue;
-          }
-        }
-        else {
-          journalUuid = parts.slice(0, 2).join('.');
-        }
-        if (!journalMap.has(journalUuid)) {
-          journalMap.set(journalUuid, new Set([uuid]));
-        }
-        else {
-          const existing = journalMap.get(journalUuid)!;
-          if (existing.size > 0) {
-            existing.add(uuid);
-          }
-        }
-      }
-    }
+    collectJournalRefsFromText(text, journalMap);
   };
 
   await SettingScannerService.scanSettingContent(setting, processText);
@@ -446,7 +458,7 @@ const collectJournalUuidsFromArrays = async (
  * @param journals - RelatedJournal array from a content document.
  * @param journalMap - Map to accumulate references into.
  */
-const processRelatedJournals = (
+export const processRelatedJournals = (
   journals: RelatedJournal[],
   journalMap: Map<string, Set<string>>
 ): void => {
@@ -575,7 +587,7 @@ export const buildSettingTree = async (setting: FCBSetting): Promise<SettingTree
  * @param speciesList - Global species list.
  * @returns SettingNode.
  */
-const buildSettingNode = (
+export const buildSettingNode = (
   setting: FCBSetting,
   settingFields: CustomFieldDescription[],
   speciesList: Species[]
@@ -600,7 +612,7 @@ const buildSettingNode = (
  * @param defs - Custom field definitions for that content type.
  * @returns Array of rows for non-empty fields.
  */
-const buildCustomFieldRows = (
+export const buildCustomFieldRows = (
   content: { getCustomField: (name: string) => unknown },
   defs: CustomFieldDescription[]
 ): CustomFieldRow[] => {
@@ -648,7 +660,7 @@ const buildCustomFieldRows = (
  * @param customFieldDefinitions - Custom field definitions for this entry's topic.
  * @returns EntryNode.
  */
-const buildEntryNode = (
+export const buildEntryNode = (
   entry: Entry,
   setting: FCBSetting,
   validSpecies: Record<string, string>,
@@ -726,15 +738,17 @@ const buildRelationshipGroups = (entry: Entry): RelationshipGroup[] => {
  * @param frontFields - Front custom fields.
  * @param arcFields - Arc custom fields.
  * @param sessionFields - Session custom fields.
+ * @param options - Optional flags; `includeArcs: false` skips arc/session resolution entirely (arcs come back empty).
  * @returns CampaignNode.
  */
-const buildCampaignNode = async (
+export const buildCampaignNode = async (
   campaign: Campaign,
   setting: FCBSetting,
   campaignFields: CustomFieldDescription[],
   frontFields: CustomFieldDescription[],
   arcFields: CustomFieldDescription[],
-  sessionFields: CustomFieldDescription[]
+  sessionFields: CustomFieldDescription[],
+  options: { includeArcs?: boolean } = {}
 ): Promise<CampaignNode> => {
   // PCs: resolve each PC's Entry so we have name/player alongside uuid.
   const pcRows: PCRow[] = [];
@@ -773,12 +787,15 @@ const buildCampaignNode = async (
     fronts = loaded.map(f => buildFrontNode(f, frontFields));
   }
 
-  // Arcs with sessions (loaded from the campaign's arcIndex).
-  const arcResults = await Promise.all(campaign.arcIndex.map(a => Arc.fromUuid(a.uuid)));
-  const validArcs = arcResults.filter((a): a is Arc => a !== null);
+  // Arcs with sessions (loaded from the campaign's arcIndex). Skipped when the caller only
+  // needs the campaign-level data (e.g. AI generation context, which selects arcs itself).
   const arcs: ArcNode[] = [];
-  for (const arc of validArcs) {
-    arcs.push(await buildArcNode(arc, setting, arcFields, sessionFields));
+  if (options.includeArcs !== false) {
+    const arcResults = await Promise.all(campaign.arcIndex.map(a => Arc.fromUuid(a.uuid)));
+    const validArcs = arcResults.filter((a): a is Arc => a !== null);
+    for (const arc of validArcs) {
+      arcs.push(await buildArcNode(arc, setting, arcFields, sessionFields));
+    }
   }
 
   return {
@@ -802,7 +819,7 @@ const buildCampaignNode = async (
  * @param frontFields - Front custom field definitions.
  * @returns FrontNode.
  */
-const buildFrontNode = (front: Front, frontFields: CustomFieldDescription[]): FrontNode => {
+export const buildFrontNode = (front: Front, frontFields: CustomFieldDescription[]): FrontNode => {
   const dangers: DangerNode[] = (front.dangers || []).map(danger => {
     const participants: DangerParticipantRow[] = (danger.participants || []).map(p => ({
       uuid: p.uuid,
@@ -847,7 +864,7 @@ const buildFrontNode = (front: Front, frontFields: CustomFieldDescription[]): Fr
  * @param sessionFields - Session custom fields.
  * @returns ArcNode.
  */
-const buildArcNode = async (
+export const buildArcNode = async (
   arc: Arc,
   setting: FCBSetting,
   arcFields: CustomFieldDescription[],
@@ -963,7 +980,7 @@ const buildArcNode = async (
  * @param sessionFields - Session custom fields.
  * @returns SessionNode.
  */
-const buildSessionNode = async (
+export const buildSessionNode = async (
   session: Session,
   setting: FCBSetting,
   sessionFields: CustomFieldDescription[]
@@ -1074,6 +1091,17 @@ const buildSessionNode = async (
  */
 const buildJournalNodes = async (setting: FCBSetting): Promise<JournalNode[]> => {
   const journalMap = await collectReferencedJournalUuids(setting);
+  return buildJournalNodesFromMap(journalMap);
+};
+
+/**
+ * Loads each journal in the map (with the referenced pages, or all pages when the set is empty)
+ * and flattens to JournalNodes. Exported so callers with a narrower journal scope than the whole
+ * setting (e.g. AI generation context) can reuse the loading/flattening logic.
+ * @param journalMap - Map of journal UUID -> set of page UUIDs (empty set = all pages).
+ * @returns Array of JournalNode sorted by journal UUID (deterministic output).
+ */
+export const buildJournalNodesFromMap = async (journalMap: Map<string, Set<string>>): Promise<JournalNode[]> => {
   const sortedEntries = Array.from(journalMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 
   const nodes: JournalNode[] = [];

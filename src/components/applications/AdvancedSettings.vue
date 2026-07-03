@@ -89,6 +89,36 @@
                   {{ localize('applications.advancedSettings.labels.imageModelHint') }}
                 </p>
               </div>
+
+              <div class="form-group">
+                <label>{{ localize('applications.advancedSettings.labels.aiContextSessionCount') }}</label>
+                <div class="form-fields">
+                  <InputNumber
+                    v-model="aiContextSessionCount"
+                    data-testid="ai-context-session-count-input"
+                    :min="0"
+                    :use-grouping="false"
+                    show-buttons
+                  />
+                </div>
+                <p class="hint">
+                  {{ localize('applications.advancedSettings.labels.aiContextSessionCountHint') }}
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label>{{ localize('applications.advancedSettings.labels.aiContextIncludeJournals') }}</label>
+                <div class="form-fields">
+                  <Checkbox
+                    v-model="aiContextIncludeJournals"
+                    data-testid="ai-context-include-journals-checkbox"
+                    :binary="true"
+                  />
+                </div>
+                <p class="hint">
+                  {{ localize('applications.advancedSettings.labels.aiContextIncludeJournalsHint') }}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -183,12 +213,12 @@
   
   // library components
   import InputText from 'primevue/inputtext';
+  import InputNumber from 'primevue/inputnumber';
   import Checkbox from 'primevue/checkbox';
   import Select from 'primevue/select';
 
   // local components
-  import RangePicker from '@/components/RangePicker.vue';
-
+  
   // types
   import { Campaign, } from '@/classes';
   import { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from '@/apiClient';
@@ -214,6 +244,8 @@
   const campaignOptions = ref<{uuid: string, name: string}[]>([]);
   const selectedTextModel = ref<string>('');
   const selectedImageModel = ref<string>('');
+  const aiContextSessionCount = ref<number>(3);
+  const aiContextIncludeJournals = ref<boolean>(false);
   const textModelOptions = ref<{id: string, name: string, description: string}[]>([]);
   const imageModelOptions = ref<{id: string, name: string, description: string}[]>([]);
   const contentRef = ref<HTMLElement | null>(null);
@@ -286,6 +318,8 @@
     await ModuleSettings.set(SettingKey.emailDefaultCampaign, emailDefaultCampaign.value);
     await ModuleSettings.set(SettingKey.selectedTextModel, selectedTextModel.value as ApiLocationGenerateImagePostRequestTextModelEnum);
     await ModuleSettings.set(SettingKey.selectedImageModel, selectedImageModel.value as ApiLocationGenerateImagePostRequestImageModelEnum);
+    await ModuleSettings.set(SettingKey.aiContextSessionCount, aiContextSessionCount.value);
+    await ModuleSettings.set(SettingKey.aiContextIncludeJournals, aiContextIncludeJournals.value);
 
     // reset the backend
     await useBackendStore().configure(true);
@@ -306,6 +340,8 @@
     emailDefaultCampaign.value = ModuleSettings.get(SettingKey.emailDefaultCampaign);
     selectedTextModel.value = ModuleSettings.get(SettingKey.selectedTextModel);
     selectedImageModel.value = ModuleSettings.get(SettingKey.selectedImageModel);
+    aiContextSessionCount.value = ModuleSettings.get(SettingKey.aiContextSessionCount);
+    aiContextIncludeJournals.value = ModuleSettings.get(SettingKey.aiContextIncludeJournals);
     await loadCampaigns(emailDefaultSetting.value);
   }
 
@@ -331,6 +367,8 @@
     useGmailToDos.value = ModuleSettings.get(SettingKey.useGmailToDos);
     emailDefaultSetting.value = ModuleSettings.get(SettingKey.emailDefaultSetting);
     emailDefaultCampaign.value = ModuleSettings.get(SettingKey.emailDefaultCampaign);
+    aiContextSessionCount.value = ModuleSettings.get(SettingKey.aiContextSessionCount);
+    aiContextIncludeJournals.value = ModuleSettings.get(SettingKey.aiContextIncludeJournals);
 
     // load the settings and campaigns
     await loadSettings();

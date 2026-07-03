@@ -76,6 +76,8 @@ export enum SettingKey {
   APIToken = 'APIToken',
   selectedTextModel = 'selectedTextModel', // selected text generation model
   selectedImageModel = 'selectedImageModel', // selected image generation model
+  aiContextIncludeJournals = 'aiContextIncludeJournals', // include referenced journals in AI generation context
+  aiContextSessionCount = 'aiContextSessionCount', // number of recent sessions to include in AI generation context
   useGmailToDos = 'useGmailToDos', // whether to use Gmail for toDos
   emailDefaultSetting = 'emailDefaultWorld', // default setting for email features
   emailDefaultCampaign = 'emailDefaultCampaign', // default campaign for email features
@@ -142,6 +144,8 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.APIToken ? string :
     K extends SettingKey.selectedTextModel ? ApiCustomGenerateImagePostRequestTextModelEnum :
     K extends SettingKey.selectedImageModel ? ApiCustomGenerateImagePostRequestImageModelEnum :
+    K extends SettingKey.aiContextIncludeJournals ? boolean :
+    K extends SettingKey.aiContextSessionCount ? number :
     K extends SettingKey.defaultAddToSession ? boolean :
     K extends SettingKey.sessionBookmark ? boolean :
     K extends SettingKey.rollTableSettingsMenu ? never :
@@ -540,6 +544,16 @@ export class ModuleSettings {
       settingID: SettingKey.selectedImageModel,
       default: '',
       type: String,
+    },
+    {
+      settingID: SettingKey.aiContextIncludeJournals,
+      default: false,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.aiContextSessionCount,
+      default: 3,
+      type: Number,
     },
     {
       settingID: SettingKey.useGmailToDos,

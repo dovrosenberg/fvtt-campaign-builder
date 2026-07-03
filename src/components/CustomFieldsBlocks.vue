@@ -95,6 +95,7 @@
   import { useContentState } from '@/composables/useContentState';
   import { nameStyles } from '@/utils/nameStyles';
   import { promptReplace } from '@/utils/generation';
+  import GenerationContextService from '@/utils/generationContext';
   import { replaceUUIDsInText } from '@/utils/sanitizeHtml';
   import { FCBDialog } from '@/dialogs';
 
@@ -237,48 +238,10 @@
   };
 
   const buildCustomGenerateRequest = async (field: CustomFieldDescription): Promise<ApiCustomGeneratePostRequest> => {
-    if (!content.value || !currentSetting.value) 
+    if (!content.value || !currentSetting.value)
       throw new Error('No content or setting in CustomFieldsBlocks.buildCustomGenerateRequest');
 
     const setting = await content.value.getSetting();
-
-    // add the other things based on topic
-    let parent: Entry | null = null;
-    let grandparent: Entry | null = null;
-    let type: string = '';
-    let species: string = '';
-    let speciesDescription: string = '';
-
-  switch (props.contentType) {
-    case CustomFieldContentType.Character:
-      type = (content.value as Entry)?.type ?? '';
-      const speciesList = ModuleSettings.get(SettingKey.speciesList) || [];
-      const speciesId = (content.value as Entry)?.speciesId;
-      const speciesItem = speciesList.find((s: any) => s.id === speciesId);
-      species = speciesItem?.name ?? '';
-      speciesDescription = speciesItem?.description ?? '';
-      break;
-    case CustomFieldContentType.PC:
-      break;
-    case CustomFieldContentType.Location:
-    case CustomFieldContentType.Organization:
-    case CustomFieldContentType.Branch:
-      type = (content.value as Entry)?.type ?? '';
-
-      const entry = content.value as unknown as Entry;
-      const parentId = await entry.getParentId();
-      if (parentId) {
-        parent = await Entry.fromUuid(parentId);
-
-        if (parent) {
-          const grandparentId = await parent.getParentId();
-          if (grandparentId) {
-            grandparent = await Entry.fromUuid(grandparentId);
-          }
-        }
-      }
-      break;
-    }
 
     const configuration = {
       minWords: field.configuration?.minWords,
@@ -292,24 +255,20 @@
       avoidListsLongerThan: field.configuration?.avoidListsLongerThan
     }
 
+    // all entity/world details travel in a single TOON-encoded context snippet
     const request = {
       contentType: ApiContentTypeMap[props.contentType],
-      name: (content.value)?.name ?? '',
       fieldLabel: field.label,
       prompt: await resolvePromptFromFieldTemplate(field),
       genre: currentSetting.value.genre ?? '',
       settingFeeling: currentSetting.value.settingFeeling ?? '',
-
-      type,
-      species,
-      speciesDescription,
-      parentName: parent?.name || '',
-      parentType: parent?.type || '',
-      parentDescription: await replaceUUIDsInText(parent?.description || ''),
-      grandparentName: grandparent?.name || '',
-      grandparentType: grandparent?.type || '',
-      grandparentDescription: await replaceUUIDsInText(grandparent?.description || ''),
-      description: await replaceUUIDsInText(String((content.value as any).description ?? '')),
+      // exclude the field being generated so the model doesn't just reproduce the existing value
+      contextSnippet: await GenerationContextService.buildContextSnippet(
+        content.value,
+        props.contentType,
+        currentSetting.value,
+        { kind: 'custom', name: field.name, label: field.label }
+      ),
       nameStyles: selectedNameStyles(currentSetting.value.genre ?? '', (setting as any).nameStyles || []),
       textModel: ModuleSettings.get(SettingKey.selectedTextModel),
       configuration,
