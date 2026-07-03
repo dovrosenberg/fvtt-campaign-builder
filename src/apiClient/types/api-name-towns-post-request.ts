@@ -55,7 +55,9 @@ export interface ApiNameTownsPostRequest {
 export const ApiNameTownsPostRequestTextModelEnum = {
     Gpt5Mini: 'GPT_5_mini',
     Gpt4oMini: 'GPT_4o_mini',
-    Claude3Haiku: 'Claude_3_haiku'
+    Claude3Haiku: 'Claude_3_haiku',
+    Claude5Sonnet: 'Claude_5_sonnet',
+    Claude45Haiku: 'Claude_45_haiku'
 } as const;
 
 export type ApiNameTownsPostRequestTextModelEnum = typeof ApiNameTownsPostRequestTextModelEnum[keyof typeof ApiNameTownsPostRequestTextModelEnum];
