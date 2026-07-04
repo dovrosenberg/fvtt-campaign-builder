@@ -14,8 +14,9 @@ export const registerGenerationContextTests = (context: QuenchBatchContext) => {
    * Stubs ModuleSettings.get for the AI-context settings while passing every other key through.
    * @param sessionCount - Value for aiContextSessionCount.
    * @param includeJournals - Value for aiContextIncludeJournals.
+   * @param lowContext - Value for aiContextLowContext.
    */
-  const stubContextSettings = (sessionCount: number, includeJournals: boolean) => {
+  const stubContextSettings = (sessionCount: number, includeJournals: boolean, lowContext: boolean = false) => {
     const originalGet = ModuleSettings.get.bind(ModuleSettings);
     sinon.stub(ModuleSettings, 'get').callsFake((key: SettingKey) => {
       if (key === SettingKey.aiContextSessionCount) {
@@ -23,6 +24,9 @@ export const registerGenerationContextTests = (context: QuenchBatchContext) => {
       }
       if (key === SettingKey.aiContextIncludeJournals) {
         return includeJournals;
+      }
+      if (key === SettingKey.aiContextLowContext) {
+        return lowContext;
       }
       return originalGet(key);
     });
@@ -470,6 +474,97 @@ export const registerGenerationContextTests = (context: QuenchBatchContext) => {
       expect(snippet).to.not.include('genre:');
       expect(snippet).to.not.include('feeling:');
       expect(snippet).to.not.match(/^index/m);
+    });
+  });
+
+  describe('low context mode', () => {
+    let testSetting: FCBSetting;
+    let greatGrandparentLoc: Entry;
+    let grandparentLoc: Entry;
+    let parentLoc: Entry;
+    let childLoc: Entry;
+    let relatedChar: Entry;
+
+    beforeEach(async () => {
+      stubContextSettings(3, true, true);
+      testSetting = getTestSetting();
+
+      // Location hierarchy: great-grandparent -> grandparent -> parent -> child
+      greatGrandparentLoc = (await Entry.create(testSetting.topicFolders[Topics.Location]!, { name: 'LC Continent' }))!;
+      grandparentLoc = (await Entry.create(testSetting.topicFolders[Topics.Location]!, { name: 'LC Region' }))!;
+      parentLoc = (await Entry.create(testSetting.topicFolders[Topics.Location]!, { name: 'LC City' }))!;
+      childLoc = (await Entry.create(testSetting.topicFolders[Topics.Location]!, { name: 'LC Tavern' }))!;
+      await testSetting.setEntryHierarchy(greatGrandparentLoc.uuid, {
+        parentId: null, locationParentId: null, ancestors: [], children: [grandparentLoc.uuid], childBranches: [], type: ''
+      });
+      await testSetting.setEntryHierarchy(grandparentLoc.uuid, {
+        parentId: greatGrandparentLoc.uuid, locationParentId: null, ancestors: [greatGrandparentLoc.uuid], children: [parentLoc.uuid], childBranches: [], type: ''
+      });
+      await testSetting.setEntryHierarchy(parentLoc.uuid, {
+        parentId: grandparentLoc.uuid, locationParentId: null, ancestors: [grandparentLoc.uuid, greatGrandparentLoc.uuid], children: [childLoc.uuid], childBranches: [], type: ''
+      });
+      await testSetting.setEntryHierarchy(childLoc.uuid, {
+        parentId: parentLoc.uuid, locationParentId: null, ancestors: [parentLoc.uuid, grandparentLoc.uuid, greatGrandparentLoc.uuid], children: [], childBranches: [], type: ''
+      });
+
+      // A related entry that must NOT be pulled in under low context
+      relatedChar = (await Entry.create(testSetting.topicFolders[Topics.Character]!, { name: 'LC Related' }))!;
+      childLoc.relationships = {
+        [Topics.Character]: {
+          [relatedChar.uuid]: { uuid: relatedChar.uuid, name: relatedChar.name, type: '', extraFields: {} }
+        }
+      } as never;
+      childLoc.description = '<p>LC child description</p>';
+      await childLoc.save();
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should include only the primary entry, parent, and grandparent with name/description only', async () => {
+      const tree = await GenerationContextService.buildLowContextTree(childLoc, testSetting);
+
+      const locationUuids = (tree.entries?.locations || []).map(l => l.uuid);
+      expect(locationUuids).to.include(childLoc.uuid);
+      expect(locationUuids).to.include(parentLoc.uuid);
+      expect(locationUuids).to.include(grandparentLoc.uuid);
+      // great-grandparent excluded (only 2 levels up), related entries and journals ignored
+      expect(locationUuids).to.not.include(greatGrandparentLoc.uuid);
+      expect(tree.entries?.characters).to.have.length(0);
+
+      const primaryNode = tree.entries?.locations.find(l => l.uuid === childLoc.uuid);
+      expect(primaryNode?.primaryEntity).to.equal(true);
+      expect(primaryNode?.description).to.include('LC child description');
+      // slim nodes carry only uuid/primaryEntity/name/description
+      expect(Object.keys(primaryNode!).sort()).to.deep.equal(['description', 'name', 'primaryEntity', 'uuid']);
+    });
+
+    it('should include only the primary entity for non-entry types', async () => {
+      const campaign = (await Campaign.create(testSetting, 'LC Campaign'))!;
+      const session = (await Session.create(campaign, 'LC Session'))!;
+
+      const tree = await GenerationContextService.buildLowContextTree(session, testSetting);
+      expect(tree.session?.primaryEntity).to.equal(true);
+      expect(tree.session?.name).to.equal(session.name);
+      expect(tree.entries).to.be.undefined;
+      expect((tree as unknown as Record<string, unknown>).campaigns).to.be.undefined;
+    });
+
+    it('should blank an excluded built-in description on the primary node', async () => {
+      const tree = await GenerationContextService.buildLowContextTree(childLoc, testSetting, { kind: 'builtIn', key: 'description' });
+      const primaryNode = tree.entries?.locations.find(l => l.uuid === childLoc.uuid);
+      expect(primaryNode?.description).to.equal('');
+    });
+
+    it('should encode the low-context tree in buildContextSnippet when the setting is on', async () => {
+      const snippet = await GenerationContextService.buildContextSnippet(childLoc, CustomFieldContentType.Location, testSetting);
+      expect(snippet).to.include('LC Tavern');
+      expect(snippet).to.include('primaryEntity');
+      // no setting node, journals, or related entries in low-context mode
+      expect(snippet).to.not.include(testSetting.name);
+      expect(snippet).to.not.include('LC Related');
+      expect(snippet).to.not.include('referencedJournals');
     });
   });
 };

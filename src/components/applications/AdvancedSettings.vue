@@ -119,6 +119,20 @@
                   {{ localize('applications.advancedSettings.labels.aiContextIncludeJournalsHint') }}
                 </p>
               </div>
+
+              <div class="form-group">
+                <label>{{ localize('applications.advancedSettings.labels.aiContextLowContext') }}</label>
+                <div class="form-fields">
+                  <Checkbox
+                    v-model="aiContextLowContext"
+                    data-testid="ai-context-low-context-checkbox"
+                    :binary="true"
+                  />
+                </div>
+                <p class="hint">
+                  {{ localize('applications.advancedSettings.labels.aiContextLowContextHint') }}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -246,6 +260,7 @@
   const selectedImageModel = ref<string>('');
   const aiContextSessionCount = ref<number>(3);
   const aiContextIncludeJournals = ref<boolean>(false);
+  const aiContextLowContext = ref<boolean>(false);
   const textModelOptions = ref<{id: string, name: string, description: string}[]>([]);
   const imageModelOptions = ref<{id: string, name: string, description: string}[]>([]);
   const contentRef = ref<HTMLElement | null>(null);
@@ -320,6 +335,7 @@
     await ModuleSettings.set(SettingKey.selectedImageModel, selectedImageModel.value as ApiLocationGenerateImagePostRequestImageModelEnum);
     await ModuleSettings.set(SettingKey.aiContextSessionCount, aiContextSessionCount.value);
     await ModuleSettings.set(SettingKey.aiContextIncludeJournals, aiContextIncludeJournals.value);
+    await ModuleSettings.set(SettingKey.aiContextLowContext, aiContextLowContext.value);
 
     // reset the backend
     await useBackendStore().configure(true);
@@ -342,6 +358,7 @@
     selectedImageModel.value = ModuleSettings.get(SettingKey.selectedImageModel);
     aiContextSessionCount.value = ModuleSettings.get(SettingKey.aiContextSessionCount);
     aiContextIncludeJournals.value = ModuleSettings.get(SettingKey.aiContextIncludeJournals);
+    aiContextLowContext.value = ModuleSettings.get(SettingKey.aiContextLowContext);
     await loadCampaigns(emailDefaultSetting.value);
   }
 
@@ -369,6 +386,7 @@
     emailDefaultCampaign.value = ModuleSettings.get(SettingKey.emailDefaultCampaign);
     aiContextSessionCount.value = ModuleSettings.get(SettingKey.aiContextSessionCount);
     aiContextIncludeJournals.value = ModuleSettings.get(SettingKey.aiContextIncludeJournals);
+    aiContextLowContext.value = ModuleSettings.get(SettingKey.aiContextLowContext);
 
     // load the settings and campaigns
     await loadSettings();

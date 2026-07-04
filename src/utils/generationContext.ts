@@ -110,6 +110,33 @@ export type GenerationContextTree = {
 /** Any document that can be the primary entity of a generation request. */
 export type PrimaryEntity = Entry | Campaign | Session | Arc | Front | FCBSetting;
 
+/** Minimal node used in low-context mode: name and description only. */
+export type LowContextNode = {
+  uuid: string;
+  primaryEntity?: boolean;
+  name: string;
+  description: string;
+};
+
+/**
+ * Tree produced in low-context mode: for entries, just the primary + parent + grandparent
+ * (bucketed by topic like the full tree); for every other primary type, just the primary
+ * entity under its own key. All other inclusion logic is skipped.
+ */
+export type LowGenerationContextTree = {
+  entries?: {
+    characters: LowContextNode[];
+    locations: LowContextNode[];
+    organizations: LowContextNode[];
+    pcs: LowContextNode[];
+  };
+  setting?: LowContextNode;
+  campaign?: LowContextNode;
+  session?: LowContextNode;
+  arc?: LowContextNode;
+  front?: LowContextNode;
+};
+
 /**
  * The field currently being generated. It is excluded from the primary entity's node in the
  * snippet — otherwise the model tends to just reproduce the existing value.
@@ -659,6 +686,100 @@ const assembleForSetting = async (setting: FCBSetting, context: BuildContext): P
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+// Low-context mode
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Builds a minimal low-context node (name/description only) for any primary-capable document.
+ * The generated field is blanked on the primary node just like in full mode.
+ * @param doc - Source document.
+ * @param isPrimary - Whether this is the primary entity.
+ * @param excludeField - The field being generated (only 'description' can apply here).
+ * @returns Minimal node.
+ */
+const buildLowContextNode = (
+  doc: { uuid: string; name: string; description?: string | null },
+  isPrimary: boolean,
+  excludeField?: ExcludedField
+): LowContextNode => {
+  // the description is blanked when it's the field being generated (custom fields aren't included at all)
+  const descriptionExcluded = isPrimary && excludeField?.kind === 'builtIn' && excludeField.key === 'description';
+  const description = !descriptionExcluded && doc.description?.trim() ? cleanText(doc.description, 5) : '';
+  return isPrimary
+    ? { uuid: doc.uuid, primaryEntity: true, name: doc.name, description }
+    : { uuid: doc.uuid, name: doc.name, description };
+};
+
+/**
+ * Builds the low-context tree: for an Entry primary, the entry plus its parent and grandparent
+ * (name/description only); for any other primary type, just the primary entity. Journals,
+ * relationships, sessions, and all other inclusion logic are skipped.
+ * @param primary - The entity text is being generated for.
+ * @param setting - The current setting (used only to resolve the entry hierarchy).
+ * @param excludeField - The field being generated, stripped from the primary node.
+ * @returns The minimal context tree.
+ */
+const buildLowContextTree = async (
+  primary: PrimaryEntity,
+  setting: FCBSetting,
+  excludeField?: ExcludedField
+): Promise<LowGenerationContextTree> => {
+  if (primary instanceof Entry) {
+    const buckets = { characters: [] as LowContextNode[], locations: [] as LowContextNode[], organizations: [] as LowContextNode[], pcs: [] as LowContextNode[] };
+
+    // buckets mirror the full tree so the backend sees consistent keys
+    const push = (entry: Entry, isPrimary: boolean): void => {
+      const node = buildLowContextNode(entry, isPrimary, excludeField);
+      switch (entry.topic) {
+        case Topics.Character:
+          buckets.characters.push(node);
+          break;
+        case Topics.Location:
+          buckets.locations.push(node);
+          break;
+        case Topics.Organization:
+          buckets.organizations.push(node);
+          break;
+        case Topics.PC:
+          buckets.pcs.push(node);
+          break;
+      }
+    };
+
+    push(primary, true);
+
+    // parent and grandparent only — not the full ancestor chain
+    const parentId = setting.getEntryHierarchy(primary.uuid)?.parentId;
+    const parent = parentId ? await Entry.fromUuid(parentId) : null;
+    if (parent) {
+      push(parent, false);
+      const grandparentId = setting.getEntryHierarchy(parent.uuid)?.parentId;
+      const grandparent = grandparentId ? await Entry.fromUuid(grandparentId) : null;
+      if (grandparent) {
+        push(grandparent, false);
+      }
+    }
+
+    return { entries: buckets };
+  }
+
+  const node = buildLowContextNode(primary, true, excludeField);
+  if (primary instanceof Session) {
+    return { session: node };
+  }
+  if (primary instanceof Arc) {
+    return { arc: node };
+  }
+  if (primary instanceof Front) {
+    return { front: node };
+  }
+  if (primary instanceof Campaign) {
+    return { campaign: node };
+  }
+  return { setting: node };
+};
+
+////////////////////////////////////////////////////////////////////////////////
 // Service
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -780,8 +901,24 @@ const GenerationContextService = {
   },
 
   /**
+   * Builds the minimal low-context tree for a primary entity (see buildLowContextTree). Exposed
+   * separately from buildContextSnippet mainly for tests and debugging.
+   * @param primary - The entity text is being generated for.
+   * @param setting - The current setting.
+   * @param excludeField - The field being generated, stripped from the primary node.
+   * @returns The minimal context tree.
+   */
+  buildLowContextTree: async (
+    primary: PrimaryEntity,
+    setting: FCBSetting,
+    excludeField?: ExcludedField
+  ): Promise<LowGenerationContextTree> =>
+    buildLowContextTree(primary, setting, excludeField),
+
+  /**
    * Builds the TOON-encoded context snippet for a primary entity, ready to send as the
-   * `contextSnippet` field of a text-generation request.
+   * `contextSnippet` field of a text-generation request. When the low-context module setting
+   * is enabled, a minimal tree (primary + immediate parents, name/description only) is sent.
    * @param primary - The entity text is being generated for.
    * @param contentType - The entity's custom-field content type (disambiguates Branch etc.).
    * @param setting - The current setting; all context is scoped to it.
@@ -794,7 +931,9 @@ const GenerationContextService = {
     setting: FCBSetting,
     excludeField?: ExcludedField
   ): Promise<string> => {
-    const tree = await GenerationContextService.buildContextTree(primary, contentType, setting, excludeField);
+    const tree = ModuleSettings.get(SettingKey.aiContextLowContext)
+      ? await buildLowContextTree(primary, setting, excludeField)
+      : await GenerationContextService.buildContextTree(primary, contentType, setting, excludeField);
     return encode(tree as unknown as JsonValue, { replacer: toonReplacer });
   }
 };

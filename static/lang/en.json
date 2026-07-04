@@ -178,7 +178,9 @@
           "aiContextSessionCount": "Sessions in AI Context",
           "aiContextSessionCountHint": "How many recent sessions per campaign to include as context when generating text with AI (more sessions = higher cost)",
           "aiContextIncludeJournals": "Include Journals in AI Context",
-          "aiContextIncludeJournalsHint": "Include referenced Foundry journal entries as context when generating text with AI (may significantly increase cost)"
+          "aiContextIncludeJournalsHint": "Include referenced Foundry journal entries as context when generating text with AI (may significantly increase cost)",
+          "aiContextLowContext": "Low Context Mode",
+          "aiContextLowContextHint": "Send minimal context when generating text with AI: only the item being generated (plus parent and grandparent for entries), with just names and descriptions (lowest cost)"
         },
         "tabs":{
           "backend": "Backend",
