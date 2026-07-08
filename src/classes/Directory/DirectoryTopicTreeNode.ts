@@ -66,4 +66,15 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
       CollapsibleNode._loadedNodes[newNode.id] = newNode;
     }
   }
+
+  /**
+   * Branches are intentionally excluded from the topic tree (they render inside Branches
+   * folders instead), so a child whose index row is flagged isBranch is expected to be missing.
+   * @override
+   * @param id uuid of the child that failed to load
+   * @returns true if the child is a branch entry
+   */
+  protected override _isExpectedMissingChild(id: string): boolean {
+    return this.topicFolder.entryIndex.some((e: EntryBasicIndex) => e.uuid === id && !!e.isBranch);
+  }
 }

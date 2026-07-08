@@ -41,9 +41,10 @@ export class MigrationV1_10_3 implements Migration {
           continue;
 
         // branches live in the Organization topic, identified by locationParentId in the hierarchy
+        // note: falsy check (not just == null) because some older hierarchies stored '' instead of null
         let changed = false;
         for (const [uuid, hierarchy] of Object.entries(hierarchies)) {
-          if (!hierarchy || hierarchy.locationParentId == null)
+          if (!hierarchy || !hierarchy.locationParentId)
             continue;
 
           const entryItem = orgFolder.entryIndex.find((e) => e.uuid === uuid);

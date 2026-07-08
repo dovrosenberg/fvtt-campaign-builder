@@ -101,6 +101,17 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
    * @param updateEntryIds uuids of the nodes that should be refreshed (i.e. load them even if present)
    */
   protected abstract _loadNodeList(ids: string[], updateEntryIds: string[] ): Promise<void>;
+
+  /**
+   * Whether a child id is expected to be absent from _loadedNodes after _loadNodeList runs
+   * (e.g. branches, which are intentionally excluded from the topic tree). Subclasses override
+   * this so recursivelyLoadNode() can skip such children without logging a warning.
+   * @param _id uuid of the child that failed to load
+   * @returns true if the child is intentionally not loadable
+   */
+  protected _isExpectedMissingChild(_id: string): boolean {
+    return false;
+  }
   
   /**
    * This function is used to load all of the child nodes of the current node and update their expanded states.
@@ -151,8 +162,9 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
       } else {
         // should never happen because everything should be in _loadedNodes
         // this happens (for ex.) when an entry is in the setting's hierarchy but the topic's filterEntries() doesn't return it
-        // log a warning and skip this child instead of throwing
-        console.warn(`Entry failed to load properly in CollapsibleNode.recursivelyLoadNode(), skipping: ${this.children[i]}`);
+        // log a warning and skip this child instead of throwing - unless it's intentionally not loadable (e.g. a branch)
+        if (!this._isExpectedMissingChild(this.children[i]))
+          console.warn(`Entry failed to load properly in CollapsibleNode.recursivelyLoadNode(), skipping: ${this.children[i]}`);
         continue;
       }
 
