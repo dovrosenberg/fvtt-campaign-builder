@@ -7,6 +7,12 @@
 **Discord**: Join the [Discord Server](https://discord.gg/zKWCkwbnn3) for discussion, questions, or requests
 
 # Change Log
+## 1.10.5 - Bug fixes
+![](https://img.shields.io/badge/release%20date-July%208%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.5/module.zip)
+
+- Fixed a bug where some organizations could be incorrectly flagged as branches and disappear from the directory tree.  If you're experiencing this, installing this update should bring them all back. 
+
 ## 1.10.4 - Popout
 ![](https://img.shields.io/badge/release%20date-June%207%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.4/module.zip)
