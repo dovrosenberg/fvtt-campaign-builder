@@ -99,7 +99,12 @@
       "tabVisibilityHelp": "Configurer quels onglets sont visibles pour chaque type de contenu",
       "associationTags": "Tags d'association",
       "associationTagsLabel": "Configurer les tags d'association",
-      "associationTagsHelp": "Configurer les tags associés aux acteurs (pour les personnages) et aux scènes (pour les lieux)"
+      "associationTagsHelp": "Configurer les tags associés aux acteurs (pour les personnages) et aux scènes (pour les lieux)",
+      "alwaysPopout": "Toujours ouvrir dans une fenêtre pop-up",
+      "alwaysPopoutHelp": "Lorsqu'elle est activée, la fenêtre principale s'ouvrira automatiquement détachée dans une fenêtre de navigateur séparée. (Nécessite Foundry v14+.)",
+      "repairIndexes": "Réparer les index de documents",
+      "repairIndexesLabel": "Réparer les index",
+      "repairIndexesHelp": "Outil de récupération de dernier recours qui reconstruit les index de répertoire à partir des documents réels. En général, ne l'utilisez qu'à la demande du créateur du module après avoir soumis un rapport de bug."
     },
     "applications": {
       "sessionNotes": {
@@ -1035,6 +1040,10 @@
         "noLocations": "Aucun lieu disponible",
         "selectedCount": "{count} lieu(x) sélectionné(s)",
         "existingBranch": "(branche existante)"
+      },
+      "repairIndexes": {
+        "title": "Réparer les index de documents ?",
+        "message": "Ceci est un outil de récupération de dernier recours - en général, vous ne devriez l'exécuter qu'à la demande du créateur du module après avoir soumis un rapport de bug. Êtes-vous sûr de vouloir continuer ?"
       }
     },
     "contextMenus": {
@@ -1232,7 +1241,8 @@
       "openFoundryScene": "Ouvrir la scène de la fonderie",
       "noActorsAttached": "Aucun acteur attaché",
       "noScenesAttached": "Aucune scène attachée",
-      "dragToScene": "Faites glisser vers la scène"
+      "dragToScene": "Faites glisser vers la scène",
+      "popoutWindow": "Ouvrir dans une fenêtre séparée"
     },
     "notifications": {
       "backend": {
@@ -1253,7 +1263,7 @@
       "participantCopiedToNextSession": "Participant copié à la session suivante",
       "locationCopiedToNextSession": "Lieu copié à la session suivante",
       "monsterCopiedToNextSession": "Monstre copié à la session suivante",
-      "documentIndexesRepaired": "Tous les index des documents ont été réparés avec succès !",
+      "documentIndexesRepaired": "Tous les index de documents ont été réparés avec succès ! Rafraîchissez votre navigateur pour voir les changements.",
       "duplicateBookmark": "Déjà enregistré comme un signet",
       "nameRequired": "Le nom ne peut pas être vide",
       "failedToRepairIndexes": "Échec de la réparation des index. Vérifiez la console pour plus de détails.",

@@ -99,7 +99,12 @@
       "tabVisibilityHelp": "Konfigurieren Sie, welche Tabs für jeden Inhaltstyp sichtbar sind",
       "associationTags": "Assoziationstags",
       "associationTagsLabel": "Assoziationstags konfigurieren",
-      "associationTagsHelp": "Konfigurieren Sie Tags, die mit Schauspielern (für Charaktere) und Szenen (für Orte) verknüpft sind"
+      "associationTagsHelp": "Konfigurieren Sie Tags, die mit Schauspielern (für Charaktere) und Szenen (für Orte) verknüpft sind",
+      "alwaysPopout": "Immer im Pop-out-Fenster öffnen",
+      "alwaysPopoutHelp": "Wenn aktiviert, wird das Hauptfenster automatisch in einem separaten Browserfenster geöffnet. (Erfordert Foundry v14+.)",
+      "repairIndexes": "Dokumentenindizes reparieren",
+      "repairIndexesLabel": "Indizes reparieren",
+      "repairIndexesHelp": "Letztes Mittel zur Wiederherstellung, das die Verzeichnisindizes aus den tatsächlichen Dokumenten neu erstellt. Normalerweise nur auf Anweisung des Modulherstellers nach Einreichung eines Fehlerberichts verwenden."
     },
     "applications": {
       "sessionNotes": {
@@ -1035,6 +1040,10 @@
         "noLocations": "Keine Orte verfügbar",
         "selectedCount": "{count} Ort(e) ausgewählt",
         "existingBranch": "(Zweig existiert)"
+      },
+      "repairIndexes": {
+        "title": "Dokumentenindizes reparieren?",
+        "message": "Dies ist ein letztes Mittel zur Wiederherstellung - normalerweise sollten Sie es nur auf Anweisung des Modulherstellers nach Einreichung eines Fehlerberichts ausführen. Sind Sie sicher, dass Sie fortfahren möchten?"
       }
     },
     "contextMenus": {
@@ -1232,7 +1241,8 @@
       "openFoundryScene": "Foundry-Szene öffnen",
       "noActorsAttached": "Keine Schauspieler angehängt",
       "noScenesAttached": "Keine Szenen angehängt",
-      "dragToScene": "In Szene ziehen"
+      "dragToScene": "In Szene ziehen",
+      "popoutWindow": "In ein separates Fenster auskoppeln"
     },
     "notifications": {
       "backend": {
@@ -1253,7 +1263,7 @@
       "participantCopiedToNextSession": "Teilnehmer in die nächste Sitzung kopiert",
       "locationCopiedToNextSession": "Ort in die nächste Sitzung kopiert",
       "monsterCopiedToNextSession": "Monster in die nächste Sitzung kopiert",
-      "documentIndexesRepaired": "Alle Dokumentindizes wurden erfolgreich repariert!",
+      "documentIndexesRepaired": "Alle Dokumentenindizes wurden erfolgreich repariert! Aktualisieren Sie Ihren Browser, um die Änderungen zu sehen.",
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert",
       "nameRequired": "Name darf nicht leer sein",
       "failedToRepairIndexes": "Fehler beim Reparieren der Indizes. Überprüfen Sie die Konsole für Details.",
