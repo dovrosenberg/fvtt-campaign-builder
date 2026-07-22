@@ -10,10 +10,11 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
     let mockDataTransfer;
     let mockDragEvent;
     const originalFromUuid = foundry.utils.fromUuid;
+    let fromUuidStubbed = false;
 
     /**
      * Replaces foundry.utils.fromUuid with a sinon stub.
-     * The property is non-configurable, so we must use Object.defineProperty.
+     * The property may be non-writable, so we must use Object.defineProperty.
      */
     const stubFromUuid = (resolveValue: unknown): sinon.SinonStub => {
       const stub = sandbox.stub().resolves(resolveValue);
@@ -22,6 +23,7 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
         configurable: true,
         writable: true,
       });
+      fromUuidStubbed = true;
       return stub;
     };
 
@@ -44,13 +46,16 @@ export const registerDragDropTests = (context: QuenchBatchContext) => {
     });
 
     afterEach(() => {
-      // Restore the original fromUuid before sandbox.restore()
-      // Keep writable: true so subsequent tests can redefine it
-      Object.defineProperty(foundry.utils, 'fromUuid', {
-        value: originalFromUuid,
-        configurable: true,
-        writable: true,
-      });
+      // Only restore if we actually replaced it - the original property may be
+      // non-configurable, in which case redefining it throws
+      if (fromUuidStubbed) {
+        Object.defineProperty(foundry.utils, 'fromUuid', {
+          value: originalFromUuid,
+          configurable: true,
+          writable: true,
+        });
+        fromUuidStubbed = false;
+      }
       sandbox.restore();
     });
 

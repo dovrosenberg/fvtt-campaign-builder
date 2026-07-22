@@ -358,8 +358,11 @@ export const registerSettingDirectoryStoreTests = (context: QuenchBatchContext) 
 
         await settingDirectoryStore.toggleTopic(topicNode);
 
-        // The expansion should have changed
-        expect(topicNode.expanded).to.equal(!initialExpanded);
+        // toggleTopic swaps in a fresh node instance rather than mutating the one passed in,
+        //   so read the current node back out of the tree
+        const toggledNode = settingDirectoryStore.currentSettingTree.value[0]?.topicNodes.find((n) => n.id === topicNode.id);
+
+        expect(toggledNode?.expanded).to.equal(!initialExpanded);
       });
     });
   });

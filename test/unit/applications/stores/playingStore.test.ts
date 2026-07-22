@@ -38,6 +38,13 @@ export const registerPlayingStoreTests = (context: QuenchBatchContext) => {
     beforeEach(async () => {
       sandbox = sinon.createSandbox();
 
+      // the shared test setting persists across tests, so remove any campaigns left behind
+      //   by earlier tests - leftovers change which campaign gets auto-selected for play
+      const existingSetting = getTestSetting();
+      for (const campaign of Object.values(await existingSetting.loadCampaigns())) {
+        await campaign.delete();
+      }
+
       // Create a fresh pinia instance for each test
       setActivePinia(createPinia());
 
@@ -197,7 +204,10 @@ export const registerPlayingStoreTests = (context: QuenchBatchContext) => {
       beforeEach(() => {
         openSessionNotesStub = sandbox.stub(openSessionNotes);
         closeSessionNotesStub = sandbox.stub(SessionNotesApplication, 'close').resolves();
-        moduleSettingsGetStub = sandbox.stub(ModuleSettings, 'get');
+        // call through by default - returning undefined for every key breaks unrelated code
+        //   (e.g. FCBJournalEntryPage.settingId needs SettingKey.settingIndex)
+        const originalGet = ModuleSettings.get.bind(ModuleSettings);
+        moduleSettingsGetStub = sandbox.stub(ModuleSettings, 'get').callsFake((key) => originalGet(key));
       });
 
       it('should set campaign id when entering play mode', async () => {
