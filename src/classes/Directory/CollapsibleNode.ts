@@ -3,11 +3,25 @@
  */
 
 import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, FCBSetting, DirectoryArcNode, DirectoryFrontFolder, DirectoryFrontNode, DirectoryStoryWebFolder, DirectoryStoryWebNode, DirectoryBranchEntryNode, DirectoryBranchFolderNode } from '@/classes';
+import GlobalSettingService from '@/utils/globalSettings';
 
 type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode | DirectoryArcNode | DirectoryFrontFolder | DirectoryFrontNode | DirectoryStoryWebFolder | DirectoryStoryWebNode | DirectoryBranchEntryNode | DirectoryBranchFolderNode;
 
 export abstract class CollapsibleNode<ChildType extends NodeType | never> {
-  protected static _currentSetting: FCBSetting | null = null;
+  /** uuid of the current setting; the instance itself is always resolved through GlobalSettingService */
+  protected static _currentSettingId: string | null = null;
+
+  /**
+   * The current setting, resolved through the GlobalSettingService cache on every access
+   * so the directory tree can never hold a stale instance whose save() would roll back
+   * newer writes (see issue #804). mainStore.setNewSetting() is the writer.
+   */
+  protected static get _currentSetting(): FCBSetting | null {
+    if (!CollapsibleNode._currentSettingId)
+      return null;
+
+    return GlobalSettingService.getCachedSetting(CollapsibleNode._currentSettingId);
+  }
 
   /** maps uuid to the node for easy lookup **/
   protected static _loadedNodes = {} as Record<string, NodeType>;   
@@ -31,7 +45,7 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   }
 
   public static set currentSetting(setting: FCBSetting | null) {
-    CollapsibleNode._currentSetting = setting;
+    CollapsibleNode._currentSettingId = setting?.uuid ?? null;
     CollapsibleNode._loadedNodes = {};
   }
 

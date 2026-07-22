@@ -148,7 +148,7 @@
       </div>
     </div>
     <footer class="form-footer" data-application-part="footer">
-      <button 
+      <button
         data-testid="advanced-settings-reset-button"
         @click="onResetClick"
       >

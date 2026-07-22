@@ -7,6 +7,12 @@
 **Discord**: Join the [Discord Server](https://discord.gg/zKWCkwbnn3) for discussion, questions, or requests
 
 # Change Log
+## 1.10.6 - Fix for missing directory entries
+![](https://img.shields.io/badge/release%20date-July%2022%2C%202026-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.6/module.zip)
+
+- Fixed a bug where some actions (particularly expanding/collapsing tree nodes) if done while viewing the setting description tab could cause certain content to go missing from the Tree.  Also added a button in the settings to clean up indexes to fix this.  **If you are seeing this behavior in 1.10.5 or earlier, you can click that button after updating to 1.10.6.  I recommend not using it for any further problems without first filing a bug report.**
+
 ## 1.10.5 - Bug fixes
 ![](https://img.shields.io/badge/release%20date-July%208%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.5/module.zip)

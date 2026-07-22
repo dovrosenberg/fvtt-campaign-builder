@@ -11,6 +11,7 @@ import { StoryWebSettingsApplication } from '@/applications/settings/StoryWebSet
 import { ImportExportApplication } from '@/applications/settings/ImportExportApplication';
 import { TabVisibilitySettingsApplication } from '@/applications/settings/TabVisibilitySettingsApplication';
 import { AssociationTagsApplication } from '@/applications/settings/AssociationTagsApplication';
+import { RepairIndexesApplication } from '@/applications/settings/RepairIndexesApplication';
 import { ApiCustomGenerateImagePostRequestImageConfiguration, ApiCustomGenerateImagePostRequestImageModelEnum, ApiCustomGenerateImagePostRequestTextModelEnum } from '@/apiClient';
 import { StoryWebNodeTypes, SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, GroupableItem, TabVisibilityItem, TabVisibilitySettings, FoundryTag } from '@/types';
 
@@ -109,6 +110,9 @@ export enum SettingKey {
 
   // import/export menu
   importExportMenu = 'importExportMenu', // display the import/export menu
+
+  // index repair (recovery tool)
+  repairIndexesMenu = 'repairIndexesMenu', // button that runs the document index repair
 
   // tab visibility settings
   tabVisibilityMenu = 'tabVisibilityMenu', // display the tab visibility menu
@@ -332,6 +336,14 @@ export class ModuleSettings {
       hint: 'settings.importExportHelp',
       icon: 'fa-solid fa-file-import',
       type: ImportExportApplication,
+    },
+    {
+      settingID: SettingKey.repairIndexesMenu,
+      name: 'settings.repairIndexes',
+      label: 'fcb.settings.repairIndexesLabel',   // localized by Foundry
+      hint: 'settings.repairIndexesHelp',
+      icon: 'fa-solid fa-wrench',
+      type: RepairIndexesApplication,
     },
   ];
 

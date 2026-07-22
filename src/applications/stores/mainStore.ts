@@ -2,7 +2,7 @@
 // Content-specific refs (currentEntry, currentCampaign, etc.) delegate to the focused panel's TabPanelState.
 
 // library imports
-import { computed, ref, shallowRef, watch, } from 'vue';
+import { computed, ref, shallowRef, triggerRef, watch, } from 'vue';
 
 // local imports
 import { useNavigationStore } from '@/applications/stores';
@@ -152,20 +152,29 @@ export const mainStore = () => {
     await _focusedPanelState.value?.refreshTagResults();
   };
 
+  /**
+   * Refreshes the current setting without ever creating a second live FCBSetting instance;
+   * divergent instances clobber each other via whole-system saves.
+   */
   const refreshSetting = async function (reload = false): Promise<void> {
-    if (!_currentSetting.value?.raw?.parent)
+    const setting = _currentSetting.value;
+    if (!setting?.raw?.parent)
       return;
 
-    // just force all reactivity to update
-    let newSetting;
     if (reload) {
-      newSetting = await FCBSetting.fromUuid(_currentSetting.value.raw.parent.uuid);
-    } else {
-      newSetting = new FCBSetting(_currentSetting.value.raw.parent as unknown as JournalEntry);
-    }
+      // evict + reload in one step so the store, the global cache, and the directory
+      // tree all end up sharing the same new instance
+      const newSetting = await GlobalSettingService.reloadGlobalSetting(setting.uuid);
+      if (!newSetting)
+        return;
 
-    await newSetting.populate();
-    _currentSetting.value = newSetting;
+      _currentSetting.value = newSetting;
+      CollapsibleNode.currentSetting = newSetting;
+    } else {
+      // re-populate the existing cached instance in place and force reactivity to update
+      await setting.populate();
+      triggerRef(_currentSetting);
+    }
   };
 
 

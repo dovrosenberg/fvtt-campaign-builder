@@ -344,12 +344,7 @@ export class StoryWeb extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.StoryWeb
     data.system.nodeStyles = CleanKeysService.cleanKeysOnSave(data.system.nodeStyles);
   }
 
-  public async save(): Promise<void> {
-    // nothing special
-    await super.save();
-  }
-
-  /** 
+  /**
    * @param skipDelete - if true, don't delete the Foundry document itself; used when Foundry deletes something outside the app
    */
   public async delete(skipDelete = false): Promise<void> {

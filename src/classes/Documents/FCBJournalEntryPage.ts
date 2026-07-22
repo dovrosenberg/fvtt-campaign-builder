@@ -35,6 +35,9 @@ export class FCBJournalEntryPage<
   protected _clone: DocClass;  // these are the pages - not the journalentry
   protected _doc: DocClass;
 
+  /** serializes overlapping writes to the underlying document; see _enqueueSave() */
+  private _savePromise: Promise<void> = Promise.resolve();
+
   static _defaultSystem: DocClassOf<any>['system'];
   static _documentType: ValidDocType;
 
@@ -229,11 +232,51 @@ export class FCBJournalEntryPage<
   /**
    * Updates document in the database and updates the name on the parent
    *    journal entry if needed
-   * 
+   *
    * Throws an error on failure (ex. a foundry validation or other error)
-   * 
+   *
+   * Subclasses should override _doSave() rather than this method so their save
+   *    logic runs inside the serialization queue (see _enqueueSave()).
    */
   async save(): Promise<void> {
+    await this._enqueueSave(() => this._doSave());
+
+    // post-save refreshes run OUTSIDE the queued region: if one of them ever triggered
+    // another save on this same instance, queuing it behind the in-flight task would deadlock
+
+    // Refresh all panels showing this content to keep them in sync.
+    const navigationStore = useNavigationStore();
+    await navigationStore.refreshContentAcrossPanels(this.uuid);
+
+    // When a non-story-web document changes, regenerate story web graphs that
+    // reference it so they pick up updated entry names, relationships, etc.
+    if (this._doc.type !== DOCUMENT_TYPES.StoryWeb) {
+      const storyWebStore = useStoryWebStore();
+      await storyWebStore.regenerateAllGraphs(this.uuid);
+    }
+  }
+
+  /**
+   * Queues a write behind any in-flight save so writes to the underlying document never
+   * interleave. Foundry provides no client-side serialization of concurrent updates to the
+   * same document, and save() re-snapshots _doc/_clone from the update result, so two
+   * overlapping saves on the same wrapper could otherwise clobber each other.
+   * @param task - the write operation to run once prior saves settle
+   * @returns a promise resolving when the task completes (rejections propagate to the caller)
+   */
+  protected _enqueueSave(task: () => Promise<void>): Promise<void> {
+    const run = this._savePromise.then(task);
+    // keep the chain alive even if this write fails; the failure still reaches the caller via run
+    this._savePromise = run.catch(() => {});
+    return run;
+  }
+
+  /**
+   * The actual full-document save; only ever invoked through the _enqueueSave() chain.
+   * Subclasses that need to wrap the whole save (not just add pre/post steps) should
+   * override this rather than save() so they stay inside the queue.
+   */
+  protected async _doSave(): Promise<void> {
     if (!this._doc.parent)
       throw new Error(`Invalid journal entry page in FCBJournalEntryPage.save() ${this.uuid}`);
   
@@ -269,17 +312,6 @@ export class FCBJournalEntryPage<
         // reset the doc and clone
         this._doc = retval;
         this._clone = retval.clone({}, { keepId: true });
-      }
-
-      // Refresh all panels showing this content to keep them in sync.
-      const navigationStore = useNavigationStore();
-      await navigationStore.refreshContentAcrossPanels(this.uuid);
-
-      // When a non-story-web document changes, regenerate story web graphs that
-      // reference it so they pick up updated entry names, relationships, etc.
-      if (this._doc.type !== DOCUMENT_TYPES.StoryWeb) {
-        const storyWebStore = useStoryWebStore();
-        await storyWebStore.regenerateAllGraphs(this.uuid);
       }
     } catch (e) {
       throw new Error(`Error updating journal entry page ${this._doc.uuid} ${this._doc.name}: ${e}`);

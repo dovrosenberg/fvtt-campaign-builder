@@ -398,22 +398,19 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
 
   // used to set arbitrary properties on the entryDoc
   /**
-   * Updates an entry in the database
-   * 
-   * @returns {Promise<void>} A promise that resolves after the update
+   * The actual full-document save; runs inside the base class's _enqueueSave() chain, so it
+   * calls super._doSave() (not super.save(), which would re-enqueue and deadlock). The change
+   * flags are computed inside the queued region so a concurrent save can't re-snapshot _doc
+   * out from under them.
    */
-  public async save(): Promise<void> {
+  protected override async _doSave(): Promise<void> {
     const needToAddType = this._doc.system.type !== this._clone.system.type;
     const nameChanged = this._doc.name !== this._clone.name;
-    
-    // we attempt to save first - because if it fails, we don't 
+
+    // we attempt to save first - because if it fails, we don't
     //    want to adjust anything else
-    try {
-      // this will reload relationships with a valid value
-      await super.save();        
-    } catch (error) {
-      throw error;
-    }
+    // this will reload relationships with a valid value
+    await super._doSave();
 
     const setting = await this.getSetting();
 
