@@ -655,20 +655,20 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     data.system.tags = CleanKeysService.cleanKeysOnSave(data.system.tags);
   }
   
-  public async save() {
+  /**
+   * The actual full-document save; runs inside the base class's _enqueueSave() chain, so it
+   * calls super._doSave() (not super.save(), which would re-enqueue and deadlock).
+   */
+  protected override async _doSave() {
     const nameChanged = this._clone.name !== this._doc.name;
 
     // we attempt to save first - because if it fails, we don't
     //    want to adjust anything else
-    try {
-      // populate the topic folders; important in case we changed anything in topics
-      this.populateTopics();
+    // populate the topic folders; important in case we changed anything in topics
+    this.populateTopics();
 
-      // now save the setting - this will put clone back where it should be
-      await super.save();
-    } catch (error) {
-      throw error;
-    }
+    // now save the setting - this will put clone back where it should be
+    await super._doSave();
 
     // settings have long lived-cache... we need to refresh that in case we modified 
     //    something that was a copy

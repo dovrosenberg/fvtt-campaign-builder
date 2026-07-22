@@ -185,14 +185,13 @@ export class Front extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Front> {
 
   // used to set arbitrary properties on the entryDoc
   /**
-   * Updates a front in the database
-   * 
-   * @returns A promise that resolves after the update
+   * The actual full-document save; runs inside the base class's _enqueueSave() chain, so it
+   * calls super._doSave() (not super.save(), which would re-enqueue and deadlock).
    */
-  public async save(): Promise<void> {
-    // we attempt to save first - because if it fails, we don't 
+  protected override async _doSave(): Promise<void> {
+    // we attempt to save first - because if it fails, we don't
     //    want to adjust anything else
-    await super.save();
+    await super._doSave();
 
     // Update the search index (rely on retval being null if no changes were made)
     try {

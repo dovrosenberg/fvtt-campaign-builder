@@ -502,14 +502,13 @@ export class Arc extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Arc> {
 
   // used to set arbitrary properties on the entryDoc
   /**
-   * Updates an arc in the database
-   * 
-   * @returns A promise that resolves after the update
+   * The actual full-document save; runs inside the base class's _enqueueSave() chain, so it
+   * calls super._doSave() (not super.save(), which would re-enqueue and deadlock).
    */
-  public async save(): Promise<void> {
+  protected override async _doSave(): Promise<void> {
     // we attempt to save first - because if it fails, we don't
     //    want to adjust anything else
-    await super.save();
+    await super._doSave();
 
     // Update campaign indices (doesn't save)
     const campaign = await this.loadCampaign();
