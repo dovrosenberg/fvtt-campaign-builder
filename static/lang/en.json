@@ -58,6 +58,9 @@
       "advanced": "Advanced Settings",
       "advancedLabel": "Open Advanced Settings",
       "advancedHelp": "Configure advanced settings (including AI)",
+      "repairIndexes": "Repair Document Indexes",
+      "repairIndexesLabel": "Repair Indexes",
+      "repairIndexesHelp": "Last-resort recovery tool that rebuilds the directory indexes from the actual documents. Generally only use it at the direction of the module creator after submitting a bug report.",
       "speciesList": "Manage Species List",
       "speciesListLabel": "Species List",
       "speciesListHelp": "Define the species to make available.  These cross all Settings - file an issue if you have need different lists per Setting.",
@@ -737,7 +740,7 @@
         "minimumVersionRequired": "Campaign Builder cannot migrate from version {0}. You must first upgrade to version {1} or higher before upgrading to {2}.",
         "cannotOpen": "Campaign Builder cannot be opened because migration failed. Please check the console for details and resolve the migration issue."
       },
-      "documentIndexesRepaired": "All document indexes have been successfully repaired!",
+      "documentIndexesRepaired": "All document indexes have been successfully repaired! Refresh your browser to see the changes.",
       "voiceRecording": {
         "saved": "Voice recording saved",
         "deleted": "Voice recording removed",
@@ -1024,6 +1027,10 @@
       "deleteGroup": {
         "title": "Delete group?",
         "message": "Are you sure you want to delete this group? All items will be put in 'Ungrouped'"
+      },
+      "repairIndexes": {
+        "title": "Repair document indexes?",
+        "message": "This is a last-resort recovery tool - generally you should only run it at the direction of the module creator after submitting a bug report. Are you sure you want to continue?"
       },
       "deleteSetting": {
         "title": "Delete setting?",

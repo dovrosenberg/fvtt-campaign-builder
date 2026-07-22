@@ -318,11 +318,10 @@ export const settingDirectoryStore = () => {
       currentSetting.value.expandedIds[parentId] = true;
     }
 
-    // Save all hierarchy and expandedIds changes in one batch
+    // Save all hierarchy, topNodes, and expandedIds changes in one batch;
+    // topicFolder writes into the same setting instance, so a separate
+    // topicFolder.save() would just be a redundant duplicate write
     await currentSetting.value.save();
-    
-    // Save topicFolder separately
-    await topicFolder.save();
 
     // force current entry to refresh if needed
     const needCurrentRefresh = [childId, parentId].includes(currentEntry.value?.uuid || null);
@@ -360,18 +359,11 @@ export const settingDirectoryStore = () => {
         } as Hierarchy
       );
 
-      // set parent if specified
-      if (options.parentId==undefined) {
-        // no parent - set as a top node
-        const topNodes = topicFolder.topNodes;
-        topicFolder.topNodes = topNodes.concat([uuid]);
-        await topicFolder.save();
-      } else {
-        // add to the tree
-        if (hasHierarchy(topicFolder.topic)) {
-          // this creates the proper hierarchy
-          await setNodeParent(topicFolder, uuid, options.parentId);
-        }
+      // set parent if specified; Entry.create() already added the entry to topNodes
+      //    when there is no parent, so pushing here again would duplicate it
+      if (options.parentId != undefined && hasHierarchy(topicFolder.topic)) {
+        // this creates the proper hierarchy
+        await setNodeParent(topicFolder, uuid, options.parentId);
       }
 
       if (options.parentId) {

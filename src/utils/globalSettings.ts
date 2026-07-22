@@ -44,8 +44,30 @@ const GlobalSettingService = {
     return setting;
   },
 
+  /**
+   * Synchronously returns the cached setting instance, if any.
+   * Used by consumers that need the live shared instance without an asynchronous call 
+   * and that know it already exists (e.g. the directory tree resolving the current setting on every expand/collapse).
+   * @param settingId - uuid of the setting's JournalEntry
+   * @returns the cached setting or null if not cached
+   */
+  getCachedSetting: (settingId: string): FCBSetting | null => {
+    return globalSettings[settingId] || null;
+  },
+
   updateGlobalSetting: (setting: FCBSetting) => {
     globalSettings[setting.uuid] = setting;
+  },
+
+  /**
+   * Evicts a cached setting and reloads it from the database in one step, so callers
+   * cannot forget the eviction and end up with two live instances of the same setting.
+   * @param settingId - uuid of the setting's JournalEntry
+   * @returns the freshly loaded setting, or null if it no longer exists
+   */
+  reloadGlobalSetting: async (settingId: string): Promise<FCBSetting | null> => {
+    delete globalSettings[settingId];
+    return GlobalSettingService.getGlobalSetting(settingId);
   },
 
   removeGlobalSetting: (settingId: string) => {

@@ -331,6 +331,9 @@ async function repairCampaignIndexes(
   return newArcIndex;
 }
 
+// exported so the Advanced Settings repair button can invoke it directly
+export { repairAllIndexes };
+
 // Make the function globally available for users to run from console
 if (typeof window !== 'undefined') {
   (window as any).repairAllIndexes = repairAllIndexes;
