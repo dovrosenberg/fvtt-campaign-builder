@@ -314,8 +314,25 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     this._expandedIdsSaveTimer = setTimeout(() => {
       this._expandedIdsSaveTimer = null;
       // fire-and-forget; the next caller that needs guaranteed persistence should use flushExpandedIdsSave
-      void this.save();
+      void this._saveExpandedIds();
     }, delayMs);
+  }
+
+  /**
+   * Persists ONLY system.expandedIds. Expand/collapse is pure UI state and must never
+   * round-trip the whole system blob (campaignIndex, topics, hierarchies) through this
+   * instance's clone — a stale clone doing so rolls back newer writes (issue #804).
+   */
+  private async _saveExpandedIds(): Promise<void> {
+    await this._enqueueSave(async () => {
+      // uuid keys contain dots; convert to #&# exactly like _prepData does on full saves
+      const cleaned = CleanKeysService.cleanKeysOnSave(this.expandedIds);
+
+      // the '==' prefix forces wholesale replacement of expandedIds during the recursive merge,
+      // so collapsed (deleted) keys are removed without a whole-system recursive:false write
+      // @ts-ignore - the flattened '==' replacement key isn't representable in the typed update data
+      await toRaw(this._doc)?.update({ 'system.==expandedIds': cleaned }, { render: false });
+    });
   }
 
   /**
@@ -331,7 +348,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
     clearTimeout(this._expandedIdsSaveTimer);
     this._expandedIdsSaveTimer = null;
-    await this.save();
+    await this._saveExpandedIds();
   }
 
   /**
