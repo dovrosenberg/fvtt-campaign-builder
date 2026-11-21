@@ -23,7 +23,7 @@ See the [user documentation](https://dovrosenberg.github.io/fvtt-campaign-builde
 
 ## A note on AI
 
-**The module is *fully functional and useful without any use of AI*, and all of the AI features/functions are disabled by default.  It was, however, developed with substantial assistance from AI coding tools.  It is fully compliant with Foundry's AI Policy (https://foundryvtt.com/article/ai-policy/) for official store listings.**
+**The module is *fully functional and useful without any use of AI*, and all of the AI features/functions are disabled by default.  It was (particularly in later versions), however, developed with substantial assistance from AI coding tools (particularly around testing and debugging.  I review all AI-written code before adding it to the module.  It is fully compliant with Foundry's AI Policy (https://foundryvtt.com/article/ai-policy/) for official store listings.**
 
 ### Content and "Advanced Features"
 You'll see lots of references to AI capabilities in the [documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/) and feature lists.  There is no AI-generated content (or any other content) provided by the module (other than foreign language translations of UI elements, which are then reviewed by humans). It merely has the capability to use AI to generate various things if you desire.  
