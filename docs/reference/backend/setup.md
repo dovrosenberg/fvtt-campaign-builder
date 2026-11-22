@@ -87,6 +87,8 @@ You generally only need to do this once, but you will need to update the file (s
     curl -sSL https://github.com/dovrosenberg/fvtt-fcb-backend/releases/latest/download/env.template -o .env
     ```
 
+    (note: in Windows Powershell you need to use `curl.exe` explicitly instead of `curl`)  
+
 2. Edit the newly created .env file (in your favorite editor) to put in the needed settings (explained in detail in the comments in the .env file).
       
 ## Deploy the backend {#deploy}
@@ -114,7 +116,7 @@ You can safely ignore this.
   - Open PowerShell as Administrator
   - Run the following command:
     ```powershell
-    curl -sSL https://github.com/dovrosenberg/fvtt-fcb-backend/releases/latest/download/deploy-gcp.ps1 | powershell
+    curl.exe -sSL https://github.com/dovrosenberg/fvtt-fcb-backend/releases/latest/download/deploy-gcp.ps1 | powershell
     ```
     ```powershell
     Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
