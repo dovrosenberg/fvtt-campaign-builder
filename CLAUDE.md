@@ -72,6 +72,20 @@ Detailed conventions live in AGENTS.md files — follow them when editing in tho
 - `npm test` runs headless Chrome tests. Serial execution (single worker).
 - Requires a running Foundry instance with `CampaignBuilderTest` world and module installed.
 
+## Release and local install
+
+This module ships as a Foundry VTT module bundle, not a deployed service. There is no server to
+deploy and no hosting environment.
+
+- **Local install** — `npm run linkdata` symlinks `dist/` into `~/foundry14data/Data/modules/campaign-builder`.
+  `npm run unlinkdata` removes it. Run `npm run debug` and reload Foundry to pick up changes.
+- **Release** — publishing a GitHub Release triggers `.github/workflows/release.yml`, which reads the
+  version from `package.json`, rewrites the version and download link in `static/module.json`, and
+  attaches the built bundle to the release. Foundry installs from that `module.json` URL.
+- **Version bump** — the release name must be `v<package.json version>`; `release.yml` emits a warning
+  when they disagree rather than failing, so check the workflow output after publishing.
+- **Docs** — `.github/workflows/deploy-docs.yml` publishes the VitePress site under `docs/`.
+
 ## Pitfalls
 
 - Foundry hooks like `updateJournalEntryPage` combined with `refreshContentAcrossPanels()` can trigger watcher loops by producing new computed-ref object identities on every save. Guard watchers to fire only on meaningful changes (e.g., different UUID), and use explicit regeneration methods inside modification paths rather than relying on watchers.
