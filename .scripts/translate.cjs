@@ -146,16 +146,14 @@ function syncStructure(source, target) {
 
 function getLanguageName(langCode) {
   const languages = {
-    fr: 'French',
     de: 'German',
-    ru: 'Russian',
   };
   
   return languages[langCode] || langCode;
 }
 
 // Define target languages to translate to - also need to add to getLanguageName above and to module.json
-const TARGET_LANGUAGES = ['fr', 'de', 'ru']; 
+const TARGET_LANGUAGES = ['de']; 
 
 // Function to translate to multiple languages at once
 async function translateToMultipleLanguages(sourceFile, languages) {
