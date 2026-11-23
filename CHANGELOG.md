@@ -7,11 +7,11 @@
 **Discord**: Join the [Discord Server](https://discord.gg/zKWCkwbnn3) for discussion, questions, or requests
 
 # Change Log
-## 1.10.7 - Removed French and Russian translations
-![](https://img.shields.io/badge/release%20date-November%2022%2C%202026-blue)
+## 1.10.7 - Removed French translation
+![](https://img.shields.io/badge/release%20date-November%2023%2C%202026-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.10.7/module.zip)
 
-- Removed French and Russian translations (sorry).  Per the Foundry AI policy, AI-generated content (like those translations) is not permitted in modules in the marketplace.  If anyone would like to bring these back and is wiling to help by manually confirming the translations are correct, I'd love to bring them back in.  Just reach out by filing an issue or via the [Discord server](https://discord.gg/zKWCkwbnn3).
+- Removed French translation (sorry).  Per the Foundry AI policy, AI-generated content (like those translations) is not permitted in modules in the marketplace.  If anyone would like to bring it back and is wiling to help by manually confirming the translations are correct, I'd love to bring them back in.  Just reach out by filing an issue or via the [Discord server](https://discord.gg/zKWCkwbnn3).
 
 ## 1.10.6 - Fix for missing directory entries
 ![](https://img.shields.io/badge/release%20date-July%2022%2C%202026-blue)
