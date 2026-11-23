@@ -19,13 +19,15 @@ I seriously doubt this would have been possible without the [FVTT-Types project]
 
 ## Translators
 
-Most translations currently provided by AI.   Let me know if you'd like me to a) add a language or b) want to manually submit an improved translation for anything.
+Always welcome to take help with translation into other languages. Let me know if you'd like me to add a language.
 
-That said, AI isn't perfect. So, special thanks to the following individuals who have helped to improve/correct translated text.  If you're using the module easily in one of these languages, it's thanks to them.
+While initial translations are done by AI, special thanks to the following individuals who have helped to confirm/improve/correct translated text.  If you're using the module easily in one of these languages, it's thanks to them.
 
 ## Translators
 
 | Language                  | Translator(s)                               |
 |---------------------------|---------------------------------------------|
-| Russian (ru)              | Vlada                                       |
+| German (de)               | JezhikLaas                                       | 
+| Russian (ru)              | Vlada                                       | 
+
 
